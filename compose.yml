@@ -1,0 +1,40 @@
+services:
+  app:
+    image: mcr.microsoft.com/devcontainers/javascript-node:22
+    env_file:
+      - .env
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    volumes:
+      - .:/workspace:cached
+      - node_modules:/workspace/node_modules
+    working_dir: /workspace
+    ports:
+      - "3000:3000"
+    command: sleep infinity
+
+  mongodb:
+    image: mongo:8
+    restart: unless-stopped
+    env_file:
+      - .env.mongo
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "--eval",
+          "db.adminCommand('ping').ok"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+volumes:
+  mongo-data:
+  node_modules:

@@ -1,0 +1,35 @@
+{
+    "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+    "dockerComposeFile": "../compose.yml",
+    "workspaceFolder": "/workspace",
+    "service": "app",
+    "postCreateCommand": "npm install",
+    "forwardPorts": [3000, 27017], // Forwarding ports for the application and MongoDB ,
+    "remoteUser": "node",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "dbaeumer.vscode-eslint",
+                "esbenp.prettier-vscode",
+                "ms-vscode.vscode-typescript-next"
+                
+            ]
+        }
+    },
+      "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "nodeo",
+      "installZsh": true,
+      "configureZshAsDefaultShell": true
+    },
+
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {
+      "version": "latest",
+      "dockerDashComposeVersion": "v2",
+      "installDockerBuildx": true,
+      "moby": false
+    },
+
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  }
+}
