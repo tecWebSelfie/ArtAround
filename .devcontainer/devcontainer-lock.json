@@ -1,5 +1,10 @@
 {
   "features": {
+    "ghcr.io/actcoding/devcontainer-features/git-delta:1": {
+      "version": "1.0.1",
+      "resolved": "ghcr.io/actcoding/devcontainer-features/git-delta@sha256:5dec0e251c5b677520c15df6efb465580f352b3876d45e0deb3549b7cdb66e50",
+      "integrity": "sha256:5dec0e251c5b677520c15df6efb465580f352b3876d45e0deb3549b7cdb66e50"
+    },
     "ghcr.io/devcontainers/features/common-utils:2": {
       "version": "2.5.9",
       "resolved": "ghcr.io/devcontainers/features/common-utils@sha256:cb0c4d3c276f157eed17935747e364178d75fee17f55c4e129966f64633deb3a",

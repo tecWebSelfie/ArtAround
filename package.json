@@ -15,9 +15,12 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=\"--no-deprecation --import=tsx/esm\" playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts"
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@payloadcms/db-mongodb": "3.86.0",
     "@payloadcms/next": "3.86.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/ui": "3.86.0",
@@ -28,22 +31,34 @@
     "payload": "3.86.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
-    "sharp": "0.34.2",
-    "@payloadcms/db-mongodb": "3.86.0"
+    "sharp": "0.34.2"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^5.2.1",
     "@playwright/test": "1.58.2",
+    "@storybook/addon-a11y": "^10.5.3",
+    "@storybook/addon-docs": "^10.5.3",
+    "@storybook/addon-mcp": "^0.7.0",
+    "@storybook/addon-vitest": "^10.5.3",
+    "@storybook/nextjs-vite": "^10.5.3",
     "@testing-library/react": "16.3.0",
     "@types/node": "22.19.9",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "4.5.2",
+    "@vitest/browser-playwright": "4.0.18",
+    "@vitest/coverage-v8": "4.0.18",
     "eslint": "^9.16.0",
     "eslint-config-next": "16.2.6",
+    "eslint-plugin-storybook": "^10.5.3",
     "jsdom": "28.0.0",
+    "loki": "^0.35.1",
+    "playwright": "^1.61.1",
     "prettier": "^3.4.2",
+    "storybook": "^10.5.3",
     "tsx": "4.22.4",
     "typescript": "5.7.3",
+    "vite": "^8.1.5",
     "vite-tsconfig-paths": "6.0.5",
     "vitest": "4.0.18"
   },
@@ -57,5 +72,21 @@
       "esbuild",
       "unrs-resolver"
     ]
+  },
+  "loki": {
+    "diffingEngine": "gm",
+    "configurations": {
+      "chrome.laptop": {
+        "target": "chrome.docker",
+        "width": 1366,
+        "height": 768,
+        "deviceScaleFactor": 1,
+        "mobile": false
+      },
+      "chrome.iphone7": {
+        "target": "chrome.docker",
+        "preset": "iPhone 7"
+      }
+    }
   }
 }

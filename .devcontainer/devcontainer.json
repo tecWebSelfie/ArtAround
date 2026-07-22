@@ -1,24 +1,24 @@
 {
-    "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
-    "dockerComposeFile": "../compose.yml",
-    "workspaceFolder": "/workspace",
-    "service": "app",
-    "postCreateCommand": "npm install",
-    "forwardPorts": [3000, 27017], // Forwarding ports for the application and MongoDB ,
-    "remoteUser": "node",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "dbaeumer.vscode-eslint",
-                "esbenp.prettier-vscode",
-                "ms-vscode.vscode-typescript-next"
-                
-            ]
-        }
-    },
-      "features": {
+  "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
+  "dockerComposeFile": "../compose.yml",
+  "workspaceFolder": "/workspace",
+  "service": "app",
+  "postCreateCommand": "sudo chown -R node:node /workspace/node_modules && npm install",
+  "forwardPorts": [3000, 27017], // Forwarding ports for the application and MongoDB ,
+  "remoteUser": "node",
+  "containerUser": "node",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-vscode.vscode-typescript-next"
+      ]
+    }
+  },
+  "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
-      "username": "nodeo",
+      "username": "node",
       "installZsh": true,
       "configureZshAsDefaultShell": true
     },
@@ -30,6 +30,7 @@
       "moby": false
     },
 
-    "ghcr.io/devcontainers/features/github-cli:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/actcoding/devcontainer-features/git-delta:1": {}
   }
 }

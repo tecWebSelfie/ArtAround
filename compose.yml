@@ -1,6 +1,8 @@
 services:
   app:
-    image: mcr.microsoft.com/devcontainers/javascript-node:22
+    build:
+      context: .
+      dockerfile: Dockerfile.devcontainer
     env_file:
       - .env
     depends_on:

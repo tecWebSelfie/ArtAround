@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/devcontainers/javascript-node:22
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends graphicsmagick \
+    && rm -rf /var/lib/apt/lists/* \
+    && printf "\n# Let GraphicsMagick use the gm command\nunalias gm 2>/dev/null || true\n" \
+       >> /home/node/.zshrc \
+    && chown node:node /home/node/.zshrc
+USER node
