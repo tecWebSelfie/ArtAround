@@ -4,6 +4,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import { stripePlugin } from '@payloadcms/plugin-stripe'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -28,5 +29,9 @@ export default buildConfig({
     url: process.env.DATABASE_URL || '',
   }),
   sharp,
-  plugins: [],
+  plugins: [
+    stripePlugin({
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
+    }),
+  ],
 })

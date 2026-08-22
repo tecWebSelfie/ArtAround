@@ -37,6 +37,7 @@
     "@mantine/tiptap": "^9.5.1",
     "@payloadcms/db-mongodb": "3.86.0",
     "@payloadcms/next": "3.86.0",
+    "@payloadcms/plugin-stripe": "^3.88.0",
     "@payloadcms/richtext-lexical": "3.86.0",
     "@payloadcms/ui": "3.86.0",
     "@react-three/fiber": "^9.7.0",
