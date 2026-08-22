@@ -20,6 +20,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@adobe/leonardo-contrast-colors": "^1.1.0",
     "@mantine/carousel": "^9.5.1",
     "@mantine/core": "^9.5.1",
     "@mantine/dates": "^9.5.1",
