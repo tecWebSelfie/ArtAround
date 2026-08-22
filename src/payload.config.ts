@@ -8,6 +8,7 @@ import sharp from 'sharp'
 // Payload Plugins
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
+import { mcpPlugin } from '@payloadcms/plugin-mcp'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -38,6 +39,12 @@ export default buildConfig({
     }),
     formBuilderPlugin({
       // see below for a list of available options
+    }),
+    mcpPlugin({
+      // see below for a list of available options
+    }),
+    redirectsPlugin({
+      collections: ['pages'],
     }),
   ],
 })
