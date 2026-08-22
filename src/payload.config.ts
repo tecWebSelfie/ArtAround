@@ -4,7 +4,10 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+
+// Payload Plugins
 import { stripePlugin } from '@payloadcms/plugin-stripe'
+import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -32,6 +35,9 @@ export default buildConfig({
   plugins: [
     stripePlugin({
       stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
+    }),
+    formBuilderPlugin({
+      // see below for a list of available options
     }),
   ],
 })
