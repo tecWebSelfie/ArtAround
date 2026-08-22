@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
+import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
