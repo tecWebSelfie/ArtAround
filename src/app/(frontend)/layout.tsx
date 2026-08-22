@@ -7,9 +7,16 @@ import '@mantine/core/styles.css'
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core'
 import { theme } from '@/theme'
 
+import { IntlProvider } from 'react-intl'
+
 export const metadata: Metadata = {
   description: 'A blank template using Payload in a Next.js app.',
   title: 'Payload Blank Template',
+}
+
+//formatJS italian messages
+const messagesInItalian = {
+  // Add your Italian translations here following https://formatjs.github.io/docs/core-concepts/icu-syntax
 }
 
 export default async function RootLayout(props: { children: React.ReactNode }) {
@@ -21,7 +28,9 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <MantineProvider theme={theme}>{children}</MantineProvider>
+        <IntlProvider messages={messagesInItalian} locale="it" defaultLocale="it">
+          <MantineProvider theme={theme}>{children}</MantineProvider>
+        </IntlProvider>
       </body>
     </html>
   )
