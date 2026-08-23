@@ -11,6 +11,7 @@ import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import { importExportPlugin } from '@payloadcms/plugin-import-export'
 
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -54,5 +55,16 @@ export default buildConfig({
       generateLabel: (_, doc) => String(doc.title),
       generateURL: (docs) => docs.reduce((url, doc) => `${url}/${String(doc.slug)}`, ''),
     }),
+    importExportPlugin({
+      collections: [{ slug: 'users' }, { slug: 'pages' }],
+    }),
   ],
+  jobs: {
+    autoRun: [
+      {
+        cron: '*/5 * * * *', // Check every 5 minutes
+        queue: 'default',
+      },
+    ],
+  },
 })
