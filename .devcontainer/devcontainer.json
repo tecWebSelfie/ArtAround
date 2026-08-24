@@ -4,7 +4,7 @@
   "workspaceFolder": "/workspace",
   "service": "app",
   "postCreateCommand": "sudo chown -R node:node /workspace/node_modules && npm install",
-  "forwardPorts": [3000, 27017], // Forwarding ports for the application and MongoDB ,
+  "forwardPorts": [3000, 27017, 4000], // Forwarding ports for the application and MongoDB ,
   "remoteUser": "node",
   "containerUser": "node",
   "customizations": {
