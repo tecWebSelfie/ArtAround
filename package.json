@@ -19,7 +19,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "extract": "formatjs extract",
-    "compile": "formatjs compile"
+    "compile": "formatjs compile",
+    "react-doctor": "npx react-doctor@latest"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
