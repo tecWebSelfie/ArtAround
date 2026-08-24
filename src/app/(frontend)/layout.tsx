@@ -9,6 +9,8 @@ import { theme } from '@/theme'
 
 import { IntlProvider } from 'react-intl'
 
+import MswProvider from '@/mocks/MswProvider'
+
 export const metadata: Metadata = {
   description: 'A blank template using Payload in a Next.js app.',
   title: 'Payload Blank Template',
@@ -28,9 +30,11 @@ export default async function RootLayout(props: { children: React.ReactNode }) {
         <ColorSchemeScript />
       </head>
       <body>
-        <IntlProvider messages={messagesInItalian} locale="it" defaultLocale="it">
-          <MantineProvider theme={theme}>{children}</MantineProvider>
-        </IntlProvider>
+        <MswProvider>
+          <IntlProvider messages={messagesInItalian} locale="it" defaultLocale="it">
+            <MantineProvider theme={theme}>{children}</MantineProvider>
+          </IntlProvider>
+        </MswProvider>
       </body>
     </html>
   )

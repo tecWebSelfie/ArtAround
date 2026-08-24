@@ -9,10 +9,11 @@ import type { MyStory } from '../src/types/storybook'
 
 const preview: Preview = {
   parameters: {
+    // msw: [ //Default handlers for all stories, can be overridden in individual stories ],
     layout: 'fullscreen',
     options: {
       showPanel: false,
-      storySort: (a: MyStory, b: MyStory) => {
+      storySort: (a, b) => {
         a.title.localeCompare(b.title, undefined, { numeric: true })
       },
     },

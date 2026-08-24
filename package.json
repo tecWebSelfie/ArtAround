@@ -96,6 +96,8 @@
     "knip": "^6.32.2",
     "lint-staged": "^17.3.0",
     "loki": "^0.35.1",
+    "msw": "^2.15.0",
+    "msw-storybook-addon": "^3.0.0",
     "playwright": "^1.61.1",
     "postcss": "^8.5.26",
     "postcss-preset-mantine": "^1.18.0",
@@ -142,6 +144,11 @@
     ],
     "*.{json,md,mdx,css,scss}": [
       "prettier --write"
+    ]
+  },
+  "msw": {
+    "workerDirectory": [
+      "public"
     ]
   }
 }
