@@ -1,4 +1,5 @@
-import { Agent, dedent, inference } from '@livekit/agents';
+import { Agent, dedent, llm } from '@livekit/agents';
+import { GPTOSS as GPT4Oss120b, MuseSpark1_3 } from './models/llm';
 
 // Build a custom voice AI assistant with the functional `Agent.create` API
 export function createAgent() {
@@ -39,7 +40,7 @@ export function createAgent() {
 
     // A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
     // See all available models at https://docs.livekit.io/agents/models/llm/
-    llm: new inference.LLM({ model: 'google/gemma-4-31b-it' }),
+    llm: new llm.FallbackAdapter({ llms: [MuseSpark1_3, GPT4Oss120b] }),
 
     // To use a realtime model instead of a voice pipeline, replace the LLM
     // with a RealtimeModel and remove the STT/TTS from the AgentSession

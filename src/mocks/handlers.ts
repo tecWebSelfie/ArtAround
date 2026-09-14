@@ -9,4 +9,13 @@ export const handlers = [
       lastName: 'Maverick',
     })
   }),
+  http.post('/api/livekit/token', () => {
+    return HttpResponse.json({
+      token: 'mock-token',
+      url: 'ws://localhost:7880',
+      room: 'voice-guest-mock',
+      identity: 'guest-mock',
+      guest: true,
+    })
+  }),
 ]
