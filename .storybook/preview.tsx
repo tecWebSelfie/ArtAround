@@ -1,11 +1,9 @@
-import type { Preview, StoryObj } from '@storybook/nextjs-vite'
+import type { Preview } from '@storybook/nextjs-vite'
 
 import '@mantine/core/styles.css'
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { theme } from '../src/theme'
-
-import type { MyStory } from '../src/types/storybook'
 
 const preview: Preview = {
   parameters: {

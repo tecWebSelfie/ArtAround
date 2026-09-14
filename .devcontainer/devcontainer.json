@@ -12,7 +12,8 @@
       "extensions": [
         "dbaeumer.vscode-eslint",
         "esbenp.prettier-vscode",
-        "ms-vscode.vscode-typescript-next"
+        "ms-vscode.vscode-typescript-next",
+        "hverlin.mise-vscode"
       ]
     }
   },
@@ -30,7 +31,8 @@
       "moby": false
     },
 
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/actcoding/devcontainer-features/git-delta:1": {}
+    "ghcr.io/devcontainers/features/github-cli:1.1.2": {},
+    "ghcr.io/actcoding/devcontainer-features/git-delta:1": {},
+    "ghcr.io/devcontainers-extra/features/mise:1": {}
   }
 }
