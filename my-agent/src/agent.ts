@@ -1,8 +1,13 @@
 import { Agent, dedent, llm } from '@livekit/agents';
-import { GPTOSS as GPT4Oss120b, MuseSpark1_3 } from './models/llm';
+import { createGPTOSS, createMuseSpark1_3 } from './models/llm.ts';
 
 // Build a custom voice AI assistant with the functional `Agent.create` API
 export function createAgent() {
+  // Factories run here (after dotenv) so .env.local keys are visible.
+  // Fail-fast: a missing/empty key throws the plugin's own error and aborts
+  // startup — no degraded sessions with silently skipped providers.
+  const llms = [createMuseSpark1_3(), createGPTOSS()];
+
   return Agent.create({
     instructions: dedent`
         You are a friendly, reliable voice assistant that answers questions, explains topics, and completes tasks with available tools.
@@ -40,7 +45,7 @@ export function createAgent() {
 
     // A Large Language Model (LLM) is your agent's brain, processing user input and generating a response
     // See all available models at https://docs.livekit.io/agents/models/llm/
-    llm: new llm.FallbackAdapter({ llms: [MuseSpark1_3, GPT4Oss120b] }),
+    llm: new llm.FallbackAdapter({ llms }),
 
     // To use a realtime model instead of a voice pipeline, replace the LLM
     // with a RealtimeModel and remove the STT/TTS from the AgentSession

@@ -1,5 +1,9 @@
 allowBuilds:
   '@livekit/local-inference': true
-  onnxruntime-node: set this to true or false
+  onnxruntime-node: true
   protobufjs: true
   sharp: true
+
+overrides:
+  onnxruntime-node: 1.23.2
+  onnxruntime-common: 1.23.2

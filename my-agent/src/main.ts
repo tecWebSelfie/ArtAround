@@ -4,8 +4,8 @@ import { audioEnhancement } from '@livekit/plugins-ai-coustics';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'node:url';
 import { createAgent } from './agent.ts';
-import { Universal_3_5Pro, WhisperLargeV3Turbo } from './models/stt.ts';
-import { FishAudio2_1Pro } from './models/tts.ts';
+import { createUniversal_3_5Pro, createWhisperLargeV3Turbo } from './models/stt.ts';
+import { createFishAudio2_1ProFree } from './models/tts.ts';
 
 // Load environment variables from a local file.
 // Make sure to set LIVEKIT_URL, LIVEKIT_API_KEY, and LIVEKIT_API_SECRET
@@ -24,19 +24,29 @@ export default defineAgent({
     });
   },
   entry: async (ctx) => {
+    // Factories are instantiated here (after dotenv.config above) so
+    // .env.local keys (GROQ_API_KEY, ASSEMBLYAI_API_KEY, FISH_API_KEY, ...) are visible.
+    // Fail-fast: a missing/empty key throws the plugin's own error and aborts
+    // startup — no degraded sessions with silently skipped providers.
+    // Order is cost intent: Groq Whisper primary (permanent free tier, no card),
+    // AssemblyAI fallback ($50 finite credits, billed per WebSocket-open time).
+    const sttInstances = [createWhisperLargeV3Turbo(), createUniversal_3_5Pro()];
+
+    const ttsInstances = [createFishAudio2_1ProFree()];
+
     // Set up a voice AI pipeline using AssemblyAI, Fish Audio, and the LiveKit turn detector
     const session = new voice.AgentSession({
       // Speech-to-text (STT) is your agent's ears, turning the user's speech into text that the LLM can understand
       // See all available models at https://docs.livekit.io/agents/models/stt/
       stt: new stt.FallbackAdapter({
-        sttInstances: [WhisperLargeV3Turbo, Universal_3_5Pro],
+        sttInstances,
         vad: ctx.proc.userData.vad! as silero.VAD,
       }),
 
       // Text-to-speech (TTS) is your agent's voice, turning the LLM's text into speech that the user can hear
       // See all available models as well as voice selections at https://docs.livekit.io/agents/models/tts/
       tts: new tts.FallbackAdapter({
-        ttsInstances: [FishAudio2_1Pro],
+        ttsInstances,
       }),
 
       turnHandling: {
