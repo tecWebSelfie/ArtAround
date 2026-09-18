@@ -4,6 +4,10 @@ allowBuilds:
   protobufjs: true
   sharp: true
 
+onlyBuiltDependencies:
+  - '@livekit/local-inference'
+  - onnxruntime-node
+
 overrides:
-  onnxruntime-node: 1.23.2
   onnxruntime-common: 1.23.2
+  onnxruntime-node: 1.23.2

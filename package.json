@@ -22,8 +22,10 @@
     "compile": "formatjs compile",
     "react-doctor": "npx react-doctor@latest",
     "knip": "knip",
-    "agent:dev" : "docker compose up -d && lk agent dev ./my-agent/src/main.ts --dev",
-    "agent:console" : "docker compose up -d && lk agent console ./my-agent/src/main.ts --dev"
+    "agent:dev" : "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
+    "agent:console" : "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
+    "agent:create" : "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
+    "agent:deploy" : "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
