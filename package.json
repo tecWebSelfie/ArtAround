@@ -21,7 +21,9 @@
     "extract": "formatjs extract",
     "compile": "formatjs compile",
     "react-doctor": "npx react-doctor@latest",
-    "knip": "knip"
+    "knip": "knip",
+    "agent:dev" : "docker compose up -d && lk agent dev ./my-agent/src/main.ts --dev",
+    "agent:console" : "docker compose up -d && lk agent console ./my-agent/src/main.ts --dev"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",

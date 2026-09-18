@@ -1,3 +1,5 @@
 [tools]
+docker-compose = "latest"
+"github:livekit/livekit-cli" = "latest"
 node = "22.12.0"
 pnpm = "10"

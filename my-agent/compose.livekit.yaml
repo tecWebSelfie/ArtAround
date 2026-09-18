@@ -1,0 +1,35 @@
+x-env-config: &env-local
+  env_file:
+    - .env.local
+
+services:  
+  livekit:
+    image: livekit/livekit-server
+    <<: *env-local
+    command: --dev --bind 0.0.0.0
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:7880 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+  livekit-dashboard:
+    <<: *env-local
+    image: jossephus/livekit-monitor:latest
+    depends_on:
+      livekit:
+        condition: service_healthy
+    ports:
+      - "3001:3000"
+    volumes:
+      - "livekit-monitor-data:/data"
+    environment:
+      LIVEKIT_URL: "http://host.docker.internal:7880"
+      PORT: "3000"
+
+volumes:
+  livekit-monitor-data:

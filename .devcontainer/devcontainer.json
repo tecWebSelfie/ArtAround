@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/devcontainers/spec/main/schemas/devContainer.schema.json",
-  "dockerComposeFile": "../compose.yml",
+  "dockerComposeFile": ["../docker-compose.yml", "./docker-compose.devcontainer.yaml"],
   "workspaceFolder": "/workspace",
   "service": "app",
   "postCreateCommand": "sudo chown -R node:node /workspace/node_modules && npm install",
