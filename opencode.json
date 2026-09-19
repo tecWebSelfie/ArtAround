@@ -9,6 +9,14 @@
     "livekit-docs-mcp": {
       "type": "remote",
       "url": "https://docs.livekit.io/mcp"
+    },
+    "mantine-ui": {
+      "type": "local",
+      "command": [
+        "npx",
+        "-y",
+        "@mantine/mcp-server"
+      ]
     }
   }
 }
