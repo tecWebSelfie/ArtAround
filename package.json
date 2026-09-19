@@ -22,10 +22,10 @@
     "compile": "formatjs compile",
     "react-doctor": "npx react-doctor@latest",
     "knip": "knip",
-    "agent:dev" : "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
-    "agent:console" : "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
-    "agent:create" : "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
-    "agent:deploy" : "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local"
+    "agent:dev": "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
+    "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
+    "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
+    "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
@@ -43,16 +43,16 @@
     "@mantine/notifications": "^9.5.1",
     "@mantine/nprogress": "^9.5.1",
     "@mantine/tiptap": "^9.5.1",
-    "@payloadcms/db-mongodb": "^3.88.0",
-    "@payloadcms/next": "3.86.0",
-    "@payloadcms/plugin-form-builder": "^3.88.0",
-    "@payloadcms/plugin-import-export": "^3.88.0",
-    "@payloadcms/plugin-mcp": "^3.88.0",
-    "@payloadcms/plugin-nested-docs": "^3.88.0",
-    "@payloadcms/plugin-redirects": "^3.88.0",
-    "@payloadcms/plugin-stripe": "^3.88.0",
-    "@payloadcms/richtext-lexical": "^3.88.0",
-    "@payloadcms/ui": "3.86.0",
+    "@payloadcms/db-mongodb": "3.89.0",
+    "@payloadcms/next": "3.89.0",
+    "@payloadcms/plugin-form-builder": "3.89.0",
+    "@payloadcms/plugin-import-export": "3.89.0",
+    "@payloadcms/plugin-mcp": "3.89.0",
+    "@payloadcms/plugin-nested-docs": "3.89.0",
+    "@payloadcms/plugin-redirects": "3.89.0",
+    "@payloadcms/plugin-stripe": "3.89.0",
+    "@payloadcms/richtext-lexical": "3.89.0",
+    "@payloadcms/ui": "3.89.0",
     "@react-three/fiber": "^9.7.0",
     "@sentry/nextjs": "^10.70.0",
     "@tiptap/extension-link": "^3.30.2",
@@ -70,8 +70,8 @@
     "livekit-client": "2.22.0",
     "livekit-server-sdk": "2.19.0",
     "navcat": "^0.4.1",
-    "next": "16.2.6",
-    "payload": "^3.88.0",
+    "next": "16.3.3",
+    "payload": "3.89.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-intl": "^10.1.22",
@@ -93,11 +93,11 @@
     "@types/node": "^22.19.9",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "4.5.2",
+    "@vitejs/plugin-react": "6.1.1",
     "@vitest/browser-playwright": "4.0.18",
     "@vitest/coverage-v8": "4.0.18",
     "eslint": "^9.16.0",
-    "eslint-config-next": "16.2.6",
+    "eslint-config-next": "16.3.3",
     "eslint-plugin-storybook": "^10.5.3",
     "husky": "^9.1.7",
     "jsdom": "28.0.0",
@@ -118,6 +118,7 @@
     "vite-tsconfig-paths": "6.0.5",
     "vitest": "4.0.18"
   },
+  "packageManager": "pnpm@10.34.5",
   "engines": {
     "node": "^18.20.2 || >=20.9.0",
     "pnpm": "^9 || ^10 || ^11"
@@ -129,10 +130,16 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "sharp",
+      "@sentry/cli",
+      "aws-sdk",
       "esbuild",
+      "msw",
+      "sharp",
       "unrs-resolver"
-    ]
+    ],
+    "overrides": {
+      "valibot": "1.5.0"
+    }
   },
   "loki": {
     "diffingEngine": "gm",
