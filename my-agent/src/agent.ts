@@ -6,7 +6,7 @@ export function createAgent() {
   // Factories run here (after dotenv) so .env.local keys are visible.
   // Fail-fast: a missing/empty key throws the plugin's own error and aborts
   // startup — no degraded sessions with silently skipped providers.
-  const llms = [createMuseSpark1_3(), createGPTOSS()];
+  const llms = [createGPTOSS(), createMuseSpark1_3()];
 
   return Agent.create({
     instructions: dedent`
