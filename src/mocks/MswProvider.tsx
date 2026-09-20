@@ -8,7 +8,7 @@ export default function MSWProvider({ children }: { children: React.ReactNode })
   const [ready, setReady] = useState(Boolean(process.env.NEXT_PUBLIC_API_MOCKING) !== true)
 
   useEffect(() => {
-    if (process.env.NEXT_PUBLIC_API_MOCKING !== 'enabled') {
+    if (!Boolean(process.env.NEXT_PUBLIC_API_MOCKING)) {
       return
     }
 
