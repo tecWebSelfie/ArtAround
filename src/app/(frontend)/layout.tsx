@@ -1,19 +1,16 @@
+import './globals.css'
 import React from 'react'
-import './styles.css'
-import { Metadata } from 'next'
 
-import '@mantine/core/styles.css'
-
-import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core'
+import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
 import { theme } from '@/theme'
 
 import { IntlProvider } from 'react-intl'
 
 import MswProvider from '@/mocks/MswProvider'
 
-export const metadata: Metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+export const metadata = {
+  title: 'Artaround',
+  description: 'Museum navigation for everybody, everywhere.',
 }
 
 //formatJS italian messages
@@ -21,11 +18,11 @@ const messagesInItalian = {
   // Add your Italian translations here following https://formatjs.github.io/docs/core-concepts/icu-syntax
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
+export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props
 
   return (
-    <html lang="en" {...mantineHtmlProps}>
+    <html {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript />
       </head>
