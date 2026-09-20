@@ -12,5 +12,8 @@ const config: StorybookConfig = {
     'msw-storybook-addon',
   ],
   framework: '@storybook/nextjs-vite',
+  features: {
+    componentsManifest: true,
+  },
 }
 export default config
