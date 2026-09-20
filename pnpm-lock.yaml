@@ -24,11 +24,14 @@ importers:
         specifier: ^2.20.0
         version: 2.20.1(leaflet@1.9.4)
       '@livekit/components-react':
-        specifier: ^2.9.24
+        specifier: ^2.0.0
         version: 2.9.24(livekit-client@2.22.0(@types/dom-mediacapture-record@1.0.22))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
       '@livekit/components-styles':
         specifier: ^1.2.0
         version: 1.2.0
+      '@livekit/protocol':
+        specifier: ^1.52.0
+        version: 1.52.0
       '@mantine/carousel':
         specifier: ^9.5.1
         version: 9.6.1(@mantine/core@9.6.1(@mantine/hooks@9.6.1(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.6.1(react@19.2.6))(embla-carousel-react@8.6.0(react@19.2.6))(embla-carousel@8.6.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1681,6 +1684,9 @@ packages:
 
   '@livekit/protocol@1.51.0':
     resolution: {integrity: sha512-kEDEDaFvIcp5VlYBromdSKMJMEJKfPvXPfEaJPdEz1Qgo84gZAoLF2g58CcMlVYGsjrwE5XYgQxRS5B7KuEj3w==}
+
+  '@livekit/protocol@1.52.0':
+    resolution: {integrity: sha512-zIzWF1sB4Y7B+NsG8QJFUkTCKDGNS/+b8xYLoVsBPMDL4y1MNUCTi4Ld9fuiKe/Fm2T/N/fyhphkPBx+FlRwGw==}
 
   '@loki/browser@0.35.0':
     resolution: {integrity: sha512-VYSd3bx9dOQ/Wo2C1gdNdE2mcYPleVtGInRcZmCOJ01va14L9VEGzG2zL1dMcmMUuJ2cT3Ri1GR59vEO3vKWvQ==}
@@ -10106,6 +10112,10 @@ snapshots:
       '@bufbuild/protobuf': 1.10.1
 
   '@livekit/protocol@1.51.0':
+    dependencies:
+      '@bufbuild/protobuf': 1.10.1
+
+  '@livekit/protocol@1.52.0':
     dependencies:
       '@bufbuild/protobuf': 1.10.1
 
