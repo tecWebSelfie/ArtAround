@@ -4,6 +4,8 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
+import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import nodemailer from 'nodemailer'
 
 // Payload Plugins
 import { stripePlugin } from '@payloadcms/plugin-stripe'
@@ -16,9 +18,15 @@ import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { MuseumThumbnails, Museums } from './collections/Museums'
+import { Objects } from './collections/Objects'
+import { Exhibits } from './collections/Exhibits'
+import { Number } from 'three/examples/jsm/transpiler/AST.js'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
+
+const etherealMailAccount = await nodemailer.createTestAccount()
 
 export default buildConfig({
   admin: {
@@ -27,7 +35,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Pages],
+  collections: [Users, Media, Pages, Museums, MuseumThumbnails, Objects, Exhibits],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -67,4 +75,17 @@ export default buildConfig({
       },
     ],
   },
+  email: nodemailerAdapter({
+    defaultFromAddress: 'artaround@progettantisti.com',
+    defaultFromName: 'Payload',
+    // Nodemailer transportOptions
+    transport: nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT || '587',
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS,
+      },
+    }),
+  }),
 })

@@ -71,6 +71,10 @@ export interface Config {
     users: User;
     media: Media;
     pages: Page;
+    museums: Museum;
+    museumThumbnails: MuseumThumbnail;
+    objects: Object;
+    exhibits: Exhibit;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -88,6 +92,10 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    museums: MuseumsSelect<false> | MuseumsSelect<true>;
+    museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
+    objects: ObjectsSelect<false> | ObjectsSelect<true>;
+    exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -231,6 +239,59 @@ export interface Page {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museums".
+ */
+export interface Museum {
+  id: string;
+  name: string;
+  description?: string | null;
+  shortDescription: string;
+  thumbnail?: (string | null) | MuseumThumbnail;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumThumbnails".
+ */
+export interface MuseumThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objects".
+ */
+export interface Object {
+  id: string;
+  name: string;
+  description?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exhibits".
+ */
+export interface Exhibit {
+  id: string;
+  objects?: (string | Object)[] | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -662,6 +723,22 @@ export interface PayloadLockedDocument {
         value: string | Page;
       } | null)
     | ({
+        relationTo: 'museums';
+        value: string | Museum;
+      } | null)
+    | ({
+        relationTo: 'museumThumbnails';
+        value: string | MuseumThumbnail;
+      } | null)
+    | ({
+        relationTo: 'objects';
+        value: string | Object;
+      } | null)
+    | ({
+        relationTo: 'exhibits';
+        value: string | Exhibit;
+      } | null)
+    | ({
         relationTo: 'forms';
         value: string | Form;
       } | null)
@@ -796,6 +873,55 @@ export interface PagesSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museums_select".
+ */
+export interface MuseumsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  shortDescription?: T;
+  thumbnail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumThumbnails_select".
+ */
+export interface MuseumThumbnailsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objects_select".
+ */
+export interface ObjectsSelect<T extends boolean = true> {
+  name?: T;
+  description?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exhibits_select".
+ */
+export interface ExhibitsSelect<T extends boolean = true> {
+  objects?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1124,7 +1250,19 @@ export interface TaskCreateCollectionExport {
     id: string;
     name: string;
     batchSize?: number | null;
-    collectionSlug: 'users' | 'media' | 'pages' | 'forms' | 'form-submissions' | 'redirects' | 'exports' | 'imports';
+    collectionSlug:
+      | 'users'
+      | 'media'
+      | 'pages'
+      | 'museums'
+      | 'museumThumbnails'
+      | 'objects'
+      | 'exhibits'
+      | 'forms'
+      | 'form-submissions'
+      | 'redirects'
+      | 'exports'
+      | 'imports';
     drafts?: ('yes' | 'no') | null;
     exportCollection: string;
     fields?: string[] | null;
