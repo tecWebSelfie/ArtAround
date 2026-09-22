@@ -14,19 +14,17 @@ import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
+import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 
 import { Users } from './collections/Users'
-import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
-import { MuseumThumbnails, Museums } from './collections/Museums'
+import { MuseumThumbnails, Museums, MuseumMaps } from './collections/Museums'
 import { Objects } from './collections/Objects'
 import { Exhibits } from './collections/Exhibits'
-import { Number } from 'three/examples/jsm/transpiler/AST.js'
+import { Contents, ContentImages } from './collections/Contents'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
-
-const etherealMailAccount = await nodemailer.createTestAccount()
 
 export default buildConfig({
   admin: {
@@ -35,7 +33,17 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Pages, Museums, MuseumThumbnails, Objects, Exhibits],
+  collections: [
+    Users,
+    Pages,
+    Museums,
+    MuseumThumbnails,
+    MuseumMaps,
+    Objects,
+    Exhibits,
+    Contents,
+    ContentImages,
+  ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
@@ -66,6 +74,7 @@ export default buildConfig({
     importExportPlugin({
       collections: [{ slug: 'users' }, { slug: 'pages' }],
     }),
+    phoneNumberPlugin(),
   ],
   jobs: {
     autoRun: [

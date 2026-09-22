@@ -73,8 +73,11 @@ export interface Config {
     pages: Page;
     museums: Museum;
     museumThumbnails: MuseumThumbnail;
+    museumMaps: MuseumMap;
     objects: Object;
     exhibits: Exhibit;
+    contents: Content;
+    contentImages: ContentImage;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -87,15 +90,25 @@ export interface Config {
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    objects: {
+      exhibit: 'exhibits';
+    };
+    contents: {
+      objects: 'objects';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
+    museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
     exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
+    contents: ContentsSelect<false> | ContentsSelect<true>;
+    contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -133,20 +146,18 @@ export interface Config {
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    email: string;
-    password: string;
+    username: string;
   };
   login: {
-    email: string;
     password: string;
+    username: string;
   };
   registerFirstUser: {
-    email: string;
     password: string;
+    username: string;
   };
   unlock: {
-    email: string;
-    password: string;
+    username: string;
   };
 }
 export interface PayloadMcpApiKeyAuthOperations {
@@ -175,7 +186,8 @@ export interface User {
   id: string;
   updatedAt: string;
   createdAt: string;
-  email: string;
+  email?: string | null;
+  username: string;
   resetPasswordToken?: string | null;
   resetPasswordExpiration?: string | null;
   salt?: string | null;
@@ -249,9 +261,393 @@ export interface Museum {
   name: string;
   description?: string | null;
   shortDescription: string;
-  thumbnail?: (string | null) | MuseumThumbnail;
+  director: string | User;
+  curators?: (string | User)[] | null;
+  accessibility: boolean;
+  map?: (string | null) | MuseumMap;
+  phone?: string | PhoneNumber | null;
+  email?: string | null;
+  socials?:
+    | {
+        platform: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  news?:
+    | {
+        title: string;
+        content: string;
+        date: string;
+        id?: string | null;
+      }[]
+    | null;
+  thumbnails?: (string | MuseumThumbnail)[] | null;
+  exhibits?: (string | Exhibit)[] | null;
+  objects?: (string | Object)[] | null;
+  openingHours?: {
+    monday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    tuesday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    wednesday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    thursday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    friday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    saturday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    sunday?:
+      | {
+          opening?: string | null;
+          closing?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    notes?: string | null;
+  };
+  ticketLink?: string | null;
+  ticketInfo: {
+    label: string;
+    url?: string | null;
+  };
+  location: {
+    address: string;
+    city: string;
+    /**
+     * @minItems 2
+     * @maxItems 2
+     */
+    latlng: [number, number];
+  };
+  services?: {
+    bathrooms?:
+      | {
+          openingHours?: {
+            monday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            tuesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            wednesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            thursday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            friday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            saturday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sunday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            notes?: string | null;
+          };
+          coordinates: {
+            x: number;
+            y: number;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    food?:
+      | {
+          openingHours?: {
+            monday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            tuesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            wednesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            thursday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            friday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            saturday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sunday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            notes?: string | null;
+          };
+          coordinates: {
+            x: number;
+            y: number;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    shop?:
+      | {
+          openingHours?: {
+            monday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            tuesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            wednesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            thursday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            friday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            saturday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sunday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            notes?: string | null;
+          };
+          coordinates: {
+            x: number;
+            y: number;
+          };
+          id?: string | null;
+        }[]
+      | null;
+    infoPoint?:
+      | {
+          openingHours?: {
+            monday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            tuesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            wednesday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            thursday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            friday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            saturday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            sunday?:
+              | {
+                  opening?: string | null;
+                  closing?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            notes?: string | null;
+          };
+          coordinates: {
+            x: number;
+            y: number;
+          };
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumMaps".
+ */
+export interface MuseumMap {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PhoneNumber".
+ */
+export interface PhoneNumber {
+  /**
+   * Phone number in E.164 format. Useful for using in `tel:` links.
+   */
+  e164: string;
+  /**
+   * ISO 3166-1 alpha-2 country code.
+   *
+   * @see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
+   * @example "NO"
+   */
+  regionCode: string;
+  /**
+   * International calling code.
+   *
+   * @example "+47"
+   */
+  callingCode: string;
+  /**
+   * National format of the phone number.
+   */
+  national: string;
+  /**
+   * International format of the phone number.
+   */
+  international: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -274,24 +670,88 @@ export interface MuseumThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exhibits".
+ */
+export interface Exhibit {
+  id: string;
+  objects?: (string | Object)[] | null;
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects".
  */
 export interface Object {
   id: string;
   name: string;
   description?: string | null;
+  exhibit?: {
+    docs?: (string | Exhibit)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  contents?: (string | Content)[] | null;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "exhibits".
+ * via the `definition` "contents".
  */
-export interface Exhibit {
+export interface Content {
   id: string;
-  objects?: (string | Object)[] | null;
+  title: string;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  duration?: number | null;
+  copyright: string;
+  difficulty: 'easy' | 'medium' | 'hard';
+  images?: (string | ContentImage)[] | null;
+  author: string | User;
+  objects: {
+    docs?: (string | Object)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentImages".
+ */
+export interface ContentImage {
+  id: string;
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -731,12 +1191,24 @@ export interface PayloadLockedDocument {
         value: string | MuseumThumbnail;
       } | null)
     | ({
+        relationTo: 'museumMaps';
+        value: string | MuseumMap;
+      } | null)
+    | ({
         relationTo: 'objects';
         value: string | Object;
       } | null)
     | ({
         relationTo: 'exhibits';
         value: string | Exhibit;
+      } | null)
+    | ({
+        relationTo: 'contents';
+        value: string | Content;
+      } | null)
+    | ({
+        relationTo: 'contentImages';
+        value: string | ContentImage;
       } | null)
     | ({
         relationTo: 'forms';
@@ -814,6 +1286,7 @@ export interface UsersSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   email?: T;
+  username?: T;
   resetPasswordToken?: T;
   resetPasswordExpiration?: T;
   salt?: T;
@@ -882,7 +1355,362 @@ export interface MuseumsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   shortDescription?: T;
-  thumbnail?: T;
+  director?: T;
+  curators?: T;
+  accessibility?: T;
+  map?: T;
+  phone?: T;
+  email?: T;
+  socials?:
+    | T
+    | {
+        platform?: T;
+        url?: T;
+        id?: T;
+      };
+  news?:
+    | T
+    | {
+        title?: T;
+        content?: T;
+        date?: T;
+        id?: T;
+      };
+  thumbnails?: T;
+  exhibits?: T;
+  objects?: T;
+  openingHours?:
+    | T
+    | {
+        monday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        tuesday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        wednesday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        thursday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        friday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        saturday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        sunday?:
+          | T
+          | {
+              opening?: T;
+              closing?: T;
+              id?: T;
+            };
+        notes?: T;
+      };
+  ticketLink?: T;
+  ticketInfo?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+      };
+  location?:
+    | T
+    | {
+        address?: T;
+        city?: T;
+        latlng?: T;
+      };
+  services?:
+    | T
+    | {
+        bathrooms?:
+          | T
+          | {
+              openingHours?:
+                | T
+                | {
+                    monday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    tuesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    wednesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    thursday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    friday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    saturday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    sunday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    notes?: T;
+                  };
+              coordinates?:
+                | T
+                | {
+                    x?: T;
+                    y?: T;
+                  };
+              id?: T;
+            };
+        food?:
+          | T
+          | {
+              openingHours?:
+                | T
+                | {
+                    monday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    tuesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    wednesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    thursday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    friday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    saturday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    sunday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    notes?: T;
+                  };
+              coordinates?:
+                | T
+                | {
+                    x?: T;
+                    y?: T;
+                  };
+              id?: T;
+            };
+        shop?:
+          | T
+          | {
+              openingHours?:
+                | T
+                | {
+                    monday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    tuesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    wednesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    thursday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    friday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    saturday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    sunday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    notes?: T;
+                  };
+              coordinates?:
+                | T
+                | {
+                    x?: T;
+                    y?: T;
+                  };
+              id?: T;
+            };
+        infoPoint?:
+          | T
+          | {
+              openingHours?:
+                | T
+                | {
+                    monday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    tuesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    wednesday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    thursday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    friday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    saturday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    sunday?:
+                      | T
+                      | {
+                          opening?: T;
+                          closing?: T;
+                          id?: T;
+                        };
+                    notes?: T;
+                  };
+              coordinates?:
+                | T
+                | {
+                    x?: T;
+                    y?: T;
+                  };
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -906,11 +1734,30 @@ export interface MuseumThumbnailsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumMaps_select".
+ */
+export interface MuseumMapsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects_select".
  */
 export interface ObjectsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
+  exhibit?: T;
+  contents?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -920,8 +1767,48 @@ export interface ObjectsSelect<T extends boolean = true> {
  */
 export interface ExhibitsSelect<T extends boolean = true> {
   objects?: T;
+  coordinates?:
+    | T
+    | {
+        x?: T;
+        y?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contents_select".
+ */
+export interface ContentsSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  duration?: T;
+  copyright?: T;
+  difficulty?: T;
+  images?: T;
+  author?: T;
+  objects?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentImages_select".
+ */
+export interface ContentImagesSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1256,8 +2143,11 @@ export interface TaskCreateCollectionExport {
       | 'pages'
       | 'museums'
       | 'museumThumbnails'
+      | 'museumMaps'
       | 'objects'
       | 'exhibits'
+      | 'contents'
+      | 'contentImages'
       | 'forms'
       | 'form-submissions'
       | 'redirects'

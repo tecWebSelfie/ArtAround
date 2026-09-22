@@ -173,6 +173,9 @@ importers:
       payload:
         specifier: 3.89.0
         version: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
+      payload-phone-number-plugin:
+        specifier: ^1.7.1
+        version: 1.7.1(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))
       react:
         specifier: 19.2.6
         version: 19.2.6
@@ -6098,6 +6101,9 @@ packages:
     engines: {node: '>=16'}
     hasBin: true
 
+  libphonenumber-js@1.13.13:
+    resolution: {integrity: sha512-hV6SmWnyQ8U1QXhhqbqYBHIStNnscG7A5XbGodgdHhf/8N5PwhYpJA5U/yHDjYwPYTd8uNGXqq416XctuvK2PA==}
+
   lighthouse-logger@1.4.2:
     resolution: {integrity: sha512-gPWxznF6TKmUHrOQjlVo2UbaL2EJ71mb2CCeRs/2qBpi4L/g4LUVc9+3lKQ6DTUZwJswfM7ainGrLO1+fOqa2g==}
 
@@ -7049,6 +7055,12 @@ packages:
   pathval@2.0.1:
     resolution: {integrity: sha512-//nshmD55c46FuFw26xV/xFAaB5HF9Xdap7HJBBnrKdAd6/GxDBaNA1870O79+9ueg61cZLSVc+OaFlfmObYVQ==}
     engines: {node: '>= 14.16'}
+
+  payload-phone-number-plugin@1.7.1:
+    resolution: {integrity: sha512-eQPW7E87uYhS7dlWW0HmePrSIstKVOKtE9XBTSHGeQClFwjwWPXOidhYqoylDQ7OAHEgxCDxs6HsDxke1eiJPw==}
+    engines: {node: ^18.20.2 || >=20.9.0, pnpm: ^9 || ^10 || ^11}
+    peerDependencies:
+      payload: ^3.0.0
 
   payload@3.89.0:
     resolution: {integrity: sha512-n0rDsMDTlKkNDqNllSLow1xEn2XaktD2oyi6Gl7i/LAD7xRBaS+tj27ca9EeNM5QmoGSd734UCHYj5Vr4JQYNA==}
@@ -14886,6 +14898,8 @@ snapshots:
     dependencies:
       isomorphic.js: 0.2.5
 
+  libphonenumber-js@1.13.13: {}
+
   lighthouse-logger@1.4.2:
     dependencies:
       debug: 2.6.9
@@ -15966,6 +15980,13 @@ snapshots:
   pathe@2.0.3: {}
 
   pathval@2.0.1: {}
+
+  payload-phone-number-plugin@1.7.1(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3)):
+    dependencies:
+      '@payloadcms/translations': 3.89.0
+      clsx: 2.1.1
+      libphonenumber-js: 1.13.13
+      payload: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
 
   payload@3.89.0(graphql@16.14.2)(typescript@5.9.3):
     dependencies:

@@ -1,3 +1,4 @@
+import { Coordinates } from '@/fields/Coordinates'
 import { CollectionConfig } from 'payload'
 
 export const Exhibits: CollectionConfig = {
@@ -8,6 +9,9 @@ export const Exhibits: CollectionConfig = {
       type: 'relationship',
       relationTo: 'objects',
       hasMany: true,
+      required: true,
+      minRows: 1,
     },
+    Coordinates,
   ],
 }

@@ -14,5 +14,21 @@ export const Objects: CollectionConfig = {
       required: false,
       maxLength: 500,
     },
+    {
+      name: 'exhibit',
+      type: 'join',
+      collection: 'exhibits',
+      on: 'objects',
+      hasMany: false,
+      required: false,
+    },
+    {
+      name: 'contents',
+      type: 'relationship',
+      relationTo: 'contents',
+      hasMany: true,
+      required: false,
+      minRows: 1,
+    },
   ],
 }
