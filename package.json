@@ -86,6 +86,7 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-intl": "^10.1.22",
+    "reading-time-estimator": "^2.15.0",
     "sharp": "0.34.2",
     "tailwindcss": "^4.3.3",
     "three": "^0.185.1",
