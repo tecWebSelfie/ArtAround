@@ -6,8 +6,6 @@ import { phoneNumberField } from 'payload-phone-number-plugin'
 import { SocialLinks } from '@/fields/SocialLinks'
 import { Coordinates } from '@/fields/Coordinates'
 
-import { text } from 'payload/shared'
-
 export const Museums: CollectionConfig = {
   slug: 'museums',
   fields: [
@@ -27,24 +25,6 @@ export const Museums: CollectionConfig = {
       type: 'text',
       required: true,
       maxLength: 100,
-    },
-    {
-      name: 'director',
-      type: 'relationship',
-      relationTo: 'users',
-      hasMany: true,
-      minRows: 1,
-      required: true,
-      maxDepth: 1,
-    },
-    {
-      name: 'curators',
-      type: 'relationship',
-      relationTo: 'users',
-      hasMany: true,
-      minRows: 1,
-      required: false,
-      maxDepth: 1,
     },
     {
       name: 'accessibility',

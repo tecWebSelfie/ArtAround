@@ -15,6 +15,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
+import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
@@ -75,6 +76,9 @@ export default buildConfig({
       collections: [{ slug: 'users' }, { slug: 'pages' }],
     }),
     phoneNumberPlugin(),
+    payloadPluginRBAC({
+      targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug],
+    }),
   ],
   jobs: {
     autoRun: [

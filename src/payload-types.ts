@@ -82,6 +82,11 @@ export interface Config {
     redirects: Redirect;
     exports: Export;
     imports: Import;
+    'permission-actions': PermissionAction;
+    'permission-features': PermissionFeature;
+    permissions: Permission;
+    roles: Role;
+    'roles-permissions': RolesPermission;
     'payload-mcp-api-keys': PayloadMcpApiKey;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -112,6 +117,11 @@ export interface Config {
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
+    'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>;
+    'permission-features': PermissionFeaturesSelect<false> | PermissionFeaturesSelect<true>;
+    permissions: PermissionsSelect<false> | PermissionsSelect<true>;
+    roles: RolesSelect<false> | RolesSelect<true>;
+    'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -182,6 +192,11 @@ export interface PayloadMcpApiKeyAuthOperations {
  */
 export interface User {
   id: string;
+  isSuperAdmin?: boolean | null;
+  roles?: (string | Role)[] | null;
+  parent?: (string | null) | User;
+  parentPath?: string | null;
+  createdBy?: string | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -201,6 +216,30 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles".
+ */
+export interface Role {
+  id: string;
+  code: string;
+  name: string;
+  description?: string | null;
+  status: 'active' | 'inactive';
+  dataScope: 'all' | 'own' | 'hierarchy';
+  permissionMatrixDraft?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  createdBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -237,11 +276,10 @@ export interface Page {
  */
 export interface Museum {
   id: string;
+  createdBy?: string | null;
   name: string;
   description?: string | null;
   shortDescription: string;
-  director: (string | User)[];
-  curators?: (string | User)[] | null;
   accessibility: boolean;
   map?: (string | null) | MuseumMap;
   phone?: string | PhoneNumber | null;
@@ -653,6 +691,7 @@ export interface MuseumThumbnail {
  */
 export interface Exhibit {
   id: string;
+  createdBy?: string | null;
   objects: (string | Object)[];
   coordinates: {
     x: number;
@@ -667,6 +706,7 @@ export interface Exhibit {
  */
 export interface Object {
   id: string;
+  createdBy?: string | null;
   name: string;
   description?: string | null;
   exhibit?: {
@@ -684,6 +724,7 @@ export interface Object {
  */
 export interface Content {
   id: string;
+  createdBy?: string | null;
   difficulty: 'easy' | 'medium' | 'hard';
   title: string;
   body: {
@@ -704,7 +745,6 @@ export interface Content {
   readingTimeMins?: number | null;
   copyright: string;
   images?: (string | ContentImage)[] | null;
-  author: string | User;
   objects: {
     docs?: (string | Object)[];
     hasNextPage?: boolean;
@@ -1007,6 +1047,60 @@ export interface Import {
   focalY?: number | null;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permission-actions".
+ */
+export interface PermissionAction {
+  id: string;
+  code: string;
+  type: 'main' | 'sub';
+  sortOrder?: number | null;
+  status: 'active' | 'inactive';
+  createdBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permission-features".
+ */
+export interface PermissionFeature {
+  id: string;
+  code: string;
+  sortOrder?: number | null;
+  status: 'active' | 'inactive';
+  createdBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permissions".
+ */
+export interface Permission {
+  id: string;
+  name: string;
+  permissionFeature: string | PermissionFeature;
+  permissionAction: string | PermissionAction;
+  sortOrder?: number | null;
+  status: 'active' | 'inactive';
+  createdBy?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles-permissions".
+ */
+export interface RolesPermission {
+  id: string;
+  role: string | Role;
+  permission: string | Permission;
+  enabled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * API keys control which collections, resources, tools, and prompts MCP clients can access
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1198,6 +1292,26 @@ export interface PayloadLockedDocument {
         value: string | Redirect;
       } | null)
     | ({
+        relationTo: 'permission-actions';
+        value: string | PermissionAction;
+      } | null)
+    | ({
+        relationTo: 'permission-features';
+        value: string | PermissionFeature;
+      } | null)
+    | ({
+        relationTo: 'permissions';
+        value: string | Permission;
+      } | null)
+    | ({
+        relationTo: 'roles';
+        value: string | Role;
+      } | null)
+    | ({
+        relationTo: 'roles-permissions';
+        value: string | RolesPermission;
+      } | null)
+    | ({
         relationTo: 'payload-mcp-api-keys';
         value: string | PayloadMcpApiKey;
       } | null);
@@ -1258,6 +1372,11 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  isSuperAdmin?: T;
+  roles?: T;
+  parent?: T;
+  parentPath?: T;
+  createdBy?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1309,11 +1428,10 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "museums_select".
  */
 export interface MuseumsSelect<T extends boolean = true> {
+  createdBy?: T;
   name?: T;
   description?: T;
   shortDescription?: T;
-  director?: T;
-  curators?: T;
   accessibility?: T;
   map?: T;
   phone?: T;
@@ -1711,6 +1829,7 @@ export interface MuseumMapsSelect<T extends boolean = true> {
  * via the `definition` "objects_select".
  */
 export interface ObjectsSelect<T extends boolean = true> {
+  createdBy?: T;
   name?: T;
   description?: T;
   exhibit?: T;
@@ -1723,6 +1842,7 @@ export interface ObjectsSelect<T extends boolean = true> {
  * via the `definition` "exhibits_select".
  */
 export interface ExhibitsSelect<T extends boolean = true> {
+  createdBy?: T;
   objects?: T;
   coordinates?:
     | T
@@ -1738,13 +1858,13 @@ export interface ExhibitsSelect<T extends boolean = true> {
  * via the `definition` "contents_select".
  */
 export interface ContentsSelect<T extends boolean = true> {
+  createdBy?: T;
   difficulty?: T;
   title?: T;
   body?: T;
   readingTimeMins?: T;
   copyright?: T;
   images?: T;
-  author?: T;
   objects?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1989,6 +2109,71 @@ export interface ImportsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permission-actions_select".
+ */
+export interface PermissionActionsSelect<T extends boolean = true> {
+  code?: T;
+  type?: T;
+  sortOrder?: T;
+  status?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permission-features_select".
+ */
+export interface PermissionFeaturesSelect<T extends boolean = true> {
+  code?: T;
+  sortOrder?: T;
+  status?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "permissions_select".
+ */
+export interface PermissionsSelect<T extends boolean = true> {
+  name?: T;
+  permissionFeature?: T;
+  permissionAction?: T;
+  sortOrder?: T;
+  status?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles_select".
+ */
+export interface RolesSelect<T extends boolean = true> {
+  code?: T;
+  name?: T;
+  description?: T;
+  status?: T;
+  dataScope?: T;
+  permissionMatrixDraft?: T;
+  createdBy?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "roles-permissions_select".
+ */
+export interface RolesPermissionsSelect<T extends boolean = true> {
+  role?: T;
+  permission?: T;
+  enabled?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

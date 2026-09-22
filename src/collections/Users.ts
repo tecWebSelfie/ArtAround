@@ -1,7 +1,10 @@
-import type { CollectionConfig, TextField } from 'payload'
+import type { CollectionConfig } from 'payload'
+
+export const USERS_COLLECTION_SLUG = 'users'
+export const TOURS_COLLECTION_SLUG = 'tours'
 
 export const Users: CollectionConfig = {
-  slug: 'users',
+  slug: USERS_COLLECTION_SLUG,
   admin: {
     useAsTitle: 'username',
   },
@@ -14,16 +17,7 @@ export const Users: CollectionConfig = {
   ],
 }
 
-export function userRole(role: 'admin' | 'curator' | 'director' | 'guest' | 'user'): TextField {
-  return {
-    name: 'role',
-    type: 'text',
-    required: true,
-    defaultValue: role,
-  }
-}
-
 export const Tour: CollectionConfig = {
-  slug: 'tours',
+  slug: TOURS_COLLECTION_SLUG,
   fields: [],
 }

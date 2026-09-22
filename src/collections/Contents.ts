@@ -47,13 +47,6 @@ export const Contents: CollectionConfig = {
       required: false,
     },
     {
-      name: 'author',
-      type: 'relationship',
-      relationTo: 'users',
-      hasMany: false,
-      required: true,
-    },
-    {
       name: 'objects',
       type: 'join',
       collection: 'objects',
