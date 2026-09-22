@@ -1,31 +1,13 @@
-import { CollectionConfig, SelectField, FieldHook } from 'payload'
+import { CollectionConfig, FieldHook } from 'payload'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { readingTime } from 'reading-time-estimator'
-
-const DifficultyField: SelectField = {
-  name: 'difficulty',
-  type: 'select',
-  options: [
-    {
-      label: 'Easy',
-      value: 'easy',
-    },
-    {
-      label: 'Medium',
-      value: 'medium',
-    },
-    {
-      label: 'Hard',
-      value: 'hard',
-    },
-  ],
-  required: true,
-}
+import { DifficultyField } from '@/fields/DifficultyField'
 
 export const Contents: CollectionConfig = {
   slug: 'contents',
   fields: [
+    DifficultyField,
     {
       name: 'title',
       type: 'text',
@@ -40,7 +22,7 @@ export const Contents: CollectionConfig = {
       localized: true,
     },
     {
-      name: 'durationInMinutes',
+      name: 'readingTimeMins',
       type: 'number',
       required: false,
       hooks: {
@@ -57,7 +39,6 @@ export const Contents: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    DifficultyField,
     {
       name: 'images',
       type: 'relationship',

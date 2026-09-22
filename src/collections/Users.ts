@@ -3,7 +3,7 @@ import type { CollectionConfig, TextField } from 'payload'
 export const Users: CollectionConfig = {
   slug: 'users',
   admin: {
-    useAsTitle: 'email',
+    useAsTitle: 'username',
   },
   auth: {
     loginWithUsername: true,

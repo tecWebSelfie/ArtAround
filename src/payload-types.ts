@@ -684,6 +684,7 @@ export interface Object {
  */
 export interface Content {
   id: string;
+  difficulty: 'easy' | 'medium' | 'hard';
   title: string;
   body: {
     root: {
@@ -700,9 +701,8 @@ export interface Content {
     };
     [k: string]: unknown;
   };
-  durationInMinutes?: number | null;
+  readingTimeMins?: number | null;
   copyright: string;
-  difficulty: 'easy' | 'medium' | 'hard';
   images?: (string | ContentImage)[] | null;
   author: string | User;
   objects: {
@@ -1738,11 +1738,11 @@ export interface ExhibitsSelect<T extends boolean = true> {
  * via the `definition` "contents_select".
  */
 export interface ContentsSelect<T extends boolean = true> {
+  difficulty?: T;
   title?: T;
   body?: T;
-  durationInMinutes?: T;
+  readingTimeMins?: T;
   copyright?: T;
-  difficulty?: T;
   images?: T;
   author?: T;
   objects?: T;
