@@ -69,7 +69,6 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    media: Media;
     pages: Page;
     museums: Museum;
     museumThumbnails: MuseumThumbnail;
@@ -100,7 +99,6 @@ export interface Config {
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
@@ -206,25 +204,6 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -261,7 +240,7 @@ export interface Museum {
   name: string;
   description?: string | null;
   shortDescription: string;
-  director: string | User;
+  director: (string | User)[];
   curators?: (string | User)[] | null;
   accessibility: boolean;
   map?: (string | null) | MuseumMap;
@@ -674,7 +653,7 @@ export interface MuseumThumbnail {
  */
 export interface Exhibit {
   id: string;
-  objects?: (string | Object)[] | null;
+  objects: (string | Object)[];
   coordinates: {
     x: number;
     y: number;
@@ -721,7 +700,7 @@ export interface Content {
     };
     [k: string]: unknown;
   };
-  duration?: number | null;
+  durationInMinutes?: number | null;
   copyright: string;
   difficulty: 'easy' | 'medium' | 'hard';
   images?: (string | ContentImage)[] | null;
@@ -1175,10 +1154,6 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
-        relationTo: 'media';
-        value: string | Media;
-      } | null)
-    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
@@ -1300,24 +1275,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media_select".
- */
-export interface MediaSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1783,7 +1740,7 @@ export interface ExhibitsSelect<T extends boolean = true> {
 export interface ContentsSelect<T extends boolean = true> {
   title?: T;
   body?: T;
-  duration?: T;
+  durationInMinutes?: T;
   copyright?: T;
   difficulty?: T;
   images?: T;
@@ -2139,7 +2096,6 @@ export interface TaskCreateCollectionExport {
     batchSize?: number | null;
     collectionSlug:
       | 'users'
-      | 'media'
       | 'pages'
       | 'museums'
       | 'museumThumbnails'

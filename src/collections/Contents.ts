@@ -1,4 +1,7 @@
-import { CollectionConfig, SelectField } from 'payload'
+import { CollectionConfig, SelectField, FieldHook } from 'payload'
+import { Content } from '@/payload-types'
+import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
+import { readingTime } from 'reading-time-estimator'
 
 const DifficultyField: SelectField = {
   name: 'difficulty',
@@ -37,9 +40,17 @@ export const Contents: CollectionConfig = {
       localized: true,
     },
     {
-      name: 'duration',
+      name: 'durationInMinutes',
       type: 'number',
-      virtual: true,
+      required: false,
+      hooks: {
+        afterRead: [
+          ({ siblingData }) =>
+            siblingData.body
+              ? readingTime(convertLexicalToPlaintext({ data: siblingData.body })).minutes
+              : undefined,
+        ] as FieldHook<Content, number, Content>[],
+      },
     },
     {
       name: 'copyright',
