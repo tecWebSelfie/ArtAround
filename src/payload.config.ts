@@ -78,6 +78,26 @@ export default buildConfig({
     phoneNumberPlugin(),
     payloadPluginRBAC({
       targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug],
+      translations: {
+        en: {
+          components: {
+            rolePermissionMatrix: {
+              features: {
+                Museum: 'Museum',
+                Content: 'Content',
+                Object: 'Object',
+                Exhibit: 'Exhibit',
+              },
+              actions: {
+                Create: 'Create',
+                Read: 'Read',
+                Update: 'Update',
+                Delete: 'Delete',
+              },
+            },
+          },
+        },
+      },
     }),
   ],
   bin: [
