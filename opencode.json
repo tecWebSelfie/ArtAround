@@ -39,6 +39,11 @@
       "type": "remote",
       "url": "http://localhost:6006/mcp",
       "enabled": true
+    },
+    "notion": {
+      "type": "remote",
+      "url": "https://mcp.notion.com/mcp",
+      "oauth": {}
     }
   }
 }
