@@ -87,11 +87,18 @@ try {
   }
 
   console.log('Seeding permissions...')
-  const permissionsSeed = [
-    { name: 'Read Museum', featureCode: 'Museum', actionCode: 'Read' },
-    { name: 'Create Museum', featureCode: 'Museum', actionCode: 'Create' },
-    { name: 'Update Museum', featureCode: 'Museum', actionCode: 'Update' },
-  ]
+  // Basic CRUD operations for every collection managed by the RBAC plugin
+  // (payloadPluginRBAC targetCollections): museums, objects, exhibits, contents.
+  // Feature codes below mirror the live DB values ('Museum', 'Content', ...).
+  const crudFeatures = ['Museum', 'Content', 'Object', 'Exhibit']
+  const crudActions = ['Create', 'Read', 'Update', 'Delete']
+  const permissionsSeed = crudFeatures.flatMap((featureCode) =>
+    crudActions.map((actionCode) => ({
+      name: `${actionCode} ${featureCode}`,
+      featureCode,
+      actionCode,
+    })),
+  )
   const permissionIdsByName: Record<string, string> = {}
   for (const perm of permissionsSeed) {
     const foundId = await findOneBy('permissions', 'name', perm.name)
@@ -114,7 +121,9 @@ try {
   }
 
   console.log('Seeding roles...')
-  const directorPermissions = ['Update Museum', 'Create Museum', 'Read Museum']
+  // Director owns the museum: grant the full CRUD matrix. Curator/User get no
+  // permissions by default; assign them via the admin UI as needed.
+  const directorPermissions = permissionsSeed.map((perm) => perm.name)
   const buildDirectorDraft = () => {
     const draft: Record<string, boolean> = {}
     for (const permName of directorPermissions) {
