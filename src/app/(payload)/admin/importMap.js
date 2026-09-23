@@ -1,5 +1,7 @@
 import { ExportListMenuItem as ExportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportListMenuItem as ImportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { PhoneNumberCellComponent as PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
+import { PhoneNumberFieldComponent as PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -35,6 +37,9 @@ import { ExportPreview as ExportPreview_cdf7e044479f899a31f804427d568b36 } from 
 import { ExportSaveButton as ExportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportPreview as ImportPreview_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { PermissionActionReorderClient as PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
+import { PermissionFeatureReorderClient as PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
+import { RolePermissionMatrixClient as RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
@@ -42,6 +47,8 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ExportListMenuItem": ExportListMenuItem_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportListMenuItem": ImportListMenuItem_cdf7e044479f899a31f804427d568b36,
+  "payload-phone-number-plugin/client#PhoneNumberCellComponent": PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
+  "payload-phone-number-plugin/client#PhoneNumberFieldComponent": PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -77,6 +84,9 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ExportSaveButton": ExportSaveButton_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportPreview": ImportPreview_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportSaveButton": ImportSaveButton_cdf7e044479f899a31f804427d568b36,
+  "@zealamic/payload-plugin-rbac/client#PermissionActionReorderClient": PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4,
+  "@zealamic/payload-plugin-rbac/client#PermissionFeatureReorderClient": PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4,
+  "@zealamic/payload-plugin-rbac/client#RolePermissionMatrixClient": RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

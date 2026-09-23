@@ -80,6 +80,12 @@ export default buildConfig({
       targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug],
     }),
   ],
+  bin: [
+    {
+      key: 'seed',
+      scriptPath: path.resolve(dirname, 'seed.ts'),
+    },
+  ],
   jobs: {
     autoRun: [
       {
