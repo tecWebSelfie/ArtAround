@@ -73,7 +73,7 @@ export default buildConfig({
       generateURL: (docs) => docs.reduce((url, doc) => `${url}/${String(doc.slug)}`, ''),
     }),
     importExportPlugin({
-      collections: [{ slug: 'users' }, { slug: 'pages' }],
+      collections: [{ slug: 'users' }, { slug: 'pages' }, { slug: 'roles' }],
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({
