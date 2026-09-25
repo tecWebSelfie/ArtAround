@@ -97,11 +97,6 @@ export const Museums: CollectionConfig = {
       required: false,
     },
     OpeningHours,
-    {
-      name: 'ticketLink',
-      type: 'text',
-      required: false,
-    },
     TicketInfo,
     {
       name: 'location',
