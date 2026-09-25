@@ -1,6 +1,13 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
+    "payload-mcp": {
+      "type": "remote",
+      "url": "http://127.0.0.1:3000/api/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:PAYLOAD_MCP_KEY}"
+      }
+    },
     "Sentry": {
       "type": "remote",
       "url": "https://mcp.sentry.dev/mcp/tecweb/artaround",
@@ -12,27 +19,15 @@
     },
     "mantine-ui": {
       "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "@mantine/mcp-server"
-      ]
+      "command": ["npx", "-y", "@mantine/mcp-server"]
     },
     "nextjs": {
       "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "next-devtools-mcp@latest"
-      ]
+      "command": ["npx", "-y", "next-devtools-mcp@latest"]
     },
     "shadcn": {
       "type": "local",
-      "command": [
-        "npx",
-        "shadcn@latest",
-        "mcp"
-      ],
+      "command": ["npx", "shadcn@latest", "mcp"],
       "enabled": true
     },
     "storybook": {

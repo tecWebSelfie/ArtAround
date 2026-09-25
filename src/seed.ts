@@ -208,6 +208,50 @@ try {
     }
   }
 
+  // --- MCP dev API key (payload-mcp-api-keys) ---
+  // Seeds a single `dev-mcp` key from PAYLOAD_MCP_KEY for local development.
+  // Verification uses HMAC_SHA256(PAYLOAD_SECRET, rawKey) -> apiKeyIndex, so the
+  // same PAYLOAD_SECRET must be used at seed time and at runtime. Passing the
+  // plaintext `apiKey` + `enableAPIKey: true` to payload.create triggers the
+  // standard encrypt/index hooks, same as Admin UI creation. Local API runs
+  // with overrideAccess (bypass), which is required to set the `user` field
+  // (create:false in the plugin collection).
+  // Policy: missing env -> skip; existing `dev-mcp` label -> skip (no rotation).
+  // Admin UI is source of truth for rotation; sync .env manually afterwards.
+  console.log('Seeding MCP dev API key...')
+  const rawMcpKey = process.env.PAYLOAD_MCP_KEY?.trim()
+  if (!rawMcpKey) {
+    console.log('PAYLOAD_MCP_KEY not set, skipping MCP key seed')
+  } else if (!superAdminId) {
+    console.log('SuperAdmin user missing, skipping MCP key seed')
+  } else {
+    const existingMcpKey = await payload.find({
+      collection: 'payload-mcp-api-keys',
+      where: { label: { equals: 'dev-mcp' } },
+      limit: 1,
+      depth: 0,
+    })
+    if (existingMcpKey.docs.length > 0) {
+      console.log('MCP dev key already exists, skipping')
+    } else {
+      await payload.create({
+        collection: 'payload-mcp-api-keys',
+        data: {
+          user: superAdminId,
+          label: 'dev-mcp',
+          description: 'Development MCP key (find+create on mcp-enabled collections)',
+          museums: { find: true, create: true, update: false, delete: false },
+          objects: { find: true, create: true, update: false, delete: false },
+          exhibits: { find: true, create: true, update: false, delete: false },
+          contents: { find: true, create: true, update: false, delete: false },
+          enableAPIKey: true,
+          apiKey: rawMcpKey,
+        },
+      })
+      console.log('MCP dev key created')
+    }
+  }
+
   console.log('Database seeded successfully. Closing connection...')
   await payload.destroy()
   console.log('Payload connection closed. Exiting process.')

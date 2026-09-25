@@ -1120,6 +1120,78 @@ export interface PayloadMcpApiKey {
    * The purpose of the API key.
    */
   description?: string | null;
+  museums?: {
+    /**
+     * Allow clients to find museums.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create museums.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update museums.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete museums.
+     */
+    delete?: boolean | null;
+  };
+  objects?: {
+    /**
+     * Allow clients to find objects.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create objects.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update objects.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete objects.
+     */
+    delete?: boolean | null;
+  };
+  exhibits?: {
+    /**
+     * Allow clients to find exhibits.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create exhibits.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update exhibits.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete exhibits.
+     */
+    delete?: boolean | null;
+  };
+  contents?: {
+    /**
+     * Allow clients to find contents.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create contents.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update contents.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete contents.
+     */
+    delete?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
   enableAPIKey?: boolean | null;
@@ -2183,6 +2255,38 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
   user?: T;
   label?: T;
   description?: T;
+  museums?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  objects?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  exhibits?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  contents?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   enableAPIKey?: T;

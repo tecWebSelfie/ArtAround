@@ -63,6 +63,12 @@ export default buildConfig({
     }),
     mcpPlugin({
       // see below for a list of available options
+      collections: {
+        museums: { enabled: true },
+        objects: { enabled: true },
+        exhibits: { enabled: true },
+        contents: { enabled: true },
+      },
     }),
     redirectsPlugin({
       collections: ['pages'],
