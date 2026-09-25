@@ -2,6 +2,7 @@ import { ExportListMenuItem as ExportListMenuItem_cdf7e044479f899a31f804427d568b
 import { ImportListMenuItem as ImportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { PhoneNumberCellComponent as PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
 import { PhoneNumberFieldComponent as PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
+import { LfrsStatusWidget as LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -41,6 +42,7 @@ import { PermissionActionReorderClient as PermissionActionReorderClient_5f81c429
 import { PermissionFeatureReorderClient as PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { RolePermissionMatrixClient as RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { ReviewModerationView as ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
 
 /** @type import('payload').ImportMap */
@@ -49,6 +51,7 @@ export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ImportListMenuItem": ImportListMenuItem_cdf7e044479f899a31f804427d568b36,
   "payload-phone-number-plugin/client#PhoneNumberCellComponent": PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
   "payload-phone-number-plugin/client#PhoneNumberFieldComponent": PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
+  "payload-lfrs/admin#LfrsStatusWidget": LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -88,5 +91,6 @@ export const importMap = {
   "@zealamic/payload-plugin-rbac/client#PermissionFeatureReorderClient": PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4,
   "@zealamic/payload-plugin-rbac/client#RolePermissionMatrixClient": RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
+  "payload-lfrs/admin#ReviewModerationView": ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1
 }

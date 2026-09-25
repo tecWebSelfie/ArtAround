@@ -16,6 +16,7 @@ import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
+import { payloadLFRs } from 'payload-lfrs'
 
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
@@ -104,6 +105,49 @@ export default buildConfig({
           },
         },
       },
+    }),
+    payloadLFRs({
+      collections: {
+        // Target collection slug
+        museums: {
+          likes: false, // Enable likes for authenticated users
+          dislikes: false, // Enable dislikes (mutually exclusive with likes)
+          favourites: true, // Enable favourites
+          ratings: false, // Enable ratings (stored directly in reviews)
+          reviews: false, // Enable reviews
+          shares: true, // Enable social sharing and track share counts
+        },
+        objects: {
+          likes: false, // Enable likes for authenticated users
+          dislikes: false, // Enable dislikes (mutually exclusive with likes)
+          favourites: true, // Enable favourites
+          ratings: false, // Enable ratings (stored directly in reviews)
+          reviews: false, // Enable reviews
+          shares: true, // Enable social sharing and track share counts
+        },
+        contents: {
+          likes: false, // Enable likes for authenticated users
+          dislikes: false, // Enable dislikes (mutually exclusive with likes)
+          favourites: true, // Enable favourites
+          ratings: true, // Enable ratings (stored directly in reviews)
+          reviews: false, // Enable reviews
+          shares: true, // Enable social sharing and track share counts
+        },
+      },
+      // Configure global rating options
+      rating: {
+        max: 5, // Max rating scale value (default: 5)
+        step: 0.5, // Value increment steps (default: 1)
+        icon: 'star', // Icon identifier hint for frontend (default: 'star')
+      },
+      // Workaround for payload-lfrs bug: indexes reference `status` even when
+      // moderation is off, so we enable it to create the field and validate.
+      // Moderation UI is unused.
+      reviewModeration: true,
+      adminControls: true, // Set to false to hide the Global Settings from the Admin UI
+      adminGroup: 'LFRs', // Navigation group name in the Admin panel (default: 'LFRs')
+      // Custom callback to check if a user is an admin
+      isAdmin: ({ req }) => req.user?.collection === 'users' && Boolean(req.user?.isSuperAdmin),
     }),
   ],
   bin: [

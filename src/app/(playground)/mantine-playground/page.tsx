@@ -1,6 +1,7 @@
 'use client'
 
 import { AppShell, AppShellFooter, Button, Grid, GridCol, Text, Center } from '@mantine/core'
+import { LfrsRating, LfrsShare } from 'payload-lfrs/client'
 export default function MantinePlayground() {
   return (
     <AppShell
@@ -11,6 +12,7 @@ export default function MantinePlayground() {
       <Grid>
         <GridCol span="auto">
           <Text>Playground</Text>
+          <LfrsRating readonly targetCollection="contents" targetDoc="6ab62dfce8dc0694c7ef33d1" />
         </GridCol>
         <GridCol span="auto">
           <Text>Playground</Text>

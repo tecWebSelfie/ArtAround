@@ -87,6 +87,12 @@ export interface Config {
     permissions: Permission;
     roles: Role;
     'roles-permissions': RolesPermission;
+    'lfrs-likes': LfrsLike;
+    'lfrs-favourites': LfrsFavourite;
+    'lfrs-reviews': LfrsReview;
+    'lfrs-replies': LfrsReply;
+    'lfrs-shares': LfrsShare;
+    'lfrs-testimonials': LfrsTestimonial;
     'payload-mcp-api-keys': PayloadMcpApiKey;
     'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
@@ -100,6 +106,9 @@ export interface Config {
     };
     contents: {
       objects: 'objects';
+    };
+    'lfrs-reviews': {
+      replies: 'lfrs-replies';
     };
   };
   collectionsSelect: {
@@ -122,6 +131,12 @@ export interface Config {
     permissions: PermissionsSelect<false> | PermissionsSelect<true>;
     roles: RolesSelect<false> | RolesSelect<true>;
     'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>;
+    'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>;
+    'lfrs-favourites': LfrsFavouritesSelect<false> | LfrsFavouritesSelect<true>;
+    'lfrs-reviews': LfrsReviewsSelect<false> | LfrsReviewsSelect<true>;
+    'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>;
+    'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>;
+    'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>;
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
@@ -133,8 +148,12 @@ export interface Config {
     defaultIDType: string;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'lfrs-settings': LfrsSetting;
+  };
+  globalsSelect: {
+    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -354,7 +373,6 @@ export interface Museum {
       | null;
     notes?: string | null;
   };
-  ticketLink?: string | null;
   ticketInfo: {
     label: string;
     url?: string | null;
@@ -614,6 +632,10 @@ export interface Museum {
         }[]
       | null;
   };
+  lfrs?: {
+    favouritesCount?: number | null;
+    sharesCount?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -715,6 +737,10 @@ export interface Object {
     totalDocs?: number;
   };
   contents?: (string | Content)[] | null;
+  lfrs?: {
+    favouritesCount?: number | null;
+    sharesCount?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -749,6 +775,12 @@ export interface Content {
     docs?: (string | Object)[];
     hasNextPage?: boolean;
     totalDocs?: number;
+  };
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -1101,6 +1133,100 @@ export interface RolesPermission {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-likes".
+ */
+export interface LfrsLike {
+  id: string;
+  user: string | User;
+  targetCollection: string;
+  targetDoc: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-favourites".
+ */
+export interface LfrsFavourite {
+  id: string;
+  user: string | User;
+  targetCollection: string;
+  targetDoc: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-reviews".
+ */
+export interface LfrsReview {
+  id: string;
+  user: string | User;
+  targetCollection: string;
+  targetDoc: string;
+  title?: string | null;
+  body?: string | null;
+  score?: number | null;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  repliesCount?: number | null;
+  replies?: {
+    docs?: (string | LfrsReply)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-replies".
+ */
+export interface LfrsReply {
+  id: string;
+  user: string | User;
+  review: string | LfrsReview;
+  body: string;
+  status?: ('pending' | 'approved' | 'rejected') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-shares".
+ */
+export interface LfrsShare {
+  id: string;
+  user?: (string | null) | User;
+  targetCollection: string;
+  targetDoc: string;
+  platform: 'facebook' | 'twitter' | 'whatsapp' | 'telegram' | 'linkedin' | 'web' | 'other';
+  url?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-testimonials".
+ */
+export interface LfrsTestimonial {
+  id: string;
+  /**
+   * The email address to send the invitation to.
+   */
+  invitedEmail: string;
+  uniqueCode?: string | null;
+  firstName?: string | null;
+  rating?: number | null;
+  testimonial?: string | null;
+  featured?: boolean | null;
+  status?: ('pending' | 'accepted' | 'rejected') | null;
+  invitationSentDate?: string | null;
+  testimonialAcceptedDate?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * API keys control which collections, resources, tools, and prompts MCP clients can access
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1384,6 +1510,30 @@ export interface PayloadLockedDocument {
         value: string | RolesPermission;
       } | null)
     | ({
+        relationTo: 'lfrs-likes';
+        value: string | LfrsLike;
+      } | null)
+    | ({
+        relationTo: 'lfrs-favourites';
+        value: string | LfrsFavourite;
+      } | null)
+    | ({
+        relationTo: 'lfrs-reviews';
+        value: string | LfrsReview;
+      } | null)
+    | ({
+        relationTo: 'lfrs-replies';
+        value: string | LfrsReply;
+      } | null)
+    | ({
+        relationTo: 'lfrs-shares';
+        value: string | LfrsShare;
+      } | null)
+    | ({
+        relationTo: 'lfrs-testimonials';
+        value: string | LfrsTestimonial;
+      } | null)
+    | ({
         relationTo: 'payload-mcp-api-keys';
         value: string | PayloadMcpApiKey;
       } | null);
@@ -1580,7 +1730,6 @@ export interface MuseumsSelect<T extends boolean = true> {
             };
         notes?: T;
       };
-  ticketLink?: T;
   ticketInfo?:
     | T
     | {
@@ -1858,6 +2007,12 @@ export interface MuseumsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  lfrs?:
+    | T
+    | {
+        favouritesCount?: T;
+        sharesCount?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1906,6 +2061,12 @@ export interface ObjectsSelect<T extends boolean = true> {
   description?: T;
   exhibit?: T;
   contents?: T;
+  lfrs?:
+    | T
+    | {
+        favouritesCount?: T;
+        sharesCount?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1938,6 +2099,14 @@ export interface ContentsSelect<T extends boolean = true> {
   copyright?: T;
   images?: T;
   objects?: T;
+  lfrs?:
+    | T
+    | {
+        favouritesCount?: T;
+        ratingsCount?: T;
+        ratingsAverage?: T;
+        sharesCount?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -2249,6 +2418,87 @@ export interface RolesPermissionsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-likes_select".
+ */
+export interface LfrsLikesSelect<T extends boolean = true> {
+  user?: T;
+  targetCollection?: T;
+  targetDoc?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-favourites_select".
+ */
+export interface LfrsFavouritesSelect<T extends boolean = true> {
+  user?: T;
+  targetCollection?: T;
+  targetDoc?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-reviews_select".
+ */
+export interface LfrsReviewsSelect<T extends boolean = true> {
+  user?: T;
+  targetCollection?: T;
+  targetDoc?: T;
+  title?: T;
+  body?: T;
+  score?: T;
+  status?: T;
+  repliesCount?: T;
+  replies?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-replies_select".
+ */
+export interface LfrsRepliesSelect<T extends boolean = true> {
+  user?: T;
+  review?: T;
+  body?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-shares_select".
+ */
+export interface LfrsSharesSelect<T extends boolean = true> {
+  user?: T;
+  targetCollection?: T;
+  targetDoc?: T;
+  platform?: T;
+  url?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-testimonials_select".
+ */
+export interface LfrsTestimonialsSelect<T extends boolean = true> {
+  invitedEmail?: T;
+  uniqueCode?: T;
+  firstName?: T;
+  rating?: T;
+  testimonial?: T;
+  featured?: T;
+  status?: T;
+  invitationSentDate?: T;
+  testimonialAcceptedDate?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-mcp-api-keys_select".
  */
 export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
@@ -2363,6 +2613,67 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-settings".
+ */
+export interface LfrsSetting {
+  id: string;
+  reviewModeration?: boolean | null;
+  /**
+   * Manage active LFRs features for the museums collection.
+   */
+  museums?: {
+    favourites?: boolean | null;
+    shares?: boolean | null;
+  };
+  /**
+   * Manage active LFRs features for the objects collection.
+   */
+  objects?: {
+    favourites?: boolean | null;
+    shares?: boolean | null;
+  };
+  /**
+   * Manage active LFRs features for the contents collection.
+   */
+  contents?: {
+    favourites?: boolean | null;
+    ratings?: boolean | null;
+    shares?: boolean | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "lfrs-settings_select".
+ */
+export interface LfrsSettingsSelect<T extends boolean = true> {
+  reviewModeration?: T;
+  museums?:
+    | T
+    | {
+        favourites?: T;
+        shares?: T;
+      };
+  objects?:
+    | T
+    | {
+        favourites?: T;
+        shares?: T;
+      };
+  contents?:
+    | T
+    | {
+        favourites?: T;
+        ratings?: T;
+        shares?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
