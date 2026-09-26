@@ -9,6 +9,15 @@ const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/navigator',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     localPatterns: [
       {
