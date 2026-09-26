@@ -65,7 +65,7 @@ function useCurrentWordIndex(words: string[]): [number, (index: number) => void]
 function TypeWriterTextView<TWords extends string>(props: TypeWriterTextProps<TWords>) {
   // `c` is Mantine's text-color style prop; `color` would land on the DOM as a
   // no-op attribute. It doubles as the fallback when a word has no entry.
-  const { loopColors, value, c: fallbackColor, onCharType, ...rest } = props
+  const { loopColors, value, fallbackColor, c, onCharType, ...rest } = props
   const words = React.useMemo(() => toWords(value), [value])
   const [wordIndex, trackChar] = useCurrentWordIndex(words)
 
@@ -78,7 +78,7 @@ function TypeWriterTextView<TWords extends string>(props: TypeWriterTextProps<TW
   )
 
   const currentWord = words[wordIndex % Math.max(words.length, 1)]
-  const currentColor = (currentWord && loopColors?.[currentWord]) ?? fallbackColor
+  const currentColor = (currentWord && loopColors?.[currentWord]) ?? c ?? fallbackColor
 
   return (
     <TextAnimate.Typewriter {...rest} value={value} c={currentColor} onCharType={handleCharType} />
