@@ -41,10 +41,10 @@ const NavBarItem = (items: { label: string; icon: React.ReactNode }[]): Segmente
     value: item.label,
     label: (
       <Center style={{ gap: 10 }}>
-        <Group gap={6} align="center" justify="center">
+        <Stack gap={6} align="center" justify="center">
           <Compass size={16} />
           <Text>{item.label}</Text>
-        </Group>
+        </Stack>
       </Center>
     ),
   }))
