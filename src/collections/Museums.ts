@@ -16,9 +16,8 @@ export const Museums: CollectionConfig = {
     },
     {
       name: 'description',
-      type: 'textarea',
+      type: 'richText',
       required: false,
-      maxLength: 500,
     },
     {
       name: 'shortDescription',

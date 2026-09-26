@@ -11,9 +11,7 @@ const preview: Preview = {
     layout: 'fullscreen',
     options: {
       showPanel: false,
-      storySort: (a, b) => {
-        a.title.localeCompare(b.title, undefined, { numeric: true })
-      },
+      storySort: (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true }),
     },
     backgrounds: { disable: true },
     controls: {

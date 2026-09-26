@@ -24,6 +24,7 @@ import { MuseumThumbnails, Museums, MuseumMaps } from './collections/Museums'
 import { Objects } from './collections/Objects'
 import { Exhibits } from './collections/Exhibits'
 import { Contents, ContentImages } from './collections/Contents'
+import { Tour } from './collections/Tours'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -45,6 +46,7 @@ export default buildConfig({
     Exhibits,
     Contents,
     ContentImages,
+    Tour,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

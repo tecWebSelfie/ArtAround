@@ -77,6 +77,7 @@ export interface Config {
     exhibits: Exhibit;
     contents: Content;
     contentImages: ContentImage;
+    tours: Tour;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -121,6 +122,7 @@ export interface Config {
     exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
+    tours: ToursSelect<false> | ToursSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -297,7 +299,21 @@ export interface Museum {
   id: string;
   createdBy?: string | null;
   name: string;
-  description?: string | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   shortDescription: string;
   accessibility: boolean;
   map?: (string | null) | MuseumMap;
@@ -803,6 +819,15 @@ export interface ContentImage {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours".
+ */
+export interface Tour {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1478,6 +1503,10 @@ export interface PayloadLockedDocument {
         value: string | ContentImage;
       } | null)
     | ({
+        relationTo: 'tours';
+        value: string | Tour;
+      } | null)
+    | ({
         relationTo: 'forms';
         value: string | Form;
       } | null)
@@ -2130,6 +2159,14 @@ export interface ContentImagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours_select".
+ */
+export interface ToursSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
@@ -2704,6 +2741,7 @@ export interface TaskCreateCollectionExport {
       | 'exhibits'
       | 'contents'
       | 'contentImages'
+      | 'tours'
       | 'forms'
       | 'form-submissions'
       | 'redirects'

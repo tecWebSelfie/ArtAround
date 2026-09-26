@@ -16,8 +16,3 @@ export const Users: CollectionConfig = {
     // Add more fields as needed
   ],
 }
-
-export const Tour: CollectionConfig = {
-  slug: TOURS_COLLECTION_SLUG,
-  fields: [],
-}
