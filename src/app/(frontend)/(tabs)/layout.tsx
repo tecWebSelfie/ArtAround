@@ -7,6 +7,7 @@ import {
   Center,
   Container,
   Stack,
+  SegmentedControlItem,
 } from '@mantine/core'
 import { Compass, Store } from 'lucide-react'
 
@@ -15,9 +16,7 @@ export default function MantinePlayground({ children }: { children: React.ReactN
     <>
       <Stack>{children}</Stack>
       <AppShellFooter component="nav">
-        <Container>
-          <NavBar />
-        </Container>
+        <NavBar />
       </AppShellFooter>
     </>
   )
@@ -29,30 +28,23 @@ function NavBar(props: Omit<SegmentedControlProps, 'data'>) {
       {...props}
       autoContrast
       fullWidth
-      data={[
-        {
-          value: 'marketplace',
-          label: (
-            <Center style={{ gap: 10 }}>
-              <Group gap={6} align="center" justify="center">
-                <Store size={16} />
-                <Text color="red">Marketplace</Text>
-              </Group>
-            </Center>
-          ),
-        },
-        {
-          value: 'navigator',
-          label: (
-            <Center style={{ gap: 10 }}>
-              <Group gap={6} align="center" justify="center">
-                <Compass size={16} />
-                <Text>Navigator</Text>
-              </Group>
-            </Center>
-          ),
-        },
-      ]}
+      data={NavBarItem([
+        { label: 'Navigator', icon: <Compass size={16} /> },
+        { label: 'Store', icon: <Store size={16} /> },
+      ])}
     />
   )
 }
+
+const NavBarItem = (items: { label: string; icon: React.ReactNode }[]): SegmentedControlItem[] =>
+  items.map((item) => ({
+    value: item.label,
+    label: (
+      <Center style={{ gap: 10 }}>
+        <Group gap={6} align="center" justify="center">
+          <Compass size={16} />
+          <Text>{item.label}</Text>
+        </Group>
+      </Center>
+    ),
+  }))
