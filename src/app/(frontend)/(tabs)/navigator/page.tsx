@@ -30,77 +30,30 @@ import { Reflection } from '@gfazioli/mantine-reflection'
 
 export default function MantinePlayground() {
   return (
-    <AppShell
-      footer={{
-        height: 'auto',
-      }}
-    >
-      <Stack mx="xl">
-        <Stack mt="10dvh">
-          <Stack>
-            <NavigationHomeTitle />
-            <NavigatorHomeSearchBar mb="xl" />
-          </Stack>
+    <Stack mx="xl">
+      <Stack mt="10dvh">
+        <Stack>
+          <NavigationHomeTitle />
+          <NavigatorHomeSearchBar mb="xl" />
         </Stack>
-        <Divider my="md" label="Or" />
-        <Group color="blue" wrap="wrap" align="start">
-          <Paper type="button" component="button" p="xs" withBorder shadow="sm">
-            <QRCode color="blue" value="dw" image="compass.svg" errorCorrectionLevel="H" />
-            <Text color="blue" ta="center">
-              Scan tour QR to start
-            </Text>
-          </Paper>
-          <Divider my="md" orientation="vertical" />
-          <Stack align="center">
-            <ActionIcon autoContrast size={150} variant="filled" className="rounded-full">
-              <Mic size="80%" />
-            </ActionIcon>
-            <Text ta="center" textWrap="wrap">
-              Scan the QR code to start the tour
-            </Text>
-          </Stack>
-        </Group>
       </Stack>
-      <AppShellFooter component="nav">
-        <Container>
-          <NavBar />
-        </Container>
-      </AppShellFooter>
-    </AppShell>
-  )
-}
-
-function NavBar(props: Omit<SegmentedControlProps, 'data'>) {
-  return (
-    <SegmentedControl
-      {...props}
-      autoContrast
-      fullWidth
-      data={[
-        {
-          value: 'marketplace',
-          label: (
-            <Center style={{ gap: 10 }}>
-              <Group gap={6} align="center" justify="center">
-                <Store size={16} />
-                <Text color="red">Marketplace</Text>
-              </Group>
-            </Center>
-          ),
-        },
-        {
-          value: 'navigator',
-          label: (
-            <Center style={{ gap: 10 }}>
-              <Group gap={6} align="center" justify="center">
-                <Compass size={16} />
-                <Text>Navigator</Text>
-              </Group>
-            </Center>
-          ),
-        },
-      ]}
-    />
+      <Divider my="md" label="Or" />
+      <Group color="blue" wrap="wrap" align="start">
+        <Paper type="button" component="button" p="xs" withBorder shadow="sm">
+          <QRCode color="blue" value="dw" image="compass.svg" errorCorrectionLevel="H" />
+          <Text color="blue" ta="center">
+            Scan tour QR to start
+          </Text>
+        </Paper>
+        <Divider my="md" orientation="vertical" />
+        <Stack align="center">
+          <ActionIcon autoContrast size={150} variant="filled" className="rounded-full">
+            <Mic size="80%" />
+          </ActionIcon>
+          <Text ta="center">Or turn the mic on and tell us what you want</Text>
+        </Stack>
+      </Group>
+    </Stack>
   )
 }
 

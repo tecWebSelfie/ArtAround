@@ -1,7 +1,7 @@
 import './globals.css'
 import React from 'react'
 
-import { MantineProvider, ColorSchemeScript, mantineHtmlProps } from '@mantine/core'
+import { MantineProvider, ColorSchemeScript, mantineHtmlProps, AppShell } from '@mantine/core'
 import { theme } from '@/theme'
 
 import { IntlProvider } from 'react-intl'
@@ -29,7 +29,15 @@ export default async function Layout(props: { children: React.ReactNode }) {
       <body>
         <MswProvider>
           <IntlProvider messages={messagesInItalian} locale="it" defaultLocale="it">
-            <MantineProvider theme={theme}>{children}</MantineProvider>
+            <MantineProvider theme={theme}>
+              <AppShell
+                footer={{
+                  height: 'auto',
+                }}
+              >
+                {children}
+              </AppShell>
+            </MantineProvider>
           </IntlProvider>
         </MswProvider>
       </body>
