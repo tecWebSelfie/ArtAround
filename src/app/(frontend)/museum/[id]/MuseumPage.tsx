@@ -3,7 +3,6 @@ import {
   Stack,
   Image,
   Title,
-  Center,
   DataList,
   DataListItem,
   DataListItemValue,
@@ -18,10 +17,21 @@ import {
   ThemeIcon,
   Overlay,
   Button,
-  Container,
+  Spoiler,
 } from '@mantine/core'
+import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
+import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { Museum, type MuseumThumbnail } from '@/payload-types'
-import { Utensils, Toilet, Info, ShoppingBag, Accessibility, Images } from 'lucide-react'
+import {
+  Amphora,
+  Utensils,
+  Toilet,
+  Info,
+  ShoppingBag,
+  Accessibility,
+  Images,
+  BadgeInfo,
+} from 'lucide-react'
 
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 
@@ -45,22 +55,41 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
       {museum.services && Object.keys(museum.services).length > 0 && (
         <MuseumBadges services={museum.services} />
       )}
-      <Text>{museum.shortDescription}</Text>
-      <Typography>
-        {!descriptionHTML ? (
-          'No description available'
-        ) : (
-          <div dangerouslySetInnerHTML={{ __html: descriptionHTML }}></div>
-        )}
-      </Typography>
-      <DataList orientation="vertical">
-        <DataListItem>
-          <DataListItemLabel>Adress</DataListItemLabel>
-          <DataListItemValue>
-            {[museum.location.city, museum.location.address].join(', ')}
-          </DataListItemValue>
-        </DataListItem>
-      </DataList>
+      <ArtaroundTabs
+        tabs={[
+          {
+            value: 'info',
+            icon: <BadgeInfo size={16} />,
+            panel: (
+              <Stack>
+                <Text>{museum.shortDescription}</Text>
+
+                <ArtaroundDataList
+                  data={{
+                    Description: (
+                      <Spoiler maxHeight={80} showLabel="Show more" hideLabel="Hide">
+                        <Typography>
+                          {!descriptionHTML ? (
+                            'No description available'
+                          ) : (
+                            <div dangerouslySetInnerHTML={{ __html: descriptionHTML }}></div>
+                          )}
+                        </Typography>
+                      </Spoiler>
+                    ),
+                    Address: [museum.location.address, museum.location.city].join(', '),
+                  }}
+                />
+              </Stack>
+            ),
+          },
+          {
+            value: 'contents',
+            icon: <Amphora size={16} />,
+            panel: <Text>Contents panel content</Text>,
+          },
+        ]}
+      />
     </Stack>
   )
 }
@@ -102,11 +131,13 @@ export async function MuseumBadges(props: { services: Museum['services'] }) {
             </Tooltip>
           )}
         </AvatarGroup>
+        {/*Accessibility Badge */}
+        <Tooltip label="Accessible" withArrow>
+          <ThemeIcon radius="xl" size="lg" variant="filled" color="blue" autoContrast>
+            <Accessibility size={16} />
+          </ThemeIcon>
+        </Tooltip>
       </TooltipGroup>
-      {/*Accessibility Badge */}
-      <ThemeIcon radius="xl" size="lg" variant="filled" color="blue" autoContrast>
-        <Accessibility size={16} />
-      </ThemeIcon>
     </Group>
   )
 }

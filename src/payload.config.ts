@@ -18,6 +18,9 @@ import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
 
+import { en } from '@payloadcms/translations/languages/en'
+import { it } from '@payloadcms/translations/languages/it'
+
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
 import { MuseumThumbnails, Museums, MuseumMaps } from './collections/Museums'
@@ -35,6 +38,10 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+  },
+  i18n: {
+    supportedLanguages: { en, it },
+    fallbackLanguage: 'en',
   },
   collections: [
     Users,

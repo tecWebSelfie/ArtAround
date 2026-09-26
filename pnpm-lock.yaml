@@ -113,6 +113,9 @@ importers:
       '@payloadcms/sdk':
         specifier: 3.89.0
         version: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
+      '@payloadcms/translations':
+        specifier: ^3.90.2
+        version: 3.90.2
       '@payloadcms/ui':
         specifier: 3.89.0
         version: 3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
@@ -2695,6 +2698,9 @@ packages:
 
   '@payloadcms/translations@3.89.0':
     resolution: {integrity: sha512-XLPOdv9NoPcqr21zBTu0uyJk0qGRIF7JVl2H2UTecpweQSMlQCackhUKWz1LKBO7QcKgkNSVHFnMNcizRDcPDg==}
+
+  '@payloadcms/translations@3.90.2':
+    resolution: {integrity: sha512-BGpXyw22ndzL6URrK28qlk2qIsksH8mbWpU/n8vaTt8W6O87KoniX4lJ82m5o0FR/wjWqzcuVRsE0TNX3/7gHg==}
 
   '@payloadcms/ui@3.89.0':
     resolution: {integrity: sha512-jKc8kgSjaICZ39sNC4dr4MLkAj2lR9ikzSwcHzPGOsJlleOVPJq5jM9bmAnqEOhtbpPNl0CGlpo6RIeECnBmwg==}
@@ -11446,6 +11452,10 @@ snapshots:
     dependencies:
       date-fns: 4.1.0
 
+  '@payloadcms/translations@3.90.2':
+    dependencies:
+      date-fns: 4.1.0
+
   '@payloadcms/ui@3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.77.4))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)':
     dependencies:
       '@date-fns/tz': 1.2.0
@@ -16467,7 +16477,7 @@ snapshots:
 
   payload-phone-number-plugin@1.7.1(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3)):
     dependencies:
-      '@payloadcms/translations': 3.89.0
+      '@payloadcms/translations': 3.90.2
       clsx: 2.1.1
       libphonenumber-js: 1.13.13
       payload: 3.89.0(graphql@16.14.2)(typescript@5.9.3)

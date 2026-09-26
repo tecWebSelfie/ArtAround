@@ -52,7 +52,7 @@ function daySchedule(dayName: string): ArrayField {
         type: 'date',
       },
     ],
-    validate: () => {
+    Bust: () => {
       //TODO
     },
   }
