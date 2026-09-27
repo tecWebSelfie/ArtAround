@@ -28,7 +28,7 @@ import { TypeWriterText } from '@/components/mantine/TypeWriterText'
 import { OrbitingCircles } from '@/components/ui/orbiting-circles'
 import { Reflection } from '@gfazioli/mantine-reflection'
 
-export default function MantinePlayground() {
+export default async function NavigatorHomePage() {
   return (
     <Stack mx={{ base: 'md', sm: 'xl' }}>
       <Stack mt="10dvh">
@@ -40,15 +40,7 @@ export default function MantinePlayground() {
       <Divider my="md" label="Or" />
       <Flex align="stretch" justify="center" gap={{ base: 'xs', sm: 'md' }} wrap="nowrap">
         <Center flex="1 1 0" miw={0}>
-          <Paper
-            type="button"
-            component="button"
-            p="xs"
-            withBorder
-            shadow="sm"
-            maw="100%"
-            miw={0}
-          >
+          <Paper type="button" component="button" p="xs" withBorder shadow="sm" maw="100%" miw={0}>
             <QRCode
               color="blue"
               value="dw"

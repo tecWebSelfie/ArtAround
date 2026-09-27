@@ -1,7 +1,7 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
-import { buildConfig } from 'payload'
+import { buildConfig, LocalizationConfig, Locale } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
@@ -20,6 +20,7 @@ import { payloadLFRs } from 'payload-lfrs'
 
 import { en } from '@payloadcms/translations/languages/en'
 import { it } from '@payloadcms/translations/languages/it'
+import IsoCodes from 'iso-639-1'
 
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
@@ -32,7 +33,18 @@ import { Tour } from './collections/Tours'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const localizationConfig: LocalizationConfig = {
+  defaultLocale: 'en',
+  locales: IsoCodes.getAllCodes().map((isoCode) => ({
+    label: IsoCodes.getName(isoCode),
+    code: isoCode,
+    fallbackLocale: 'en',
+  })),
+  fallback: true,
+}
+
 export default buildConfig({
+  localization: localizationConfig,
   admin: {
     user: Users.slug,
     importMap: {
