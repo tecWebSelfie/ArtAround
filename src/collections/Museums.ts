@@ -5,6 +5,7 @@ import { TicketInfo } from '../fields/TicketInfo'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 import { SocialLinks } from '@/fields/SocialLinks'
 import { Coordinates } from '@/fields/Coordinates'
+import { editorial } from '@/fields/editorial'
 
 export const Museums: CollectionConfig = {
   slug: 'museums',
@@ -14,17 +15,8 @@ export const Museums: CollectionConfig = {
       type: 'text',
       required: true,
     },
-    {
-      name: 'description',
-      type: 'richText',
-      required: false,
-    },
-    {
-      name: 'shortDescription',
-      type: 'text',
-      required: true,
-      maxLength: 100,
-    },
+    editorial({ name: 'description', type: 'richText', required: false }),
+    editorial({ name: 'shortDescription', type: 'text', required: true, maxLength: 100 }),
     {
       name: 'accessibility',
       type: 'checkbox',
@@ -54,16 +46,8 @@ export const Museums: CollectionConfig = {
       type: 'array',
       required: false,
       fields: [
-        {
-          name: 'title',
-          type: 'text',
-          required: true,
-        },
-        {
-          name: 'content',
-          type: 'textarea',
-          required: true,
-        },
+        editorial({ name: 'title', type: 'text', required: true }),
+        editorial({ name: 'content', type: 'textarea', required: true }),
         {
           name: 'date',
           type: 'date',
@@ -139,12 +123,12 @@ export const MuseumThumbnails: CollectionConfig = {
   slug: 'museumThumbnails',
   upload: true,
   fields: [
-    {
+    editorial({
       name: 'alt',
       type: 'text',
       required: true,
       defaultValue: 'Museum thumbnail image',
-    },
+    }),
   ],
 }
 

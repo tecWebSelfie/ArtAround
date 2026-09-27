@@ -1,8 +1,5 @@
 import { ExportListMenuItem as ExportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ImportListMenuItem as ImportListMenuItem_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
-import { PhoneNumberCellComponent as PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
-import { PhoneNumberFieldComponent as PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
-import { LfrsStatusWidget as LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
 import { RscEntryLexicalCell as RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { RscEntryLexicalField as RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
 import { LexicalDiffComponent as LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e } from '@payloadcms/richtext-lexical/rsc'
@@ -26,11 +23,17 @@ import { StrikethroughFeatureClient as StrikethroughFeatureClient_e70f5e05f09f93
 import { UnderlineFeatureClient as UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { BoldFeatureClient as BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
 import { ItalicFeatureClient as ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864 } from '@payloadcms/richtext-lexical/client'
+import { PhoneNumberCellComponent as PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
+import { PhoneNumberFieldComponent as PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60 } from 'payload-phone-number-plugin/client'
+import { LfrsStatusWidget as LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
+import { default as default_5a9e6bfe3379b31c0258f532ec5399fb } from '@focus-reactive/payload-plugin-translator/client/widgets/bulk-translation-dashboard/ui/BulkTranslationDashboard.server'
+import { default as default_587142b484744b5573788fdf4a68522a } from '@focus-reactive/payload-plugin-translator/client/widgets/translate-document/ui/TranslateDocument.server'
 import { FormatField as FormatField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { LimitField as LimitField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { Page as Page_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { SortBy as SortBy_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { SortOrder as SortOrder_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
+import { LocaleField as LocaleField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { SelectionToUseField as SelectionToUseField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { FieldsToExport as FieldsToExport_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { CollectionField as CollectionField_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
@@ -41,6 +44,7 @@ import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 }
 import { PermissionActionReorderClient as PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { PermissionFeatureReorderClient as PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { RolePermissionMatrixClient as RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
+import { default as default_5668654bc04fc84f784cb30b290f6f3d } from '@focus-reactive/payload-plugin-translator/client/app/cache/CacheProvider'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ReviewModerationView as ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
 import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } from '@payloadcms/next/rsc'
@@ -49,9 +53,6 @@ import { CollectionCards as CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1 } f
 export const importMap = {
   "@payloadcms/plugin-import-export/rsc#ExportListMenuItem": ExportListMenuItem_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#ImportListMenuItem": ImportListMenuItem_cdf7e044479f899a31f804427d568b36,
-  "payload-phone-number-plugin/client#PhoneNumberCellComponent": PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
-  "payload-phone-number-plugin/client#PhoneNumberFieldComponent": PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
-  "payload-lfrs/admin#LfrsStatusWidget": LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalCell": RscEntryLexicalCell_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#RscEntryLexicalField": RscEntryLexicalField_44fe37237e0ebf4470c9990d8cb7b07e,
   "@payloadcms/richtext-lexical/rsc#LexicalDiffComponent": LexicalDiffComponent_44fe37237e0ebf4470c9990d8cb7b07e,
@@ -75,11 +76,17 @@ export const importMap = {
   "@payloadcms/richtext-lexical/client#UnderlineFeatureClient": UnderlineFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#BoldFeatureClient": BoldFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
   "@payloadcms/richtext-lexical/client#ItalicFeatureClient": ItalicFeatureClient_e70f5e05f09f93e00b997edb1ef0c864,
+  "payload-phone-number-plugin/client#PhoneNumberCellComponent": PhoneNumberCellComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
+  "payload-phone-number-plugin/client#PhoneNumberFieldComponent": PhoneNumberFieldComponent_acc6f3dfddf27a115c1f737a3b7bbd60,
+  "payload-lfrs/admin#LfrsStatusWidget": LfrsStatusWidget_cb5276bd0bb02a0fe5f46717e8188aeb,
+  "@focus-reactive/payload-plugin-translator/client/widgets/bulk-translation-dashboard/ui/BulkTranslationDashboard.server#default": default_5a9e6bfe3379b31c0258f532ec5399fb,
+  "@focus-reactive/payload-plugin-translator/client/widgets/translate-document/ui/TranslateDocument.server#default": default_587142b484744b5573788fdf4a68522a,
   "@payloadcms/plugin-import-export/rsc#FormatField": FormatField_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#LimitField": LimitField_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#Page": Page_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#SortBy": SortBy_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#SortOrder": SortOrder_cdf7e044479f899a31f804427d568b36,
+  "@payloadcms/plugin-import-export/rsc#LocaleField": LocaleField_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#SelectionToUseField": SelectionToUseField_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#FieldsToExport": FieldsToExport_cdf7e044479f899a31f804427d568b36,
   "@payloadcms/plugin-import-export/rsc#CollectionField": CollectionField_cdf7e044479f899a31f804427d568b36,
@@ -90,6 +97,7 @@ export const importMap = {
   "@zealamic/payload-plugin-rbac/client#PermissionActionReorderClient": PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4,
   "@zealamic/payload-plugin-rbac/client#PermissionFeatureReorderClient": PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4,
   "@zealamic/payload-plugin-rbac/client#RolePermissionMatrixClient": RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4,
+  "@focus-reactive/payload-plugin-translator/client/app/cache/CacheProvider#default": default_5668654bc04fc84f784cb30b290f6f3d,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "payload-lfrs/admin#ReviewModerationView": ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb,
   "@payloadcms/next/rsc#CollectionCards": CollectionCards_f9c02e79a4aed9a3924487c0cd4cafb1

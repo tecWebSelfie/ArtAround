@@ -3,7 +3,7 @@
 This project uses the Payload CMS skill at `.agents/skills/payload/`.
 Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.agents/skills/payload/reference/` for detailed docs.
 
-## Storybook MCP (`storybook` in `opencode.json`)
+## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
 When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`).
 
@@ -16,3 +16,54 @@ When working on UI components, always use the `storybook` MCP tools to access St
 - Check your work by running `run-story-tests` (includes accessibility checks).
 
 Remember: A story name might not reflect the property name correctly, so always verify properties through documentation or example stories before using them.
+
+## On-demand AI translation (`src/plugins/autoTranslate.ts`)
+
+Editorial content (museums, objects, contents + upload `alt`s) is machine-translated
+lazily into any user locale and cached in Payload. Stack: `@focus-reactive/payload-plugin-translator`
+**exact pin `0.13.4`** (no caret — its unpublished `/translate/stale/*` route is load-bearing,
+see `src/endpoints/localized.ts` header) with Groq `openai/gpt-oss-120b` provider.
+
+- Mark translatable leaves with `editorial()` (`src/fields/editorial.ts`) — single generic
+  factory returning the field with `localized: true`. Opt-in only: new fields stay
+  untranslated-but-safe until wrapped. Never wrap `slug`, identifiers, emails/URLs,
+  or third-party plugin internals.
+- Register collections in ONE place: `autoTranslatePlugin({ collections: [...] })` in
+  `src/payload.config.ts`. The wrapper mounts `GET /api/{slug}/:id/localized?locale=xx`
+  on each and delegates to the translator (provider, Jobs runner, `provenance: true`,
+  no drafts). Never register `translatorPlugin` standalone alongside it.
+- `GROQ_API_KEY` lives in `.env` / `.env.local` (server-only, never `NEXT_PUBLIC_`).
+  Empty key boots fine; translations fail at runtime with a clear provider error.
+
+### Frontend usage (for app developers)
+
+Do NOT call Payload REST directly for localized reads (anonymous REST is RBAC-denied
+and `fallback: true` silently masks missing translations). Use the collection endpoint:
+
+```
+GET /api/objects/:id/localized?locale=fr
+→ { status: 'hit', source: 'db', locale, doc }                            // cached, ~100ms
+→ { status: 'miss-queued', source: 'fallback-en', locale, doc, queued }   // paints NOW
+→ { status: 'stale-refreshing', source: 'db-stale', ... }                 // serves stored + refreshes
+→ { status: 'miss-throttled', ... } (429) / { error } (400/404)
+```
+`?locale=` is optional: omitted, the server falls back to the request's
+`Accept-Language` header (explicit param always wins; present-but-invalid stays 400).
+
+Pattern: render `doc` immediately (EN fallback on MISS), show a badge while
+`status` is `miss-*`/`stale-refreshing`, poll the SAME url every 2s (max ~15) until
+`hit`. Next visitors get HIT instantly, zero AI. Never write translation logic in
+`afterRead` hooks and never import `dist/client` widget code into the frontend —
+reuse the endpoint. Playground: `/test-translation?collection=objects&id=…&locale=ja`.
+
+Typed DX (no `any`, no raw fetch): server code uses `resolveLocalized(payload, origin, …)`
+from `src/lib/localized.ts` (pure Local-API reads, same contract the endpoint serves);
+browser/client code uses `getLocalizedDoc()` from `src/payload-sdk.ts`
+(`PayloadSDK<Config>` + typed `doc` per collection). The endpoint itself
+(`src/endpoints/localized.ts`) is only the thin HTTP shell (validation, throttle,
+status codes) over `resolveLocalized()`.
+
+Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in prod);
+`stale` freshness check fail-opens to HIT if the pinned internal route ever 404s.
+
+## Storybook MCP (`storybook` in `opencode.json`)

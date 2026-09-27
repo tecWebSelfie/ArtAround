@@ -78,6 +78,7 @@ export interface Config {
     contents: Content;
     contentImages: ContentImage;
     tours: Tour;
+    'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -123,6 +124,7 @@ export interface Config {
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
+    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -149,20 +151,577 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: null;
+  fallbackLocale:
+    | ('false' | 'none' | 'null')
+    | false
+    | null
+    | (
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )
+    | (
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )[];
   globals: {
     'lfrs-settings': LfrsSetting;
   };
   globalsSelect: {
     'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
   };
-  locale: null;
+  locale:
+    | 'om'
+    | 'aa'
+    | 'af'
+    | 'ak'
+    | 'an'
+    | 'ig'
+    | 'gn'
+    | 'ae'
+    | 'ay'
+    | 'az'
+    | 'id'
+    | 'ms'
+    | 'bm'
+    | 'jv'
+    | 'su'
+    | 'bi'
+    | 'bs'
+    | 'br'
+    | 'ca'
+    | 'cs'
+    | 'ch'
+    | 'ny'
+    | 'sn'
+    | 'co'
+    | 'cy'
+    | 'da'
+    | 'se'
+    | 'de'
+    | 'nv'
+    | 'na'
+    | 'et'
+    | 'en'
+    | 'es'
+    | 'eo'
+    | 'eu'
+    | 'ee'
+    | 'to'
+    | 'mg'
+    | 'fo'
+    | 'fr'
+    | 'fy'
+    | 'ff'
+    | 'ga'
+    | 'gv'
+    | 'sm'
+    | 'gd'
+    | 'gl'
+    | 'ki'
+    | 'ho'
+    | 'hr'
+    | 'io'
+    | 'rw'
+    | 'rn'
+    | 'ia'
+    | 'ie'
+    | 'ik'
+    | 'nd'
+    | 'nr'
+    | 'xh'
+    | 'zu'
+    | 'is'
+    | 'it'
+    | 'mh'
+    | 'kl'
+    | 'kr'
+    | 'kw'
+    | 'kg'
+    | 'lu'
+    | 'sw'
+    | 'ht'
+    | 'kj'
+    | 'ku'
+    | 'la'
+    | 'lv'
+    | 'lb'
+    | 'lt'
+    | 'li'
+    | 'ln'
+    | 'lg'
+    | 'hu'
+    | 'mt'
+    | 'nl'
+    | 'no'
+    | 'nb'
+    | 'nn'
+    | 'oc'
+    | 'hz'
+    | 'ng'
+    | 'pl'
+    | 'pt'
+    | 'ty'
+    | 'ro'
+    | 'rm'
+    | 'qu'
+    | 'sc'
+    | 'za'
+    | 'st'
+    | 'tn'
+    | 'sq'
+    | 'ss'
+    | 'sk'
+    | 'sl'
+    | 'so'
+    | 'fi'
+    | 'sv'
+    | 'mi'
+    | 'vi'
+    | 've'
+    | 'tr'
+    | 'tk'
+    | 'tw'
+    | 'vo'
+    | 'fj'
+    | 'wa'
+    | 'tl'
+    | 'wo'
+    | 'ts'
+    | 'sg'
+    | 'yo'
+    | 'el'
+    | 'av'
+    | 'ab'
+    | 'ba'
+    | 'be'
+    | 'bg'
+    | 'os'
+    | 'kv'
+    | 'ky'
+    | 'kk'
+    | 'mk'
+    | 'mn'
+    | 'ce'
+    | 'ru'
+    | 'sr'
+    | 'tt'
+    | 'tg'
+    | 'uz'
+    | 'uk'
+    | 'cv'
+    | 'cu'
+    | 'ka'
+    | 'hy'
+    | 'yi'
+    | 'he'
+    | 'ug'
+    | 'ur'
+    | 'ar'
+    | 'ps'
+    | 'fa'
+    | 'ha'
+    | 'dv'
+    | 'ti'
+    | 'am'
+    | 'ks'
+    | 'ne'
+    | 'pi'
+    | 'mr'
+    | 'sa'
+    | 'sd'
+    | 'hi'
+    | 'as'
+    | 'bn'
+    | 'pa'
+    | 'gu'
+    | 'or'
+    | 'ta'
+    | 'te'
+    | 'kn'
+    | 'ml'
+    | 'si'
+    | 'th'
+    | 'lo'
+    | 'bo'
+    | 'dz'
+    | 'my'
+    | 'km'
+    | 'iu'
+    | 'oj'
+    | 'cr'
+    | 'ko'
+    | 'ii'
+    | 'zh'
+    | 'ja';
   widgets: {
     collections: CollectionsWidget;
   };
   user: User | PayloadMcpApiKey;
   jobs: {
     tasks: {
+      translate_document: TaskTranslateDocument;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       inline: {
@@ -170,7 +729,9 @@ export interface Config {
         output: unknown;
       };
     };
-    workflows: unknown;
+    workflows: {
+      translate_document_locales: WorkflowTranslateDocumentLocales;
+    };
   };
 }
 export interface UserAuthOperations {
@@ -299,6 +860,9 @@ export interface Museum {
   id: string;
   createdBy?: string | null;
   name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   description?: {
     root: {
       type: string;
@@ -314,6 +878,9 @@ export interface Museum {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   shortDescription: string;
   accessibility: boolean;
   map?: (string | null) | MuseumMap;
@@ -328,7 +895,13 @@ export interface Museum {
     | null;
   news?:
     | {
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
         title: string;
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
         content: string;
         date: string;
         id?: string | null;
@@ -387,9 +960,15 @@ export interface Museum {
           id?: string | null;
         }[]
       | null;
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
     notes?: string | null;
   };
   ticketInfo: {
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
     label: string;
     url?: string | null;
   };
@@ -455,6 +1034,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -516,6 +1098,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -577,6 +1162,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -638,6 +1226,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -710,6 +1301,9 @@ export interface PhoneNumber {
  */
 export interface MuseumThumbnail {
   id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -745,7 +1339,13 @@ export interface Exhibit {
 export interface Object {
   id: string;
   createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   description?: string | null;
   exhibit?: {
     docs?: (string | Exhibit)[];
@@ -768,7 +1368,13 @@ export interface Content {
   id: string;
   createdBy?: string | null;
   difficulty: 'easy' | 'medium' | 'hard';
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   body: {
     root: {
       type: string;
@@ -807,6 +1413,9 @@ export interface Content {
  */
 export interface ContentImage {
   id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   alt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -826,6 +1435,22 @@ export interface ContentImage {
  */
 export interface Tour {
   id: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translator-provenance".
+ */
+export interface TranslatorProvenance {
+  id: string;
+  collectionSlug: string;
+  documentId: string;
+  targetLocale: string;
+  sourceLocale: string;
+  sourceFingerprint: string;
+  translatedAt: string;
+  dismissedFingerprint?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1041,6 +1666,194 @@ export interface Export {
   page?: number | null;
   sort?: string | null;
   sortOrder?: ('asc' | 'desc') | null;
+  locale?:
+    | (
+        | 'all'
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )
+    | null;
   drafts?: ('yes' | 'no') | null;
   selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
   fields?: string[] | null;
@@ -1419,7 +2232,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'createCollectionExport' | 'createCollectionImport';
+        taskSlug: 'inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport';
         taskID: string;
         input?:
           | {
@@ -1452,7 +2265,8 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'createCollectionExport' | 'createCollectionImport') | null;
+  workflowSlug?: 'translate_document_locales' | null;
+  taskSlug?: ('inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1505,6 +2319,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'tours';
         value: string | Tour;
+      } | null)
+    | ({
+        relationTo: 'translator-provenance';
+        value: string | TranslatorProvenance;
       } | null)
     | ({
         relationTo: 'forms';
@@ -2167,6 +2985,21 @@ export interface ToursSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translator-provenance_select".
+ */
+export interface TranslatorProvenanceSelect<T extends boolean = true> {
+  collectionSlug?: T;
+  documentId?: T;
+  targetLocale?: T;
+  sourceLocale?: T;
+  sourceFingerprint?: T;
+  translatedAt?: T;
+  dismissedFingerprint?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
@@ -2341,6 +3174,7 @@ export interface ExportsSelect<T extends boolean = true> {
   page?: T;
   sort?: T;
   sortOrder?: T;
+  locale?: T;
   drafts?: T;
   selectionToUse?: T;
   fields?: T;
@@ -2612,6 +3446,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
         error?: T;
         id?: T;
       };
+  workflowSlug?: T;
   taskSlug?: T;
   queue?: T;
   waitUntil?: T;
@@ -2724,6 +3559,45 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskTranslate_document".
+ */
+export interface TaskTranslateDocument {
+  input: {
+    collection_slug: string;
+    collection_id: string;
+    /**
+     * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
+     */
+    collection?:
+      | ({
+          relationTo: 'museums';
+          value: string | Museum;
+        } | null)
+      | ({
+          relationTo: 'museumThumbnails';
+          value: string | MuseumThumbnail;
+        } | null)
+      | ({
+          relationTo: 'objects';
+          value: string | Object;
+        } | null)
+      | ({
+          relationTo: 'contents';
+          value: string | Content;
+        } | null)
+      | ({
+          relationTo: 'contentImages';
+          value: string | ContentImage;
+        } | null);
+    source_lng: string;
+    target_lng: string;
+    strategy: string;
+    publish_on_translation?: boolean | null;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskCreateCollectionExport".
  */
 export interface TaskCreateCollectionExport {
@@ -2742,6 +3616,7 @@ export interface TaskCreateCollectionExport {
       | 'contents'
       | 'contentImages'
       | 'tours'
+      | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
       | 'redirects'
@@ -2786,6 +3661,52 @@ export interface TaskCreateCollectionImport {
     maxLimit?: number | null;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkflowTranslate_document_locales".
+ */
+export interface WorkflowTranslateDocumentLocales {
+  input: {
+    collection_slug: string;
+    collection_id: string;
+    /**
+     * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
+     */
+    collection?:
+      | ({
+          relationTo: 'museums';
+          value: string | Museum;
+        } | null)
+      | ({
+          relationTo: 'museumThumbnails';
+          value: string | MuseumThumbnail;
+        } | null)
+      | ({
+          relationTo: 'objects';
+          value: string | Object;
+        } | null)
+      | ({
+          relationTo: 'contents';
+          value: string | Content;
+        } | null)
+      | ({
+          relationTo: 'contentImages';
+          value: string | ContentImage;
+        } | null);
+    source_lng: string;
+    strategy: string;
+    publish_on_translation?: boolean | null;
+    target_lngs:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

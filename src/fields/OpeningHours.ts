@@ -1,4 +1,5 @@
 import { ArrayField, GroupField } from 'payload'
+import { editorial } from '@/fields/editorial'
 
 export const OpeningHours: GroupField = {
   name: 'openingHours',
@@ -11,12 +12,7 @@ export const OpeningHours: GroupField = {
     daySchedule('friday'),
     daySchedule('saturday'),
     daySchedule('sunday'),
-    {
-      name: 'notes',
-      type: 'textarea',
-      required: false,
-      maxLength: 100,
-    },
+    editorial({ name: 'notes', type: 'textarea', required: false, maxLength: 100 }),
   ],
 }
 
@@ -52,8 +48,5 @@ function daySchedule(dayName: string): ArrayField {
         type: 'date',
       },
     ],
-    Bust: () => {
-      //TODO
-    },
   }
 }

@@ -1,19 +1,11 @@
 import { CollectionConfig } from 'payload'
+import { editorial } from '@/fields/editorial'
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
   fields: [
-    {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      required: false,
-      maxLength: 500,
-    },
+    editorial({ name: 'name', type: 'text', required: true }),
+    editorial({ name: 'description', type: 'textarea', required: false, maxLength: 500 }),
     {
       name: 'exhibit',
       type: 'join',

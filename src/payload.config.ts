@@ -21,6 +21,7 @@ import { payloadLFRs } from 'payload-lfrs'
 import { en } from '@payloadcms/translations/languages/en'
 import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
+import { autoTranslatePlugin } from './plugins/autoTranslate'
 
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
@@ -35,11 +36,13 @@ const dirname = path.dirname(filename)
 
 const localizationConfig: LocalizationConfig = {
   defaultLocale: 'en',
-  locales: IsoCodes.getAllCodes().map((isoCode) => ({
-    label: IsoCodes.getName(isoCode),
-    code: isoCode,
-    fallbackLocale: 'en',
-  })),
+  locales: IsoCodes.getAllCodes()
+    .map((isoCode) => ({
+      label: IsoCodes.getNativeName(isoCode) || IsoCodes.getName(isoCode),
+      code: isoCode,
+      fallbackLocale: 'en',
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
   fallback: true,
 }
 
@@ -77,6 +80,13 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
+    // On-demand AI translation (wraps @focus-reactive/payload-plugin-translator).
+    // Just list the collections — the wrapper mounts
+    // GET /api/{slug}/:id/localized?locale=xx on each of them.
+    // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
+    autoTranslatePlugin({
+      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages],
+    }),
     stripePlugin({
       stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
     }),
