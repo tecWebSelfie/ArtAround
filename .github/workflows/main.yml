@@ -1,6 +1,6 @@
 on:
   push:
-    branches:
+    branches-ignore:
       - main
   workflow_dispatch: 
 
@@ -13,12 +13,35 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           SERVER_PROJECT_PATH: ${{ vars.SERVER_PROJECT_PATH }}
+          BRANCH: ${{ github.ref_name }}
         with:
           username: ${{ secrets.USERNAME }}
           host: ${{ secrets.HOST }}
           key: ${{ secrets.GUALTIERO_SSH_KEY }}
           passphrase: ${{ secrets.PASSPHRASE }}
-          envs: SERVER_PROJECT_PATH
+          envs: SERVER_PROJECT_PATH,BRANCH
           script: |
             whoami
-            cd $SERVER_PROJECT_PATH
+
+            # Ensure ~/.local/bin is in PATH for non-interactive SSH
+            export PATH="$HOME/.local/bin:$PATH"
+
+            # Install mise if not present
+            if ! command -v mise &> /dev/null; then
+              curl -fsSL https://mise.run | sh
+            fi
+
+            mise --version
+
+            # Ensure directory exists and enter it
+            mkdir -p "$SERVER_PROJECT_PATH" && cd "$SERVER_PROJECT_PATH"
+
+            # Safely fetch remote and force-switch to target branch
+            git fetch --all --prune
+            git stash
+            git checkout -B "$BRANCH" "origin/$BRANCH"
+
+            # Clean install dependencies
+            rm -rf node_modules pnpm-lock.yaml
+            mise install
+            mise exec -- pnpm install --frozen-lockfile
