@@ -15,5 +15,6 @@ jobs:
           username: ${{ secrets.USERNAME }}
           host: ${{ secrets.HOST }}
           key: ${{ secrets.GUALTIERO_SSH_KEY }}
+          passphrase: ${{secrets.PASSPHRASE }}
           script: |
             whoami
