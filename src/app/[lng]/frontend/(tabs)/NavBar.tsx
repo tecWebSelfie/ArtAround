@@ -4,14 +4,22 @@ import { Button, Group, Stack, Text, Center } from '@mantine/core'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Compass, Store } from 'lucide-react'
+import { defineMessages, useIntl } from 'react-intl'
+import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
+
+const msgs = defineMessages({
+  navigator: { id: 'nav.tabs.navigator', defaultMessage: 'navigator' },
+  marketplace: { id: 'nav.tabs.marketplace', defaultMessage: 'store' },
+})
 
 const items = [
-  { label: 'navigator', Icon: Compass, color: 'green', href: '/navigator' },
-  { label: 'store', Icon: Store, color: 'red', href: '/marketplace' },
+  { msg: msgs.navigator, Icon: Compass, color: 'green', href: '/navigator' },
+  { msg: msgs.marketplace, Icon: Store, color: 'red', href: '/marketplace' },
 ] as const
 
 export default function NavBar() {
   const pathname = usePathname()
+  const intl = useIntl()
 
   return (
     <Group grow gap="xs">
@@ -34,13 +42,14 @@ export default function NavBar() {
               <Stack gap={4} align="center">
                 <Icon size={20} />
                 <Text size="xs" lh={1}>
-                  {item.label}
+                  {intl.formatMessage(item.msg)}
                 </Text>
               </Stack>
             </Center>
           </Button>
         )
       })}
+      <LanguageSwitcher />
     </Group>
   )
 }
