@@ -26,6 +26,9 @@ jobs:
             # Ensure ~/.local/bin is in PATH for non-interactive SSH
             export PATH="$HOME/.local/bin:$PATH"
 
+            # 2. Fix Git dubious ownership error
+            git config --global --add safe.directory "$SERVER_PROJECT_PATH"
+
             # Install mise if not present
             if ! command -v mise &> /dev/null; then
               curl -fsSL https://mise.run | sh
