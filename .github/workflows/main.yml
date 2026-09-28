@@ -43,5 +43,5 @@ jobs:
 
             # Clean install dependencies
             rm -rf node_modules pnpm-lock.yaml
-            mise install
+            mise install -v
             mise exec -- pnpm install --frozen-lockfile
