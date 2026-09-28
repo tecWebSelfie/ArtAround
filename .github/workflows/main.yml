@@ -11,10 +11,14 @@ jobs:
     steps:
       - name: Execute remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1
+        env:
+          SERVER_PROJECT_PATH: ${{ vars.SERVER_PROJECT_PATH }}
         with:
           username: ${{ secrets.USERNAME }}
           host: ${{ secrets.HOST }}
           key: ${{ secrets.GUALTIERO_SSH_KEY }}
-          passphrase: ${{secrets.PASSPHRASE }}
+          passphrase: ${{ secrets.PASSPHRASE }}
+          envs: SERVER_PROJECT_PATH
           script: |
             whoami
+            cd $SERVER_PROJECT_PATH
