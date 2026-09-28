@@ -25,27 +25,6 @@ jobs:
 
             export PATH="$HOME/.local/bin:$PATH"
 
-            # Storage outside the home-directory quota
-            export PUBLIC_DIR="/public/michelegennari3"
-
-            export MISE_DATA_DIR="$PUBLIC_DIR/mise-data"
-            export MISE_CACHE_DIR="$PUBLIC_DIR/mise-cache"
-            export MISE_STATE_DIR="$PUBLIC_DIR/mise-state"
-            export PNPM_STORE_DIR="$PUBLIC_DIR/pnpm-store"
-
-            mkdir -p \
-              "$MISE_DATA_DIR" \
-              "$MISE_CACHE_DIR" \
-              "$MISE_STATE_DIR" \
-              "$PNPM_STORE_DIR"
-
-            chmod -R 770 "$PUBLIC_DIR"
-
-            # Fail early if the directory is not writable
-            test -w "$PUBLIC_DIR"
-
-            git config --global --add safe.directory "$SERVER_PROJECT_PATH"
-
             if ! command -v mise >/dev/null 2>&1; then
               curl -fsSL https://mise.run | sh
             fi
