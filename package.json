@@ -18,14 +18,13 @@
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "extract": "formatjs extract",
-    "compile": "formatjs compile",
     "react-doctor": "npx react-doctor@latest",
     "knip": "knip",
     "agent:dev": "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
     "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
     "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
-    "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local"
+    "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local",
+    "intl": "i18next-cli"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
@@ -103,7 +102,6 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-i18next": "^17.0.15",
-    "react-intl": "^10.1.22",
     "reading-time-estimator": "^2.15.0",
     "sharp": "0.34.2",
     "tailwindcss": "^4.3.3",
@@ -113,7 +111,6 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
-    "@formatjs/cli": "^6.16.19",
     "@playwright/test": "1.58.2",
     "@storybook/addon-a11y": "^10.5.3",
     "@storybook/addon-docs": "^10.5.3",

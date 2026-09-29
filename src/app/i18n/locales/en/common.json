@@ -1,0 +1,9 @@
+{
+  "languageSwitcher": {
+    "label": "Select Language"
+  },
+  "navbar": {
+    "Marketplace": "Marketplace",
+    "Navigator": "Navigator"
+  }
+}

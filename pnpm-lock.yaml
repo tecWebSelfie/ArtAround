@@ -236,9 +236,6 @@ importers:
       react-i18next:
         specifier: ^17.0.15
         version: 17.0.15(i18next@26.4.2(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
-      react-intl:
-        specifier: ^10.1.22
-        version: 10.2.2(@types/react@19.2.14)(react@19.2.6)
       reading-time-estimator:
         specifier: ^2.15.0
         version: 2.15.0
@@ -261,9 +258,6 @@ importers:
       '@chromatic-com/storybook':
         specifier: ^5.2.1
         version: 5.3.1(storybook@10.6.0(@types/react@19.2.14)(prettier@3.9.6)(react@19.2.6))
-      '@formatjs/cli':
-        specifier: ^6.16.19
-        version: 6.16.27
       '@playwright/test':
         specifier: 1.58.2
         version: 1.58.2
@@ -1200,80 +1194,6 @@ packages:
       '@payloadcms/ui': ^3.76.0
       payload: ^3.76.0
       react: ^18.0.0 || ^19.0.0
-
-  '@formatjs/cli-native-darwin-arm64@1.1.21':
-    resolution: {integrity: sha512-jF3ABBbhxbUlvCjj+AB73RNrBiP93cYXrkDf6ltS+czLBw3JjCr/9nO4eYGoLlhyjZwhzkdwJGgcZ4gsKmV4UQ==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@formatjs/cli-native-linux-arm64-musl@1.0.19':
-    resolution: {integrity: sha512-QfLSH5j8hHgTK0DtduLZ8+XZYMAbw4RdVk8pYy4YA2niOkrahIrIv/10f2xWBBMNS5vAqiWkvpPajbilqgUqog==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [musl]
-
-  '@formatjs/cli-native-linux-arm64@1.2.21':
-    resolution: {integrity: sha512-mrZtbZkdx8lDFxCGXoXIpo7pWleBN/bf9PYu0B6DzM4mHIw0RBHhaPd9AEpk5TCrafdDZePSbH8uZMmQnuThTw==}
-    cpu: [arm64]
-    os: [linux]
-    libc: [glibc]
-
-  '@formatjs/cli-native-linux-x64-musl@1.0.19':
-    resolution: {integrity: sha512-+cNBiSiUckj1ycXn1Cw9o6nzgDR1iIvgNP3PqUoeDqk/jeNhg19f0/YMHdoHzds1RA+NJswgIEAmq+ua+8RE5A==}
-    cpu: [x64]
-    os: [linux]
-    libc: [musl]
-
-  '@formatjs/cli-native-linux-x64@1.1.21':
-    resolution: {integrity: sha512-D57wp9f02eYirjQh+qCGizwWU6OfcvP42Ydx4ze8BqrSmXm3yw2IC3/vH2By5B5jkZmbYeLGave4mnZtj/1quw==}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@formatjs/cli-native-win32-x64@1.1.22':
-    resolution: {integrity: sha512-c2Oi3VBlVRizmQffr9JMF+Kkt0rRqO9Z8M2QBdKhs9Exl2foJbLqC+SuIsa7QMmWWi+VZJbRz5ZpmUfZ0naZWQ==}
-    cpu: [x64]
-    os: [win32]
-
-  '@formatjs/cli@6.16.27':
-    resolution: {integrity: sha512-H2w9Y+1MEY0WQ5J8L676CIasx0CwoNIAAwzPPV4vqcK1nV+JSkHE18uY0VAcByjqaOj6abSGDmruZdlsQTPBCQ==}
-    engines: {node: '>= 20.12.0'}
-    hasBin: true
-    peerDependencies:
-      '@glimmer/env': '*'
-      '@glimmer/reference': '*'
-      '@glimmer/syntax': ^0.84.3 || ^0.95.0
-      '@glimmer/validator': '*'
-      '@vue/compiler-core': '3'
-      content-tag: '4'
-      vue: '3'
-    peerDependenciesMeta:
-      '@glimmer/env':
-        optional: true
-      '@glimmer/reference':
-        optional: true
-      '@glimmer/syntax':
-        optional: true
-      '@glimmer/validator':
-        optional: true
-      '@vue/compiler-core':
-        optional: true
-      content-tag:
-        optional: true
-      vue:
-        optional: true
-
-  '@formatjs/fast-memoize@3.1.7':
-    resolution: {integrity: sha512-zXfhLpvA6T7+efdt9JLbBwZ00tT7NsBMDVnDu8rpHeNNv8KfRZAMo2gkG0k9lK/Nzc//3kJ9pImsfuJxk3KhUA==}
-
-  '@formatjs/icu-messageformat-parser@3.5.18':
-    resolution: {integrity: sha512-wX1efcL8d7K5QapOTRsP/OLTA/kpwe4LwqWyNxDNg5iRs8i9jJbCyxB5P8jc4KOW5oiLzz2DJr+BRY5xMV9+bA==}
-
-  '@formatjs/icu-skeleton-parser@2.1.11':
-    resolution: {integrity: sha512-j8cUmOJzVgkHuS0QiQ6ga76UIoLOFSAMWhs7aZJztH3aAdCOAE6vpC8KVvFB4cU10ON0y2/5oOVmPJ43s2lTwA==}
-
-  '@formatjs/intl@4.2.1':
-    resolution: {integrity: sha512-GiL0cReencWQkhfJedNLMe0Aorb/wyTRJdi+hLgG9gsDPy4yw2N+EkMcijf5+oGKd5jde75tr5nujsPg78bUTw==}
 
   '@geoman-io/leaflet-geoman-free@2.20.1':
     resolution: {integrity: sha512-tpqUdIEgAPuIPESdWQwJsY826swgSaIOrVEB3oaVnhcCjNizeWo0xD22272SFaPyZ3Lt7Icebv8tC0ImOw1ccw==}
@@ -6481,9 +6401,6 @@ packages:
     resolution: {integrity: sha512-agE4QfB2Lkp9uICn7BAqoscw4SZP9kTE2hxiFI3jBPmXJfdqiahTbUuKGsMoN2GtqL9AxhYioAcVvgsb1HvRbA==}
     engines: {node: '>= 0.10'}
 
-  intl-messageformat@11.2.15:
-    resolution: {integrity: sha512-W4VNytsXyWgW5lvVchmsb9xgA5rSKqoflu3/IQ9UCtB0z4R+Bx9MoEkwFT/+30RCl/KzUoH0QGGe9lppF5SuvQ==}
-
   ip-address@10.7.0:
     resolution: {integrity: sha512-BGFsyJd5mpXp3rK6jIdADLNgpJUK1jnjzvYF8lK+VyDab9JAmqN0YOKDdP17HlgKb2+ehPgDc8EtnRLbGCAMhA==}
     engines: {node: '>= 12'}
@@ -8359,12 +8276,6 @@ packages:
     resolution: {integrity: sha512-4rb8XtXNx7ZaOZarKKnckgz4xLMvds/YrU6mpJfGhGAsy2Mg4mIw1x+DCCGngVGq2soTBVVOxx2s/C6mTX9+pA==}
     peerDependencies:
       react: '>=16.13.1'
-
-  react-intl@10.2.2:
-    resolution: {integrity: sha512-LUzjoxGMbk9PWS4Kdr2QAYX8sqIuB3EKiFs6fi4kCgGAgWNlrYlq9ZLKxBg9Yeg9xeaFfeZ139FZ4Ub2w5L6SQ==}
-    peerDependencies:
-      '@types/react': '>=18.0.0'
-      react: '>=18.0.0'
 
   react-is@16.13.1:
     resolution: {integrity: sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==}
@@ -10712,47 +10623,6 @@ snapshots:
       - encoding
       - react-dom
       - ws
-
-  '@formatjs/cli-native-darwin-arm64@1.1.21':
-    optional: true
-
-  '@formatjs/cli-native-linux-arm64-musl@1.0.19':
-    optional: true
-
-  '@formatjs/cli-native-linux-arm64@1.2.21':
-    optional: true
-
-  '@formatjs/cli-native-linux-x64-musl@1.0.19':
-    optional: true
-
-  '@formatjs/cli-native-linux-x64@1.1.21':
-    optional: true
-
-  '@formatjs/cli-native-win32-x64@1.1.22':
-    optional: true
-
-  '@formatjs/cli@6.16.27':
-    optionalDependencies:
-      '@formatjs/cli-native-darwin-arm64': 1.1.21
-      '@formatjs/cli-native-linux-arm64': 1.2.21
-      '@formatjs/cli-native-linux-arm64-musl': 1.0.19
-      '@formatjs/cli-native-linux-x64': 1.1.21
-      '@formatjs/cli-native-linux-x64-musl': 1.0.19
-      '@formatjs/cli-native-win32-x64': 1.1.22
-
-  '@formatjs/fast-memoize@3.1.7': {}
-
-  '@formatjs/icu-messageformat-parser@3.5.18':
-    dependencies:
-      '@formatjs/icu-skeleton-parser': 2.1.11
-
-  '@formatjs/icu-skeleton-parser@2.1.11': {}
-
-  '@formatjs/intl@4.2.1':
-    dependencies:
-      '@formatjs/fast-memoize': 3.1.7
-      '@formatjs/icu-messageformat-parser': 3.5.18
-      intl-messageformat: 11.2.15
 
   '@geoman-io/leaflet-geoman-free@2.20.1(leaflet@1.9.4)':
     dependencies:
@@ -16244,11 +16114,6 @@ snapshots:
 
   interpret@1.4.0: {}
 
-  intl-messageformat@11.2.15:
-    dependencies:
-      '@formatjs/fast-memoize': 3.1.7
-      '@formatjs/icu-messageformat-parser': 3.5.18
-
   ip-address@10.7.0: {}
 
   ipaddr.js@1.9.1: {}
@@ -18309,14 +18174,6 @@ snapshots:
 
   react-image-crop@10.1.8(react@19.2.6):
     dependencies:
-      react: 19.2.6
-
-  react-intl@10.2.2(@types/react@19.2.14)(react@19.2.6):
-    dependencies:
-      '@formatjs/icu-messageformat-parser': 3.5.18
-      '@formatjs/intl': 4.2.1
-      '@types/react': 19.2.14
-      intl-messageformat: 11.2.15
       react: 19.2.6
 
   react-is@16.13.1: {}

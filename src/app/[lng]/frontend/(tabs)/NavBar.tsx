@@ -4,22 +4,29 @@ import { Button, Group, Stack, Text, Center } from '@mantine/core'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Compass, Store } from 'lucide-react'
-import { defineMessages, useIntl } from 'react-intl'
+import { useT } from 'next-i18next/client'
 import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 
-const msgs = defineMessages({
-  navigator: { id: 'nav.tabs.navigator', defaultMessage: 'navigator' },
-  marketplace: { id: 'nav.tabs.marketplace', defaultMessage: 'store' },
-})
+import i18nconfig from '@/../i18n.config'
 
 const items = [
-  { msg: msgs.navigator, Icon: Compass, color: 'green', href: '/navigator' },
-  { msg: msgs.marketplace, Icon: Store, color: 'red', href: '/marketplace' },
+  {
+    Icon: Compass,
+    color: 'green',
+    label: 'Navigator',
+    href: '/navigator',
+  },
+  {
+    Icon: Store,
+    color: 'red',
+    label: 'Marketplace',
+    href: '/marketplace',
+  },
 ] as const
 
-export default function NavBar() {
+export const NavBar: React.FC = function () {
   const pathname = usePathname()
-  const intl = useIntl()
+  const { t } = useT(undefined, { keyPrefix: 'navbar' })
 
   return (
     <Group grow gap="xs">
@@ -42,14 +49,14 @@ export default function NavBar() {
               <Stack gap={4} align="center">
                 <Icon size={20} />
                 <Text size="xs" lh={1}>
-                  {intl.formatMessage(item.msg)}
+                  {t(item.label)}
                 </Text>
               </Stack>
             </Center>
           </Button>
         )
       })}
-      <LanguageSwitcher />
+      <LanguageSwitcher supportedLngs={i18nconfig.supportedLngs} />
     </Group>
   )
 }
