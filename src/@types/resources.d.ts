@@ -8,5 +8,12 @@ export default interface Resources {
       "Marketplace": "Marketplace",
       "Navigator": "Navigator"
     }
+  },
+  "museum-page": {
+    "Hide": "Hide",
+    "No description available": "No description available",
+    "Show more": "Show more",
+    "contents": "contents",
+    "info": "info"
   }
 }

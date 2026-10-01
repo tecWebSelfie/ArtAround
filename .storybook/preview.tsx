@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/nextjs-vite'
 
-import '../src/app/(frontend)/globals.css'
+import '../src/app/[lng]/frontend/globals.css'
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { theme } from '../src/theme'

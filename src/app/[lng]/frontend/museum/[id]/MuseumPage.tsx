@@ -1,41 +1,40 @@
-import {
-  AspectRatio,
-  Stack,
-  Image,
-  Title,
-  DataList,
-  DataListItem,
-  DataListItemValue,
-  DataListItemLabel,
-  Typography,
-  Text,
-  AvatarGroup,
-  Avatar,
-  TooltipGroup,
-  Tooltip,
-  Group,
-  ThemeIcon,
-  Overlay,
-  Button,
-  Spoiler,
-} from '@mantine/core'
-import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
+import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
+import { getT } from '@/i18n.server'
 import { Museum, type MuseumThumbnail } from '@/payload-types'
 import {
+  AspectRatio,
+  Avatar,
+  AvatarGroup,
+  Button,
+  Group,
+  Image,
+  Overlay,
+  Spoiler,
+  Stack,
+  Text,
+  ThemeIcon,
+  Title,
+  Tooltip,
+  TooltipGroup,
+  Typography,
+} from '@mantine/core'
+import {
+  Accessibility,
   Amphora,
-  Utensils,
-  Toilet,
+  BadgeInfo,
+  Images,
   Info,
   ShoppingBag,
-  Accessibility,
-  Images,
-  BadgeInfo,
+  Toilet,
+  Utensils,
 } from 'lucide-react'
 
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 
 export default async function MuseumPage({ museum }: { museum: Museum }) {
+  const { t } = await getT('museum-page')
+
   let descriptionHTML: string | null = null
   if (
     museum.description &&
@@ -55,22 +54,35 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
       {museum.services && Object.keys(museum.services).length > 0 && (
         <MuseumBadges services={museum.services} />
       )}
+      <Text>{museum.shortDescription}</Text>
       <ArtaroundTabs
         tabs={[
           {
-            value: 'info',
+            value: t('contents'),
+            icon: <Amphora size={16} />,
+            panel: (
+              <Stack>
+                <Text>Contents panel content</Text>
+                {/*
+                VIsite
+                Contenuti
+                Oggetti
+                 */}
+              </Stack>
+            ),
+          },
+          {
+            value: t('info'),
             icon: <BadgeInfo size={16} />,
             panel: (
               <Stack>
-                <Text>{museum.shortDescription}</Text>
-
                 <ArtaroundDataList
                   data={{
                     Description: (
-                      <Spoiler maxHeight={80} showLabel="Show more" hideLabel="Hide">
+                      <Spoiler maxHeight={80} showLabel={t('Show more')} hideLabel={t('Hide')}>
                         <Typography>
                           {!descriptionHTML ? (
-                            'No description available'
+                            t('No description available')
                           ) : (
                             <div dangerouslySetInnerHTML={{ __html: descriptionHTML }}></div>
                           )}
@@ -82,11 +94,6 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
                 />
               </Stack>
             ),
-          },
-          {
-            value: 'contents',
-            icon: <Amphora size={16} />,
-            panel: <Text>Contents panel content</Text>,
           },
         ]}
       />

@@ -24,7 +24,7 @@
     "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
     "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
     "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local",
-    "intl": "i18next-cli"
+    "intl:dev": "i18next-cli extract --sync-all --trust-derived --with-types -w"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
