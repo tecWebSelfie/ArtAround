@@ -16,7 +16,13 @@ try {
   if (existing.docs.length === 0) {
     const created = await payload.create({
       collection: 'users',
-      data: { username: 'dev', email: 'dev@payloadcms.com', password: 'test', isSuperAdmin: true },
+      data: {
+        username: 'dev',
+        email: 'dev@payloadcms.com',
+        password: 'test',
+        isSuperAdmin: true,
+        name: 'Developer',
+      },
     })
     superAdminId = String(created.id)
   } else {
@@ -250,6 +256,140 @@ try {
       })
       console.log('MCP dev key created')
     }
+  }
+
+  // --- Typesense demo data: museums + users ---
+  // Created through Payload (not straight into Typesense) so the typesense
+  // plugin hooks sync them to Typesense Cloud — this exercises the same path
+  // as creating docs from the admin panel. The plugin only indexes
+  // `searchFields` (museums: name/location, users: name/description); docs
+  // with all of those empty are skipped, hence the fields below.
+  // All lookups are by natural key (name/email) so re-seeds are idempotent.
+  console.log('Seeding demo museums...')
+  const demoMuseums = [
+    {
+      name: 'Galleria Borghese',
+      shortDescription: 'Baroque masterpieces in a Roman villa',
+      description: 'Bernini sculptures and Caravaggio paintings in Villa Borghese.',
+      location: {
+        address: 'Piazzale Scipione Borghese 5',
+        city: 'Roma',
+        latlng: [12.4922, 41.9142] as [number, number],
+      },
+    },
+    {
+      name: 'Palazzo Reale di Milano',
+      shortDescription: 'Grand exhibitions in the heart of Milan',
+      description: 'Major international exhibitions next to the Duomo.',
+      location: {
+        address: 'Piazza del Duomo 12',
+        city: 'Milano',
+        latlng: [9.1917, 45.4636] as [number, number],
+      },
+    },
+    {
+      name: 'Museo Galileo',
+      shortDescription: 'History of science in Florence',
+      description: 'Scientific instruments from Galileo and the Medici era.',
+      location: {
+        address: 'Piazza dei Giudici 1',
+        city: 'Firenze',
+        latlng: [11.476, 43.7679] as [number, number],
+      },
+    },
+    {
+      name: 'Museo Archeologico Nazionale di Napoli',
+      shortDescription: 'Roman antiquities from Pompeii',
+      description: 'Farnese collection and finds from Pompeii and Herculaneum.',
+      location: {
+        address: 'Piazza Museo 19',
+        city: 'Napoli',
+        latlng: [14.1245, 40.8533] as [number, number],
+      },
+    },
+    {
+      name: 'Palazzo Ducale di Venezia',
+      shortDescription: 'Gothic palace of the Doges',
+      description: 'Tintoretto ceilings and the Bridge of Sighs.',
+      location: {
+        address: 'Piazza San Marco 1',
+        city: 'Venezia',
+        latlng: [12.3358, 45.4346] as [number, number],
+      },
+    },
+  ]
+  for (const museum of demoMuseums) {
+    const found = await payload.find({
+      collection: 'museums',
+      where: { name: { equals: museum.name } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      console.log(`Museum "${museum.name}" already exists, skipping`)
+      continue
+    }
+    await payload.create({
+      collection: 'museums',
+      // ticketInfo.label is required by validation even though the group is optional.
+      // accessibility is a required virtual field: accepted in create data and
+      // ignored at runtime (virtuals are never persisted), but required by types.
+      data: { ...museum, ticketInfo: { label: 'Standard ticket' }, accessibility: true },
+    })
+    console.log(`Museum "${museum.name}" created`)
+  }
+
+  console.log('Seeding demo users...')
+  const demoUsers = [
+    {
+      username: 'davide',
+      email: 'davide@example.com',
+      password: 'test-password',
+      name: 'Davide Colombo',
+      description: 'Street art guide in Turin',
+    },
+    {
+      username: 'chiara',
+      email: 'chiara@example.com',
+      password: 'test-password',
+      name: 'Chiara Moretti',
+      description: 'Modern sculpture enthusiast from Bologna',
+    },
+    {
+      username: 'luca',
+      email: 'luca@example.com',
+      password: 'test-password',
+      name: 'Luca Ferrari',
+      description: 'Museum volunteer and audio guide narrator',
+    },
+    {
+      username: 'anna',
+      email: 'anna@example.com',
+      password: 'test-password',
+      name: 'Anna Rossi',
+      description: 'Baroque painting scholar in Naples',
+    },
+    {
+      username: 'paolo',
+      email: 'paolo@example.com',
+      password: 'test-password',
+      name: 'Paolo Greco',
+      description: 'Digital archivist for Sicilian museums',
+    },
+  ]
+  for (const user of demoUsers) {
+    const found = await payload.find({
+      collection: 'users',
+      where: { email: { equals: user.email } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      console.log(`User "${user.email}" already exists, skipping`)
+      continue
+    }
+    await payload.create({ collection: 'users', data: user })
+    console.log(`User "${user.email}" created`)
   }
 
   console.log('Database seeded successfully. Closing connection...')

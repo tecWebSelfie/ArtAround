@@ -216,6 +216,8 @@ export interface User {
   parent?: (string | null) | User;
   parentPath?: string | null;
   createdBy?: string | null;
+  name: string;
+  description?: string | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -1599,6 +1601,8 @@ export interface UsersSelect<T extends boolean = true> {
   parent?: T;
   parentPath?: T;
   createdBy?: T;
+  name?: T;
+  description?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

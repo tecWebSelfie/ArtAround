@@ -17,6 +17,7 @@ import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
+import { typesenseSearch } from '@rubixstudios/payload-typesense'
 
 import { Users } from './collections/Users'
 import { Pages } from './collections/Pages'
@@ -148,6 +149,31 @@ export default buildConfig({
       adminGroup: 'LFRs', // Navigation group name in the Admin panel (default: 'LFRs')
       // Custom callback to check if a user is an admin
       isAdmin: ({ req }) => req.user?.collection === 'users' && Boolean(req.user?.isSuperAdmin),
+    }),
+    typesenseSearch({
+      typesense: {
+        apiKey: process.env.TYPESENSE_API_KEY || '',
+        nodes: [
+          {
+            host: process.env.TYPESENSE_HOST || '',
+            port: Number(process.env.TYPESENSE_PORT || 443),
+            protocol: (process.env.TYPESENSE_PROTOCOL || 'https') as 'http' | 'https',
+          },
+        ],
+        connectionTimeoutSeconds: 5,
+      },
+      collections: {
+        museums: {
+          enabled: true,
+          searchFields: ['name', 'location'],
+          displayName: 'Museums',
+        },
+        users: {
+          enabled: true,
+          searchFields: ['name', 'description'],
+          displayName: 'Users',
+        },
+      },
     }),
   ],
   bin: [

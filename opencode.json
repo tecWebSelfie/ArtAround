@@ -39,6 +39,15 @@
       "type": "remote",
       "url": "https://mcp.notion.com/mcp",
       "oauth": {}
+    },
+    "typesense": {
+      "type": "local",
+      "command": ["npx", "-y", "@typesensekit/mcp"],
+      "env": {
+        "TYPESENSE_URL": "https://{env:TYPESENSE_HOST}",
+        "TYPESENSE_API_KEY": "{env:TYPESENSE_API_KEY}",
+        "TYPESENSEKIT_READ_ONLY": "false"
+      }
     }
   }
 }
