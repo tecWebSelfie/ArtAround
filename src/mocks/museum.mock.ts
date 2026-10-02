@@ -1,3 +1,4 @@
+import { mockObjectsList } from '@/mocks/object.mock'
 import type { Museum } from '@/payload-types'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
@@ -114,7 +115,7 @@ export const mockMuseumFull: Museum = createMuseum({
     },
   ],
   exhibits: ['exhibit-1', 'exhibit-2'],
-  objects: ['object-1', 'object-2', 'object-3'],
+  objects: mockObjectsList,
   openingHours: {
     monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
     tuesday: [{ opening: '09:00', closing: '18:00', id: 'oh-tue-1' }],

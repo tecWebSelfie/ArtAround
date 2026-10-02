@@ -30,6 +30,7 @@ import {
   Utensils,
 } from 'lucide-react'
 
+import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 
 export default async function MuseumPage({ museum }: { museum: Museum }) {
@@ -62,12 +63,7 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
             icon: <Amphora size={16} />,
             panel: (
               <Stack>
-                <Text>Contents panel content</Text>
-                {/*
-                VIsite
-                Contenuti
-                Oggetti
-                 */}
+                <ObjectsCarousel objects={museum.objects} />
               </Stack>
             ),
           },
@@ -156,7 +152,7 @@ export async function MuseumThumbnailGallery(props: { thumbnails: Museum['thumbn
     <AspectRatio pos="relative" ratio={16 / 9}>
       <Image
         radius="lg"
-        src={validThumb?.url ?? 'https://placehold.co/600x400?text=Placeholder'}
+        src={validThumb?.url}
         fallbackSrc="https://placehold.co/600x400?text=Placeholder"
         alt={validThumb?.alt ?? 'Museum thumbnail not available'}
       />

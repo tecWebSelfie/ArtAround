@@ -1,35 +1,35 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { buildConfig, LocalizationConfig, Locale } from 'payload'
-import { fileURLToPath } from 'url'
-import sharp from 'sharp'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import nodemailer from 'nodemailer'
+import path from 'path'
+import { buildConfig, LocalizationConfig } from 'payload'
+import sharp from 'sharp'
+import { fileURLToPath } from 'url'
 
 // Payload Plugins
-import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { mcpPlugin } from '@payloadcms/plugin-mcp'
-import { redirectsPlugin } from '@payloadcms/plugin-redirects'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
-import { phoneNumberPlugin } from 'payload-phone-number-plugin'
+import { mcpPlugin } from '@payloadcms/plugin-mcp'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import { redirectsPlugin } from '@payloadcms/plugin-redirects'
+import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
+import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 
 import { en } from '@payloadcms/translations/languages/en'
 import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
 
-import { Users } from './collections/Users'
-import { Pages } from './collections/Pages'
-import { MuseumThumbnails, Museums, MuseumMaps } from './collections/Museums'
-import { Objects } from './collections/Objects'
+import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
-import { Contents, ContentImages } from './collections/Contents'
+import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
+import { Objects, ObjectsThumbnails } from './collections/Objects'
+import { Pages } from './collections/Pages'
 import { Tour } from './collections/Tours'
+import { Users } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -65,6 +65,7 @@ export default buildConfig({
     MuseumThumbnails,
     MuseumMaps,
     Objects,
+    ObjectsThumbnails,
     Exhibits,
     Contents,
     ContentImages,

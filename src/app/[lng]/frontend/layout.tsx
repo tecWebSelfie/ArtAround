@@ -1,8 +1,8 @@
-import './globals.css'
 import React from 'react'
+import './globals.css'
 
-import { MantineProvider, ColorSchemeScript, mantineHtmlProps, AppShell } from '@mantine/core'
 import { theme } from '@/theme'
+import { AppShell, ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core'
 
 import MswProvider from '@/mocks/MswProvider'
 

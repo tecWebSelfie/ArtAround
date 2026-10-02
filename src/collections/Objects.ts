@@ -1,5 +1,5 @@
-import { CollectionConfig } from 'payload'
 import { editorial } from '@/fields/editorial'
+import { CollectionConfig } from 'payload'
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
@@ -21,6 +21,24 @@ export const Objects: CollectionConfig = {
       hasMany: true,
       required: false,
       minRows: 1,
+    },
+    {
+      name: 'thumbnail',
+      type: 'upload',
+      relationTo: 'objectsThumbnails',
+      required: false,
+    },
+  ],
+}
+
+export const ObjectsThumbnails: CollectionConfig = {
+  slug: 'objectsThumbnails',
+  upload: true,
+  fields: [
+    {
+      name: 'alt',
+      type: 'text',
+      required: true,
     },
   ],
 }

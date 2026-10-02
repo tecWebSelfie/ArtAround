@@ -15,5 +15,13 @@ export default interface Resources {
     "Show more": "Show more",
     "contents": "contents",
     "info": "info"
+  },
+  "objects-carousel": {
+    "No objects available": "No objects available",
+    "See more objects": "See more objects"
+  },
+  "objects-carousel-card": {
+    "No thumbnail available for {{name}}": "No thumbnail available for {{name}}",
+    "See more": "See more"
   }
 }

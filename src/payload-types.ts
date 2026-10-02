@@ -74,6 +74,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnail;
     museumMaps: MuseumMap;
     objects: Object;
+    objectsThumbnails: ObjectsThumbnail;
     exhibits: Exhibit;
     contents: Content;
     contentImages: ContentImage;
@@ -120,6 +121,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
+    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
     exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
@@ -1353,6 +1355,7 @@ export interface Object {
     totalDocs?: number;
   };
   contents?: (string | Content)[] | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
@@ -1417,6 +1420,25 @@ export interface ContentImage {
    * Editorial copy — auto-translated on demand into any locale.
    */
   alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
+  id: string;
+  alt: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2305,6 +2327,10 @@ export interface PayloadLockedDocument {
         value: string | Object;
       } | null)
     | ({
+        relationTo: 'objectsThumbnails';
+        value: string | ObjectsThumbnail;
+      } | null)
+    | ({
         relationTo: 'exhibits';
         value: string | Exhibit;
       } | null)
@@ -2908,6 +2934,7 @@ export interface ObjectsSelect<T extends boolean = true> {
   description?: T;
   exhibit?: T;
   contents?: T;
+  thumbnail?: T;
   lfrs?:
     | T
     | {
@@ -2916,6 +2943,24 @@ export interface ObjectsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails_select".
+ */
+export interface ObjectsThumbnailsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3612,6 +3657,7 @@ export interface TaskCreateCollectionExport {
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
+      | 'objectsThumbnails'
       | 'exhibits'
       | 'contents'
       | 'contentImages'

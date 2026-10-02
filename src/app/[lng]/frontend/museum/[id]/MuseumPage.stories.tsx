@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Suspense, use } from 'react'
+import { expect } from 'storybook/test'
 
 import type { Museum } from '@/payload-types'
 import {
@@ -40,6 +41,10 @@ type Story = StoryObj<typeof meta>
 
 export const Full: Story = {
   args: { ...mockMuseumFull },
+  play: async ({ canvas }) => {
+    // Regression guard: museum.objects must reach the carousel populated
+    await expect(canvas.findByText('Anfora a figure rosse')).resolves.toBeTruthy()
+  },
 }
 
 export const Minimal: Story = {
