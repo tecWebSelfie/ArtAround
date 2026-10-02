@@ -1,10 +1,15 @@
 import { User } from '@/payload-types'
-import { Stack } from '@mantine/core'
+import { Avatar, Stack, Title } from '@mantine/core'
 
 export const UserPage = async ({ user }: { user: User }) => {
   return (
     <Stack>
-      <h1>User Page</h1>
+      <Avatar
+        src={typeof user.avatar === 'object' ? user.avatar?.url : undefined}
+        alt={user.name.fullName}
+      />
+
+      <Title>{user.name.fullName}</Title>
     </Stack>
   )
 }

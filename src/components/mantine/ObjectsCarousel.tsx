@@ -4,13 +4,13 @@ import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
 import {
   ActionIcon,
   AspectRatio,
+  BackgroundImage,
   Button,
   Group,
-  Image,
-  Overlay,
   Stack,
   Text,
   Title,
+  UnstyledButton,
 } from '@mantine/core'
 import { ChevronRight } from 'lucide-react'
 import { ComponentProps } from 'react'
@@ -34,12 +34,23 @@ export const ObjectsCarousel = async ({
 
   return (
     <Stack>
+      <Group align="center" gap="sm">
+        <Title order={6}>{t('Objects')}</Title>
+        <UnstyledButton
+          variant="text"
+          opacity={0.8}
+          c="blue.6"
+          className="transform hover:border-b"
+        >
+          <Text>{t('See more') + ' >'}</Text>
+        </UnstyledButton>
+      </Group>
       <Carousel
         {...props}
         emblaOptions={{
           align: 'start',
         }}
-        slideSize={{ base: '50%', sm: '33.3333%', md: '25%' }}
+        slideSize={{ base: '70%', sm: '33.3333%', md: '25%' }}
         slideGap="sm"
       >
         {validObjects.map((object) => (
@@ -75,24 +86,22 @@ const CarouselCard = async ({
 
   return (
     <CarouselSlide {...props}>
-      <AspectRatio ratio={1 / 1} pos={'relative'}>
-        <Image
+      <AspectRatio ratio={1 / 1}>
+        <BackgroundImage
           className="rounded-xl"
-          fit="cover"
-          src={thumbnail?.url ?? undefined}
-          fallbackSrc="https://placehold.co/600x400?text=Placeholder"
-          alt={thumbnail?.alt ?? t('No thumbnail available for {{name}}', { name: object.name })}
-        />
-        <Overlay backgroundOpacity={0}>
+          src={thumbnail?.url ?? 'https://placehold.co/600x400?text=Placeholder'}
+        >
           <Stack justify="space-between" className="h-full" p="sm">
             <Title order={6}>{object.name}</Title>
             <Stack>
               <Group justify="end">
-                <Button variant="default">{t('See more')}</Button>
+                <Button size="compact-sm" variant="default">
+                  {t('See more')}
+                </Button>
               </Group>
             </Stack>
           </Stack>
-        </Overlay>
+        </BackgroundImage>
       </AspectRatio>
     </CarouselSlide>
   )

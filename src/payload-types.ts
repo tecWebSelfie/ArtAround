@@ -69,6 +69,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    usersPropics: UsersPropic;
     pages: Page;
     museums: Museum;
     museumThumbnails: MuseumThumbnail;
@@ -116,6 +117,7 @@ export interface Config {
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
@@ -781,6 +783,12 @@ export interface User {
   parent?: (string | null) | User;
   parentPath?: string | null;
   createdBy?: string | null;
+  name: {
+    firstName: string;
+    lastName: string;
+    fullName: string;
+  };
+  avatar?: (string | null) | UsersPropic;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -824,6 +832,25 @@ export interface Role {
   createdBy?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usersPropics".
+ */
+export interface UsersPropic {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2307,6 +2334,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'usersPropics';
+        value: string | UsersPropic;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: string | Page;
       } | null)
@@ -2472,6 +2503,14 @@ export interface UsersSelect<T extends boolean = true> {
   parent?: T;
   parentPath?: T;
   createdBy?: T;
+  name?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        fullName?: T;
+      };
+  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2489,6 +2528,24 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usersPropics_select".
+ */
+export interface UsersPropicsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3652,6 +3709,7 @@ export interface TaskCreateCollectionExport {
     batchSize?: number | null;
     collectionSlug:
       | 'users'
+      | 'usersPropics'
       | 'pages'
       | 'museums'
       | 'museumThumbnails'

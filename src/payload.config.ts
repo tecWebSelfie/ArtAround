@@ -29,7 +29,7 @@ import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
 import { Tour } from './collections/Tours'
-import { Users } from './collections/Users'
+import { Users, UsersPropics } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -60,6 +60,7 @@ export default buildConfig({
   },
   collections: [
     Users,
+    UsersPropics,
     Pages,
     Museums,
     MuseumThumbnails,
