@@ -1,19 +1,11 @@
+import { editorial } from '@/fields/editorial'
 import { CollectionConfig } from 'payload'
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
   fields: [
-    {
-      name: 'name',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      required: false,
-      maxLength: 500,
-    },
+    editorial({ name: 'name', type: 'text', required: true }),
+    editorial({ name: 'description', type: 'textarea', required: false, maxLength: 500 }),
     {
       name: 'exhibit',
       type: 'join',
@@ -29,6 +21,24 @@ export const Objects: CollectionConfig = {
       hasMany: true,
       required: false,
       minRows: 1,
+    },
+    {
+      name: 'thumbnail',
+      type: 'upload',
+      relationTo: 'objectsThumbnails',
+      required: false,
+    },
+  ],
+}
+
+export const ObjectsThumbnails: CollectionConfig = {
+  slug: 'objectsThumbnails',
+  upload: true,
+  fields: [
+    {
+      name: 'alt',
+      type: 'text',
+      required: true,
     },
   ],
 }

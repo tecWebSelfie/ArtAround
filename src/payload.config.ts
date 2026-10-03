@@ -1,50 +1,76 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import path from 'path'
-import { buildConfig } from 'payload'
-import { fileURLToPath } from 'url'
-import sharp from 'sharp'
 import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
+import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import nodemailer from 'nodemailer'
+import path from 'path'
+import { buildConfig, LocalizationConfig } from 'payload'
+import sharp from 'sharp'
+import { fileURLToPath } from 'url'
 
 // Payload Plugins
-import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
-import { mcpPlugin } from '@payloadcms/plugin-mcp'
-import { redirectsPlugin } from '@payloadcms/plugin-redirects'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
-import { phoneNumberPlugin } from 'payload-phone-number-plugin'
+import { mcpPlugin } from '@payloadcms/plugin-mcp'
+import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
+import { redirectsPlugin } from '@payloadcms/plugin-redirects'
+import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
+import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 
-import { Users } from './collections/Users'
-import { Pages } from './collections/Pages'
-import { MuseumThumbnails, Museums, MuseumMaps } from './collections/Museums'
-import { Objects } from './collections/Objects'
+import { en } from '@payloadcms/translations/languages/en'
+import { it } from '@payloadcms/translations/languages/it'
+import IsoCodes from 'iso-639-1'
+import { autoTranslatePlugin } from './plugins/autoTranslate'
+
+import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
-import { Contents, ContentImages } from './collections/Contents'
+import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
+import { Objects, ObjectsThumbnails } from './collections/Objects'
+import { Pages } from './collections/Pages'
+import { Tour } from './collections/Tours'
+import { Users, UsersPropics } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const localizationConfig: LocalizationConfig = {
+  defaultLocale: 'en',
+  locales: IsoCodes.getAllCodes()
+    .map((isoCode) => ({
+      label: IsoCodes.getNativeName(isoCode) || IsoCodes.getName(isoCode),
+      code: isoCode,
+      fallbackLocale: 'en',
+    }))
+    .sort((a, b) => a.label.localeCompare(b.label)),
+  fallback: true,
+}
+
 export default buildConfig({
+  localization: localizationConfig,
   admin: {
     user: Users.slug,
     importMap: {
       baseDir: path.resolve(dirname),
     },
   },
+  i18n: {
+    supportedLanguages: { en, it },
+    fallbackLanguage: 'en',
+  },
   collections: [
     Users,
+    UsersPropics,
     Pages,
     Museums,
     MuseumThumbnails,
     MuseumMaps,
     Objects,
+    ObjectsThumbnails,
     Exhibits,
     Contents,
     ContentImages,
+    Tour,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -56,6 +82,13 @@ export default buildConfig({
   }),
   sharp,
   plugins: [
+    // On-demand AI translation (wraps @focus-reactive/payload-plugin-translator).
+    // Just list the collections — the wrapper mounts
+    // GET /api/{slug}/:id/localized?locale=xx on each of them.
+    // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
+    autoTranslatePlugin({
+      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages],
+    }),
     stripePlugin({
       stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
     }),

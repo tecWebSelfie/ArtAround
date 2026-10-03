@@ -69,14 +69,18 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    usersPropics: UsersPropic;
     pages: Page;
     museums: Museum;
     museumThumbnails: MuseumThumbnail;
     museumMaps: MuseumMap;
     objects: Object;
+    objectsThumbnails: ObjectsThumbnail;
     exhibits: Exhibit;
     contents: Content;
     contentImages: ContentImage;
+    tours: Tour;
+    'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
     redirects: Redirect;
@@ -113,14 +117,18 @@ export interface Config {
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
+    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
     exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
+    tours: ToursSelect<false> | ToursSelect<true>;
+    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
@@ -147,20 +155,577 @@ export interface Config {
   db: {
     defaultIDType: string;
   };
-  fallbackLocale: null;
+  fallbackLocale:
+    | ('false' | 'none' | 'null')
+    | false
+    | null
+    | (
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )
+    | (
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )[];
   globals: {
     'lfrs-settings': LfrsSetting;
   };
   globalsSelect: {
     'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
   };
-  locale: null;
+  locale:
+    | 'om'
+    | 'aa'
+    | 'af'
+    | 'ak'
+    | 'an'
+    | 'ig'
+    | 'gn'
+    | 'ae'
+    | 'ay'
+    | 'az'
+    | 'id'
+    | 'ms'
+    | 'bm'
+    | 'jv'
+    | 'su'
+    | 'bi'
+    | 'bs'
+    | 'br'
+    | 'ca'
+    | 'cs'
+    | 'ch'
+    | 'ny'
+    | 'sn'
+    | 'co'
+    | 'cy'
+    | 'da'
+    | 'se'
+    | 'de'
+    | 'nv'
+    | 'na'
+    | 'et'
+    | 'en'
+    | 'es'
+    | 'eo'
+    | 'eu'
+    | 'ee'
+    | 'to'
+    | 'mg'
+    | 'fo'
+    | 'fr'
+    | 'fy'
+    | 'ff'
+    | 'ga'
+    | 'gv'
+    | 'sm'
+    | 'gd'
+    | 'gl'
+    | 'ki'
+    | 'ho'
+    | 'hr'
+    | 'io'
+    | 'rw'
+    | 'rn'
+    | 'ia'
+    | 'ie'
+    | 'ik'
+    | 'nd'
+    | 'nr'
+    | 'xh'
+    | 'zu'
+    | 'is'
+    | 'it'
+    | 'mh'
+    | 'kl'
+    | 'kr'
+    | 'kw'
+    | 'kg'
+    | 'lu'
+    | 'sw'
+    | 'ht'
+    | 'kj'
+    | 'ku'
+    | 'la'
+    | 'lv'
+    | 'lb'
+    | 'lt'
+    | 'li'
+    | 'ln'
+    | 'lg'
+    | 'hu'
+    | 'mt'
+    | 'nl'
+    | 'no'
+    | 'nb'
+    | 'nn'
+    | 'oc'
+    | 'hz'
+    | 'ng'
+    | 'pl'
+    | 'pt'
+    | 'ty'
+    | 'ro'
+    | 'rm'
+    | 'qu'
+    | 'sc'
+    | 'za'
+    | 'st'
+    | 'tn'
+    | 'sq'
+    | 'ss'
+    | 'sk'
+    | 'sl'
+    | 'so'
+    | 'fi'
+    | 'sv'
+    | 'mi'
+    | 'vi'
+    | 've'
+    | 'tr'
+    | 'tk'
+    | 'tw'
+    | 'vo'
+    | 'fj'
+    | 'wa'
+    | 'tl'
+    | 'wo'
+    | 'ts'
+    | 'sg'
+    | 'yo'
+    | 'el'
+    | 'av'
+    | 'ab'
+    | 'ba'
+    | 'be'
+    | 'bg'
+    | 'os'
+    | 'kv'
+    | 'ky'
+    | 'kk'
+    | 'mk'
+    | 'mn'
+    | 'ce'
+    | 'ru'
+    | 'sr'
+    | 'tt'
+    | 'tg'
+    | 'uz'
+    | 'uk'
+    | 'cv'
+    | 'cu'
+    | 'ka'
+    | 'hy'
+    | 'yi'
+    | 'he'
+    | 'ug'
+    | 'ur'
+    | 'ar'
+    | 'ps'
+    | 'fa'
+    | 'ha'
+    | 'dv'
+    | 'ti'
+    | 'am'
+    | 'ks'
+    | 'ne'
+    | 'pi'
+    | 'mr'
+    | 'sa'
+    | 'sd'
+    | 'hi'
+    | 'as'
+    | 'bn'
+    | 'pa'
+    | 'gu'
+    | 'or'
+    | 'ta'
+    | 'te'
+    | 'kn'
+    | 'ml'
+    | 'si'
+    | 'th'
+    | 'lo'
+    | 'bo'
+    | 'dz'
+    | 'my'
+    | 'km'
+    | 'iu'
+    | 'oj'
+    | 'cr'
+    | 'ko'
+    | 'ii'
+    | 'zh'
+    | 'ja';
   widgets: {
     collections: CollectionsWidget;
   };
   user: User | PayloadMcpApiKey;
   jobs: {
     tasks: {
+      translate_document: TaskTranslateDocument;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
       inline: {
@@ -168,7 +733,9 @@ export interface Config {
         output: unknown;
       };
     };
-    workflows: unknown;
+    workflows: {
+      translate_document_locales: WorkflowTranslateDocumentLocales;
+    };
   };
 }
 export interface UserAuthOperations {
@@ -216,6 +783,12 @@ export interface User {
   parent?: (string | null) | User;
   parentPath?: string | null;
   createdBy?: string | null;
+  name: {
+    firstName: string;
+    lastName: string;
+    fullName: string;
+  };
+  avatar?: (string | null) | UsersPropic;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -262,6 +835,25 @@ export interface Role {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usersPropics".
+ */
+export interface UsersPropic {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
@@ -297,7 +889,27 @@ export interface Museum {
   id: string;
   createdBy?: string | null;
   name: string;
-  description?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   shortDescription: string;
   accessibility: boolean;
   map?: (string | null) | MuseumMap;
@@ -312,7 +924,13 @@ export interface Museum {
     | null;
   news?:
     | {
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
         title: string;
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
         content: string;
         date: string;
         id?: string | null;
@@ -371,9 +989,15 @@ export interface Museum {
           id?: string | null;
         }[]
       | null;
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
     notes?: string | null;
   };
   ticketInfo: {
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
     label: string;
     url?: string | null;
   };
@@ -439,6 +1063,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -500,6 +1127,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -561,6 +1191,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -622,6 +1255,9 @@ export interface Museum {
                   id?: string | null;
                 }[]
               | null;
+            /**
+             * Editorial copy — auto-translated on demand into any locale.
+             */
             notes?: string | null;
           };
           coordinates: {
@@ -694,6 +1330,9 @@ export interface PhoneNumber {
  */
 export interface MuseumThumbnail {
   id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   alt: string;
   updatedAt: string;
   createdAt: string;
@@ -729,7 +1368,13 @@ export interface Exhibit {
 export interface Object {
   id: string;
   createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   description?: string | null;
   exhibit?: {
     docs?: (string | Exhibit)[];
@@ -737,6 +1382,7 @@ export interface Object {
     totalDocs?: number;
   };
   contents?: (string | Content)[] | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
@@ -752,7 +1398,13 @@ export interface Content {
   id: string;
   createdBy?: string | null;
   difficulty: 'easy' | 'medium' | 'hard';
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   body: {
     root: {
       type: string;
@@ -791,6 +1443,9 @@ export interface Content {
  */
 export interface ContentImage {
   id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   alt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -803,6 +1458,50 @@ export interface ContentImage {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours".
+ */
+export interface Tour {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translator-provenance".
+ */
+export interface TranslatorProvenance {
+  id: string;
+  collectionSlug: string;
+  documentId: string;
+  targetLocale: string;
+  sourceLocale: string;
+  sourceFingerprint: string;
+  translatedAt: string;
+  dismissedFingerprint?: string | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1016,6 +1715,194 @@ export interface Export {
   page?: number | null;
   sort?: string | null;
   sortOrder?: ('asc' | 'desc') | null;
+  locale?:
+    | (
+        | 'all'
+        | 'om'
+        | 'aa'
+        | 'af'
+        | 'ak'
+        | 'an'
+        | 'ig'
+        | 'gn'
+        | 'ae'
+        | 'ay'
+        | 'az'
+        | 'id'
+        | 'ms'
+        | 'bm'
+        | 'jv'
+        | 'su'
+        | 'bi'
+        | 'bs'
+        | 'br'
+        | 'ca'
+        | 'cs'
+        | 'ch'
+        | 'ny'
+        | 'sn'
+        | 'co'
+        | 'cy'
+        | 'da'
+        | 'se'
+        | 'de'
+        | 'nv'
+        | 'na'
+        | 'et'
+        | 'en'
+        | 'es'
+        | 'eo'
+        | 'eu'
+        | 'ee'
+        | 'to'
+        | 'mg'
+        | 'fo'
+        | 'fr'
+        | 'fy'
+        | 'ff'
+        | 'ga'
+        | 'gv'
+        | 'sm'
+        | 'gd'
+        | 'gl'
+        | 'ki'
+        | 'ho'
+        | 'hr'
+        | 'io'
+        | 'rw'
+        | 'rn'
+        | 'ia'
+        | 'ie'
+        | 'ik'
+        | 'nd'
+        | 'nr'
+        | 'xh'
+        | 'zu'
+        | 'is'
+        | 'it'
+        | 'mh'
+        | 'kl'
+        | 'kr'
+        | 'kw'
+        | 'kg'
+        | 'lu'
+        | 'sw'
+        | 'ht'
+        | 'kj'
+        | 'ku'
+        | 'la'
+        | 'lv'
+        | 'lb'
+        | 'lt'
+        | 'li'
+        | 'ln'
+        | 'lg'
+        | 'hu'
+        | 'mt'
+        | 'nl'
+        | 'no'
+        | 'nb'
+        | 'nn'
+        | 'oc'
+        | 'hz'
+        | 'ng'
+        | 'pl'
+        | 'pt'
+        | 'ty'
+        | 'ro'
+        | 'rm'
+        | 'qu'
+        | 'sc'
+        | 'za'
+        | 'st'
+        | 'tn'
+        | 'sq'
+        | 'ss'
+        | 'sk'
+        | 'sl'
+        | 'so'
+        | 'fi'
+        | 'sv'
+        | 'mi'
+        | 'vi'
+        | 've'
+        | 'tr'
+        | 'tk'
+        | 'tw'
+        | 'vo'
+        | 'fj'
+        | 'wa'
+        | 'tl'
+        | 'wo'
+        | 'ts'
+        | 'sg'
+        | 'yo'
+        | 'el'
+        | 'av'
+        | 'ab'
+        | 'ba'
+        | 'be'
+        | 'bg'
+        | 'os'
+        | 'kv'
+        | 'ky'
+        | 'kk'
+        | 'mk'
+        | 'mn'
+        | 'ce'
+        | 'ru'
+        | 'sr'
+        | 'tt'
+        | 'tg'
+        | 'uz'
+        | 'uk'
+        | 'cv'
+        | 'cu'
+        | 'ka'
+        | 'hy'
+        | 'yi'
+        | 'he'
+        | 'ug'
+        | 'ur'
+        | 'ar'
+        | 'ps'
+        | 'fa'
+        | 'ha'
+        | 'dv'
+        | 'ti'
+        | 'am'
+        | 'ks'
+        | 'ne'
+        | 'pi'
+        | 'mr'
+        | 'sa'
+        | 'sd'
+        | 'hi'
+        | 'as'
+        | 'bn'
+        | 'pa'
+        | 'gu'
+        | 'or'
+        | 'ta'
+        | 'te'
+        | 'kn'
+        | 'ml'
+        | 'si'
+        | 'th'
+        | 'lo'
+        | 'bo'
+        | 'dz'
+        | 'my'
+        | 'km'
+        | 'iu'
+        | 'oj'
+        | 'cr'
+        | 'ko'
+        | 'ii'
+        | 'zh'
+        | 'ja'
+      )
+    | null;
   drafts?: ('yes' | 'no') | null;
   selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
   fields?: string[] | null;
@@ -1394,7 +2281,7 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'createCollectionExport' | 'createCollectionImport';
+        taskSlug: 'inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport';
         taskID: string;
         input?:
           | {
@@ -1427,7 +2314,8 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  taskSlug?: ('inline' | 'createCollectionExport' | 'createCollectionImport') | null;
+  workflowSlug?: 'translate_document_locales' | null;
+  taskSlug?: ('inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport') | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -1444,6 +2332,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'usersPropics';
+        value: string | UsersPropic;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1466,6 +2358,10 @@ export interface PayloadLockedDocument {
         value: string | Object;
       } | null)
     | ({
+        relationTo: 'objectsThumbnails';
+        value: string | ObjectsThumbnail;
+      } | null)
+    | ({
         relationTo: 'exhibits';
         value: string | Exhibit;
       } | null)
@@ -1476,6 +2372,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contentImages';
         value: string | ContentImage;
+      } | null)
+    | ({
+        relationTo: 'tours';
+        value: string | Tour;
+      } | null)
+    | ({
+        relationTo: 'translator-provenance';
+        value: string | TranslatorProvenance;
       } | null)
     | ({
         relationTo: 'forms';
@@ -1599,6 +2503,14 @@ export interface UsersSelect<T extends boolean = true> {
   parent?: T;
   parentPath?: T;
   createdBy?: T;
+  name?:
+    | T
+    | {
+        firstName?: T;
+        lastName?: T;
+        fullName?: T;
+      };
+  avatar?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -1616,6 +2528,24 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usersPropics_select".
+ */
+export interface UsersPropicsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2061,6 +2991,7 @@ export interface ObjectsSelect<T extends boolean = true> {
   description?: T;
   exhibit?: T;
   contents?: T;
+  thumbnail?: T;
   lfrs?:
     | T
     | {
@@ -2069,6 +3000,24 @@ export interface ObjectsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails_select".
+ */
+export interface ObjectsThumbnailsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2127,6 +3076,29 @@ export interface ContentImagesSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours_select".
+ */
+export interface ToursSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "translator-provenance_select".
+ */
+export interface TranslatorProvenanceSelect<T extends boolean = true> {
+  collectionSlug?: T;
+  documentId?: T;
+  targetLocale?: T;
+  sourceLocale?: T;
+  sourceFingerprint?: T;
+  translatedAt?: T;
+  dismissedFingerprint?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2304,6 +3276,7 @@ export interface ExportsSelect<T extends boolean = true> {
   page?: T;
   sort?: T;
   sortOrder?: T;
+  locale?: T;
   drafts?: T;
   selectionToUse?: T;
   fields?: T;
@@ -2575,6 +3548,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
         error?: T;
         id?: T;
       };
+  workflowSlug?: T;
   taskSlug?: T;
   queue?: T;
   waitUntil?: T;
@@ -2687,6 +3661,45 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskTranslate_document".
+ */
+export interface TaskTranslateDocument {
+  input: {
+    collection_slug: string;
+    collection_id: string;
+    /**
+     * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
+     */
+    collection?:
+      | ({
+          relationTo: 'museums';
+          value: string | Museum;
+        } | null)
+      | ({
+          relationTo: 'museumThumbnails';
+          value: string | MuseumThumbnail;
+        } | null)
+      | ({
+          relationTo: 'objects';
+          value: string | Object;
+        } | null)
+      | ({
+          relationTo: 'contents';
+          value: string | Content;
+        } | null)
+      | ({
+          relationTo: 'contentImages';
+          value: string | ContentImage;
+        } | null);
+    source_lng: string;
+    target_lng: string;
+    strategy: string;
+    publish_on_translation?: boolean | null;
+  };
+  output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskCreateCollectionExport".
  */
 export interface TaskCreateCollectionExport {
@@ -2696,14 +3709,18 @@ export interface TaskCreateCollectionExport {
     batchSize?: number | null;
     collectionSlug:
       | 'users'
+      | 'usersPropics'
       | 'pages'
       | 'museums'
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
+      | 'objectsThumbnails'
       | 'exhibits'
       | 'contents'
       | 'contentImages'
+      | 'tours'
+      | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
       | 'redirects'
@@ -2748,6 +3765,52 @@ export interface TaskCreateCollectionImport {
     maxLimit?: number | null;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkflowTranslate_document_locales".
+ */
+export interface WorkflowTranslateDocumentLocales {
+  input: {
+    collection_slug: string;
+    collection_id: string;
+    /**
+     * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
+     */
+    collection?:
+      | ({
+          relationTo: 'museums';
+          value: string | Museum;
+        } | null)
+      | ({
+          relationTo: 'museumThumbnails';
+          value: string | MuseumThumbnail;
+        } | null)
+      | ({
+          relationTo: 'objects';
+          value: string | Object;
+        } | null)
+      | ({
+          relationTo: 'contents';
+          value: string | Content;
+        } | null)
+      | ({
+          relationTo: 'contentImages';
+          value: string | ContentImage;
+        } | null);
+    source_lng: string;
+    strategy: string;
+    publish_on_translation?: boolean | null;
+    target_lngs:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

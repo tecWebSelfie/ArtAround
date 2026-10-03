@@ -3,24 +3,14 @@ import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { readingTime } from 'reading-time-estimator'
 import { DifficultyField } from '@/fields/DifficultyField'
+import { editorial } from '@/fields/editorial'
 
 export const Contents: CollectionConfig = {
   slug: 'contents',
   fields: [
     DifficultyField,
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-      unique: true,
-      localized: true,
-    },
-    {
-      name: 'body',
-      type: 'richText',
-      required: true,
-      localized: true,
-    },
+    editorial({ name: 'title', type: 'text', required: true, unique: true }),
+    editorial({ name: 'body', type: 'richText', required: true }),
     {
       name: 'readingTimeMins',
       type: 'number',
@@ -60,10 +50,5 @@ export const Contents: CollectionConfig = {
 export const ContentImages: CollectionConfig = {
   slug: 'contentImages',
   upload: true,
-  fields: [
-    {
-      name: 'alt',
-      type: 'text',
-    },
-  ],
+  fields: [editorial({ name: 'alt', type: 'text', required: false })],
 }

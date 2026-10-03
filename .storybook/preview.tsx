@@ -1,6 +1,6 @@
 import type { Preview } from '@storybook/nextjs-vite'
 
-import '../src/app/(frontend)/globals.css'
+import '../src/app/[lng]/frontend/globals.css'
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { theme } from '../src/theme'
@@ -11,9 +11,7 @@ const preview: Preview = {
     layout: 'fullscreen',
     options: {
       showPanel: false,
-      storySort: (a, b) => {
-        a.title.localeCompare(b.title, undefined, { numeric: true })
-      },
+      storySort: (a, b) => a.title.localeCompare(b.title, undefined, { numeric: true }),
     },
     backgrounds: { disable: true },
     controls: {
