@@ -59,102 +59,103 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji';
+  | 'Pacific/Fiji'
 
 export interface Config {
   auth: {
-    users: UserAuthOperations;
-    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
-  };
-  blocks: {};
+    users: UserAuthOperations
+    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations
+  }
+  blocks: {}
   collections: {
-    users: User;
-    usersPropics: UsersPropic;
-    pages: Page;
-    museums: Museum;
-    museumThumbnails: MuseumThumbnail;
-    museumMaps: MuseumMap;
-    objects: Object;
-    objectsThumbnails: ObjectsThumbnail;
-    exhibits: Exhibit;
-    contents: Content;
-    contentImages: ContentImage;
-    tours: Tour;
-    'translator-provenance': TranslatorProvenance;
-    forms: Form;
-    'form-submissions': FormSubmission;
-    redirects: Redirect;
-    exports: Export;
-    imports: Import;
-    'permission-actions': PermissionAction;
-    'permission-features': PermissionFeature;
-    permissions: Permission;
-    roles: Role;
-    'roles-permissions': RolesPermission;
-    'lfrs-likes': LfrsLike;
-    'lfrs-favourites': LfrsFavourite;
-    'lfrs-reviews': LfrsReview;
-    'lfrs-replies': LfrsReply;
-    'lfrs-shares': LfrsShare;
-    'lfrs-testimonials': LfrsTestimonial;
-    'payload-mcp-api-keys': PayloadMcpApiKey;
-    'payload-kv': PayloadKv;
-    'payload-jobs': PayloadJob;
-    'payload-locked-documents': PayloadLockedDocument;
-    'payload-preferences': PayloadPreference;
-    'payload-migrations': PayloadMigration;
-  };
+    users: User
+    usersPropics: UsersPropic
+    pages: Page
+    museums: Museum
+    museumThumbnails: MuseumThumbnail
+    museumMaps: MuseumMap
+    objects: Object
+    objectsThumbnails: ObjectsThumbnail
+    exhibits: Exhibit
+    contents: Content
+    contentImages: ContentImage
+    tours: Tour
+    'translator-provenance': TranslatorProvenance
+    forms: Form
+    'form-submissions': FormSubmission
+    redirects: Redirect
+    exports: Export
+    imports: Import
+    'permission-actions': PermissionAction
+    'permission-features': PermissionFeature
+    permissions: Permission
+    roles: Role
+    'roles-permissions': RolesPermission
+    'lfrs-likes': LfrsLike
+    'lfrs-favourites': LfrsFavourite
+    'lfrs-reviews': LfrsReview
+    'lfrs-replies': LfrsReply
+    'lfrs-shares': LfrsShare
+    'lfrs-testimonials': LfrsTestimonial
+    'payload-mcp-api-keys': PayloadMcpApiKey
+    'payload-kv': PayloadKv
+    'payload-jobs': PayloadJob
+    'payload-locked-documents': PayloadLockedDocument
+    'payload-preferences': PayloadPreference
+    'payload-migrations': PayloadMigration
+  }
   collectionsJoins: {
     objects: {
-      exhibit: 'exhibits';
-    };
+      exhibit: 'exhibits'
+    }
     contents: {
-      objects: 'objects';
-    };
+      objects: 'objects'
+    }
     'lfrs-reviews': {
-      replies: 'lfrs-replies';
-    };
-  };
+      replies: 'lfrs-replies'
+    }
+  }
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
-    pages: PagesSelect<false> | PagesSelect<true>;
-    museums: MuseumsSelect<false> | MuseumsSelect<true>;
-    museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
-    museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
-    objects: ObjectsSelect<false> | ObjectsSelect<true>;
-    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
-    exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
-    contents: ContentsSelect<false> | ContentsSelect<true>;
-    contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
-    tours: ToursSelect<false> | ToursSelect<true>;
-    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
-    forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
-    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
-    exports: ExportsSelect<false> | ExportsSelect<true>;
-    imports: ImportsSelect<false> | ImportsSelect<true>;
-    'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>;
-    'permission-features': PermissionFeaturesSelect<false> | PermissionFeaturesSelect<true>;
-    permissions: PermissionsSelect<false> | PermissionsSelect<true>;
-    roles: RolesSelect<false> | RolesSelect<true>;
-    'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>;
-    'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>;
-    'lfrs-favourites': LfrsFavouritesSelect<false> | LfrsFavouritesSelect<true>;
-    'lfrs-reviews': LfrsReviewsSelect<false> | LfrsReviewsSelect<true>;
-    'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>;
-    'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>;
-    'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>;
-    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
-    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-  };
+    users: UsersSelect<false> | UsersSelect<true>
+    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>
+    pages: PagesSelect<false> | PagesSelect<true>
+    museums: MuseumsSelect<false> | MuseumsSelect<true>
+    museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>
+    museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>
+    objects: ObjectsSelect<false> | ObjectsSelect<true>
+    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>
+    exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>
+    contents: ContentsSelect<false> | ContentsSelect<true>
+    contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>
+    tours: ToursSelect<false> | ToursSelect<true>
+    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>
+    forms: FormsSelect<false> | FormsSelect<true>
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>
+    exports: ExportsSelect<false> | ExportsSelect<true>
+    imports: ImportsSelect<false> | ImportsSelect<true>
+    'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>
+    'permission-features': PermissionFeaturesSelect<false> | PermissionFeaturesSelect<true>
+    permissions: PermissionsSelect<false> | PermissionsSelect<true>
+    roles: RolesSelect<false> | RolesSelect<true>
+    'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>
+    'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>
+    'lfrs-favourites': LfrsFavouritesSelect<false> | LfrsFavouritesSelect<true>
+    'lfrs-reviews': LfrsReviewsSelect<false> | LfrsReviewsSelect<true>
+    'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>
+    'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>
+    'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>
+    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>
+    'payload-locked-documents':
+      PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
+  }
   db: {
-    defaultIDType: string;
-  };
+    defaultIDType: string
+  }
   fallbackLocale:
     | ('false' | 'none' | 'null')
     | false
@@ -528,13 +529,13 @@ export interface Config {
         | 'ii'
         | 'zh'
         | 'ja'
-      )[];
+      )[]
   globals: {
-    'lfrs-settings': LfrsSetting;
-  };
+    'lfrs-settings': LfrsSetting
+  }
   globalsSelect: {
-    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
-  };
+    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>
+  }
   locale:
     | 'om'
     | 'aa'
@@ -718,580 +719,580 @@ export interface Config {
     | 'ko'
     | 'ii'
     | 'zh'
-    | 'ja';
+    | 'ja'
   widgets: {
-    collections: CollectionsWidget;
-  };
-  user: User | PayloadMcpApiKey;
+    collections: CollectionsWidget
+  }
+  user: User | PayloadMcpApiKey
   jobs: {
     tasks: {
-      translate_document: TaskTranslateDocument;
-      createCollectionExport: TaskCreateCollectionExport;
-      createCollectionImport: TaskCreateCollectionImport;
+      translate_document: TaskTranslateDocument
+      createCollectionExport: TaskCreateCollectionExport
+      createCollectionImport: TaskCreateCollectionImport
       inline: {
-        input: unknown;
-        output: unknown;
-      };
-    };
+        input: unknown
+        output: unknown
+      }
+    }
     workflows: {
-      translate_document_locales: WorkflowTranslateDocumentLocales;
-    };
-  };
+      translate_document_locales: WorkflowTranslateDocumentLocales
+    }
+  }
 }
 export interface UserAuthOperations {
   forgotPassword: {
-    username: string;
-  };
+    username: string
+  }
   login: {
-    password: string;
-    username: string;
-  };
+    password: string
+    username: string
+  }
   registerFirstUser: {
-    password: string;
-    username: string;
-  };
+    password: string
+    username: string
+  }
   unlock: {
-    username: string;
-  };
+    username: string
+  }
 }
 export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   login: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   registerFirstUser: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   unlock: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
-  isSuperAdmin?: boolean | null;
-  roles?: (string | Role)[] | null;
-  parent?: (string | null) | User;
-  parentPath?: string | null;
-  createdBy?: string | null;
+  id: string
+  isSuperAdmin?: boolean | null
+  roles?: (string | Role)[] | null
+  parent?: (string | null) | User
+  parentPath?: string | null
+  createdBy?: string | null
   name: {
-    firstName: string;
-    lastName: string;
-    fullName: string;
-  };
-  avatar?: (string | null) | UsersPropic;
-  updatedAt: string;
-  createdAt: string;
-  email?: string | null;
-  username: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
+    firstName: string
+    lastName: string
+    fullName: string
+  }
+  avatar?: (string | null) | UsersPropic
+  updatedAt: string
+  createdAt: string
+  email?: string | null
+  username: string
+  resetPasswordToken?: string | null
+  resetPasswordExpiration?: string | null
+  salt?: string | null
+  hash?: string | null
+  loginAttempts?: number | null
+  lockUntil?: string | null
   sessions?:
     | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
+        id: string
+        createdAt?: string | null
+        expiresAt: string
       }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+    | null
+  password?: string | null
+  collection: 'users'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles".
  */
 export interface Role {
-  id: string;
-  code: string;
-  name: string;
-  description?: string | null;
-  status: 'active' | 'inactive';
-  dataScope: 'all' | 'own' | 'hierarchy';
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  status: 'active' | 'inactive'
+  dataScope: 'all' | 'own' | 'hierarchy'
   permissionMatrixDraft?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usersPropics".
  */
 export interface UsersPropic {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages".
  */
 export interface Page {
-  id: string;
-  title?: string | null;
-  slug?: string | null;
-  parent?: (string | null) | Page;
+  id: string
+  title?: string | null
+  slug?: string | null
+  parent?: (string | null) | Page
   breadcrumbs?:
     | {
-        doc?: (string | null) | Page;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
+        doc?: (string | null) | Page
+        url?: string | null
+        label?: string | null
+        id?: string | null
       }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+    | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museums".
  */
 export interface Museum {
-  id: string;
-  createdBy?: string | null;
-  name: string;
+  id: string
+  createdBy?: string | null
+  name: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   description?: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  } | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  shortDescription: string;
-  accessibility: boolean;
-  map?: (string | null) | MuseumMap;
-  phone?: string | PhoneNumber | null;
-  email?: string | null;
+  shortDescription: string
+  accessibility: boolean
+  map?: (string | null) | MuseumMap
+  phone?: string | PhoneNumber | null
+  email?: string | null
   socials?:
     | {
-        platform: string;
-        url: string;
-        id?: string | null;
+        platform: string
+        url: string
+        id?: string | null
       }[]
-    | null;
+    | null
   news?:
     | {
         /**
          * Editorial copy — auto-translated on demand into any locale.
          */
-        title: string;
+        title: string
         /**
          * Editorial copy — auto-translated on demand into any locale.
          */
-        content: string;
-        date: string;
-        id?: string | null;
+        content: string
+        date: string
+        id?: string | null
       }[]
-    | null;
-  thumbnails?: (string | MuseumThumbnail)[] | null;
-  exhibits?: (string | Exhibit)[] | null;
-  objects?: (string | Object)[] | null;
+    | null
+  thumbnails?: (string | MuseumThumbnail)[] | null
+  exhibits?: (string | Exhibit)[] | null
+  objects?: (string | Object)[] | null
   openingHours?: {
     monday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     tuesday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     wednesday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     thursday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     friday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     saturday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     sunday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    notes?: string | null;
-  };
+    notes?: string | null
+  }
   ticketInfo: {
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    label: string;
-    url?: string | null;
-  };
+    label: string
+    url?: string | null
+  }
   location: {
-    address: string;
-    city: string;
+    address: string
+    city: string
     /**
      * @minItems 2
      * @maxItems 2
      */
-    latlng: [number, number];
-  };
+    latlng: [number, number]
+  }
   services?: {
     bathrooms?:
       | {
           openingHours?: {
             monday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             tuesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             wednesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             thursday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             friday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             saturday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             sunday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             /**
              * Editorial copy — auto-translated on demand into any locale.
              */
-            notes?: string | null;
-          };
+            notes?: string | null
+          }
           coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
+            x: number
+            y: number
+          }
+          id?: string | null
         }[]
-      | null;
+      | null
     food?:
       | {
           openingHours?: {
             monday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             tuesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             wednesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             thursday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             friday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             saturday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             sunday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             /**
              * Editorial copy — auto-translated on demand into any locale.
              */
-            notes?: string | null;
-          };
+            notes?: string | null
+          }
           coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
+            x: number
+            y: number
+          }
+          id?: string | null
         }[]
-      | null;
+      | null
     shop?:
       | {
           openingHours?: {
             monday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             tuesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             wednesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             thursday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             friday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             saturday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             sunday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             /**
              * Editorial copy — auto-translated on demand into any locale.
              */
-            notes?: string | null;
-          };
+            notes?: string | null
+          }
           coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
+            x: number
+            y: number
+          }
+          id?: string | null
         }[]
-      | null;
+      | null
     infoPoint?:
       | {
           openingHours?: {
             monday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             tuesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             wednesday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             thursday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             friday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             saturday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             sunday?:
               | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
+                  opening?: string | null
+                  closing?: string | null
+                  id?: string | null
                 }[]
-              | null;
+              | null
             /**
              * Editorial copy — auto-translated on demand into any locale.
              */
-            notes?: string | null;
-          };
+            notes?: string | null
+          }
           coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
+            x: number
+            y: number
+          }
+          id?: string | null
         }[]
-      | null;
-  };
+      | null
+  }
   lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumMaps".
  */
 export interface MuseumMap {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1301,420 +1302,420 @@ export interface PhoneNumber {
   /**
    * Phone number in E.164 format. Useful for using in `tel:` links.
    */
-  e164: string;
+  e164: string
   /**
    * ISO 3166-1 alpha-2 country code.
    *
    * @see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
    * @example "NO"
    */
-  regionCode: string;
+  regionCode: string
   /**
    * International calling code.
    *
    * @example "+47"
    */
-  callingCode: string;
+  callingCode: string
   /**
    * National format of the phone number.
    */
-  national: string;
+  national: string
   /**
    * International format of the phone number.
    */
-  international: string;
+  international: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumThumbnails".
  */
 export interface MuseumThumbnail {
-  id: string;
+  id: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exhibits".
  */
 export interface Exhibit {
-  id: string;
-  createdBy?: string | null;
-  objects: (string | Object)[];
+  id: string
+  createdBy?: string | null
+  objects: (string | Object)[]
   coordinates: {
-    x: number;
-    y: number;
-  };
-  updatedAt: string;
-  createdAt: string;
+    x: number
+    y: number
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects".
  */
 export interface Object {
-  id: string;
-  createdBy?: string | null;
+  id: string
+  createdBy?: string | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  name: string;
+  name: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  description?: string | null;
+  description?: string | null
   exhibit?: {
-    docs?: (string | Exhibit)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  contents?: (string | Content)[] | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
+    docs?: (string | Exhibit)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  contents?: (string | Content)[] | null
+  thumbnail?: (string | null) | ObjectsThumbnail
   lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contents".
  */
 export interface Content {
-  id: string;
-  createdBy?: string | null;
-  difficulty: 'easy' | 'medium' | 'hard';
+  id: string
+  createdBy?: string | null
+  difficulty: 'easy' | 'medium' | 'hard'
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  title: string;
+  title: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   body: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  readingTimeMins?: number | null;
-  copyright: string;
-  images?: (string | ContentImage)[] | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  }
+  readingTimeMins?: number | null
+  copyright: string
+  images?: (string | ContentImage)[] | null
   objects: {
-    docs?: (string | Object)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Object)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    ratingsCount?: number | null
+    ratingsAverage?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentImages".
  */
 export interface ContentImage {
-  id: string;
+  id: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  alt?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsThumbnails".
  */
 export interface ObjectsThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours".
  */
 export interface Tour {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "translator-provenance".
  */
 export interface TranslatorProvenance {
-  id: string;
-  collectionSlug: string;
-  documentId: string;
-  targetLocale: string;
-  sourceLocale: string;
-  sourceFingerprint: string;
-  translatedAt: string;
-  dismissedFingerprint?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  collectionSlug: string
+  documentId: string
+  targetLocale: string
+  sourceLocale: string
+  sourceFingerprint: string
+  translatedAt: string
+  dismissedFingerprint?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
 export interface Form {
-  id: string;
-  title: string;
+  id: string
+  title: string
   fields?:
     | (
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            defaultValue?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkbox';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            defaultValue?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'checkbox'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'country';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'country'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'email';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'email'
           }
         | {
             message?: {
               root: {
-                type: string;
+                type: string
                 children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'message';
+                  type: any
+                  version: number
+                  [k: string]: unknown
+                }[]
+                direction: ('ltr' | 'rtl') | null
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+                indent: number
+                version: number
+              }
+              [k: string]: unknown
+            } | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'message'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'number';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'number'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            placeholder?: string | null;
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            placeholder?: string | null
             options?:
               | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
+                  label: string
+                  value: string
+                  id?: string | null
                 }[]
-              | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'select';
+              | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'select'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'state';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'state'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'text';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'text'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textarea';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'textarea'
           }
       )[]
-    | null;
-  submitButtonLabel?: string | null;
-  confirmationType?: ('message' | 'redirect') | null;
+    | null
+  submitButtonLabel?: string | null
+  confirmationType?: ('message' | 'redirect') | null
   confirmationMessage?: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  } | null
   redirect?: {
-    url: string;
-  };
+    url: string
+  }
   emails?:
     | {
-        emailTo?: string | null;
-        cc?: string | null;
-        bcc?: string | null;
-        replyTo?: string | null;
-        emailFrom?: string | null;
-        subject: string;
+        emailTo?: string | null
+        cc?: string | null
+        bcc?: string | null
+        replyTo?: string | null
+        emailFrom?: string | null
+        subject: string
         message?: {
           root: {
-            type: string;
+            type: string
             children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
+              type: any
+              version: number
+              [k: string]: unknown
+            }[]
+            direction: ('ltr' | 'rtl') | null
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+            indent: number
+            version: number
+          }
+          [k: string]: unknown
+        } | null
+        id?: string | null
       }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
-  id: string;
-  form: string | Form;
+  id: string
+  form: string | Form
   submissionData?:
     | {
-        field: string;
-        value: string;
-        id?: string | null;
+        field: string
+        value: string
+        id?: string | null
       }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
-  id: string;
-  from: string;
+  id: string
+  from: string
   to?: {
-    type?: ('reference' | 'custom') | null;
+    type?: ('reference' | 'custom') | null
     reference?: {
-      relationTo: 'pages';
-      value: string | Page;
-    } | null;
-    url?: string | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+      relationTo: 'pages'
+      value: string | Page
+    } | null
+    url?: string | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports".
  */
 export interface Export {
-  id: string;
-  name?: string | null;
-  format: 'csv' | 'json';
-  limit?: number | null;
-  page?: number | null;
-  sort?: string | null;
-  sortOrder?: ('asc' | 'desc') | null;
+  id: string
+  name?: string | null
+  format: 'csv' | 'json'
+  limit?: number | null
+  page?: number | null
+  sort?: string | null
+  sortOrder?: ('asc' | 'desc') | null
   locale?:
     | (
         | 'all'
@@ -1902,216 +1903,216 @@ export interface Export {
         | 'zh'
         | 'ja'
       )
-    | null;
-  drafts?: ('yes' | 'no') | null;
-  selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
-  fields?: string[] | null;
-  collectionSlug: string;
+    | null
+  drafts?: ('yes' | 'no') | null
+  selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null
+  fields?: string[] | null
+  collectionSlug: string
   where?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+    | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "imports".
  */
 export interface Import {
-  id: string;
-  collectionSlug: string;
-  importMode?: ('create' | 'update' | 'upsert') | null;
-  matchField?: string | null;
-  status?: ('pending' | 'completed' | 'partial' | 'failed') | null;
+  id: string
+  collectionSlug: string
+  importMode?: ('create' | 'update' | 'upsert') | null
+  matchField?: string | null
+  status?: ('pending' | 'completed' | 'partial' | 'failed') | null
   summary?: {
-    imported?: number | null;
-    updated?: number | null;
-    total?: number | null;
-    issues?: number | null;
+    imported?: number | null
+    updated?: number | null
+    total?: number | null
+    issues?: number | null
     issueDetails?:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+      | null
+  }
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-actions".
  */
 export interface PermissionAction {
-  id: string;
-  code: string;
-  type: 'main' | 'sub';
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  code: string
+  type: 'main' | 'sub'
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-features".
  */
 export interface PermissionFeature {
-  id: string;
-  code: string;
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  code: string
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permissions".
  */
 export interface Permission {
-  id: string;
-  name: string;
-  permissionFeature: string | PermissionFeature;
-  permissionAction: string | PermissionAction;
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name: string
+  permissionFeature: string | PermissionFeature
+  permissionAction: string | PermissionAction
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles-permissions".
  */
 export interface RolesPermission {
-  id: string;
-  role: string | Role;
-  permission: string | Permission;
-  enabled?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  role: string | Role
+  permission: string | Permission
+  enabled?: boolean | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-likes".
  */
 export interface LfrsLike {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-favourites".
  */
 export interface LfrsFavourite {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-reviews".
  */
 export interface LfrsReview {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  title?: string | null;
-  body?: string | null;
-  score?: number | null;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  repliesCount?: number | null;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  title?: string | null
+  body?: string | null
+  score?: number | null
+  status?: ('pending' | 'approved' | 'rejected') | null
+  repliesCount?: number | null
   replies?: {
-    docs?: (string | LfrsReply)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  updatedAt: string;
-  createdAt: string;
+    docs?: (string | LfrsReply)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-replies".
  */
 export interface LfrsReply {
-  id: string;
-  user: string | User;
-  review: string | LfrsReview;
-  body: string;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  review: string | LfrsReview
+  body: string
+  status?: ('pending' | 'approved' | 'rejected') | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-shares".
  */
 export interface LfrsShare {
-  id: string;
-  user?: (string | null) | User;
-  targetCollection: string;
-  targetDoc: string;
-  platform: 'facebook' | 'twitter' | 'whatsapp' | 'telegram' | 'linkedin' | 'web' | 'other';
-  url?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user?: (string | null) | User
+  targetCollection: string
+  targetDoc: string
+  platform: 'facebook' | 'twitter' | 'whatsapp' | 'telegram' | 'linkedin' | 'web' | 'other'
+  url?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-testimonials".
  */
 export interface LfrsTestimonial {
-  id: string;
+  id: string
   /**
    * The email address to send the invitation to.
    */
-  invitedEmail: string;
-  uniqueCode?: string | null;
-  firstName?: string | null;
-  rating?: number | null;
-  testimonial?: string | null;
-  featured?: boolean | null;
-  status?: ('pending' | 'accepted' | 'rejected') | null;
-  invitationSentDate?: string | null;
-  testimonialAcceptedDate?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  invitedEmail: string
+  uniqueCode?: string | null
+  firstName?: string | null
+  rating?: number | null
+  testimonial?: string | null
+  featured?: boolean | null
+  status?: ('pending' | 'accepted' | 'rejected') | null
+  invitationSentDate?: string | null
+  testimonialAcceptedDate?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * API keys control which collections, resources, tools, and prompts MCP clients can access
@@ -2120,559 +2121,561 @@ export interface LfrsTestimonial {
  * via the `definition` "payload-mcp-api-keys".
  */
 export interface PayloadMcpApiKey {
-  id: string;
+  id: string
   /**
    * The user that the API key is associated with.
    */
-  user: string | User;
+  user: string | User
   /**
    * A useful label for the API key.
    */
-  label?: string | null;
+  label?: string | null
   /**
    * The purpose of the API key.
    */
-  description?: string | null;
+  description?: string | null
   museums?: {
     /**
      * Allow clients to find museums.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create museums.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update museums.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete museums.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   objects?: {
     /**
      * Allow clients to find objects.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create objects.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update objects.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete objects.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   exhibits?: {
     /**
      * Allow clients to find exhibits.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create exhibits.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update exhibits.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete exhibits.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   contents?: {
     /**
      * Allow clients to find contents.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create contents.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update contents.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete contents.
      */
-    delete?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
-  collection: 'payload-mcp-api-keys';
+    delete?: boolean | null
+  }
+  updatedAt: string
+  createdAt: string
+  enableAPIKey?: boolean | null
+  apiKey?: string | null
+  apiKeyIndex?: string | null
+  collection: 'payload-mcp-api-keys'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
-  key: string;
+  id: string
+  key: string
   data:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: string;
+  id: string
   /**
    * Input data provided to the job
    */
   input?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
   taskStatus?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  completedAt?: string | null;
-  totalTried?: number | null;
+    | null
+  completedAt?: string | null
+  totalTried?: number | null
   /**
    * If hasError is true this job will not be retried
    */
-  hasError?: boolean | null;
+  hasError?: boolean | null
   /**
    * If hasError is true, this is the error that caused it
    */
   error?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
   /**
    * Task execution log
    */
   log?:
     | {
-        executedAt: string;
-        completedAt: string;
-        taskSlug: 'inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport';
-        taskID: string;
+        executedAt: string
+        completedAt: string
+        taskSlug:
+          'inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport'
+        taskID: string
         input?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
+          | null
         output?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
-        state: 'failed' | 'succeeded';
+          | null
+        state: 'failed' | 'succeeded'
         error?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
-        id?: string | null;
+          | null
+        id?: string | null
       }[]
-    | null;
-  workflowSlug?: 'translate_document_locales' | null;
-  taskSlug?: ('inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport') | null;
-  queue?: string | null;
-  waitUntil?: string | null;
-  processing?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  workflowSlug?: 'translate_document_locales' | null
+  taskSlug?:
+    ('inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport') | null
+  queue?: string | null
+  waitUntil?: string | null
+  processing?: boolean | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: string
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       } | null)
     | ({
-        relationTo: 'usersPropics';
-        value: string | UsersPropic;
+        relationTo: 'usersPropics'
+        value: string | UsersPropic
       } | null)
     | ({
-        relationTo: 'pages';
-        value: string | Page;
+        relationTo: 'pages'
+        value: string | Page
       } | null)
     | ({
-        relationTo: 'museums';
-        value: string | Museum;
+        relationTo: 'museums'
+        value: string | Museum
       } | null)
     | ({
-        relationTo: 'museumThumbnails';
-        value: string | MuseumThumbnail;
+        relationTo: 'museumThumbnails'
+        value: string | MuseumThumbnail
       } | null)
     | ({
-        relationTo: 'museumMaps';
-        value: string | MuseumMap;
+        relationTo: 'museumMaps'
+        value: string | MuseumMap
       } | null)
     | ({
-        relationTo: 'objects';
-        value: string | Object;
+        relationTo: 'objects'
+        value: string | Object
       } | null)
     | ({
-        relationTo: 'objectsThumbnails';
-        value: string | ObjectsThumbnail;
+        relationTo: 'objectsThumbnails'
+        value: string | ObjectsThumbnail
       } | null)
     | ({
-        relationTo: 'exhibits';
-        value: string | Exhibit;
+        relationTo: 'exhibits'
+        value: string | Exhibit
       } | null)
     | ({
-        relationTo: 'contents';
-        value: string | Content;
+        relationTo: 'contents'
+        value: string | Content
       } | null)
     | ({
-        relationTo: 'contentImages';
-        value: string | ContentImage;
+        relationTo: 'contentImages'
+        value: string | ContentImage
       } | null)
     | ({
-        relationTo: 'tours';
-        value: string | Tour;
+        relationTo: 'tours'
+        value: string | Tour
       } | null)
     | ({
-        relationTo: 'translator-provenance';
-        value: string | TranslatorProvenance;
+        relationTo: 'translator-provenance'
+        value: string | TranslatorProvenance
       } | null)
     | ({
-        relationTo: 'forms';
-        value: string | Form;
+        relationTo: 'forms'
+        value: string | Form
       } | null)
     | ({
-        relationTo: 'form-submissions';
-        value: string | FormSubmission;
+        relationTo: 'form-submissions'
+        value: string | FormSubmission
       } | null)
     | ({
-        relationTo: 'redirects';
-        value: string | Redirect;
+        relationTo: 'redirects'
+        value: string | Redirect
       } | null)
     | ({
-        relationTo: 'permission-actions';
-        value: string | PermissionAction;
+        relationTo: 'permission-actions'
+        value: string | PermissionAction
       } | null)
     | ({
-        relationTo: 'permission-features';
-        value: string | PermissionFeature;
+        relationTo: 'permission-features'
+        value: string | PermissionFeature
       } | null)
     | ({
-        relationTo: 'permissions';
-        value: string | Permission;
+        relationTo: 'permissions'
+        value: string | Permission
       } | null)
     | ({
-        relationTo: 'roles';
-        value: string | Role;
+        relationTo: 'roles'
+        value: string | Role
       } | null)
     | ({
-        relationTo: 'roles-permissions';
-        value: string | RolesPermission;
+        relationTo: 'roles-permissions'
+        value: string | RolesPermission
       } | null)
     | ({
-        relationTo: 'lfrs-likes';
-        value: string | LfrsLike;
+        relationTo: 'lfrs-likes'
+        value: string | LfrsLike
       } | null)
     | ({
-        relationTo: 'lfrs-favourites';
-        value: string | LfrsFavourite;
+        relationTo: 'lfrs-favourites'
+        value: string | LfrsFavourite
       } | null)
     | ({
-        relationTo: 'lfrs-reviews';
-        value: string | LfrsReview;
+        relationTo: 'lfrs-reviews'
+        value: string | LfrsReview
       } | null)
     | ({
-        relationTo: 'lfrs-replies';
-        value: string | LfrsReply;
+        relationTo: 'lfrs-replies'
+        value: string | LfrsReply
       } | null)
     | ({
-        relationTo: 'lfrs-shares';
-        value: string | LfrsShare;
+        relationTo: 'lfrs-shares'
+        value: string | LfrsShare
       } | null)
     | ({
-        relationTo: 'lfrs-testimonials';
-        value: string | LfrsTestimonial;
+        relationTo: 'lfrs-testimonials'
+        value: string | LfrsTestimonial
       } | null)
     | ({
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      } | null);
-  globalSlug?: string | null;
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      } | null)
+  globalSlug?: string | null
   user:
     | {
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       }
     | {
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      };
-  updatedAt: string;
-  createdAt: string;
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: string
   user:
     | {
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       }
     | {
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      };
-  key?: string | null;
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      }
+  key?: string | null
   value?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
-  name?: string | null;
-  batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name?: string | null
+  batch?: number | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  isSuperAdmin?: T;
-  roles?: T;
-  parent?: T;
-  parentPath?: T;
-  createdBy?: T;
+  isSuperAdmin?: T
+  roles?: T
+  parent?: T
+  parentPath?: T
+  createdBy?: T
   name?:
     | T
     | {
-        firstName?: T;
-        lastName?: T;
-        fullName?: T;
-      };
-  avatar?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  username?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
+        firstName?: T
+        lastName?: T
+        fullName?: T
+      }
+  avatar?: T
+  updatedAt?: T
+  createdAt?: T
+  email?: T
+  username?: T
+  resetPasswordToken?: T
+  resetPasswordExpiration?: T
+  salt?: T
+  hash?: T
+  loginAttempts?: T
+  lockUntil?: T
   sessions?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
+        id?: T
+        createdAt?: T
+        expiresAt?: T
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usersPropics_select".
  */
 export interface UsersPropicsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  parent?: T;
+  title?: T
+  slug?: T
+  parent?: T
   breadcrumbs?:
     | T
     | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+        doc?: T
+        url?: T
+        label?: T
+        id?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museums_select".
  */
 export interface MuseumsSelect<T extends boolean = true> {
-  createdBy?: T;
-  name?: T;
-  description?: T;
-  shortDescription?: T;
-  accessibility?: T;
-  map?: T;
-  phone?: T;
-  email?: T;
+  createdBy?: T
+  name?: T
+  description?: T
+  shortDescription?: T
+  accessibility?: T
+  map?: T
+  phone?: T
+  email?: T
   socials?:
     | T
     | {
-        platform?: T;
-        url?: T;
-        id?: T;
-      };
+        platform?: T
+        url?: T
+        id?: T
+      }
   news?:
     | T
     | {
-        title?: T;
-        content?: T;
-        date?: T;
-        id?: T;
-      };
-  thumbnails?: T;
-  exhibits?: T;
-  objects?: T;
+        title?: T
+        content?: T
+        date?: T
+        id?: T
+      }
+  thumbnails?: T
+  exhibits?: T
+  objects?: T
   openingHours?:
     | T
     | {
         monday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         tuesday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         wednesday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         thursday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         friday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         saturday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         sunday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
-        notes?: T;
-      };
+              opening?: T
+              closing?: T
+              id?: T
+            }
+        notes?: T
+      }
   ticketInfo?:
     | T
     | {
-        label?: T;
-        url?: T;
-      };
+        label?: T
+        url?: T
+      }
   location?:
     | T
     | {
-        address?: T;
-        city?: T;
-        latlng?: T;
-      };
+        address?: T
+        city?: T
+        latlng?: T
+      }
   services?:
     | T
     | {
@@ -2685,62 +2688,62 @@ export interface MuseumsSelect<T extends boolean = true> {
                     monday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     tuesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     wednesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     thursday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     friday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     saturday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     sunday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
+                    notes?: T
+                  }
               coordinates?:
                 | T
                 | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
+                    x?: T
+                    y?: T
+                  }
+              id?: T
+            }
         food?:
           | T
           | {
@@ -2750,62 +2753,62 @@ export interface MuseumsSelect<T extends boolean = true> {
                     monday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     tuesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     wednesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     thursday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     friday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     saturday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     sunday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
+                    notes?: T
+                  }
               coordinates?:
                 | T
                 | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
+                    x?: T
+                    y?: T
+                  }
+              id?: T
+            }
         shop?:
           | T
           | {
@@ -2815,62 +2818,62 @@ export interface MuseumsSelect<T extends boolean = true> {
                     monday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     tuesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     wednesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     thursday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     friday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     saturday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     sunday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
+                    notes?: T
+                  }
               coordinates?:
                 | T
                 | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
+                    x?: T
+                    y?: T
+                  }
+              id?: T
+            }
         infoPoint?:
           | T
           | {
@@ -2880,774 +2883,774 @@ export interface MuseumsSelect<T extends boolean = true> {
                     monday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     tuesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     wednesday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     thursday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     friday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     saturday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
                     sunday?:
                       | T
                       | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
+                          opening?: T
+                          closing?: T
+                          id?: T
+                        }
+                    notes?: T
+                  }
               coordinates?:
                 | T
                 | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
-      };
+                    x?: T
+                    y?: T
+                  }
+              id?: T
+            }
+      }
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumThumbnails_select".
  */
 export interface MuseumThumbnailsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumMaps_select".
  */
 export interface MuseumMapsSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects_select".
  */
 export interface ObjectsSelect<T extends boolean = true> {
-  createdBy?: T;
-  name?: T;
-  description?: T;
-  exhibit?: T;
-  contents?: T;
-  thumbnail?: T;
+  createdBy?: T
+  name?: T
+  description?: T
+  exhibit?: T
+  contents?: T
+  thumbnail?: T
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsThumbnails_select".
  */
 export interface ObjectsThumbnailsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exhibits_select".
  */
 export interface ExhibitsSelect<T extends boolean = true> {
-  createdBy?: T;
-  objects?: T;
+  createdBy?: T
+  objects?: T
   coordinates?:
     | T
     | {
-        x?: T;
-        y?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        x?: T
+        y?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contents_select".
  */
 export interface ContentsSelect<T extends boolean = true> {
-  createdBy?: T;
-  difficulty?: T;
-  title?: T;
-  body?: T;
-  readingTimeMins?: T;
-  copyright?: T;
-  images?: T;
-  objects?: T;
+  createdBy?: T
+  difficulty?: T
+  title?: T
+  body?: T
+  readingTimeMins?: T
+  copyright?: T
+  images?: T
+  objects?: T
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        ratingsCount?: T;
-        ratingsAverage?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        ratingsCount?: T
+        ratingsAverage?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentImages_select".
  */
 export interface ContentImagesSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "translator-provenance_select".
  */
 export interface TranslatorProvenanceSelect<T extends boolean = true> {
-  collectionSlug?: T;
-  documentId?: T;
-  targetLocale?: T;
-  sourceLocale?: T;
-  sourceFingerprint?: T;
-  translatedAt?: T;
-  dismissedFingerprint?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  collectionSlug?: T
+  documentId?: T
+  targetLocale?: T
+  sourceLocale?: T
+  sourceFingerprint?: T
+  translatedAt?: T
+  dismissedFingerprint?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
-  title?: T;
+  title?: T
   fields?:
     | T
     | {
         checkbox?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              defaultValue?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              defaultValue?: T
+              id?: T
+              blockName?: T
+            }
         country?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         email?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         message?:
           | T
           | {
-              message?: T;
-              id?: T;
-              blockName?: T;
-            };
+              message?: T
+              id?: T
+              blockName?: T
+            }
         number?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         select?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              placeholder?: T;
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              placeholder?: T
               options?:
                 | T
                 | {
-                    label?: T;
-                    value?: T;
-                    id?: T;
-                  };
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+                    label?: T
+                    value?: T
+                    id?: T
+                  }
+              required?: T
+              id?: T
+              blockName?: T
+            }
         state?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         text?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         textarea?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  submitButtonLabel?: T;
-  confirmationType?: T;
-  confirmationMessage?: T;
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
+      }
+  submitButtonLabel?: T
+  confirmationType?: T
+  confirmationMessage?: T
   redirect?:
     | T
     | {
-        url?: T;
-      };
+        url?: T
+      }
   emails?:
     | T
     | {
-        emailTo?: T;
-        cc?: T;
-        bcc?: T;
-        replyTo?: T;
-        emailFrom?: T;
-        subject?: T;
-        message?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        emailTo?: T
+        cc?: T
+        bcc?: T
+        replyTo?: T
+        emailFrom?: T
+        subject?: T
+        message?: T
+        id?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions_select".
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
-  form?: T;
+  form?: T
   submissionData?:
     | T
     | {
-        field?: T;
-        value?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        field?: T
+        value?: T
+        id?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
-  from?: T;
+  from?: T
   to?:
     | T
     | {
-        type?: T;
-        reference?: T;
-        url?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        type?: T
+        reference?: T
+        url?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports_select".
  */
 export interface ExportsSelect<T extends boolean = true> {
-  name?: T;
-  format?: T;
-  limit?: T;
-  page?: T;
-  sort?: T;
-  sortOrder?: T;
-  locale?: T;
-  drafts?: T;
-  selectionToUse?: T;
-  fields?: T;
-  collectionSlug?: T;
-  where?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  name?: T
+  format?: T
+  limit?: T
+  page?: T
+  sort?: T
+  sortOrder?: T
+  locale?: T
+  drafts?: T
+  selectionToUse?: T
+  fields?: T
+  collectionSlug?: T
+  where?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "imports_select".
  */
 export interface ImportsSelect<T extends boolean = true> {
-  collectionSlug?: T;
-  importMode?: T;
-  matchField?: T;
-  status?: T;
+  collectionSlug?: T
+  importMode?: T
+  matchField?: T
+  status?: T
   summary?:
     | T
     | {
-        imported?: T;
-        updated?: T;
-        total?: T;
-        issues?: T;
-        issueDetails?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+        imported?: T
+        updated?: T
+        total?: T
+        issues?: T
+        issueDetails?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-actions_select".
  */
 export interface PermissionActionsSelect<T extends boolean = true> {
-  code?: T;
-  type?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  type?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-features_select".
  */
 export interface PermissionFeaturesSelect<T extends boolean = true> {
-  code?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permissions_select".
  */
 export interface PermissionsSelect<T extends boolean = true> {
-  name?: T;
-  permissionFeature?: T;
-  permissionAction?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  permissionFeature?: T
+  permissionAction?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles_select".
  */
 export interface RolesSelect<T extends boolean = true> {
-  code?: T;
-  name?: T;
-  description?: T;
-  status?: T;
-  dataScope?: T;
-  permissionMatrixDraft?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  name?: T
+  description?: T
+  status?: T
+  dataScope?: T
+  permissionMatrixDraft?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles-permissions_select".
  */
 export interface RolesPermissionsSelect<T extends boolean = true> {
-  role?: T;
-  permission?: T;
-  enabled?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  role?: T
+  permission?: T
+  enabled?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-likes_select".
  */
 export interface LfrsLikesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-favourites_select".
  */
 export interface LfrsFavouritesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-reviews_select".
  */
 export interface LfrsReviewsSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  title?: T;
-  body?: T;
-  score?: T;
-  status?: T;
-  repliesCount?: T;
-  replies?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  title?: T
+  body?: T
+  score?: T
+  status?: T
+  repliesCount?: T
+  replies?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-replies_select".
  */
 export interface LfrsRepliesSelect<T extends boolean = true> {
-  user?: T;
-  review?: T;
-  body?: T;
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  review?: T
+  body?: T
+  status?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-shares_select".
  */
 export interface LfrsSharesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  platform?: T;
-  url?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  platform?: T
+  url?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-testimonials_select".
  */
 export interface LfrsTestimonialsSelect<T extends boolean = true> {
-  invitedEmail?: T;
-  uniqueCode?: T;
-  firstName?: T;
-  rating?: T;
-  testimonial?: T;
-  featured?: T;
-  status?: T;
-  invitationSentDate?: T;
-  testimonialAcceptedDate?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  invitedEmail?: T
+  uniqueCode?: T
+  firstName?: T
+  rating?: T
+  testimonial?: T
+  featured?: T
+  status?: T
+  invitationSentDate?: T
+  testimonialAcceptedDate?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-mcp-api-keys_select".
  */
 export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
-  user?: T;
-  label?: T;
-  description?: T;
+  user?: T
+  label?: T
+  description?: T
   museums?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   objects?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   exhibits?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   contents?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  enableAPIKey?: T;
-  apiKey?: T;
-  apiKeyIndex?: T;
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  enableAPIKey?: T
+  apiKey?: T
+  apiKeyIndex?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T;
-  data?: T;
+  key?: T
+  data?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
-  input?: T;
-  taskStatus?: T;
-  completedAt?: T;
-  totalTried?: T;
-  hasError?: T;
-  error?: T;
+  input?: T
+  taskStatus?: T
+  completedAt?: T
+  totalTried?: T
+  hasError?: T
+  error?: T
   log?:
     | T
     | {
-        executedAt?: T;
-        completedAt?: T;
-        taskSlug?: T;
-        taskID?: T;
-        input?: T;
-        output?: T;
-        state?: T;
-        error?: T;
-        id?: T;
-      };
-  workflowSlug?: T;
-  taskSlug?: T;
-  queue?: T;
-  waitUntil?: T;
-  processing?: T;
-  updatedAt?: T;
-  createdAt?: T;
+        executedAt?: T
+        completedAt?: T
+        taskSlug?: T
+        taskID?: T
+        input?: T
+        output?: T
+        state?: T
+        error?: T
+        id?: T
+      }
+  workflowSlug?: T
+  taskSlug?: T
+  queue?: T
+  waitUntil?: T
+  processing?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T;
-  globalSlug?: T;
-  user?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  document?: T
+  globalSlug?: T
+  user?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T;
-  key?: T;
-  value?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  key?: T
+  value?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T;
-  batch?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  batch?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-settings".
  */
 export interface LfrsSetting {
-  id: string;
-  reviewModeration?: boolean | null;
+  id: string
+  reviewModeration?: boolean | null
   /**
    * Manage active LFRs features for the museums collection.
    */
   museums?: {
-    favourites?: boolean | null;
-    shares?: boolean | null;
-  };
+    favourites?: boolean | null
+    shares?: boolean | null
+  }
   /**
    * Manage active LFRs features for the objects collection.
    */
   objects?: {
-    favourites?: boolean | null;
-    shares?: boolean | null;
-  };
+    favourites?: boolean | null
+    shares?: boolean | null
+  }
   /**
    * Manage active LFRs features for the contents collection.
    */
   contents?: {
-    favourites?: boolean | null;
-    ratings?: boolean | null;
-    shares?: boolean | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
+    favourites?: boolean | null
+    ratings?: boolean | null
+    shares?: boolean | null
+  }
+  updatedAt?: string | null
+  createdAt?: string | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-settings_select".
  */
 export interface LfrsSettingsSelect<T extends boolean = true> {
-  reviewModeration?: T;
+  reviewModeration?: T
   museums?:
     | T
     | {
-        favourites?: T;
-        shares?: T;
-      };
+        favourites?: T
+        shares?: T
+      }
   objects?:
     | T
     | {
-        favourites?: T;
-        shares?: T;
-      };
+        favourites?: T
+        shares?: T
+      }
   contents?:
     | T
     | {
-        favourites?: T;
-        ratings?: T;
-        shares?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+        favourites?: T
+        ratings?: T
+        shares?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  globalType?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3655,9 +3658,9 @@ export interface LfrsSettingsSelect<T extends boolean = true> {
  */
 export interface CollectionsWidget {
   data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
+    [k: string]: unknown
+  }
+  width: 'full'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3665,38 +3668,38 @@ export interface CollectionsWidget {
  */
 export interface TaskTranslateDocument {
   input: {
-    collection_slug: string;
-    collection_id: string;
+    collection_slug: string
+    collection_id: string
     /**
      * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
      */
     collection?:
       | ({
-          relationTo: 'museums';
-          value: string | Museum;
+          relationTo: 'museums'
+          value: string | Museum
         } | null)
       | ({
-          relationTo: 'museumThumbnails';
-          value: string | MuseumThumbnail;
+          relationTo: 'museumThumbnails'
+          value: string | MuseumThumbnail
         } | null)
       | ({
-          relationTo: 'objects';
-          value: string | Object;
+          relationTo: 'objects'
+          value: string | Object
         } | null)
       | ({
-          relationTo: 'contents';
-          value: string | Content;
+          relationTo: 'contents'
+          value: string | Content
         } | null)
       | ({
-          relationTo: 'contentImages';
-          value: string | ContentImage;
-        } | null);
-    source_lng: string;
-    target_lng: string;
-    strategy: string;
-    publish_on_translation?: boolean | null;
-  };
-  output?: unknown;
+          relationTo: 'contentImages'
+          value: string | ContentImage
+        } | null)
+    source_lng: string
+    target_lng: string
+    strategy: string
+    publish_on_translation?: boolean | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3704,9 +3707,9 @@ export interface TaskTranslateDocument {
  */
 export interface TaskCreateCollectionExport {
   input: {
-    id: string;
-    name: string;
-    batchSize?: number | null;
+    id: string
+    name: string
+    batchSize?: number | null
     collectionSlug:
       | 'users'
       | 'usersPropics'
@@ -3725,29 +3728,29 @@ export interface TaskCreateCollectionExport {
       | 'form-submissions'
       | 'redirects'
       | 'exports'
-      | 'imports';
-    drafts?: ('yes' | 'no') | null;
-    exportCollection: string;
-    fields?: string[] | null;
-    format: 'csv' | 'json';
-    limit?: number | null;
-    locale?: string | null;
-    maxLimit?: number | null;
-    page?: number | null;
-    sort?: string | null;
-    userCollection?: string | null;
-    userID?: string | null;
+      | 'imports'
+    drafts?: ('yes' | 'no') | null
+    exportCollection: string
+    fields?: string[] | null
+    format: 'csv' | 'json'
+    limit?: number | null
+    locale?: string | null
+    maxLimit?: number | null
+    page?: number | null
+    sort?: string | null
+    userCollection?: string | null
+    userID?: string | null
     where?:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
-  output?: unknown;
+      | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3755,16 +3758,16 @@ export interface TaskCreateCollectionExport {
  */
 export interface TaskCreateCollectionImport {
   input: {
-    importId: string;
-    importCollection: string;
-    userID?: string | null;
-    userCollection?: string | null;
-    batchSize?: number | null;
-    debug?: boolean | null;
-    defaultVersionStatus?: ('draft' | 'published') | null;
-    maxLimit?: number | null;
-  };
-  output?: unknown;
+    importId: string
+    importCollection: string
+    userID?: string | null
+    userCollection?: string | null
+    batchSize?: number | null
+    debug?: boolean | null
+    defaultVersionStatus?: ('draft' | 'published') | null
+    maxLimit?: number | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3772,54 +3775,53 @@ export interface TaskCreateCollectionImport {
  */
 export interface WorkflowTranslateDocumentLocales {
   input: {
-    collection_slug: string;
-    collection_id: string;
+    collection_slug: string
+    collection_id: string
     /**
      * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
      */
     collection?:
       | ({
-          relationTo: 'museums';
-          value: string | Museum;
+          relationTo: 'museums'
+          value: string | Museum
         } | null)
       | ({
-          relationTo: 'museumThumbnails';
-          value: string | MuseumThumbnail;
+          relationTo: 'museumThumbnails'
+          value: string | MuseumThumbnail
         } | null)
       | ({
-          relationTo: 'objects';
-          value: string | Object;
+          relationTo: 'objects'
+          value: string | Object
         } | null)
       | ({
-          relationTo: 'contents';
-          value: string | Content;
+          relationTo: 'contents'
+          value: string | Content
         } | null)
       | ({
-          relationTo: 'contentImages';
-          value: string | ContentImage;
-        } | null);
-    source_lng: string;
-    strategy: string;
-    publish_on_translation?: boolean | null;
+          relationTo: 'contentImages'
+          value: string | ContentImage
+        } | null)
+    source_lng: string
+    strategy: string
+    publish_on_translation?: boolean | null
     target_lngs:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
+      | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown;
+  [k: string]: unknown
 }
-
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}
