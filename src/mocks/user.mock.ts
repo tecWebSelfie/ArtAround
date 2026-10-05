@@ -26,6 +26,16 @@ export const mockRoleInactive: Role = mockRole({
   dataScope: 'all',
 })
 
+// Mirrors the `name` group on the users collection: `fullName` is a virtual
+// field derived by an afterRead hook from firstName + lastName.
+function mockName(firstName: string, lastName: string): User['name'] {
+  return {
+    firstName,
+    lastName,
+    fullName: [firstName, lastName].filter(Boolean).join(' '),
+  }
+}
+
 function baseUser(): User {
   return {
     id: 'user-001',
@@ -34,6 +44,7 @@ function baseUser(): User {
     collection: 'users',
     roles: [],
     isSuperAdmin: false,
+    name: mockName('Giulia', 'Rossi'),
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
   }
@@ -51,6 +62,18 @@ export const mockUserFull: User = createUser({
   email: 'mario.bianchi@example.com',
   isSuperAdmin: true,
   roles: [mockRoleCurator],
+  name: mockName('Mario', 'Bianchi'),
+  avatar: {
+    id: 'avatar-001',
+    alt: 'Ritratto di Mario Bianchi',
+    updatedAt: TIMESTAMP,
+    createdAt: TIMESTAMP,
+    url: '/avatars/mario-bianchi.jpg',
+    filename: 'mario-bianchi.jpg',
+    mimeType: 'image/jpeg',
+    width: 512,
+    height: 512,
+  },
   parentPath: '/user-001',
   loginAttempts: 0,
 })
@@ -59,4 +82,5 @@ export const mockUserNoEmail: User = createUser({
   id: 'user-noemail-001',
   username: 'walk-in-visitor',
   email: null,
+  name: mockName('Walk-in', 'Visitor'),
 })

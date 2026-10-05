@@ -28,7 +28,7 @@ import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
-import { Tour } from './collections/Tours'
+import { Tour, ToursThumbnails } from './collections/Tours'
 import { Users, UsersPropics } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
@@ -71,6 +71,7 @@ export default buildConfig({
     Contents,
     ContentImages,
     Tour,
+    ToursThumbnails,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -159,6 +160,14 @@ export default buildConfig({
           shares: true, // Enable social sharing and track share counts
         },
         contents: {
+          likes: false, // Enable likes for authenticated users
+          dislikes: false, // Enable dislikes (mutually exclusive with likes)
+          favourites: true, // Enable favourites
+          ratings: true, // Enable ratings (stored directly in reviews)
+          reviews: false, // Enable reviews
+          shares: true, // Enable social sharing and track share counts
+        },
+        tours: {
           likes: false, // Enable likes for authenticated users
           dislikes: false, // Enable dislikes (mutually exclusive with likes)
           favourites: true, // Enable favourites

@@ -1,7 +1,10 @@
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
+import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
+import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
-import { Museum, type MuseumThumbnail } from '@/payload-types'
+import { filterPopulated } from '@/lib/isPopulated'
+import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
 import {
   AspectRatio,
   Avatar,
@@ -19,6 +22,7 @@ import {
   TooltipGroup,
   Typography,
 } from '@mantine/core'
+import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import {
   Accessibility,
   Amphora,
@@ -29,9 +33,6 @@ import {
   Toilet,
   Utensils,
 } from 'lucide-react'
-
-import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 
 export default async function MuseumPage({ museum }: { museum: Museum }) {
   const { t } = await getT('museum-page')
@@ -56,6 +57,9 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
         <MuseumBadges services={museum.services} />
       )}
       <Text>{museum.shortDescription}</Text>
+      <ToursCarousel
+        tours={filterPopulated<Tour>(Array.isArray(museum.tours) ? museum.tours : [])}
+      />
       <ArtaroundTabs
         tabs={[
           {

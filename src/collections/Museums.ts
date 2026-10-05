@@ -2,10 +2,10 @@ import { ArrayField, CollectionConfig } from 'payload'
 import { OpeningHours } from '../fields/OpeningHours'
 import { TicketInfo } from '../fields/TicketInfo'
 
-import { phoneNumberField } from 'payload-phone-number-plugin'
-import { SocialLinks } from '@/fields/SocialLinks'
 import { Coordinates } from '@/fields/Coordinates'
 import { editorial } from '@/fields/editorial'
+import { SocialLinks } from '@/fields/SocialLinks'
+import { phoneNumberField } from 'payload-phone-number-plugin'
 
 export const Museums: CollectionConfig = {
   slug: 'museums',
@@ -115,6 +115,13 @@ export const Museums: CollectionConfig = {
         museumService('shop'),
         museumService('infoPoint'),
       ],
+    },
+    {
+      name: 'tours',
+      type: 'relationship',
+      relationTo: 'tours',
+      hasMany: true,
+      required: false,
     },
   ],
 }

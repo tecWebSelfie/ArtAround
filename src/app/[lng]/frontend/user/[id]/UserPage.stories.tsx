@@ -36,12 +36,21 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: { ...mockUserMinimal },
   play: async ({ canvas }) => {
-    await expect(canvas.findByRole('heading', { name: 'User Page' })).resolves.toBeTruthy()
+    // The page title must show the user's derived full name.
+    await expect(
+      canvas.findByRole('heading', { name: mockUserMinimal.name.fullName }),
+    ).resolves.toBeTruthy()
   },
 }
 
 export const Full: Story = {
   args: { ...mockUserFull },
+  play: async ({ canvas }) => {
+    // Avatar must carry the full name as its accessible name.
+    await expect(
+      canvas.findByRole('img', { name: mockUserFull.name.fullName }),
+    ).resolves.toBeTruthy()
+  },
 }
 
 export const NoEmail: Story = {

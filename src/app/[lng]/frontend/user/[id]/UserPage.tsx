@@ -1,3 +1,4 @@
+import { isPopulated } from '@/lib/isPopulated'
 import { User } from '@/payload-types'
 import { Avatar, Stack, Title } from '@mantine/core'
 
@@ -5,7 +6,7 @@ export const UserPage = async ({ user }: { user: User }) => {
   return (
     <Stack>
       <Avatar
-        src={typeof user.avatar === 'object' ? user.avatar?.url : undefined}
+        src={isPopulated(user.avatar) ? (user.avatar.url ?? undefined) : undefined}
         alt={user.name.fullName}
       />
 

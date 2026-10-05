@@ -80,6 +80,7 @@ export interface Config {
     contents: Content;
     contentImages: ContentImage;
     tours: Tour;
+    toursThumbnails: ToursThumbnail;
     'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -111,6 +112,9 @@ export interface Config {
     contents: {
       objects: 'objects';
     };
+    tours: {
+      museum: 'museums';
+    };
     'lfrs-reviews': {
       replies: 'lfrs-replies';
     };
@@ -128,6 +132,7 @@ export interface Config {
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
+    toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1268,6 +1273,7 @@ export interface Museum {
         }[]
       | null;
   };
+  tours?: (string | Tour)[] | null;
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
@@ -1484,8 +1490,42 @@ export interface ObjectsThumbnail {
  */
 export interface Tour {
   id: string;
+  title: string;
+  description?: string | null;
+  contents: (string | Content)[];
+  thumbnail?: (string | null) | ToursThumbnail;
+  museum: {
+    docs?: (string | Museum)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
+  };
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "toursThumbnails".
+ */
+export interface ToursThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2378,6 +2418,10 @@ export interface PayloadLockedDocument {
         value: string | Tour;
       } | null)
     | ({
+        relationTo: 'toursThumbnails';
+        value: string | ToursThumbnail;
+      } | null)
+    | ({
         relationTo: 'translator-provenance';
         value: string | TranslatorProvenance;
       } | null)
@@ -2937,6 +2981,7 @@ export interface MuseumsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  tours?: T;
   lfrs?:
     | T
     | {
@@ -3082,8 +3127,39 @@ export interface ContentImagesSelect<T extends boolean = true> {
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  contents?: T;
+  thumbnail?: T;
+  museum?: T;
+  lfrs?:
+    | T
+    | {
+        favouritesCount?: T;
+        ratingsCount?: T;
+        ratingsAverage?: T;
+        sharesCount?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "toursThumbnails_select".
+ */
+export interface ToursThumbnailsSelect<T extends boolean = true> {
+  alt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3617,6 +3693,14 @@ export interface LfrsSetting {
     ratings?: boolean | null;
     shares?: boolean | null;
   };
+  /**
+   * Manage active LFRs features for the tours collection.
+   */
+  tours?: {
+    favourites?: boolean | null;
+    ratings?: boolean | null;
+    shares?: boolean | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -3639,6 +3723,13 @@ export interface LfrsSettingsSelect<T extends boolean = true> {
         shares?: T;
       };
   contents?:
+    | T
+    | {
+        favourites?: T;
+        ratings?: T;
+        shares?: T;
+      };
+  tours?:
     | T
     | {
         favourites?: T;
@@ -3720,6 +3811,7 @@ export interface TaskCreateCollectionExport {
       | 'contents'
       | 'contentImages'
       | 'tours'
+      | 'toursThumbnails'
       | 'translator-provenance'
       | 'forms'
       | 'form-submissions'

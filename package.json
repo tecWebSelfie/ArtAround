@@ -33,6 +33,7 @@
     "@focus-reactive/payload-plugin-translator": "0.13.4",
     "@geoman-io/leaflet-geoman-free": "^2.20.0",
     "@gfazioli/mantine-border-animate": "^3.0.2",
+    "@gfazioli/mantine-depth-select": "^2.0.13",
     "@gfazioli/mantine-qr-code": "^2.0.10",
     "@gfazioli/mantine-reflection": "^3.0.10",
     "@gfazioli/mantine-text-animate": "^4.0.10",

@@ -1,4 +1,5 @@
 import { getT } from '@/i18n.server'
+import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
 import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
 import {
@@ -20,9 +21,7 @@ export const ObjectsCarousel = async ({
   ...props
 }: CarouselProps & { objects: Museum['objects'] }) => {
   const { t } = await getT('objects-carousel')
-  const validObjects = (objects ?? []).filter(
-    (obj): obj is PayloadObject => typeof obj !== 'string',
-  )
+  const validObjects = filterPopulated<PayloadObject>(objects)
 
   if (validObjects.length === 0) {
     return (
@@ -35,14 +34,14 @@ export const ObjectsCarousel = async ({
   return (
     <Stack>
       <Group align="center" gap="sm">
-        <Title order={6}>{t('Objects')}</Title>
+        <Title size="1em">{t('Objects')}</Title>
         <UnstyledButton
           variant="text"
           opacity={0.8}
           c="blue.6"
           className="transform hover:border-b"
         >
-          <Text>{t('See more') + ' >'}</Text>
+          <Text size="sm">{t('See more') + ' >'}</Text>
         </UnstyledButton>
       </Group>
       <Carousel
@@ -81,8 +80,7 @@ const CarouselCard = async ({
   ...props
 }: ComponentProps<typeof CarouselSlide> & { object: PayloadObject }) => {
   const { t } = await getT('objects-carousel-card')
-  const thumbnail =
-    object.thumbnail && typeof object.thumbnail === 'object' ? object.thumbnail : null
+  const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
 
   return (
     <CarouselSlide {...props}>

@@ -1,4 +1,4 @@
-@layer theme, base, mantine, mantine-qr-code, mantine-text-animate, mantine-border-animate, mantine-qr-code, mantine-reflection, mantine-carousel,components, utilities;
+@layer theme, base, mantine, mantine-qr-code, mantine-text-animate, mantine-border-animate, mantine-qr-code, mantine-reflection, mantine-carousel,mantine-depth-select,components, utilities;
 
 @import 'tailwindcss';
 @import '@mantine/core/styles.layer.css';
@@ -8,6 +8,7 @@
 @import '@gfazioli/mantine-qr-code/styles.layer.css';
 @import '@gfazioli/mantine-reflection/styles.layer.css';
 @import '@mantine/carousel/styles.layer.css';
+@import '@gfazioli/mantine-depth-select/styles.layer.css';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
@@ -55,6 +56,8 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
   --animate-shine: shine var(--duration) infinite linear;
+
+  --color-mantine-grape-6: var(--mantine-color-grape-6);
   @keyframes shine {
     0% {
       background-position: 0% 0%;
