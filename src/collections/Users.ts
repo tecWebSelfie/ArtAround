@@ -38,6 +38,13 @@ const nameFieldsGroup: GroupField = {
         ] satisfies NameFieldHook<string>[],
       },
     },
+    {
+      name: 'authoredContents',
+      type: 'relationship',
+      relationTo: 'contents',
+      hasMany: true,
+      required: false,
+    },
   ],
 }
 
