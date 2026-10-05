@@ -1,5 +1,7 @@
 import { mockObjectsList } from '@/mocks/object.mock'
-import type { Museum } from '@/payload-types'
+import type { Museum, MuseumThumbnail } from '@/payload-types'
+import { Exhibit } from '@/payload-types'
+import { mockToursList } from './tour.mock'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
 
@@ -20,6 +22,25 @@ function baseMuseum(): Museum {
     },
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
+    tours: mockToursList,
+    thumbnails: [
+      {
+        alt: 'Facciata del museo',
+        id: 'thumb-1',
+        updatedAt: TIMESTAMP,
+        createdAt: TIMESTAMP,
+        url: 'https://picsum.photos/200/300',
+      },
+    ] satisfies MuseumThumbnail[],
+    exhibits: [
+      {
+        id: 'exhibit-1',
+        objects: mockObjectsList,
+        coordinates: { x: 100, y: 200 },
+        updatedAt: TIMESTAMP,
+        createdAt: TIMESTAMP,
+      },
+    ] satisfies Exhibit[],
   }
 }
 
@@ -96,7 +117,7 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Facciata del museo',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: '/thumbnails/museum-facade.jpg',
+      url: 'https://picsum.photos/200/300',
       filename: 'museum-facade.jpg',
       mimeType: 'image/jpeg',
       width: 1200,
@@ -107,7 +128,7 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Sala espositiva principale',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: '/thumbnails/museum-hall.jpg',
+      url: 'https://picsum.photos/200/300',
       filename: 'museum-hall.jpg',
       mimeType: 'image/jpeg',
       width: 1200,

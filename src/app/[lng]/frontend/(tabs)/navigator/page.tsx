@@ -37,7 +37,7 @@ export default async function NavigatorHomePage() {
           <NavigatorHomeSearchBar mb="xl" />
         </Stack>
       </Stack>
-      <Divider my="md" label="Or" />
+      <Divider my="md" label="Or" styles={{ label: { color: 'var(--mantine-color-gray-7)' } }} />
       <Flex align="stretch" justify="center" gap={{ base: 'xs', sm: 'md' }} wrap="nowrap">
         <Center flex="1 1 0" miw={0}>
           <Paper type="button" component="button" p="xs" withBorder shadow="sm" maw="100%" miw={0}>
@@ -68,6 +68,7 @@ export default async function NavigatorHomePage() {
               size={rem('clamp(72px, 22vw, 150px)')}
               variant="filled"
               className="rounded-full"
+              aria-label="Turn the microphone on"
             >
               <Mic size="80%" />
             </ActionIcon>
@@ -106,7 +107,7 @@ function NavigatorHomeSearchBar(props: StackProps) {
         <Box miw="9ch" display="inline-block" ta="left">
           <TypeWriterText
             fw="bolder"
-            loopColors={{ creators: 'red', curators: 'green', museums: 'blue' }}
+            loopColors={{ creators: 'red.8', curators: 'green.8', museums: 'blue.8' }}
             value={['creators', 'curators', 'museums']}
             fallbackColor="gray"
           />

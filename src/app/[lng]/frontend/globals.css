@@ -58,6 +58,7 @@
   --animate-shine: shine var(--duration) infinite linear;
 
   --color-mantine-grape-6: var(--mantine-color-grape-6);
+
   @keyframes shine {
     0% {
       background-position: 0% 0%;

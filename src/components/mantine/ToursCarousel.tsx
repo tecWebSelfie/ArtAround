@@ -1,6 +1,6 @@
 import { isPopulated } from '@/lib/isPopulated'
 import { Tour } from '@/payload-types'
-import { BorderAnimate } from '@gfazioli/mantine-border-animate'
+import { BorderAnimate, type BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
 import {
   ActionIcon,
@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next'
 
 const TEXT_GRADIENT_ID = 'textGradient'
 
-export const ToursCarousel = ({ tours, ...props }: CardProps & { tours: Tour[] }) => {
+export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours: Tour[] }) => {
   const [index, setIndex] = useState(0)
   const { t } = useTranslation('tours-carousel')
 
@@ -58,8 +58,12 @@ export const ToursCarousel = ({ tours, ...props }: CardProps & { tours: Tour[] }
           </linearGradient>
         </defs>
       </svg>
-      <BorderAnimate>
-        <Card {...props} className="w-80 bg-linear-to-br from-purple-700 to-orange-400">
+      <BorderAnimate {...props}>
+        <Card
+          shadow="lg"
+          padding="sm"
+          className="w-full bg-linear-to-br from-purple-700 to-orange-400"
+        >
           <CardSection inheritPadding withBorder py="xs">
             <Group align="center" className="h-full">
               <Badge radius="xl" variant="white" className="py-3">
@@ -68,51 +72,66 @@ export const ToursCarousel = ({ tours, ...props }: CardProps & { tours: Tour[] }
                   variant="gradient"
                   gradient={{ from: 'grape', to: 'orange' }}
                 >
-                  {t('Tours')}{' '}
+                  {t('Tours')}
                 </Text>
               </Badge>
             </Group>
           </CardSection>
-          <CardSection py="md" inheritPadding>
-            <AspectRatio ratio={16 / 9}>
-              <DepthSelect
-                value={currentTourId}
-                onChange={set}
-                withControls={false}
-                visibleCards={3}
-                transitionDuration={500}
-                scaleStep={0.06}
-                translateYStep={8}
-                opacityStep={0.1}
-                blurStep={0.5}
-                data={tours.map((tour) => ({
-                  value: tour.id,
-                  view: <TourCard tour={tour} />,
-                }))}
-              >
-                <Center>
-                  <Stack justify="space-between" className="h-1/2 pl-2">
-                    {Array.from({ length: 2 }).map((_, index) => (
-                      <BorderAnimate key={index} radius="xl">
-                        <ActionIcon
-                          radius="xl"
-                          variant="white"
-                          autoContrast
-                          className="border-mantine-grape-6"
-                          onClick={index === 0 ? () => next() : () => previous()}
-                        >
-                          {index === 0 ? (
-                            <ChevronUp size={18} stroke={`url(#${TEXT_GRADIENT_ID})`} />
-                          ) : (
-                            <ChevronDown size={18} stroke={`url(#${TEXT_GRADIENT_ID})`} />
-                          )}
-                        </ActionIcon>
-                      </BorderAnimate>
-                    ))}
-                  </Stack>
-                </Center>
-              </DepthSelect>
-            </AspectRatio>
+          <CardSection pt="md" inheritPadding>
+            {/* Controls live outside DepthSelect: buttons inside its
+                role="listbox" root trip the aria-required-children rule. */}
+            <Group wrap="nowrap" gap="xs">
+              <AspectRatio ratio={16 / 10} style={{ flex: '1 1 auto' }} miw={0}>
+                <DepthSelect
+                  value={currentTourId}
+                  onChange={set}
+                  withControls={false}
+                  visibleCards={3}
+                  transitionDuration={500}
+                  scaleStep={0.06}
+                  translateYStep={10}
+                  opacityStep={0.1}
+                  blurStep={0.7}
+                  data={tours.map((tour) => ({
+                    value: tour.id,
+                    view: <TourCard tour={tour} />,
+                  }))}
+                />
+              </AspectRatio>
+              <Stack justify="center" align="center" className=" h-11/12 py-1">
+                <BorderAnimate radius="xl">
+                  <ActionIcon
+                    radius="xl"
+                    variant="white"
+                    autoContrast
+                    className="border-mantine-grape-6 disabled:opacity-60"
+                    aria-label={t('Show next tour')}
+                    onClick={() => next()}
+                    disabled={index >= tours.length - 1}
+                  >
+                    <ChevronUp size={18} stroke={`url(#${TEXT_GRADIENT_ID})`} />
+                  </ActionIcon>
+                </BorderAnimate>
+                <BorderAnimate radius="xl">
+                  <ActionIcon
+                    radius="xl"
+                    variant="white"
+                    autoContrast
+                    className="border-mantine-grape-6 disabled:opacity-60"
+                    aria-label={t('Show previous tour')}
+                    onClick={() => previous()}
+                    disabled={index <= 0}
+                  >
+                    <ChevronDown size={18} stroke={`url(#${TEXT_GRADIENT_ID})`} />
+                  </ActionIcon>
+                </BorderAnimate>
+              </Stack>
+            </Group>
+          </CardSection>
+          <CardSection className="p-2">
+            <Button className="w-full" variant="white">
+              Explore all tours
+            </Button>
           </CardSection>
         </Card>
       </BorderAnimate>
@@ -122,7 +141,7 @@ export const ToursCarousel = ({ tours, ...props }: CardProps & { tours: Tour[] }
 
 const TourCard = ({ tour, ...props }: CardProps & { tour: Tour }) => {
   return (
-    <Card className="h-full p-0" {...props}>
+    <Card className="h-full p-0 border-solid border  border-mantine-grape-6" {...props}>
       <BackgroundImage
         src={
           isPopulated(tour.thumbnail) && tour.thumbnail.url
@@ -133,20 +152,27 @@ const TourCard = ({ tour, ...props }: CardProps & { tour: Tour }) => {
       >
         <Center className="h-full">
           <Stack justify="space-between" className="w-full h-full" p={'xs'}>
-            <Title order={5}>{tour.title}</Title>
+            <Title order={3} size="h5" className="text-white" lineClamp={1}>
+              {tour.title}
+            </Title>
             <Group justify="end">
               <BorderAnimate variant="glow">
+                {/* Rendered as non-interactive text: the card views sit inside
+                    role="option" elements, so a real button here trips the
+                    nested-interactive and aria-hidden-focus rules. Restore
+                    the Button once a details action is wired up. */}
                 <Button
+                  component="span"
                   classNames={{
                     label:
                       'bg-linear-to-r from-purple-700 to-orange-400 bg-clip-text text-transparent',
                     root: 'border-none',
                   }}
-                  size="compact-md"
+                  size="compact-sm"
                   variant="outline"
                   className="bg-white"
                 >
-                  See details
+                  View details
                 </Button>
               </BorderAnimate>
             </Group>

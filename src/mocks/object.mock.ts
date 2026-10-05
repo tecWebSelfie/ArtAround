@@ -8,7 +8,7 @@ function baseThumbnail(): ObjectsThumbnail {
     alt: 'Veduta frontale del reperto',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    url: '/thumbnails/object-frontal.jpg',
+    url: 'https://picsum.photos/200/300',
     filename: 'object-frontal.jpg',
     mimeType: 'image/jpeg',
     width: 1200,
@@ -23,6 +23,7 @@ function baseObject(): Object {
     description: 'Anfora attica a figure rosse con scena di banchetto, databile al V secolo a.C.',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
+    thumbnail: baseThumbnail(),
   }
 }
 
@@ -75,13 +76,6 @@ export const mockObjectAmphora: Object = createObject({
   id: 'object-1',
   name: 'Anfora a figure rosse',
   description: 'Anfora attica a figure rosse con scena di banchetto, databile al V secolo a.C.',
-  thumbnail: {
-    id: 'object-thumb-1',
-    alt: 'Veduta frontale del reperto',
-    url: '/thumbnails/object-frontal.jpg',
-    updatedAt: TIMESTAMP,
-    createdAt: TIMESTAMP,
-  },
 })
 
 export const mockObjectStatue: Object = createObject({
@@ -89,13 +83,6 @@ export const mockObjectStatue: Object = createObject({
   name: 'Statua in marmo di atleta',
   description:
     'Statua in marmo pario raffigurante un atleta nell’atto di lanciare il disco, copia romana da originale greco del V secolo a.C.',
-  thumbnail: {
-    id: 'object-thumb-2',
-    alt: 'Statua in marmo di atleta',
-    url: '/thumbnails/object-statue.jpg',
-    updatedAt: TIMESTAMP,
-    createdAt: TIMESTAMP,
-  },
 })
 
 export const mockObjectMosaicNoThumbnail: Object = createObject({

@@ -1,17 +1,17 @@
 'use client'
 
-import { useMemo, useState } from 'react'
 import {
+  Box,
+  Center,
   FloatingIndicator,
+  Group,
   Tabs as MantineTabs,
   TabsList,
   TabsPanel,
   TabsTab,
-  Group,
-  Center,
-  Box,
   type TabsProps as MantineTabsProps,
 } from '@mantine/core'
+import { useMemo, useState } from 'react'
 
 export type ArtAroundTabDef = {
   value: string

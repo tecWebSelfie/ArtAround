@@ -12,7 +12,7 @@ export function createTour(overrides?: Partial<Tour>): Tour {
     thumbnail: {
       alt: 'Tour thumbnail image',
       id: 'thumbnail-001',
-      url: 'https://picsum.photos/id/237/200/300',
+      url: 'https://picsum.photos/200/300',
       createdAt: TIMESTAMP,
       updatedAt: TIMESTAMP,
     } satisfies ToursThumbnail,

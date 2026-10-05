@@ -35,12 +35,7 @@ export const ObjectsCarousel = async ({
     <Stack>
       <Group align="center" gap="sm">
         <Title size="1em">{t('Objects')}</Title>
-        <UnstyledButton
-          variant="text"
-          opacity={0.8}
-          c="blue.6"
-          className="transform hover:border-b"
-        >
+        <UnstyledButton variant="text" c="blue.8" className="transform hover:border-b">
           <Text size="sm">{t('See more') + ' >'}</Text>
         </UnstyledButton>
       </Group>
@@ -49,8 +44,9 @@ export const ObjectsCarousel = async ({
         emblaOptions={{
           align: 'start',
         }}
-        slideSize={{ base: '70%', sm: '33.3333%', md: '25%' }}
+        slideSize={{ base: '60%', sm: '33.3333%', md: '25%' }}
         slideGap="sm"
+        withControls={false}
       >
         {validObjects.map((object) => (
           <CarouselCard object={object} key={object.id} />
@@ -90,11 +86,13 @@ const CarouselCard = async ({
           src={thumbnail?.url ?? 'https://placehold.co/600x400?text=Placeholder'}
         >
           <Stack justify="space-between" className="h-full" p="sm">
-            <Title order={6}>{object.name}</Title>
+            <Title order={2} size="h6">
+              {object.name}
+            </Title>
             <Stack>
               <Group justify="end">
                 <Button size="compact-sm" variant="default">
-                  {t('See more')}
+                  {t('View details')}
                 </Button>
               </Group>
             </Stack>

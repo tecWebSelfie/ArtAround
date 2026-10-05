@@ -57,9 +57,6 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
         <MuseumBadges services={museum.services} />
       )}
       <Text>{museum.shortDescription}</Text>
-      <ToursCarousel
-        tours={filterPopulated<Tour>(Array.isArray(museum.tours) ? museum.tours : [])}
-      />
       <ArtaroundTabs
         tabs={[
           {
@@ -67,6 +64,9 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
             icon: <Amphora size={16} />,
             panel: (
               <Stack>
+                <ToursCarousel
+                  tours={filterPopulated<Tour>(Array.isArray(museum.tours) ? museum.tours : [])}
+                />
                 <ObjectsCarousel objects={museum.objects} />
               </Stack>
             ),
@@ -167,6 +167,7 @@ export async function MuseumThumbnailGallery(props: { thumbnails: Museum['thumbn
             rightSection={<Images size={10} />}
             size="compact-xs"
             variant="white"
+            color="blue.8"
             autoContrast
           >
             See more
