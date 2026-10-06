@@ -69,6 +69,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    'user-museum-memberships': UserMuseumMembership;
     usersPropics: UsersPropic;
     pages: Page;
     museums: Museum;
@@ -106,14 +107,20 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    users: {
+      curatorOf: 'user-museum-memberships';
+      directorOf: 'user-museum-memberships';
+    };
     objects: {
       exhibit: 'exhibits';
     };
     contents: {
       objects: 'objects';
+      author: 'users';
     };
     tours: {
       museum: 'museums';
+      author: 'users';
     };
     'lfrs-reviews': {
       replies: 'lfrs-replies';
@@ -121,6 +128,7 @@ export interface Config {
   };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    'user-museum-memberships': UserMuseumMembershipsSelect<false> | UserMuseumMembershipsSelect<true>;
     usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
@@ -793,7 +801,22 @@ export interface User {
     lastName: string;
     fullName: string;
   };
+  authoredContents?: (string | Content)[] | null;
+  authoredTours?: (string | Tour)[] | null;
   avatar?: (string | null) | UsersPropic;
+  bio?: string | null;
+  curatorOf?: {
+    docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  directorOf?: {
+    docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  verifieds?: (string | Museum)[] | null;
+  highestStatus?: ('curator' | 'director' | 'verified' | 'none') | null;
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -835,14 +858,136 @@ export interface Role {
     | boolean
     | null;
   createdBy?: string | null;
+  /**
+   * Museum function granted by this role, independent of its code/name.
+   */
+  museumFunction: 'curator' | 'director' | 'none';
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "usersPropics".
+ * via the `definition` "contents".
  */
-export interface UsersPropic {
+export interface Content {
+  id: string;
+  createdBy?: string | null;
+  difficulty: 'easy' | 'medium' | 'hard';
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  readingTimeMins?: number | null;
+  copyright: string;
+  images?: (string | ContentImage)[] | null;
+  objects: {
+    docs?: (string | Object)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  author: {
+    docs?: (string | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentImages".
+ */
+export interface ContentImage {
+  id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objects".
+ */
+export interface Object {
+  id: string;
+  createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null;
+  exhibit?: {
+    docs?: (string | Exhibit)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  contents?: (string | Content)[] | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
+  lfrs?: {
+    favouritesCount?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exhibits".
+ */
+export interface Exhibit {
+  id: string;
+  createdBy?: string | null;
+  objects: (string | Object)[];
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
   id: string;
   alt: string;
   updatedAt: string;
@@ -859,21 +1004,40 @@ export interface UsersPropic {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "tours".
  */
-export interface Page {
+export interface Tour {
   id: string;
-  title?: string | null;
-  slug?: string | null;
-  parent?: (string | null) | Page;
-  breadcrumbs?:
-    | {
-        doc?: (string | null) | Page;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+  title: string;
+  description?: string | null;
+  contents: (string | Content)[];
+  thumbnail?: (string | null) | ToursThumbnail;
+  museum: {
+    docs?: (string | Museum)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  author: {
+    docs?: (string | User)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "toursThumbnails".
+ */
+export interface ToursThumbnail {
+  id: string;
+  alt: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1354,122 +1518,9 @@ export interface MuseumThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "exhibits".
+ * via the `definition` "usersPropics".
  */
-export interface Exhibit {
-  id: string;
-  createdBy?: string | null;
-  objects: (string | Object)[];
-  coordinates: {
-    x: number;
-    y: number;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objects".
- */
-export interface Object {
-  id: string;
-  createdBy?: string | null;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  name: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  description?: string | null;
-  exhibit?: {
-    docs?: (string | Exhibit)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  contents?: (string | Content)[] | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contents".
- */
-export interface Content {
-  id: string;
-  createdBy?: string | null;
-  difficulty: 'easy' | 'medium' | 'hard';
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  title: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  readingTimeMins?: number | null;
-  copyright: string;
-  images?: (string | ContentImage)[] | null;
-  objects: {
-    docs?: (string | Object)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contentImages".
- */
-export interface ContentImage {
-  id: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsThumbnails".
- */
-export interface ObjectsThumbnail {
+export interface UsersPropic {
   id: string;
   alt: string;
   updatedAt: string;
@@ -1486,35 +1537,33 @@ export interface ObjectsThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tours".
+ * via the `definition` "user-museum-memberships".
  */
-export interface Tour {
+export interface UserMuseumMembership {
   id: string;
-  title: string;
-  description?: string | null;
-  contents: (string | Content)[];
-  thumbnail?: (string | null) | ToursThumbnail;
-  museum: {
-    docs?: (string | Museum)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
+  user: string | User;
+  role: string | Role;
+  museum: string | Museum;
   updatedAt: string;
   createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "toursThumbnails".
+ * via the `definition` "pages".
  */
-export interface ToursThumbnail {
+export interface Page {
   id: string;
-  alt: string;
+  title?: string | null;
+  slug?: string | null;
+  parent?: (string | null) | Page;
+  breadcrumbs?:
+    | {
+        doc?: (string | null) | Page;
+        url?: string | null;
+        label?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2374,6 +2423,10 @@ export interface PayloadLockedDocument {
         value: string | User;
       } | null)
     | ({
+        relationTo: 'user-museum-memberships';
+        value: string | UserMuseumMembership;
+      } | null)
+    | ({
         relationTo: 'usersPropics';
         value: string | UsersPropic;
       } | null)
@@ -2554,7 +2607,14 @@ export interface UsersSelect<T extends boolean = true> {
         lastName?: T;
         fullName?: T;
       };
+  authoredContents?: T;
+  authoredTours?: T;
   avatar?: T;
+  bio?: T;
+  curatorOf?: T;
+  directorOf?: T;
+  verifieds?: T;
+  highestStatus?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -2572,6 +2632,17 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "user-museum-memberships_select".
+ */
+export interface UserMuseumMembershipsSelect<T extends boolean = true> {
+  user?: T;
+  role?: T;
+  museum?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3093,6 +3164,7 @@ export interface ContentsSelect<T extends boolean = true> {
   copyright?: T;
   images?: T;
   objects?: T;
+  author?: T;
   lfrs?:
     | T
     | {
@@ -3132,6 +3204,7 @@ export interface ToursSelect<T extends boolean = true> {
   contents?: T;
   thumbnail?: T;
   museum?: T;
+  author?: T;
   lfrs?:
     | T
     | {
@@ -3451,6 +3524,7 @@ export interface RolesSelect<T extends boolean = true> {
   dataScope?: T;
   permissionMatrixDraft?: T;
   createdBy?: T;
+  museumFunction?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3800,6 +3874,7 @@ export interface TaskCreateCollectionExport {
     batchSize?: number | null;
     collectionSlug:
       | 'users'
+      | 'user-museum-memberships'
       | 'usersPropics'
       | 'pages'
       | 'museums'

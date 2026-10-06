@@ -1,4 +1,9 @@
 import { getPayload } from 'payload'
+import {
+  MUSEUM_FUNCTION_CURATOR,
+  MUSEUM_FUNCTION_DIRECTOR,
+  MUSEUM_FUNCTION_NONE,
+} from '@/fields/MuseumFunction'
 import config from '@/payload.config'
 
 try {
@@ -139,6 +144,7 @@ try {
       description: 'A logged in user, who can also create its own content and share it',
       status: 'active' as const,
       dataScope: 'own' as const,
+      museumFunction: MUSEUM_FUNCTION_NONE,
     },
     {
       code: 'Curator',
@@ -146,6 +152,7 @@ try {
       description: 'A museum curator',
       status: 'active' as const,
       dataScope: 'all' as const,
+      museumFunction: MUSEUM_FUNCTION_CURATOR,
     },
     {
       code: 'Director',
@@ -153,6 +160,7 @@ try {
       description: 'A Museum director. He/Her owns the museum',
       status: 'active' as const,
       dataScope: 'all' as const,
+      museumFunction: MUSEUM_FUNCTION_DIRECTOR,
     },
   ]
   const roleIdsByCode: Record<string, string> = {}
@@ -160,15 +168,17 @@ try {
     const foundId = await findOneBy('roles', 'code', role.code)
     if (foundId) {
       roleIdsByCode[role.code] = foundId
-      // Keep Director's permissionMatrixDraft in sync on re-seed (triggers
-      // syncPermissionMatrixDraftAfterChange -> roles-permissions rows)
-      if (role.code === 'Director') {
-        await payload.update({
-          collection: 'roles',
-          id: foundId,
-          data: { permissionMatrixDraft: buildDirectorDraft() },
-        })
-      }
+      // Keep the museum function in sync on re-seed (same policy as
+      // Director's permissionMatrixDraft below): the seed owns the mapping
+      // between system roles and museum functions.
+      await payload.update({
+        collection: 'roles',
+        id: foundId,
+        data: {
+          museumFunction: role.museumFunction,
+          ...(role.code === 'Director' ? { permissionMatrixDraft: buildDirectorDraft() } : {}),
+        },
+      })
       continue
     }
     const created = await payload.create({

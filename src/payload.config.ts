@@ -23,13 +23,14 @@ import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
 
+import { museumFunctionField } from './fields/MuseumFunction'
 import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
 import { Tour, ToursThumbnails } from './collections/Tours'
-import { Users, UsersPropics } from './collections/Users'
+import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -60,6 +61,7 @@ export default buildConfig({
   },
   collections: [
     Users,
+    UserMuseumMembership,
     UsersPropics,
     Pages,
     Museums,
@@ -119,6 +121,11 @@ export default buildConfig({
     phoneNumberPlugin(),
     payloadPluginRBAC({
       targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug],
+      collections: {
+        roles: {
+          fields: [museumFunctionField],
+        },
+      },
       translations: {
         en: {
           components: {

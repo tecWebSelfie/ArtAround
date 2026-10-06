@@ -38,6 +38,14 @@ export const Tour: CollectionConfig = {
       hasMany: false,
       required: true,
     },
+    {
+      name: 'author',
+      type: 'join',
+      on: 'authoredTours',
+      collection: 'users',
+      hasMany: false,
+      required: true,
+    },
   ],
 }
 

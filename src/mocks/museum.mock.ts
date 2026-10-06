@@ -185,6 +185,18 @@ export const mockMuseumNoMedia: Museum = createMuseum({
   map: null,
 })
 
+export const mockMuseumUffizi: Museum = createMuseum({
+  id: 'museum-uffizi-001',
+  name: 'Galleria degli Uffizi',
+  shortDescription: 'Le collezioni rinascimentali più celebri al mondo.',
+})
+
+export const mockMuseumBrera: Museum = createMuseum({
+  id: 'museum-brera-001',
+  name: 'Pinacoteca di Brera',
+  shortDescription: 'Capolavori della pittura italiana dal Trecento al Novecento.',
+})
+
 export const mockMuseumClosed: Museum = createMuseum({
   id: 'museum-closed-001',
   openingHours: {

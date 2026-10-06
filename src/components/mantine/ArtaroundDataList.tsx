@@ -9,10 +9,7 @@ import {
 export function ArtaroundDataList({
   data,
   ...props
-}: { data: Record<string, React.ReactNode | string | number | null> } & Omit<
-  DataListProps,
-  'children'
->) {
+}: { data: Record<string, React.ReactNode> } & Omit<DataListProps, 'children'>) {
   return (
     <DataList {...props} orientation="vertical">
       {Object.entries(data).map(([label, value]) => (
