@@ -1,10 +1,10 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, ContentImage } from '@/payload-types'
-import { Badge, Card, Grid, Group, Image, Stack, Text } from '@mantine/core'
+import { Card, Grid, Group, Image, Stack, Text } from '@mantine/core'
 import { Clock } from 'lucide-react'
 
-import { DIFFICULTY_LABEL_KEY, DIFFICULTY_META } from './ContentsCarousel'
+import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 
 const PLACEHOLDER = 'https://placehold.co/600x400?text=Placeholder'
 
@@ -30,8 +30,6 @@ export const ContentsSearchResults = async ({
     <Grid>
       {validContents.map((content) => {
         const thumbnail = filterPopulated<ContentImage>(content.images)[0] ?? null
-        const difficulty = DIFFICULTY_META[content.difficulty]
-        const DifficultyIcon = difficulty.icon
         return (
           <Grid.Col key={content.id} span={{ base: 12, sm: 6, md: 4 }}>
             <Card
@@ -56,15 +54,9 @@ export const ContentsSearchResults = async ({
                   {content.title}
                 </Text>
                 <Group gap="xs">
-                  <Badge
-                    size="sm"
-                    color={difficulty.color}
-                    variant="filled"
-                    autoContrast
-                    leftSection={<DifficultyIcon size={14} />}
-                  >
+                  <DifficultyBadge difficulty={content.difficulty}>
                     {t(DIFFICULTY_LABEL_KEY[content.difficulty])}
-                  </Badge>
+                  </DifficultyBadge>
                   {content.readingTimeMins != null && (
                     <Group gap={4}>
                       <Clock size={14} aria-hidden />

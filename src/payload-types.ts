@@ -1008,6 +1008,7 @@ export interface ObjectsThumbnail {
  */
 export interface Tour {
   id: string;
+  createdBy?: string | null;
   title: string;
   description?: string | null;
   contents: (string | Content)[];
@@ -3199,6 +3200,7 @@ export interface ContentImagesSelect<T extends boolean = true> {
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
+  createdBy?: T;
   title?: T;
   description?: T;
   contents?: T;

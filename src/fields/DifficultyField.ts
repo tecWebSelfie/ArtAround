@@ -1,6 +1,6 @@
 import { SelectField } from 'payload'
 
-export const DifficultyField: SelectField = {
+export const DifficultyField = {
   name: 'difficulty',
   type: 'select',
   options: [
@@ -18,4 +18,6 @@ export const DifficultyField: SelectField = {
     },
   ],
   required: true,
-}
+} as const satisfies SelectField
+
+export type Difficulty = (typeof DifficultyField.options)[number]['value']

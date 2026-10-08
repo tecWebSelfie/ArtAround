@@ -121,7 +121,7 @@ export default buildConfig({
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({
-      targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug],
+      targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug, Tour.slug],
       collections: {
         roles: {
           fields: [museumFunctionField],

@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { Suspense, use } from 'react'
 import { expect } from 'storybook/test'
 
-import type { Museum } from '@/payload-types'
 import {
   mockMuseumClosed,
   mockMuseumFull,
@@ -11,6 +10,7 @@ import {
   mockMuseumNoMedia,
   mockMuseumWithServices,
 } from '@/mocks/museum.mock'
+import type { Museum } from '@/payload-types'
 
 import MuseumPage from './MuseumPage'
 

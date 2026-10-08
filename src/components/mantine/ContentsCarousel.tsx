@@ -14,21 +14,12 @@ import {
   Title,
   UnstyledButton,
 } from '@mantine/core'
-import { ChevronRight, Clock, Flame, Gauge, Leaf } from 'lucide-react'
+import { ChevronRight, Clock } from 'lucide-react'
 import { ComponentProps } from 'react'
 
-// Teal identity: tours are purple/orange, objects are plain, contents are teal.
-export const DIFFICULTY_META = {
-  easy: { icon: Leaf, color: 'green' },
-  medium: { icon: Gauge, color: 'yellow' },
-  hard: { icon: Flame, color: 'red.9' },
-} as const
+import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 
-export const DIFFICULTY_LABEL_KEY = {
-  easy: 'Easy',
-  medium: 'Medium',
-  hard: 'Hard',
-} as const
+export { DIFFICULTY_LABEL_KEY, DIFFICULTY_META } from './DifficultyBadge'
 
 export const ContentsCarousel = async ({
   contents,
@@ -99,8 +90,6 @@ const ContentsCarouselCard = async ({
 }: Omit<ComponentProps<typeof CarouselSlide>, 'content'> & { content: Content }) => {
   const { t } = await getT('contents-carousel-card')
   const thumbnail = filterPopulated<ContentImage>(content.images)[0] ?? null
-  const difficulty = DIFFICULTY_META[content.difficulty]
-  const DifficultyIcon = difficulty.icon
 
   return (
     <CarouselSlide {...props}>
@@ -119,15 +108,9 @@ const ContentsCarouselCard = async ({
             </Title>
             <Stack gap="xs">
               <Group gap="xs">
-                <Badge
-                  size="sm"
-                  color={difficulty.color}
-                  variant="filled"
-                  autoContrast
-                  leftSection={<DifficultyIcon size={14} />}
-                >
+                <DifficultyBadge difficulty={content.difficulty}>
                   {t(DIFFICULTY_LABEL_KEY[content.difficulty])}
-                </Badge>
+                </DifficultyBadge>
                 {content.readingTimeMins != null && (
                   <Group gap={4}>
                     <Clock size={14} className="text-white" aria-hidden />
