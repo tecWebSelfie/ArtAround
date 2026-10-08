@@ -4,7 +4,21 @@ import {
   MUSEUM_FUNCTION_NONE,
 } from '@/fields/MuseumFunction'
 import config from '@/payload.config'
+import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
+import { JSDOM } from 'jsdom'
 import { getPayload } from 'payload'
+import type { RequiredDataFromCollectionSlug } from 'payload'
+
+const editorDefaultConfig = await editorConfigFactory.default({
+  config: await config, // Your Payload Config
+})
+
+const htmlToRichText = (html: string) =>
+  convertHTMLToLexical({
+    editorConfig: editorDefaultConfig,
+    JSDOM,
+    html,
+  })
 
 try {
   const payload = await getPayload({ config })
@@ -266,6 +280,178 @@ try {
       })
       console.log('MCP dev key created')
     }
+  }
+
+  // --- Typesense demo data: museums + users ---
+  // Created through Payload (not straight into Typesense) so the typesense
+  // plugin hooks sync them to Typesense Cloud — this exercises the same path
+  // as creating docs from the admin panel. The plugin only indexes
+  // `searchFields` (museums: name/location, users: name/description); docs
+  // with all of those empty are skipped, hence the fields below.
+  // All lookups are by natural key (name/email) so re-seeds are idempotent.
+  console.log('Seeding demo museums...')
+  const demoMuseums = [
+    {
+      name: 'Galleria Borghese',
+      shortDescription: 'Baroque masterpieces in a Roman villa',
+      description: htmlToRichText('Bernini sculptures and Caravaggio paintings in Villa Borghese.'),
+      location: {
+        address: 'Piazzale Scipione Borghese 5',
+        city: 'Roma',
+        latlng: [12.4922, 41.9142] as [number, number],
+      },
+      accessibility: true,
+      ticketInfo: {
+        label: 'Standard ticket',
+        url: 'https://www.galleriaborghese.beniculturali.it/en/tickets',
+      },
+    },
+    {
+      name: 'Palazzo Reale di Milano',
+      shortDescription: 'Grand exhibitions in the heart of Milan',
+      description: htmlToRichText('Major international exhibitions next to the Duomo.'),
+      location: {
+        address: 'Piazza del Duomo 12',
+        city: 'Milano',
+        latlng: [9.1917, 45.4636] as [number, number],
+      },
+      accessibility: true,
+      ticketInfo: {
+        label: 'Standard ticket',
+      },
+    },
+    {
+      name: 'Museo Galileo',
+      shortDescription: 'History of science in Florence',
+      description: htmlToRichText('Scientific instruments from Galileo and the Medici era.'),
+      location: {
+        address: 'Piazza dei Giudici 1',
+        city: 'Firenze',
+        latlng: [11.476, 43.7679] as [number, number],
+      },
+      accessibility: true,
+      ticketInfo: {
+        label: 'Standard ticket',
+      },
+    },
+    {
+      name: 'Museo Archeologico Nazionale di Napoli',
+      shortDescription: 'Roman antiquities from Pompeii',
+      description: htmlToRichText('Farnese collection and finds from Pompeii and Herculaneum.'),
+      location: {
+        address: 'Piazza Museo 19',
+        city: 'Napoli',
+        latlng: [14.1245, 40.8533] as [number, number],
+      },
+      accessibility: true,
+      ticketInfo: {
+        label: 'Standard ticket',
+      },
+    },
+    {
+      name: 'Palazzo Ducale di Venezia',
+      shortDescription: 'Gothic palace of the Doges',
+      description: htmlToRichText('Tintoretto ceilings and the Bridge of Sighs.'),
+      location: {
+        address: 'Piazza San Marco 1',
+        city: 'Venezia',
+        latlng: [12.3358, 45.4346] as [number, number],
+      },
+      accessibility: true,
+      ticketInfo: {
+        label: 'Standard ticket',
+      },
+    },
+  ] satisfies RequiredDataFromCollectionSlug<'museums'>[]
+  for (const museum of demoMuseums) {
+    const found = await payload.find({
+      collection: 'museums',
+      where: { name: { equals: museum.name } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      console.log(`Museum "${museum.name}" already exists, skipping`)
+      continue
+    }
+    await payload.create({
+      collection: 'museums',
+      data: museum,
+    })
+    console.log(`Museum "${museum.name}" created`)
+  }
+
+  console.log('Seeding demo users...')
+  const demoUsers = [
+    {
+      username: 'davide',
+      email: 'davide@example.com',
+      password: 'test-password',
+      name: {
+        firstName: 'Davide',
+        lastName: 'Bianchi',
+        fullName: 'Davide Bianchi',
+      },
+      bio: 'Street art guide in Turin',
+    },
+    {
+      username: 'chiara',
+      email: 'chiara@example.com',
+      password: 'test-password',
+      name: {
+        firstName: 'Chiara',
+        lastName: 'Moretti',
+        fullName: 'Chiara Moretti',
+      },
+      bio: 'Modern sculpture enthusiast from Bologna',
+    },
+    {
+      username: 'luca',
+      email: 'luca@example.com',
+      password: 'test-password',
+      name: {
+        firstName: 'Luca',
+        lastName: 'Ferrari',
+        fullName: 'Luca Ferrari',
+      },
+      bio: 'Museum volunteer and audio guide narrator',
+    },
+    {
+      username: 'anna',
+      email: 'anna@example.com',
+      password: 'test-password',
+      name: {
+        firstName: 'Anna',
+        lastName: 'Rossi',
+        fullName: 'Anna Rossi',
+      },
+      bio: 'Baroque painting scholar in Naples',
+    },
+    {
+      username: 'paolo',
+      email: 'paolo@example.com',
+      password: 'test-password',
+      name: {
+        firstName: 'Paolo',
+        lastName: 'Greco',
+        fullName: 'Paolo Greco',
+      },
+      bio: 'Digital archivist for Sicilian museums',
+    },
+  ] satisfies RequiredDataFromCollectionSlug<'users'>[]
+  for (const user of demoUsers) {
+    const found = await payload.find({
+      collection: 'users',
+      where: { email: { equals: user.email } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      console.log(`User "${user.email}" already exists, skipping`)
+      continue
+    }
+    await payload.create({ collection: 'users', data: user })
+    console.log(`User "${user.email}" created`)
   }
 
   console.log('Database seeded successfully. Closing connection...')

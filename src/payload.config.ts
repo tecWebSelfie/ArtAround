@@ -14,6 +14,7 @@ import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
+import { typesenseSearch } from '@rubixstudios/payload-typesense'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
@@ -23,7 +24,6 @@ import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
 
-import { museumFunctionField } from './fields/MuseumFunction'
 import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
@@ -31,6 +31,7 @@ import { Objects, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
 import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
+import { museumFunctionField } from './fields/MuseumFunction'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -197,6 +198,31 @@ export default buildConfig({
       adminGroup: 'LFRs', // Navigation group name in the Admin panel (default: 'LFRs')
       // Custom callback to check if a user is an admin
       isAdmin: ({ req }) => req.user?.collection === 'users' && Boolean(req.user?.isSuperAdmin),
+    }),
+    typesenseSearch({
+      typesense: {
+        apiKey: process.env.TYPESENSE_API_KEY || '',
+        nodes: [
+          {
+            host: process.env.TYPESENSE_HOST || '',
+            port: Number(process.env.TYPESENSE_PORT || 443),
+            protocol: (process.env.TYPESENSE_PROTOCOL || 'https') as 'http' | 'https',
+          },
+        ],
+        connectionTimeoutSeconds: 5,
+      },
+      collections: {
+        museums: {
+          enabled: true,
+          searchFields: ['name', 'location'],
+          displayName: 'Museums',
+        },
+        users: {
+          enabled: true,
+          searchFields: ['name', 'description'],
+          displayName: 'Users',
+        },
+      },
     }),
   ],
   bin: [
