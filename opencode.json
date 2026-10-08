@@ -39,6 +39,10 @@
       "type": "remote",
       "url": "https://mcp.notion.com/mcp",
       "oauth": {}
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp"
     }
   }
 }

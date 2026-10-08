@@ -144,6 +144,7 @@
     "postcss-preset-mantine": "^1.18.0",
     "postcss-simple-vars": "^7.0.1",
     "prettier": "^3.4.2",
+    "sass": "^1.105.0",
     "shadcn": "^4.21.0",
     "storybook": "^10.5.3",
     "tsx": "4.22.4",
@@ -172,6 +173,9 @@
       "sharp",
       "unrs-resolver"
     ],
+    "patchedDependencies": {
+      "payload-phone-number-plugin": "patches/payload-phone-number-plugin.patch"
+    },
     "overrides": {
       "valibot": "1.5.0",
       "@mantine/core": "9.6.3",

@@ -1,6 +1,7 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
+import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
 import {
   ActionIcon,
@@ -15,6 +16,8 @@ import {
 } from '@mantine/core'
 import { ChevronRight } from 'lucide-react'
 import { ComponentProps } from 'react'
+
+import Link from 'next/link'
 
 export const ObjectsCarousel = async ({
   objects,
@@ -75,7 +78,7 @@ const CarouselCard = async ({
   object,
   ...props
 }: ComponentProps<typeof CarouselSlide> & { object: PayloadObject }) => {
-  const { t } = await getT('objects-carousel-card')
+  const { t, lng } = await getT('objects-carousel-card')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
 
   return (
@@ -91,9 +94,18 @@ const CarouselCard = async ({
             </Title>
             <Stack>
               <Group justify="end">
-                <Button size="compact-sm" variant="default">
-                  {t('View details')}
-                </Button>
+                <BorderAnimate variant="glow">
+                  <Button
+                    component={Link}
+                    href={`/${lng}/object/${object.id}`}
+                    size="compact-sm"
+                    variant="outline"
+                    className="bg-white"
+                    classNames={{ root: 'border-none' }}
+                  >
+                    {t('View details')}
+                  </Button>
+                </BorderAnimate>
               </Group>
             </Stack>
           </Stack>

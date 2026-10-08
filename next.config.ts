@@ -1,20 +1,26 @@
-import { withSentryConfig } from '@sentry/nextjs/config'
 import { withPayload } from '@payloadcms/next/withPayload'
+import { withSentryConfig } from '@sentry/nextjs/config'
 import type { NextConfig } from 'next'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import i18nConfig from './i18n.config'
 
 const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
+
+// Every locale i18next accepts, as one regex alternation (`en|it`) used by the
+// redirect below. Derived from i18n.config.ts — the single source of truth —
+// so adding a language there extends this pattern automatically.
+const lngPattern = i18nConfig.supportedLngs.join('|')
 
 const nextConfig: NextConfig = {
   output: 'standalone',
   redirects() {
     return [
       {
-        source: '/',
-        destination: '/navigator',
-        permanent: true,
+        source: `/:lng(${lngPattern})?`,
+        destination: '/:lng*/navigator',
+        permanent: false,
       },
     ]
   },

@@ -35,12 +35,12 @@ const nameFieldsGroup: GroupField = {
     {
       name: 'fullName',
       type: 'text',
-      required: true,
       virtual: true,
+      required: true,
       hooks: {
         afterRead: [
           ({ siblingData }) =>
-            [siblingData?.firstName, siblingData?.lastName].filter(Boolean).join(' '),
+            [siblingData.firstName, siblingData.lastName].filter(Boolean).join(' '),
         ] satisfies NameFieldHook<string>[],
       },
     },

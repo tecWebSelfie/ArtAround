@@ -1,10 +1,10 @@
-import { getPayload } from 'payload'
 import {
   MUSEUM_FUNCTION_CURATOR,
   MUSEUM_FUNCTION_DIRECTOR,
   MUSEUM_FUNCTION_NONE,
 } from '@/fields/MuseumFunction'
 import config from '@/payload.config'
+import { getPayload } from 'payload'
 
 try {
   const payload = await getPayload({ config })
@@ -21,7 +21,13 @@ try {
   if (existing.docs.length === 0) {
     const created = await payload.create({
       collection: 'users',
-      data: { username: 'dev', email: 'dev@payloadcms.com', password: 'test', isSuperAdmin: true },
+      data: {
+        username: 'dev',
+        email: 'dev@payloadcms.com',
+        password: 'test',
+        isSuperAdmin: true,
+        name: { firstName: 'Dev', lastName: 'Admin', fullName: 'Dev Admin' },
+      },
     })
     superAdminId = String(created.id)
   } else {

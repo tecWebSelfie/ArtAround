@@ -6,6 +6,15 @@ export function createTour(overrides?: Partial<Tour>): Tour {
   return {
     id: 'tour-001',
     title: 'La monnalisa e i suoi misteri',
+    contents: [],
+    museum: {
+      docs: [],
+      hasNextPage: false,
+    },
+    author: {
+      docs: [],
+      hasNextPage: false,
+    },
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
     ...overrides,

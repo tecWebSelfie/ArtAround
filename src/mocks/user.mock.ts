@@ -1,11 +1,13 @@
-import type { Role, User } from '@/payload-types'
+import type { Museum, Role, User, UserMuseumMembership } from '@/payload-types'
 
 import {
   MUSEUM_FUNCTION_CURATOR,
   MUSEUM_FUNCTION_DIRECTOR,
   MUSEUM_FUNCTION_NONE,
 } from '@/fields/MuseumFunction'
-import { mockContentMinimal, mockContentSecond, mockContentsList } from '@/mocks/content.mock'
+import { mockContentMinimal, mockContentSecond, mockContentThird, mockContentsList } from '@/mocks/content.mock'
+import { mockMuseumBrera, mockMuseumMinimal, mockMuseumUffizi } from '@/mocks/museum.mock'
+import { mockTourMinimal, mockTourSecond } from '@/mocks/tour.mock'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
 
@@ -82,6 +84,25 @@ export function createUser(overrides?: Partial<User>): User {
   return { ...baseUser(), ...overrides }
 }
 
+// Mirrors a `user-museum-memberships` row: links a user to a museum with a
+// staff role. `user` stays an ID string (unpopulated side is enough for the
+// join-docs mapping in UserBadges), while role and museum are populated.
+function mockMembership(
+  id: string,
+  userId: string,
+  role: Role,
+  museum: Museum,
+): UserMuseumMembership {
+  return {
+    id,
+    user: userId,
+    role,
+    museum,
+    updatedAt: TIMESTAMP,
+    createdAt: TIMESTAMP,
+  }
+}
+
 export const mockUserMinimal: User = createUser()
 
 export const mockUserFull: User = createUser({
@@ -104,6 +125,8 @@ export const mockUserFull: User = createUser({
   },
   parentPath: '/user-001',
   loginAttempts: 0,
+  authoredTours: [mockTourMinimal, { ...mockTourSecond, title: 'I segreti del Colosseo' }],
+  authoredContents: [mockContentMinimal, mockContentThird],
 })
 
 export const mockUserNoEmail: User = createUser({
@@ -113,8 +136,8 @@ export const mockUserNoEmail: User = createUser({
   name: mockName('Walk-in', 'Visitor'),
 })
 
-// Verified creator without curation rights: active non-curator role plus
-// authored contents. Renders the verified badge but no curator badge.
+// Verified creator: verified by a museum, no staff role.
+// Renders the verified badge but no curator badge.
 export const mockUserVerifiedCreator: User = createUser({
   id: 'user-creator-001',
   username: 'elena.verdi',
@@ -122,10 +145,12 @@ export const mockUserVerifiedCreator: User = createUser({
   roles: [mockRoleUser],
   name: mockName('Elena', 'Verdi'),
   authoredContents: [mockContentMinimal],
+  verifieds: [mockMuseumMinimal],
+  highestStatus: 'verified',
 })
 
-// Verified through authored contents alone: no roles, not a super-admin.
-// Exercises the authored-contents branch of isVerifiedCreator.
+// Verified by a museum through authored contents alone: no roles, not a
+// super-admin. The badge is driven by the `verifieds` relation.
 export const mockUserAuthor: User = createUser({
   id: 'user-author-001',
   username: 'paolo.neri',
@@ -133,6 +158,8 @@ export const mockUserAuthor: User = createUser({
   roles: [],
   name: mockName('Paolo', 'Neri'),
   authoredContents: [mockContentSecond],
+  verifieds: [mockMuseumMinimal],
+  highestStatus: 'verified',
   avatar: {
     id: 'avatar-002',
     alt: 'Ritratto di Paolo Neri',
@@ -146,13 +173,47 @@ export const mockUserAuthor: User = createUser({
   },
 })
 
-// Curator without a museum list: renders the generic Curator badge.
+// Curator of two museums: renders one curator badge per museum.
 export const mockUserCurator: User = createUser({
   id: 'user-curator-001',
   username: 'sara.blu',
   email: 'sara.blu@example.com',
   roles: [mockRoleCurator],
   name: mockName('Sara', 'Blu'),
+  curatorOf: {
+    docs: [
+      mockMembership(
+        'membership-curator-uffizi',
+        'user-curator-001',
+        mockRoleCurator,
+        mockMuseumUffizi,
+      ),
+      mockMembership(
+        'membership-curator-brera',
+        'user-curator-001',
+        mockRoleCurator,
+        mockMuseumBrera,
+      ),
+    ],
+    hasNextPage: false,
+  },
+  verifieds: [mockMuseumUffizi],
+  highestStatus: 'curator',
+})
+
+// Curator whose memberships never resolved (IDs only): renders the generic
+// Curator badge instead of per-museum badges.
+export const mockUserCuratorUnpopulated: User = createUser({
+  id: 'user-curator-unpop-001',
+  username: 'sara.blu.unpop',
+  email: 'sara.blu.unpop@example.com',
+  roles: [mockRoleCurator],
+  name: mockName('Sara', 'Blu'),
+  curatorOf: {
+    docs: ['membership-unknown'],
+    hasNextPage: false,
+  },
+  highestStatus: 'curator',
 })
 
 // Director: curation rights like a curator, exercised with a museum list.
@@ -162,6 +223,19 @@ export const mockUserDirector: User = createUser({
   email: 'luca.grigi@example.com',
   roles: [mockRoleDirector],
   name: mockName('Luca', 'Grigi'),
+  directorOf: {
+    docs: [
+      mockMembership(
+        'membership-director-minimal',
+        'user-director-001',
+        mockRoleDirector,
+        mockMuseumMinimal,
+      ),
+    ],
+    hasNextPage: false,
+  },
+  verifieds: [mockMuseumMinimal],
+  highestStatus: 'director',
 })
 
 // Inactive roles grant nothing: no badges, empty contents.

@@ -54,7 +54,9 @@ export function createContent(overrides?: Partial<Content>): Content {
   return { ...baseContent(), ...overrides }
 }
 
-export const mockContentMinimal: Content = createContent()
+export const mockContentMinimal: Content = createContent({
+  readingTimeMins: 3,
+})
 
 export const mockContentSecond: Content = createContent({
   id: 'content-002',
@@ -62,6 +64,7 @@ export const mockContentSecond: Content = createContent({
   title: 'Il restauro del bronzo',
   body: mockBody('Come si restaura una statua in bronzo: pulitura, consolidamento e integrazione.'),
   copyright: '© Museo Civico di Esempio',
+  readingTimeMins: 5,
 })
 
 export const mockContentThird: Content = createContent({
@@ -70,6 +73,7 @@ export const mockContentThird: Content = createContent({
   title: 'Leggere un dipinto rinascimentale',
   body: mockBody('Iconografia, prospettiva e committenza nella pittura del Rinascimento.'),
   copyright: '© Museo Civico di Esempio',
+  readingTimeMins: 8,
 })
 
 export const mockContentsList: Content[] = [mockContentMinimal, mockContentSecond, mockContentThird]

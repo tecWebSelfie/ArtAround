@@ -1,3 +1,5 @@
+'use client'
+
 import { isPopulated } from '@/lib/isPopulated'
 import { Tour } from '@/payload-types'
 import { BorderAnimate, type BorderAnimateProps } from '@gfazioli/mantine-border-animate'
