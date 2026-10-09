@@ -1,10 +1,10 @@
+import { ArtAroundGlobalSearch } from '@/components/mantine/ArtAroundGlobalSearch'
 import { TypeWriterText } from '@/components/mantine/TypeWriterText'
-import { BorderAnimate } from '@gfazioli/mantine-border-animate'
+import { mockContentSecond } from '@/mocks/content.mock'
 import { QRCode } from '@gfazioli/mantine-qr-code'
 import { Reflection } from '@gfazioli/mantine-reflection'
 import {
   ActionIcon,
-  Autocomplete,
   Box,
   Center,
   Divider,
@@ -17,7 +17,7 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { Mic, Search } from 'lucide-react'
+import { Mic } from 'lucide-react'
 
 export default async function NavigatorHomePage() {
   return (
@@ -117,7 +117,10 @@ function NavigatorHomeSearchBar(props: StackProps) {
         shadowScaleX={1}
         shadowScaleY={1.24}
       >
-        <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
+        <ArtAroundGlobalSearch
+          items={[{ key: mockContentSecond.id, kind: 'content', content: mockContentSecond }]}
+        />
+        {/*         <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
           <Autocomplete
             leftSection={<Search size={16} />}
             bd="1px solid purple"
@@ -127,7 +130,7 @@ function NavigatorHomeSearchBar(props: StackProps) {
             w="100%"
             placeholder="Look for the next tour"
           />
-        </BorderAnimate>
+        </BorderAnimate> */}
       </Reflection>
     </Stack>
   )
