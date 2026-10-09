@@ -1,38 +1,29 @@
-import {
-  Stack,
-  AppShell,
-  AppShellFooter,
-  Button,
-  SimpleGrid,
-  Text,
-  Title,
-  Autocomplete,
-  Box,
-  Divider,
-  Group,
-  Center,
-  StackProps,
-  Overlay,
-  ActionIcon,
-  UnstyledButton,
-  Paper,
-  SegmentedControl,
-  SegmentedControlProps,
-  Flex,
-  rem,
-} from '@mantine/core'
+import { TypeWriterText } from '@/components/mantine/TypeWriterText'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import { QRCode } from '@gfazioli/mantine-qr-code'
-import { Search, Amphora, Landmark, Palette, BookCopy, Mic, Compass, Store } from 'lucide-react'
-import { TypeWriterText } from '@/components/mantine/TypeWriterText'
-import { OrbitingCircles } from '@/components/ui/orbiting-circles'
 import { Reflection } from '@gfazioli/mantine-reflection'
+import {
+  ActionIcon,
+  Autocomplete,
+  Box,
+  Center,
+  Divider,
+  Flex,
+  Group,
+  Paper,
+  rem,
+  Stack,
+  StackProps,
+  Text,
+  Title,
+} from '@mantine/core'
+import { Mic, Search } from 'lucide-react'
 
 export default async function NavigatorHomePage() {
   return (
     <Stack mx={{ base: 'md', sm: 'xl' }}>
       <Stack mt="10dvh">
-        <Stack>
+        <Stack gap="xl">
           <NavigationHomeTitle />
           <NavigatorHomeSearchBar mb="xl" />
         </Stack>

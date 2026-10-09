@@ -41,7 +41,7 @@ const meta = {
     </Suspense>
   ),
   parameters: {
-    layout: 'centered',
+    layout: 'fullscreen',
   },
   tags: ['autodocs'],
 } satisfies Meta<typeof ObjectDetailsModalForStorybook>

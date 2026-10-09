@@ -1,9 +1,7 @@
-import { type Difficulty } from '@/fields/DifficultyField'
+import { type Difficulty } from '@/payload-types'
 import { Badge, type BadgeProps } from '@mantine/core'
 import { Flame, Gauge, Leaf } from 'lucide-react'
 import type { ReactNode } from 'react'
-
-export type { Difficulty }
 
 // Teal identity: tours are purple/orange, objects are plain, contents are teal.
 export const DIFFICULTY_META = {

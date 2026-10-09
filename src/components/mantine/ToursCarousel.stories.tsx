@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { expect, waitFor } from 'storybook/test'
 
-import type { Tour } from '@/payload-types'
 import { mockTourMinimal, mockToursList } from '@/mocks/tour.mock'
+import type { Tour } from '@/payload-types'
 
 import { ToursCarousel } from './ToursCarousel'
 
@@ -12,7 +12,7 @@ import { ToursCarousel } from './ToursCarousel'
 const toursPresets = {
   '3 tours': mockToursList,
   'Single tour': [mockTourMinimal],
-  'Empty': [],
+  Empty: [],
 } satisfies Record<string, Tour[]>
 
 // Storybook resolves the authored value through `argTypes.tours.mapping` right
@@ -30,8 +30,6 @@ const meta = {
   tags: ['autodocs'],
   args: {
     tours: toursPreset('3 tours'),
-    withBorder: true,
-    shadow: 'sm',
     radius: 'md',
     p: 'md',
   },
@@ -41,15 +39,6 @@ const meta = {
       options: Object.keys(toursPresets),
       mapping: toursPresets,
       description: 'Preset list of tour documents rendered by the carousel.',
-    },
-    withBorder: {
-      control: 'boolean',
-      description: 'Paper: adds a border to the root element.',
-    },
-    shadow: {
-      control: 'select',
-      options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'],
-      description: 'Paper: key of `theme.shadows` (or any CSS box-shadow).',
     },
     radius: {
       control: 'select',
@@ -80,14 +69,11 @@ export const Default: Story = {
 export const Empty: Story = {
   args: {
     tours: toursPreset('Empty'),
-    withBorder: false,
-    shadow: 'none',
   },
 }
 
 export const Elevated: Story = {
   args: {
-    shadow: 'xl',
     radius: 'xl',
     p: 'xl',
   },

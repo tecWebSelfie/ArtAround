@@ -7,6 +7,11 @@
  */
 
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "Difficulty".
+ */
+export type Difficulty = 'easy' | 'medium' | 'hard';
+/**
  * Supported timezones in IANA format.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -872,7 +877,7 @@ export interface Role {
 export interface Content {
   id: string;
   createdBy?: string | null;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: Difficulty;
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */

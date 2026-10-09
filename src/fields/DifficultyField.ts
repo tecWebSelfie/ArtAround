@@ -1,8 +1,7 @@
-import { SelectField } from 'payload'
-
 export const DifficultyField = {
   name: 'difficulty',
   type: 'select',
+  interfaceName: 'Difficulty',
   options: [
     {
       label: 'Easy',
@@ -18,6 +17,4 @@ export const DifficultyField = {
     },
   ],
   required: true,
-} as const satisfies SelectField
-
-export type Difficulty = (typeof DifficultyField.options)[number]['value']
+}

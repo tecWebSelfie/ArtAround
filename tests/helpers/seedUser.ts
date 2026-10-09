@@ -1,10 +1,12 @@
-import { getPayload } from 'payload'
+import { getPayload, RequiredDataFromCollectionSlug } from 'payload'
 import config from '../../src/payload.config.js'
 
 export const testUser = {
   email: 'dev@payloadcms.com',
   password: 'test',
-}
+  username: 'dev',
+  name: { firstName: 'Dev', lastName: 'User', fullName: 'Dev User' },
+} satisfies RequiredDataFromCollectionSlug<'users'>
 
 /**
  * Seeds a test user for e2e admin tests.

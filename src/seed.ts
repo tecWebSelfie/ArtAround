@@ -6,8 +6,8 @@ import {
 import config from '@/payload.config'
 import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { JSDOM } from 'jsdom'
-import { getPayload } from 'payload'
 import type { RequiredDataFromCollectionSlug } from 'payload'
+import { getPayload } from 'payload'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
