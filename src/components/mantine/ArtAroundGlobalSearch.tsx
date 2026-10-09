@@ -15,6 +15,7 @@ import {
   TextInput,
   useCombobox,
 } from '@mantine/core'
+import { useUncontrolled } from '@mantine/hooks'
 import { Search } from 'lucide-react'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
@@ -28,9 +29,37 @@ type AutoCompleteItem = (
 
 export function ArtAroundGlobalSearch({
   items,
+  onChange,
+  value, // use it if you want to control the value of the input
+  defaultValue, // use it if you want to set the initial value of the input (uncontrolled input)
   ...props
-}: ComboboxProps & { items: AutoCompleteItem[] }) {
+}: ComboboxProps & {
+  value?: string
+  defaultValue?: string
+  onChange?: (value: string) => void
+} & { items: AutoCompleteItem[]; filter?: (item: AutoCompleteItem) => boolean }) {
+  const [_value, handleChange] = useUncontrolled({
+    value,
+    defaultValue,
+    onChange,
+    finalValue: '',
+  })
+  const filteredOptions = items.filter(
+    props.filter ??
+      ((item) => {
+        const label =
+          item.kind === 'content'
+            ? item.content.title
+            : item.kind === 'tour'
+              ? item.tour.title
+              : item.kind === 'museum'
+                ? item.museum.name
+                : item.user.name.fullName
+        return label.toLowerCase().includes(_value.toLowerCase())
+      }),
+  )
   const combobox = useCombobox()
+
   return (
     <Combobox {...props} store={combobox} offset={0}>
       <ComboboxTarget>
@@ -43,17 +72,25 @@ export function ArtAroundGlobalSearch({
             radius="xl"
             w="100%"
             placeholder="Look for the next tour"
+            value={_value}
+            onChange={(e) => {
+              handleChange(e.currentTarget.value)
+              combobox.openDropdown()
+              combobox.updateSelectedOptionIndex()
+            }}
             onClick={() => combobox.openDropdown()}
+            onFocus={() => combobox.openDropdown()}
+            onBlur={() => combobox.closeDropdown()}
           />
         </BorderAnimate>
       </ComboboxTarget>
       <ComboboxDropdown>
         <ComboboxOptions>
-          {items.map((item) => {
+          {filteredOptions.map((item) => {
             const value = `${item.kind}/${item.key}`
             if (item.kind == 'tour') {
               return (
-                <BorderAnimate my="xs" key={value}>
+                <BorderAnimate variant="draw" my="xs" key={value}>
                   <ComboboxOption value={`${item.kind}/${item.key}`}>
                     {renderDropdownItem(item)}
                   </ComboboxOption>
