@@ -20,7 +20,7 @@ import { Search } from 'lucide-react'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
 
-type AutoCompleteItem = (
+export type AutoCompleteItem = (
   | { kind: 'content'; content: Content }
   | { kind: 'tour'; tour: Tour }
   | { kind: 'museum'; museum: Museum }
