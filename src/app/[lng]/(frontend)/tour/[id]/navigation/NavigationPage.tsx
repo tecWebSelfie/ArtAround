@@ -28,12 +28,12 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
           variant="default"
           placeholder={t('Room Code')}
           rightSection={
-            <ThemeIcon>
+            <ThemeIcon autoContrast>
               <UserRoundGroup />
             </ThemeIcon>
           }
         />
-        <StartTourButton className="w-full" tourId={tour.id} />
+        <StartTourButton tourId={tour.id} />
       </Stack>
     </Stack>
   )

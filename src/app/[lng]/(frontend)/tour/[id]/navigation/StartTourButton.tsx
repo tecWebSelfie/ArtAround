@@ -17,7 +17,7 @@ export const StartTourButton = async ({
       borderWidth={'sm'}
       className={cn('transition hover:scale-105', props.className)}
     >
-      <UnstyledButton component={Link} href={`/tour/${tourId}/navigation`} className="p-2 w-full">
+      <UnstyledButton component={Link} href={`/tour/${tourId}/navigation`} className="p-2">
         <Group align="center" gap="xs" justify="center">
           <Text
             className="font-semibold"
