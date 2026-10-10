@@ -6,5 +6,5 @@ import { useListState } from '@mantine/hooks'
 export function GlobalSearchBar() {
   const [] = useListState()
 
-  return <ArtAroundGlobalSearch items={} onChange={() => {}} />
+  return <ArtAroundGlobalSearch items={[]} onChange={() => {}} />
 }

@@ -42,10 +42,10 @@ export const Default: Story = {
   },
   play: async ({ canvas }) => {
     // Regression guard: populated tours must render as result cards.
-    // All mock tours share the same title, so expect all three cards.
-    await expect(
-      canvas.findAllByText('La monnalisa e i suoi misteri'),
-    ).resolves.toHaveLength(3)
+    // Each mock tour has a distinct title, so expect one card per tour.
+    await expect(canvas.findByText('La Monna Lisa e i suoi misteri')).resolves.toBeTruthy()
+    await expect(canvas.findByText('I segreti del Colosseo')).resolves.toBeTruthy()
+    await expect(canvas.findByText('Mosaici e geometrie antiche')).resolves.toBeTruthy()
   },
 }
 
