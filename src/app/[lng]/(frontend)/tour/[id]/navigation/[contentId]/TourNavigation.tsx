@@ -1,5 +1,7 @@
+import { MapViewer } from '@/components/pascal/MapViewer'
 import { Tour } from '@/payload-types'
 import { AppShellHeader, Stack, StackProps, Stepper, StepperStep, Title } from '@mantine/core'
+import { Suspense } from 'react'
 
 export const TourNavigation = ({
   tour,
@@ -15,6 +17,9 @@ export const TourNavigation = ({
         </Title>
         <Stepper active={step}>
           <StepperStep></StepperStep>
+          <Suspense fallback={<div>Loading...</div>}>
+            <MapViewer />
+          </Suspense>
         </Stepper>
       </AppShellHeader>
       <Stack {...props} align="center"></Stack>

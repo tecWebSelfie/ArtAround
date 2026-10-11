@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
+import { mergeConfig } from 'vite'
 
 const config: StorybookConfig = {
   staticDirs: ['../public'],
@@ -16,5 +17,13 @@ const config: StorybookConfig = {
   features: {
     componentsManifest: true,
   },
+  viteFinal: (viteConfig) =>
+    mergeConfig(viteConfig, {
+      optimizeDeps: {
+        // Pascal publishes its editor as TSX. Optimize it with its CommonJS dependencies.
+        extensions: ['.tsx'],
+        include: ['@pascal-app/editor'],
+      },
+    }),
 }
 export default config

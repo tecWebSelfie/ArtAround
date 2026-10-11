@@ -20,6 +20,9 @@ export default defineConfig({
       }
     }, {
       extends: true,
+      // Vitest uses Vite 6 here; plugin-react 6 configures JSX through Vite 8's Oxc API.
+      esbuild: { jsx: 'automatic' },
+      optimizeDeps: { esbuildOptions: { jsx: 'automatic' } },
       plugins: [
       // The plugin will run tests for the stories defined in your Storybook config
       // See options at: https://storybook.js.org/docs/next/writing-tests/integrations/vitest-addon#storybooktest
