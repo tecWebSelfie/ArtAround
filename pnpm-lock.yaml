@@ -254,7 +254,7 @@ importers:
         version: 10.0.10
       openai:
         specifier: ^4.104.0
-        version: 4.104.0(ws@8.21.3)(zod@3.25.76)
+        version: 4.104.0(ws@8.21.3)(zod@4.5.4)
       payload:
         specifier: 3.89.0
         version: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
@@ -291,6 +291,9 @@ importers:
       typesense:
         specifier: ^3.1.0
         version: 3.1.1(@babel/runtime@7.29.7)
+      zod:
+        specifier: ^4.5.4
+        version: 4.5.4
       zustand:
         specifier: ^5.0.15
         version: 5.0.15(@types/react@19.2.14)(react@19.2.6)(use-sync-external-store@1.7.0(react@19.2.6))
@@ -19636,6 +19639,22 @@ snapshots:
     optionalDependencies:
       ws: 8.21.3
       zod: 3.25.76
+    transitivePeerDependencies:
+      - encoding
+    optional: true
+
+  openai@4.104.0(ws@8.21.3)(zod@4.5.4):
+    dependencies:
+      '@types/node': 18.19.130
+      '@types/node-fetch': 2.6.13
+      abort-controller: 3.0.0
+      agentkeepalive: 4.6.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+    optionalDependencies:
+      ws: 8.21.3
+      zod: 4.5.4
     transitivePeerDependencies:
       - encoding
 

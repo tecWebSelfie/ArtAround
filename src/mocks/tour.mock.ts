@@ -21,8 +21,7 @@ function baseTour(): Tour {
   return {
     id: 'tour-001',
     title: 'La Monna Lisa e i suoi misteri',
-    description:
-      'Un percorso tra le sale rinascimentali alla scoperta dei segreti della Gioconda.',
+    description: 'Un percorso tra le sale rinascimentali alla scoperta dei segreti della Gioconda.',
     contents: ['content-001', 'content-002'],
     museum: {
       docs: ['museum-001'],
@@ -49,8 +48,7 @@ export function createTour(overrides?: Partial<Tour>): Tour {
   return {
     ...base,
     ...overrides,
-    thumbnail:
-      overrides && 'thumbnail' in overrides ? overrides.thumbnail : base.thumbnail,
+    thumbnail: overrides && 'thumbnail' in overrides ? overrides.thumbnail : base.thumbnail,
   }
 }
 

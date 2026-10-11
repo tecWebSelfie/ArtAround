@@ -1,4 +1,6 @@
-export const DifficultyField = {
+import { SelectField } from 'payload'
+
+export const DifficultyField: SelectField = {
   name: 'difficulty',
   type: 'select',
   interfaceName: 'Difficulty',

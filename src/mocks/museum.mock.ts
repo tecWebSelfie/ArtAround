@@ -2,8 +2,73 @@ import { mockObjectsList } from '@/mocks/object.mock'
 import type { Museum, MuseumThumbnail } from '@/payload-types'
 import { Exhibit } from '@/payload-types'
 import { mockToursList } from './tour.mock'
+import { createRealisticMuseumMap } from './museum-map.mock'
+import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } from '@pascal-app/core'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
+
+type MuseumMapOptions = {
+  width: number
+  depth: number
+  partitions?: { start: [number, number]; end: [number, number] }[]
+}
+
+export function createMuseumMap(museumId: string, options: MuseumMapOptions): ParsedBuildJson {
+  const mapKey = museumId.replace(/[^a-zA-Z0-9_]/g, '_')
+  const siteId = `site_${mapKey}`
+  const buildingId = `building_${mapKey}`
+  const levelId = `level_${mapKey}`
+  const wallSegments: MuseumMapOptions['partitions'] = [
+    { start: [0, 0], end: [options.width, 0] },
+    { start: [options.width, 0], end: [options.width, options.depth] },
+    { start: [options.width, options.depth], end: [0, options.depth] },
+    { start: [0, options.depth], end: [0, 0] },
+    ...(options.partitions ?? []),
+  ]
+  const walls = wallSegments.map((segment, index) =>
+    WallNode.parse({
+      id: `wall_${mapKey}_${index + 1}`,
+      parentId: levelId,
+      start: segment.start,
+      end: segment.end,
+    }),
+  )
+  const wallIds = walls.map((wall) => wall.id)
+  const level = LevelNode.parse({
+    id: levelId,
+    parentId: buildingId,
+    children: wallIds,
+  })
+  const building = BuildingNode.parse({
+    id: buildingId,
+    parentId: siteId,
+    children: [level.id],
+  })
+  const site = SiteNode.parse({
+    id: siteId,
+    children: [building.id],
+    polygon: {
+      type: 'polygon',
+      points: [
+        [0, 0],
+        [options.width, 0],
+        [options.width, options.depth],
+        [0, options.depth],
+      ],
+    },
+  })
+
+  return {
+    nodes: Object.fromEntries([site, building, level, ...walls].map((node) => [node.id, node])),
+    rootNodeIds: [site.id],
+  } satisfies ParsedBuildJson
+}
+
+const DEFAULT_MAP_OPTIONS: MuseumMapOptions = {
+  width: 12,
+  depth: 8,
+  partitions: [{ start: [6, 0], end: [6, 8] }],
+}
 
 function baseMuseum(): Museum {
   return {
@@ -45,7 +110,11 @@ function baseMuseum(): Museum {
 }
 
 export function createMuseum(overrides?: Partial<Museum>): Museum {
-  return { ...baseMuseum(), ...overrides }
+  const museum = { ...baseMuseum(), ...overrides }
+  if (overrides?.map === undefined) {
+    museum.map = createMuseumMap(museum.id, DEFAULT_MAP_OPTIONS)
+  }
+  return museum
 }
 
 export const mockMuseumMinimal: Museum = createMuseum()
@@ -75,16 +144,7 @@ export const mockMuseumFull: Museum = createMuseum({
     },
   },
   accessibility: true,
-  map: {
-    id: 'map-001',
-    updatedAt: TIMESTAMP,
-    createdAt: TIMESTAMP,
-    url: '/maps/museum-map.png',
-    filename: 'museum-map.png',
-    mimeType: 'image/png',
-    width: 1600,
-    height: 1200,
-  },
+  map: createRealisticMuseumMap('museum-full-001'),
   phone: {
     e164: '+390200000000',
     regionCode: 'IT',
@@ -189,12 +249,28 @@ export const mockMuseumUffizi: Museum = createMuseum({
   id: 'museum-uffizi-001',
   name: 'Galleria degli Uffizi',
   shortDescription: 'Le collezioni rinascimentali più celebri al mondo.',
+  map: createMuseumMap('museum-uffizi-001', {
+    width: 24,
+    depth: 8,
+    partitions: [
+      { start: [8, 0], end: [8, 8] },
+      { start: [16, 0], end: [16, 8] },
+    ],
+  }),
 })
 
 export const mockMuseumBrera: Museum = createMuseum({
   id: 'museum-brera-001',
   name: 'Pinacoteca di Brera',
   shortDescription: 'Capolavori della pittura italiana dal Trecento al Novecento.',
+  map: createMuseumMap('museum-brera-001', {
+    width: 16,
+    depth: 14,
+    partitions: [
+      { start: [8, 0], end: [8, 14] },
+      { start: [8, 7], end: [16, 7] },
+    ],
+  }),
 })
 
 export const mockMuseumClosed: Museum = createMuseum({

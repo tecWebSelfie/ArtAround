@@ -1,6 +1,7 @@
 import { MapViewer } from '@/components/pascal/MapViewer'
 import { Tour } from '@/payload-types'
 import { AppShellHeader, Stack, StackProps, Stepper, StepperStep, Title } from '@mantine/core'
+import { validateBuildJson } from '@pascal-app/core'
 import { Suspense } from 'react'
 
 export const TourNavigation = ({
@@ -8,7 +9,9 @@ export const TourNavigation = ({
   step,
   ...props
 }: { tour: Tour; step: number } & Omit<StackProps, 'align'>) => {
-  const museumMap = typeof tour.museum === 'object' ? tour.museum : null
+  const museumMap = validateBuildJson(
+    typeof tour.museum?.docs?.[0] === 'object' ? tour.museum?.docs?.[0].map : null,
+  )
   return (
     <>
       <AppShellHeader>
@@ -18,7 +21,7 @@ export const TourNavigation = ({
         <Stepper active={step}>
           <StepperStep></StepperStep>
           <Suspense fallback={<div>Loading...</div>}>
-            <MapViewer />
+            {museumMap.parsed ? <MapViewer map={museumMap.parsed} /> : <div>Map not available</div>}
           </Suspense>
         </Stepper>
       </AppShellHeader>

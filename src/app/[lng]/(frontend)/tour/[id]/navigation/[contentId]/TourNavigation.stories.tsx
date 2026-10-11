@@ -1,3 +1,4 @@
+import { mockMuseumFull } from '@/mocks/museum.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { AppShell } from '@mantine/core'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -22,7 +23,7 @@ type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
   args: {
-    tour: mockTourFull,
+    tour: { ...mockTourFull, museum: { ...mockTourFull.museum, docs: [mockMuseumFull] } },
     step: 0,
   },
 }

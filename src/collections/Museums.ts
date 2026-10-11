@@ -24,13 +24,6 @@ export const Museums: CollectionConfig = {
       required: true,
       // da rivedere quando si implementerà il modello dati per la mappa del museo
     },
-    {
-      name: 'map',
-      type: 'relationship',
-      relationTo: 'museumMaps',
-      hasMany: false,
-      required: false,
-    },
     phoneNumberField({
       name: 'phone',
       required: false,
@@ -121,6 +114,11 @@ export const Museums: CollectionConfig = {
       type: 'relationship',
       relationTo: 'tours',
       hasMany: true,
+      required: false,
+    },
+    {
+      name: 'map',
+      type: 'json', // it is a pascal-editor json map representation
       required: false,
     },
   ],

@@ -1087,7 +1087,6 @@ export interface Museum {
    */
   shortDescription: string;
   accessibility: boolean;
-  map?: (string | null) | MuseumMap;
   phone?: string | PhoneNumber | null;
   email?: string | null;
   socials?:
@@ -1444,30 +1443,21 @@ export interface Museum {
       | null;
   };
   tours?: (string | Tour)[] | null;
+  map?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
   };
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "museumMaps".
- */
-export interface MuseumMap {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1570,6 +1560,24 @@ export interface Page {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumMaps".
+ */
+export interface MuseumMap {
+  id: string;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2706,7 +2714,6 @@ export interface MuseumsSelect<T extends boolean = true> {
   description?: T;
   shortDescription?: T;
   accessibility?: T;
-  map?: T;
   phone?: T;
   email?: T;
   socials?:
@@ -3059,6 +3066,7 @@ export interface MuseumsSelect<T extends boolean = true> {
             };
       };
   tours?: T;
+  map?: T;
   lfrs?:
     | T
     | {
