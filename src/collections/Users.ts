@@ -53,6 +53,7 @@ export const Users: CollectionConfig = {
     // Email added by default
     // Add more fields as needed
     nameFieldsGroup,
+    { name: 'description', type: 'text', required: false },
     {
       name: 'avatar',
       type: 'upload',

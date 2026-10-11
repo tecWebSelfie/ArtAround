@@ -1,5 +1,5 @@
 import { AppShellFooter, Stack } from '@mantine/core'
-import NavBar from './NavBar'
+import { NavBar } from './NavBar'
 
 export default function TabsLayout({ children }: { children: React.ReactNode }) {
   return (

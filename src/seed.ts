@@ -21,7 +21,7 @@ try {
         email: 'dev@payloadcms.com',
         password: 'test',
         isSuperAdmin: true,
-        name: 'Developer',
+        name: { firstName: 'Developer', lastName: 'Developer', fullName: 'Developer Developer' },
       },
     })
     superAdminId = String(created.id)
@@ -270,7 +270,6 @@ try {
     {
       name: 'Galleria Borghese',
       shortDescription: 'Baroque masterpieces in a Roman villa',
-      description: 'Bernini sculptures and Caravaggio paintings in Villa Borghese.',
       location: {
         address: 'Piazzale Scipione Borghese 5',
         city: 'Roma',
@@ -280,7 +279,6 @@ try {
     {
       name: 'Palazzo Reale di Milano',
       shortDescription: 'Grand exhibitions in the heart of Milan',
-      description: 'Major international exhibitions next to the Duomo.',
       location: {
         address: 'Piazza del Duomo 12',
         city: 'Milano',
@@ -290,7 +288,6 @@ try {
     {
       name: 'Museo Galileo',
       shortDescription: 'History of science in Florence',
-      description: 'Scientific instruments from Galileo and the Medici era.',
       location: {
         address: 'Piazza dei Giudici 1',
         city: 'Firenze',
@@ -300,7 +297,6 @@ try {
     {
       name: 'Museo Archeologico Nazionale di Napoli',
       shortDescription: 'Roman antiquities from Pompeii',
-      description: 'Farnese collection and finds from Pompeii and Herculaneum.',
       location: {
         address: 'Piazza Museo 19',
         city: 'Napoli',
@@ -310,7 +306,6 @@ try {
     {
       name: 'Palazzo Ducale di Venezia',
       shortDescription: 'Gothic palace of the Doges',
-      description: 'Tintoretto ceilings and the Bridge of Sighs.',
       location: {
         address: 'Piazza San Marco 1',
         city: 'Venezia',
@@ -345,35 +340,35 @@ try {
       username: 'davide',
       email: 'davide@example.com',
       password: 'test-password',
-      name: 'Davide Colombo',
+      name: { firstName: 'Davide', lastName: 'Colombo', fullName: 'Davide Colombo' },
       description: 'Street art guide in Turin',
     },
     {
       username: 'chiara',
       email: 'chiara@example.com',
       password: 'test-password',
-      name: 'Chiara Moretti',
+      name: { firstName: 'Chiara', lastName: 'Moretti', fullName: 'Chiara Moretti' },
       description: 'Modern sculpture enthusiast from Bologna',
     },
     {
       username: 'luca',
       email: 'luca@example.com',
       password: 'test-password',
-      name: 'Luca Ferrari',
+      name: { firstName: 'Luca', lastName: 'Ferrari', fullName: 'Luca Ferrari' },
       description: 'Museum volunteer and audio guide narrator',
     },
     {
       username: 'anna',
       email: 'anna@example.com',
       password: 'test-password',
-      name: 'Anna Rossi',
+      name: { firstName: 'Anna', lastName: 'Rossi', fullName: 'Anna Rossi' },
       description: 'Baroque painting scholar in Naples',
     },
     {
       username: 'paolo',
       email: 'paolo@example.com',
       password: 'test-password',
-      name: 'Paolo Greco',
+      name: { firstName: 'Paolo', lastName: 'Greco', fullName: 'Paolo Greco' },
       description: 'Digital archivist for Sicilian museums',
     },
   ]

@@ -30,6 +30,7 @@ function baseUser(): User {
   return {
     id: 'user-001',
     username: 'giulia.rossi',
+    name: { firstName: 'Giulia', lastName: 'Rossi', fullName: 'Giulia Rossi' },
     email: 'giulia.rossi@example.com',
     collection: 'users',
     roles: [],
