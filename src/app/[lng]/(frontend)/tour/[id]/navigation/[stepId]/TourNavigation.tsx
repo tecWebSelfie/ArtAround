@@ -18,7 +18,7 @@ import { validateBuildJson } from '@pascal-app/core'
 import { Suspense } from 'react'
 import { TourProgress } from './TourProgress'
 
-export const TourNavigation = ({
+export const TourNavigationPage = ({
   tour,
   step,
   className,

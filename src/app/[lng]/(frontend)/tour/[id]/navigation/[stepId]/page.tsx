@@ -1,11 +1,11 @@
 import config from '@/payload.config'
 import { getPayload } from 'payload'
-import { TourNavigation } from './TourNavigation'
+import { TourNavigationPage } from './TourNavigation'
 
 export default async function TourNavigationLayout({
   params,
-}: PageProps<'/[lng]/tour/[id]/navigation/[contentId]'>) {
-  const { id: tourId, contentId: step } = await params
+}: PageProps<'/[lng]/tour/[id]/navigation/[stepId]'>) {
+  const { id: tourId, stepId } = await params
   const payload = await getPayload({
     config,
   })
@@ -19,5 +19,5 @@ export default async function TourNavigationLayout({
     },
   })
 
-  return <TourNavigation tour={tour} step={parseInt(step)} />
+  return <TourNavigationPage tour={tour} step={parseInt(stepId)} />
 }

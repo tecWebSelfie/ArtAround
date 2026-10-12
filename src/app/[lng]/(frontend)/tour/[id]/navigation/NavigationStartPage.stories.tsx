@@ -1,7 +1,7 @@
 import { mockTourFull } from '@/mocks/tour.mock'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { Suspense, use } from 'react'
-import NavigationPage from './NavigationPage'
+import NavigationPage from './NavigationStartPage'
 
 // Storybook renders stories with the Vite client runtime, which has no React
 // Server Components: an async component would be an illegal async Client

@@ -1,8 +1,8 @@
-export default function TourLayout({ children, content }: LayoutProps<'/[lng]/tour/[id]'>) {
+export default function TourLayout({ children, step }: LayoutProps<'/[lng]/tour/[id]'>) {
   return (
     <>
       {children}
-      {content}
+      {step}
     </>
   )
 }
