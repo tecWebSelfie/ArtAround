@@ -1,28 +1,28 @@
 'use client'
 
-import { DIFFICULTY_LABEL_KEY } from '@/components/mantine/DifficultyBadge';
-import { filterPopulated } from '@/lib/isPopulated';
-import type { Content, Difficulty, Tour } from '@/payload-types';
+import { DIFFICULTY_LABEL_KEY } from '@/components/mantine/DifficultyBadge'
+import { filterPopulated } from '@/lib/isPopulated'
+import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
-    Affix,
-    Button,
-    Card,
-    Group,
-    Modal,
-    ScrollArea,
-    Select,
-    Stack,
-    Text,
-    TextInput,
-    Timeline,
-    TimelineItem,
-    Title,
-    UnstyledButton,
-    type ComboboxItem,
-} from '@mantine/core';
-import IsoCodes from 'iso-639-1';
-import { Check, ChevronRight, Clock, Compass, Pencil, Search } from 'lucide-react';
-import { useMemo, useState } from 'react';
+  Affix,
+  Button,
+  Card,
+  Group,
+  Modal,
+  ScrollArea,
+  Select,
+  Stack,
+  Text,
+  TextInput,
+  Timeline,
+  TimelineItem,
+  Title,
+  UnstyledButton,
+  type ComboboxItem,
+} from '@mantine/core'
+import IsoCodes from 'iso-639-1'
+import { Check, ChevronRight, Clock, Compass, Pencil, Search } from 'lucide-react'
+import { useMemo, useState } from 'react'
 
 const QUICK_LANGUAGES = ['en', 'it', 'fr', 'es', 'de'].filter((code) => IsoCodes.validate(code))
 const MORE_LANGUAGES_VALUE = '__more-languages__'
@@ -61,7 +61,7 @@ const DIFFICULTY_OPTIONS: ComboboxItem[] = (Object.keys(DIFFICULTY_LABEL_KEY) as
   (value) => ({ value, label: DIFFICULTY_LABEL_KEY[value] }),
 )
 
-export default function TourPage(tour: Tour) {
+export default function TourPage({ tour }: { tour: Tour }) {
   const contents = filterPopulated(tour.contents)
 
   return (

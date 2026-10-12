@@ -6,7 +6,9 @@ import TourPage from './TourPage'
 const meta = {
   title: 'Frontend/Tour/TourPage',
   component: TourPage,
-  args: mockTourWithContents,
+  args: {
+    tour: mockTourWithContents,
+  },
 } satisfies Meta<typeof TourPage>
 
 export default meta

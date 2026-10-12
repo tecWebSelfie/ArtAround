@@ -1,8 +1,6 @@
-import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
-import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { MapViewer } from '@/components/pascal/MapViewer'
 import { filterPopulated } from '@/lib/isPopulated'
-import { Content, Tour } from '@/payload-types'
+import { Tour } from '@/payload-types'
 import {
   AppShellFooter,
   AppShellHeader,
@@ -10,17 +8,15 @@ import {
   AppShellMainProps,
   Box,
   Button,
-  Flex,
   Group,
   Overlay,
-  Scroller,
+  Progress,
   Stack,
-  Stepper,
-  StepperStep,
   Title,
 } from '@mantine/core'
 import { validateBuildJson } from '@pascal-app/core'
 import { Suspense } from 'react'
+import { TourProgress } from './TourProgress'
 
 export const TourNavigation = ({
   tour,
@@ -40,6 +36,7 @@ export const TourNavigation = ({
           <Title size="h5" ta="center">
             {tour.title}
           </Title>
+          <Progress size={'xs'} value={(step / contents.length) * 100} />
           <TourProgress contents={contents} step={step} />
         </Stack>
       </AppShellHeader>
@@ -54,13 +51,17 @@ export const TourNavigation = ({
             )}
           </Suspense>
           <Overlay backgroundOpacity={0} style={{ pointerEvents: 'none' }}>
-            <Flex h="100%" align="flex-end" justify="flex-end" p="md">
-              <Box style={{ pointerEvents: 'auto' }}>
-                <Button color="dark" className="rounded-full">
-                  Map bottom end overlay button
-                </Button>
-              </Box>
-            </Flex>
+            <Stack className="h-full" justify="end">
+              <Group wrap="nowrap" align="end" justify="space-around" className="p-2">
+                <Button size="compact-xs">Cerca servizi</Button>
+                <Box style={{ pointerEvents: 'auto' }}>
+                  <Button color="dark" className="rounded-full">
+                    Map bottomfefe
+                  </Button>
+                </Box>
+                <Button></Button>
+              </Group>
+            </Stack>
           </Overlay>
         </Box>
       </AppShellMain>
@@ -77,34 +78,5 @@ export function NavigationNavBar() {
         <Title>prova</Title>
       </Group>
     </AppShellFooter>
-  )
-}
-
-export function TourProgress({ contents, step }: { contents: Content[]; step: number }) {
-  return (
-    <Scroller controlSize={'md'}>
-      <Stepper
-        active={step}
-        size={'xs'}
-        iconSize={24}
-        wrap={false}
-        classNames={{
-          separator: 'min-w-1/12',
-        }}
-      >
-        {contents.map((content) => (
-          <StepperStep
-            key={content.id}
-            label={content.title}
-            description={
-              <Group gap={4}>
-                <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                <DurationBadge time={content.readingTimeMins ?? 12} />
-              </Group>
-            }
-          />
-        ))}
-      </Stepper>
-    </Scroller>
   )
 }
