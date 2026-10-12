@@ -19,6 +19,7 @@ export const DIFFICULTY_LABEL_KEY = {
 export type DifficultyBadgeProps = Omit<BadgeProps, 'color' | 'leftSection' | 'children'> & {
   difficulty: Difficulty
   children?: ReactNode
+  withLabel?: boolean
 }
 
 export function DifficultyBadge({
@@ -27,6 +28,7 @@ export function DifficultyBadge({
   size = 'sm',
   variant = 'filled',
   autoContrast = true,
+  withLabel = true,
   ...props
 }: DifficultyBadgeProps) {
   const meta = DIFFICULTY_META[difficulty]
@@ -41,7 +43,7 @@ export function DifficultyBadge({
       leftSection={<DifficultyIcon size={14} />}
       {...props}
     >
-      {children ?? DIFFICULTY_LABEL_KEY[difficulty]}
+      {children ?? (withLabel ? DIFFICULTY_LABEL_KEY[difficulty] : null)}
     </Badge>
   )
 }

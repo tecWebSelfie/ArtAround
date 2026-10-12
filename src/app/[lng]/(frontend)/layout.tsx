@@ -30,7 +30,12 @@ export default async function Layout(props: { children: React.ReactNode }) {
           <ModalsProvider>
             <AppShell
               footer={{
+                height: 64,
+                offset: true,
+              }}
+              header={{
                 height: 'auto',
+                offset: false,
               }}
             >
               {children}

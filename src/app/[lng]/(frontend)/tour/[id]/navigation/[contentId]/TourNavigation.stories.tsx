@@ -11,8 +11,8 @@ const meta = {
     layout: 'fullscreen',
   },
   render: (args) => (
-    <AppShell>
-      <TourNavigation {...args} className="h-dvh" />
+    <AppShell header={{ height: 'auto', offset: false }} footer={{ height: 64, offset: true }}>
+      <TourNavigation {...args} />
     </AppShell>
   ),
 } satisfies Meta<typeof TourNavigation>

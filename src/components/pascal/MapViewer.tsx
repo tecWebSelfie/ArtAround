@@ -1,5 +1,6 @@
 'use client'
 
+import { Box, BoxProps } from '@mantine/core'
 import {
   AnyNode,
   loadPlugin,
@@ -14,7 +15,11 @@ import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
 import { useEffect, useRef, useState } from 'react'
 import { Box3, Sphere } from 'three'
 
-export function MapViewer({ map }: { map: ParsedBuildJson }) {
+export function MapViewer({
+  map,
+  children,
+  ...props
+}: { map: ParsedBuildJson; children?: React.ReactNode } & BoxProps) {
   const setScene = useScene((state) => state.setScene)
   const controls = useRef<CameraControlsImpl>(null)
   const [loadedMap, setLoadedMap] = useState<ParsedBuildJson | null>(null)
@@ -55,7 +60,7 @@ export function MapViewer({ map }: { map: ParsedBuildJson }) {
   if (loadedMap !== map) return <div>Loading...</div>
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <Box {...props}>
       <Viewer
         onSceneReadyChange={(ready) => {
           if (!ready || !controls.current) return
@@ -76,7 +81,8 @@ export function MapViewer({ map }: { map: ParsedBuildJson }) {
         }}
       >
         <CameraControls ref={controls} makeDefault />
+        {children}
       </Viewer>
-    </div>
+    </Box>
   )
 }
