@@ -1,15 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Suspense, use } from 'react'
+import { use } from 'react'
 import { expect } from 'storybook/test'
 
 import { mockTourMinimal, mockToursList } from '@/mocks/tour.mock'
 
 import { ToursSearchResults } from './ToursSearchResults'
 
-// Storybook renders stories with the Vite client runtime, which cannot render
-// async Server Components directly. This sync wrapper unwraps the server
-// component promise via React.use() so the stories render.
+// With experimentalRSC, Storybook wraps the story in Suspense automatically.
+// This sync wrapper unwraps the async Server Component promise via React.use().
 // ToursSearchResults.tsx itself stays an async Server Component for the App Router.
 function ToursSearchResultsForStorybook({
   tours,
@@ -22,11 +21,6 @@ function ToursSearchResultsForStorybook({
 const meta = {
   title: 'Search/Tours Results',
   component: ToursSearchResultsForStorybook,
-  render: (args) => (
-    <Suspense fallback={null}>
-      <ToursSearchResultsForStorybook {...args} />
-    </Suspense>
-  ),
   parameters: {
     layout: 'fullscreen',
   },

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Suspense, use } from 'react'
+import { use } from 'react'
 import { expect, waitFor } from 'storybook/test'
 
 import { mockContentMinimal, mockContentSecond, mockContentThird } from '@/mocks/content.mock'
@@ -23,9 +23,8 @@ import {
 
 import { UserPage } from './UserPage'
 
-// Storybook renders stories with the Vite client runtime, which cannot render
-// async Server Components directly. This sync wrapper unwraps the server
-// component promise via React.use() so the stories render.
+// With experimentalRSC, Storybook wraps the story in Suspense automatically.
+// This sync wrapper unwraps the async Server Component promise via React.use().
 // UserPage.tsx itself stays an async Server Component for the App Router.
 // Flat User args keep one control per field in the addon panel, plus an extra
 // `curatedMuseums` control for the curator-for-specific-museums states.
@@ -40,11 +39,6 @@ function UserPageForStorybook({ curatedMuseums, ...user }: UserPageStoryProps) {
 const meta = {
   title: 'Frontend/User/UserPage',
   component: UserPageForStorybook,
-  render: (args) => (
-    <Suspense fallback={null}>
-      <UserPageForStorybook {...args} />
-    </Suspense>
-  ),
   tags: ['autodocs'],
 } satisfies Meta<typeof UserPageForStorybook>
 

@@ -1,4 +1,4 @@
-import NavigationPage from './NavigationPage'
+import NavigationStartPage from './NavigationStartPage'
 
 import config from '@/payload.config'
 import { getPayload } from 'payload'
@@ -27,5 +27,5 @@ export default async function NavigationStart({
     collection: 'tours',
   })
 
-  return <NavigationPage tour={tour} />
+  return <NavigationStartPage tour={tour} />
 }

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Suspense, use } from 'react'
+import { use } from 'react'
 import { expect } from 'storybook/test'
 
 import {
@@ -14,9 +14,8 @@ import type { Museum } from '@/payload-types'
 
 import MuseumPage from './MuseumPage'
 
-// Storybook renders stories with the Vite client runtime, which cannot render
-// async Server Components directly. This sync wrapper unwraps the server
-// component promise via React.use() so the stories render.
+// With experimentalRSC, Storybook wraps the story in Suspense automatically.
+// This sync wrapper unwraps the async Server Component promise via React.use().
 // MuseumPage.tsx itself stays an async Server Component for the App Router.
 // Flat Museum args keep one control per field in the addon panel.
 // The wrapper maps them back to the component's { museum } props,
@@ -28,11 +27,6 @@ function MuseumPageForStorybook(props: Museum) {
 const meta = {
   title: 'Frontend/Museum/MuseumPage',
   component: MuseumPageForStorybook,
-  render: (args) => (
-    <Suspense fallback={null}>
-      <MuseumPageForStorybook {...args} />
-    </Suspense>
-  ),
   tags: ['autodocs'],
 } satisfies Meta<typeof MuseumPageForStorybook>
 

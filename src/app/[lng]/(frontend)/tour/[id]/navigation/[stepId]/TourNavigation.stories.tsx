@@ -25,5 +25,6 @@ export const Default: Story = {
   args: {
     tour: { ...mockTourFull, museum: { ...mockTourFull.museum, docs: [mockMuseumFull] } },
     step: 0,
+    museum: mockMuseumFull,
   },
 }

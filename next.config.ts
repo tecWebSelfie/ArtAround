@@ -15,6 +15,7 @@ const lngPattern = i18nConfig.supportedLngs.join('|')
 
 const nextConfig: NextConfig = {
   output: 'standalone',
+  typedRoutes: true,
   redirects() {
     return [
       {

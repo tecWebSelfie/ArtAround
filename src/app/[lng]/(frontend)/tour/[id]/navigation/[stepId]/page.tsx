@@ -18,6 +18,11 @@ export default async function TourNavigationLayout({
       },
     },
   })
+  const museum = typeof tour.museum?.docs?.[0] === 'object' ? tour.museum?.docs?.[0] : null
 
-  return <TourNavigationPage tour={tour} step={parseInt(stepId)} />
+  if (museum === null) {
+    throw new Error('Museum not found for the tour')
+  }
+
+  return <TourNavigationPage tour={tour} step={parseInt(stepId)} museum={museum} />
 }

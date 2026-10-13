@@ -3,10 +3,14 @@ import type { Preview } from '@storybook/nextjs-vite'
 import '../src/app/[lng]/(frontend)/globals.css'
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
+import { ModalsProvider } from '@mantine/modals'
 import { theme } from '../src/theme'
 
 const preview: Preview = {
   parameters: {
+    nextjs: {
+      appDirectory: true,
+    },
     // msw: [ //Default handlers for all stories, can be overridden in individual stories ],
     layout: 'fullscreen',
     options: {
@@ -46,10 +50,13 @@ const preview: Preview = {
     (renderStory, context) => {
       const scheme = (context.globals.theme || 'light') as 'light' | 'dark'
       return (
-        <MantineProvider theme={theme} forceColorScheme={scheme}>
+        <>
           <ColorSchemeScript />
-          {renderStory()}
-        </MantineProvider>
+
+          <MantineProvider theme={theme} forceColorScheme={scheme}>
+            <ModalsProvider>{renderStory()}</ModalsProvider>
+          </MantineProvider>
+        </>
       )
     },
   ],
