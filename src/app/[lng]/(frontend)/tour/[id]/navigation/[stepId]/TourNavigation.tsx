@@ -1,4 +1,3 @@
-import { MapViewer } from '@/components/pascal/MapViewer'
 import { filterPopulated } from '@/lib/isPopulated'
 import { Museum, Tour } from '@/payload-types'
 import {
@@ -33,6 +32,7 @@ import {
   Utensils,
 } from 'lucide-react'
 import { Suspense } from 'react'
+import { MuseumMap } from './MuseumMap'
 import { TourProgress } from './TourProgress'
 
 export const TourNavigationPage = ({
@@ -75,7 +75,7 @@ export const TourNavigationPage = ({
         <Box pos="relative" h="100%">
           <Suspense fallback={<div>Loading...</div>}>
             {museumMap.parsed ? (
-              <MapViewer map={museumMap.parsed} h="100%" w="100%" />
+              <MuseumMap map={museumMap.parsed} h="100%" w="100%" />
             ) : (
               <div>Map not available</div>
             )}
