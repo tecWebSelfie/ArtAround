@@ -3,6 +3,9 @@
 This project uses the Payload CMS skill at `.agents/skills/payload/`.
 Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.agents/skills/payload/reference/` for detailed docs.
 
+This project uses the Pascal plugin-authoring skill at `.agents/skills/pascal-plugin-authoring/`
+for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-map work.
+
 ## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
 When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`).
