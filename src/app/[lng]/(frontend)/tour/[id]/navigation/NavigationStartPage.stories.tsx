@@ -1,12 +1,11 @@
 import { mockTourFull } from '@/mocks/tour.mock'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { Suspense, use } from 'react'
+import { use } from 'react'
 import NavigationPage from './NavigationStartPage'
 
-// Storybook renders stories with the Vite client runtime, which has no React
-// Server Components: an async component would be an illegal async Client
-// Component. This sync wrapper calls the server component as a plain function
-// and unwraps the resulting promise via React.use(), so the story renders.
+// With experimentalRSC, Storybook wraps the story in Suspense automatically.
+// This sync wrapper calls the async Server Component as a plain function
+// and unwraps the resulting promise via React.use().
 // NavigationPage.tsx itself stays an async Server Component for the App Router.
 function NavigationPageForStorybook({
   tour,
@@ -18,11 +17,9 @@ function NavigationPageForStorybook({
 const meta = {
   title: 'Frontend/Navigator/TourNavigatorHome',
   component: NavigationPageForStorybook,
-  render: (args) => (
-    <Suspense fallback={null}>
-      <NavigationPageForStorybook {...args} className="h-dvh" />
-    </Suspense>
-  ),
+  args: {
+    className: 'h-dvh',
+  },
   parameters: {
     layout: 'fullscreen',
   },

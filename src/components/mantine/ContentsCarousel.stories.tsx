@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { Suspense, use } from 'react'
+import { use } from 'react'
 import { expect } from 'storybook/test'
 
 import { mockContentMinimal, mockContentsList } from '@/mocks/content.mock'
@@ -8,9 +8,8 @@ import type { User } from '@/payload-types'
 
 import { ContentsCarousel } from './ContentsCarousel'
 
-// Storybook renders stories with the Vite client runtime, which cannot render
-// async Server Components directly. This sync wrapper unwraps the server
-// component promise via React.use() so the stories render.
+// With experimentalRSC, Storybook wraps the story in Suspense automatically.
+// This sync wrapper unwraps the async Server Component promise via React.use().
 // ContentsCarousel.tsx itself stays an async Server Component for the App Router.
 function ContentsCarouselForStorybook({ contents }: { contents: User['authoredContents'] }) {
   return use(ContentsCarousel({ contents }))
@@ -19,11 +18,6 @@ function ContentsCarouselForStorybook({ contents }: { contents: User['authoredCo
 const meta = {
   title: 'Contents Carousel',
   component: ContentsCarouselForStorybook,
-  render: (args) => (
-    <Suspense fallback={null}>
-      <ContentsCarouselForStorybook {...args} />
-    </Suspense>
-  ),
   parameters: {
     layout: 'fullscreen',
   },
