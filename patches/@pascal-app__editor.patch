@@ -1,0 +1,354 @@
+diff --git a/src/components/editor/first-person/build-collider-world.test.ts b/src/components/editor/first-person/build-collider-world.test.ts
+index 82e4deaffcb36685c49b83fe0983e32f3926c078..37f06d618e09faeaad295ca18a5685b8b2d3cb56 100644
+--- a/src/components/editor/first-person/build-collider-world.test.ts
++++ b/src/components/editor/first-person/build-collider-world.test.ts
+@@ -75,6 +75,62 @@ describe('buildFirstPersonColliderWorldFromRegistry', () => {
+     useScene.setState({ nodes: {}, rootNodeIds: [] } as never)
+   })
+ 
++  test('navigation output is opt-in and preserves all meshes in world coordinates', () => {
++    registerColliderDefinition('column', ColumnNode, 'structure')
++    const column = ColumnNode.parse({ id: 'column_nav' })
++    setSceneNodes([column])
++    mountRegistryGroup(column, [10, 2, 5])
++    const root = sceneRegistry.nodes.get(column.id)!
++    for (const x of [0, 4]) {
++      const mesh = new Mesh(new BoxGeometry(1, 2, 1), new MeshBasicMaterial())
++      mesh.position.x = x
++      root.add(mesh)
++    }
++    root.updateMatrixWorld(true)
++
++    const plain = buildFirstPersonColliderWorldFromRegistry()!
++    const world = buildFirstPersonColliderWorldFromRegistry({ includeNavSceneRegistry: true })!
++    expect(plain.navSceneRegistry).toBeUndefined()
++    expect(Array.from(world.mesh.geometry.getAttribute('position').array)).toEqual(
++      Array.from(plain.mesh.geometry.getAttribute('position').array),
++    )
++    const entry = world.navSceneRegistry![column.id]!
++    expect(entry.node).toBe(column)
++    expect(entry.object.geometry.getAttribute('position').count).toBe(72)
++    expect(entry.object.parent).toBeNull()
++    expect(entry.object.position.toArray()).toEqual([0, 0, 0])
++    expect(entry.object.scale.toArray()).toEqual([1, 1, 1])
++    entry.object.geometry.computeBoundingBox()
++    expect(entry.object.geometry.boundingBox?.min.x).toBeCloseTo(9.5)
++    expect(entry.object.geometry.boundingBox?.max.x).toBeCloseTo(14.5)
++    plain.dispose()
++    world.dispose()
++  })
++
++  test('synthetic keys keep separate level fallbacks and omit site ground from navigation', () => {
++    const buildingA = BuildingNode.parse({ id: 'building_nav_a', children: ['level_nav_a'] })
++    const buildingB = BuildingNode.parse({ id: 'building_nav_b', children: ['level_nav_b'] })
++    const levelA = LevelNode.parse({ id: 'level_nav_a', parentId: buildingA.id, level: 0 })
++    const levelB = LevelNode.parse({ id: 'level_nav_b', parentId: buildingB.id, level: 0 })
++    const siteA = SiteNode.parse({ id: 'site_nav_a' })
++    const siteB = SiteNode.parse({ id: 'site_nav_b' })
++    const nodes = [buildingA, buildingB, levelA, levelB, siteA, siteB]
++    setSceneNodes(nodes)
++    for (const node of nodes) mountRegistryGroup(node)
++    const plain = buildFirstPersonColliderWorldFromRegistry()!
++    const world = buildFirstPersonColliderWorldFromRegistry({ includeNavSceneRegistry: true })!
++    expect(Object.keys(world.navSceneRegistry!).sort()).toEqual([
++      'fallback-level:level_nav_a', 'fallback-level:level_nav_b',
++    ])
++    expect(world.navSceneRegistry!['fallback-level:level_nav_a']!.node).toBe(levelA)
++    expect(world.navSceneRegistry!['fallback-level:level_nav_b']!.node).toBe(levelB)
++    expect(Array.from(world.mesh.geometry.getAttribute('position').array)).toEqual(
++      Array.from(plain.mesh.geometry.getAttribute('position').array),
++    )
++    plain.dispose()
++    world.dispose()
++  })
++
+   test('includes structure and furnish nodes discovered through the node registry', () => {
+     registerColliderDefinition('column', ColumnNode, 'structure')
+     registerColliderDefinition('shelf', ShelfNode, 'furnish')
+diff --git a/src/components/editor/first-person/build-collider-world.ts b/src/components/editor/first-person/build-collider-world.ts
+index 01c50eec8e48ff67ccbd07ed3cda7a1f4333fe59..4f7d3cd61a4cbfb3cb2378da3037d29321d3b66f 100644
+--- a/src/components/editor/first-person/build-collider-world.ts
++++ b/src/components/editor/first-person/build-collider-world.ts
+@@ -12,8 +12,8 @@ import {
+   useScene,
+ } from '@pascal-app/core'
+ import * as THREE from 'three'
+-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+ import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
++import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
+ import { computeSceneBoundsXZ } from '../../../lib/scene-bounds'
+ import { createTerrainColliderGeometry } from './terrain-collider'
+ 
+@@ -34,8 +34,25 @@ const SITE_GROUND_COLLIDER_MIN_SIZE = 2000
+ 
+ export const FIRST_PERSON_SPAWN_EYE_HEIGHT = SPAWN_EYE_HEIGHT
+ 
++export type NavSceneRegistryKey = AnyNodeId | `fallback-level:${AnyNodeId}`
++
++export type NavSceneRegistry = Partial<
++  Record<
++    NavSceneRegistryKey,
++    {
++      node: AnyNode
++      object: THREE.Mesh
++    }
++  >
++>
++
++export type FirstPersonColliderWorldOptions = {
++  includeNavSceneRegistry?: boolean
++}
++
+ export type FirstPersonColliderWorld = {
+   mesh: THREE.Mesh
++  navSceneRegistry?: NavSceneRegistry
+   bounds: THREE.Box3 | null
+   dispose: () => void
+ }
+@@ -130,7 +147,10 @@ function createLevelFallbackFloorGeometry(level: LevelNode, nodes: SceneNodes) {
+   return geometry
+ }
+ 
+-function collectLevelFallbackFloorGeometries(nodes: SceneNodes) {
++function collectLevelFallbackFloorGeometries(
++  nodes: SceneNodes,
++  onGeometry?: (level: LevelNode, geometry: THREE.BufferGeometry) => void,
++) {
+   const geometries: THREE.BufferGeometry[] = []
+   const levelElevations = getLevelElevations(nodes)
+ 
+@@ -140,7 +160,10 @@ function collectLevelFallbackFloorGeometries(nodes: SceneNodes) {
+     if (levelElevations.get(node.id)?.baseY !== 0) continue
+ 
+     const geometry = createLevelFallbackFloorGeometry(node, nodes)
+-    if (geometry) geometries.push(geometry)
++    if (geometry) {
++      geometries.push(geometry)
++      onGeometry?.(node, geometry)
++    }
+   }
+ 
+   return geometries
+@@ -389,98 +412,136 @@ function collectColliderGeometriesFromNode(
+   return geometries
+ }
+ 
+-export function buildFirstPersonColliderWorldFromRegistry(): FirstPersonColliderWorld | null {
++export function buildFirstPersonColliderWorldFromRegistry(
++  options: FirstPersonColliderWorldOptions = {},
++): FirstPersonColliderWorld | null {
+   const nodes = useScene.getState().nodes
+   const geometries: THREE.BufferGeometry[] = []
+   const visitedMeshes = new WeakSet<THREE.Object3D>()
+   const registeredColliderNodeIds = buildRegisteredColliderNodeIds(nodes)
+   const registeredObjectIds = new Map<THREE.Object3D, string>()
+ 
+-  for (const [nodeId, object] of sceneRegistry.nodes) {
+-    registeredObjectIds.set(object, nodeId)
++  const navSceneRegistry: NavSceneRegistry | undefined = options.includeNavSceneRegistry
++    ? {}
++    : undefined
++  const navGeometries: THREE.BufferGeometry[] = []
++
++  const registerNavGeometry = (
++    key: NavSceneRegistryKey,
++    node: AnyNode,
++    nodeGeometries: THREE.BufferGeometry[],
++  ) => {
++    if (!navSceneRegistry || nodeGeometries.length === 0) return
++    const geometry = mergeGeometries(nodeGeometries, false)
++    if (!geometry) throw new Error(`Unable to merge navigation geometry for ${key}`)
++    navGeometries.push(geometry)
++    // Vertices are already in world space; keep this detached mesh at identity.
++    navSceneRegistry[key] = { node, object: new THREE.Mesh(geometry, COLLIDER_MATERIAL) }
+   }
+ 
+-  for (const nodeId of registeredColliderNodeIds) {
+-    const node = nodes[nodeId as AnyNodeId]
+-    if (!node) continue
++  let mergedGeometry: THREE.BufferGeometry | null = null
++  let completed = false
++  try {
++    for (const [nodeId, object] of sceneRegistry.nodes) {
++      registeredObjectIds.set(object, nodeId)
++    }
++
++    for (const nodeId of registeredColliderNodeIds) {
++      const node = nodes[nodeId as AnyNodeId]
++      if (!node) continue
+ 
+-    const root = sceneRegistry.nodes.get(nodeId)
+-    if (!root) continue
++      const root = sceneRegistry.nodes.get(nodeId)
++      if (!root) continue
+ 
+-    // Registered objects can sit inside a hidden wrapper (roof segments
+-    // under `segments-wrapper`) — the per-node traversal starts AT the
+-    // object, so the ancestor chain must be checked here.
+-    if (!isEffectivelyVisible(root)) continue
++      // Registered objects can sit inside a hidden wrapper (roof segments
++      // under `segments-wrapper`) — the per-node traversal starts AT the
++      // object, so the ancestor chain must be checked here.
++      if (!isEffectivelyVisible(root)) continue
+ 
+-    if (node.type === 'door') {
+-      const doorGeometry = createDoorLeafColliderGeometry(root, node)
+-      if (doorGeometry) {
+-        geometries.push(doorGeometry)
++      if (node.type === 'door') {
++        const doorGeometry = createDoorLeafColliderGeometry(root, node)
++        if (doorGeometry) {
++          geometries.push(doorGeometry)
++          registerNavGeometry(node.id, node, [doorGeometry])
++        }
++        continue
+       }
+-      continue
+-    }
+ 
+-    root.updateMatrixWorld(true)
+-    geometries.push(
+-      ...collectColliderGeometriesFromNode(
++      root.updateMatrixWorld(true)
++
++      const nodeGeometries = collectColliderGeometriesFromNode(
+         root,
+         nodeId,
+         visitedMeshes,
+         registeredObjectIds,
+         registeredColliderNodeIds,
+-      ),
+-    )
+-  }
+-
+-  geometries.push(...collectLevelFallbackFloorGeometries(nodes))
+-  geometries.push(...collectSiteGroundColliderGeometries(nodes))
++      )
++      geometries.push(...nodeGeometries)
++      registerNavGeometry(node.id, node, nodeGeometries)
++    }
+ 
+-  if (geometries.length === 0) {
+-    return null
+-  }
++    collectLevelFallbackFloorGeometries(nodes, (level, geometry) => {
++      geometries.push(geometry)
++      registerNavGeometry(`fallback-level:${level.id}`, level, [geometry])
++    })
++    // Site ground remains in the collider, but is excluded from navigation input.
++    geometries.push(...collectSiteGroundColliderGeometries(nodes))
+ 
+-  const mergedGeometry = mergeGeometries(geometries, false)
+-  for (const geometry of geometries) {
+-    geometry.dispose()
+-  }
++    if (geometries.length === 0) {
++      return null
++    }
+ 
+-  if (!mergedGeometry || mergedGeometry.getAttribute('position') == null) {
+-    mergedGeometry?.dispose()
+-    return null
+-  }
++    mergedGeometry = mergeGeometries(geometries, false)
+ 
+-  const bvhGeometry = mergedGeometry as THREE.BufferGeometry & {
+-    computeBoundsTree?: typeof computeBoundsTree
+-    disposeBoundsTree?: typeof disposeBoundsTree
+-  }
++    if (!mergedGeometry || mergedGeometry.getAttribute('position') == null) {
++      mergedGeometry?.dispose()
++      return null
++    }
+ 
+-  ;(bvhGeometry as any).computeBoundsTree = computeBoundsTree
+-  ;(bvhGeometry as any).disposeBoundsTree = disposeBoundsTree
+-  bvhGeometry.computeBoundsTree?.({
+-    maxLeafSize: 12,
+-    strategy: 0,
+-  } as never)
+-  bvhGeometry.computeBoundingBox()
+-
+-  const mesh = new THREE.Mesh(bvhGeometry, COLLIDER_MATERIAL)
+-  mesh.raycast = acceleratedRaycast
+-  mesh.visible = true
+-  mesh.userData = {
+-    type: 'STATIC',
+-    friction: 0.8,
+-    restitution: 0.05,
+-    excludeFloatHit: false,
+-    excludeCollisionCheck: false,
+-  }
+-  mesh.updateMatrixWorld(true)
++    const bvhGeometry = mergedGeometry as THREE.BufferGeometry & {
++      computeBoundsTree?: typeof computeBoundsTree
++      disposeBoundsTree?: typeof disposeBoundsTree
++    }
+ 
+-  return {
+-    mesh,
+-    bounds: bvhGeometry.boundingBox?.clone() ?? null,
+-    dispose: () => {
+-      bvhGeometry.disposeBoundsTree?.()
+-      bvhGeometry.dispose()
+-    },
++    ;(bvhGeometry as any).computeBoundsTree = computeBoundsTree
++    ;(bvhGeometry as any).disposeBoundsTree = disposeBoundsTree
++    bvhGeometry.computeBoundsTree?.({
++      maxLeafSize: 12,
++      strategy: 0,
++    } as never)
++    bvhGeometry.computeBoundingBox()
++
++    const mesh = new THREE.Mesh(bvhGeometry, COLLIDER_MATERIAL)
++    mesh.raycast = acceleratedRaycast
++    mesh.visible = true
++    mesh.userData = {
++      type: 'STATIC',
++      friction: 0.8,
++      restitution: 0.05,
++      excludeFloatHit: false,
++      excludeCollisionCheck: false,
++    }
++    mesh.updateMatrixWorld(true)
++
++    completed = true
++    return {
++      mesh,
++      ...(navSceneRegistry ? { navSceneRegistry } : {}),
++      bounds: bvhGeometry.boundingBox?.clone() ?? null,
++      dispose: () => {
++        bvhGeometry.disposeBoundsTree?.()
++        bvhGeometry.dispose()
++        for (const geometry of navGeometries) geometry.dispose()
++      },
++    }
++  } catch (error) {
++    mergedGeometry?.dispose()
++    throw error
++  } finally {
++    if (!completed) {
++      for (const geometry of navGeometries) geometry.dispose()
++    }
++    for (const geometry of geometries) geometry.dispose()
+   }
+ }
+ 
+diff --git a/src/index.tsx b/src/index.tsx
+index 35bbf04b2e0d236259f41893d2be37f665e3178a..586ce79d51daab344b537bfdbcee9946581e69ef 100644
+--- a/src/index.tsx
++++ b/src/index.tsx
+@@ -30,6 +30,13 @@ export { BakeExporter } from './components/editor/bake-exporter'
+ export { BakeThumbnail, prepareBakeThumbnailLook } from './components/editor/bake-thumbnail'
+ export { copyCollectionIds, duplicateNodeAndPickUp } from './components/editor/duplicate-node'
+ export { FirstPersonControls } from './components/editor/first-person-controls'
++export {
++  buildFirstPersonColliderWorldFromRegistry,
++  type FirstPersonColliderWorld,
++  type FirstPersonColliderWorldOptions,
++  type NavSceneRegistry,
++  type NavSceneRegistryKey,
++} from './components/editor/first-person/build-collider-world'
+ export { FloatingActionMenu as FloatingMenu } from './components/editor/floating-action-menu'
+ // Embed surface — the editor's real in-canvas affordances, so a host can mount
+ // authentic selection handles, interactive build tools, and the mover on top
