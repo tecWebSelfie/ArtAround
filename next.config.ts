@@ -30,6 +30,9 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        pathname: '/icons/**',
+      },
     ],
   },
   webpack: (webpackConfig) => {
@@ -44,6 +47,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(dirname),
   },
+  // @pascal-app/editor ships raw TSX via exports (main=None), so ensure Next
+  // transpiles it (otherwise Turbopack reports "Unknown module type").
+  transpilePackages: [
+    '@pascal-app/core',
+    '@pascal-app/nodes',
+    '@pascal-app/viewer',
+    '@pascal-app/editor',
+  ],
 }
 
 export default withSentryConfig(withPayload(nextConfig, { devBundleServerPackages: false }), {
