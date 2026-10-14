@@ -57,17 +57,43 @@ new kinds.
 - `validateBuildJson(input)` returns a normalized `ParsedBuildJson`
   (`{ nodes, rootNodeIds, collections?, materials?, installedPlugins? }`) and
   warns — without failing — on malformed `installedPlugins`.
-- Unknown node `type`s fail validation: the producing plugin must be loaded
-  (or the map authored) with a matching kind. When tour navigation rejects a
-  museum map, check kind coverage before touching the validator.
+- Unknown node `type`s do **not** fail validation: they produce a
+  `unknown_types` **warning** and the nodes are kept in `parsed`
+  (verified in `validate-build-json.js`). What *does* fail is schema
+  mismatch on known types (`schema_failure` error) or zero valid roots.
+  When tour navigation rejects a museum map, check `schema_failure`
+  details first — a missing plugin kind alone only warns (the kind is
+  then hidden at render unless its plugin id is in `installedPlugins`).
 - Mocks must stay assignable to `ParsedBuildJson` — type fixtures, not `any`
   blobs. Import node types (`BuildingNode`, `LevelNode`, `SiteNode`,
   `WallNode`, …) from `@pascal-app/core`.
 
 ## Version Pins
 
-Installed: `@pascal-app/core` 1.0.3, `nodes`/`viewer`/`editor` 1.0.3.
+Installed: `@pascal-app/core` 1.0.4, `nodes`/`viewer`/`editor` 1.0.4.
 Peers: React 18/19, `three ^0.186`, `@react-three/fiber` v9, `drei` v10,
 Zod v4 (`>=4.5.4 <4.6` for core). Do not add a second copy of these peers in
 a plugin package — a plugin is source code in this repo, not a separate
 npm package, precisely to avoid dual-React/dual-Three failures.
+
+## Editor Packaging (Next.js / Turbopack)
+
+`@pascal-app/editor` ships **raw `.tsx`** (`exports: { ".": "./src/index.tsx" }`,
+no `dist` build — verified 1.0.4). Without transpilation, Turbopack fails
+with `Unknown module type` on the editor entry. `next.config.ts` must list
+all four packages:
+
+```ts
+transpilePackages: [
+  '@pascal-app/core',
+  '@pascal-app/nodes',
+  '@pascal-app/viewer',
+  '@pascal-app/editor',
+],
+```
+
+Separately, the editor references `/icons/*.webp` toolbar assets that the
+npm package does **not** ship — every icon 404s until you vendor them under
+`public/icons/` (this repo carries placeholder `.webp` files there; replace
+with final artwork when available). Same class of problem applies to
+`/audios/sfx/*.mp3` sound effects (404s are harmless — no crash).

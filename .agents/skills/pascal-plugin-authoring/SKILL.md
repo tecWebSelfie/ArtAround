@@ -26,6 +26,7 @@ there is no separate "extension SDK".
 | Gate kinds per scene | `installedPlugins` in scene JSON | [plugin-authoring.md](reference/plugin-authoring.md#install-gate) |
 | Render maps in this app | `MapViewer` pattern | [project-integration.md](reference/project-integration.md) |
 | Validate incoming map JSON | `validateBuildJson()` | [project-integration.md](reference/project-integration.md) |
+| New in 1.0.4 (`placementNotice`, `mechanism`, `batchable`, …) | version addendum | [v1.0.4.md](reference/v1.0.4.md) |
 
 ## Minimal Plugin
 
@@ -45,7 +46,9 @@ await loadPlugin(museumPlugin)
 ```
 
 Rules: `loadPlugin` is **add-only** (no hot-remove), the registry **freezes**
-after boot, and a **duplicate `kind` throws (`[registry] duplicate node kind` — exact handling depends on environment)**. Copy an existing
+after boot, and a **duplicate `kind` throws in production but only warns +
+replaces under dev/HMR** (`[registry] duplicate node kind` vs `[registry]
+re-registering node kind "…" (HMR)`). Copy an existing
 small kind as scaffold — `shelf/` in `packages/nodes/src/` upstream is the
 canonical minimal example (`schema`, `definition`, `geometry`, `floorplan`,
 `tool`, `slots`, `paint`).
@@ -109,3 +112,8 @@ export const beaconDefinition: NodeDefinition<typeof BeaconNode> = {
 - **[project-integration.md](reference/project-integration.md)** — How this repo
   wires the libraries: `MapViewer`, validation, mocks, adding a custom plugin
   to the app.
+- **[v1.0.4.md](reference/v1.0.4.md)** — What 1.0.4 adds over 1.0.3: new
+  `NodeDefinition` fields (`placementNotice`, `mechanism`, `batchable`,
+  frozen `cuts`/`refs`/`assembly`), changed signatures (`ports`,
+  `selectable`, `reconcile`, `collides`), new built-in kinds, recommended
+  `defaults()` pattern.

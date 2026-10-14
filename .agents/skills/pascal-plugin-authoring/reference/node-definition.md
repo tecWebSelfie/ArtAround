@@ -1,6 +1,6 @@
 # NodeDefinition Field Guide
 
-Full type: `node_modules/@pascal-app/core/dist/registry/types.d.ts:876`.
+Full type: `node_modules/@pascal-app/core/dist/registry/types.d.ts:908`.
 Scaffold new kinds by copying `packages/nodes/src/shelf/` upstream
 (small kind: `schema`, `definition`, `geometry`, `floorplan`,
 `floorplan-affordances`, `floorplan-move`, `tool`, `slots`, `paint`,
@@ -14,8 +14,17 @@ Scaffold new kinds by copying `packages/nodes/src/shelf/` upstream
   plugin-authoring.md).
 - `schema: S extends ZodObject` — Zod v4 schema. Framework owns `id`/`type`.
 - `defaults: () => Omit<infer, 'id' | 'type'>` — initial values for new
-  instances. Never include `id`/`type`.
+  instances. Never include `id`/`type` (framework-owned). **Do** include the
+  `BaseNode` fields that carry defaults — `object: 'node'`, `parentId: null`,
+  `visible: true`, `metadata: {}` — copying them from a sibling definition
+  (e.g. `spawn`); omitting them typechecks but leaves new nodes without the
+  standard framework fields. Then add the kind's own fields.
 - `category: NodeCategory` — catalog grouping; copy from a sibling kind.
+  Note: `presentation.paletteSection` is **narrower** —
+  `'site' | 'structure' | 'furnish'` only (`types.d.ts:1429`), so
+  `'utility'`/`'analysis'` are rejected there even though they are valid
+  `NodeCategory` values. Marker kinds (`spawn`, access points, service
+  rooms) use `'site'` for both.
 - `extensions?: Record<string, unknown>` — opaque host/plugin data, stored
   but never interpreted by core. Custom metadata goes here, not in ad-hoc
   top-level fields.
