@@ -334,6 +334,167 @@ index 01c50eec8e48ff67ccbd07ed3cda7a1f4333fe59..4f7d3cd61a4cbfb3cb2378da3037d293
    }
  }
  
+diff --git a/src/components/tools/item/use-draft-node.test.tsx b/src/components/tools/item/use-draft-node.test.tsx
+index f364c8c97c34ac96e15a562e8d07510c37e185d8..cc28907ce0448d61e928bb2e55d459dfa70fdd5a 100644
+--- a/src/components/tools/item/use-draft-node.test.tsx
++++ b/src/components/tools/item/use-draft-node.test.tsx
+@@ -8,6 +8,9 @@ import {
+   getBlockFaceFrame,
+   getSceneHistoryPauseDepth,
+   ItemNode,
++  nodeRegistry,
++  nodeType,
++  objectId,
+   LevelNode,
+   type NodeEvent,
+   pauseSceneHistory,
+@@ -18,6 +21,7 @@ import {
+ import { useViewer } from '@pascal-app/viewer'
+ import { renderToString } from 'react-dom/server'
+ import { BufferGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
++import { z } from 'zod'
+ import { commitFaceHostClick } from './face-host-commit'
+ import type { PlacementContext } from './placement-types'
+ import { registerTestBlockFaceHost } from './test-face-host'
+@@ -81,6 +85,81 @@ beforeEach(() => {
+   renderToString(<DraftHarness />)
+ })
+ 
++describe('useDraftNode registered item-like kinds', () => {
++  const ExhibitNode = ItemNode.extend({
++    id: objectId('exhibit'),
++    type: nodeType('museum:exhibit'),
++    museumObjectsIds: z.array(z.string().nonempty()),
++  })
++
++  function createExhibit(attachTo?: 'wall' | 'ceiling', fresh = false) {
++    nodeRegistry._register({
++      kind: 'museum:exhibit',
++      schemaVersion: 1,
++      schema: ExhibitNode,
++      category: 'furnish',
++      defaults: () => ({}),
++      capabilities: {},
++    })
++    const exhibit = ExhibitNode.parse({
++      parentId: LEVEL_ID,
++      position: [1, 0, 1],
++      museumObjectsIds: ['payload-object-1'],
++      metadata: fresh ? { isNew: true } : {},
++      asset: {
++        id: 'exhibit-box', name: 'Exhibit', category: 'decor',
++        thumbnail: '', src: '/box.glb', ...(attachTo ? { attachTo } : {}),
++      },
++    })
++    // The legacy placement API is typed as ItemNode; the runtime registry supports plugin kinds.
++    const carried = exhibit as unknown as ItemNode
++    useScene.getState().createNode(carried, LEVEL_ID as AnyNodeId)
++    useScene.temporal.getState().clear()
++    return { exhibit, carried }
++  }
++
++  test.each([undefined, 'wall', 'ceiling'] as const)(
++    'commits an adopted custom kind with attachTo=%s without changing its identity or data',
++    (attachTo) => {
++      const { exhibit, carried } = createExhibit(attachTo)
++      const draft = draftNode!
++      draft.adopt(carried)
++      expect(draft.commit({ position: [3, 0, 4], parentId: LEVEL_ID })).toBe(exhibit.id)
++      expect(useScene.getState().nodes[carried.id]).toMatchObject({
++        id: exhibit.id, type: 'museum:exhibit',
++        museumObjectsIds: ['payload-object-1'], position: [3, 0, 4],
++      })
++      useScene.temporal.getState().undo()
++      expect(useScene.getState().nodes[carried.id]).toMatchObject({
++        type: 'museum:exhibit', museumObjectsIds: ['payload-object-1'], position: [1, 0, 1],
++      })
++    },
++  )
++
++  test('rejects invalid custom fields and permits cancellation', () => {
++    const { carried } = createExhibit()
++    const draft = draftNode!
++    draft.adopt(carried)
++    expect(() => draft.commit({ museumObjectsIds: [''] } as unknown as Partial<ItemNode>)).toThrow()
++    draft.destroy()
++    expect(useScene.getState().nodes[carried.id]).toMatchObject({
++      type: 'museum:exhibit', museumObjectsIds: ['payload-object-1'], position: [1, 0, 1],
++    })
++  })
++
++  test('commits an adopted fresh custom draft through its registered schema', () => {
++    const { carried } = createExhibit(undefined, true)
++    const draft = draftNode!
++    draft.adopt(carried)
++    const committedId = draft.commit({ position: [2, 0, 2], parentId: LEVEL_ID })
++    // Fresh placement assigns a new permanent ID; ordinary adoption keeps the existing one.
++    expect(committedId).toMatch(/^exhibit_/)
++    expect(useScene.getState().nodes[committedId as AnyNodeId]).toMatchObject({
++      type: 'museum:exhibit', museumObjectsIds: ['payload-object-1'], position: [2, 0, 2],
++    })
++  })
++})
++
+ describe('useDraftNode block face commit', () => {
+   test.each(
+     (['parse', 'write'] as const).flatMap((failure) =>
+diff --git a/src/components/tools/item/use-draft-node.ts b/src/components/tools/item/use-draft-node.ts
+index 0c10f99f66b15643c0c9f4cb7e5b7fef755b88fc..80319293d7cd003d6a0163c492f064dc5955052d 100644
+--- a/src/components/tools/item/use-draft-node.ts
++++ b/src/components/tools/item/use-draft-node.ts
+@@ -1,8 +1,10 @@
+ import {
++  type AnyNode,
+   type AnyNodeId,
+   type AssetInput,
+   beginSceneHistoryDraft,
+   ItemNode,
++  nodeRegistry,
+   resolveSupportSlabPatch,
+   runSceneHistoryDraftWrite,
+   type SurfaceRejectReason,
+@@ -28,6 +30,23 @@ import useInteractionScope, {
+ import usePlacementPreview from '../../../store/use-placement-preview'
+ import { stripTransient } from './placement-math'
+ 
++/** Validate an adopted node with its own kind, preserving custom plugin fields. */
++function parseMovedNode(candidate: ItemNode): AnyNode {
++  // Keep the existing item path, including callers that have not loaded plugins.
++  if (candidate.type === 'item') return ItemNode.parse(candidate)
++
++  const definition = nodeRegistry.get(candidate.type)
++  if (!definition) {
++    throw new Error(`Cannot move unregistered node kind "${candidate.type}"`)
++  }
++  // The registry also contains plugin kinds outside core's built-in AnyNode union.
++  const parsed = definition.schema.parse(candidate) as AnyNode
++  if (parsed.id !== candidate.id || parsed.type !== candidate.type) {
++    throw new Error('Moving a node must preserve its id and type')
++  }
++  return parsed
++}
++
+ function releaseHistoryDraft(end: { current: (() => void) | null }): void {
+   end.current?.()
+   end.current = null
+@@ -270,7 +289,7 @@ export function useDraftNode(): DraftNodeHandle {
+       const liveDraft = useScene.getState().nodes[draft.id]
+       if (liveDraft) finalUpdate.metadata = stripTransient(liveDraft.metadata)
+       if (isFreshPlacementMetadata(originalStateRef.current?.metadata)) {
+-        const effectiveNode = ItemNode.parse({ ...draft, ...finalUpdate })
++        const effectiveNode = parseMovedNode({ ...draft, ...finalUpdate })
+         const id = commitFreshPlacementSubtree(
+           draft.id,
+           {
+@@ -305,7 +324,7 @@ export function useDraftNode(): DraftNodeHandle {
+ 
+         // The original is restored above (a carry write), so the one tracked write below has
+         // the true baseline as its undo state.
+-        const effectiveNode = ItemNode.parse({
++        const effectiveNode = parseMovedNode({
+           ...draft,
+           ...updateProps,
+           parentId,
 diff --git a/src/index.tsx b/src/index.tsx
 index 35bbf04b2e0d236259f41893d2be37f665e3178a..586ce79d51daab344b537bfdbcee9946581e69ef 100644
 --- a/src/index.tsx

@@ -11,7 +11,7 @@ overrides:
 
 patchedDependencies:
   '@pascal-app/editor@1.0.4':
-    hash: 8bb632d62be5eb4cf5ac5112d00ab33cff996050c0194ad21488a8d7afbff796
+    hash: 8a74f1f5f92ddd43d60676b8de8ae1a5dccb4871ca36c289f262c393ffdd2442
     path: patches/@pascal-app__editor.patch
   payload-phone-number-plugin:
     hash: c8e88b6749e59a4af58f4a4fdeccc2421e28976da10e5912b70c3909887df77c
@@ -104,10 +104,10 @@ importers:
         version: 1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
       '@pascal-app/editor':
         specifier: ^1.0.4
-        version: 1.0.4(patch_hash=8bb632d62be5eb4cf5ac5112d00ab33cff996050c0194ad21488a8d7afbff796)(53dd936e4d9f6e157bf3d8dca1f71bcc)
+        version: 1.0.4(patch_hash=8a74f1f5f92ddd43d60676b8de8ae1a5dccb4871ca36c289f262c393ffdd2442)(53dd936e4d9f6e157bf3d8dca1f71bcc)
       '@pascal-app/nodes':
         specifier: ^1.0.4
-        version: 1.0.4(0036d94dbc510cf4e10c7131d1a9db8d)
+        version: 1.0.4(0b00d5dd1305153f070c9c8dcc1e38bf)
       '@pascal-app/viewer':
         specifier: ^1.0.4
         version: 1.0.4(@pascal-app/core@1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6)))(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
@@ -13587,7 +13587,7 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@pascal-app/editor@1.0.4(patch_hash=8bb632d62be5eb4cf5ac5112d00ab33cff996050c0194ad21488a8d7afbff796)(53dd936e4d9f6e157bf3d8dca1f71bcc)':
+  '@pascal-app/editor@1.0.4(patch_hash=8a74f1f5f92ddd43d60676b8de8ae1a5dccb4871ca36c289f262c393ffdd2442)(53dd936e4d9f6e157bf3d8dca1f71bcc)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)
@@ -13680,10 +13680,10 @@ snapshots:
     optionalDependencies:
       react: 19.2.6
 
-  '@pascal-app/nodes@1.0.4(0036d94dbc510cf4e10c7131d1a9db8d)':
+  '@pascal-app/nodes@1.0.4(0b00d5dd1305153f070c9c8dcc1e38bf)':
     dependencies:
       '@pascal-app/core': 1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
-      '@pascal-app/editor': 1.0.4(patch_hash=8bb632d62be5eb4cf5ac5112d00ab33cff996050c0194ad21488a8d7afbff796)(53dd936e4d9f6e157bf3d8dca1f71bcc)
+      '@pascal-app/editor': 1.0.4(patch_hash=8a74f1f5f92ddd43d60676b8de8ae1a5dccb4871ca36c289f262c393ffdd2442)(53dd936e4d9f6e157bf3d8dca1f71bcc)
       '@pascal-app/viewer': 1.0.4(@pascal-app/core@1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6)))(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
       '@react-three/drei': 10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)
       '@react-three/fiber': 9.7.0(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)
