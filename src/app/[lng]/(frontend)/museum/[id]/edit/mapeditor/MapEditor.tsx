@@ -1,32 +1,32 @@
 'use client'
 
 import { museumPlugin } from '@/lib/pascal'
-import { mockMuseumFull } from '@/mocks/museum.mock'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
 import { Editor, ItemsPanel } from '@pascal-app/editor'
 import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const registerPlugin = loadPlugin(builtinPlugin)
 const registerMuseumPlugin = loadPlugin(museumPlugin)
 
 export function MapEditor({ museumId }: { museumId: string }) {
-  const { data: museum, isLoading } = useQuery({
+  const {
+    data: museum,
+    isLoading,
+    isError,
+  } = useQuery({
     queryKey: ['museum', museumId],
     queryFn: async () =>
-      payloadSdk.update({
+      payloadSdk.findByID({
         collection: 'museums',
         id: museumId,
-        data: {
-          map: mockMuseumFull.map,
-        },
       }),
   })
 
-  const saveScene = useMutation({
+  const { mutate } = useMutation({
     mutationKey: ['saveScene'],
     mutationFn: (scene: ParsedBuildJson) =>
       payloadSdk.update({
@@ -44,26 +44,44 @@ export function MapEditor({ museumId }: { museumId: string }) {
     Promise.all([registerPlugin, registerMuseumPlugin]).then(() => setReady(true))
   }, [])
 
-  return ready ? (
+  // Reuse the hydrated query result: a fresh `findByID` here would duplicate
+  // the request and, with a new inline closure each render, retrigger the
+  // editor's load effect (`[onLoad, …]`) in a loop.
+  // Some stored maps have site-polygon points serialized as `{"0":x,"1":z}`
+  // objects instead of `[x, z]` pairs (see museum 6ad215d05b159f24a7616019),
+  // which crashes FloorplanPanel's `polygon.map(([x, z]) => …)` — normalize.
+  const handleLoad = useCallback(async () => {
+    const map = (museum?.map as ParsedBuildJson) ?? null
+    if (!map) return null
+    for (const node of Object.values(map.nodes ?? {})) {
+      const polygon = (node as { polygon?: { points?: unknown } })?.polygon
+      if (Array.isArray(polygon?.points)) {
+        polygon.points = polygon.points.map((p) =>
+          Array.isArray(p) ? p : [p?.[0], p?.[1]],
+        )
+      }
+    }
+    return map
+  }, [museum?.map])
+
+  if (!ready || isLoading) return <div>Loading...</div>
+  if (isError || !museum) return <div>Error loading map</div>
+
+  return (
     <Box className="h-dvh">
-      {museum ? (
-        <Editor
-          sidebarTabs={[
-            {
-              id: 'items',
-              label: 'Items',
-              component: ItemsPanel,
-            },
-          ]}
-          layoutVersion="v2"
-          isLoading={isLoading}
-          onLoad={async () => (museum?.map as ParsedBuildJson) ?? null}
-        />
-      ) : (
-        <div>Error loading map</div>
-      )}
+      <Editor
+        sidebarTabs={[
+          {
+            id: 'items',
+            label: 'Items',
+            component: ItemsPanel,
+          },
+        ]}
+        layoutVersion="v2"
+        isLoading={false}
+        onLoad={handleLoad}
+        onSave={async (scene) => mutate(scene as ParsedBuildJson)}
+      />
     </Box>
-  ) : (
-    <div>Loading...</div>
   )
 }

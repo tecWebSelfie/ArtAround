@@ -2,8 +2,14 @@ import { PayloadSDK } from '@payloadcms/sdk'
 import type { Config } from '@/payload-types'
 import type { LocalizedDoc, LocalizedSlug } from '@/lib/localized'
 
+function resolveBaseURL(): string {
+  const raw = process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000'
+  const trimmed = raw.replace(/\/+$/, '')
+  return trimmed.endsWith('/api') ? trimmed : `${trimmed}/api`
+}
+
 export const payloadSdk = new PayloadSDK<Config>({
-  baseURL: process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000',
+  baseURL: resolveBaseURL(),
 })
 
 export type LocalizedAPIResult<TSlug extends LocalizedSlug> =
@@ -29,9 +35,10 @@ export type LocalizedAPIResult<TSlug extends LocalizedSlug> =
  * `Accept-Language` header (pass it via `init.headers`); explicit `?locale=`
  * always wins. Prefer explicit — deterministic, shareable, cache-friendly.
  *
- * NOTE: `baseURL` above is the bare server origin (see `NEXT_PUBLIC_PAYLOAD_URL`),
- * so the `/api` prefix is part of the path here — unlike the SDK's built-in
- * methods, which expect `baseURL` to already include it.
+ * NOTE: `baseURL` above already includes the `/api` prefix (see
+ * `NEXT_PUBLIC_PAYLOAD_URL`), as the SDK's built-in methods (`findByID`,
+ * `update`, …) send paths like `/{collection}/{id}`. Custom `request()`
+ * paths below therefore omit the `/api` prefix.
  */
 export async function getLocalizedDoc<TSlug extends LocalizedSlug>(
   {
@@ -48,7 +55,7 @@ export async function getLocalizedDoc<TSlug extends LocalizedSlug>(
   const query = locale ? `?locale=${encodeURIComponent(locale)}` : ''
   const res = await payloadSdk.request({
     method: 'GET',
-    path: `/api/${collection}/${String(id)}/localized${query}`,
+    path: `/${collection}/${String(id)}/localized${query}`,
     init,
   })
   return (await res.json()) as LocalizedAPIResult<TSlug>
