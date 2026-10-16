@@ -7,7 +7,7 @@
         "url": "http://127.0.0.1:3000/api/mcp",
         "oauth": false,
         "headers": {
-          "Authorization": "Bearer {file:~/.secrets/payload-mcp-key}"
+          "Authorization": "Bearer {env:PAYLOAD_MCP_KEY}"
         }
       },
       "Sentry": {
