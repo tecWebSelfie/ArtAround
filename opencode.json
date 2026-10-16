@@ -1,56 +1,61 @@
 {
   "$schema": "https://opencode.ai/config.json",
   "mcp": {
-    "payload-mcp": {
-      "type": "remote",
-      "url": "http://127.0.0.1:3000/api/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:PAYLOAD_MCP_KEY}"
-      }
-    },
-    "Sentry": {
-      "type": "remote",
-      "url": "https://mcp.sentry.dev/mcp/tecweb/artaround",
-      "oauth": {}
-    },
-    "livekit-docs-mcp": {
-      "type": "remote",
-      "url": "https://docs.livekit.io/mcp"
-    },
-    "mantine-ui": {
-      "type": "local",
-      "command": ["npx", "-y", "@mantine/mcp-server"]
-    },
-    "nextjs": {
-      "type": "local",
-      "command": ["npx", "-y", "next-devtools-mcp@latest"]
-    },
-    "shadcn": {
-      "type": "local",
-      "command": ["npx", "shadcn@latest", "mcp"],
-      "enabled": true
-    },
-    "storybook": {
-      "type": "remote",
-      "url": "http://localhost:6006/mcp",
-      "enabled": true
-    },
-    "notion": {
-      "type": "remote",
-      "url": "https://mcp.notion.com/mcp",
-      "oauth": {}
-    },
-    "deepwiki": {
-      "type": "remote",
-      "url": "https://mcp.deepwiki.com/mcp"
-    },
-    "typesense": {
-      "type": "local",
-      "command": ["npx", "-y", "@typesensekit/mcp"],
-      "env": {
-        "TYPESENSE_URL": "https://{env:TYPESENSE_HOST}",
-        "TYPESENSE_API_KEY": "{env:TYPESENSE_API_KEY}",
-        "TYPESENSEKIT_READ_ONLY": "false"
+    "servers": {
+      "payload-mcp": {
+        "type": "remote",
+        "url": "http://127.0.0.1:3000/api/mcp",
+        "oauth": false,
+        "headers": {
+          "Authorization": "Bearer {file:~/.secrets/payload-mcp-key}"
+        }
+      },
+      "Sentry": {
+        "type": "remote",
+        "url": "https://mcp.sentry.dev/mcp/tecweb/artaround",
+        "oauth": {}
+      },
+      "livekit-docs-mcp": {
+        "type": "remote",
+        "url": "https://docs.livekit.io/mcp"
+      },
+      "mantine-ui": {
+        "type": "local",
+        "command": ["npx", "-y", "@mantine/mcp-server"]
+      },
+      "nextjs": {
+        "type": "local",
+        "command": ["npx", "-y", "next-devtools-mcp@latest"]
+      },
+      "shadcn": {
+        "type": "local",
+        "command": ["npx", "shadcn@latest", "mcp"]
+      },
+      "storybook": {
+        "type": "remote",
+        "url": "http://localhost:6006/mcp"
+      },
+      "notion": {
+        "type": "remote",
+        "url": "https://mcp.notion.com/mcp",
+        "oauth": {}
+      },
+      "deepwiki": {
+        "type": "remote",
+        "url": "https://mcp.deepwiki.com/mcp"
+      },
+      "typesense": {
+        "type": "local",
+        "command": ["npx", "-y", "@typesensekit/mcp"],
+        "environment": {
+          "TYPESENSE_URL": "https://{env:TYPESENSE_HOST}",
+          "TYPESENSE_API_KEY": "{env:TYPESENSE_API_KEY}",
+          "TYPESENSEKIT_READ_ONLY": "false"
+        }
+      },
+      "chrome-devtools": {
+        "type": "local",
+        "command": ["npx", "-y", "chrome-devtools-mcp@latest"]
       }
     }
   }

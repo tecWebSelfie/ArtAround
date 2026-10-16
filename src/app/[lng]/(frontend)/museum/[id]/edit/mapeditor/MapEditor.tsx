@@ -2,7 +2,7 @@
 
 import { museumPlugin } from '@/lib/pascal'
 import { mockMuseumFull } from '@/mocks/museum.mock'
-import { Museum } from '@/payload-types'
+import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
 import { Editor, ItemsPanel } from '@pascal-app/editor'
@@ -13,22 +13,29 @@ import { useEffect, useState } from 'react'
 const registerPlugin = loadPlugin(builtinPlugin)
 const registerMuseumPlugin = loadPlugin(museumPlugin)
 
-export function MapEditor({ museumId }: { museumId: Museum['id'] }) {
-  const {
-    data: museumMap,
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ['museumMap'],
-    queryFn: () => mockMuseumFull.map,
+export function MapEditor({ museumId }: { museumId: string }) {
+  const { data: museum, isLoading } = useQuery({
+    queryKey: ['museum', museumId],
+    queryFn: async () =>
+      payloadSdk.update({
+        collection: 'museums',
+        id: museumId,
+        data: {
+          map: mockMuseumFull.map,
+        },
+      }),
   })
 
   const saveScene = useMutation({
     mutationKey: ['saveScene'],
-    mutationFn: async (scene: ParsedBuildJson) => mockMuseumFull.map,
-    onSuccess: async () => {
-      refetch()
-    },
+    mutationFn: (scene: ParsedBuildJson) =>
+      payloadSdk.update({
+        collection: 'museums',
+        id: museumId,
+        data: {
+          map: scene,
+        },
+      }),
   })
 
   const [ready, setReady] = useState(false)
@@ -39,7 +46,7 @@ export function MapEditor({ museumId }: { museumId: Museum['id'] }) {
 
   return ready ? (
     <Box className="h-dvh">
-      {museumMap ? (
+      {museum ? (
         <Editor
           sidebarTabs={[
             {
@@ -50,7 +57,7 @@ export function MapEditor({ museumId }: { museumId: Museum['id'] }) {
           ]}
           layoutVersion="v2"
           isLoading={isLoading}
-          onLoad={async () => museumMap as ParsedBuildJson}
+          onLoad={async () => (museum?.map as ParsedBuildJson) ?? null}
         />
       ) : (
         <div>Error loading map</div>

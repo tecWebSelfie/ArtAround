@@ -8,6 +8,7 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import { JSDOM } from 'jsdom'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { getPayload } from 'payload'
+import { mockMuseumFull } from './mocks/museum.mock'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -291,6 +292,7 @@ try {
   // All lookups are by natural key (name/email) so re-seeds are idempotent.
   console.log('Seeding demo museums...')
   const demoMuseums = [
+    mockMuseumFull,
     {
       name: 'Galleria Borghese',
       shortDescription: 'Baroque masterpieces in a Roman villa',

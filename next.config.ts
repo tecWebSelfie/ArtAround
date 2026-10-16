@@ -34,6 +34,17 @@ const nextConfig: NextConfig = {
         pathname: '/icons/**',
       },
     ],
+    // Pascal's official item-catalog CDN (thumbnails / models / floor-plans
+    // hardcoded in @pascal-app/editor). Verified public 200s — without this,
+    // any next/image render of a catalog thumbnail throws
+    // "next-image-unconfigured-host" (cf. ARTAROUND-3F).
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'byrpxoiotywskoojsrzd.supabase.co',
+        pathname: '/storage/v1/object/public/items/**',
+      },
+    ],
   },
   webpack: (webpackConfig) => {
     webpackConfig.resolve.extensionAlias = {

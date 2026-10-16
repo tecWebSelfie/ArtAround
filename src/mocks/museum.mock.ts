@@ -1,9 +1,9 @@
 import { mockObjectsList } from '@/mocks/object.mock'
 import type { Museum, MuseumThumbnail } from '@/payload-types'
 import { Exhibit } from '@/payload-types'
-import { mockToursList } from './tour.mock'
-import { createRealisticMuseumMap } from './museum-map.mock'
 import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } from '@pascal-app/core'
+import { createRealisticMuseumMap } from './museum-map.mock'
+import { mockToursList } from './tour.mock'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
 
@@ -207,7 +207,7 @@ export const mockMuseumFull: Museum = createMuseum({
     sunday: [{ opening: '10:00', closing: '18:00', id: 'oh-sun-1' }],
     notes: null,
   },
-  services: {
+  /*   services: {
     bathrooms: [
       {
         coordinates: { x: 10, y: 20 },
@@ -232,7 +232,7 @@ export const mockMuseumFull: Museum = createMuseum({
         id: 'service-info-1',
       },
     ],
-  },
+  }, */
   lfrs: {
     favouritesCount: 128,
     sharesCount: 42,

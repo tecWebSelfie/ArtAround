@@ -1,0 +1,42 @@
+# Project-scoped MCP servers. Codex loads this file for trusted projects.
+
+[mcp_servers.payload-mcp]
+url = "http://127.0.0.1:3000/api/mcp"
+http_headers_helper = "node .codex/payload-mcp-headers.mjs"
+
+[mcp_servers.Sentry]
+url = "https://mcp.sentry.dev/mcp/tecweb/artaround"
+auth = "oauth"
+
+[mcp_servers.livekit-docs-mcp]
+url = "https://docs.livekit.io/mcp"
+
+[mcp_servers.mantine-ui]
+command = "npx"
+args = ["-y", "@mantine/mcp-server"]
+
+[mcp_servers.nextjs]
+command = "npx"
+args = ["-y", "next-devtools-mcp@latest"]
+
+[mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]
+
+[mcp_servers.storybook]
+url = "http://localhost:6006/mcp"
+
+[mcp_servers.notion]
+url = "https://mcp.notion.com/mcp"
+auth = "oauth"
+
+[mcp_servers.deepwiki]
+url = "https://mcp.deepwiki.com/mcp"
+
+[mcp_servers.typesense]
+command = "node"
+args = [".codex/typesense-mcp.mjs"]
+
+[mcp_servers.chrome-devtools]
+command = "npx"
+args = ["-y", "chrome-devtools-mcp@latest"]

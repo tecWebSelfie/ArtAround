@@ -1,10 +1,23 @@
 import { NodeDefinition } from '@pascal-app/core'
-import { EXHIBIT_NODE_TYPE, ExhibitNode, MUSEUM_OBJECTS_IDS_FIELD } from './ExhibitNode'
+import {
+  EXHIBIT_EDITOR_HEIGHT,
+  EXHIBIT_EDITOR_WIDTH,
+  EXHIBIT_NODE_TYPE,
+  ExhibitNode,
+  MUSEUM_OBJECTS_IDS_FIELD,
+} from './ExhibitNode'
 import { ExhibitObjectsPanel } from './components/ExhibitObjectsPanel'
 
 export const ExhibitDefinition: NodeDefinition<typeof ExhibitNode> = {
   kind: EXHIBIT_NODE_TYPE,
   schema: ExhibitNode,
+  floorplan: (node, _) => ({
+    kind: 'image',
+    url: 'icons/pascal/exhibit-icon.svg',
+    center: [node.position[0], node.position[1]],
+    width: EXHIBIT_EDITOR_WIDTH,
+    height: EXHIBIT_EDITOR_HEIGHT,
+  }),
   renderer: {
     kind: 'parametric',
     module: () => import('./components/ExhibitRenderer'),
@@ -29,7 +42,13 @@ export const ExhibitDefinition: NodeDefinition<typeof ExhibitNode> = {
   },
   category: 'analysis',
   schemaVersion: 1,
+  mcp: {
+    description:
+      'A node representing an active exhibit in the museum for visitors, which can contain multiple museum objects.',
+  },
   presentation: {
+    description:
+      'A node representing an exhibit in the museum, which can contain multiple museum objects.',
     label: 'Exhibit',
     icon: {
       kind: 'component',
