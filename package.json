@@ -24,7 +24,8 @@
     "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
     "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
     "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local",
-    "intl:dev": "i18next-cli extract --sync-all --trust-derived --with-types -w"
+    "intl:dev": "i18next-cli extract --sync-all --trust-derived --with-types -w",
+    "openapi-ts": "openapi-ts"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "^1.1.0",
@@ -37,6 +38,7 @@
     "@gfazioli/mantine-qr-code": "^2.0.10",
     "@gfazioli/mantine-reflection": "^3.0.10",
     "@gfazioli/mantine-text-animate": "^4.0.10",
+    "@hey-api/client-next": "^0.5.1",
     "@livekit/components-react": "^2.0.0",
     "@livekit/components-styles": "^1.2.0",
     "@livekit/protocol": "^1.52.0",
@@ -119,6 +121,7 @@
     "react-dom": "19.2.6",
     "react-i18next": "^17.0.15",
     "reading-time-estimator": "^2.15.0",
+    "server-only": "^0.0.1",
     "sharp": "0.34.2",
     "tailwindcss": "^4.3.3",
     "three": "^0.186.1",
@@ -130,6 +133,7 @@
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^5.2.1",
+    "@hey-api/openapi-ts": "0.99.0",
     "@playwright/test": "1.58.2",
     "@storybook/addon-a11y": "^10.5.3",
     "@storybook/addon-docs": "^10.5.3",

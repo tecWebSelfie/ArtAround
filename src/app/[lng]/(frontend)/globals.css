@@ -15,6 +15,14 @@
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 
+/* Pascal editor/viewer UI lives in node_modules (gitignored, so Tailwind v4's
+   automatic content detection skips it). Without these, utilities used only by
+   the editor — notably most `dark:` variants — are never generated and the
+   editor falls back to its light defaults despite `body.dark`. */
+@source "../../../../node_modules/@pascal-app/editor/src";
+@source "../../../../node_modules/@pascal-app/viewer/src";
+@source "../../../../node_modules/@pascal-app/nodes/src";
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
