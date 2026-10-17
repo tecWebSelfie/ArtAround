@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { StepModal } from './StepModal'
 
 const meta = {
-  title: 'Components/StepModal',
+  title: 'Components/StepModalContent',
   component: StepModal,
 } satisfies Meta<typeof StepModal>
 
@@ -14,7 +14,5 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     step: mockContentSecond,
-    opened: true,
-    onClose: () => {},
   },
 }

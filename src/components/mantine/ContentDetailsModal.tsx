@@ -14,7 +14,7 @@ export const ContentDetailsModal = ({
   )
 }
 
-function ContentDetailsModalContent({ content }: { content: Content }) {
+export function ContentDetailsModalContent({ content }: { content: Content }) {
   return (
     <div>
       <h2>{content.title}</h2>

@@ -1,8 +1,9 @@
 import config from '@/payload.config'
 import { getPayload } from 'payload'
-import { StepModalClient } from './StepModalClient'
+import { StepModal } from './StepModal'
 
-export default async function StepModal({
+//this modal will open when the user clicks on the step/content that he has as the next step in the tour, and it will show the content of that step in a modal
+export default async function OpenStepModal({
   params,
 }: PageProps<'/[lng]/tour/[id]/navigation/[stepId]'>) {
   const { id: tourId, stepId } = await params
@@ -18,5 +19,5 @@ export default async function StepModal({
       ? contentOrId
       : await payload.findByID({ collection: 'contents', id: contentOrId })
 
-  return <StepModalClient step={content} />
+  return <StepModal step={content} />
 }

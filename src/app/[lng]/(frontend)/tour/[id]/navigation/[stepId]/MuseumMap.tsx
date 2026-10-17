@@ -2,9 +2,15 @@
 
 import { MapViewer } from '@/components/pascal/MapViewer'
 import { ParsedBuildJson } from '@pascal-app/core'
-import { useGLTF } from '@react-three/drei'
+import { BVHEcctrl } from '@pascal-app/viewer'
+import { Gltf } from '@react-three/drei'
 
 export function MuseumMap({ map, ...props }: { map: ParsedBuildJson } & typeof MapViewer) {
-  const avatar = useGLTF('/public/avatar.glb')
-  return <MapViewer map={map} {...props} />
+  return (
+    <MapViewer map={map} {...props}>
+      <BVHEcctrl>
+        <Gltf src="/public/avatar.glb" />
+      </BVHEcctrl>
+    </MapViewer>
+  )
 }
