@@ -81,6 +81,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnail;
     museumMaps: MuseumMap;
     objects: Object;
+    objectsModels: ObjectsModel;
     objectsThumbnails: ObjectsThumbnail;
     exhibits: Exhibit;
     contents: Content;
@@ -140,6 +141,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
+    objectsModels: ObjectsModelsSelect<false> | ObjectsModelsSelect<true>;
     objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
     exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
@@ -743,6 +745,10 @@ export interface Config {
   user: User | PayloadMcpApiKey;
   jobs: {
     tasks: {
+      loadObjectGenerationContext: TaskLoadObjectGenerationContext;
+      startMintModelGeneration: TaskStartMintModelGeneration;
+      pollMintModelOperation: TaskPollMintModelOperation;
+      persistMintModelAssets: TaskPersistMintModelAssets;
       translate_document: TaskTranslateDocument;
       createCollectionExport: TaskCreateCollectionExport;
       createCollectionImport: TaskCreateCollectionImport;
@@ -752,6 +758,7 @@ export interface Config {
       };
     };
     workflows: {
+      generateObjectModel: WorkflowGenerateObjectModel;
       translate_document_locales: WorkflowTranslateDocumentLocales;
     };
   };
@@ -966,6 +973,7 @@ export interface Object {
   };
   contents?: (string | Content)[] | null;
   thumbnail?: (string | null) | ObjectsThumbnail;
+  model?: (string | null) | ObjectsModel;
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
@@ -995,6 +1003,28 @@ export interface Exhibit {
 export interface ObjectsThumbnail {
   id: string;
   alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsModels".
+ */
+export interface ObjectsModel {
+  id: string;
+  userGenerated: boolean;
+  mintModelId?: string | null;
+  mintOperationId?: string | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -2384,7 +2414,15 @@ export interface PayloadJob {
     | {
         executedAt: string;
         completedAt: string;
-        taskSlug: 'inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport';
+        taskSlug:
+          | 'inline'
+          | 'loadObjectGenerationContext'
+          | 'startMintModelGeneration'
+          | 'pollMintModelOperation'
+          | 'persistMintModelAssets'
+          | 'translate_document'
+          | 'createCollectionExport'
+          | 'createCollectionImport';
         taskID: string;
         input?:
           | {
@@ -2417,8 +2455,19 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  workflowSlug?: 'translate_document_locales' | null;
-  taskSlug?: ('inline' | 'translate_document' | 'createCollectionExport' | 'createCollectionImport') | null;
+  workflowSlug?: ('generateObjectModel' | 'translate_document_locales') | null;
+  taskSlug?:
+    | (
+        | 'inline'
+        | 'loadObjectGenerationContext'
+        | 'startMintModelGeneration'
+        | 'pollMintModelOperation'
+        | 'persistMintModelAssets'
+        | 'translate_document'
+        | 'createCollectionExport'
+        | 'createCollectionImport'
+      )
+    | null;
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
@@ -2463,6 +2512,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'objects';
         value: string | Object;
+      } | null)
+    | ({
+        relationTo: 'objectsModels';
+        value: string | ObjectsModel;
       } | null)
     | ({
         relationTo: 'objectsThumbnails';
@@ -3122,6 +3175,7 @@ export interface ObjectsSelect<T extends boolean = true> {
   exhibit?: T;
   contents?: T;
   thumbnail?: T;
+  model?: T;
   lfrs?:
     | T
     | {
@@ -3130,6 +3184,27 @@ export interface ObjectsSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsModels_select".
+ */
+export interface ObjectsModelsSelect<T extends boolean = true> {
+  userGenerated?: T;
+  mintModelId?: T;
+  mintOperationId?: T;
+  thumbnail?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3841,6 +3916,66 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskLoadObjectGenerationContext".
+ */
+export interface TaskLoadObjectGenerationContext {
+  input: {
+    objectId: string;
+    prompt?: string | null;
+  };
+  output: {
+    name?: string | null;
+    prompt: string;
+    skip?: boolean | null;
+    skipReason?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskStartMintModelGeneration".
+ */
+export interface TaskStartMintModelGeneration {
+  input: {
+    objectId: string;
+    prompt: string;
+  };
+  output: {
+    mintOperationId: string;
+    creditsEstimatedTotal?: number | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPollMintModelOperation".
+ */
+export interface TaskPollMintModelOperation {
+  input: {
+    mintOperationId: string;
+    objectId: string;
+  };
+  output: {
+    mintModelId: string;
+    mintOperationId: string;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskPersistMintModelAssets".
+ */
+export interface TaskPersistMintModelAssets {
+  input: {
+    objectId: string;
+    prompt: string;
+    mintModelId: string;
+    mintOperationId: string;
+  };
+  output: {
+    objectsModelId: string;
+    objectsThumbnailId?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskTranslate_document".
  */
 export interface TaskTranslateDocument {
@@ -3896,6 +4031,7 @@ export interface TaskCreateCollectionExport {
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
+      | 'objectsModels'
       | 'objectsThumbnails'
       | 'exhibits'
       | 'contents'
@@ -3947,6 +4083,16 @@ export interface TaskCreateCollectionImport {
     maxLimit?: number | null;
   };
   output?: unknown;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkflowGenerateObjectModel".
+ */
+export interface WorkflowGenerateObjectModel {
+  input: {
+    objectId: string;
+    prompt?: string | null;
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

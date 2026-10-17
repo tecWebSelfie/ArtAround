@@ -1,6 +1,6 @@
-import { PayloadSDK } from '@payloadcms/sdk'
-import type { Config } from '@/payload-types'
 import type { LocalizedDoc, LocalizedSlug } from '@/lib/localized'
+import type { Config } from '@/payload-types'
+import { PayloadSDK } from '@payloadcms/sdk'
 
 function resolveBaseURL(): string {
   const raw = process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000'
@@ -10,6 +10,7 @@ function resolveBaseURL(): string {
 
 export const payloadSdk = new PayloadSDK<Config>({
   baseURL: resolveBaseURL(),
+  baseInit: { credentials: 'include' },
 })
 
 export type LocalizedAPIResult<TSlug extends LocalizedSlug> =

@@ -5,8 +5,16 @@ export default defineConfig({
   output: {
     path: 'src/lib/pascal/mint/client',
     postProcess: ['prettier'],
+    source: true,
   },
   plugins: [
+    {
+      name: '@hey-api/sdk',
+      // Flat functions (default): tree-shakeable, and every function takes
+      // a per-call `client` — the exact seam our server/browser client
+      // split relies on. `single` (class) would bundle the whole Mint API
+      // into the browser and bind one config per instance.
+    },
     '@hey-api/client-next',
     {
       name: '@tanstack/react-query',

@@ -22,12 +22,17 @@ import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 import { en } from '@payloadcms/translations/languages/en'
 import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
+import { generateObjectModelWorkflow } from './jobs/generateObjectModelWorkflow'
+import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext'
+import { startMintModelGeneration } from './tasks/startMintModelGeneration'
+import { pollMintModelOperation } from './tasks/pollMintModelOperation'
+import { persistMintModelAssets } from './tasks/persistMintModelAssets'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
-import { Objects, ObjectsThumbnails } from './collections/Objects'
+import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
 import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
@@ -69,6 +74,7 @@ export default buildConfig({
     MuseumThumbnails,
     MuseumMaps,
     Objects,
+    ObjectsModels,
     ObjectsThumbnails,
     Exhibits,
     Contents,
@@ -238,6 +244,13 @@ export default buildConfig({
         queue: 'default',
       },
     ],
+    tasks: [
+      loadObjectGenerationContext,
+      startMintModelGeneration,
+      pollMintModelOperation,
+      persistMintModelAssets,
+    ],
+    workflows: [generateObjectModelWorkflow],
   },
   email: nodemailerAdapter({
     defaultFromAddress: 'artaround@progettantisti.com',

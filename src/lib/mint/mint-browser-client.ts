@@ -7,4 +7,5 @@ import { createClient } from '../pascal/mint/client/client'
  */
 export const mintBrowserClient = createClient({
   baseUrl: '/api/mint',
+  credentials: 'include',
 })
