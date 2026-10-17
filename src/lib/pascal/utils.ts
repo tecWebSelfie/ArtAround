@@ -1,23 +1,11 @@
 import { DEFAULT_QUERY_FILTER, findPath, type Vec3 } from 'navcat'
-import { generateSoloNavMesh, type SoloNavMeshInput, type SoloNavMeshOptions } from 'navcat/blocks'
+import { generateSoloNavMesh, type SoloNavMeshOptions } from 'navcat/blocks'
 
 import {
   buildFirstPersonColliderWorldFromRegistry,
   type NavSceneRegistry,
 } from '@pascal-app/editor'
 import { getPositionsAndIndices } from 'navcat/three'
-
-/* generation input */
-// populate positions and indices with your level geometry
-// don't include geometry that shouldn't contribute to walkable-surface
-// generation, like foliage or small decorative props
-const positions = new Float32Array([/* ... */])
-const indices = new Uint32Array([/* ... */])
-
-const input: SoloNavMeshInput = {
-  positions,
-  indices,
-}
 
 /* generation options */
 // the following are defaults you might start from for a human-sized agent in a 1 m scale world.
@@ -80,27 +68,26 @@ const options: SoloNavMeshOptions = {
 
 // remember: type NavSceneRegistryKey = AnyNodeId | `fallback-level:${AnyNodeId}`
 
-export function generateNavMeshFromSceneRegistry(navSceneRegistry: NavSceneRegistry) {
-  //We need to exclude map scene nodes that are intangible from the navmesh
-  const colliderWorld = buildFirstPersonColliderWorldFromRegistry(navSceneRegistry)?.mesh
+export function generateNavMeshFromSceneRegistry(navSceneRegistry?: NavSceneRegistry) {
+  const world = navSceneRegistry
+    ? null
+    : buildFirstPersonColliderWorldFromRegistry({ includeNavSceneRegistry: true })
 
-  if (!colliderWorld) return null
+  try {
+    // Pascal's navigation geometry excludes the large site ground collider.
+    const meshes = Object.values(navSceneRegistry ?? world?.navSceneRegistry ?? {}).flatMap(
+      (entry) => (entry ? [entry.object] : []),
+    )
+    if (meshes.length === 0) return null
 
-  // gets position and indices of collider world. That's the expected navcat input format
-  const [positions, indices] = getPositionsAndIndices([colliderWorld])
-
-  /* generate the navmesh */
-  const result = generateSoloNavMesh({ indices, positions }, options)
-
-  const navMesh = result.navMesh // the nav mesh
-  const intermediates = result.intermediates // intermediate data for debugging
-
-  console.log('generated navmesh:', navMesh, intermediates)
-
-  return navMesh
+    const [positions, indices] = getPositionsAndIndices(meshes)
+    return generateSoloNavMesh({ indices, positions }, options).navMesh
+  } finally {
+    world?.dispose()
+  }
 }
 
-export function exportMapNavMeshJson(navSceneRegistry: NavSceneRegistry) {
+export function exportMapNavMeshJson(navSceneRegistry?: NavSceneRegistry) {
   return JSON.stringify(generateNavMeshFromSceneRegistry(navSceneRegistry))
 }
 

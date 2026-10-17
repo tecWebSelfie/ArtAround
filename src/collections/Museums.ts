@@ -1,10 +1,11 @@
-import { ArrayField, CollectionConfig } from 'payload'
+import type { ArrayField, CollectionConfig, JSONField } from 'payload'
 import { OpeningHours } from '../fields/OpeningHours'
 import { TicketInfo } from '../fields/TicketInfo'
 
 import { Coordinates } from '@/fields/Coordinates'
 import { editorial } from '@/fields/editorial'
 import { SocialLinks } from '@/fields/SocialLinks'
+import navMeshSchema from '@/lib/schemas/navmesh.schema.json'
 import { getPermissionAccess } from '@zealamic/payload-plugin-rbac'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 
@@ -138,6 +139,16 @@ export const Museums: CollectionConfig = {
       name: 'map',
       type: 'json', // it is a pascal-editor json map representation
       required: false,
+    },
+    {
+      name: 'navMesh',
+      type: 'json',
+      required: false,
+      jsonSchema: {
+        fileMatch: ['*'],
+        uri: 'https://artaround.local/schemas/navmesh.json',
+        schema: navMeshSchema as NonNullable<JSONField['jsonSchema']>['schema'],
+      },
     },
   ],
 }

@@ -1,0 +1,651 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "properties": {
+        "linkIndexPool": {
+            "description": "Pool for link indices",
+            "properties": {
+                "counter": {
+                    "type": "number"
+                },
+                "free": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "counter",
+                "free"
+            ],
+            "type": "object"
+        },
+        "links": {
+            "description": "Global links. Check 'allocated' for whether the link is in use.",
+            "items": {
+                "properties": {
+                    "allocated": {
+                        "description": "whether the nav mesh link is allocated",
+                        "type": "boolean"
+                    },
+                    "bmax": {
+                        "description": "if a boundary link, defines the max sub-edge area",
+                        "type": "number"
+                    },
+                    "bmin": {
+                        "description": "if a boundary link, defines the min sub-edge area",
+                        "type": "number"
+                    },
+                    "edge": {
+                        "description": "index of the polygon edge that owns this link",
+                        "type": "number"
+                    },
+                    "fromNodeIndex": {
+                        "description": "the node index that owns this link",
+                        "type": "number"
+                    },
+                    "fromNodeRef": {
+                        "description": "node reference that owns this link",
+                        "type": "number"
+                    },
+                    "index": {
+                        "description": "the index of the link",
+                        "type": "number"
+                    },
+                    "side": {
+                        "description": "if a boundary link, defines on which side the link is",
+                        "type": "number"
+                    },
+                    "toNodeIndex": {
+                        "description": "index of the neighbour node that ref links to",
+                        "type": "number"
+                    },
+                    "toNodeRef": {
+                        "description": "the neighbour node reference that ref links to",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "allocated",
+                    "bmax",
+                    "bmin",
+                    "edge",
+                    "fromNodeIndex",
+                    "fromNodeRef",
+                    "index",
+                    "side",
+                    "toNodeIndex",
+                    "toNodeRef"
+                ],
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "nodeIndexPool": {
+            "description": "Pool for node indices",
+            "properties": {
+                "counter": {
+                    "type": "number"
+                },
+                "free": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "counter",
+                "free"
+            ],
+            "type": "object"
+        },
+        "nodes": {
+            "description": "Global nodes",
+            "items": {
+                "properties": {
+                    "allocated": {
+                        "description": "whether the node is currently allocated",
+                        "type": "boolean"
+                    },
+                    "area": {
+                        "description": "the user defined area id for this node",
+                        "type": "number"
+                    },
+                    "flags": {
+                        "description": "the user defined flags for this node",
+                        "type": "number"
+                    },
+                    "index": {
+                        "description": "the index of the node",
+                        "type": "number"
+                    },
+                    "links": {
+                        "description": "links for this nav mesh node",
+                        "items": {
+                            "type": "number"
+                        },
+                        "type": "array"
+                    },
+                    "offMeshConnectionId": {
+                        "description": "the offmesh connection id, for offmesh connection nodes",
+                        "type": "number"
+                    },
+                    "polyIndex": {
+                        "description": "the poly index, for poly nodes",
+                        "type": "number"
+                    },
+                    "ref": {
+                        "description": "the node ref, packed type, index, sequence",
+                        "type": "number"
+                    },
+                    "tileId": {
+                        "description": "the tile id, for poly nodes",
+                        "type": "number"
+                    },
+                    "type": {
+                        "description": "the type of the nav mesh node",
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "allocated",
+                    "area",
+                    "flags",
+                    "index",
+                    "links",
+                    "offMeshConnectionId",
+                    "polyIndex",
+                    "ref",
+                    "tileId",
+                    "type"
+                ],
+                "type": "object"
+            },
+            "type": "array"
+        },
+        "offMeshConnectionAttachments": {
+            "additionalProperties": {
+                "properties": {
+                    "endPolyNode": {
+                        "description": "the end polygon that the off mesh connection has linked to",
+                        "type": "number"
+                    },
+                    "offMeshNode": {
+                        "description": "the offmesh node",
+                        "type": "number"
+                    },
+                    "startPolyNode": {
+                        "description": "the start polygon that the off mesh connection has linked to",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "endPolyNode",
+                    "offMeshNode",
+                    "startPolyNode"
+                ],
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "offMeshConnectionIndexPool": {
+            "description": "Pool for off mesh connection indices",
+            "properties": {
+                "counter": {
+                    "type": "number"
+                },
+                "free": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "counter",
+                "free"
+            ],
+            "type": "object"
+        },
+        "offMeshConnectionSequenceCounter": {
+            "description": "The off mesh connection sequence counter",
+            "type": "number"
+        },
+        "offMeshConnections": {
+            "additionalProperties": {
+                "properties": {
+                    "area": {
+                        "description": "the area id for the off mesh connection",
+                        "type": "number"
+                    },
+                    "direction": {
+                        "description": "the direction of the off mesh connection",
+                        "enum": [
+                            0,
+                            1
+                        ],
+                        "type": "number"
+                    },
+                    "end": {
+                        "description": "the end position of the off mesh connection",
+                        "items": [
+                            {
+                                "title": "x",
+                                "type": "number"
+                            },
+                            {
+                                "title": "y",
+                                "type": "number"
+                            },
+                            {
+                                "title": "z",
+                                "type": "number"
+                            }
+                        ],
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "type": "array"
+                    },
+                    "flags": {
+                        "description": "the flags for the off mesh connection",
+                        "type": "number"
+                    },
+                    "id": {
+                        "description": "the id of the off mesh connection",
+                        "type": "number"
+                    },
+                    "radius": {
+                        "description": "the radius of the endpoints",
+                        "type": "number"
+                    },
+                    "sequence": {
+                        "description": "the sequence of the off mesh connection",
+                        "type": "number"
+                    },
+                    "start": {
+                        "description": "the start position of the off mesh connection",
+                        "items": [
+                            {
+                                "title": "x",
+                                "type": "number"
+                            },
+                            {
+                                "title": "y",
+                                "type": "number"
+                            },
+                            {
+                                "title": "z",
+                                "type": "number"
+                            }
+                        ],
+                        "maxItems": 3,
+                        "minItems": 3,
+                        "type": "array"
+                    }
+                },
+                "required": [
+                    "area",
+                    "direction",
+                    "end",
+                    "flags",
+                    "id",
+                    "radius",
+                    "sequence",
+                    "start"
+                ],
+                "type": "object"
+            },
+            "type": "object"
+        },
+        "origin": {
+            "description": "The world space origin of the navigation mesh's tiles",
+            "items": [
+                {
+                    "title": "x",
+                    "type": "number"
+                },
+                {
+                    "title": "y",
+                    "type": "number"
+                },
+                {
+                    "title": "z",
+                    "type": "number"
+                }
+            ],
+            "maxItems": 3,
+            "minItems": 3,
+            "type": "array"
+        },
+        "tileColumnToTileIds": {
+            "additionalProperties": {
+                "items": {
+                    "type": "number"
+                },
+                "type": "array"
+            },
+            "type": "object"
+        },
+        "tileHeight": {
+            "description": "The height of each tile along the z axis",
+            "type": "number"
+        },
+        "tileIndexPool": {
+            "description": "Pool for tile indices",
+            "properties": {
+                "counter": {
+                    "type": "number"
+                },
+                "free": {
+                    "items": {
+                        "type": "number"
+                    },
+                    "type": "array"
+                }
+            },
+            "required": [
+                "counter",
+                "free"
+            ],
+            "type": "object"
+        },
+        "tilePositionToSequenceCounter": {
+            "additionalProperties": {
+                "type": "number"
+            },
+            "type": "object"
+        },
+        "tilePositionToTileId": {
+            "additionalProperties": {
+                "type": "number"
+            },
+            "type": "object"
+        },
+        "tileWidth": {
+            "description": "The width of each tile along the x axis",
+            "type": "number"
+        },
+        "tiles": {
+            "additionalProperties": {
+                "properties": {
+                    "bounds": {
+                        "description": "the bounds of the tile's AABB",
+                        "items": [
+                            {
+                                "title": "minX",
+                                "type": "number"
+                            },
+                            {
+                                "title": "minY",
+                                "type": "number"
+                            },
+                            {
+                                "title": "minZ",
+                                "type": "number"
+                            },
+                            {
+                                "title": "maxX",
+                                "type": "number"
+                            },
+                            {
+                                "title": "maxY",
+                                "type": "number"
+                            },
+                            {
+                                "title": "maxZ",
+                                "type": "number"
+                            }
+                        ],
+                        "maxItems": 6,
+                        "minItems": 6,
+                        "type": "array"
+                    },
+                    "bvTree": {
+                        "description": "the tile's bounding volume tree",
+                        "properties": {
+                            "nodes": {
+                                "description": "the tile bounding volume nodes",
+                                "items": {
+                                    "properties": {
+                                        "bounds": {
+                                            "description": "bounds of the bv node",
+                                            "items": [
+                                                {
+                                                    "title": "minX",
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "title": "minY",
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "title": "minZ",
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "title": "maxX",
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "title": "maxY",
+                                                    "type": "number"
+                                                },
+                                                {
+                                                    "title": "maxZ",
+                                                    "type": "number"
+                                                }
+                                            ],
+                                            "maxItems": 6,
+                                            "minItems": 6,
+                                            "type": "array"
+                                        },
+                                        "i": {
+                                            "description": "the node's index",
+                                            "type": "number"
+                                        }
+                                    },
+                                    "required": [
+                                        "bounds",
+                                        "i"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            },
+                            "quantFactor": {
+                                "description": "the quantisation factor for the bounding volume tree",
+                                "type": "number"
+                            }
+                        },
+                        "required": [
+                            "nodes",
+                            "quantFactor"
+                        ],
+                        "type": "object"
+                    },
+                    "cellHeight": {
+                        "description": "The y-axis cell height of the polygon mesh.\nIf this tile was generated with voxelization, it should be the voxel cell height.\nIf the tile was created with a different method, use a value that approximates the level of precision required for the tile.",
+                        "type": "number"
+                    },
+                    "cellSize": {
+                        "description": "The xz-plane cell size of the polygon mesh.\nIf this tile was generated with voxelization, it should be the voxel cell size.\nIf the tile was created with a different method, use a value that approximates the level of precision required for the tile.",
+                        "type": "number"
+                    },
+                    "detailMeshes": {
+                        "description": "the detail meshes",
+                        "items": {
+                            "properties": {
+                                "trianglesBase": {
+                                    "description": "The offset of the triangles in the NavMeshTile detailTriangles array",
+                                    "type": "number"
+                                },
+                                "trianglesCount": {
+                                    "description": "The number of triangles in the sub-mesh",
+                                    "type": "number"
+                                },
+                                "verticesBase": {
+                                    "description": "The offset of the vertices in the NavMeshTile detailVertices array.\nIf the base index is between 0 and `NavMeshTile.vertices.length`, this is used to index into the NavMeshTile vertices array.\nIf the base index is greater than `NavMeshTile.vertices.length`, it is used to index into the NavMeshTile detailVertices array.\nThis allows for detail meshes to either re-use the polygon vertices or to define their own vertices without duplicating data.",
+                                    "type": "number"
+                                },
+                                "verticesCount": {
+                                    "description": "The number of vertices in thde sub-mesh",
+                                    "type": "number"
+                                }
+                            },
+                            "required": [
+                                "trianglesBase",
+                                "trianglesCount",
+                                "verticesBase",
+                                "verticesCount"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "detailTriangles": {
+                        "description": "the detail mesh's triangles",
+                        "items": {
+                            "type": "number"
+                        },
+                        "type": "array"
+                    },
+                    "detailVertices": {
+                        "description": "the detail mesh's unique vertices, in local tile space",
+                        "items": {
+                            "type": "number"
+                        },
+                        "type": "array"
+                    },
+                    "id": {
+                        "description": "the id of the tile",
+                        "type": "number"
+                    },
+                    "polyNodes": {
+                        "description": "poly index to global node index",
+                        "items": {
+                            "type": "number"
+                        },
+                        "type": "array"
+                    },
+                    "polys": {
+                        "description": "the tile polys",
+                        "items": {
+                            "properties": {
+                                "area": {
+                                    "description": "The user defined area id for this polygon",
+                                    "type": "number"
+                                },
+                                "flags": {
+                                    "description": "The user defined flags for this polygon",
+                                    "type": "number"
+                                },
+                                "neis": {
+                                    "description": "Packed data representing neighbor polygons references and flags for each edge.\nThis is usually computed by the navcat's `buildPolyNeighbours` function .",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "type": "array"
+                                },
+                                "vertices": {
+                                    "description": "The indices of the polygon's vertices. vertices are stored in NavMeshTile.vertices",
+                                    "items": {
+                                        "type": "number"
+                                    },
+                                    "type": "array"
+                                }
+                            },
+                            "required": [
+                                "area",
+                                "flags",
+                                "neis",
+                                "vertices"
+                            ],
+                            "type": "object"
+                        },
+                        "type": "array"
+                    },
+                    "sequence": {
+                        "description": "the salt of the tile",
+                        "type": "number"
+                    },
+                    "tileLayer": {
+                        "description": "the tile layer in the nav mesh",
+                        "type": "number"
+                    },
+                    "tileX": {
+                        "type": "number"
+                    },
+                    "tileY": {
+                        "type": "number"
+                    },
+                    "vertices": {
+                        "description": "nav mesh tile vertices in world space",
+                        "items": {
+                            "type": "number"
+                        },
+                        "type": "array"
+                    },
+                    "walkableClimb": {
+                        "description": "the agent maximum traversable ledge (up/down) in world units",
+                        "type": "number"
+                    },
+                    "walkableHeight": {
+                        "description": "the agent height in world units",
+                        "type": "number"
+                    },
+                    "walkableRadius": {
+                        "description": "the agent radius in world units",
+                        "type": "number"
+                    }
+                },
+                "required": [
+                    "bounds",
+                    "bvTree",
+                    "cellHeight",
+                    "cellSize",
+                    "detailMeshes",
+                    "detailTriangles",
+                    "detailVertices",
+                    "id",
+                    "polyNodes",
+                    "polys",
+                    "sequence",
+                    "tileLayer",
+                    "tileX",
+                    "tileY",
+                    "vertices",
+                    "walkableClimb",
+                    "walkableHeight",
+                    "walkableRadius"
+                ],
+                "type": "object"
+            },
+            "type": "object"
+        }
+    },
+    "required": [
+        "linkIndexPool",
+        "links",
+        "nodeIndexPool",
+        "nodes",
+        "offMeshConnectionAttachments",
+        "offMeshConnectionIndexPool",
+        "offMeshConnectionSequenceCounter",
+        "offMeshConnections",
+        "origin",
+        "tileColumnToTileIds",
+        "tileHeight",
+        "tileIndexPool",
+        "tilePositionToSequenceCounter",
+        "tilePositionToTileId",
+        "tileWidth",
+        "tiles"
+    ],
+    "type": "object"
+}
+

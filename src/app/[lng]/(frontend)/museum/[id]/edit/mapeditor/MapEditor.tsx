@@ -3,6 +3,7 @@
 import { ObjectCatalogPanel } from '@/components/pascal/ObjectCatalogPanel'
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { museumPlugin } from '@/lib/pascal'
+import { generateNavMeshFromSceneRegistry } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
@@ -10,7 +11,8 @@ import { Editor } from '@pascal-app/editor'
 import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Amphora } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { createNavMesh } from 'navcat'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const registerPlugin = loadPlugin(builtinPlugin)
@@ -18,6 +20,17 @@ const registerMuseumPlugin = loadPlugin(museumPlugin)
 
 export function MapEditor({ museumId }: { museumId: string }) {
   const { t } = useTranslation('map-editor')
+  const sceneReady = useRef<{ promise?: Promise<void>; resolve?: () => void }>({})
+  const handleLoaderChange = useCallback((visible: boolean) => {
+    if (visible) {
+      sceneReady.current.promise ??= new Promise<void>((resolve) => {
+        sceneReady.current.resolve = resolve
+      })
+    } else {
+      sceneReady.current.resolve?.()
+      sceneReady.current = {}
+    }
+  }, [])
   const {
     data: museum,
     isLoading,
@@ -33,14 +46,18 @@ export function MapEditor({ museumId }: { museumId: string }) {
 
   const { mutateAsync } = useMutation({
     mutationKey: ['saveScene'],
-    mutationFn: (scene: ParsedBuildJson) =>
-      payloadSdk.update({
+    mutationFn: async (scene: ParsedBuildJson) => {
+      // Scene JSON loads before the renderer has built navigation geometry.
+      await sceneReady.current.promise
+      return payloadSdk.update({
         collection: 'museums',
         id: museumId,
         data: {
           map: scene,
+          navMesh: generateNavMeshFromSceneRegistry() ?? createNavMesh(),
         },
-      }),
+      })
+    },
   })
 
   const [ready, setReady] = useState(false)
@@ -85,6 +102,7 @@ export function MapEditor({ museumId }: { museumId: string }) {
         sceneOverlay={<MuseumCreationToolbar />}
         isLoading={false}
         onLoad={handleLoad}
+        onLoaderChange={handleLoaderChange}
         onSave={async (scene) => {
           await mutateAsync(scene as ParsedBuildJson)
         }}

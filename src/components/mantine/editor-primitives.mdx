@@ -6,6 +6,13 @@ import { Meta } from '@storybook/addon-docs/blocks'
 
 These controls come from the installed Mantine packages and inherit the project theme.
 
+## Pascal persistence
+
+`Editor` from `@pascal-app/editor` accepts `onSave`, an asynchronous callback
+that receives the scene document. Pascal awaits it and queues edits made during
+the save. `onLoaderChange(visible)` reports whether its scene loader is visible;
+hosts can wait for it to hide before reading rendered navigation geometry.
+
 ## Button
 
 Import from `@mantine/core`. `children` supplies the label. `variant` supports

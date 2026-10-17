@@ -11,6 +11,27 @@
  * via the `definition` "Difficulty".
  */
 export type Difficulty = 'easy' | 'medium' | 'hard';
+export type X = number;
+export type Y = number;
+export type Z = number;
+export type X1 = number;
+export type Y1 = number;
+export type Z1 = number;
+export type X2 = number;
+export type Y2 = number;
+export type Z2 = number;
+export type MinX = number;
+export type MinY = number;
+export type MinZ = number;
+export type MaxX = number;
+export type MaxY = number;
+export type MaxZ = number;
+export type MinX1 = number;
+export type MinY1 = number;
+export type MinZ1 = number;
+export type MaxX1 = number;
+export type MaxY1 = number;
+export type MaxZ1 = number;
 /**
  * Supported timezones in IANA format.
  *
@@ -1484,6 +1505,362 @@ export interface Museum {
     | number
     | boolean
     | null;
+  navMesh?: {
+    /**
+     * Pool for link indices
+     */
+    linkIndexPool: {
+      counter: number;
+      free: number[];
+      [k: string]: unknown;
+    };
+    /**
+     * Global links. Check 'allocated' for whether the link is in use.
+     */
+    links: {
+      /**
+       * whether the nav mesh link is allocated
+       */
+      allocated: boolean;
+      /**
+       * if a boundary link, defines the max sub-edge area
+       */
+      bmax: number;
+      /**
+       * if a boundary link, defines the min sub-edge area
+       */
+      bmin: number;
+      /**
+       * index of the polygon edge that owns this link
+       */
+      edge: number;
+      /**
+       * the node index that owns this link
+       */
+      fromNodeIndex: number;
+      /**
+       * node reference that owns this link
+       */
+      fromNodeRef: number;
+      /**
+       * the index of the link
+       */
+      index: number;
+      /**
+       * if a boundary link, defines on which side the link is
+       */
+      side: number;
+      /**
+       * index of the neighbour node that ref links to
+       */
+      toNodeIndex: number;
+      /**
+       * the neighbour node reference that ref links to
+       */
+      toNodeRef: number;
+      [k: string]: unknown;
+    }[];
+    /**
+     * Pool for node indices
+     */
+    nodeIndexPool: {
+      counter: number;
+      free: number[];
+      [k: string]: unknown;
+    };
+    /**
+     * Global nodes
+     */
+    nodes: {
+      /**
+       * whether the node is currently allocated
+       */
+      allocated: boolean;
+      /**
+       * the user defined area id for this node
+       */
+      area: number;
+      /**
+       * the user defined flags for this node
+       */
+      flags: number;
+      /**
+       * the index of the node
+       */
+      index: number;
+      /**
+       * links for this nav mesh node
+       */
+      links: number[];
+      /**
+       * the offmesh connection id, for offmesh connection nodes
+       */
+      offMeshConnectionId: number;
+      /**
+       * the poly index, for poly nodes
+       */
+      polyIndex: number;
+      /**
+       * the node ref, packed type, index, sequence
+       */
+      ref: number;
+      /**
+       * the tile id, for poly nodes
+       */
+      tileId: number;
+      /**
+       * the type of the nav mesh node
+       */
+      type: 0 | 1;
+      [k: string]: unknown;
+    }[];
+    offMeshConnectionAttachments: {
+      [k: string]: {
+        /**
+         * the end polygon that the off mesh connection has linked to
+         */
+        endPolyNode: number;
+        /**
+         * the offmesh node
+         */
+        offMeshNode: number;
+        /**
+         * the start polygon that the off mesh connection has linked to
+         */
+        startPolyNode: number;
+        [k: string]: unknown;
+      };
+    };
+    /**
+     * Pool for off mesh connection indices
+     */
+    offMeshConnectionIndexPool: {
+      counter: number;
+      free: number[];
+      [k: string]: unknown;
+    };
+    /**
+     * The off mesh connection sequence counter
+     */
+    offMeshConnectionSequenceCounter: number;
+    offMeshConnections: {
+      [k: string]: {
+        /**
+         * the area id for the off mesh connection
+         */
+        area: number;
+        /**
+         * the direction of the off mesh connection
+         */
+        direction: 0 | 1;
+        /**
+         * the end position of the off mesh connection
+         *
+         * @minItems 3
+         * @maxItems 3
+         */
+        end: [X, Y, Z];
+        /**
+         * the flags for the off mesh connection
+         */
+        flags: number;
+        /**
+         * the id of the off mesh connection
+         */
+        id: number;
+        /**
+         * the radius of the endpoints
+         */
+        radius: number;
+        /**
+         * the sequence of the off mesh connection
+         */
+        sequence: number;
+        /**
+         * the start position of the off mesh connection
+         *
+         * @minItems 3
+         * @maxItems 3
+         */
+        start: [X1, Y1, Z1];
+        [k: string]: unknown;
+      };
+    };
+    /**
+     * The world space origin of the navigation mesh's tiles
+     *
+     * @minItems 3
+     * @maxItems 3
+     */
+    origin: [X2, Y2, Z2];
+    tileColumnToTileIds: {
+      [k: string]: number[];
+    };
+    /**
+     * The height of each tile along the z axis
+     */
+    tileHeight: number;
+    /**
+     * Pool for tile indices
+     */
+    tileIndexPool: {
+      counter: number;
+      free: number[];
+      [k: string]: unknown;
+    };
+    tilePositionToSequenceCounter: {
+      [k: string]: number;
+    };
+    tilePositionToTileId: {
+      [k: string]: number;
+    };
+    /**
+     * The width of each tile along the x axis
+     */
+    tileWidth: number;
+    tiles: {
+      [k: string]: {
+        /**
+         * the bounds of the tile's AABB
+         *
+         * @minItems 6
+         * @maxItems 6
+         */
+        bounds: [MinX, MinY, MinZ, MaxX, MaxY, MaxZ];
+        /**
+         * the tile's bounding volume tree
+         */
+        bvTree: {
+          /**
+           * the tile bounding volume nodes
+           */
+          nodes: {
+            /**
+             * bounds of the bv node
+             *
+             * @minItems 6
+             * @maxItems 6
+             */
+            bounds: [MinX1, MinY1, MinZ1, MaxX1, MaxY1, MaxZ1];
+            /**
+             * the node's index
+             */
+            i: number;
+            [k: string]: unknown;
+          }[];
+          /**
+           * the quantisation factor for the bounding volume tree
+           */
+          quantFactor: number;
+          [k: string]: unknown;
+        };
+        /**
+         * The y-axis cell height of the polygon mesh.
+         * If this tile was generated with voxelization, it should be the voxel cell height.
+         * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
+         */
+        cellHeight: number;
+        /**
+         * The xz-plane cell size of the polygon mesh.
+         * If this tile was generated with voxelization, it should be the voxel cell size.
+         * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
+         */
+        cellSize: number;
+        /**
+         * the detail meshes
+         */
+        detailMeshes: {
+          /**
+           * The offset of the triangles in the NavMeshTile detailTriangles array
+           */
+          trianglesBase: number;
+          /**
+           * The number of triangles in the sub-mesh
+           */
+          trianglesCount: number;
+          /**
+           * The offset of the vertices in the NavMeshTile detailVertices array.
+           * If the base index is between 0 and `NavMeshTile.vertices.length`, this is used to index into the NavMeshTile vertices array.
+           * If the base index is greater than `NavMeshTile.vertices.length`, it is used to index into the NavMeshTile detailVertices array.
+           * This allows for detail meshes to either re-use the polygon vertices or to define their own vertices without duplicating data.
+           */
+          verticesBase: number;
+          /**
+           * The number of vertices in thde sub-mesh
+           */
+          verticesCount: number;
+          [k: string]: unknown;
+        }[];
+        /**
+         * the detail mesh's triangles
+         */
+        detailTriangles: number[];
+        /**
+         * the detail mesh's unique vertices, in local tile space
+         */
+        detailVertices: number[];
+        /**
+         * the id of the tile
+         */
+        id: number;
+        /**
+         * poly index to global node index
+         */
+        polyNodes: number[];
+        /**
+         * the tile polys
+         */
+        polys: {
+          /**
+           * The user defined area id for this polygon
+           */
+          area: number;
+          /**
+           * The user defined flags for this polygon
+           */
+          flags: number;
+          /**
+           * Packed data representing neighbor polygons references and flags for each edge.
+           * This is usually computed by the navcat's `buildPolyNeighbours` function .
+           */
+          neis: number[];
+          /**
+           * The indices of the polygon's vertices. vertices are stored in NavMeshTile.vertices
+           */
+          vertices: number[];
+          [k: string]: unknown;
+        }[];
+        /**
+         * the salt of the tile
+         */
+        sequence: number;
+        /**
+         * the tile layer in the nav mesh
+         */
+        tileLayer: number;
+        tileX: number;
+        tileY: number;
+        /**
+         * nav mesh tile vertices in world space
+         */
+        vertices: number[];
+        /**
+         * the agent maximum traversable ledge (up/down) in world units
+         */
+        walkableClimb: number;
+        /**
+         * the agent height in world units
+         */
+        walkableHeight: number;
+        /**
+         * the agent radius in world units
+         */
+        walkableRadius: number;
+        [k: string]: unknown;
+      };
+    };
+    [k: string]: unknown;
+  };
   lfrs?: {
     favouritesCount?: number | null;
     sharesCount?: number | null;
@@ -3127,6 +3504,7 @@ export interface MuseumsSelect<T extends boolean = true> {
       };
   tours?: T;
   map?: T;
+  navMesh?: T;
   lfrs?:
     | T
     | {

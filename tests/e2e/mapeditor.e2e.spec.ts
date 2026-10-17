@@ -1,11 +1,100 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
+import { writeFile } from 'node:fs/promises'
 import type { ParsedBuildJson } from '@pascal-app/core'
+import type { NavMesh } from 'navcat'
 
 const editorURL =
   process.env.E2E_MAPEDITOR_URL ??
   'http://localhost:3000/it/museum/6ad215d05b159f24a7616019/edit/mapeditor'
 const origin = new URL(editorURL).origin
+
+test('map editor awaits navmesh saves and recovers from a rejected save', async ({
+  page,
+}, testInfo) => {
+  test.setTimeout(180_000)
+  const runtimeErrors: string[] = []
+  page.on('pageerror', (error) => {
+    runtimeErrors.push(error.message)
+    console.info(`Editor runtime error: ${error.message}`)
+  })
+  const login = await page.request.post(`${origin}/api/users/login`, {
+    data: {
+      username: process.env.E2E_USERNAME ?? 'dev',
+      password: process.env.E2E_PASSWORD ?? 'test',
+    },
+  })
+  expect(login.status()).toBe(200)
+
+  const saves: { map: ParsedBuildJson; navMesh: NavMesh }[] = []
+  let releaseSave!: () => void
+  const heldSave = new Promise<void>((resolve) => {
+    releaseSave = resolve
+  })
+  await page.route('**/api/museums/*', async (route) => {
+    if (route.request().method() !== 'PATCH') return route.continue()
+    saves.push(route.request().postDataJSON())
+    if (saves.length === 1) {
+      await heldSave
+      return route.fulfill({ status: 503, json: { errors: [{ message: 'Save unavailable' }] } })
+    }
+    // Keep every test save in memory; never write to the actual museum.
+    await route.fulfill({ json: { doc: { ...saves.at(-1), id: 'e2e-museum' } } })
+  })
+
+  try {
+    await page.goto(editorURL, { waitUntil: 'domcontentloaded', timeout: 120_000 })
+    const toolbar = page.getByRole('group', { name: 'Strumenti di creazione del museo' })
+    await expect(toolbar).toBeVisible({ timeout: 90_000 })
+    await expect(page.locator('canvas').first()).toBeVisible({ timeout: 60_000 })
+    await page.waitForTimeout(2000)
+
+    const started = Date.now()
+    await page.keyboard.press('Control+s')
+    await expect.poll(() => saves.length, { timeout: 30_000 }).toBe(1)
+    const generationAndDispatchMs = Date.now() - started
+    console.info(`Navmesh generation and save dispatch: ${generationAndDispatchMs}ms`)
+    await testInfo.attach('navmesh-save-timing', {
+      body: JSON.stringify({ generationAndDispatchMs }),
+      contentType: 'application/json',
+    })
+    await testInfo.attach('saved-map-and-navmesh', {
+      body: JSON.stringify(saves[0]),
+      contentType: 'application/json',
+    })
+    await writeFile(testInfo.outputPath('saved-map-and-navmesh.json'), JSON.stringify(saves[0]))
+    await page.screenshot({ path: testInfo.outputPath('navmesh-save.png') })
+    console.info(
+      `Saved ${Object.keys(saves[0].map.nodes).length} scene nodes, ${Object.keys(saves[0].navMesh.tiles).length} navigation tiles`,
+    )
+    expect(saves[0].map.nodes).toBeDefined()
+    expect(saves[0].navMesh).toMatchObject({
+      tiles: expect.any(Object),
+      nodes: expect.any(Array),
+      origin: expect.any(Array),
+    })
+    expect(Object.values(saves[0].navMesh.tiles).some((tile) => tile.polys.length > 0)).toBe(true)
+
+    // Editing controls remain usable while onSave's promise is pending.
+    const wall = toolbar.getByRole('button', { name: 'Disegna pareti' })
+    await wall.click()
+    await expect(wall).toHaveAttribute('aria-pressed', 'true')
+    await toolbar.getByRole('button', { name: 'Seleziona oggetti' }).click()
+    await page.keyboard.press('Control+s')
+    await page.waitForTimeout(1200)
+    expect(saves).toHaveLength(1)
+
+    // Pascal queues the next save, even when the pending request fails.
+    releaseSave()
+    await expect.poll(() => saves.length, { timeout: 15_000 }).toBe(2)
+    await page.waitForTimeout(500)
+    await page.keyboard.press('Control+s')
+    await expect.poll(() => saves.length, { timeout: 15_000 }).toBe(3)
+    expect(runtimeErrors).toEqual([])
+  } finally {
+    releaseSave()
+  }
+})
 
 // Uses the existing development account; does not seed users or change museum data.
 test('Italian map editor opens its object catalog and validates generation input', async ({
