@@ -1,7 +1,10 @@
 import { DEFAULT_QUERY_FILTER, findPath, type Vec3 } from 'navcat'
 import { generateSoloNavMesh, type SoloNavMeshInput, type SoloNavMeshOptions } from 'navcat/blocks'
 
-import type { NavSceneRegistry } from '@pascal-app/editor'
+import {
+  buildFirstPersonColliderWorldFromRegistry,
+  type NavSceneRegistry,
+} from '@pascal-app/editor'
 import { getPositionsAndIndices } from 'navcat/three'
 
 /* generation input */
@@ -77,9 +80,14 @@ const options: SoloNavMeshOptions = {
 
 // remember: type NavSceneRegistryKey = AnyNodeId | `fallback-level:${AnyNodeId}`
 
-export function useSceneNavMash(navSceneRegistry: NavSceneRegistry) {
-  const navSceneObjects = Object.values(navSceneRegistry).flatMap((scene) => scene?.object ?? [])
-  const [positions, indices] = getPositionsAndIndices(navSceneObjects)
+export function generateNavMeshFromSceneRegistry(navSceneRegistry: NavSceneRegistry) {
+  //We need to exclude map scene nodes that are intangible from the navmesh
+  const colliderWorld = buildFirstPersonColliderWorldFromRegistry(navSceneRegistry)?.mesh
+
+  if (!colliderWorld) return null
+
+  // gets position and indices of collider world. That's the expected navcat input format
+  const [positions, indices] = getPositionsAndIndices([colliderWorld])
 
   /* generate the navmesh */
   const result = generateSoloNavMesh({ indices, positions }, options)
@@ -89,15 +97,31 @@ export function useSceneNavMash(navSceneRegistry: NavSceneRegistry) {
 
   console.log('generated navmesh:', navMesh, intermediates)
 
-  /* find a path */
-  const start: Vec3 = [-4, 0, -4]
-  const end: Vec3 = [4, 0, 4]
-  const halfExtents: Vec3 = [0.5, 0.5, 0.5]
+  return navMesh
+}
 
-  const path = findPath(navMesh, start, end, halfExtents, DEFAULT_QUERY_FILTER)
+export function exportMapNavMeshJson(navSceneRegistry: NavSceneRegistry) {
+  return JSON.stringify(generateNavMeshFromSceneRegistry(navSceneRegistry))
+}
+
+export function pascalFindPath(
+  navSceneRegistry: NavSceneRegistry,
+  start: Vec3,
+  end: Vec3,
+  halfExtents: Vec3 = [0.5, 0.5, 0.5],
+) {
+  const navMesh = generateNavMeshFromSceneRegistry(navSceneRegistry)
+
+  if (!navMesh) {
+    console.error('Failed to generate navmesh from scene registry, cannot find map path.')
+    return
+  }
+
+  /* find a path */
+  const pathFindingResult = findPath(navMesh, start, end, halfExtents, DEFAULT_QUERY_FILTER)
 
   console.log(
     'path:',
-    path.path.map((p) => p.position),
+    pathFindingResult.path.map((p) => p.position),
   )
 }

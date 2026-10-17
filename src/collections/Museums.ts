@@ -5,10 +5,28 @@ import { TicketInfo } from '../fields/TicketInfo'
 import { Coordinates } from '@/fields/Coordinates'
 import { editorial } from '@/fields/editorial'
 import { SocialLinks } from '@/fields/SocialLinks'
+import { getPermissionAccess } from '@zealamic/payload-plugin-rbac'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 
 export const Museums: CollectionConfig = {
   slug: 'museums',
+  access: {
+    // The catalog is public; editing uses the existing RBAC permission matrix.
+    read: () => true,
+    create: getPermissionAccess({ featureCode: 'Museum', actionCode: 'Create' }),
+    update: getPermissionAccess({
+      featureCode: 'Museum',
+      actionCode: 'Update',
+      collectionSlug: 'museums',
+      mode: 'modify',
+    }),
+    delete: getPermissionAccess({
+      featureCode: 'Museum',
+      actionCode: 'Delete',
+      collectionSlug: 'museums',
+      mode: 'modify',
+    }),
+  },
   fields: [
     {
       name: 'name',

@@ -1,18 +1,23 @@
 'use client'
 
+import { ObjectCatalogPanel } from '@/components/pascal/ObjectCatalogPanel'
+import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { museumPlugin } from '@/lib/pascal'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
-import { Editor, ItemsPanel } from '@pascal-app/editor'
+import { Editor } from '@pascal-app/editor'
 import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { Amphora } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const registerPlugin = loadPlugin(builtinPlugin)
 const registerMuseumPlugin = loadPlugin(museumPlugin)
 
 export function MapEditor({ museumId }: { museumId: string }) {
+  const { t } = useTranslation('map-editor')
   const {
     data: museum,
     isLoading,
@@ -26,7 +31,7 @@ export function MapEditor({ museumId }: { museumId: string }) {
       }),
   })
 
-  const { mutate } = useMutation({
+  const { mutateAsync } = useMutation({
     mutationKey: ['saveScene'],
     mutationFn: (scene: ParsedBuildJson) =>
       payloadSdk.update({
@@ -56,9 +61,7 @@ export function MapEditor({ museumId }: { museumId: string }) {
     for (const node of Object.values(map.nodes ?? {})) {
       const polygon = (node as { polygon?: { points?: unknown } })?.polygon
       if (Array.isArray(polygon?.points)) {
-        polygon.points = polygon.points.map((p) =>
-          Array.isArray(p) ? p : [p?.[0], p?.[1]],
-        )
+        polygon.points = polygon.points.map((p) => (Array.isArray(p) ? p : [p?.[0], p?.[1]]))
       }
     }
     return map
@@ -73,14 +76,18 @@ export function MapEditor({ museumId }: { museumId: string }) {
         sidebarTabs={[
           {
             id: 'items',
-            label: 'Items',
-            component: ItemsPanel,
+            label: t('Objects'),
+            component: ObjectCatalogPanel,
+            icon: <Amphora size={24} />,
           },
         ]}
         layoutVersion="v2"
+        sceneOverlay={<MuseumCreationToolbar />}
         isLoading={false}
         onLoad={handleLoad}
-        onSave={async (scene) => mutate(scene as ParsedBuildJson)}
+        onSave={async (scene) => {
+          await mutateAsync(scene as ParsedBuildJson)
+        }}
       />
     </Box>
   )

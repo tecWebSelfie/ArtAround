@@ -1,0 +1,91 @@
+import { Meta } from '@storybook/addon-docs/blocks'
+
+<Meta title="Foundations/Editor Mantine APIs" />
+
+# Mantine APIs used by the object editor
+
+These controls come from the installed Mantine packages and inherit the project theme.
+
+## Button
+
+Import from `@mantine/core`. `children` supplies the label. `variant` supports
+`filled`, `default`, `light`, and `subtle`; `size` supports `xs`, `sm`, `md`,
+`lg`, and `xl`. Use `loading` for an active request and `disabled` for an
+unavailable action. Standard button attributes include `type`, `onClick`,
+`className`, `aria-label`, and `title`. `leftSection` accepts an icon.
+`autoContrast` chooses a readable label color for a filled button. `color` accepts
+a theme color such as `teal`. `aria-busy` can announce an active save request.
+
+[Official Button documentation](https://mantine.dev/core/button/)
+
+## Tooltip and Box
+
+`Tooltip` takes a `label` and one ref-capable child, such as a Mantine Button.
+`Box` takes `children` and `className` for a themed layout wrapper.
+
+[Tooltip](https://mantine.dev/core/tooltip/), [Box](https://mantine.dev/core/box/)
+
+## TextInput and Textarea
+
+Both accept `label`, `required`, `disabled`, `value`, `onChange`, `error`,
+`description`, `id`, and `maxLength`. `Textarea` also accepts `minRows`.
+Spread Mantine form's `getInputProps(fieldName)` onto these inputs to connect
+their value, change handler, and validation error.
+
+[TextInput](https://mantine.dev/core/text-input/),
+[Textarea](https://mantine.dev/core/textarea/)
+
+## Dropzone
+
+Import from `@mantine/dropzone`. `onDrop` receives accepted File objects;
+`onReject` handles rejected files. Configure MIME types with `accept`, byte
+limits with `maxSize`, selection count with `maxFiles`, and availability with
+`disabled`. `children` supplies its visible instructions; `aria-label` names
+the interactive area. `multiple` permits selecting several files.
+
+[Official Dropzone documentation](https://mantine.dev/x/dropzone/)
+
+## Modal manager
+
+`useModals()` from `@mantine/modals` exposes `openModal()` and `closeModal(id)`
+on the nearest ModalsProvider. `openModal()` accepts Modal props including `title`,
+`size`, `children`, and `closeButtonProps: { 'aria-label': 'Close' }` to name the
+close control for screen readers.
+
+[Modal accessibility](https://mantine.dev/core/modal/#accessibility),
+[Modals manager](https://mantine.dev/x/modals/)
+
+## Canvas toolbar controls
+
+`ActionIcon` from `@mantine/core` renders an icon button. It accepts `children`,
+`variant` (`default`, `light`, `filled`, `subtle`), `size` (including numeric pixel
+sizes), `disabled`, `loading`, and standard button attributes including `type`,
+`onClick`, `aria-label`, and `aria-pressed`. `Tooltip` also accepts
+`position="right"` for controls arranged vertically.
+
+`Paper` accepts `children`, `className`, and standard HTML attributes such as
+`role`, `aria-label`, and `aria-orientation`. Use CSS for positioning and spacing.
+
+`FileButton` accepts `accept`, `onChange`, `disabled`, `resetRef`, and
+`inputProps` (native input attributes, including `aria-label`). Its `children`
+render function receives `{ onClick }`; spread these props onto `ActionIcon` to
+open the file chooser. With the default single-file mode, `onChange` receives
+`File | null`. Call `resetRef.current?.()` after handling a file to allow choosing
+the same file again.
+
+[ActionIcon](https://mantine.dev/core/action-icon/),
+[Tooltip](https://mantine.dev/core/tooltip/),
+[Paper](https://mantine.dev/core/paper/),
+[FileButton](https://mantine.dev/core/file-button/)
+
+## Pagination
+
+`Pagination` from `@mantine/core` accepts `total` (number of pages), controlled
+`value` and `onChange`, `size`, `siblings`, `disabled`, and `autoContrast`.
+`layout="responsive"` switches to a compact label in narrow containers;
+`formatLabel={({ page, totalPages }) => ...}` localizes it. Use `getItemProps(page)`
+for page-button attributes and `getControlProps(control)` for navigation-button
+attributes (`control` is `first`, `previous`, `last`, or `next`). Both accept
+`aria-label`. Wrap it in a named `nav` landmark.
+
+[Official Pagination documentation](https://mantine.dev/core/pagination/)

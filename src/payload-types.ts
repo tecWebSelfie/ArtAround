@@ -759,6 +759,8 @@ export interface Config {
     };
     workflows: {
       generateObjectModel: WorkflowGenerateObjectModel;
+      interactiveObjectModel: WorkflowInteractiveObjectModel;
+      finalizeObjectModel: WorkflowFinalizeObjectModel;
       translate_document_locales: WorkflowTranslateDocumentLocales;
     };
   };
@@ -2455,7 +2457,8 @@ export interface PayloadJob {
         id?: string | null;
       }[]
     | null;
-  workflowSlug?: ('generateObjectModel' | 'translate_document_locales') | null;
+  workflowSlug?:
+    ('generateObjectModel' | 'interactiveObjectModel' | 'finalizeObjectModel' | 'translate_document_locales') | null;
   taskSlug?:
     | (
         | 'inline'
@@ -2471,6 +2474,10 @@ export interface PayloadJob {
   queue?: string | null;
   waitUntil?: string | null;
   processing?: boolean | null;
+  /**
+   * Used for concurrency control. Jobs with the same key are subject to exclusive/supersedes rules.
+   */
+  concurrencyKey?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -3793,6 +3800,7 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  concurrencyKey?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3938,6 +3946,18 @@ export interface TaskStartMintModelGeneration {
   input: {
     objectId: string;
     prompt: string;
+    review?: boolean | null;
+    requestId?: string | null;
+    generation?: {
+      prompt: string;
+      name?: string;
+      generationMode?: 'auto' | 'review';
+      generationPreset?: 'fast' | 'standard' | 'production';
+      imageUrl?: string;
+      sourceImages?: string[];
+      riggingPose?: 't_pose' | 'a_pose';
+      [k: string]: unknown;
+    };
   };
   output: {
     mintOperationId: string;
@@ -3952,10 +3972,90 @@ export interface TaskPollMintModelOperation {
   input: {
     mintOperationId: string;
     objectId: string;
+    stage?: ('preview' | 'final') | null;
   };
   output: {
-    mintModelId: string;
+    mintModelId?: string | null;
     mintOperationId: string;
+    operation: {
+      object: 'operation';
+      id: string;
+      type: 'model_generation';
+      generationMode: 'auto' | 'review';
+      status:
+        | 'queued'
+        | 'running'
+        | 'preview_ready'
+        | 'billing_required'
+        | 'succeeded'
+        | 'partially_succeeded'
+        | 'failed'
+        | 'canceled';
+      prompt?: string;
+      generationPreset?: 'fast' | 'standard' | 'production';
+      assets?: {
+        fbxUrl: string | null;
+        glbUrl: string | null;
+        glbSizeBytes: number | null;
+        objUrl: string | null;
+        optimizedGlbUrl: string | null;
+        optimizedGlbSizeBytes: number | null;
+        previewImageUrl: string | null;
+        stlUrl: string | null;
+        thumbnailUrl: string | null;
+        usdzUrl: string | null;
+        bounds: {
+          min: [] | [number] | [number, number] | [number, number, number];
+          max: [] | [number] | [number, number] | [number, number, number];
+          size: [] | [number] | [number, number] | [number, number, number];
+          center: [] | [number] | [number, number] | [number, number, number];
+          [k: string]: unknown;
+        } | null;
+        [k: string]: unknown;
+      };
+      resource: {
+        type: 'model';
+        id: string;
+        [k: string]: unknown;
+      } | null;
+      billing?: {
+        reason:
+          | 'subscription_required'
+          | 'past_due'
+          | 'quota_exhausted_upgrade_available'
+          | 'quota_exhausted_top_tier'
+          | 'insufficient_credits'
+          | 'insufficient_completion_credits';
+        resource:
+          'preview' | 'world' | 'model' | 'asset_pack' | 'material' | 'material_pack' | 'image' | 'audio' | 'video';
+        stage: 'preview' | 'final';
+        requiredCredits: number;
+        availableCredits?: number;
+        committedCredits?: number;
+        stageCredits?: number;
+        completionCredits?: number;
+        ctaKind?: 'view_plans' | 'upgrade_plan' | 'buy_top_up_credits';
+        actionUrl: string;
+        [k: string]: unknown;
+      };
+      credits?: {
+        estimated: number | null;
+        reserved: number;
+        finalized: number | null;
+        availableAfterReservation: number | null;
+        [k: string]: unknown;
+      };
+      error?: {
+        code: string;
+        message: string;
+        [k: string]: unknown;
+      };
+      createdAt: string;
+      updatedAt: string;
+      completedAt?: string;
+      canceledAt?: string;
+      [k: string]: unknown;
+    };
   };
 }
 /**
@@ -4092,6 +4192,48 @@ export interface WorkflowGenerateObjectModel {
   input: {
     objectId: string;
     prompt?: string | null;
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkflowInteractiveObjectModel".
+ */
+export interface WorkflowInteractiveObjectModel {
+  input: {
+    objectId: string;
+    requestedBy: string;
+    requestId: string;
+    prompt?: string | null;
+    action: 'start' | 'revise';
+    operationId?: string | null;
+    revision?: {
+      feedback: string;
+      [k: string]: unknown;
+    };
+    generation?: {
+      prompt: string;
+      name?: string;
+      generationMode?: 'auto' | 'review';
+      generationPreset?: 'fast' | 'standard' | 'production';
+      imageUrl?: string;
+      sourceImages?: string[];
+      riggingPose?: 't_pose' | 'a_pose';
+      [k: string]: unknown;
+    };
+  };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "WorkflowFinalizeObjectModel".
+ */
+export interface WorkflowFinalizeObjectModel {
+  input: {
+    objectId: string;
+    requestedBy: string;
+    requestId: string;
+    prompt?: string | null;
+    previewJobId: string;
+    operationId: string;
   };
 }
 /**

@@ -1,9 +1,28 @@
 import { editorial } from '@/fields/editorial'
+import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
+import { getPermissionAccess } from '@zealamic/payload-plugin-rbac/utils'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
+  access: {
+    // The catalog is public; editing uses the existing RBAC permission matrix.
+    read: () => true,
+    create: getPermissionAccess({ featureCode: 'Object', actionCode: 'Create' }),
+    update: getPermissionAccess({
+      featureCode: 'Object',
+      actionCode: 'Update',
+      collectionSlug: 'objects',
+      mode: 'modify',
+    }),
+    delete: getPermissionAccess({
+      featureCode: 'Object',
+      actionCode: 'Delete',
+      collectionSlug: 'objects',
+      mode: 'modify',
+    }),
+  },
   fields: [
     editorial({ name: 'name', type: 'text', required: true }),
     editorial({ name: 'description', type: 'textarea', required: false, maxLength: 500 }),
@@ -46,16 +65,16 @@ export const Objects: CollectionConfig = {
         if (operation === 'create' || operation === 'update') {
           //skip if name and description are unchanged
           if (
-            doc.name === previousDoc.name &&
-            doc.description === previousDoc.description &&
-            doc.thumbnail === previousDoc.thumbnail
+            doc.name === previousDoc?.name &&
+            doc.description === previousDoc?.description &&
+            doc.thumbnail === previousDoc?.thumbnail
           ) {
             return
           }
           //skip if model already exists and was intentionally uploaded by user
-          if (doc.model && doc.model !== previousDoc.model) return
+          if (doc.model && doc.model !== previousDoc?.model) return
 
-          req.payload.jobs.queue({
+          await req.payload.jobs.queue({
             workflow: 'generateObjectModel',
             input: {
               objectId: String(doc.id),
@@ -66,27 +85,7 @@ export const Objects: CollectionConfig = {
       },
     ] satisfies CollectionAfterChangeHook<Object>[],
   },
-  endpoints: [
-    {
-      // Manual trigger (e.g. admin button / future editor modal): force-queue
-      // a generation for this object. The workflow re-checks everything
-      // (user-uploaded models are never overwritten) server-side; the prompt
-      // is derived from the object's editorial fields, never from the client.
-      method: 'post',
-      path: '/:id/generate-model',
-      handler: async (req) => {
-        if (!req.user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-        const id = String(req.routeParams?.id ?? '')
-        if (!id) return Response.json({ error: 'Missing object id' }, { status: 400 })
-        const job = await req.payload.jobs.queue({
-          workflow: 'generateObjectModel',
-          req,
-          input: { objectId: id },
-        })
-        return Response.json({ jobId: job.id }, { status: 202 })
-      },
-    },
-  ],
+  endpoints: objectModelGenerationEndpoints,
 }
 
 export const ObjectsThumbnails: CollectionConfig = {

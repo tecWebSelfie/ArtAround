@@ -65,6 +65,8 @@ export const generateObjectModelWorkflow: WorkflowConfig<'generateObjectModel'> 
       },
     })
 
+    if (!operation.mintModelId) throw new Error('Finished generation has no model')
+
     // Step 4 — persist GLB + thumbnail and link onto the object.
     await tasks.persistMintModelAssets('persist-assets', {
       input: {

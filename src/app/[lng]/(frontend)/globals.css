@@ -1,4 +1,4 @@
-@layer theme, base, mantine, mantine-qr-code, mantine-text-animate, mantine-border-animate, mantine-reflection, mantine-depth-select, spotlight, components, utilities;
+@layer theme, base, mantine, mantine-qr-code, mantine-text-animate, mantine-border-animate, mantine-reflection, mantine-depth-select, spotlight, dropzone, components, utilities;
 
 @import 'tailwindcss';
 @import '@mantine/core/styles.layer.css';
@@ -12,6 +12,7 @@
 @import '@mantine/dates/styles.layer.css';
 @import 'mantine-composite-filters/styles.layer.css';
 @import '@mantine/spotlight/styles.layer.css';
+@import '@mantine/dropzone/styles.layer.css';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 

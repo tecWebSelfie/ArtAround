@@ -5,8 +5,10 @@ import '../src/app/[lng]/(frontend)/globals.css'
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
 import { theme } from '../src/theme'
+import { mswLoader } from 'msw-storybook-addon/csf3'
 
 const preview: Preview = {
+  loaders: [mswLoader()],
   parameters: {
     nextjs: {
       appDirectory: true,

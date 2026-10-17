@@ -22,12 +22,17 @@ import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 import { en } from '@payloadcms/translations/languages/en'
 import { it } from '@payloadcms/translations/languages/it'
 import IsoCodes from 'iso-639-1'
+import { mintEndpoints } from './endpoints/mint'
 import { generateObjectModelWorkflow } from './jobs/generateObjectModelWorkflow'
-import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext'
-import { startMintModelGeneration } from './tasks/startMintModelGeneration'
-import { pollMintModelOperation } from './tasks/pollMintModelOperation'
-import { persistMintModelAssets } from './tasks/persistMintModelAssets'
+import {
+  interactiveObjectModelWorkflow,
+  finalizeObjectModelWorkflow,
+} from './jobs/interactiveObjectModelWorkflow'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
+import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext'
+import { persistMintModelAssets } from './tasks/persistMintModelAssets'
+import { pollMintModelOperation } from './tasks/pollMintModelOperation'
+import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
@@ -54,6 +59,7 @@ const localizationConfig: LocalizationConfig = {
 }
 
 export default buildConfig({
+  endpoints: mintEndpoints,
   localization: localizationConfig,
   admin: {
     user: Users.slug,
@@ -238,19 +244,41 @@ export default buildConfig({
     },
   ],
   jobs: {
+    jobsCollectionOverrides: ({ defaultJobsCollection }) => ({
+      ...defaultJobsCollection,
+      access: {
+        ...defaultJobsCollection.access,
+        read: ({ req }): import('payload').AccessResult =>
+          req.user
+            ? {
+                and: [
+                  { workflowSlug: { in: ['interactiveObjectModel', 'finalizeObjectModel'] } },
+                  { 'input.requestedBy': { equals: String(req.user.id) } },
+                ],
+              }
+            : false,
+      },
+    }),
+    enableConcurrencyControl: true,
+    deleteJobOnComplete: false,
     autoRun: [
+      { cron: '*/5 * * * * *', queue: 'interactive-models', disableScheduling: true },
       {
         cron: '*/5 * * * *', // Check every 5 minutes
         queue: 'default',
       },
     ],
     tasks: [
-      loadObjectGenerationContext,
-      startMintModelGeneration,
-      pollMintModelOperation,
-      persistMintModelAssets,
+      loadObjectGenerationContext, //this prepares the prompt and checks for model generation
+      startMintModelGeneration, //this starts the model generation on Mint and returns the operation ID
+      pollMintModelOperation, //this polls the Mint operation until it is completed or failed
+      persistMintModelAssets, //when polling returns success, persists model and thumbnail to object collection
     ],
-    workflows: [generateObjectModelWorkflow],
+    workflows: [
+      generateObjectModelWorkflow,
+      interactiveObjectModelWorkflow,
+      finalizeObjectModelWorkflow,
+    ],
   },
   email: nodemailerAdapter({
     defaultFromAddress: 'artaround@progettantisti.com',
