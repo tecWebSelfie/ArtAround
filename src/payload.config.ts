@@ -29,8 +29,10 @@ import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
+import { Purchases } from './collections/Purchases'
 import { Tour } from './collections/Tours'
 import { Users, UsersPropics } from './collections/Users'
+import { onCheckoutCompleted } from './hooks/onCheckoutCompleted'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -72,6 +74,7 @@ export default buildConfig({
     Contents,
     ContentImages,
     Tour,
+    Purchases,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -88,10 +91,25 @@ export default buildConfig({
     // GET /api/{slug}/:id/localized?locale=xx on each of them.
     // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
     autoTranslatePlugin({
-      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages],
+      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages, Tour],
     }),
+    // Stripe — sandbox only. The secret key must be a test key (`sk_test_…`).
+    // Purchase/entitlement rows live in the `purchases` collection, written by
+    // the `checkout.session.completed` webhook below (and reconciled on the
+    // success page). See `src/lib/purchases.ts` and `src/lib/entitlements.ts`.
     stripePlugin({
-      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+      // Purely cosmetic: makes the admin "View in Stripe" links point at
+      // dashboard.stripe.com/test/…. Sandbox vs live is decided by the key.
+      isTestKey: (process.env.STRIPE_SECRET_KEY ?? '').startsWith('sk_test_'),
+      // Without this secret, POST /api/stripe/webhooks accepts events but
+      // silently does nothing. Local dev: `stripe listen --forward-to
+      // localhost:3000/api/stripe/webhooks` prints the `whsec_…` value.
+      stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_ENDPOINT_SECRET,
+      logs: true,
+      webhooks: {
+        'checkout.session.completed': onCheckoutCompleted,
+      },
     }),
     formBuilderPlugin({
       // see below for a list of available options

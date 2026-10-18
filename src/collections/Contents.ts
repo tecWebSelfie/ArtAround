@@ -4,6 +4,7 @@ import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintex
 import { readingTime } from 'reading-time-estimator'
 import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
+import { pricingField } from '@/fields/PricingField'
 
 export const Contents: CollectionConfig = {
   slug: 'contents',
@@ -44,6 +45,9 @@ export const Contents: CollectionConfig = {
       hasMany: false,
       required: true,
     },
+    // Price it (leave `priceCents` empty for free) to make it purchasable
+    // through `POST /api/checkout`.
+    pricingField(),
   ],
 }
 

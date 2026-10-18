@@ -80,6 +80,7 @@ export interface Config {
     contents: Content;
     contentImages: ContentImage;
     tours: Tour;
+    purchases: Purchase;
     'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -105,6 +106,9 @@ export interface Config {
     'payload-migrations': PayloadMigration;
   };
   collectionsJoins: {
+    users: {
+      purchases: 'purchases';
+    };
     objects: {
       exhibit: 'exhibits';
     };
@@ -128,6 +132,7 @@ export interface Config {
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
+    purchases: PurchasesSelect<false> | PurchasesSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -790,6 +795,14 @@ export interface User {
   };
   description?: string | null;
   avatar?: (string | null) | UsersPropic;
+  /**
+   * Paid content and tours for this user. Read-only — written by the Stripe webhook.
+   */
+  purchases?: {
+    docs?: (string | Purchase)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   updatedAt: string;
   createdAt: string;
   email?: string | null;
@@ -852,6 +865,235 @@ export interface UsersPropic {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * One row per paid Stripe Checkout session. Written by Stripe, read-only in the admin panel.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases".
+ */
+export interface Purchase {
+  id: string;
+  user: string | User;
+  /**
+   * The purchased content or tour.
+   */
+  target:
+    | {
+        relationTo: 'contents';
+        value: string | Content;
+      }
+    | {
+        relationTo: 'tours';
+        value: string | Tour;
+      };
+  status: 'paid' | 'refunded' | 'failed';
+  /**
+   * Stripe Checkout Session ID (cs_…). Unique — makes webhooks idempotent.
+   */
+  stripeSessionID: string;
+  stripePaymentIntentID?: string | null;
+  productTitle?: string | null;
+  /**
+   * Amount actually paid, in cents.
+   */
+  amountCents?: number | null;
+  currency?: string | null;
+  email?: string | null;
+  purchasedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contents".
+ */
+export interface Content {
+  id: string;
+  createdBy?: string | null;
+  difficulty: 'easy' | 'medium' | 'hard';
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  readingTimeMins?: number | null;
+  copyright: string;
+  images?: (string | ContentImage)[] | null;
+  objects: {
+    docs?: (string | Object)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Sell this document as a one-off purchase. Free when priceCents is empty/0.
+   */
+  pricing: {
+    /**
+     * Price in cents (e.g. 499 = €4.99). Leave empty or 0 to keep it free.
+     */
+    priceCents?: number | null;
+    currency: 'eur' | 'usd' | 'gbp';
+    /**
+     * Optional. A pre-created Stripe Price ID (price_…). When empty, checkout builds the price inline from priceCents.
+     */
+    stripePriceID?: string | null;
+  };
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentImages".
+ */
+export interface ContentImage {
+  id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objects".
+ */
+export interface Object {
+  id: string;
+  createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null;
+  exhibit?: {
+    docs?: (string | Exhibit)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  contents?: (string | Content)[] | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
+  lfrs?: {
+    favouritesCount?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "exhibits".
+ */
+export interface Exhibit {
+  id: string;
+  createdBy?: string | null;
+  objects: (string | Object)[];
+  coordinates: {
+    x: number;
+    y: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tours".
+ */
+export interface Tour {
+  id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Sell this document as a one-off purchase. Free when priceCents is empty/0.
+   */
+  pricing: {
+    /**
+     * Price in cents (e.g. 499 = €4.99). Leave empty or 0 to keep it free.
+     */
+    priceCents?: number | null;
+    currency: 'eur' | 'usd' | 'gbp';
+    /**
+     * Optional. A pre-created Stripe Price ID (price_…). When empty, checkout builds the price inline from priceCents.
+     */
+    stripePriceID?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1346,147 +1588,6 @@ export interface MuseumThumbnail {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "exhibits".
- */
-export interface Exhibit {
-  id: string;
-  createdBy?: string | null;
-  objects: (string | Object)[];
-  coordinates: {
-    x: number;
-    y: number;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objects".
- */
-export interface Object {
-  id: string;
-  createdBy?: string | null;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  name: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  description?: string | null;
-  exhibit?: {
-    docs?: (string | Exhibit)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  contents?: (string | Content)[] | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contents".
- */
-export interface Content {
-  id: string;
-  createdBy?: string | null;
-  difficulty: 'easy' | 'medium' | 'hard';
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  title: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  body: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  readingTimeMins?: number | null;
-  copyright: string;
-  images?: (string | ContentImage)[] | null;
-  objects: {
-    docs?: (string | Object)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contentImages".
- */
-export interface ContentImage {
-  id: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsThumbnails".
- */
-export interface ObjectsThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tours".
- */
-export interface Tour {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2379,6 +2480,10 @@ export interface PayloadLockedDocument {
         value: string | Tour;
       } | null)
     | ({
+        relationTo: 'purchases';
+        value: string | Purchase;
+      } | null)
+    | ({
         relationTo: 'translator-provenance';
         value: string | TranslatorProvenance;
       } | null)
@@ -2513,6 +2618,7 @@ export interface UsersSelect<T extends boolean = true> {
       };
   description?: T;
   avatar?: T;
+  purchases?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -3050,6 +3156,13 @@ export interface ContentsSelect<T extends boolean = true> {
   copyright?: T;
   images?: T;
   objects?: T;
+  pricing?:
+    | T
+    | {
+        priceCents?: T;
+        currency?: T;
+        stripePriceID?: T;
+      };
   lfrs?:
     | T
     | {
@@ -3084,6 +3197,33 @@ export interface ContentImagesSelect<T extends boolean = true> {
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
+  title?: T;
+  body?: T;
+  pricing?:
+    | T
+    | {
+        priceCents?: T;
+        currency?: T;
+        stripePriceID?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases_select".
+ */
+export interface PurchasesSelect<T extends boolean = true> {
+  user?: T;
+  target?: T;
+  status?: T;
+  stripeSessionID?: T;
+  stripePaymentIntentID?: T;
+  productTitle?: T;
+  amountCents?: T;
+  currency?: T;
+  email?: T;
+  purchasedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3692,6 +3832,10 @@ export interface TaskTranslateDocument {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null);
     source_lng: string;
     target_lng: string;
@@ -3722,6 +3866,7 @@ export interface TaskCreateCollectionExport {
       | 'contents'
       | 'contentImages'
       | 'tours'
+      | 'purchases'
       | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
@@ -3799,6 +3944,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null);
     source_lng: string;
     strategy: string;

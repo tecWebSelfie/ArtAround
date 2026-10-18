@@ -60,6 +60,17 @@ export const Users: CollectionConfig = {
       relationTo: 'usersPropics',
       required: false,
     },
+    {
+      // Reverse view of the `purchases` collection: everything this user owns.
+      name: 'purchases',
+      type: 'join',
+      collection: 'purchases',
+      on: 'user',
+      admin: {
+        description:
+          'Paid content and tours for this user. Read-only — written by the Stripe webhook.',
+      },
+    },
   ],
 }
 
