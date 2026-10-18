@@ -6,10 +6,9 @@ and cached build artifacts are not reliable handoff state.
 
 ## Agreed product behavior
 
-- Desktop and mobile start in the same ordinary map view. First person is an
-  optional button-controlled exploration mode, never a screen-size default.
-- The avatar marks the visitor's explicitly confirmed position. Opening a QR,
-  reading content, or moving in first person must not change that position.
+- Desktop and mobile use the same ordinary map view.
+- The avatar marks the visitor's explicitly confirmed position. Opening a QR link
+  or reading content must not change that position.
 - Tour contents retain their original order. The cursor counts completed contents:
   `0` means the first content is next; `contents.length` means tour completed.
 - Objects and contents outside the next tour stop can be explored independently.
@@ -32,14 +31,15 @@ Base: `/[lng]/tour/[id]/navigation/[stepId]`.
 | Completed-content cursor         | `stepId` pathname segment            |
 | Confirmed position               | `?at=OBJECT_ID`                      |
 | Optional alternative destination | `?to=OBJECT_ID`                      |
+| Wheelchair routing                 | `?mobility=wheelchair`              |
 | Expected next content            | `/open` parallel modal               |
 | Other content                    | `/content/CONTENT_ID` parallel modal |
 | Object details                   | `/object/OBJECT_ID` parallel modal   |
 | Scanner                          | `/scan`                              |
 
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
-next-content routing, and museum object identification. Only `at` and `to` are
-forwarded between canonical and contextual routes.
+next-content routing, and museum object identification. `at`, `to`, and the
+optional wheelchair profile are forwarded between canonical and contextual routes.
 
 The navigation layout owns `TourNavigationShell`, so the map survives modal and
 step transitions. It shares the tour/catalog and map-derived placed IDs with the
@@ -78,15 +78,20 @@ Other shared files:
 
 - `src/components/pascal/MapViewer.tsx`: plugin loading, scene readiness, fit bounds,
   custom selection-manager option, and orbit enablement.
-- `src/components/pascal/MuseumWalkthrough.tsx`: wraps the public Pascal
-  `FirstPersonControls`. Pascal owns BVH collision, spawn, keyboard and pointer lock.
-  Cleanup restores camera and editor/viewer mode flags. Do not duplicate its physics.
 - `src/components/pascal/Avatar.tsx`: cached GLTF via Drei `Clone`, scale `0.38`
   (source is approximately 4.5 m tall), `dispose={null}` protects cached resources.
 - `src/lib/pascal/navigation.ts`: updated world bounds -> nearest navmesh polygon;
   only complete Navcat paths are displayed, never partial paths as successful routes.
-- `src/lib/pascal/navmesh-options.ts`: shared existing generation options.
-  Runtime navigation reads `Museums.navMesh`; it does not regenerate it.
+- `src/lib/pascal/navmesh-options.ts`: walking and wheelchair generation profiles.
+  Saving the editor map extracts Pascal navigation geometry once and generates
+  `Museums.navMesh` (walking) and `Museums.navMeshWheelchair`. Runtime reads the
+  selected saved mesh and does not regenerate it. Older museum records need a map
+  save to gain the wheelchair mesh; no walking fallback is used for that mode.
+  The experimental profiles use 2.5 cm horizontal cells, 25/35 cm radii,
+  17/2 cm climb thresholds, and 35/4.57 degree slope thresholds. Vertical cells
+  are 1 cm: NavCat caps compact-span clearance at 255 voxels, so the supplied
+  5 mm value cannot represent the required 2 m height and generated empty meshes.
+  These parameters do not certify a route's real-world accessibility.
 - `src/components/Scanner.tsx`, `src/lib/app-url.ts`: real scanner and same-origin
   canonical URL parsing. The scanner locks after the first valid decode.
 - `src/lib/localized-page.ts`: cached server document reads reuse `resolveLocalized`.
@@ -100,6 +105,20 @@ Use `museumObjectId()`; do not match model URLs to identify records.
 Pascal uses WebGPU. The path uses Three's WebGPU `Line2` and `Line2NodeMaterial`;
 Drei's WebGL line material failed here. R3F owns geometry/material disposal.
 Manually disposing memoized resources in effects previously broke Strict Mode.
+The route is a simple 5px navigation-blue line at 80% of the displayed avatar
+height, approximately face level. It renders after the walls without depth
+testing so the full route remains visible from the map camera.
+`NavigationPath` updates its geometry in a layout effect when Navcat points change:
+changing an `onUpdate` callback alone does not update R3F geometry after a URL change.
+
+Elevator endpoints are not currently authored in the Pascal map. NavCat's
+`addOffMeshConnection` should run when saving each profile mesh once those
+endpoints are represented in map data, then the connections can be persisted with
+the navmeshes. This avoids mutating a shared loaded mesh on every visitor route
+query. An elevator connection needs a known start/end landing and an attachment
+check with `isOffMeshConnectionConnected`; a visual elevator alone is insufficient.
+The `RouteBetweenObjects` story uses `src/mocks/tour-navigation.mock.ts`, with a real
+Navcat mesh and two catalog items separated by a divider, to show the detour.
 
 ## Local fixture and focused checks
 
@@ -120,7 +139,7 @@ Relevant tests:
 - `tests/int/navMesh.int.spec.ts`: world transforms and complete/disconnected paths.
 - `tests/int/tour-navigation.int.spec.ts`: cursor, content routing, URL safety/state,
   and object ID/category identification.
-- `tests/e2e/tour-navigation.e2e.spec.ts`: default map, optional first person,
+- `tests/e2e/tour-navigation.e2e.spec.ts`: default map,
   independent exploration, position reload and progression.
 - `tests/e2e/tour-qr.e2e.spec.ts`: actual decoder with a generated QR supplied through
   a canvas camera stream; canonical object/content requests, contextual modal and reload.
@@ -135,7 +154,6 @@ Do not start duplicate servers or kill unrelated processes.
 Evidence accumulated before this handoff:
 
 - 11 focused integration tests passed.
-- Automated desktop/mobile default-view and first-person toggle test passed.
 - Manual browser checks passed: search, side content without advancement, explicit
   position, reload, both ordered stops and completion; actual model picking opened
   the matching object and wall clicks did not open details.
@@ -144,8 +162,6 @@ Evidence accumulated before this handoff:
   slow cold compilations and stale Turbopack module-factory errors. The duplicate
   ancestor interceptor was removed. The QR test now separately observes the
   canonical request to distinguish decoding failure from routing failure.
-- Physical webcam permission behavior and actual first-person walking/collision
-  still need device/runtime verification; a toggle test alone does not prove collision.
 - Final project `tsc --noEmit --pretty false` was rerun after seed fixes and
   `next typegen`: no diagnostics remained in the new seed/navigation/tests or
   generated route types. The command still exits nonzero for existing Pascal

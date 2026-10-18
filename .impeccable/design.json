@@ -1,344 +1,177 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-18T11:13:00.120Z",
+  "generatedAt": "2026-10-18T15:18:46.120Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
       "navigation-blue": {
         "role": "primary",
         "displayName": "Navigation blue",
-        "tonalRamp": [
-          "#1864ab",
-          "#1971c2",
-          "#1c7ed6",
-          "#228be6",
-          "#4dabf7",
-          "#a5d8ff",
-          "#d0ebff",
-          "#e7f5ff"
-        ]
+        "tonalRamp": ["#e7f5ff", "#d0ebff", "#a5d8ff", "#74c0fc", "#4dabf7", "#339af0", "#228be6", "#1c7ed6"]
       },
       "navigation-blue-hover": {
         "role": "primary",
         "displayName": "Navigation blue hover",
-        "tonalRamp": [
-          "#1864ab",
-          "#1971c2",
-          "#1c7ed6",
-          "#228be6",
-          "#4dabf7",
-          "#a5d8ff",
-          "#d0ebff",
-          "#e7f5ff"
-        ]
+        "tonalRamp": ["#e7f5ff", "#d0ebff", "#a5d8ff", "#74c0fc", "#4dabf7", "#339af0", "#228be6", "#1c7ed6"]
       },
       "tour-purple": {
         "role": "secondary",
         "displayName": "Tour purple",
-        "tonalRamp": [
-          "oklch(0.15 0.12 303)",
-          "oklch(0.26 0.16 303)",
-          "oklch(0.37 0.2 303)",
-          "oklch(0.48 0.24 303)",
-          "oklch(0.59 0.22 303)",
-          "oklch(0.71 0.16 303)",
-          "oklch(0.83 0.09 303)",
-          "oklch(0.95 0.025 303)"
-        ]
+        "tonalRamp": ["#3b0764", "#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7", "#c084fc", "#e9d5ff"]
       },
       "tour-orange": {
         "role": "secondary",
         "displayName": "Tour orange",
-        "tonalRamp": [
-          "#d9480f",
-          "#e8590c",
-          "#f76707",
-          "#fd7e14",
-          "#ffa94d",
-          "#ffd8a8",
-          "#ffe8cc",
-          "#fff4e6"
-        ]
-      },
-      "content-teal": {
-        "role": "secondary",
-        "displayName": "Content teal",
-        "tonalRamp": [
-          "#087f5b",
-          "#099268",
-          "#0ca678",
-          "#12b886",
-          "#38d9a9",
-          "#96f2d7",
-          "#c3fae8",
-          "#e6fcf5"
-        ]
+        "tonalRamp": ["#7c2d12", "#9a3412", "#c2410c", "#ea580c", "#f97316", "#fb923c", "#fdba74", "#fed7aa"]
       },
       "grape": {
         "role": "secondary",
         "displayName": "Grape",
+        "tonalRamp": ["#f8f0fc", "#f3d9fa", "#eebefa", "#e599f7", "#da77f2", "#cc5de8", "#be4bdb", "#9c36b5"]
+      },
+      "content-teal": {
+        "role": "secondary",
+        "displayName": "Content teal",
+        "tonalRamp": ["#e6fcf5", "#c3fae8", "#96f2d7", "#63e6be", "#38d9a9", "#20c997", "#12b886", "#0ca678"]
+      },
+      "voice-aura": {
+        "role": "secondary",
+        "displayName": "Voice aura",
         "tonalRamp": [
-          "#862e9c",
-          "#9c36b5",
-          "#ae3ec9",
-          "#be4bdb",
-          "#da77f2",
-          "#eebefa",
-          "#f3d9fa",
-          "#f8f0fc"
+          "oklch(0.2 0.06 216)",
+          "oklch(0.32 0.09 216)",
+          "oklch(0.45 0.12 216)",
+          "oklch(0.58 0.14 216)",
+          "oklch(0.68 0.14 216)",
+          "oklch(0.78 0.11 216)",
+          "oklch(0.88 0.06 216)",
+          "oklch(0.96 0.02 216)"
         ]
       },
       "easy-green": {
         "role": "semantic",
         "displayName": "Easy green",
-        "tonalRamp": [
-          "#2b8a3e",
-          "#2f9e44",
-          "#37b24d",
-          "#40c057",
-          "#69db7c",
-          "#b2f2bb",
-          "#d3f9d8",
-          "#ebfbee"
-        ]
+        "tonalRamp": ["#ebfbee", "#d3f9d8", "#b2f2bb", "#8ce99a", "#69db7c", "#51cf66", "#40c057", "#2f9e44"]
       },
       "medium-yellow": {
         "role": "semantic",
         "displayName": "Medium yellow",
-        "tonalRamp": [
-          "#e67700",
-          "#f08c00",
-          "#f59f00",
-          "#fab005",
-          "#ffd43b",
-          "#ffec99",
-          "#fff3bf",
-          "#fff9db"
-        ]
+        "tonalRamp": ["#fff9db", "#fff3bf", "#ffec99", "#ffe066", "#ffd43b", "#fcc419", "#fab005", "#f59f00"]
       },
       "hard-red": {
         "role": "semantic",
         "displayName": "Hard red",
-        "tonalRamp": [
-          "#c92a2a",
-          "#e03131",
-          "#f03e3e",
-          "#fa5252",
-          "#ff8787",
-          "#ffc9c9",
-          "#ffe3e3",
-          "#fff5f5"
-        ]
+        "tonalRamp": ["#fff5f5", "#ffe3e3", "#ffc9c9", "#ffa8a8", "#ff8787", "#ff6b6b", "#fa5252", "#e03131"]
       },
       "surface-light": {
         "role": "neutral",
-        "displayName": "surface light",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Surface light",
+        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#868e96", "#adb5bd", "#dee2e6", "#f8f9fa", "#ffffff"]
       },
       "surface-subtle": {
         "role": "neutral",
-        "displayName": "surface subtle",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Surface subtle",
+        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#868e96", "#adb5bd", "#dee2e6", "#f1f3f5", "#f8f9fa"]
       },
       "surface-dark": {
         "role": "neutral",
-        "displayName": "surface dark",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Surface dark",
+        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#a6a6a6"]
       },
       "control-dark": {
         "role": "neutral",
-        "displayName": "control dark",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Control dark",
+        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#a6a6a6"]
       },
       "border-dark": {
         "role": "neutral",
-        "displayName": "border dark",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Border dark",
+        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#8f8f8f"]
       },
       "text-dark-scheme": {
         "role": "neutral",
-        "displayName": "text dark scheme",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Text dark scheme",
+        "tonalRamp": ["#242424", "#424242", "#5c5f66", "#7a7a7a", "#909296", "#a6a6a6", "#b8b8b8", "#c9c9c9"]
       },
       "editor-background": {
         "role": "neutral",
-        "displayName": "editor background",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Editor background",
+        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#6b6b6b", "#adb5bd", "#e9ecef", "#ffffff"]
       },
       "editor-foreground": {
         "role": "neutral",
-        "displayName": "editor foreground",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Editor foreground",
+        "tonalRamp": ["#e9ecef", "#dee2e6", "#ced4da", "#adb5bd", "#868e96", "#495057", "#343a40", "#212529"]
       },
       "editor-primary": {
         "role": "neutral",
-        "displayName": "editor primary",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Editor primary",
+        "tonalRamp": ["#1a1b1e", "#212529", "#343a40", "#495057", "#6b6b6b", "#9e9e9e", "#ced4da", "#e9ecef"]
       },
       "editor-border": {
         "role": "neutral",
-        "displayName": "editor border",
-        "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.26 0 0)",
-          "oklch(0.37 0 0)",
-          "oklch(0.48 0 0)",
-          "oklch(0.59 0 0)",
-          "oklch(0.71 0 0)",
-          "oklch(0.83 0 0)",
-          "oklch(0.95 0 0)"
-        ]
+        "displayName": "Editor border",
+        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#9e9e9e", "#ced4da", "#dee2e6", "#e9ecef", "#f1f3f5"]
       }
     },
     "typographyMeta": {
       "headline": {
         "displayName": "Headline",
-        "purpose": "Navigator entry heading"
+        "purpose": "Navigator entry heading; gradient spans applied to single words only."
       },
       "title": {
         "displayName": "Title",
-        "purpose": "Object detail headings"
+        "purpose": "Object detail headings and tour-navigation header title."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Museum content and ordinary UI"
+        "purpose": "Museum content and ordinary UI; 1.55 line-height via Mantine defaults."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Compact controls and supporting copy"
+        "purpose": "Compact controls and supporting copy; 0.75rem in compact footers."
       }
     },
     "shadows": [
       {
         "name": "mantine-xs",
         "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), 0 calc(0.0625rem * var(--mantine-scale)) calc(0.125rem * var(--mantine-scale)) rgba(0, 0, 0, 0.1)",
-        "purpose": "Floating creation toolbar"
+        "purpose": "Floating creation toolbar over the editor canvas"
       },
       {
         "name": "mantine-sm",
         "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(0.625rem * var(--mantine-scale)) calc(0.9375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.4375rem * var(--mantine-scale)) calc(0.4375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale))",
-        "purpose": "Small inherited surface elevation"
+        "purpose": "Plain Card surfaces such as search results and the QR paper"
       },
       {
         "name": "mantine-lg",
         "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(1.75rem * var(--mantine-scale)) calc(1.4375rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.75rem * var(--mantine-scale)) calc(0.75rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale))",
-        "purpose": "Playful tour-card depth"
+        "purpose": "Decoratively deep tour card only"
       }
     ],
     "motion": [
       {
         "name": "search-border-cycle",
         "value": "4s",
-        "purpose": "Observed decorative global-search border cycle"
+        "purpose": "BorderAnimate surround on the global search input"
       },
       {
         "name": "tour-stack-transition",
         "value": "500ms",
-        "purpose": "Observed tour DepthSelect transition"
+        "purpose": "Observed tour carousel stacked-selection transition"
+      },
+      {
+        "name": "search-reflection",
+        "value": "rippleStrength 30; rippleFrequency 0.025; shadowOpacity 0.2; shadowBlur 5.51; shadowSize 29",
+        "purpose": "Observed Reflection ripple and soft shadow under the navigator search"
       }
     ],
     "breakpoints": [
-      {
-        "name": "xs",
-        "value": "36em"
-      },
-      {
-        "name": "sm",
-        "value": "48em"
-      },
-      {
-        "name": "md",
-        "value": "62em"
-      },
-      {
-        "name": "lg",
-        "value": "75em"
-      },
-      {
-        "name": "xl",
-        "value": "88em"
-      }
+      { "name": "xs", "value": "36em" },
+      { "name": "sm", "value": "48em" },
+      { "name": "md", "value": "62em" },
+      { "name": "lg", "value": "75em" },
+      { "name": "xl", "value": "88em" }
     ]
   },
   "components": [
@@ -346,72 +179,138 @@
       "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Standalone sample of the inherited Mantine filled action.",
-      "html": "<button class=\"ds-primary\">Continue</button>",
-      "css": ".ds-primary{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-blue-6,#228be6);color:white}.ds-primary:hover{background:var(--mantine-color-blue-7,#1c7ed6)}.ds-primary:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-primary:active{transform:translateY(1px)}.ds-primary:disabled{cursor:not-allowed;opacity:.5}"
+      "description": "The inherited Mantine filled action: navigation blue at rest, blue.7 on hover. The default emphasis for a clear next step.",
+      "html": "<button class=\"ds-btn-primary\">Continue</button>",
+      "css": ".ds-btn-primary{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-blue-6,#228be6);color:#fff;transition:background .15s ease,transform .15s ease}.ds-btn-primary:hover{background:var(--mantine-color-blue-7,#1c7ed6)}.ds-btn-primary:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:disabled{opacity:.5;cursor:not-allowed}"
     },
     {
-      "name": "Default button",
+      "name": "Dark tool pill",
       "kind": "button",
-      "description": "Supporting action using the theme surface and border.",
-      "html": "<button class=\"ds-default\">Cancel</button>",
-      "css": ".ds-default{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-default,#fff);color:var(--mantine-color-text,#000);border-color:var(--mantine-color-default-border,#ced4da)}.ds-default:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-default:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-default:active{transform:translateY(1px)}"
+      "description": "Fully round, dark filled canvas action with a trailing icon (the Scan control). Reads as a tool over the map rather than a form action.",
+      "html": "<button class=\"ds-tool-pill\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M3 12h18\"/></svg>Scan</button>",
+      "css": ".ds-tool-pill{display:inline-flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:42px;padding:0 20px;border:0;border-radius:1000px;cursor:pointer;background:var(--mantine-color-dark-7,#212529);color:var(--mantine-color-white,#fff);transition:background .15s ease}.ds-tool-pill:hover{background:var(--mantine-color-dark-6,#343a40)}.ds-tool-pill:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}"
     },
     {
       "name": "Discovery search",
       "kind": "input",
-      "refersTo": "search",
-      "description": "Rounded global-search silhouette; the runtime animated border and combobox behavior belong to the React component.",
-      "html": "<label class=\"ds-search-label\">Search tours<div class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 4 4\"/></svg><input placeholder=\"Look for the next tour\" /></div></label>",
-      "css": ".ds-search-label{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--mantine-color-text,#000)}.ds-search{display:flex;align-items:center;gap:10px;border:1px solid purple;border-radius:var(--mantine-radius-xl,32px);padding:0 16px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-dimmed,#868e96)}.ds-search input{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;height:48px;width:100%;min-width:0;border:0;background:transparent;font-size:18px;color:var(--mantine-color-text,#000);outline:none}.ds-search:hover{border-color:var(--mantine-color-grape-6,#be4bdb)}.ds-search:focus-within{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}"
+      "description": "Large pill input with a hardcoded purple border. In the app a BorderAnimate wrapper runs a 4s border cycle and the navigator adds a Reflection ripple; both are React-owned and not reproduced here.",
+      "html": "<label class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 4 4\"/></svg><input placeholder=\"Look for the next tour\" /></label>",
+      "css": ".ds-search{display:flex;align-items:center;gap:10px;border:1px solid purple;border-radius:var(--mantine-radius-xl,32px);padding:0 16px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-dimmed,#868e96);transition:border-color .2s ease}.ds-search input{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;height:48px;width:100%;min-width:0;border:0;background:transparent;font-size:18px;color:var(--mantine-color-text,#212529);outline:none}.ds-search:hover{border-color:var(--mantine-color-grape-6,#be4bdb)}.ds-search:focus-within{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}"
     },
     {
-      "name": "Section navigation",
+      "name": "Section tabs",
       "kind": "nav",
-      "refersTo": "tab-active",
-      "description": "Static active-state sample of the moving blue underline tabs; production keyboard behavior remains Mantine-owned.",
+      "description": "Grow-distributed tabs whose active state is a moving 2px blue underline (FloatingIndicator), not a filled block.",
       "html": "<nav class=\"ds-tabs\" aria-label=\"Object sections\"><button class=\"ds-tab\" aria-current=\"page\">Info</button><button class=\"ds-tab\">Contents</button></nav>",
-      "css": ".ds-tabs{display:flex}.ds-tab{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;flex:1;padding:12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mantine-color-text,#000);cursor:pointer}.ds-tab[aria-current]{border-bottom-color:var(--mantine-color-blue-6,#228be6)}.ds-tab:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-tab:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}"
+      "css": ".ds-tabs{display:flex}.ds-tab{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;flex:1;padding:12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mantine-color-text,#212529);cursor:pointer;transition:border-color .15s ease}.ds-tab[aria-current]{border-bottom-color:var(--mantine-color-blue-6,#228be6)}.ds-tab:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-tab:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:-2px}"
     },
     {
-      "name": "Easy difficulty badge",
+      "name": "Difficulty badges",
       "kind": "chip",
-      "description": "Green badge retains a text label and leaf icon instead of relying on color alone.",
-      "html": "<span class=\"ds-badge\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 4C8 2 2 8 5 15s15 5 15-11Z M4 21l10-10\"/></svg>Easy</span>",
-      "css": ".ds-badge{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 8px;border-radius:1000px;background:var(--mantine-color-green-6,#40c057);color:#000;font-size:10px;font-weight:700;text-transform:uppercase}"
+      "description": "The label + icon + color triplet: Leaf/green, Gauge/yellow, Flame/red.9. Compact contexts may drop the label but keep the icon.",
+      "html": "<span class=\"ds-chips\"><span class=\"ds-chip ds-chip-easy\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 4C8 2 2 8 5 15s15 5 15-11Z\"/><path d=\"M4 21l10-10\"/></svg>Easy</span><span class=\"ds-chip ds-chip-medium\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z\"/><path d=\"m14 10 6-6\"/><path d=\"M3 21h18\"/></svg>Medium</span><span class=\"ds-chip ds-chip-hard\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 2c2 5 6 7 6 12a6 6 0 0 1-12 0c0-5 4-7 6-12Z\"/></svg>Hard</span></span>",
+      "css": ".ds-chips{display:inline-flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-chip{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 10px;border-radius:1000px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}.ds-chip-easy{background:var(--mantine-color-green-6,#40c057);color:#000}.ds-chip-medium{background:var(--mantine-color-yellow-6,#fab005);color:#000}.ds-chip-hard{background:var(--mantine-color-red-9,#c92a2a);color:#fff}"
+    },
+    {
+      "name": "Search-result card",
+      "kind": "card",
+      "refersTo": "card-result",
+      "description": "The recurring calm container: bordered white card with small radius and small shadow, used for listing objects, contents, and tours.",
+      "html": "<article class=\"ds-result-card\"><div class=\"ds-result-title\">Still Life with Fruit</div><div class=\"ds-result-meta\">Room 4 · Oil on canvas</div></article>",
+      "css": ".ds-result-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-sm,0 4px 12px rgba(0,0,0,.06));transition:box-shadow .15s ease,transform .15s ease}.ds-result-card:hover{box-shadow:var(--mantine-shadow-md,0 8px 20px rgba(0,0,0,.1))}.ds-result-title{font-size:15px;font-weight:600;color:var(--mantine-color-text,#212529)}.ds-result-meta{margin-top:4px;font-size:13px;color:var(--mantine-color-dimmed,#868e96)}"
     },
     {
       "name": "Tour card frame",
       "kind": "card",
-      "description": "Representative purple/orange frame and stronger depth; the live carousel supplies real museum content and stacked selection.",
-      "html": "<article class=\"ds-tour\"><span class=\"ds-tour-label\">Tours</span><div class=\"ds-tour-body\">Tour discovery</div><button class=\"ds-tour-action\">Explore all tours</button></article>",
-      "css": ".ds-tour{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border-radius:8px;background:linear-gradient(to bottom right,#7e22ce,#fb923c);box-shadow:var(--mantine-shadow-lg,0 12px 24px rgba(0,0,0,.12))}.ds-tour-label{display:inline-block;padding:4px 12px;border-radius:32px;background:#fff;color:#7e22ce;font-size:12px;text-transform:uppercase}.ds-tour-body{margin:16px 0;padding:24px 12px;border-radius:8px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#000)}.ds-tour-action{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;width:100%;padding:0 10px;background:#fff;color:#228be6}.ds-tour-action:hover{background:#f8f9fa}.ds-tour-action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-tour-action:active{transform:translateY(1px)}"
+      "description": "The scoped playful exception: purple-to-orange diagonal gradient, grape border, deep decorative shadow. Museum content is supplied by the live carousel.",
+      "html": "<article class=\"ds-tour-card\"><span class=\"ds-tour-tag\">Tours</span><div class=\"ds-tour-body\">Tour discovery</div><button class=\"ds-tour-action\">Explore all tours</button></article>",
+      "css": ".ds-tour-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-grape-6,#be4bdb);border-radius:8px;background:linear-gradient(to bottom right,#7e22ce,#fb923c);box-shadow:var(--mantine-shadow-lg,0 12px 24px rgba(0,0,0,.12))}.ds-tour-tag{display:inline-block;padding:4px 12px;border-radius:32px;background:#fff;color:#7e22ce;font-size:12px;text-transform:uppercase}.ds-tour-body{margin:16px 0;padding:24px 12px;border-radius:8px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#212529)}.ds-tour-action{font-family:inherit;font-size:14px;font-weight:600;height:36px;width:100%;padding:0 10px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:#fff;color:#228be6}.ds-tour-action:hover{background:#f8f9fa}.ds-tour-action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}"
+    },
+    {
+      "name": "Voice affordance",
+      "kind": "custom",
+      "description": "The incumbent voice entry point on the navigator home: a fully round filled mic button sized with clamp(72px, 22vw, 150px). The richer intended expression is the user-supplied crystallized ball, and agents-ui supplies its technical vocabulary (cyan #1FD5F9 default, state-driven motion) — but that aura is not rendered here because it is not shipped.",
+      "html": "<button class=\"ds-voice\" aria-label=\"Turn the microphone on\"><svg width=\"42%\" height=\"42%\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2M12 19v3\"/></svg></button>",
+      "css": ".ds-voice{display:inline-flex;align-items:center;justify-content:center;width:clamp(72px,22vw,150px);height:clamp(72px,22vw,150px);border:0;border-radius:1000px;cursor:pointer;background:var(--mantine-color-blue-6,#228be6);color:#fff;transition:background .2s ease,transform .2s ease}.ds-voice:hover{background:var(--mantine-color-blue-7,#1c7ed6);transform:translateY(-2px)}.ds-voice:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:4px}"
+    },
+    {
+      "name": "Editor creation toolbar",
+      "kind": "custom",
+      "refersTo": "floating-toolbar",
+      "description": "Staff editor floating toolbar: 6px padding, xs shadow, scrollable inside a bounded height. Observed at top 4.5rem / left 0.75rem over the canvas.",
+      "html": "<div class=\"ds-editor-toolbar\" role=\"toolbar\" aria-label=\"Creation tools\"><button class=\"ds-editor-tool\" aria-label=\"Add wall\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 21h18M5 21V5l7-3 7 3v16\"/></svg></button><button class=\"ds-editor-tool\" aria-label=\"Add object\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg></button><p class=\"ds-editor-hint\">Place walls to outline the room</p></div>",
+      "css": ".ds-editor-toolbar{display:flex;flex-direction:column;gap:6px;width:max-content;max-width:11rem;padding:6px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-xs,0 1px 3px rgba(0,0,0,.08));font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-editor-tool{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#212529);cursor:pointer;transition:background .15s ease}.ds-editor-tool:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-editor-tool:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:1px}.ds-editor-hint{margin:0;font-size:12px;color:var(--mantine-color-dimmed,#868e96)}"
     }
   ],
   "narrative": {
     "northStar": "The Adaptable Museum Companion",
-    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border, and selected discovery accents. These examples establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
+    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as one product over four namespaces: the visitor-facing Mantine UI (where src/theme.ts is an empty createTheme, so the palette is Mantine's stock tokens plus Tailwind utilities, and which is the brand authority for the visitor experience); the shadcn/editor OKLCH token layer in globals.css; the Pascal editor and viewer styled by @pascal-app/* module CSS and Tailwind dark variants; and the emerging LiveKit agents-ui voice layer, which currently has exactly one sanctioned expression rather than being a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
     "keyCharacteristics": [
-      "Familiar and approachable Mantine controls.",
+      "Familiar and approachable Mantine controls as the visitor-facing foundation.",
       "Neutral light and dark surfaces with clear task hierarchy.",
-      "Small playful exceptions in museum discovery.",
+      "Four coexisting style namespaces that must not be blended.",
+      "Small playful exceptions in museum discovery, scoped and few.",
       "Functional depth for overlays and floating controls.",
       "Prototype-informed direction with room for refinement."
     ],
-    "rules": [],
+    "rules": [
+      {
+        "name": "The Two-Namespace Rule",
+        "body": "Mantine color tokens and the editor's OKLCH tokens are distinct sources of truth in the incumbent code. Treat them as separate namespaces rather than one blended palette; do not \"harmonize\" one into the other as a side effect of a local change.",
+        "section": "colors"
+      },
+      {
+        "name": "The Scoped Playfulness Rule",
+        "body": "Decorative motion and gradient belong to named discovery components. If a playful treatment is being added to an ordinary form, list, or navigation element, it is out of scope by default.",
+        "section": "overview"
+      },
+      {
+        "name": "The Triplet Rule",
+        "body": "Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (Leaf/green, Gauge/yellow, Flame/red.9). Keep all three when restyling.",
+        "section": "colors"
+      },
+      {
+        "name": "The Gradient-Span Rule",
+        "body": "A gradient is applied to a fragment of text (a single word or short label) with inherit sizing, never to a paragraph. The navigator hero colors exactly one word this way.",
+        "section": "typography"
+      },
+      {
+        "name": "The Overlay Opt-In Rule",
+        "body": "Floating controls over a map or canvas sit in a transparent, non-interactive overlay container; each control re-enables pointer events on itself. Never give the container pointer events back.",
+        "section": "layout"
+      },
+      {
+        "name": "The Functional-First Rule",
+        "body": "Shadows appear because something floats or overlays. Marketing-style ambient shadow on ordinary content is not part of the incumbent vocabulary.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Inherit-Radius Rule",
+        "body": "Nested surfaces take their radius from the parent (rounded-[inherit]) rather than inventing a new value; this is what keeps the BorderAnimate wrapper flush with the input it decorates.",
+        "section": "shapes"
+      },
+      {
+        "name": "The One Crystal Rule",
+        "body": "The aura/shimmer treatment belongs to the assistance affordance and nowhere else. It is not background texture, not a card hover, and not a loading state.",
+        "section": "components"
+      }
+    ],
     "dos": [
       "Do use Mantine as the main visual foundation for visitor and staff task controls.",
       "Do preserve an approachable feel for casual museum visitors.",
-      "Do confine playfulness to small key components where it helps discovery or feedback.",
-      "Do use functional depth for floating controls, with tour cards as a scoped playful exception.",
-      "Do improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
-      "Do keep content meaning available through labels and icons as well as color."
+      "Do keep the four namespaces distinct, and use semantic Mantine variables (--mantine-color-*) rather than hardcoding light surfaces.",
+      "Do confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
+      "Do keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
+      "Do preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
+      "Do improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
     ],
     "donts": [
-      "Don't treat every prototype measurement, gradient, or animation as an immutable brand requirement.",
+      "Don't treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
       "Don't turn ordinary forms and navigation into continuously animated showcases.",
       "Don't confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
-      "Don't present planned product capabilities or unverified accessibility compliance as implemented design evidence."
+      "Don't promote the voice aura into a global motif, background, or loading treatment.",
+      "Don't present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
+      "Don't treat the unused shine-border/orbiting-circles primitives, or the hardcoded search copy, as settled design."
     ]
   }
 }

@@ -1,8 +1,6 @@
 {
-  "Click the map to look around. WASD to move, Esc to return.": "Click the map to look around. WASD to move, Esc to return.",
   "Close": "Close",
   "Complete tour": "Complete tour",
-  "Explore in first person": "Explore in first person",
   "Go to next step": "Go to next step",
   "Loading map": "Loading map",
   "Map not available": "Map not available",
@@ -15,7 +13,6 @@
   "Open next stop": "Open next stop",
   "Read content": "Read content",
   "Resume tour route": "Resume tour route",
-  "Return to map": "Return to map",
   "Room Code": "Room Code",
   "Scan": "Scan",
   "Search": "Search",
@@ -25,5 +22,7 @@
   "This object is not placed on the map": "This object is not placed on the map",
   "Tour completed": "Tour completed",
   "Tour progress": "Tour progress",
-  "tour thumbnail not available": "tour thumbnail not available"
+  "tour thumbnail not available": "tour thumbnail not available",
+  "Wheelchair route": "Wheelchair route",
+  "Wheelchair routes are not available for this map yet": "Wheelchair routes are not available for this map yet"
 }

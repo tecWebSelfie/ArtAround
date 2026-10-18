@@ -18,10 +18,10 @@ export function tourNavigationPath(lng: string, tourId: string, step: number) {
   return `/${lng}/tour/${tourId}/navigation/${step}` as Route
 }
 
-/** Carry only navigation state when switching between canonical and tour routes. */
+/** Carry shareable navigation state between canonical and contextual routes. */
 export function withNavigationPosition(
   path: string,
-  search: string | { at?: string | string[]; to?: string | string[] },
+  search: string | { at?: string | string[]; to?: string | string[]; mobility?: string | string[] },
 ) {
   const input = typeof search === 'string' ? new URLSearchParams(search) : search
   const output = new URLSearchParams()
@@ -29,6 +29,8 @@ export function withNavigationPosition(
     const value = input instanceof URLSearchParams ? input.get(key) : input[key]
     if (typeof value === 'string' && value) output.set(key, value)
   }
+  const mobility = input instanceof URLSearchParams ? input.get('mobility') : input.mobility
+  if (mobility === 'wheelchair') output.set('mobility', mobility)
   return `${path}${output.size ? `?${output}` : ''}` as Route
 }
 
@@ -36,7 +38,7 @@ export function withNavigationPosition(
 export function withNavigationValue(
   path: string,
   search: string,
-  key: 'at' | 'to',
+  key: 'at' | 'to' | 'mobility',
   value: string | null,
 ) {
   const params = new URLSearchParams(search)

@@ -1,30 +1,34 @@
 'use client'
 
-import { Avatar } from '@/components/pascal/Avatar'
+import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
 import { MapViewer } from '@/components/pascal/MapViewer'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
-import { extend } from '@react-three/fiber'
+import { extend, useThree } from '@react-three/fiber'
 import type { NavMesh } from 'navcat'
-import { lazy, Suspense, useEffect, useMemo, useState, type ComponentProps } from 'react'
+import {
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+} from 'react'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
 
-const MuseumWalkthrough = lazy(() => import('@/components/pascal/MuseumWalkthrough'))
-
 /**
  * Connects Pascal's scene to tour semantics: clicks resolve by ItemNode asset ID,
- * `at`/`to` become navmesh positions, and first-person controls stay optional.
+ * while `at`/`to` become navmesh positions for the visitor's route.
  */
 export function MuseumMap({
   map,
   navMesh,
   currentObjectId,
   destinationObjectId,
-  firstPerson = false,
-  onExitFirstPerson,
   onObjectClick,
   onRouteUnavailable,
   ...props
@@ -32,8 +36,6 @@ export function MuseumMap({
   navMesh?: NavMesh | null
   currentObjectId?: string | null
   destinationObjectId?: string | null
-  firstPerson?: boolean
-  onExitFirstPerson: () => void
   onObjectClick?: (id: string) => void
   onRouteUnavailable?: (unavailable: boolean) => void
 }) {
@@ -41,7 +43,6 @@ export function MuseumMap({
   useEffect(() => {
     // Pascal emits item clicks for every selectable node; the shared ID helper
     // filters these to museum objects, leaving walls and map geometry untouched.
-    if (firstPerson) return
     const select = ({ node, stopPropagation }: ItemEvent) => {
       const id = museumObjectId(node)
       if (id) {
@@ -53,10 +54,11 @@ export function MuseumMap({
     return () => {
       emitter.off('item:click', select)
     }
-  }, [firstPerson, onObjectClick])
+  }, [onObjectClick])
 
   const route = useMemo(() => {
     if (!ready || !navMesh) return null
+
     const point = (id: string | null | undefined) => {
       if (!id) return null
       // The map node stores the Payload object ID; resolve its live mesh so
@@ -70,20 +72,14 @@ export function MuseumMap({
     const start = point(currentObjectId)
     const end = point(destinationObjectId)
     return { start, end, path: start && end ? museumNavigationPath(navMesh, start, end) : null }
-  }, [ready, navMesh, currentObjectId, destinationObjectId, map])
+  }, [ready, navMesh, currentObjectId, destinationObjectId])
 
   useEffect(() => {
     onRouteUnavailable?.(Boolean(ready && currentObjectId && destinationObjectId && !route?.path))
   }, [ready, currentObjectId, destinationObjectId, route, onRouteUnavailable])
 
   return (
-    <MapViewer
-      map={map}
-      {...props}
-      selectionManager="custom"
-      orbitEnabled={!firstPerson}
-      onSceneReadyChange={setReady}
-    >
+    <MapViewer map={map} {...props} selectionManager="custom" onSceneReadyChange={setReady}>
       {route?.start && (
         // This avatar marks the last position explicitly confirmed by the visitor.
         <group position={route.start}>
@@ -103,11 +99,6 @@ export function MuseumMap({
         </mesh>
       )}
       {route?.path && route.path.length > 1 && <NavigationPath points={route.path} />}
-      {ready && firstPerson && (
-        <Suspense fallback={null}>
-          <MuseumWalkthrough onExit={onExitFirstPerson} />
-        </Suspense>
-      )}
     </MapViewer>
   )
 }
@@ -118,15 +109,21 @@ const PathGeometry = extend(LineGeometry)
 const PathMaterial = extend(Line2NodeMaterial)
 
 function NavigationPath({ points }: { points: [number, number, number][] }) {
+  const geometry = useRef<LineGeometry>(null)
+  const invalidate = useThree((state) => state.invalidate)
+
+  useLayoutEffect(() => {
+    // A URL-only destination change keeps this geometry mounted. Update its
+    // vertices explicitly: onUpdate alone doesn't react to a changed callback.
+    // Show guidance at 80% of the avatar's displayed height, near its face.
+    geometry.current?.setPositions(points.flatMap(([x, y, z]) => [x, y + AVATAR_FACE_HEIGHT, z]))
+    invalidate()
+  }, [points, invalidate])
+
   return (
-    <PathLine>
-      <PathGeometry
-        // Lift the line slightly above the navmesh to avoid z-fighting with the floor.
-        onUpdate={(geometry) =>
-          geometry.setPositions(points.flatMap(([x, y, z]) => [x, y + 0.06, z]))
-        }
-      />
-      <PathMaterial color="#2563eb" linewidth={4} />
+    <PathLine name="museum-navigation-path" renderOrder={1000}>
+      <PathGeometry ref={geometry} />
+      <PathMaterial color="#228be6" linewidth={5} depthTest={false} depthWrite={false} />
     </PathLine>
   )
 }

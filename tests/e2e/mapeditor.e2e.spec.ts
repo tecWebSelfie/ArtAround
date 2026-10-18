@@ -26,7 +26,7 @@ test('map editor awaits navmesh saves and recovers from a rejected save', async 
   })
   expect(login.status()).toBe(200)
 
-  const saves: { map: ParsedBuildJson; navMesh: NavMesh }[] = []
+  const saves: { map: ParsedBuildJson; navMesh: NavMesh; navMeshWheelchair: NavMesh }[] = []
   let releaseSave!: () => void
   const heldSave = new Promise<void>((resolve) => {
     releaseSave = resolve
@@ -74,6 +74,7 @@ test('map editor awaits navmesh saves and recovers from a rejected save', async 
       origin: expect.any(Array),
     })
     expect(Object.values(saves[0].navMesh.tiles).some((tile) => tile.polys.length > 0)).toBe(true)
+    expect(saves[0].navMeshWheelchair).toMatchObject({ tiles: expect.any(Object) })
 
     // Editing controls remain usable while onSave's promise is pending.
     const wall = toolbar.getByRole('button', { name: 'Disegna pareti' })

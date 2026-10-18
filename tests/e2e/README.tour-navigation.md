@@ -22,7 +22,7 @@ pnpm exec playwright test tests/e2e/tour-navigation.e2e.spec.ts tests/e2e/tour-q
 
 The QR tests supply a generated QR image through a synthetic camera stream. They
 exercise the real decoder and Next.js navigation without requiring camera access.
-The tests cover the default map view, optional first-person mode, side exploration,
+The tests cover the default map view, side exploration,
 position sharing, ordered progression and canonical QR links with reloadable modals.
 
 Cold development-route compilation can take several minutes on this project.

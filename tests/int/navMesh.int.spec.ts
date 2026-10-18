@@ -5,7 +5,7 @@ import {
 } from '@pascal-app/editor'
 import { BoxGeometry, Group, Mesh, PlaneGeometry } from 'three'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { generateNavMeshFromSceneRegistry } from '@/lib/pascal/utils'
+import { generateMuseumNavMeshesFromSceneRegistry, generateNavMeshFromSceneRegistry } from '@/lib/pascal/utils'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 
 vi.mock('@pascal-app/editor', () => ({
@@ -20,6 +20,15 @@ const registry: NavSceneRegistry = {
 afterEach(() => vi.resetAllMocks())
 
 describe('navigation geometry used when saving a museum', () => {
+  it('routes a 10 degree ramp for walkers but excludes it for wheelchairs', () => {
+    const ramp = new Mesh(new PlaneGeometry(2, 2).rotateX(-Math.PI / 2 + Math.atan(0.1)))
+    const profiles = generateMuseumNavMeshesFromSceneRegistry({
+      'fallback-level:level_ramp': { node: { type: 'level' } as AnyNode, object: ramp },
+    })!
+    expect(museumNavigationPath(profiles.pedestrian, [0, 0.05, -0.5], [0, -0.05, 0.5])).not.toBeNull()
+    expect(museumNavigationPath(profiles.wheelchair, [0, 0.05, -0.5], [0, -0.05, 0.5])).toBeNull()
+    ramp.geometry.dispose()
+  })
   it('uses the saved navmesh and world transforms for a confirmed object position', () => {
     const mesh = generateNavMeshFromSceneRegistry(registry)!
     const exhibit = new Group()

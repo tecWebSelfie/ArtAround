@@ -1,62 +1,39 @@
 import type { SoloNavMeshOptions } from 'navcat/blocks'
 
-/**
- * Shared navmesh settings for map generation and editor persistence. Keeping one
- * human-scale profile makes saved routes match the visitor navigation runtime.
- */
-// Starting values for a human-sized visitor in a 1 m scale world; visualize and
-// tune with navcat's debug helpers when the museum geometry requires it.
+/** Metre-based visitor profiles used when the editor saves both route networks. */
+const profiles = {
+  pedestrian: { radius: 0.25, climb: 0.17, slope: 35 },
+  wheelchair: { radius: 0.35, climb: 0.02, slope: 4.57 },
+} as const
 
-// heightfield parameters
-const cellSize = 0.15
-const cellHeight = 0.25
+export type MuseumNavMeshProfile = keyof typeof profiles
 
-// agent parameters
-const walkableRadiusWorld = 0.3
-const walkableHeightWorld = 2.0
-const walkableClimbWorld = 0.5
-const walkableSlopeAngleDegrees = 45
-
-const walkableRadiusVoxels = Math.ceil(walkableRadiusWorld / cellSize)
-const walkableClimbVoxels = Math.ceil(walkableClimbWorld / cellHeight)
-const walkableHeightVoxels = Math.ceil(walkableHeightWorld / cellHeight)
-
-// compact heightfield region parameters
-const minRegionArea = 8
-const mergeRegionArea = 20
-
-// polygon generation parameters
-const maxSimplificationError = 1.3
-const maxEdgeLength = 12
-const maxVerticesPerPoly = 5
-
-// detail mesh generation parameters
-const detailSampleDistanceVoxels = 6
-const detailSampleMaxErrorVoxels = 1
-
-const detailSampleDistance =
-  detailSampleDistanceVoxels < 0.9 ? 0 : cellSize * detailSampleDistanceVoxels
-const detailSampleMaxError = cellHeight * detailSampleMaxErrorVoxels
-
-// border size around each tile, in voxels. 0 for solo navmesh.
-const borderSize = 0
-
-export const museumNavMeshOptions: SoloNavMeshOptions = {
-  cellSize,
-  cellHeight,
-  walkableRadiusWorld,
-  walkableRadiusVoxels,
-  walkableClimbWorld,
-  walkableClimbVoxels,
-  walkableHeightWorld,
-  walkableHeightVoxels,
-  walkableSlopeAngleDegrees,
-  borderSize,
-  minRegionArea,
-  mergeRegionArea,
-  maxSimplificationError,
-  maxEdgeLength,
-  maxVerticesPerPoly,
-  detailSampleDistance,
-  detailSampleMaxError,
+function optionsFor(profile: MuseumNavMeshProfile): SoloNavMeshOptions {
+  const { radius, climb, slope } = profiles[profile]
+  const cellSize = 0.025
+  // NavCat caps compact-span clearance at 255 voxels; 5 mm cannot represent
+  // the required 2 m (400 voxels) and produces empty meshes. 1 cm can.
+  const cellHeight = 0.01
+  return {
+    cellSize,
+    cellHeight,
+    walkableRadiusWorld: radius,
+    walkableRadiusVoxels: Math.ceil(radius / cellSize),
+    walkableClimbWorld: climb,
+    walkableClimbVoxels: Math.ceil(climb / cellHeight),
+    walkableHeightWorld: 2,
+    walkableHeightVoxels: Math.ceil(2 / cellHeight),
+    walkableSlopeAngleDegrees: slope,
+    borderSize: 0,
+    minRegionArea: 8,
+    mergeRegionArea: 20,
+    maxSimplificationError: 1.3,
+    maxEdgeLength: 12,
+    maxVerticesPerPoly: 5,
+    detailSampleDistance: cellSize * 6,
+    detailSampleMaxError: cellHeight,
+  }
 }
+
+export const museumNavMeshOptions = optionsFor('pedestrian')
+export const wheelchairNavMeshOptions = optionsFor('wheelchair')

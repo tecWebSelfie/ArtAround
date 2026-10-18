@@ -3,7 +3,7 @@
 import { ObjectCatalogPanel } from '@/components/pascal/ObjectCatalogPanel'
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { museumPlugin } from '@/lib/pascal'
-import { generateNavMeshFromSceneRegistry } from '@/lib/pascal/utils'
+import { generateMuseumNavMeshesFromSceneRegistry } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
@@ -49,12 +49,14 @@ export function MapEditor({ museumId }: { museumId: string }) {
     mutationFn: async (scene: ParsedBuildJson) => {
       // Scene JSON loads before the renderer has built navigation geometry.
       await sceneReady.current.promise
+      const navMeshes = generateMuseumNavMeshesFromSceneRegistry()
       return payloadSdk.update({
         collection: 'museums',
         id: museumId,
         data: {
           map: scene,
-          navMesh: generateNavMeshFromSceneRegistry() ?? createNavMesh(),
+          navMesh: navMeshes?.pedestrian ?? createNavMesh(),
+          navMeshWheelchair: navMeshes?.wheelchair ?? createNavMesh(),
         },
       })
     },

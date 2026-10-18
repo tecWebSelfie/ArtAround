@@ -150,6 +150,17 @@ export const Museums: CollectionConfig = {
         schema: navMeshSchema as NonNullable<JSONField['jsonSchema']>['schema'],
       },
     },
+    {
+      // Older maps have only the walking mesh until they are saved again.
+      name: 'navMeshWheelchair',
+      type: 'json',
+      required: false,
+      jsonSchema: {
+        fileMatch: ['*'],
+        uri: 'https://artaround.local/schemas/navmesh-wheelchair.json',
+        schema: navMeshSchema as NonNullable<JSONField['jsonSchema']>['schema'],
+      },
+    },
   ],
 }
 

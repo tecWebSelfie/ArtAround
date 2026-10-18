@@ -23,6 +23,7 @@ import { spotlight, Spotlight } from '@mantine/spotlight'
 import { validateBuildJson } from '@pascal-app/core'
 import { FlagBannerFoldIcon } from '@phosphor-icons/react'
 import {
+  Accessibility,
   FlagTriangleRight,
   Info,
   LucideIcon,
@@ -32,7 +33,7 @@ import {
   Toilet,
   Utensils,
 } from 'lucide-react'
-import { Suspense, useCallback, useMemo, useState } from 'react'
+import { Suspense, useMemo, useState } from 'react'
 import { MuseumMap } from './MuseumMap'
 import { TourProgress } from './TourProgress'
 import {
@@ -43,7 +44,7 @@ import {
   withNavigationPosition,
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** Composes the map, ordered tour progress, object/content search, and scan controls. */
@@ -61,14 +62,8 @@ export const TourNavigationPage = ({
   const search = useSearchParams()
   const museumMap = useMemo(() => validateBuildJson(museum.map), [museum.map])
   const router = useRouter()
-  const pathname = usePathname()
   const { t } = useTranslation('tour-navigation')
-  // Identical default on desktop and mobile. This is never inferred from screen size.
-  const [firstPersonPath, setFirstPersonPath] = useState<string | null>(null)
-  const firstPerson = firstPersonPath === pathname
   const [routeUnavailable, setRouteUnavailable] = useState(false)
-  // Tying the mode to its URL resets it on route changes without a state effect.
-  const exitFirstPerson = useCallback(() => setFirstPersonPath(null), [])
   const next = tour.contents[step]
   const nextId = typeof next === 'string' ? next : next?.id
   // Route guidance follows the next ordered content unless the visitor chose `to`.
@@ -77,6 +72,10 @@ export const TourNavigationPage = ({
     (typeof next === 'object' ? contentObjectId(next) : null)
   const destination = search.get('to') ?? defaultDestination
   const currentObjectId = search.get('at')
+  // A stale/shared wheelchair URL still uses the standard mesh when this
+  // museum has no wheelchair-specific mesh saved.
+  const wheelchairRoute =
+    Boolean(museum.navMeshWheelchair) && search.get('mobility') === 'wheelchair'
   const href = (path: string) => withNavigationPosition(path, search.toString())
 
   return (
@@ -113,11 +112,9 @@ export const TourNavigationPage = ({
                 map={museumMap.parsed}
                 h="100%"
                 w="100%"
-                navMesh={museum.navMesh}
+                navMesh={wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh}
                 currentObjectId={currentObjectId}
                 destinationObjectId={destination}
-                firstPerson={firstPerson}
-                onExitFirstPerson={exitFirstPerson}
                 onRouteUnavailable={setRouteUnavailable}
                 onObjectClick={(id) =>
                   router.push(href(`${tourNavigationPath(lng, tour.id, step)}/object/${id}`))
@@ -128,17 +125,7 @@ export const TourNavigationPage = ({
             )}
           </Suspense>
           <Overlay backgroundOpacity={0} style={{ pointerEvents: 'none' }}>
-            <NavigationControls
-              museum={museum}
-              firstPerson={firstPerson}
-              onToggleFirstPerson={() =>
-                setFirstPersonPath((activePath) => (activePath === pathname ? null : pathname))
-              }
-              mapAvailable={Boolean(museumMap.parsed)}
-              tour={tour}
-              step={step}
-              catalog={catalog}
-            />
+            <NavigationControls museum={museum} tour={tour} step={step} catalog={catalog} />
           </Overlay>
         </Box>
       </AppShellMain>
@@ -193,7 +180,7 @@ function NavigationNavBar({
             {t('Resume tour route')}
           </Button>
         )}
-        {routeUnavailable && <Box>{t('No route available between these objects')}</Box>}
+        {routeUnavailable ? <Box>{t('No route available between these objects')}</Box> : null}
         {!currentObjectId && <Box>{t('Open an object and set it as your position')}</Box>}
       </Group>
     </AppShellFooter>
@@ -202,17 +189,11 @@ function NavigationNavBar({
 
 function NavigationControls({
   museum,
-  firstPerson,
-  onToggleFirstPerson,
-  mapAvailable,
   tour,
   step,
   catalog,
 }: {
   museum: Museum
-  firstPerson: boolean
-  onToggleFirstPerson: () => void
-  mapAvailable: boolean
   tour: Tour
   step: number
   catalog: NavigationCatalogObject[]
@@ -224,6 +205,18 @@ function NavigationControls({
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
   const href = (path: string) => withNavigationPosition(path, search.toString())
+  const wheelchairMapAvailable = Boolean(museum.navMeshWheelchair)
+  const wheelchairRoute = wheelchairMapAvailable && search.get('mobility') === 'wheelchair'
+  const toggleMobility = () =>
+    router.replace(
+      withNavigationValue(
+        tourNavigationPath(lng, tour.id, step),
+        search.toString(),
+        'mobility',
+        wheelchairRoute ? null : 'wheelchair',
+      ),
+      { scroll: false },
+    )
   const contentHref = (id: string) => href(tourContentPath(lng, tour, step, id))
   const actions =
     catalog.flatMap((object) => [
@@ -243,14 +236,6 @@ function NavigationControls({
     ]) ?? []
   return (
     <Stack className="h-full" justify="end">
-      <Box className="pointer-events-auto self-end p-2">
-        <Button variant="default" disabled={!mapAvailable} onClick={onToggleFirstPerson}>
-          {firstPerson ? t('Return to map') : t('Explore in first person')}
-        </Button>
-        {firstPerson && (
-          <Box>{t('Click the map to look around. WASD to move, Esc to return.')}</Box>
-        )}
-      </Box>
       <Group
         gap="xs"
         wrap="nowrap"
@@ -260,6 +245,22 @@ function NavigationControls({
         style={{ pointerEvents: 'auto' }}
       >
         {museum.services && <ServicesActionIcons services={museum.services} />}
+
+        {wheelchairMapAvailable && (
+          <ActionIcon
+            aria-label={t('Wheelchair route')}
+            title={t('Wheelchair route')}
+            size="lg"
+            variant={wheelchairRoute ? 'filled' : 'white'}
+            color={wheelchairMapAvailable ? 'blue' : 'gray'}
+            radius="xl"
+            disabled={!wheelchairMapAvailable}
+            aria-pressed={wheelchairRoute}
+            onClick={toggleMobility}
+          >
+            <Accessibility size={20} />
+          </ActionIcon>
+        )}
 
         <Button
           onClick={() => router.push(href(`${tourNavigationPath(lng, tour.id, step)}/scan`))}

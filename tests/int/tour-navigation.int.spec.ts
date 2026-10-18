@@ -5,6 +5,7 @@ import {
   tourStepIndex,
   museumObjectId,
   withNavigationPosition,
+  withNavigationValue,
 } from '@/lib/tour-navigation'
 import { ItemNode } from '@pascal-app/core'
 
@@ -16,6 +17,15 @@ describe('tour navigation', () => {
     expect(withNavigationPosition('/it/tour/t/navigation/2', { at: 'a', to: ['b', 'c'] })).toBe(
       '/it/tour/t/navigation/2?at=a',
     )
+  })
+  it('preserves the wheelchair profile across navigation links and position changes', () => {
+    expect(withNavigationPosition('/it/object/a', 'at=a&mobility=wheelchair&unrelated=x')).toBe(
+      '/it/object/a?at=a&mobility=wheelchair',
+    )
+    expect(
+      withNavigationValue('/it/tour/t/navigation/2', 'at=a&mobility=wheelchair', 'to', 'b'),
+    ).toBe('/it/tour/t/navigation/2?at=a&to=b&mobility=wheelchair')
+    expect(withNavigationPosition('/it/object/a', 'mobility=walking')).toBe('/it/object/a')
   })
   it('accepts canonical QR paths and same-origin URLs, but not external destinations', () => {
     const origin = 'https://artaround.example'

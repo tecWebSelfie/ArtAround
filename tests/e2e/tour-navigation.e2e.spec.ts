@@ -7,20 +7,13 @@ const tourURL = process.env.TOUR_NAVIGATION_URL
 test.skip(!tourURL, 'Run scripts/seed-tour-navigation.ts and set TOUR_NAVIGATION_URL first.')
 test.setTimeout(300_000)
 
-test('starts in map mode on desktop and mobile; first person requires the button', async ({
-  page,
-}) => {
+test('shows the map on desktop and mobile', async ({ page }) => {
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('button', { name: 'Explore in first person' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Return to map' })).toHaveCount(0)
-  await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.getByRole('button', { name: 'Explore in first person' })).toBeVisible()
-  await page.setViewportSize({ width: 1280, height: 800 })
   await expect(page.locator('canvas')).toBeVisible({ timeout: 60_000 })
-  await page.getByRole('button', { name: 'Explore in first person' }).click()
-  await expect(page.getByRole('button', { name: 'Return to map' })).toBeVisible()
-  await page.getByRole('button', { name: 'Return to map' }).click()
-  await expect(page.getByRole('button', { name: 'Explore in first person' })).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  await expect(page.locator('canvas')).toBeVisible()
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await expect(page.locator('canvas')).toBeVisible()
 })
 
 test('keeps side exploration separate, shares position through reload, and completes both stops', async ({

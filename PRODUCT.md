@@ -37,8 +37,8 @@ The central promise is adaptability throughout the visit: content preferences an
 ### Existing documented behavior to preserve
 
 - Museum tours, QR routes, multilingual editorial content, and interactive maps are documented in the repository. Those documents describe the current working tree, not proof of production deployment.
-- Desktop and mobile begin in the ordinary map view. First-person exploration is optional.
-- Visitor position changes only through an explicit position confirmation. Opening content or a QR link, or moving in first person, must not silently change it.
+- Desktop and mobile use the ordinary map view.
+- Visitor position changes only through an explicit position confirmation. Opening content or a QR link must not silently change it.
 - Tour contents retain their authored order while visitors may independently explore other objects and contents or choose another destination.
 - Canonical QR values are ordinary localized object and content routes. Contextual navigation modals must remain reloadable and shareable.
 

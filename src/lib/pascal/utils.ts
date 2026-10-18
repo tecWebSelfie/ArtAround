@@ -1,6 +1,6 @@
-import { museumNavMeshOptions } from './navmesh-options'
+import { museumNavMeshOptions, wheelchairNavMeshOptions, type MuseumNavMeshProfile } from './navmesh-options'
 import { DEFAULT_QUERY_FILTER, findPath, type Vec3 } from 'navcat'
-import { generateSoloNavMesh } from 'navcat/blocks'
+import { generateSoloNavMesh, type SoloNavMeshInput } from 'navcat/blocks'
 
 import {
   buildFirstPersonColliderWorldFromRegistry,
@@ -9,10 +9,13 @@ import {
 import { getPositionsAndIndices } from 'navcat/three'
 
 /**
- * Builds the walkable surface from Pascal's collider registry (not every scene
- * mesh), using the same profile as the saved museum navmesh consumed by tours.
+ * Extracts only Pascal's navigation geometry, then lets the caller build one
+ * or both saved visitor profiles from those same triangles.
  */
-export function generateNavMeshFromSceneRegistry(navSceneRegistry?: NavSceneRegistry) {
+function fromNavSceneRegistry<T>(
+  navSceneRegistry: NavSceneRegistry | undefined,
+  build: (input: SoloNavMeshInput) => T,
+): T | null {
   const world = navSceneRegistry
     ? null
     : buildFirstPersonColliderWorldFromRegistry({ includeNavSceneRegistry: true })
@@ -25,10 +28,26 @@ export function generateNavMeshFromSceneRegistry(navSceneRegistry?: NavSceneRegi
     if (meshes.length === 0) return null
 
     const [positions, indices] = getPositionsAndIndices(meshes)
-    return generateSoloNavMesh({ indices, positions }, museumNavMeshOptions).navMesh
+    return build({ indices, positions })
   } finally {
     world?.dispose()
   }
+}
+
+/** Generate both visitor profiles from one extraction of Pascal navigation geometry. */
+export function generateMuseumNavMeshesFromSceneRegistry(navSceneRegistry?: NavSceneRegistry) {
+  return fromNavSceneRegistry(navSceneRegistry, (input) => ({
+    pedestrian: generateSoloNavMesh(input, museumNavMeshOptions).navMesh,
+    wheelchair: generateSoloNavMesh(input, wheelchairNavMeshOptions).navMesh,
+  }))
+}
+
+export function generateNavMeshFromSceneRegistry(
+  navSceneRegistry?: NavSceneRegistry,
+  profile: MuseumNavMeshProfile = 'pedestrian',
+) {
+  const options = profile === 'wheelchair' ? wheelchairNavMeshOptions : museumNavMeshOptions
+  return fromNavSceneRegistry(navSceneRegistry, (input) => generateSoloNavMesh(input, options).navMesh)
 }
 
 export function exportMapNavMeshJson(navSceneRegistry?: NavSceneRegistry) {
