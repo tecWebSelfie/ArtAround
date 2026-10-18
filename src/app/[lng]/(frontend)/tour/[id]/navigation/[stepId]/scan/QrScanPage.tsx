@@ -4,15 +4,25 @@ import i18nConfig from '@/../i18n.config'
 import { QrScanner } from '@/components/Scanner'
 import { CloseButton, Stack } from '@mantine/core'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { withNavigationPosition, tourNavigationPath } from '@/lib/tour-navigation'
 
+/** Scans canonical museum links and routes them into this tour with `at`/`to` intact. */
 export function QrScanPage() {
   const router = useRouter()
+  const search = useSearchParams()
+  const { lng, id: tourId, stepId } = useParams<{ lng: string; id: string; stepId: string }>()
+  const close = () =>
+    router.replace(
+      withNavigationPosition(tourNavigationPath(lng, tourId, Number(stepId)), search.toString()),
+    )
   return (
     <QrScanner
       isAllowedPath={(pathname) => ALLOWED_QR_PATTERNS.some(({ match }) => match.test(pathname))}
-      onScan={(url) => router.push(`${url.pathname}${url.search}` as Route)}
-      onClose={() => router.back()}
+      onScan={(url) =>
+        router.replace(withNavigationPosition(url.pathname, search.toString()) as Route)
+      }
+      onClose={close}
       onInvalid={(rawValue) => console.error('QR code non valido:', rawValue)}
       styles={{
         container: {
@@ -29,7 +39,7 @@ export function QrScanPage() {
       <Stack p="md" align="end">
         <CloseButton
           aria-label="Chiudi scanner"
-          onClick={router.back}
+          onClick={close}
           size={'lg'}
           className="border solid rounded-full bg-(--mantine-color-white)"
         />

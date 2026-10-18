@@ -5,28 +5,15 @@ import type { IScannerProps } from '@yudiel/react-qr-scanner'
 import dynamic from 'next/dynamic'
 import { create, type BitMatrix } from 'qrcode'
 import { useRef, useState } from 'react'
+import { parseAppUrl } from '@/lib/app-url'
+
+export { parseAppUrl } from '@/lib/app-url'
 
 export const Scanner = dynamic(() => import('@yudiel/react-qr-scanner').then((m) => m.Scanner), {
   ssr: false,
 })
 
-/** Valida che una stringa sia un URL http(s) di questa app. Ritorna l'URL o `null`. */
-export function parseAppUrl(rawValue: string | undefined): URL | null {
-  const raw = rawValue?.trim()
-  if (!raw) return null
-
-  let url: URL
-  try {
-    url = new URL(raw)
-  } catch {
-    return null // non e' nemmeno un URL
-  }
-
-  if (url.protocol !== 'http:' && url.protocol !== 'https:') return null
-  if (url.origin !== window.location.origin) return null // non e' di questa app
-  return url
-}
-
+/** Client-only scanner that accepts app URLs and turns them into safe URL objects. */
 export function QrScanner({
   isAllowedPath = () => true,
   onInvalid,

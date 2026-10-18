@@ -2,22 +2,18 @@
 
 import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
-import { Content, Tour } from '@/payload-types'
-import { Button, Group, Scroller, Stack, Stepper, StepperStep, Text } from '@mantine/core'
-import { modals } from '@mantine/modals'
-import Link from 'next/link'
+import { Tour } from '@/payload-types'
+import { Group, Scroller, Stepper, StepperStep } from '@mantine/core'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { tourContentPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { useEffect, useRef } from 'react'
 
-export function TourProgress({
-  contents,
-  step,
-  tourId,
-}: {
-  contents: Content[]
-  step: number
-  tourId: Tour['id']
-}) {
+/** The ordered contents are the main quest; selecting one opens it without moving the cursor. */
+export function TourProgress({ contents, step }: { contents: Tour['contents']; step: number }) {
   const activeStep = useRef<HTMLButtonElement | null>(null)
+  const { lng, id: tourId } = useParams<{ lng: string; id: string }>()
+  const search = useSearchParams()
+  const router = useRouter()
 
   useEffect(() => {
     activeStep.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
@@ -33,38 +29,27 @@ export function TourProgress({
         classNames={{
           separator: 'min-w-1/12',
         }}
-        onStepClick={(step) => {
-          modals.open({
-            title: 'Salto tappa',
-            centered: true,
-            children: (
-              <Stack className="w-full">
-                <Text fz="sm">
-                  Sei sicuro di voler saltare direttamente a {contents[step]?.title}?
-                </Text>
-                <Group grow>
-                  <Button onClick={() => modals.closeAll()} variant="outline">
-                    Annulla
-                  </Button>
-                  <Button component={Link} href={`/tour/${tourId}/navigation/${step}/open`}>
-                    Vai
-                  </Button>
-                </Group>
-              </Stack>
-            ),
-          })
+        onStepClick={(index) => {
+          const content = contents[index]
+          if (content) {
+            const contentId = typeof content === 'string' ? content : content.id
+            const path = tourContentPath(lng, { id: tourId, contents }, step, contentId)
+            router.push(withNavigationPosition(path, search.toString()))
+          }
         }}
       >
         {contents.map((content, index) => (
           <StepperStep
-            key={content.id}
-            label={content.title}
+            key={typeof content === 'string' ? content : content.id}
+            label={typeof content === 'string' ? `${index + 1}` : content.title}
             ref={index === step ? activeStep : undefined}
             description={
-              <Group gap={4}>
-                <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                <DurationBadge time={content.readingTimeMins ?? 12} />
-              </Group>
+              typeof content === 'object' && (
+                <Group gap={4}>
+                  <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
+                  <DurationBadge time={content.readingTimeMins ?? 12} />
+                </Group>
+              )
             }
           />
         ))}

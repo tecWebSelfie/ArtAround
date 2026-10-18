@@ -3,9 +3,10 @@ import {
   buildFirstPersonColliderWorldFromRegistry,
   type NavSceneRegistry,
 } from '@pascal-app/editor'
-import { Mesh, PlaneGeometry } from 'three'
+import { BoxGeometry, Group, Mesh, PlaneGeometry } from 'three'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { generateNavMeshFromSceneRegistry } from '@/lib/pascal/utils'
+import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 
 vi.mock('@pascal-app/editor', () => ({
   buildFirstPersonColliderWorldFromRegistry: vi.fn(),
@@ -19,6 +20,33 @@ const registry: NavSceneRegistry = {
 afterEach(() => vi.resetAllMocks())
 
 describe('navigation geometry used when saving a museum', () => {
+  it('uses the saved navmesh and world transforms for a confirmed object position', () => {
+    const mesh = generateNavMeshFromSceneRegistry(registry)!
+    const exhibit = new Group()
+    exhibit.position.set(2, 0, -1)
+    const object = new Mesh(new BoxGeometry(1, 2, 1))
+    object.position.y = 1
+    exhibit.add(object)
+    const point = objectNavigationPoint(mesh, object)!
+    expect(point[0]).toBeCloseTo(2)
+    expect(point[2]).toBeCloseTo(-1)
+    expect(point[1]).toBeLessThan(0.6)
+    expect(museumNavigationPath(mesh, point, [-2, 0, 2])?.length).toBeGreaterThan(1)
+    expect(buildFirstPersonColliderWorldFromRegistry).not.toHaveBeenCalled()
+    object.geometry.dispose()
+  })
+
+  it('does not present a partial path between disconnected floors as a complete route', () => {
+    const otherFloor = new Mesh(new PlaneGeometry(10, 10).rotateX(-Math.PI / 2))
+    otherFloor.position.x = 20
+    const mesh = generateNavMeshFromSceneRegistry({
+      ...registry,
+      'fallback-level:level_other': { node: { type: 'level' } as AnyNode, object: otherFloor },
+    })!
+    expect(museumNavigationPath(mesh, [0, 0, 0], [20, 0, 0])).toBeNull()
+    otherFloor.geometry.dispose()
+  })
+
   it('generates only navigation surfaces and disposes the temporary collider world', () => {
     const dispose = vi.fn()
     const siteGround = new Mesh(new PlaneGeometry(2000, 2000))

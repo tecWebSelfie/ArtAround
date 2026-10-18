@@ -9,7 +9,7 @@ const PLACEHOLDER = 'https://placehold.co/600x400?text=Placeholder'
 // from `./Modal` (client) to get open/close behaviour — never import this file
 // from a Client Component: it pulls in `next-i18next/server`, which imports
 // `next/root-params` and is invalid in client bundles.
-export async function ObjectDetailsContent({ object }: { object: Object }) {
+export async function ObjectDetailsContent({ object, hideContents = false }: { object: Object; hideContents?: boolean }) {
   const { t } = await getT('object-details')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
   const contents = filterPopulated<Content>(object.contents)
@@ -25,7 +25,7 @@ export async function ObjectDetailsContent({ object }: { object: Object }) {
       </AspectRatio>
       <Title order={3}>{object.name}</Title>
       {object.description && <Text size="sm">{object.description}</Text>}
-      {contents.length > 0 && (
+      {!hideContents && contents.length > 0 && (
         <Stack gap={4}>
           <Text size="sm" fw={600}>
             {t('Related contents')}

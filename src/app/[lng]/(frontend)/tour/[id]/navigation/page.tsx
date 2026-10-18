@@ -3,6 +3,7 @@ import NavigationStartPage from './NavigationStartPage'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 
+/** Entry page before a tour starts; the interactive URL cursor begins after this screen. */
 export async function generateStaticPrams() {
   const payload = await getPayload({
     config,

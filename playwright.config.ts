@@ -30,12 +30,15 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: 'chromium' },
+      use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL || 'chromium' },
     },
   ],
-  webServer: {
-    command: 'pnpm dev',
-    reuseExistingServer: true,
-    url: 'http://localhost:3000',
-  },
+  webServer:
+    process.env.PLAYWRIGHT_USE_RUNNING_SERVER === 'true'
+      ? undefined
+      : {
+          command: 'pnpm dev',
+          reuseExistingServer: true,
+          url: 'http://localhost:3000',
+        },
 })

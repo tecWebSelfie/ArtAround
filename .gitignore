@@ -41,6 +41,7 @@ yarn-error.log*
 next-env.d.ts
 
 /media
+/objectsModels
 
 # Playwright
 node_modules/
@@ -48,6 +49,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+/.playwright-mcp/
 
 *storybook.log
 storybook-static

@@ -4,6 +4,7 @@ import { AspectRatio, Image, Stack, StackProps, TextInput, ThemeIcon, Title } fr
 import { UserRoundGroup } from 'lucide-react'
 import { StartTourButton } from './StartTourButton'
 
+/** Server-rendered introduction shown before the persistent map session starts. */
 export default async function NavigationPage({ tour, ...props }: { tour: Tour } & StackProps) {
   const { t } = await getT('tour-navigation')
   const tourThumbnail = typeof tour.thumbnail === 'object' ? tour.thumbnail : null

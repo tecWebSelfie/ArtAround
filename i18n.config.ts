@@ -6,7 +6,7 @@ const i18nConfig: I18nConfig = {
   supportedLngs: [...SUPPORTED_LANGUAGES],
   fallbackLng: SUPPORTED_LANGUAGES[0],
   defaultNS: 'common',
-  ns: ['common', 'home', 'map-editor'],
+  ns: ['common', 'home', 'map-editor', 'tour-navigation'],
   // Prefixes `createProxy` must skip entirely. Webapp routes are /{lng}/… —
   // the `(frontend)` segment is a route group: it scopes the folders but
   // never appears in the URL — so there is no `basePath` (that option is only

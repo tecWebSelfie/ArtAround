@@ -1,5 +1,4 @@
-import { NavigationModal } from './NavigationModal'
-
+/** The step route and @modal slot share one map while the browser URL changes. */
 export default function NavigationLayout({
   children,
   modal,
@@ -7,7 +6,7 @@ export default function NavigationLayout({
   return (
     <>
       {children}
-      {modal && <NavigationModal>{modal}</NavigationModal>}
+      {modal}
     </>
   )
 }
