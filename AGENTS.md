@@ -6,6 +6,31 @@ Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.a
 This project uses the Pascal plugin-authoring skill at `.agents/skills/pascal-plugin-authoring/`
 for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-map work.
 
+## Museum editor and tour navigation
+
+Use these guides as starting points for implementation and debugging:
+
+- [Tour navigation](docs/tour-navigation.md): intended behavior, code map, QR routes,
+  avatar positioning, Pascal controls, local fixture, and verification status.
+- [Interactive object models](docs/interactive-object-models.md): editor catalog,
+  Mint preview/approval, and Payload jobs integration.
+
+Improve and simplify these implementations as needed; the guides describe the
+current design and should evolve with the code. Reuse Pascal APIs, Mantine,
+Payload types/SDK, and generated Mint SDK/schemas where they fit; introduce other
+libraries or abstractions when they make the solution simpler.
+
+For fast iteration, run focused checks for the affected behavior rather than the
+entire test suite. Run memory-heavy checks sequentially and state which checks
+passed and which remain open. Build on existing worktree changes, preserving
+unrelated edits.
+
+Document every source edit with comments that make its intent understandable in
+the wider feature flow. For a new or materially changed nontrivial file, briefly
+explain the file's role; at the relevant code, explain important decisions and
+invariants. Keep comments useful at a glance, and update or remove them when
+behavior changes; don't narrate obvious syntax line by line.
+
 ## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
 When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`).

@@ -1,0 +1,417 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T11:13:00.120Z",
+  "title": "Design System: ArtAround",
+  "extensions": {
+    "colorMeta": {
+      "navigation-blue": {
+        "role": "primary",
+        "displayName": "Navigation blue",
+        "tonalRamp": [
+          "#1864ab",
+          "#1971c2",
+          "#1c7ed6",
+          "#228be6",
+          "#4dabf7",
+          "#a5d8ff",
+          "#d0ebff",
+          "#e7f5ff"
+        ]
+      },
+      "navigation-blue-hover": {
+        "role": "primary",
+        "displayName": "Navigation blue hover",
+        "tonalRamp": [
+          "#1864ab",
+          "#1971c2",
+          "#1c7ed6",
+          "#228be6",
+          "#4dabf7",
+          "#a5d8ff",
+          "#d0ebff",
+          "#e7f5ff"
+        ]
+      },
+      "tour-purple": {
+        "role": "secondary",
+        "displayName": "Tour purple",
+        "tonalRamp": [
+          "oklch(0.15 0.12 303)",
+          "oklch(0.26 0.16 303)",
+          "oklch(0.37 0.2 303)",
+          "oklch(0.48 0.24 303)",
+          "oklch(0.59 0.22 303)",
+          "oklch(0.71 0.16 303)",
+          "oklch(0.83 0.09 303)",
+          "oklch(0.95 0.025 303)"
+        ]
+      },
+      "tour-orange": {
+        "role": "secondary",
+        "displayName": "Tour orange",
+        "tonalRamp": [
+          "#d9480f",
+          "#e8590c",
+          "#f76707",
+          "#fd7e14",
+          "#ffa94d",
+          "#ffd8a8",
+          "#ffe8cc",
+          "#fff4e6"
+        ]
+      },
+      "content-teal": {
+        "role": "secondary",
+        "displayName": "Content teal",
+        "tonalRamp": [
+          "#087f5b",
+          "#099268",
+          "#0ca678",
+          "#12b886",
+          "#38d9a9",
+          "#96f2d7",
+          "#c3fae8",
+          "#e6fcf5"
+        ]
+      },
+      "grape": {
+        "role": "secondary",
+        "displayName": "Grape",
+        "tonalRamp": [
+          "#862e9c",
+          "#9c36b5",
+          "#ae3ec9",
+          "#be4bdb",
+          "#da77f2",
+          "#eebefa",
+          "#f3d9fa",
+          "#f8f0fc"
+        ]
+      },
+      "easy-green": {
+        "role": "semantic",
+        "displayName": "Easy green",
+        "tonalRamp": [
+          "#2b8a3e",
+          "#2f9e44",
+          "#37b24d",
+          "#40c057",
+          "#69db7c",
+          "#b2f2bb",
+          "#d3f9d8",
+          "#ebfbee"
+        ]
+      },
+      "medium-yellow": {
+        "role": "semantic",
+        "displayName": "Medium yellow",
+        "tonalRamp": [
+          "#e67700",
+          "#f08c00",
+          "#f59f00",
+          "#fab005",
+          "#ffd43b",
+          "#ffec99",
+          "#fff3bf",
+          "#fff9db"
+        ]
+      },
+      "hard-red": {
+        "role": "semantic",
+        "displayName": "Hard red",
+        "tonalRamp": [
+          "#c92a2a",
+          "#e03131",
+          "#f03e3e",
+          "#fa5252",
+          "#ff8787",
+          "#ffc9c9",
+          "#ffe3e3",
+          "#fff5f5"
+        ]
+      },
+      "surface-light": {
+        "role": "neutral",
+        "displayName": "surface light",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "surface-subtle": {
+        "role": "neutral",
+        "displayName": "surface subtle",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "surface dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "control-dark": {
+        "role": "neutral",
+        "displayName": "control dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "border-dark": {
+        "role": "neutral",
+        "displayName": "border dark",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "text-dark-scheme": {
+        "role": "neutral",
+        "displayName": "text dark scheme",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "editor-background": {
+        "role": "neutral",
+        "displayName": "editor background",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "editor-foreground": {
+        "role": "neutral",
+        "displayName": "editor foreground",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "editor-primary": {
+        "role": "neutral",
+        "displayName": "editor primary",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      },
+      "editor-border": {
+        "role": "neutral",
+        "displayName": "editor border",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.26 0 0)",
+          "oklch(0.37 0 0)",
+          "oklch(0.48 0 0)",
+          "oklch(0.59 0 0)",
+          "oklch(0.71 0 0)",
+          "oklch(0.83 0 0)",
+          "oklch(0.95 0 0)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Navigator entry heading"
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Object detail headings"
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Museum content and ordinary UI"
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Compact controls and supporting copy"
+      }
+    },
+    "shadows": [
+      {
+        "name": "mantine-xs",
+        "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), 0 calc(0.0625rem * var(--mantine-scale)) calc(0.125rem * var(--mantine-scale)) rgba(0, 0, 0, 0.1)",
+        "purpose": "Floating creation toolbar"
+      },
+      {
+        "name": "mantine-sm",
+        "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(0.625rem * var(--mantine-scale)) calc(0.9375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.4375rem * var(--mantine-scale)) calc(0.4375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale))",
+        "purpose": "Small inherited surface elevation"
+      },
+      {
+        "name": "mantine-lg",
+        "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(1.75rem * var(--mantine-scale)) calc(1.4375rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.75rem * var(--mantine-scale)) calc(0.75rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale))",
+        "purpose": "Playful tour-card depth"
+      }
+    ],
+    "motion": [
+      {
+        "name": "search-border-cycle",
+        "value": "4s",
+        "purpose": "Observed decorative global-search border cycle"
+      },
+      {
+        "name": "tour-stack-transition",
+        "value": "500ms",
+        "purpose": "Observed tour DepthSelect transition"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "xs",
+        "value": "36em"
+      },
+      {
+        "name": "sm",
+        "value": "48em"
+      },
+      {
+        "name": "md",
+        "value": "62em"
+      },
+      {
+        "name": "lg",
+        "value": "75em"
+      },
+      {
+        "name": "xl",
+        "value": "88em"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Standalone sample of the inherited Mantine filled action.",
+      "html": "<button class=\"ds-primary\">Continue</button>",
+      "css": ".ds-primary{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-blue-6,#228be6);color:white}.ds-primary:hover{background:var(--mantine-color-blue-7,#1c7ed6)}.ds-primary:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-primary:active{transform:translateY(1px)}.ds-primary:disabled{cursor:not-allowed;opacity:.5}"
+    },
+    {
+      "name": "Default button",
+      "kind": "button",
+      "description": "Supporting action using the theme surface and border.",
+      "html": "<button class=\"ds-default\">Cancel</button>",
+      "css": ".ds-default{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-default,#fff);color:var(--mantine-color-text,#000);border-color:var(--mantine-color-default-border,#ced4da)}.ds-default:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-default:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-default:active{transform:translateY(1px)}"
+    },
+    {
+      "name": "Discovery search",
+      "kind": "input",
+      "refersTo": "search",
+      "description": "Rounded global-search silhouette; the runtime animated border and combobox behavior belong to the React component.",
+      "html": "<label class=\"ds-search-label\">Search tours<div class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 4 4\"/></svg><input placeholder=\"Look for the next tour\" /></div></label>",
+      "css": ".ds-search-label{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;color:var(--mantine-color-text,#000)}.ds-search{display:flex;align-items:center;gap:10px;border:1px solid purple;border-radius:var(--mantine-radius-xl,32px);padding:0 16px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-dimmed,#868e96)}.ds-search input{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;height:48px;width:100%;min-width:0;border:0;background:transparent;font-size:18px;color:var(--mantine-color-text,#000);outline:none}.ds-search:hover{border-color:var(--mantine-color-grape-6,#be4bdb)}.ds-search:focus-within{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}"
+    },
+    {
+      "name": "Section navigation",
+      "kind": "nav",
+      "refersTo": "tab-active",
+      "description": "Static active-state sample of the moving blue underline tabs; production keyboard behavior remains Mantine-owned.",
+      "html": "<nav class=\"ds-tabs\" aria-label=\"Object sections\"><button class=\"ds-tab\" aria-current=\"page\">Info</button><button class=\"ds-tab\">Contents</button></nav>",
+      "css": ".ds-tabs{display:flex}.ds-tab{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;flex:1;padding:12px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--mantine-color-text,#000);cursor:pointer}.ds-tab[aria-current]{border-bottom-color:var(--mantine-color-blue-6,#228be6)}.ds-tab:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-tab:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}"
+    },
+    {
+      "name": "Easy difficulty badge",
+      "kind": "chip",
+      "description": "Green badge retains a text label and leaf icon instead of relying on color alone.",
+      "html": "<span class=\"ds-badge\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M20 4C8 2 2 8 5 15s15 5 15-11Z M4 21l10-10\"/></svg>Easy</span>",
+      "css": ".ds-badge{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 8px;border-radius:1000px;background:var(--mantine-color-green-6,#40c057);color:#000;font-size:10px;font-weight:700;text-transform:uppercase}"
+    },
+    {
+      "name": "Tour card frame",
+      "kind": "card",
+      "description": "Representative purple/orange frame and stronger depth; the live carousel supplies real museum content and stacked selection.",
+      "html": "<article class=\"ds-tour\"><span class=\"ds-tour-label\">Tours</span><div class=\"ds-tour-body\">Tour discovery</div><button class=\"ds-tour-action\">Explore all tours</button></article>",
+      "css": ".ds-tour{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border-radius:8px;background:linear-gradient(to bottom right,#7e22ce,#fb923c);box-shadow:var(--mantine-shadow-lg,0 12px 24px rgba(0,0,0,.12))}.ds-tour-label{display:inline-block;padding:4px 12px;border-radius:32px;background:#fff;color:#7e22ce;font-size:12px;text-transform:uppercase}.ds-tour-body{margin:16px 0;padding:24px 12px;border-radius:8px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#000)}.ds-tour-action{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;width:100%;padding:0 10px;background:#fff;color:#228be6}.ds-tour-action:hover{background:#f8f9fa}.ds-tour-action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px;}.ds-tour-action:active{transform:translateY(1px)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Adaptable Museum Companion",
+    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border, and selected discovery accents. These examples establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
+    "keyCharacteristics": [
+      "Familiar and approachable Mantine controls.",
+      "Neutral light and dark surfaces with clear task hierarchy.",
+      "Small playful exceptions in museum discovery.",
+      "Functional depth for overlays and floating controls.",
+      "Prototype-informed direction with room for refinement."
+    ],
+    "rules": [],
+    "dos": [
+      "Do use Mantine as the main visual foundation for visitor and staff task controls.",
+      "Do preserve an approachable feel for casual museum visitors.",
+      "Do confine playfulness to small key components where it helps discovery or feedback.",
+      "Do use functional depth for floating controls, with tour cards as a scoped playful exception.",
+      "Do improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
+      "Do keep content meaning available through labels and icons as well as color."
+    ],
+    "donts": [
+      "Don't treat every prototype measurement, gradient, or animation as an immutable brand requirement.",
+      "Don't turn ordinary forms and navigation into continuously animated showcases.",
+      "Don't confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
+      "Don't present planned product capabilities or unverified accessibility compliance as implemented design evidence."
+    ]
+  }
+}
