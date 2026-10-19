@@ -16,6 +16,7 @@ import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_VERIFIED } from '@/fields/MuseumFunction'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
+import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -181,6 +182,8 @@ export const Contents: CollectionConfig = {
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, storeReadingTime],
     afterChange: [attachToObject],
+    // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
+    afterDelete: [detachDeletedContentFromQuestions],
   },
   fields: [
     DifficultyField,

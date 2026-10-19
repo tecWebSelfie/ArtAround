@@ -66,6 +66,7 @@ export function DirectionsBar({
   destination,
   status,
   hint,
+  action,
 }: {
   steps: DirectionStep[]
   current: number
@@ -75,6 +76,8 @@ export function DirectionsBar({
   status: DirectionsStatus | null
   /** Secondary line, e.g. asking the visitor to confirm a position. */
   hint?: string | null
+  /** Button shown beside a status message, e.g. "Take the quiz" once the tour is complete. */
+  action?: React.ReactNode
 }) {
   const { t } = useTranslation('tour-navigation')
   const sentence = useStepSentence()
@@ -104,6 +107,7 @@ export function DirectionsBar({
             </Text>
           )}
         </Stack>
+        {action && <Box ml="auto">{action}</Box>}
       </Group>
     )
   }

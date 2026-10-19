@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-19T22:46:16.098Z",
+  "generatedAt": "2026-10-19T23:32:18.305Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -339,6 +339,62 @@
           "oklch(0.89 0.07 55)",
           "oklch(0.96 0.02 55)"
         ]
+      },
+      "feedback-correct": {
+        "role": "semantic",
+        "displayName": "Answer right",
+        "tonalRamp": [
+          "#ebfbee",
+          "#d3f9d8",
+          "#b2f2bb",
+          "#8ce99a",
+          "#51cf66",
+          "#40c057",
+          "#2f9e44",
+          "#2b8a3e"
+        ]
+      },
+      "feedback-wrong": {
+        "role": "semantic",
+        "displayName": "Answer wrong",
+        "tonalRamp": [
+          "#fff5f5",
+          "#ffe3e3",
+          "#ffc9c9",
+          "#ffa8a8",
+          "#ff6b6b",
+          "#fa5252",
+          "#e03131",
+          "#c92a2a"
+        ]
+      },
+      "chart-highlight": {
+        "role": "tertiary",
+        "displayName": "Your bar",
+        "tonalRamp": [
+          "#fff4e6",
+          "#ffe8cc",
+          "#ffd8a8",
+          "#ffc078",
+          "#ffa94d",
+          "#ff922b",
+          "#f76707",
+          "#d9480f"
+        ]
+      },
+      "chart-muted": {
+        "role": "neutral",
+        "displayName": "Everyone else",
+        "tonalRamp": [
+          "#f8f9fa",
+          "#f1f3f5",
+          "#e9ecef",
+          "#dee2e6",
+          "#ced4da",
+          "#adb5bd",
+          "#868e96",
+          "#495057"
+        ]
       }
     },
     "typographyMeta": {
@@ -595,6 +651,30 @@
       "description": "Light round button naming the locked museum (or \"All museums\"); opens the Change museum modal whose empty search offers importing a config file.",
       "html": "<div class=\"ds-ms\"><button class=\"ds-ms-btn\" aria-label=\"Change museum\">Galleria Borghese</button><div class=\"ds-ms-modal\"><input class=\"ds-ms-in\" placeholder=\"Search a museum\" aria-label=\"Search a museum\"><span class=\"ds-ms-or\">or</span><button class=\"ds-ms-file\">Import a config file</button></div></div>",
       "css": ".ds-ms{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:360px}.ds-ms-btn{height:26px;max-width:100%;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.ds-ms-modal{align-self:stretch;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-ms-in{align-self:stretch;height:36px;padding:0 12px;border:1px solid #ced4da;border-radius:4px;font-size:14px}.ds-ms-in:focus{outline:none;border-color:#228be6}.ds-ms-or{font-size:14px;color:#868e96}.ds-ms-file{height:36px;padding:0 18px;border:1px solid #dee2e6;border-radius:4px;background:#fff;font-weight:600;cursor:pointer}.ds-ms button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Quiz answer option",
+      "kind": "button",
+      "refersTo": "answer-option",
+      "description": "Large wrapping answer button. Idle is default; once graded, the right option turns light green with ✓ + label, a wrong pick light red with ✗ + label, the rest stay readable but dimmed.",
+      "html": "<div class=\"ds-answers\" role=\"group\" aria-label=\"Which technique?\"><button class=\"ds-answer\">Fresco</button><button class=\"ds-answer ds-answer--right\" aria-disabled=\"true\"><span>Tempera on panel</span><span class=\"ds-answer__tag\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg>Right answer</span></button><button class=\"ds-answer ds-answer--wrong\" aria-disabled=\"true\"><span>Oil on canvas</span><span class=\"ds-answer__tag\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg>Your answer</span></button><button class=\"ds-answer ds-answer--other\" aria-disabled=\"true\">Watercolour</button></div>",
+      "css": ".ds-answers{display:flex;flex-direction:column;gap:12px;max-width:540px}.ds-answer{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:18px;font-weight:500;line-height:1.35;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:12px 26px;border:1px solid var(--mantine-color-gray-4,#ced4da);border-radius:var(--mantine-radius-md,8px);background:#fff;color:#000;cursor:pointer;transition:background .15s ease,border-color .15s ease}.ds-answer:hover{background:var(--mantine-color-gray-0,#f8f9fa)}.ds-answer:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-answer[aria-disabled=true]{cursor:default}.ds-answer--right,.ds-answer--right:hover{background:rgba(64,192,87,.1);border-color:transparent;color:#2f9e44}.ds-answer--wrong,.ds-answer--wrong:hover{background:rgba(250,82,82,.1);border-color:transparent;color:#e03131}.ds-answer--other,.ds-answer--other:hover{background:#fff;color:#868e96}.ds-answer__tag{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:600;white-space:nowrap}"
+    },
+    {
+      "name": "Footer primary action",
+      "kind": "button",
+      "refersTo": "footer-action",
+      "description": "The single forward step of a focused task page, full-width in the fixed 64px footer (The Thumb-Reach Rule).",
+      "html": "<div class=\"ds-footer\"><button class=\"ds-footer__action\">Next question<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5l7 7-7 7\"/></svg></button></div>",
+      "css": ".ds-footer{height:64px;display:flex;align-items:center;padding:0 16px;border-top:1px solid var(--mantine-color-gray-3,#dee2e6);background:#fff;max-width:572px}.ds-footer__action{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:600;width:100%;height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-blue-6,#228be6);color:#fff;cursor:pointer;transition:background .15s ease}.ds-footer__action:hover{background:var(--mantine-color-blue-7,#1c7ed6)}.ds-footer__action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-footer__action:disabled{opacity:.5;cursor:not-allowed}"
+    },
+    {
+      "name": "Score distribution",
+      "kind": "custom",
+      "refersTo": "chart-highlight",
+      "description": "Results comparison: the sentence states the finding, the bars add the shape. Only the visitor's band is colored, and it is also named \"(you)\".",
+      "html": "<figure class=\"ds-dist\"><p class=\"ds-dist__lead\">You did better than 62% of visitors.</p><div class=\"ds-dist__bars\" role=\"img\" aria-label=\"Visitors per score band: 0–20% 3, 21–40% 8, 41–60% 14, 61–80% (you) 11, 81–100% 6\"><div class=\"ds-dist__col\"><span>3</span><i style=\"height:21%\"></i><b>0–20%</b></div><div class=\"ds-dist__col\"><span>8</span><i style=\"height:57%\"></i><b>21–40%</b></div><div class=\"ds-dist__col\"><span>14</span><i style=\"height:100%\"></i><b>41–60%</b></div><div class=\"ds-dist__col ds-dist__col--you\"><span>11</span><i style=\"height:79%\"></i><b>61–80% (you)</b></div><div class=\"ds-dist__col\"><span>6</span><i style=\"height:43%\"></i><b>81–100%</b></div></div></figure>",
+      "css": ".ds-dist{margin:0;max-width:540px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-dist__lead{font-size:16px;margin:0 0 12px;color:#000}.ds-dist__bars{display:flex;align-items:flex-end;gap:12px;height:180px}.ds-dist__col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}.ds-dist__col i{display:block;width:100%;background:#ced4da}.ds-dist__col span{font-size:12px;color:#495057;font-variant-numeric:tabular-nums}.ds-dist__col b{font-size:12px;font-weight:400;color:#868e96;white-space:nowrap}.ds-dist__col--you i{background:#ff922b}.ds-dist__col--you b{color:#495057;font-weight:600}"
     }
   ],
   "narrative": {
@@ -626,6 +706,11 @@
         "section": "colors"
       },
       {
+        "name": "The Highlight-One Rule",
+        "body": "A chart colors exactly one series or bar: the visitor's own. Everything else is `chart-muted`. If nothing belongs to the viewer, the chart is single-hue.",
+        "section": "colors"
+      },
+      {
         "name": "The Triplet Rule",
         "body": "Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (`Leaf`/green, `Gauge`/yellow, `Flame`/red.9). Keep all three when restyling.",
         "section": "colors"
@@ -634,6 +719,11 @@
         "name": "The Gradient-Span Rule",
         "body": "A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.",
         "section": "typography"
+      },
+      {
+        "name": "The Thumb-Reach Rule",
+        "body": "On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not.",
+        "section": "layout"
       },
       {
         "name": "The Overlay Opt-In Rule",
@@ -649,6 +739,11 @@
         "name": "The Inherit-Radius Rule",
         "body": "Nested surfaces take their radius from the parent (`rounded-[inherit]`) rather than inventing a new value; this is what keeps the `BorderAnimate` wrapper flush with the input it decorates.",
         "section": "shapes"
+      },
+      {
+        "name": "The Chart-Follows-Sentence Rule",
+        "body": "A chart never carries the takeaway alone. The sentence above it states the finding; the chart adds the distribution, and its container exposes a text summary for screen readers.",
+        "section": "components"
       },
       {
         "name": "The Edit-In-Place Rule",
@@ -693,7 +788,10 @@
       "**Do** give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.",
       "**Do** show route states inside the directions strip, and transient guidance as top-center notifications.",
       "**Do** offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.",
-      "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
+      "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
+      "**Do** put a focused task's single forward action full-width in the 64px footer, with the content inside `AppShellMain` (see The Thumb-Reach Rule).",
+      "**Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
+      "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule)."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
@@ -704,7 +802,9 @@
       "**Don't** label generated text or tours as AI, add sparkles, chat bubbles or a typing effect, or open a free prompt box (see The Same-Voice Rule).",
       "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
       "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
-      "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule)."
+      "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).",
+      "**Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.",
+      "**Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values."
     ]
   }
 }

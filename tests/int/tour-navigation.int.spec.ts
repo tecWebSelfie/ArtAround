@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { parseAppUrl } from '@/lib/app-url'
 import {
   tourContentPath,
+  tourQuizPath,
+  tourQuizResultPath,
   tourStepIndex,
   museumObjectId,
   withNavigationPosition,
@@ -77,5 +79,13 @@ describe('tour navigation', () => {
     expect(
       museumObjectId(ItemNode.parse({ asset: { ...asset, category: 'furniture' } })),
     ).toBeNull()
+  })
+
+  it('opens the quiz with the left cursor, keeping position and dropping the destination', () => {
+    expect(tourQuizPath('it', 't', 3, 'at=a&to=b&mobility=wheelchair&q=2')).toBe(
+      '/it/tour/t/quiz?at=a&mobility=wheelchair&from=3',
+    )
+    expect(tourQuizPath('it', 't', 0, '')).toBe('/it/tour/t/quiz?from=0')
+    expect(tourQuizResultPath('it', 't', 'a/b')).toBe('/it/tour/t/quiz/result/a%2Fb')
   })
 })

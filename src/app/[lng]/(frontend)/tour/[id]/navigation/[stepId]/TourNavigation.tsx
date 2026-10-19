@@ -62,7 +62,9 @@ import { useRouteGuidance } from './use-route-guidance'
 import {
   contentObjectId,
   navigationDestination,
+  tourHasQuiz as hasQuiz,
   tourNavigationPath,
+  tourQuizPath,
   withNavigationValue,
   type NavigationCatalogObject,
   type NavigationDestination,
@@ -214,6 +216,7 @@ export const TourNavigationPage = ({
             contents={tour.contents}
             step={step}
             entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
+            hasQuiz={hasQuiz(tour)}
           />
         </Stack>
       </AppShellHeader>
@@ -275,6 +278,17 @@ export const TourNavigationPage = ({
                 !currentObjectId && !complete
                   ? t('Open an object and set it as your position')
                   : null
+              }
+              // A completed tour with a quiz offers it right where "Tour completed" shows.
+              action={
+                complete && hasQuiz(tour) ? (
+                  <Button
+                    size="compact-sm"
+                    onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}
+                  >
+                    {t('Take the quiz')}
+                  </Button>
+                ) : null
               }
             />
           </Box>

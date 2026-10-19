@@ -8,6 +8,12 @@ import {
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
 import type { Tour as TourType } from '@/payload-types'
 import type { Access, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import {
+  deleteQuestionsOfDeletedTour,
+  deleteQuestionsRemovedFromQuiz,
+  quizQuestionFilterOptions,
+  validateQuizQuestions,
+} from '@/lib/quiz-ownership'
 
 export const TOURS_COLLECTION_SLUG = 'tours'
 
@@ -48,76 +54,116 @@ export const Tour: CollectionConfig = {
   },
   hooks: {
     beforeChange: [assignAuthor],
+    // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
+    afterChange: [deleteQuestionsRemovedFromQuiz],
+    afterDelete: [deleteQuestionsOfDeletedTour],
   },
   fields: [
     {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
-    {
-      name: 'description',
-      type: 'text',
-      required: false,
-      maxLength: 70,
-    },
-    {
-      // Authored order = visiting order (see docs/tour-navigation.md).
-      name: 'contents',
-      type: 'relationship',
-      relationTo: 'contents',
-      hasMany: true,
-      minRows: 1,
-      required: true,
-    },
-    {
-      name: 'thumbnail',
-      type: 'upload',
-      relationTo: 'toursThumbnails',
-      required: false,
-    },
-    {
-      // Owned by the tour (reverse: `museums.tours` join) so creating a tour
-      // never requires editing the museum.
-      name: 'museum',
-      type: 'relationship',
-      relationTo: 'museums',
-      hasMany: false,
-      required: true,
-      index: true,
-    },
-    {
-      // Set from the caller on create (`assignAuthor`); never reassigned.
-      name: 'author',
-      type: 'relationship',
-      relationTo: 'users',
-      required: false,
-      index: true,
-      access: { update: ({ req }) => isSuperAdmin(req) },
-    },
-    {
-      // Set only on tours planned from the visitor's form (`/api/plan-tour`).
-      // Metadata only: a planned tour looks like any other tour to visitors,
-      // and stays available to later visitors with the same needs.
-      name: 'generation',
-      type: 'group',
-      access: { update: ({ req }) => isSuperAdmin(req) },
-      fields: [
-        { name: 'generated', type: 'checkbox', defaultValue: false },
-        { name: 'model', type: 'text' },
+      type: 'tabs',
+      tabs: [
         {
-          // Hash of the normalized form answers: the same answers for the same
-          // museum reuse this tour instead of planning a new one.
-          name: 'requestKey',
-          type: 'text',
-          index: true,
+          // Unnamed tab: keeps the original top-level data shape.
+          label: 'Tour',
+          fields: [
+            {
+              name: 'title',
+              type: 'text',
+              required: true,
+            },
+            {
+              name: 'description',
+              type: 'text',
+              required: false,
+              maxLength: 70,
+            },
+            {
+              // Authored order = visiting order (see docs/tour-navigation.md).
+              name: 'contents',
+              type: 'relationship',
+              relationTo: 'contents',
+              hasMany: true,
+              minRows: 1,
+              required: true,
+            },
+            {
+              name: 'thumbnail',
+              type: 'upload',
+              relationTo: 'toursThumbnails',
+              required: false,
+            },
+            {
+              // Owned by the tour (reverse: `museums.tours` join) so creating a tour
+              // never requires editing the museum.
+              name: 'museum',
+              type: 'relationship',
+              relationTo: 'museums',
+              hasMany: false,
+              required: true,
+              index: true,
+            },
+            {
+              // Set from the caller on create (`assignAuthor`); never reassigned.
+              name: 'author',
+              type: 'relationship',
+              relationTo: 'users',
+              required: false,
+              index: true,
+              access: { update: ({ req }) => isSuperAdmin(req) },
+            },
+            {
+              // Set only on tours planned from the visitor's form (`/api/plan-tour`).
+              // Metadata only: a planned tour looks like any other tour to visitors,
+              // and stays available to later visitors with the same needs.
+              name: 'generation',
+              type: 'group',
+              access: { update: ({ req }) => isSuperAdmin(req) },
+              fields: [
+                { name: 'generated', type: 'checkbox', defaultValue: false },
+                { name: 'model', type: 'text' },
+                {
+                  // Hash of the normalized form answers: the same answers for the same
+                  // museum reuse this tour instead of planning a new one.
+                  name: 'requestKey',
+                  type: 'text',
+                  index: true,
+                },
+                {
+                  // The answers themselves (time, group, interests) can be personal,
+                  // so only super admins read them.
+                  name: 'request',
+                  type: 'json',
+                  access: { read: ({ req }) => isSuperAdmin(req) },
+                },
+              ],
+            },
+          ],
         },
         {
-          // The answers themselves (time, group, interests) can be personal,
-          // so only super admins read them.
-          name: 'request',
-          type: 'json',
-          access: { read: ({ req }) => isSuperAdmin(req) },
+          // The tour's optional end-of-tour quiz lives inside the tour, so the
+          // question picker sees unsaved `contents` and a tour has at most one quiz.
+          // An empty list means "no quiz". See `src/lib/quiz-ownership.ts`.
+          name: 'quiz',
+          label: 'Quiz',
+          fields: [
+            {
+              name: 'questions',
+              type: 'relationship',
+              relationTo: 'quizQuestions',
+              hasMany: true,
+              // Never populated, whatever the read depth: tour docs are passed to
+              // client components (navigation, tour pages), and a populated question
+              // would ship its `correctAnswer` to the browser. Quiz pages read
+              // questions separately and send a reduced payload.
+              maxDepth: 0,
+              filterOptions: quizQuestionFilterOptions,
+              validate: validateQuizQuestions,
+              admin: {
+                description:
+                  'Shown in this order after the last stop. Search lists questions about this tour’s contents. Questions created here without related contents belong to this tour: removing them from the quiz deletes them.',
+              },
+            },
+          ],
         },
       ],
     },

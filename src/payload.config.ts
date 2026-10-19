@@ -39,6 +39,8 @@ import { ContentVariants } from './collections/ContentVariants'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
+import { QuizAttempts } from './collections/QuizAttempts'
+import { QuizQuestions } from './collections/QuizQuestions'
 import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
 import { museumFunctionField } from './fields/MuseumFunction'
@@ -88,6 +90,8 @@ export default buildConfig({
     ContentVariants,
     Tour,
     ToursThumbnails,
+    QuizQuestions,
+    QuizAttempts,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -105,6 +109,8 @@ export default buildConfig({
     // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
     autoTranslatePlugin({
       collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages],
+      // Translated, but without the public `/localized` read: questions carry their answer.
+      serverOnly: [QuizQuestions],
     }),
     stripePlugin({
       stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
@@ -154,8 +160,9 @@ export default buildConfig({
     payloadPluginRBAC({
       // Adds the `createdBy` ownership field these collections' access rules
       // rely on. Per-museum permissions themselves live in `src/access/`
-      // (memberships), not in the global role matrix.
-      targetCollections: [Museums.slug, Objects.slug, Contents.slug, Tour.slug],
+      // (memberships), not in the global role matrix. Quiz questions need it
+      // for `mode: 'modify'` data-scope checks.
+      targetCollections: [Museums.slug, Objects.slug, Contents.slug, Tour.slug, QuizQuestions.slug],
       collections: {
         roles: {
           fields: [museumFunctionField],

@@ -16,6 +16,10 @@ colors:
   exit-red: '#ff8787'
   assistant-ember: '#FF8A2A'
   voice-aura: '#1FD5F9'
+  feedback-correct: '#2f9e44'
+  feedback-wrong: '#e03131'
+  chart-highlight: '#ff922b'
+  chart-muted: '#ced4da'
   surface-light: '#ffffff'
   surface-subtle: '#f8f9fa'
   surface-dark: '#242424'
@@ -134,6 +138,24 @@ components:
     textColor: '{colors.navigation-blue}'
     rounded: '{rounded.xl}'
     height: '1.625rem'
+  answer-option:
+    backgroundColor: '{colors.surface-light}'
+    textColor: '{colors.editor-foreground}'
+    rounded: '{rounded.md}'
+    height: '3.5rem'
+    padding: '0.75rem 1.625rem'
+  answer-option-correct:
+    textColor: '{colors.feedback-correct}'
+    rounded: '{rounded.md}'
+  answer-option-wrong:
+    textColor: '{colors.feedback-wrong}'
+    rounded: '{rounded.md}'
+  footer-action:
+    backgroundColor: '{colors.navigation-blue}'
+    textColor: '{colors.surface-light}'
+    rounded: '{rounded.sm}'
+    height: '2.625rem'
+    width: '100%'
 ---
 
 # Design System: ArtAround
@@ -199,7 +221,10 @@ A small semantic set that comes from one source: `SERVICE_META` / `EXIT_ENTRANCE
 
 **The Single Marker Table Rule.** Never pick a marker color locally. Add or change a marker kind in `markers.ts` so that the 2D chrome and the 3D material stay in sync.
 
-### Neutral
+### Feedback and data
+
+- **Answer right / answer wrong** (`feedback-correct`, Mantine green.8; `feedback-wrong`, Mantine red.8): the quiz's verdict text and the `light` tint of a graded answer option. Always paired with a ✓ / ✗ icon and a word ("Right answer", "Your answer"), per The Triplet Rule. These are darker steps than the difficulty green/red so small labels keep contrast on their light tints.
+- **Your bar / everyone else** (`chart-highlight`, Mantine orange.5; `chart-muted`, Mantine gray.4): the score-distribution chart on quiz results. Orange is the warm half of the tour identity, so "you" reads as part of the tour; every other band stays quiet gray. Per-question rates use a neutral `gray.6` `Progress`, not a hue.
 
 - **Light surface / subtle surface** (`surface-light`, `surface-subtle`): white and Mantine gray.0. Objects use relatively plain image-led presentation so the museum image or object can lead. The tour-navigation bars, the GPS pad and the settings popover are plain white Mantine surfaces too, so the map stays the loudest thing on screen.
 - **Dark surface / dark control / dark border / dark-scheme text**: the rendered Mantine dark theme uses the corresponding frontmatter values. Prefer Mantine's semantic variables over hardcoded light surfaces so scheme switching keeps working.
@@ -207,6 +232,8 @@ A small semantic set that comes from one source: `SERVICE_META` / `EXIT_ENTRANCE
 - **Dimmed text**: supporting copy uses Mantine's `dimmed` token (e.g. catalog hints); the navigator's "Or" divider label uses gray.7.
 
 ### Named Rules
+
+**The Highlight-One Rule.** A chart colors exactly one series or bar: the visitor's own. Everything else is `chart-muted`. If nothing belongs to the viewer, the chart is single-hue.
 
 **The Triplet Rule.** Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (`Leaf`/green, `Gauge`/yellow, `Flame`/red.9). Keep all three when restyling.
 
@@ -226,6 +253,8 @@ A small semantic set that comes from one source: `SERVICE_META` / `EXIT_ENTRANCE
 - **Label:** 0.875rem. Badge casing follows the component treatment rather than becoming a global uppercase rule.
 
 These are inherited Mantine values, not a new custom scale. The prototype does not establish a universal reading-column width. Text blocks lean on Mantine's `textWrap="balance"` and `lineClamp` rather than a fixed measure.
+
+- **Counters and scores:** progress counters ("Question 3 of 5"), the result score and numbered review items use tabular numerals (`font-variant-numeric: tabular-nums`) so digits do not jitter as they change. The result score is the one oversized number (36px, weight 800, with a dimmed 20px "/total").
 
 ### Named Rules
 
@@ -251,7 +280,11 @@ Every tab page (navigator, marketplace) opens with one right-aligned row above i
 
 Detail pages for museums, objects, contents and tours stack read-only sections. When the viewer may edit, owner actions appear inline as a compact row of `size="xs"` `light` link buttons (map, tour, new content), with `subtle` used for lower-priority staff management. Editing never moves to a separate admin chrome; it happens where the content is read. These measurements describe current layouts; they should be refined when content, touch use, or viewport constraints expose defects.
 
+**Focused task pages** (the end-of-tour quiz and its results) leave the map layout entirely: a single `Container size="xs"` reading column (540px, `md` side padding) inside `AppShellMain`, so the shell reserves room for the fixed 64px `AppShellFooter`. The footer carries exactly one full-width forward action ("Next question", "See your results", "Back to the navigator"); secondary actions stay in the column. The quiz adds a sticky in-column header (back icon, tour title, "Question n of N", progress bar) on the body background. Sections on the results page are separated by `xl` stack gaps and titled with compact `h4`-sized headings; review items are a divided list, not cards.
+
 ### Named Rules
+
+**The Thumb-Reach Rule.** On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not.
 
 **The Overlay Opt-In Rule.** Floating controls over a map or canvas sit in a transparent, non-interactive overlay container; each control re-enables pointer events on itself. Never give the container pointer events back.
 
@@ -330,10 +363,30 @@ Each component below leads with its character, then shape, color assignment, sta
 
 - **ArtaroundTabs:** a moving 2px blue bottom indicator (`FloatingIndicator`) over `grow`-distributed tabs, optional icons, optional panels, and a `none` variant. Selected state is the underline, not a filled block.
 - **Bottom app navigation:** `grow` entries with an icon above an `xs` label. Navigator is green, Marketplace red, and Account/Sign in blue. When the visitor holds a museum role, a grape "My museums" entry opens an upward menu that lists each museum with its role icon and dimmed role label (`Landmark` director, `Palette` curator, `BadgeCheck` verified creator). Entries are `light` when active and `subtle` otherwise, the active one sets `aria-current="page"`, and the language switcher closes the row.
-- **Tour progress:** a horizontally scrolling Mantine `Stepper` (`size="xs"`, `iconSize={24}`) whose active stop scrolls itself into view on change; clicking a stop opens that content without moving the tour cursor. When the museum has an entrance, an entrance step leads the stepper.
+- **Tour progress:** a horizontally scrolling Mantine `Stepper` (`size="xs"`, `iconSize={24}`) whose active stop scrolls itself into view on change; clicking a stop opens that content without moving the tour cursor. When the museum has an entrance, an entrance step leads the stepper. A tour with a quiz ends with one more step, "Quiz", marked by a checklist icon; it is visible from the start and selectable at any time. Once the tour is complete, the directions strip's "Tour completed" state carries a `compact-sm` primary "Take the quiz" at its end.
 - **Service routing buttons:** during tour navigation, there is one marker-colored icon button per service type present (`light` at rest, `filled` while it is the route target), plus a red exit button. Each one routes to the closest instance of its type.
 - **Tour content modals:** open in contextual Mantine modals while the map stays mounted; closing returns to the current tour context. Their reading options (`?level=`, `?minutes=`, `?audience=`) and "Tell me more" angle (`?more=`) are URL state too, so a shared link opens the same text. Shareable modal URLs and explicit visitor position are behavioral requirements in PRODUCT.md and `docs/tour-navigation.md`; visual refinements must preserve them.
 - **Spotlight:** the map's search affordance is a compound Mantine Spotlight over the museum-scoped catalog and every navigation command, deliberately separate from the tour's ordered progress. An empty query shows command pills instead of an empty list (see Command pills).
+
+### Quiz answers and feedback
+
+The quiz's one bespoke control: calm, large, and honest about the result.
+
+- **Answer option:** a full-width `Button size="lg"` (`answer-option`): `default` variant, `md` radius, at least 56px tall, label left-aligned and wrapping (`white-space: normal`, line-height 1.35, weight 500). Four per question, stacked with `sm` gaps inside a labelled group.
+- **States:** idle → the chosen option shows Mantine's inline loader while the others stop responding → graded. The right option turns `light` green with ✓ + "Right answer"; a wrong pick turns `light` red with ✗ + "Your answer"; the rest stay default with dimmed text. Graded options are `aria-disabled`, never grayed out, so the comparison stays readable.
+- **Feedback panel:** a bordered `md`-radius `Paper` below the options: a bold verdict in `feedback-correct` / `feedback-wrong` ("Correct!" / "Not quite."), the explanation as body text, and subtle `compact-sm` "Read the content again" buttons with a book icon. The panel sits in a polite live region; a wrong answer also announces the right one to screen readers.
+- **Quiz progress:** a `sm` `Progress` whose filled section carries the tour gradient (`from-purple-700 to-orange-400`), the only place the gradient appears in the quiz.
+- **Intro:** tour title as the `h2`-sized heading, one dimmed line for length ("Final quiz · 5 questions · about 3 min"), an orange `Alert` with a warning icon when stops are still ahead, then stacked actions: primary start/resume, default "Start over", subtle "Back to the tour".
+- **Read again:** contents open in a right-side `Drawer` (`size="lg"`), never by navigating away from the quiz or results.
+
+### Quiz results
+
+- **Score:** a 160px `RingProgress` (14px stroke, round caps) whose single section is the score percentage: green from 50%, orange below. The score in the ring's center is the ring's label, not decoration beside it. A one-line verdict follows.
+- **Comparison:** a plain sentence states the takeaway ("You did better than 62% of visitors"); a 180px `@mantine/charts` `BarChart` below shows the shape: no y-axis, grid, tick lines or tooltip, value labels on bars, own band in `chart-highlight` and named "(you)" on the axis. Below the statistics threshold, a dimmed sentence replaces both.
+- **Review:** numbered prompt (dimmed tabular number), ✓/✗ lines for your answer and the right answer, dimmed explanation, an `xs` gray `Progress` with "n% of visitors got this right", and a read-again or "Stop not visited yet: open it" action. Items are separated by `Divider`s.
+- **Closing actions:** the plugin's star rating (`LfrsRating`), then Share and Retake as an evenly split pair of `default` buttons, and Back to the navigator in the footer.
+
+**The Chart-Follows-Sentence Rule.** A chart never carries the takeaway alone. The sentence above it states the finding; the chart adds the distribution, and its container exposes a text summary for screen readers.
 
 ### Inline editing (`src/components/editing/`)
 
@@ -430,6 +483,9 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Do** show route states inside the directions strip, and transient guidance as top-center notifications.
 - **Do** offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.
 - **Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.
+- **Do** put a focused task's single forward action full-width in the 64px footer, with the content inside `AppShellMain` (see The Thumb-Reach Rule).
+- **Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.
+- **Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).
 
 ### Don't:
 
@@ -442,5 +498,7 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.
 - **Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.
 - **Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).
+- **Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.
+- **Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.
 
-<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. 2026-10-19 merge: added src/components/editing/*, src/components/pascal/{MuseumServicesToolbar,MuseumServicesPanel}.tsx and their module CSS, src/lib/pascal/museum-plugin/markers.ts, (tabs)/NavBar.tsx (account + My museums), TourPage paid/locked treatment, ContentDetailsModal locked notice, MuseumPage owner actions and service avatars, TourProgress entrance step. 2026-10-19 extract: SearchResultCard/SearchResultsGrid and PLACEHOLDER_IMAGE consolidated from the three *SearchResults lists and five inline placeholder URLs. Tokens in theme.ts/globals.css were unchanged (only the @mantine/tiptap stylesheet import was added). 2026-10-19 merge (guidance, d8d9584): src/components/assistant/{AssistantOrb,NavigationAssistant,CrystalizedBall}.tsx; tour/[id]/navigation/[stepId]/{TourNavigation,DirectionsBar,NavigationSpotlight,GuidanceSettings,GpsSimulator,MuseumMap}.tsx and use-nearby-suggestions.tsx; src/components/mantine/LockedPriceBadge.tsx. 2026-10-20 merge (expansions, planned tours, museum mode): src/components/expansion/{ContentExpansion,ContentVersion,ExpansionText}.tsx and ContentExpansion.module.css; tour/plan/PlanVisitPage.tsx; src/components/mantine/MuseumSwitch.tsx; (tabs)/{layout.tsx,navigator/NavigatorPage.tsx}; rendered at 390px and 1280px through tests/e2e/content-expansion.e2e.spec.ts screenshots. -->
+<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. 2026-10-19 merge: added src/components/editing/*, src/components/pascal/{MuseumServicesToolbar,MuseumServicesPanel}.tsx and their module CSS, src/lib/pascal/museum-plugin/markers.ts, (tabs)/NavBar.tsx (account + My museums), TourPage paid/locked treatment, ContentDetailsModal locked notice, MuseumPage owner actions and service avatars, TourProgress entrance step. 2026-10-19 extract: SearchResultCard/SearchResultsGrid and PLACEHOLDER_IMAGE consolidated from the three *SearchResults lists and five inline placeholder URLs. Tokens in theme.ts/globals.css were unchanged (only the @mantine/tiptap stylesheet import was added). 2026-10-19 merge (guidance, d8d9584): src/components/assistant/{AssistantOrb,NavigationAssistant,CrystalizedBall}.tsx; tour/[id]/navigation/[stepId]/{TourNavigation,DirectionsBar,NavigationSpotlight,GuidanceSettings,GpsSimulator,MuseumMap}.tsx and use-nearby-suggestions.tsx; src/components/mantine/LockedPriceBadge.tsx. 2026-10-20 merge (expansions, planned tours, museum mode): src/components/expansion/{ContentExpansion,ContentVersion,ExpansionText}.tsx and ContentExpansion.module.css; tour/plan/PlanVisitPage.tsx; src/components/mantine/MuseumSwitch.tsx; (tabs)/{layout.tsx,navigator/NavigatorPage.tsx}; rendered at 390px and 1280px through tests/e2e/content-expansion.e2e.spec.ts screenshots. 2026-10-20 merge (quiz, PR #1): tour/[id]/quiz/{TourQuiz,QuizContentDrawer}.tsx, quiz/result/[token]/QuizResult.tsx (+ stories), navigation/[stepId]/{TourProgress,TourNavigation,DirectionsBar}.tsx; @mantine/charts 9.6.3. -->

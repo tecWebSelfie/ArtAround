@@ -36,3 +36,28 @@ export const LastStep: Story = {
     await expect(getRouter().replace).toHaveBeenCalledWith('/en/tour/demo/navigation/3')
   },
 }
+
+/** With a quiz, the last stop's action opens it, passing the completed cursor as `from`. */
+export const LastStepWithQuiz: Story = {
+  args: {
+    step: mockContentSecond,
+    nextHref: tourNavigationPath('en', 'demo', 3),
+    lastStep: true,
+    quizFrom: 3,
+  },
+  parameters: {
+    nextjs: {
+      appDirectory: true,
+      navigation: {
+        segments: [
+          ['lng', 'en'],
+          ['id', 'demo'],
+        ],
+      },
+    },
+  },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Complete and go to the quiz' }))
+    await expect(getRouter().push).toHaveBeenCalledWith('/en/tour/demo/quiz?from=3')
+  },
+}

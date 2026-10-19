@@ -27,12 +27,25 @@ import type { LocalizedSlug } from '@/lib/localized'
  * are untranslated-but-safe until wrapped; nothing is ever localized by accident.
  */
 export function autoTranslatePlugin({
-  collections,
+  collections: publicCollections,
+  serverOnly = [],
 }: {
   collections: CollectionConfig[]
+  /**
+   * Translated like `collections`, but WITHOUT the public
+   * `GET /api/{slug}/:id/localized` read: that endpoint reads through the Local
+   * API (access bypassed) and returns the whole document, so collections with
+   * secret fields (quiz answers) are read server-side with `resolveLocalized()`
+   * only. The translator's own routes return no document content: the one that
+   * would (`POST /translate/field`) is mounted only by `fieldLevel()`, which is
+   * deliberately not in `levels` below — keep it that way.
+   */
+  serverOnly?: CollectionConfig[]
 }): (config: Config) => Promise<Config> {
+  const collections = [...publicCollections, ...serverOnly]
   return async (incoming: Config): Promise<Config> => {
     const wanted = new Set(collections.map((c) => c.slug))
+    const withEndpoint = new Set(publicCollections.map((c) => c.slug))
     const missing = [...wanted].filter(
       (slug) => !(incoming.collections ?? []).some((c) => c.slug === slug),
     )
@@ -43,7 +56,7 @@ export function autoTranslatePlugin({
     const next: Config = {
       ...incoming,
       collections: (incoming.collections ?? []).map((col) =>
-        wanted.has(col.slug)
+        withEndpoint.has(col.slug)
           ? {
               ...col,
               endpoints: [
@@ -80,6 +93,7 @@ export function autoTranslatePlugin({
       // Background Payload Jobs queue `translations` (async runner — pages never
       // block on AI; the frontend polls until HIT).
       runner: createPayloadJobsRunner(),
+      // No fieldLevel(): its POST /translate/field returns field content (see `serverOnly`).
       levels: [documentLevel(), collectionLevel()],
       // Per-locale translation receipts (`translator-provenance` sidecar).
       // No migration needed on MongoDB.
