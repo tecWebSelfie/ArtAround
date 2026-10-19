@@ -14,6 +14,7 @@ colors:
   paid-orange: '#fd7e14'
   marker-red: '#fa5252'
   exit-red: '#ff8787'
+  assistant-ember: '#FF8A2A'
   voice-aura: '#1FD5F9'
   surface-light: '#ffffff'
   surface-subtle: '#f8f9fa'
@@ -105,6 +106,22 @@ components:
     backgroundColor: '{colors.surface-light}'
     rounded: '{rounded.md}'
     padding: '0.375rem'
+  directions-strip:
+    backgroundColor: '{colors.surface-light}'
+    textColor: '{colors.editor-foreground}'
+    rounded: '{rounded.md}'
+    height: '3rem'
+  assistant-orb:
+    rounded: '{rounded.xl}'
+    size: '52px'
+  command-pill:
+    textColor: '{colors.navigation-blue}'
+    rounded: '{rounded.xl}'
+    height: '1.625rem'
+  gps-pad:
+    backgroundColor: '{colors.surface-light}'
+    rounded: '{rounded.md}'
+    padding: '6px'
 ---
 
 # Design System: ArtAround
@@ -122,7 +139,7 @@ The system is best described as **one product over four namespaces**. They coexi
 1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.
 2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.
 3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.
-4. **LiveKit `agents-ui`** — the emerging voice/assistance layer: shader-driven visualizers whose default accent is a cyan aura. Currently a fourth namespace with exactly one sanctioned expression (see Components → Voice affordance), not a global motif.
+4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code behind the navigator's microphone. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.
 
 Playfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.
 
@@ -154,7 +171,8 @@ The palette is Mantine's stock control palette plus Tailwind gradient stops, wit
 - **Grape** (`grape`, Mantine grape.6): the tour de-emphasis/control accent. Tour card borders and the carousel's previous/next controls currently use `border-mantine-grape-6`. It also marks the staff side of the bottom navigation: the "My museums" entry is grape, which keeps it apart from the visitor-facing green Navigator and red Marketplace.
 - **Paid orange** (`paid-orange`, Mantine orange.6): the color of acquisition and of locked content. It appears on the "Unlock for €…" button, the tour's "Edit/Customize tour" action, the `Lock` price badge on locked tour contents, and the orange `Alert` that replaces the body of a paid content the viewer isn't entitled to. It always comes with a `Lock`, `ShoppingBag` or `Pencil` icon and a label.
 - **Content teal** (`content-teal`, Mantine teal.6): the content identity. Content outlines use Tailwind `border-teal-600` (`border-2`), and content headings use a Mantine `teal → cyan` gradient. Preserve the distinction when tracing styles; do not silently substitute one value for another.
-- **Voice aura** (`voice-aura`): the default accent of the `agents-ui` shader visualizer (`#1FD5F9`). Recorded as evidence of the current default, not as a palette commitment — the assistance affordance is not shipped, and this value has not been reconciled with the Mantine palette.
+- **Assistant ember** (`assistant-ember`): the orb's particle color, from the user-supplied ember reference. It lives inside the orb's WebGL canvas and nowhere else: no button, badge or border takes it. By hue it is close to paid orange, and the two never get confused, because the orb carries no text while an acquisition control always carries a `Lock`/`ShoppingBag` icon and a price.
+- **Voice aura** (`voice-aura`): the default accent of the legacy `agents-ui` shader visualizer (`#1FD5F9`), still behind the navigator's LiveKit microphone. It is evidence of that older layer, not a palette commitment. New assistance UI uses the ember orb.
 
 ### Tertiary: museum markers
 
@@ -170,7 +188,7 @@ A small semantic set that comes from one source: `SERVICE_META` / `EXIT_ENTRANCE
 
 ### Neutral
 
-- **Light surface / subtle surface** (`surface-light`, `surface-subtle`): white and Mantine gray.0. Objects use relatively plain image-led presentation so the museum image or object can lead.
+- **Light surface / subtle surface** (`surface-light`, `surface-subtle`): white and Mantine gray.0. Objects use relatively plain image-led presentation so the museum image or object can lead. The tour-navigation bars, the GPS pad and the settings popover are plain white Mantine surfaces too, so the map stays the loudest thing on screen.
 - **Dark surface / dark control / dark border / dark-scheme text**: the rendered Mantine dark theme uses the corresponding frontmatter values. Prefer Mantine's semantic variables over hardcoded light surfaces so scheme switching keeps working.
 - **Editor neutral tokens** (`editor-background`, `editor-foreground`, `editor-primary`, `editor-border`): the OKLCH values recorded above drive the global `--background`, `--foreground`, `--primary`, and `--border` in light mode; `.dark` supplies their alternates. Editor primary is neutral and is not Mantine navigation blue.
 - **Dimmed text**: supporting copy uses Mantine's `dimmed` token (e.g. catalog hints); the navigator's "Or" divider label uses gray.7.
@@ -208,7 +226,9 @@ Use the Mantine spacing vocabulary in frontmatter. Compact editor CSS also uses 
 
 Content and object carousels show 60% slide width at base, 33.3333% at `sm`, and 25% at `md`, with `sm` slide gaps. The inherited breakpoints are `xs: 36em`, `sm: 48em`, `md: 62em`, `lg: 75em`, and `xl: 88em`.
 
-**Tour navigation** is a full-viewport composition under the shared shell: an `rounded-b-xl` header stacks the tour title, a linear `Progress` bar between start/finish icons, and a horizontally scrolling `Stepper` of tour stops; the main area is `100dvh` with `overflow-hidden` and holds the map; a `rounded-t-md` footer holds the primary advance action and any route status. Controls that must float above the canvas live inside an `Overlay backgroundOpacity={0}` with `pointerEvents: 'none'`, and each interactive child opts back in with `pointerEvents: 'auto'` — a pattern worth preserving, since it keeps the map draggable underneath.
+**Tour navigation** is a full-viewport composition under the shared shell: an `rounded-b-xl` header stacks the tour title, a linear `Progress` bar between start/finish icons, and a horizontally scrolling `Stepper` of tour stops; the main area is `100dvh` with `overflow-hidden` and holds the map; a `rounded-t-md` footer is the **navigation bar**: about four fifths of it (`flex-[4]`) is the directions strip, and the remaining fifth right-aligns the assistant orb. Route states (finding a route, no route, tour complete, no position yet) are states of that strip, not separate footer messages. "Open next stop" and "Resume tour route" live in a centered button pair that floats just above the map's control row. Controls that must float above the canvas live inside an `Overlay backgroundOpacity={0}` with `pointerEvents: 'none'`, and each interactive child opts back in with `pointerEvents: 'auto'` — a pattern worth preserving, since it keeps the map draggable underneath.
+
+Inside that overlay the visitor's map controls stack from the bottom: the next-stop/resume pair, then one row holding the vertical service-and-exit `ActionIconGroup`, the wheelchair toggle, the `Scan` pill, the search icon and the guidance-settings icon. When simulated GPS is on, its D-pad floats top-left below the header (`pt-36`), clear of the stepper.
 
 The museum map supports floating task controls. The staff creation toolbar is positioned at top 4.5rem and left 0.75rem, and the museum services toolbar mirrors it at top 4.5rem and right 0.75rem. Both are vertical, have bounded height (`calc(100% - 10rem)` on the services side) and scroll vertically. The object catalog and services panel keep a scrollable body (services rows cap at 60vh) and wrap their actions.
 
@@ -223,8 +243,9 @@ Detail pages for museums, objects, contents and tours stack read-only sections. 
 Depth is functional: restrained shadows distinguish floating controls and overlays from their background. Mantine's shadow vocabulary does the work, and the tour card is the one place where depth is allowed to be decorative.
 
 - **Toolbar** (`var(--mantine-shadow-xs)` plus a 1px `--mantine-color-default-border`): separates the editor creation and services toolbars from the canvas.
-- **Menu** (`shadow="md"`): the bottom navigation's "My museums" dropdown, which opens upward with an arrow.
-- **Small surface** (`var(--mantine-shadow-sm)`): the inherited step used by plain `Card shadow="sm"` surfaces such as search results and the QR paper.
+- **Menu** (`shadow="md"`): the bottom navigation's "My museums" dropdown, which opens upward with an arrow, and the guidance-settings `Popover` (`top-end`, with an arrow), which opens above its icon.
+- **Small surface** (`var(--mantine-shadow-sm)`): the inherited step used by plain `Card shadow="sm"` surfaces such as search results and the QR paper, and by the GPS simulator pad over the map.
+- **Notifications:** Mantine notifications at `top-center` carry everything transient during navigation: nearby suggestions, the assistant's reply as a caption, and assistant errors. Top-center keeps them clear of both the bottom controls and the navigation bar.
 - **Tour card** (`var(--mantine-shadow-lg)`): supports the layered tour treatment.
 
 The animated search is a deliberate exception rather than an elevation step: a `BorderAnimate` wrapper runs a four-second border cycle around the input, and the navigator wraps the whole search in `Reflection` with a subtle ripple and a soft shadow (`shadowOpacity 0.2`, `shadowBlur 5.51`, `shadowSize 29`). Treat those as part of the discovery accent, not as a reusable depth token.
@@ -235,7 +256,7 @@ The animated search is a deliberate exception rather than an elevation step: a `
 
 ## Shapes
 
-Mantine provides the main radius scale: `xs` through `xl` in frontmatter, with `sm` as its ordinary default. Rounded images and cards coexist with pill-like search and badge controls: the global search is `radius="xl"` (32px), the tour tag badge and difficulty chips are fully round, and the newest circular controls (`Scan` pill, service icons, the microphone button) use `rounded-full`.
+Mantine provides the main radius scale: `xs` through `xl` in frontmatter, with `sm` as its ordinary default. Rounded images and cards coexist with pill-like search and badge controls: the global search is `radius="xl"` (32px), the tour tag badge and difficulty chips are fully round, and the newest circular controls (`Scan` pill, service icons, the microphone button, the assistant orb) use `rounded-full`, and the spotlight's command pills and the settings and wheelchair icons use `radius="xl"`.
 
 The editor's `--radius` is separately 0.625rem, with derived multipliers in the global stylesheet. Do not mistake this for a replacement of Mantine's radius scale. Border-based grouping and image cropping remain useful even where shadows are present: content cards use a 2px teal outline, and content/object modals crop images to a `radius="md"` frame. Border style can carry state: a service card that still needs a map position has a dashed yellow.6 border, and it always comes with a "Not placed" badge.
 
@@ -294,7 +315,7 @@ Each component below leads with its character, then shape, color assignment, sta
 - **Tour progress:** a horizontally scrolling Mantine `Stepper` (`size="xs"`, `iconSize={24}`) whose active stop scrolls itself into view on change; clicking a stop opens that content without moving the tour cursor. When the museum has an entrance, an entrance step leads the stepper.
 - **Service routing buttons:** during tour navigation, there is one marker-colored icon button per service type present (`light` at rest, `filled` while it is the route target), plus a red exit button. Each one routes to the closest instance of its type.
 - **Tour content modals:** open in contextual Mantine modals while the map stays mounted; closing returns to the current tour context. Shareable modal URLs and explicit visitor position are behavioral requirements in PRODUCT.md and `docs/tour-navigation.md`; visual refinements must preserve them.
-- **Spotlight:** the map's search affordance is a Spotlight over the museum-scoped catalog, deliberately separate from the tour's ordered progress.
+- **Spotlight:** the map's search affordance is a compound Mantine Spotlight over the museum-scoped catalog and every navigation command, deliberately separate from the tour's ordered progress. An empty query shows command pills instead of an empty list (see Command pills).
 
 ### Inline editing (`src/components/editing/`)
 
@@ -306,11 +327,40 @@ Editing for allowed viewers happens on the visitor's own pages instead of a sepa
 
 This is the right-hand mirror of the creation toolbar: a vertical `Paper` with a `role="group"` label holding 44px `ActionIcon`s in marker colors. Service icons are `default` at rest and `light` with `aria-pressed` when they filter the panel; a `Divider` separates them from the entrance/exit placement tools. The sidebar panel lists service cards with the unplaced ones first. Each card has a round marker-colored action, filled when the service still needs placing and light with `MapPinPlus` once placed, an opening-hours field, and a subtle red remove.
 
-### Voice affordance (scoped signature; not yet shipped)
+### Directions strip (`DirectionsBar`)
 
-The navigator entry screen already offers a large circular microphone button (`rounded-full`, `size={rem('clamp(72px, 22vw, 150px)')}`, filled, `autoContrast`) with a plain-language label. The intended richer expression is the user-supplied crystallized-ball reference recorded in PRODUCT.md, and the `agents-ui` shader visualizer supplies its technical vocabulary today (cyan `#1FD5F9` default, `cva` size steps, agent-state-driven motion). This is exactly **one** affordance for opt-in assistance.
+The route one sentence at a time, sized for a glance while walking. A dimmed `xs` meta line ("Step 2 of 4 · about 6 m") sits above the current direction in `sm` weight 600, clamped to two lines. Subtle gray chevron `ActionIcon`s on either side step through the route; at either end they are disabled, not hidden. Tapping the sentence opens a Mantine `Modal` titled "Directions to …" with the full route as a `Timeline` (22px bullets, 2px line): a `Footprints` bullet per step, `MapPinCheck` for the arrival, the active item in weight 700, and every item clickable to jump there. Without a route, the same 48px-tall slot shows an icon (`Navigation`, `MapPinOff`, `MapPinCheck`) with a bold status line and an optional dimmed hint, in a polite live region.
 
-**The One Crystal Rule.** The aura/shimmer treatment belongs to the assistance affordance and nowhere else. It is not background texture, not a card hover, and not a loading state.
+**The One Strip Rule.** Route status and the current direction share one slot in the navigation bar. A new route state becomes a state of the strip, never another banner in the footer.
+
+### Assistant orb (`AssistantOrb`, scoped signature)
+
+The assistant's single identity: a 52px crystallized ball (React Bits `CrystalizedBall`, `ember` preset, `assistant-ember` particles, light theme) inside a round `UnstyledButton`, right-aligned in the navigation bar. It has no border, background or visible label; motion tells its state:
+
+- **off:** paused and dim (glow 0.35). A tap opts in.
+- **loading / ready:** a slow breath (speed 0.15). The microphone is closed.
+- **listening / speaking:** speed, glow, crackle, sparks and flares scale with the live voice level, the visitor's mic first and then the assistant's own speech.
+- **thinking:** a fast, high-crackle swirl at a fixed level.
+
+Under `prefers-reduced-motion` the ball stays paused in every state. The button's `aria-label` says what a tap does now ("Talk to the assistant", "Stop listening"), `aria-pressed` is true only while listening, and a visually hidden polite status announces each state. Every reply also appears as a top-center notification titled with the visitor's quoted words, so an answer never exists only as audio.
+
+**The One Crystal Rule.** The crystal/aura treatment belongs to the assistant orb and nowhere else. It is not background texture, not a card hover, and not a loading state. One orb per screen.
+
+**The Mic-Closed-Looks-Calm Rule.** Only `listening` may look like it is hearing. If a change makes `ready` and `listening` hard to tell apart, the change is wrong.
+
+### Command pills (navigation Spotlight)
+
+With an empty query the Spotlight shows grouped rows of pills, "Nearby" first and then "Quick actions", each under a dimmed `xs` weight-600 heading. A pill is a `compact-sm` `light` `Button` with `radius="xl"`; a locked paid content's pill carries the locked price badge (`xs`) as its right section. Every command the assistant can run is reachable here or in the overlay controls, so voice is never the only way in. Typing switches the Spotlight to ordinary searchable actions.
+
+### Nearby suggestion (notification)
+
+Entering a room that holds off-tour contents shows one Mantine notification at top-center for 12 seconds, titled "Nearby in {room}". The content title (`sm`, weight 600, two lines) comes with the locked price badge when the content is paid, above the object name in dimmed `xs`, then two `compact-sm` actions: a filled "Open" and a `default` "Go there". A newer suggestion replaces the old one instead of stacking.
+
+### Guidance settings and GPS simulator
+
+The settings sit behind a `white`, `radius="xl"`, `lg` `SlidersHorizontal` icon in the control row. It opens a 260px popover of three `Switch`es, each with a one-line plain-language description (voice assistant, speak directions, nearby suggestions), then a full-width `xs` `SegmentedControl` for "Follow my position" (off / device / simulated, the last only in builds with the simulator), with any GPS error in red `xs` text beneath. The simulated-GPS pad is a `Paper withBorder shadow="sm" radius="md"` with a dimmed `xs` caption ("Simulated GPS · 2 m") over a 3×3 grid of `default` `lg` arrow `ActionIcon`s, each labelled "Walk north/east/…". On the map the GPS estimate is a small translucent navigation-blue sphere drawn through walls, separate from the confirmed-position avatar.
+
+**The Estimate-Looks-Lighter Rule.** The GPS estimate is always drawn lighter than the confirmed position (a translucent dot against the avatar), so nobody reads an estimate as the shareable position.
 
 ### Motion and small playful exceptions
 
@@ -318,6 +368,7 @@ The navigator entry screen already offers a large circular microphone button (`r
 - **Tour carousel:** stacked selection with a 500ms transition; a hover scale on the start action.
 - **Navigator hero:** `TypeWriterText` cycles one word (`creators` / `curators` / `museums`) with per-word color (`red.8` / `green.8` / `blue.8`) and a gray fallback.
 - **Tabs:** the active indicator moves rather than jumping.
+- **Assistant orb:** the only continuously animated element during navigation, and only while the assistant is on. Its motion encodes state (see Assistant orb) and stops under reduced motion.
 
 These are observed prototype choices, not blanket motion requirements. Prefer `prefers-reduced-motion`-safe behavior and Mantine `motion-*` variants where available; refine them for clarity and performance before treating them as polished patterns.
 
@@ -335,6 +386,8 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.
 - **Do** source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).
 - **Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.
+- **Do** give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.
+- **Do** show route states inside the directions strip, and transient guidance as top-center notifications.
 - **Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.
 
 ### Don't:
@@ -342,9 +395,10 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.
 - **Don't** turn ordinary forms and navigation into continuously animated showcases.
 - **Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.
-- **Don't** promote the voice aura into a global motif, background, or loading treatment.
+- **Don't** promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.
+- **Don't** draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.
 - **Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.
 - **Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.
 - **Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).
 
-<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. 2026-10-19 merge: added src/components/editing/*, src/components/pascal/{MuseumServicesToolbar,MuseumServicesPanel}.tsx and their module CSS, src/lib/pascal/museum-plugin/markers.ts, (tabs)/NavBar.tsx (account + My museums), TourPage paid/locked treatment, ContentDetailsModal locked notice, MuseumPage owner actions and service avatars, TourProgress entrance step. 2026-10-19 extract: SearchResultCard/SearchResultsGrid and PLACEHOLDER_IMAGE consolidated from the three *SearchResults lists and five inline placeholder URLs. Tokens in theme.ts/globals.css were unchanged (only the @mantine/tiptap stylesheet import was added). -->
+<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. 2026-10-19 merge: added src/components/editing/*, src/components/pascal/{MuseumServicesToolbar,MuseumServicesPanel}.tsx and their module CSS, src/lib/pascal/museum-plugin/markers.ts, (tabs)/NavBar.tsx (account + My museums), TourPage paid/locked treatment, ContentDetailsModal locked notice, MuseumPage owner actions and service avatars, TourProgress entrance step. 2026-10-19 extract: SearchResultCard/SearchResultsGrid and PLACEHOLDER_IMAGE consolidated from the three *SearchResults lists and five inline placeholder URLs. Tokens in theme.ts/globals.css were unchanged (only the @mantine/tiptap stylesheet import was added). 2026-10-19 merge (guidance, d8d9584): src/components/assistant/{AssistantOrb,NavigationAssistant,CrystalizedBall}.tsx; tour/[id]/navigation/[stepId]/{TourNavigation,DirectionsBar,NavigationSpotlight,GuidanceSettings,GpsSimulator,MuseumMap}.tsx and use-nearby-suggestions.tsx; src/components/mantine/LockedPriceBadge.tsx. -->

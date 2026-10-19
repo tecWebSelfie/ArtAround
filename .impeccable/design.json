@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-19T08:12:26.362Z",
+  "generatedAt": "2026-10-19T18:16:41.297Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -90,7 +90,7 @@
       },
       "voice-aura": {
         "role": "secondary",
-        "displayName": "Voice aura",
+        "displayName": "Voice aura (legacy LiveKit)",
         "tonalRamp": [
           "oklch(0.2 0.06 216)",
           "oklch(0.32 0.09 216)",
@@ -325,6 +325,20 @@
           "#ffc9c9",
           "#fff5f5"
         ]
+      },
+      "assistant-ember": {
+        "role": "secondary",
+        "displayName": "Assistant ember",
+        "tonalRamp": [
+          "oklch(0.22 0.07 55)",
+          "oklch(0.34 0.11 55)",
+          "oklch(0.47 0.15 55)",
+          "oklch(0.6 0.18 55)",
+          "oklch(0.72 0.18 55)",
+          "oklch(0.8 0.13 55)",
+          "oklch(0.89 0.07 55)",
+          "oklch(0.96 0.02 55)"
+        ]
       }
     },
     "typographyMeta": {
@@ -377,6 +391,26 @@
         "name": "search-reflection",
         "value": "rippleStrength 30; rippleFrequency 0.025; shadowOpacity 0.2; shadowBlur 5.51; shadowSize 29",
         "purpose": "Observed Reflection ripple and soft shadow under the navigator search"
+      },
+      {
+        "name": "orb-ready",
+        "value": "speed 0.15; glow 0.8",
+        "purpose": "Assistant orb breathing slowly while the mic is closed"
+      },
+      {
+        "name": "orb-voice",
+        "value": "speed 0.4 + level*1.6; glow 1 + level*0.6",
+        "purpose": "Assistant orb following the live voice level while listening or speaking"
+      },
+      {
+        "name": "orb-thinking",
+        "value": "speed 1.2; crackle 0.9",
+        "purpose": "Assistant orb waiting for the answer"
+      },
+      {
+        "name": "nearby-notification",
+        "value": "12s autoClose",
+        "purpose": "How long a nearby suggestion stays at top-center"
       }
     ],
     "breakpoints": [
@@ -455,13 +489,6 @@
       "css": ".ds-tour-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-grape-6,#be4bdb);border-radius:8px;background:linear-gradient(to bottom right,#7e22ce,#fb923c);box-shadow:var(--mantine-shadow-lg,0 12px 24px rgba(0,0,0,.12))}.ds-tour-tag{display:inline-block;padding:4px 12px;border-radius:32px;background:#fff;color:#7e22ce;font-size:12px;text-transform:uppercase}.ds-tour-body{margin:16px 0;padding:24px 12px;border-radius:8px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#212529)}.ds-tour-action{font-family:inherit;font-size:14px;font-weight:600;height:36px;width:100%;padding:0 10px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:#fff;color:#228be6}.ds-tour-action:hover{background:#f8f9fa}.ds-tour-action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}"
     },
     {
-      "name": "Voice affordance",
-      "kind": "custom",
-      "description": "The incumbent voice entry point on the navigator home: a fully round filled mic button sized with clamp(72px, 22vw, 150px). The richer intended expression is the user-supplied crystallized ball, and agents-ui supplies its technical vocabulary (cyan #1FD5F9 default, state-driven motion) — but that aura is not rendered here because it is not shipped.",
-      "html": "<button class=\"ds-voice\" aria-label=\"Turn the microphone on\"><svg width=\"42%\" height=\"42%\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2M12 19v3\"/></svg></button>",
-      "css": ".ds-voice{display:inline-flex;align-items:center;justify-content:center;width:clamp(72px,22vw,150px);height:clamp(72px,22vw,150px);border:0;border-radius:1000px;cursor:pointer;background:var(--mantine-color-blue-6,#228be6);color:#fff;transition:background .2s ease,transform .2s ease}.ds-voice:hover{background:var(--mantine-color-blue-7,#1c7ed6);transform:translateY(-2px)}.ds-voice:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:4px}"
-    },
-    {
       "name": "Editor creation toolbar",
       "kind": "custom",
       "refersTo": "floating-toolbar",
@@ -508,11 +535,43 @@
       "description": "Grow-distributed icon-over-label entries: green Navigator, red Marketplace, blue Account, grape My museums; light when active (aria-current), subtle otherwise.",
       "html": "<nav class=\"ds-bottom-nav\"><a href=\"#\" style=\"--c:#2f9e44\" aria-current=\"page\">Navigator</a><a href=\"#\" style=\"--c:#e03131\">Marketplace</a><a href=\"#\" style=\"--c:#1c7ed6\">Account</a><a href=\"#\" style=\"--c:#ae3ec9\">My museums</a></nav>",
       "css": ".ds-bottom-nav{display:flex;gap:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-bottom-nav a{flex:1;text-align:center;padding:12px 8px;font-size:12px;line-height:1;text-decoration:none;color:var(--c);border-radius:var(--mantine-radius-sm,4px)}.ds-bottom-nav a::before{content:\"\";display:block;width:20px;height:20px;margin:0 auto 4px;border:2px solid currentColor;border-radius:50%}.ds-bottom-nav a:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}.ds-bottom-nav a[aria-current=page]{background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-bottom-nav a:focus-visible{outline:2px solid var(--c);outline-offset:2px}"
+    },
+    {
+      "name": "Directions strip",
+      "kind": "nav",
+      "refersTo": "directions-strip",
+      "description": "Current route step in the navigation bar; tapping the sentence opens the full directions.",
+      "html": "<div class=\"ds-dir\"><button class=\"ds-dir-chev\" aria-label=\"Previous step\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m15 18-6-6 6-6\"/></svg></button><button class=\"ds-dir-body\" aria-label=\"Show all directions\"><span class=\"ds-dir-meta\">Step 2 of 4 · about 6 m</span><span class=\"ds-dir-text\">Go through the door ahead into the East hall</span></button><button class=\"ds-dir-chev\" aria-label=\"Next step\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m9 18 6-6-6-6\"/></svg></button><span class=\"ds-orb\" aria-hidden=\"true\"></span></div>",
+      "css": ".ds-dir{display:flex;align-items:center;gap:4px;min-height:48px;padding:0 10px;background:#fff;border-radius:6px 6px 0 0;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;max-width:420px}.ds-dir-chev{display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:4px;background:transparent;color:#868e96;cursor:pointer}.ds-dir-chev:hover{background:#f1f3f5}.ds-dir-chev:focus-visible,.ds-dir-body:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-dir-body{flex:4;min-width:0;display:flex;flex-direction:column;text-align:left;border:0;background:transparent;border-radius:8px;padding:2px 4px;cursor:pointer}.ds-dir-body:hover{background:#f8f9fa}.ds-dir-meta{font-size:12px;color:#868e96}.ds-dir-text{font-size:14px;font-weight:600;color:#212529;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ds-orb{flex:none;width:44px;height:44px;margin-left:auto;border-radius:50%;background:radial-gradient(circle at 45% 40%,#ffd3a8 0,#ff8a2a 35%,rgba(255,138,42,.15) 70%,transparent 72%)}"
+    },
+    {
+      "name": "Assistant orb",
+      "kind": "custom",
+      "refersTo": "assistant-orb",
+      "description": "The only assistance affordance: a 52px ember crystal ball whose motion encodes off, ready, listening, thinking and speaking. Static approximation; the real one is a WebGL particle ball.",
+      "html": "<button class=\"ds-orb-btn\" aria-label=\"Talk to the assistant\" aria-pressed=\"false\" data-state=\"ready\"><span class=\"ds-orb-ball\"></span></button>",
+      "css": ".ds-orb-btn{display:grid;place-items:center;width:52px;height:52px;border:0;border-radius:50%;background:transparent;cursor:pointer}.ds-orb-btn:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-orb-ball{width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 45% 40%,#ffd3a8 0,#ff8a2a 35%,rgba(255,138,42,.18) 70%,transparent 72%);animation:ds-orb-breathe 4s ease-in-out infinite}.ds-orb-btn[aria-pressed=true] .ds-orb-ball{animation-duration:.9s}@keyframes ds-orb-breathe{50%{transform:scale(1.06);filter:brightness(1.15)}}@media (prefers-reduced-motion:reduce){.ds-orb-ball{animation:none}}"
+    },
+    {
+      "name": "Command pills",
+      "kind": "chip",
+      "refersTo": "command-pill",
+      "description": "Empty-query Spotlight: Nearby and Quick actions as light round pills; a locked content carries its price badge.",
+      "html": "<div class=\"ds-pills\"><span class=\"ds-pills-h\">Nearby</span><div class=\"ds-pills-row\"><button class=\"ds-pill\">Side discovery <span class=\"ds-pill-lock\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg>€2.00</span></button></div><span class=\"ds-pills-h\">Quick actions</span><div class=\"ds-pills-row\"><button class=\"ds-pill\">Nearest toilets</button><button class=\"ds-pill\">Nearest exit</button><button class=\"ds-pill\">Scan a QR code</button></div></div>",
+      "css": ".ds-pills{display:flex;flex-direction:column;gap:6px;padding:12px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif}.ds-pills-h{font-size:12px;font-weight:600;color:#868e96;margin-top:6px}.ds-pills-row{display:flex;flex-wrap:wrap;gap:6px}.ds-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:14px;font-weight:600;cursor:pointer}.ds-pill:hover{background:rgba(34,139,230,.16)}.ds-pill:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-pill-lock{display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 6px;border-radius:32px;background:rgba(253,126,20,.12);color:#e8590c;font-size:10px;font-weight:700}"
+    },
+    {
+      "name": "GPS simulator pad",
+      "kind": "custom",
+      "refersTo": "gps-pad",
+      "description": "Demo-build D-pad that walks the simulated GPS fix two metres per press; north is the top of the map.",
+      "html": "<div class=\"ds-gps\" role=\"group\" aria-label=\"Simulated GPS\"><span class=\"ds-gps-cap\">Simulated GPS · 2 m</span><div class=\"ds-gps-grid\"><span></span><button aria-label=\"Walk north\">↑</button><span></span><button aria-label=\"Walk west\">←</button><span></span><button aria-label=\"Walk east\">→</button><span></span><button aria-label=\"Walk south\">↓</button><span></span></div></div>",
+      "css": ".ds-gps{display:inline-block;padding:6px;background:#fff;border:1px solid #dee2e6;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif}.ds-gps-cap{display:block;text-align:center;font-size:12px;font-weight:600;color:#868e96;margin-bottom:4px}.ds-gps-grid{display:grid;grid-template-columns:repeat(3,34px);gap:4px}.ds-gps-grid button{width:34px;height:34px;border:1px solid #dee2e6;border-radius:4px;background:#fff;color:#212529;font-size:16px;cursor:pointer}.ds-gps-grid button:hover{background:#f8f9fa}.ds-gps-grid button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     }
   ],
   "narrative": {
     "northStar": "The Adaptable Museum Companion",
-    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as one product over four namespaces: the visitor-facing Mantine UI (where src/theme.ts is an empty createTheme, so the palette is Mantine's stock tokens plus Tailwind utilities, and which is the brand authority for the visitor experience); the shadcn/editor OKLCH token layer in globals.css; the Pascal editor and viewer styled by @pascal-app/* module CSS and Tailwind dark variants; and the emerging LiveKit agents-ui voice layer, which currently has exactly one sanctioned expression rather than being a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
+    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as **one product over four namespaces**. They coexist in the same runtime and dress very different jobs:\n\n1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.\n2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.\n3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.\n4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code behind the navigator's microphone. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
     "keyCharacteristics": [
       "Familiar and approachable Mantine controls as the visitor-facing foundation.",
       "Neutral light and dark surfaces with clear task hierarchy.",
@@ -525,7 +584,7 @@
       {
         "name": "The Two-Namespace Rule",
         "body": "Mantine color tokens and the editor's OKLCH tokens are distinct sources of truth in the incumbent code. Treat them as separate namespaces rather than one blended palette; do not \"harmonize\" one into the other as a side effect of a local change.",
-        "section": "colors"
+        "section": "overview"
       },
       {
         "name": "The Scoped Playfulness Rule",
@@ -533,13 +592,18 @@
         "section": "overview"
       },
       {
+        "name": "The Single Marker Table Rule",
+        "body": "Never pick a marker color locally. Add or change a marker kind in `markers.ts` so that the 2D chrome and the 3D material stay in sync.",
+        "section": "colors"
+      },
+      {
         "name": "The Triplet Rule",
-        "body": "Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (Leaf/green, Gauge/yellow, Flame/red.9). Keep all three when restyling.",
+        "body": "Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (`Leaf`/green, `Gauge`/yellow, `Flame`/red.9). Keep all three when restyling.",
         "section": "colors"
       },
       {
         "name": "The Gradient-Span Rule",
-        "body": "A gradient is applied to a fragment of text (a single word or short label) with inherit sizing, never to a paragraph. The navigator hero colors exactly one word this way.",
+        "body": "A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.",
         "section": "typography"
       },
       {
@@ -554,22 +618,32 @@
       },
       {
         "name": "The Inherit-Radius Rule",
-        "body": "Nested surfaces take their radius from the parent (rounded-[inherit]) rather than inventing a new value; this is what keeps the BorderAnimate wrapper flush with the input it decorates.",
+        "body": "Nested surfaces take their radius from the parent (`rounded-[inherit]`) rather than inventing a new value; this is what keeps the `BorderAnimate` wrapper flush with the input it decorates.",
         "section": "shapes"
-      },
-      {
-        "name": "The One Crystal Rule",
-        "body": "The aura/shimmer treatment belongs to the assistance affordance and nowhere else. It is not background texture, not a card hover, and not a loading state.",
-        "section": "components"
-      },
-      {
-        "name": "The Single Marker Table Rule",
-        "body": "Never pick a marker color locally. Add or change a marker kind in `markers.ts` so that the 2D chrome and the 3D material stay in sync.",
-        "section": "colors"
       },
       {
         "name": "The Edit-In-Place Rule",
         "body": "Editing reuses the visitor's typography, spacing and Mantine controls. Don't introduce the neutral shadcn/editor layer or a dashboard look to visitor-facing pages because a form appeared on them.",
+        "section": "components"
+      },
+      {
+        "name": "The One Strip Rule",
+        "body": "Route status and the current direction share one slot in the navigation bar. A new route state becomes a state of the strip, never another banner in the footer.",
+        "section": "components"
+      },
+      {
+        "name": "The One Crystal Rule",
+        "body": "The crystal/aura treatment belongs to the assistant orb and nowhere else. It is not background texture, not a card hover, and not a loading state. One orb per screen.",
+        "section": "components"
+      },
+      {
+        "name": "The Mic-Closed-Looks-Calm Rule",
+        "body": "Only `listening` may look like it is hearing. If a change makes `ready` and `listening` hard to tell apart, the change is wrong.",
+        "section": "components"
+      },
+      {
+        "name": "The Estimate-Looks-Lighter Rule",
+        "body": "The GPS estimate is always drawn lighter than the confirmed position (a translucent dot against the avatar), so nobody reads an estimate as the shareable position.",
         "section": "components"
       }
     ],
@@ -582,13 +656,16 @@
       "**Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
       "**Do** source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).",
       "**Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",
+      "**Do** give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.",
+      "**Do** show route states inside the directions strip, and transient guidance as top-center notifications.",
       "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
       "**Don't** turn ordinary forms and navigation into continuously animated showcases.",
       "**Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
-      "**Don't** promote the voice aura into a global motif, background, or loading treatment.",
+      "**Don't** promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.",
+      "**Don't** draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.",
       "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
       "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
       "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule)."
