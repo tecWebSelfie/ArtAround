@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-19T18:16:41.297Z",
+  "generatedAt": "2026-10-19T22:46:16.098Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -90,7 +90,7 @@
       },
       "voice-aura": {
         "role": "secondary",
-        "displayName": "Voice aura (legacy LiveKit)",
+        "displayName": "Voice aura (legacy LiveKit, not rendered)",
         "tonalRamp": [
           "oklch(0.2 0.06 216)",
           "oklch(0.32 0.09 216)",
@@ -411,6 +411,11 @@
         "name": "nearby-notification",
         "value": "12s autoClose",
         "purpose": "How long a nearby suggestion stays at top-center"
+      },
+      {
+        "name": "paragraph-settle",
+        "value": "420ms cubic-bezier(0.16, 1, 0.3, 1); opacity 0→1, translateY 4px→0",
+        "purpose": "Each added \"Tell me more\" or version paragraph settling in once; off under reduced motion"
       }
     ],
     "breakpoints": [
@@ -567,17 +572,41 @@
       "description": "Demo-build D-pad that walks the simulated GPS fix two metres per press; north is the top of the map.",
       "html": "<div class=\"ds-gps\" role=\"group\" aria-label=\"Simulated GPS\"><span class=\"ds-gps-cap\">Simulated GPS · 2 m</span><div class=\"ds-gps-grid\"><span></span><button aria-label=\"Walk north\">↑</button><span></span><button aria-label=\"Walk west\">←</button><span></span><button aria-label=\"Walk east\">→</button><span></span><button aria-label=\"Walk south\">↓</button><span></span></div></div>",
       "css": ".ds-gps{display:inline-block;padding:6px;background:#fff;border:1px solid #dee2e6;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif}.ds-gps-cap{display:block;text-align:center;font-size:12px;font-weight:600;color:#868e96;margin-bottom:4px}.ds-gps-grid{display:grid;grid-template-columns:repeat(3,34px);gap:4px}.ds-gps-grid button{width:34px;height:34px;border:1px solid #dee2e6;border-radius:4px;background:#fff;color:#212529;font-size:16px;cursor:pointer}.ds-gps-grid button:hover{background:#f8f9fa}.ds-gps-grid button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Reading options and Tell me more",
+      "kind": "chip",
+      "refersTo": "reading-pill",
+      "description": "Content modal: reading options above the body (default pills, filled when chosen), \"Tell me more\" pills after it (light, filled when chosen), then the added text as plain settling paragraphs.",
+      "html": "<div class=\"ds-ro\"><div class=\"ds-ro-row\" role=\"group\" aria-label=\"Reading options\"><button class=\"ds-ro-pill\" aria-pressed=\"false\">Simpler</button><button class=\"ds-ro-pill\" aria-pressed=\"false\">Shorter</button><button class=\"ds-ro-pill is-on\" aria-pressed=\"true\">For children</button><button class=\"ds-ro-undo\">Original</button></div><h2 class=\"ds-ro-title\">The Long-Necked Madonna</h2><p class=\"ds-ro-p\">Look at her very long neck: the painter stretched it on purpose, to make her look graceful.</p><div class=\"ds-ro-row\"><button class=\"ds-ro-more\">Tell me more</button><button class=\"ds-ro-more is-on\" aria-pressed=\"true\">Curiosities</button><button class=\"ds-ro-more\">Its story</button></div><p class=\"ds-ro-p ds-ro-new\">The painting was never finished: a column on the right stands alone, without the rest of the building.</p></div>",
+      "css": ".ds-ro{max-width:360px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529}.ds-ro-row{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.ds-ro-pill,.ds-ro-more,.ds-ro-undo{height:26px;padding:0 12px;border-radius:32px;font-size:14px;font-weight:600;cursor:pointer}.ds-ro-pill{border:1px solid #dee2e6;background:#fff;color:#212529}.ds-ro-more{border:0;background:rgba(34,139,230,.1);color:#1c7ed6}.ds-ro-pill.is-on,.ds-ro-more.is-on{border:0;background:#228be6;color:#fff}.ds-ro-undo{border:0;background:transparent;color:#495057}.ds-ro-undo:hover{background:#f1f3f5}.ds-ro button:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-ro-title{font-size:20px;margin:0 0 6px}.ds-ro-p{margin:0 0 10px;font-size:16px;line-height:1.55}.ds-ro-new{animation:ds-settle 420ms cubic-bezier(.16,1,.3,1) both}@keyframes ds-settle{from{opacity:0;transform:translateY(4px)}}@media (prefers-reduced-motion:reduce){.ds-ro-new{animation:none}}"
+    },
+    {
+      "name": "Plan my visit preview",
+      "kind": "list",
+      "description": "Planned tour preview: title, dimmed description, time and stop badges, the stops as a Timeline, then Change / Start the visit.",
+      "html": "<div class=\"ds-pl\"><h1 class=\"ds-pl-h\">A curious hour at the museum</h1><p class=\"ds-pl-d\">Three lesser-known works for a returning visitor.</p><div class=\"ds-pl-b\"><span class=\"ds-pl-badge\">About 9 minutes</span><span class=\"ds-pl-badge is-gray\">3 stops</span></div><ol class=\"ds-pl-tl\"><li><b>Red-figure amphora</b><span>Amphora · West hall · 1 min read</span></li><li><b>Restoring the bronze</b><span>Athlete statue · East hall · 2 min read</span></li><li><b>Floor mosaic</b><span>Mosaic · East hall · 1 min read</span></li></ol><div class=\"ds-pl-a\"><button class=\"ds-pl-btn\">Change</button><button class=\"ds-pl-btn is-primary\">Start the visit</button></div></div>",
+      "css": ".ds-pl{max-width:420px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529}.ds-pl-h{font-size:30px;line-height:1.2;margin:0 0 4px}.ds-pl-d{margin:0 0 8px;color:#868e96}.ds-pl-b{display:flex;gap:6px;margin-bottom:16px}.ds-pl-badge{height:20px;padding:0 10px;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:11px;font-weight:700;text-transform:uppercase;display:inline-flex;align-items:center}.ds-pl-badge.is-gray{background:#f1f3f5;color:#495057}.ds-pl-tl{list-style:none;margin:0 0 16px;padding:0 0 0 30px;border-left:2px solid #228be6;margin-left:10px}.ds-pl-tl li{position:relative;margin-bottom:18px}.ds-pl-tl li::before{content:\"\";position:absolute;left:-42px;top:0;width:22px;height:22px;border-radius:50%;background:#228be6}.ds-pl-tl b{display:block;font-size:15px}.ds-pl-tl span{font-size:12px;color:#868e96}.ds-pl-a{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ds-pl-btn{height:36px;border-radius:4px;border:1px solid #dee2e6;background:#fff;font-weight:600;cursor:pointer}.ds-pl-btn.is-primary{border:0;background:#228be6;color:#fff}.ds-pl-btn:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Museum switch",
+      "kind": "button",
+      "refersTo": "museum-switch",
+      "description": "Light round button naming the locked museum (or \"All museums\"); opens the Change museum modal whose empty search offers importing a config file.",
+      "html": "<div class=\"ds-ms\"><button class=\"ds-ms-btn\" aria-label=\"Change museum\">Galleria Borghese</button><div class=\"ds-ms-modal\"><input class=\"ds-ms-in\" placeholder=\"Search a museum\" aria-label=\"Search a museum\"><span class=\"ds-ms-or\">or</span><button class=\"ds-ms-file\">Import a config file</button></div></div>",
+      "css": ".ds-ms{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:360px}.ds-ms-btn{height:26px;max-width:100%;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.ds-ms-modal{align-self:stretch;display:flex;flex-direction:column;align-items:center;gap:10px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-ms-in{align-self:stretch;height:36px;padding:0 12px;border:1px solid #ced4da;border-radius:4px;font-size:14px}.ds-ms-in:focus{outline:none;border-color:#228be6}.ds-ms-or{font-size:14px;color:#868e96}.ds-ms-file{height:36px;padding:0 18px;border:1px solid #dee2e6;border-radius:4px;background:#fff;font-weight:600;cursor:pointer}.ds-ms button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     }
   ],
   "narrative": {
     "northStar": "The Adaptable Museum Companion",
-    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as **one product over four namespaces**. They coexist in the same runtime and dress very different jobs:\n\n1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.\n2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.\n3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.\n4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code behind the navigator's microphone. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
+    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as **one product over four namespaces**. They coexist in the same runtime and dress very different jobs:\n\n1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.\n2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.\n3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.\n4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code, but no screen renders them any more: only their session provider is still mounted in the frontend layout. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
     "keyCharacteristics": [
       "Familiar and approachable Mantine controls as the visitor-facing foundation.",
       "Neutral light and dark surfaces with clear task hierarchy.",
       "Four coexisting style namespaces that must not be blended.",
       "Small playful exceptions in museum discovery, scoped and few.",
       "Functional depth for overlays and floating controls.",
+      "Generated help that wears the museum's own voice: buttons and forms, never a chat.",
       "Prototype-informed direction with room for refinement."
     ],
     "rules": [
@@ -645,6 +674,11 @@
         "name": "The Estimate-Looks-Lighter Rule",
         "body": "The GPS estimate is always drawn lighter than the confirmed position (a translucent dot against the avatar), so nobody reads an estimate as the shareable position.",
         "section": "components"
+      },
+      {
+        "name": "The Same-Voice Rule",
+        "body": "Generated text wears the museum's own voice: no chat bubbles, avatars, typing cursor, word-by-word streaming, sparkle icon, \"AI\" wording or \"generated\" badge. It arrives one whole paragraph at a time, and only the metadata (`generation` groups in Payload) tells it apart from authored text.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -658,6 +692,7 @@
       "**Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",
       "**Do** give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.",
       "**Do** show route states inside the directions strip, and transient guidance as top-center notifications.",
+      "**Do** offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.",
       "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
     ],
     "donts": [
@@ -666,6 +701,7 @@
       "**Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
       "**Don't** promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.",
       "**Don't** draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.",
+      "**Don't** label generated text or tours as AI, add sparkles, chat bubbles or a typing effect, or open a free prompt box (see The Same-Voice Rule).",
       "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
       "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
       "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule)."
