@@ -283,6 +283,77 @@ try {
     }
   }
 
+  // --- Museum categories ---
+  // Taxonomy for the museum catalog. Created before the demo museums so they
+  // can be tagged below; lookups by `slug` keep re-seeds idempotent.
+  console.log('Seeding museum categories...')
+  const categorySeed = [
+    {
+      slug: 'arte-antica',
+      name: 'Arte antica',
+      description: 'Collections from antiquity through the early Renaissance.',
+      icon: 'landmark',
+      order: 10,
+    },
+    {
+      slug: 'arte-moderna',
+      name: 'Arte moderna',
+      description: 'Painting and sculpture from the Renaissance to the 19th century.',
+      icon: 'palette',
+      order: 20,
+    },
+    {
+      slug: 'arte-contemporanea',
+      name: 'Arte contemporanea',
+      description: 'Twentieth-century and contemporary art.',
+      icon: 'sparkles',
+      order: 30,
+    },
+    {
+      slug: 'archeologia',
+      name: 'Archeologia',
+      description: 'Archaeological finds and ancient civilisations.',
+      icon: 'amphora',
+      order: 40,
+    },
+    {
+      slug: 'scienza',
+      name: 'Scienza',
+      description: 'Science, technology and the history of ideas.',
+      icon: 'atom',
+      order: 50,
+    },
+    {
+      slug: 'storia',
+      name: 'Storia',
+      description: 'Civic and political history told by museums and palaces.',
+      icon: 'scroll',
+      order: 60,
+    },
+    {
+      slug: 'fotografia',
+      name: 'Fotografia',
+      description: 'Photographic collections and temporary photo exhibitions.',
+      icon: 'camera',
+      order: 70,
+    },
+  ]
+  const categoryIdBySlug: Record<string, string> = {}
+  for (const category of categorySeed) {
+    const found = await payload.find({
+      collection: 'museumCategories',
+      where: { slug: { equals: category.slug } },
+      limit: 1,
+      depth: 0,
+    })
+    if (found.docs.length > 0) {
+      categoryIdBySlug[category.slug] = String(found.docs[0].id)
+      continue
+    }
+    const created = await payload.create({ collection: 'museumCategories', data: category })
+    categoryIdBySlug[category.slug] = String(created.id)
+  }
+
   // --- Typesense demo data: museums + users ---
   // Created through Payload (not straight into Typesense) so the typesense
   // plugin hooks sync them to Typesense Cloud — this exercises the same path
@@ -297,6 +368,7 @@ try {
       name: 'Galleria Borghese',
       shortDescription: 'Baroque masterpieces in a Roman villa',
       description: htmlToRichText('Bernini sculptures and Caravaggio paintings in Villa Borghese.'),
+      categories: [categoryIdBySlug['arte-antica'], categoryIdBySlug['arte-moderna']],
       location: {
         address: 'Piazzale Scipione Borghese 5',
         city: 'Roma',
@@ -312,6 +384,7 @@ try {
       name: 'Palazzo Reale di Milano',
       shortDescription: 'Grand exhibitions in the heart of Milan',
       description: htmlToRichText('Major international exhibitions next to the Duomo.'),
+      categories: [categoryIdBySlug['arte-contemporanea']],
       location: {
         address: 'Piazza del Duomo 12',
         city: 'Milano',
@@ -326,6 +399,7 @@ try {
       name: 'Museo Galileo',
       shortDescription: 'History of science in Florence',
       description: htmlToRichText('Scientific instruments from Galileo and the Medici era.'),
+      categories: [categoryIdBySlug['scienza']],
       location: {
         address: 'Piazza dei Giudici 1',
         city: 'Firenze',
@@ -340,6 +414,7 @@ try {
       name: 'Museo Archeologico Nazionale di Napoli',
       shortDescription: 'Roman antiquities from Pompeii',
       description: htmlToRichText('Farnese collection and finds from Pompeii and Herculaneum.'),
+      categories: [categoryIdBySlug['archeologia'], categoryIdBySlug['arte-antica']],
       location: {
         address: 'Piazza Museo 19',
         city: 'Napoli',
@@ -354,6 +429,7 @@ try {
       name: 'Palazzo Ducale di Venezia',
       shortDescription: 'Gothic palace of the Doges',
       description: htmlToRichText('Tintoretto ceilings and the Bridge of Sighs.'),
+      categories: [categoryIdBySlug['storia'], categoryIdBySlug['arte-moderna']],
       location: {
         address: 'Piazza San Marco 1',
         city: 'Venezia',

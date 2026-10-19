@@ -1,10 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-
-import { Select, ComboboxItem } from '@mantine/core'
+import { Select } from '@mantine/core'
 import { usePathname, useRouter } from 'next/navigation'
 import { Trans, useT } from 'next-i18next/client'
+import type { Route } from 'next'
 
 /**
  * Language picker for logged-in users: persists to `user.preferences.locale`,
@@ -21,7 +20,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
   const switchLocale = (locale: string) => {
     const segments = pathname.split('/')
     segments[1] = locale
-    router.push(segments.join('/'))
+    router.push(segments.join('/') as Route)
   }
 
   return (
@@ -38,7 +37,12 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
           .filter((lng) => lng.value !== i18n.language),
       ]}
       value={i18n.language}
-      onChange={(_value, option) => switchLocale(option.value)}
+      onChange={(value) => {
+        // Mantine passes `null` when the select is cleared; the second
+        // argument is also nullable. The first argument is the stable source
+        // of truth for both string and object data.
+        if (value) switchLocale(value)
+      }}
       w={140}
     />
   )

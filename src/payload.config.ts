@@ -36,6 +36,7 @@ import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { Exhibits } from './collections/Exhibits'
+import { MuseumCategories } from './collections/MuseumCategories'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
@@ -79,6 +80,7 @@ export default buildConfig({
     UsersPropics,
     Pages,
     Museums,
+    MuseumCategories,
     MuseumThumbnails,
     MuseumMaps,
     Objects,
@@ -106,7 +108,15 @@ export default buildConfig({
     // GET /api/{slug}/:id/localized?locale=xx on each of them.
     // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
     autoTranslatePlugin({
-      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages, Tour],
+      collections: [
+        Museums,
+        MuseumCategories,
+        MuseumThumbnails,
+        Objects,
+        Contents,
+        ContentImages,
+        Tour,
+      ],
     }),
     // Stripe — sandbox only. The secret key must be a test key (`sk_test_…`).
     // Purchase/entitlement rows live in the `purchases` collection, written by

@@ -129,6 +129,17 @@ export const Museums: CollectionConfig = {
       ],
     },
     {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'museumCategories',
+      hasMany: true,
+      required: false,
+      index: true,
+      admin: {
+        description: 'Taxonomy tags used to group and filter the museum catalog.',
+      },
+    },
+    {
       name: 'tours',
       type: 'relationship',
       relationTo: 'tours',

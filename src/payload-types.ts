@@ -99,6 +99,7 @@ export interface Config {
     usersPropics: UsersPropic;
     pages: Page;
     museums: Museum;
+    museumCategories: MuseumCategory;
     museumThumbnails: MuseumThumbnail;
     museumMaps: MuseumMap;
     objects: Object;
@@ -140,6 +141,9 @@ export interface Config {
       curatorOf: 'user-museum-memberships';
       directorOf: 'user-museum-memberships';
     };
+    museumCategories: {
+      museums: 'museums';
+    };
     objects: {
       exhibit: 'exhibits';
     };
@@ -161,6 +165,7 @@ export interface Config {
     usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
+    museumCategories: MuseumCategoriesSelect<false> | MuseumCategoriesSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
@@ -1570,6 +1575,10 @@ export interface Museum {
         }[]
       | null;
   };
+  /**
+   * Taxonomy tags used to group and filter the museum catalog.
+   */
+  categories?: (string | MuseumCategory)[] | null;
   tours?: (string | Tour)[] | null;
   map?:
     | {
@@ -2351,6 +2360,50 @@ export interface MuseumThumbnail {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * Taxonomy used to group and filter museums.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumCategories".
+ */
+export interface MuseumCategory {
+  id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string;
+  /**
+   * Stable machine name used in URLs and filters. Auto-generated from the name.
+   */
+  slug: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null;
+  /**
+   * Optional broader category. Leave empty for a top-level category.
+   */
+  parent?: (string | null) | MuseumCategory;
+  /**
+   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
+   */
+  icon?: string | null;
+  /**
+   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
+   */
+  color?: string | null;
+  /**
+   * Sort weight in listings. Lower values come first.
+   */
+  order?: number | null;
+  museums?: {
+    docs?: (string | Museum)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3355,6 +3408,10 @@ export interface PayloadLockedDocument {
         value: string | Museum;
       } | null)
     | ({
+        relationTo: 'museumCategories';
+        value: string | MuseumCategory;
+      } | null)
+    | ({
         relationTo: 'museumThumbnails';
         value: string | MuseumThumbnail;
       } | null)
@@ -3977,6 +4034,7 @@ export interface MuseumsSelect<T extends boolean = true> {
               id?: T;
             };
       };
+  categories?: T;
   tours?: T;
   map?: T;
   navMesh?: T;
@@ -3987,6 +4045,22 @@ export interface MuseumsSelect<T extends boolean = true> {
         favouritesCount?: T;
         sharesCount?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumCategories_select".
+ */
+export interface MuseumCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  icon?: T;
+  color?: T;
+  order?: T;
+  museums?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4978,6 +5052,10 @@ export interface TaskTranslateDocument {
           value: string | Museum;
         } | null)
       | ({
+          relationTo: 'museumCategories';
+          value: string | MuseumCategory;
+        } | null)
+      | ({
           relationTo: 'museumThumbnails';
           value: string | MuseumThumbnail;
         } | null)
@@ -5019,6 +5097,7 @@ export interface TaskCreateCollectionExport {
       | 'usersPropics'
       | 'pages'
       | 'museums'
+      | 'museumCategories'
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
@@ -5143,6 +5222,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'museums';
           value: string | Museum;
+        } | null)
+      | ({
+          relationTo: 'museumCategories';
+          value: string | MuseumCategory;
         } | null)
       | ({
           relationTo: 'museumThumbnails';
