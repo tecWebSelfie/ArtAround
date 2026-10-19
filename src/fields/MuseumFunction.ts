@@ -11,9 +11,7 @@ export const MUSEUM_FUNCTION_DIRECTOR = 'director' as const
 export const MUSEUM_FUNCTION_NONE = 'none' as const
 
 export type MuseumFunction =
-  | typeof MUSEUM_FUNCTION_CURATOR
-  | typeof MUSEUM_FUNCTION_DIRECTOR
-  | typeof MUSEUM_FUNCTION_NONE
+  typeof MUSEUM_FUNCTION_CURATOR | typeof MUSEUM_FUNCTION_DIRECTOR | typeof MUSEUM_FUNCTION_NONE
 
 /**
  * To be appended to the `roles` collection via the RBAC plugin override
@@ -31,6 +29,13 @@ export const museumFunctionField: SelectField = {
     { label: 'None', value: MUSEUM_FUNCTION_NONE },
   ],
   admin: {
-    description: 'Museum function granted by this role, independent of its code/name.',
+    description: 'Museum function granted by this role, independent of code/name.',
+  },
+  // Public read: the users' `curatorOf`/`directorOf` joins filter on
+  // `role.museumFunction`, and Payload validates that path against the
+  // requesting user's field permissions. Without this, `/api/users/me` (and
+  // every users query) fails for signed-in visitors without an RBAC role.
+  access: {
+    read: () => true,
   },
 }

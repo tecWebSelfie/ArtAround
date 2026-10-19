@@ -787,20 +787,34 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    username: string;
-  };
-  login: {
-    password: string;
-    username: string;
-  };
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
   registerFirstUser: {
     password: string;
     username: string;
+    email?: string;
   };
-  unlock: {
-    username: string;
-  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
 }
 export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
@@ -894,7 +908,7 @@ export interface Role {
     | null;
   createdBy?: string | null;
   /**
-   * Museum function granted by this role, independent of its code/name.
+   * Museum function granted by this role, independent of code/name.
    */
   museumFunction: 'curator' | 'director' | 'none';
   updatedAt: string;

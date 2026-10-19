@@ -4,6 +4,7 @@ import './globals.css'
 import { theme } from '@/theme'
 import { AppShell, MantineProvider } from '@mantine/core'
 
+import { AuthProvider } from '@/components/auth/AuthProvider'
 import MswProvider from '@/mocks/MswProvider'
 import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
@@ -24,25 +25,27 @@ export default async function Layout(props: { children: React.ReactNode }) {
 
   return (
     <MswProvider>
-      <AgentProvider>
-        <MantineProvider theme={theme}>
-          <Notifications />
-          <ModalsProvider>
-            <AppShell
-              footer={{
-                height: 64,
-                offset: true,
-              }}
-              header={{
-                height: 'auto',
-                offset: false,
-              }}
-            >
-              {children}
-            </AppShell>
-          </ModalsProvider>
-        </MantineProvider>
-      </AgentProvider>
+      <AuthProvider>
+        <AgentProvider>
+          <MantineProvider theme={theme}>
+            <Notifications />
+            <ModalsProvider>
+              <AppShell
+                footer={{
+                  height: 64,
+                  offset: true,
+                }}
+                header={{
+                  height: 'auto',
+                  offset: false,
+                }}
+              >
+                {children}
+              </AppShell>
+            </ModalsProvider>
+          </MantineProvider>
+        </AgentProvider>
+      </AuthProvider>
     </MswProvider>
   )
 }

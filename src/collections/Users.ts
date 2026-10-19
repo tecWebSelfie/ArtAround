@@ -4,8 +4,11 @@ import {
   MUSEUM_FUNCTION_NONE,
 } from '@/fields/MuseumFunction'
 import { User as UserType } from '@/payload-types'
-import type { CollectionConfig, FieldHook } from 'payload'
+import { getPermissionAccess } from '@zealamic/payload-plugin-rbac'
+import type { Access, CollectionConfig, FieldHook, Where } from 'payload'
 import { GroupField, TypeWithID } from 'payload'
+
+import { sanitizePublicSignup } from '@/hooks/sanitizePublicSignup'
 
 export const USERS_COLLECTION_SLUG = 'users'
 export const TOURS_COLLECTION_SLUG = 'tours'
@@ -47,13 +50,63 @@ const nameFieldsGroup: GroupField = {
   ],
 }
 
+/**
+ * RBAC's own `users.read` rule (same feature code/options the plugin uses), so
+ * self-read support below does not weaken staff/super-admin visibility.
+ */
+const rbacUsersRead = getPermissionAccess({
+  actionCode: 'read',
+  featureCode: USERS_COLLECTION_SLUG,
+  options: { createdByField: 'id', usersCollectionSlug: USERS_COLLECTION_SLUG },
+}) as (args: { req: Parameters<Access>[0]['req'] }) => Promise<boolean | Where>
+
+/**
+ * A signed-in user must always be able to read their own document: Payload's
+ * `GET /api/users/me` performs a normal read, and freshly registered accounts
+ * have no RBAC role yet. Listing other users still follows the RBAC scope.
+ */
+const readUsers: Access = async (args) => {
+  const rbac = await rbacUsersRead({ req: args.req })
+
+  if (!args.req.user) {
+    return rbac
+  }
+
+  const self: Where = { id: { equals: args.req.user.id } }
+
+  if (rbac === true) return true
+  if (rbac === false) return self
+
+  return { or: [self, rbac] }
+}
+
 export const Users: CollectionConfig = {
   slug: USERS_COLLECTION_SLUG,
   admin: {
     useAsTitle: 'username',
   },
   auth: {
-    loginWithUsername: true,
+    // Visitors can authenticate with either their email or their username.
+    // `allowEmailLogin` is required: with a plain `loginWithUsername: true`
+    // Payload disables email-based login and only accepts `username`.
+    loginWithUsername: {
+      allowEmailLogin: true,
+    },
+  },
+  access: {
+    // Only RBAC super admins may open the Payload admin panel. This is
+    // evaluated after authentication, so regular frontend accounts still
+    // exist normally but are redirected to the admin login/unauthorized page.
+    admin: ({ req: { user } }) => Boolean(user && 'isSuperAdmin' in user && user.isSuperAdmin),
+    // RBAC denies anonymous REST on `users`; opt `create` back in so the
+    // frontend sign-up form can register a visitor. Everything a visitor is
+    // not allowed to choose is stripped by `sanitizePublicSignup`, and the
+    // remaining operations (update/delete) keep the RBAC defaults.
+    create: () => true,
+    read: readUsers,
+  },
+  hooks: {
+    beforeValidate: [sanitizePublicSignup],
   },
   fields: [
     // Email added by default

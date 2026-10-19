@@ -1,9 +1,50 @@
 {
+  "auth": {
+    "confirmPassword": "Conferma password",
+    "email": "Email",
+    "errors": {
+      "emailInvalid": "Inserisci un indirizzo email valido.",
+      "emailRequired": "Inserisci la tua email.",
+      "firstNameRequired": "Inserisci il tuo nome.",
+      "generic": "Qualcosa è andato storto. Riprova.",
+      "identifierRequired": "Inserisci la tua email o il tuo nome utente.",
+      "lastNameRequired": "Inserisci il tuo cognome.",
+      "passwordMismatch": "Le password non coincidono.",
+      "passwordRequired": "Inserisci la tua password.",
+      "passwordTooShort": "Usa almeno 8 caratteri.",
+      "title": "Qualcosa è andato storto",
+      "usernameInvalid": "Usa solo lettere, numeri, punti, trattini o underscore.",
+      "usernameRequired": "Scegli un nome utente.",
+      "usernameTooShort": "Usa almeno 3 caratteri."
+    },
+    "firstName": "Nome",
+    "haveAccount": "Hai già un account?",
+    "identifier": "Email o nome utente",
+    "identifierPlaceholder": "tu@esempio.com o il tuo nome utente",
+    "lastName": "Cognome",
+    "noAccount": "Nuovo su Artaround?",
+    "password": "Password",
+    "passwordHint": "Almeno 8 caratteri.",
+    "signIn": "Accedi",
+    "signInLink": "Accedi",
+    "signInSubtitle": "Accedi per continuare il tuo tour artistico.",
+    "signInTitle": "Bentornato",
+    "signUp": "Crea account",
+    "signUpLink": "Creane uno",
+    "signUpSubtitle": "Salva tour, acquisti e preferiti in un unico posto.",
+    "signUpTitle": "Crea il tuo account",
+    "username": "Nome utente",
+    "usernameHint": "È così che gli altri esploratori ti vedranno."
+  },
   "languageSwitcher": {
-    "label": ""
+    "label": "Seleziona lingua"
   },
   "navbar": {
-    "Marketplace": "",
-    "Navigator": ""
+    "Account": "Account",
+    "Marketplace": "Marketplace",
+    "Navigator": "Navigator",
+    "Profile": "Profilo",
+    "SignIn": "Accedi",
+    "SignOut": "Esci"
   }
 }
