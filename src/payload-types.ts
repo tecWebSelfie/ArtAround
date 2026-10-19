@@ -109,6 +109,8 @@ export interface Config {
     contentImages: ContentImage;
     tours: Tour;
     toursThumbnails: ToursThumbnail;
+    quizQuestions: QuizQuestion;
+    quizAttempts: QuizAttempt;
     'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -169,6 +171,8 @@ export interface Config {
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
     toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
+    quizQuestions: QuizQuestionsSelect<false> | QuizQuestionsSelect<true>;
+    quizAttempts: QuizAttemptsSelect<false> | QuizAttemptsSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -1080,6 +1084,12 @@ export interface Tour {
     docs?: (string | User)[];
     hasNextPage?: boolean;
     totalDocs?: number;
+  };
+  quiz?: {
+    /**
+     * Shown in this order after the last stop. Search lists questions about this tour’s contents. Questions created here without related contents belong to this tour: removing them from the quiz deletes them.
+     */
+    questions?: (string | QuizQuestion)[] | null;
   };
   lfrs?: {
     favouritesCount?: number | null;
@@ -2279,6 +2289,41 @@ export interface MuseumThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizQuestions".
+ */
+export interface QuizQuestion {
+  id: string;
+  createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  prompt: string;
+  image?: (string | null) | ContentImage;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  correctAnswer: string;
+  wrongAnswers: {
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
+    text: string;
+    id?: string | null;
+  }[];
+  /**
+   * Shown after the visitor answers. Auto-translated on demand.
+   */
+  explanation?: string | null;
+  difficulty: Difficulty;
+  /**
+   * Contents this question is about. Leave empty for a question specific to the tour whose quiz uses it.
+   */
+  relatedTo?: (string | Content)[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usersPropics".
  */
 export interface UsersPropic {
@@ -2354,6 +2399,37 @@ export interface MuseumMap {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizAttempts".
+ */
+export interface QuizAttempt {
+  id: string;
+  token: string;
+  tour: string | Tour;
+  user?: (string | null) | User;
+  locale: string;
+  /**
+   * Tour cursor when the quiz was taken; lower than the stop count means an early quiz.
+   */
+  stepsCompleted: number;
+  answers?:
+    | {
+        question: string | QuizQuestion;
+        /**
+         * 'correct' or the ID of the chosen wrong-answer row.
+         */
+        answer: string;
+        correct: boolean;
+        id?: string | null;
+      }[]
+    | null;
+  correctQuestions?: (string | QuizQuestion)[] | null;
+  score: number;
+  total: number;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3282,6 +3358,14 @@ export interface PayloadLockedDocument {
         value: string | ToursThumbnail;
       } | null)
     | ({
+        relationTo: 'quizQuestions';
+        value: string | QuizQuestion;
+      } | null)
+    | ({
+        relationTo: 'quizAttempts';
+        value: string | QuizAttempt;
+      } | null)
+    | ({
         relationTo: 'translator-provenance';
         value: string | TranslatorProvenance;
       } | null)
@@ -4037,6 +4121,11 @@ export interface ToursSelect<T extends boolean = true> {
   thumbnail?: T;
   museum?: T;
   author?: T;
+  quiz?:
+    | T
+    | {
+        questions?: T;
+      };
   lfrs?:
     | T
     | {
@@ -4065,6 +4154,51 @@ export interface ToursThumbnailsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizQuestions_select".
+ */
+export interface QuizQuestionsSelect<T extends boolean = true> {
+  createdBy?: T;
+  prompt?: T;
+  image?: T;
+  correctAnswer?: T;
+  wrongAnswers?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  explanation?: T;
+  difficulty?: T;
+  relatedTo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quizAttempts_select".
+ */
+export interface QuizAttemptsSelect<T extends boolean = true> {
+  token?: T;
+  tour?: T;
+  user?: T;
+  locale?: T;
+  stepsCompleted?: T;
+  answers?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        correct?: T;
+        id?: T;
+      };
+  correctQuestions?: T;
+  score?: T;
+  total?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4840,6 +4974,10 @@ export interface TaskTranslateDocument {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'quizQuestions';
+          value: string | QuizQuestion;
         } | null);
     source_lng: string;
     target_lng: string;
@@ -4873,6 +5011,8 @@ export interface TaskCreateCollectionExport {
       | 'contentImages'
       | 'tours'
       | 'toursThumbnails'
+      | 'quizQuestions'
+      | 'quizAttempts'
       | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
@@ -5002,6 +5142,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'quizQuestions';
+          value: string | QuizQuestion;
         } | null);
     source_lng: string;
     strategy: string;

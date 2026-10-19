@@ -12,6 +12,8 @@ Use these guides as starting points for implementation and debugging:
 
 - [Tour navigation](docs/tour-navigation.md): intended behavior, code map, QR routes,
   avatar positioning, Pascal controls, local fixture, and verification status.
+- [Tour quiz](docs/tour-quiz.md): quiz data model, answer secrecy, ownership rules,
+  and the planned visitor flow.
 - [Interactive object models](docs/interactive-object-models.md): editor catalog,
   Mint preview/approval, and Payload jobs integration.
 

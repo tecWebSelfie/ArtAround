@@ -1,5 +1,6 @@
 import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
+import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { CollectionConfig, FieldHook } from 'payload'
@@ -53,6 +54,10 @@ export const Contents: CollectionConfig = {
       required: true,
     },
   ],
+  hooks: {
+    // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
+    afterDelete: [detachDeletedContentFromQuestions],
+  },
 }
 
 export const ContentImages: CollectionConfig = {
