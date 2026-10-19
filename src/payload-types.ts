@@ -2428,6 +2428,7 @@ export interface QuizAttempt {
   correctQuestions?: (string | QuizQuestion)[] | null;
   score: number;
   total: number;
+  percent: number;
   updatedAt: string;
   createdAt: string;
 }
@@ -4197,6 +4198,7 @@ export interface QuizAttemptsSelect<T extends boolean = true> {
   correctQuestions?: T;
   score?: T;
   total?: T;
+  percent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

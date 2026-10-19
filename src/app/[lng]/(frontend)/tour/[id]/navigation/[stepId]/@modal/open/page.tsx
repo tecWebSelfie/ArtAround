@@ -25,6 +25,7 @@ export default async function OpenStepModal({
         step={content}
         nextHref={tourNavigationPath(lng, tourId, step + 1)}
         lastStep={step + 1 === tour.contents.length}
+        quizFrom={tour.quiz?.questions?.length ? step + 1 : undefined}
       />
     </NavigationModal>
   )

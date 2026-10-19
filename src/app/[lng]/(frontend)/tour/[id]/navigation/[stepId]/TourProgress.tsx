@@ -5,11 +5,26 @@ import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { Tour } from '@/payload-types'
 import { Group, Scroller, Stepper, StepperStep } from '@mantine/core'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { tourContentPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { tourContentPath, tourQuizPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { ListChecks } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 
-/** The ordered contents are the main quest; selecting one opens it without moving the cursor. */
-export function TourProgress({ contents, step }: { contents: Tour['contents']; step: number }) {
+/**
+ * The ordered contents are the main quest; selecting one opens it without moving the cursor.
+ * A tour with a quiz ends with a "Quiz" step: visible from the start, so visitors know it is
+ * coming, and selectable at any time (the quiz intro warns about stops still ahead).
+ */
+export function TourProgress({
+  contents,
+  step,
+  hasQuiz = false,
+}: {
+  contents: Tour['contents']
+  step: number
+  hasQuiz?: boolean
+}) {
+  const { t } = useTranslation('tour-navigation')
   const activeStep = useRef<HTMLButtonElement | null>(null)
   const { lng, id: tourId } = useParams<{ lng: string; id: string }>()
   const search = useSearchParams()
@@ -30,6 +45,10 @@ export function TourProgress({ contents, step }: { contents: Tour['contents']; s
           separator: 'min-w-1/12',
         }}
         onStepClick={(index) => {
+          if (index === contents.length) {
+            router.push(tourQuizPath(lng, tourId, step, search.toString()))
+            return
+          }
           const content = contents[index]
           if (content) {
             const contentId = typeof content === 'string' ? content : content.id
@@ -53,6 +72,13 @@ export function TourProgress({ contents, step }: { contents: Tour['contents']; s
             }
           />
         ))}
+        {hasQuiz && (
+          <StepperStep
+            label={t('Quiz')}
+            icon={<ListChecks size={14} aria-hidden />}
+            ref={step === contents.length ? activeStep : undefined}
+          />
+        )}
       </Stepper>
     </Scroller>
   )

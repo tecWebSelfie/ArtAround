@@ -1,8 +1,8 @@
 # Tour quiz: design and implementation status
 
 Last reviewed: 2026-10-19. A tour may end with an optional multiple-choice quiz.
-This document records the agreed design; sections marked *planned* are not
-implemented yet. Related: [tour navigation](tour-navigation.md).
+This document records the agreed design and where it lives in the code.
+Related: [tour navigation](tour-navigation.md).
 
 ## Data model (implemented)
 
@@ -48,24 +48,59 @@ Invariants enforced by hooks and validation:
 - `wrongAnswers` is not localized, only its `text` leaves: row IDs are shared by
   all locales, so grading by ID is language-independent.
 
-## Visitor flow (planned)
+## Visitor flow (implemented)
 
-- Last stop's action becomes "Complete and go to quiz" → `/[lng]/tour/[id]/quiz`
-  (outside the map layout). The tour cursor keeps its meaning; the quiz is not a step.
-- `TourProgress` shows a final "Quiz" step; the quiz can be started early with a
-  warning about unvisited stops. The completed-tour footer also offers it.
-- `/quiz` intro (question count, early-quiz warning) → `/quiz?q=n`, one question per
-  screen, no skipping. Choices persist in `sessionStorage` for reloads.
-- Options are shuffled server-side and identified by opaque HMAC keys
-  (`PAYLOAD_SECRET`, `server-only` module). A server action `checkAnswer` returns
-  correctness + explanation after each answer (answers are final). `submitQuiz`
-  re-grades everything from the database, stores the attempt (`answer` = `'correct'`
-  or the wrong row ID) and redirects to `/quiz/result/[token]`.
+| Route / file | Role |
+| --- | --- |
+| `tour/[id]/quiz/page.tsx` | Server: reads the quiz, sends only `quizQuestionViews()` (reduced, shuffled) to the client. |
+| `quiz/TourQuiz.tsx` | Intro (`/quiz`) and one question per screen (`/quiz?q=n`), feedback, submit. |
+| `quiz/actions.ts` | Server Functions `checkQuizAnswer` (feedback) and `submitQuizAttempt` (re-grade, store, expire stats). |
+| `quiz/quiz-session.ts` | `sessionStorage` store (`useSyncExternalStore`) so reloads resume. |
+| `quiz/QuizContentDrawer.tsx` | "Read the content again" without leaving the page. |
+| `quiz/result/[token]/` | Result page and `QuizResult` client view. |
+| `src/lib/quiz-core.ts` | Pure logic: HMAC option keys, shuffle, grading, score bands (unit-tested). |
+| `src/lib/quiz.server.ts` | `server-only`: localized question reads, secret binding, cached statistics. |
 
-## Results (planned)
+- Entry points: the last stop's action ("Complete and go to the quiz", `StepModal`
+  `quizFrom`), the final "Quiz" step of `TourProgress` (selectable any time: early
+  quiz), and "Take the quiz" in the completed-tour footer. All use `tourQuizPath()`,
+  which carries `at`/`mobility`, drops `to` and adds `from` (the cursor left). The
+  tour cursor keeps its meaning; the quiz is not a step.
+- Quiz pages live outside the map layout. "Back to the map" returns to
+  `/navigation/{from}` with the same position.
+- `?q=` changes use `history.pushState` (no server render); a URL past the first
+  unanswered question is clamped. Answers are final; no skipping.
+- Options carry opaque HMAC keys (`PAYLOAD_SECRET`), stable per answer, so saved
+  choices survive reloads and language switches. `checkQuizAnswer` reveals the correct
+  key and explanation after an answer (a determined user could script it to peek;
+  accepted for a learning quiz). `submitQuizAttempt` never trusts the client: it
+  re-reads the tour's questions and re-grades. Stored `answer` is `'correct'`, a wrong
+  row ID or `'unanswered'`.
+- Questions are read with `resolveLocalized()`; a missing translation shows English
+  and is enqueued after the response (`after()`).
 
-Score with `RingProgress`; "better than X% of visitors" plus a `@mantine/charts`
-score distribution in percentage bands (quizzes change over time); per-question
-"% answered correctly" (counted on `correctQuestions`). Comparisons appear from
-10 attempts on; all attempts count, anonymous included. Actions: rate tour, retake,
-share (`navigator.share`), **Back to navigator** (`/[lng]/navigator`, primary).
+## Results (implemented)
+
+`/[lng]/tour/[id]/quiz/result/[token]`: score (`RingProgress`), verdict, comparison
+("better than X%" + `@mantine/charts` `BarChart` of percentage bands, own band in
+orange and labelled "(you)"), per-answer review (your/right answer, explanation,
+"% of visitors got this right", read-again or "stop not visited yet" link), tour
+rating (`LfrsRating`; anonymous visitors see "Sign in to rate"), Share
+(`navigator.share`, clipboard fallback), Retake, and **Back to the navigator** in the
+footer.
+
+Statistics (`getQuizStats`) are plain indexed `count`s, cached per tour with
+`unstable_cache` and expired by `updateTag()` on each submit. Comparisons need
+`MIN_ATTEMPTS_FOR_STATS` (10) attempts; every attempt counts, anonymous included.
+The per-question rate divides by the attempts that included that question.
+
+## Verification status
+
+- Unit: `tests/int/quiz-core.int.spec.ts`, `quiz-ownership.int.spec.ts`,
+  `tour-navigation.int.spec.ts` (quiz paths).
+- Storybook: `QuizResult.stories.tsx`, `StepModal.stories.tsx` (`LastStepWithQuiz`).
+  In containers whose Playwright browser revision differs, point the Vitest browser
+  provider at an installed Chromium (`launchOptions.executablePath`).
+- Not yet verified against a running app and database: admin picker, validation and
+  hooks, Server Functions, translation enqueue, cache expiry. `TourQuiz` has no story
+  because it imports Server Functions; cover it with an e2e test on the seeded fixture.

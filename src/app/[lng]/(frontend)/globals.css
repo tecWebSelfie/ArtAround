@@ -13,6 +13,8 @@
 @import 'mantine-composite-filters/styles.layer.css';
 @import '@mantine/spotlight/styles.layer.css';
 @import '@mantine/dropzone/styles.layer.css';
+/* Quiz result statistics (BarChart). Mantine layer, like the other packages. */
+@import '@mantine/charts/styles.layer.css';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
 

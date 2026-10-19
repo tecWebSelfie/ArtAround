@@ -95,5 +95,15 @@ export const QuizAttempts: CollectionConfig = {
     },
     { name: 'score', type: 'number', required: true, min: 0 },
     { name: 'total', type: 'number', required: true, min: 0 },
+    {
+      // score/total × 100, stored so statistics can count bands and "better than"
+      // with plain range queries across quiz versions of different lengths.
+      name: 'percent',
+      type: 'number',
+      required: true,
+      min: 0,
+      max: 100,
+      index: true,
+    },
   ],
 }

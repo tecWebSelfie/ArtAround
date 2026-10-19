@@ -39,7 +39,9 @@ import { TourProgress } from './TourProgress'
 import {
   contentObjectId,
   tourContentPath,
+  tourHasQuiz as hasQuiz,
   tourNavigationPath,
+  tourQuizPath,
   withNavigationValue,
   withNavigationPosition,
   type NavigationCatalogObject,
@@ -100,7 +102,7 @@ export const TourNavigationPage = ({
               <FlagBannerFoldIcon size={14} />
             </GridCol>
           </Grid>
-          <TourProgress contents={tour.contents} step={step} />
+          <TourProgress contents={tour.contents} step={step} hasQuiz={hasQuiz(tour)} />
         </Stack>
       </AppShellHeader>
 
@@ -171,7 +173,17 @@ function NavigationNavBar({
   return (
     <AppShellFooter className="rounded-t-md">
       <Group grow p="xs" align="center">
-        {complete && <Title>{t('Tour completed')}</Title>}
+        {/* Compact heading: it now shares the 64px footer with the quiz action. */}
+        {complete && (
+          <Title order={2} size="h4">
+            {t('Tour completed')}
+          </Title>
+        )}
+        {complete && hasQuiz(tour) && (
+          <Button onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}>
+            {t('Take the quiz')}
+          </Button>
+        )}
         {!complete && nextId && (
           <Button onClick={() => router.push(contentHref(nextId))}>{t('Open next stop')}</Button>
         )}

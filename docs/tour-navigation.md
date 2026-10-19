@@ -36,6 +36,7 @@ Base: `/[lng]/tour/[id]/navigation/[stepId]`.
 | Other content                    | `/content/CONTENT_ID` parallel modal |
 | Object details                   | `/object/OBJECT_ID` parallel modal   |
 | Scanner                          | `/scan`                              |
+| End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md)) |
 
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
 next-content routing, and museum object identification. `at`, `to`, and the

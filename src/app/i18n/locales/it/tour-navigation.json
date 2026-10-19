@@ -1,5 +1,6 @@
 {
   "Close": "Chiudi",
+  "Complete and go to the quiz": "Completa e vai al quiz",
   "Complete tour": "Completa il tour",
   "Go to next step": "Vai alla prossima tappa",
   "Loading map": "Caricamento mappa",
@@ -11,6 +12,7 @@
   "Object": "Oggetto",
   "Open an object and set it as your position": "Apri un oggetto e impostalo come tua posizione",
   "Open next stop": "Apri la prossima tappa",
+  "Quiz": "Quiz",
   "Read content": "Leggi il contenuto",
   "Resume tour route": "Riprendi il percorso del tour",
   "Room Code": "Codice stanza",
@@ -19,6 +21,7 @@
   "Search museum objects and contents": "Cerca oggetti e contenuti del museo",
   "Set as my position": "Imposta come mia posizione",
   "Start Tour": "Inizia il tour",
+  "Take the quiz": "Fai il quiz",
   "This object is not placed on the map": "Questo oggetto non è posizionato sulla mappa",
   "Tour completed": "Tour completato",
   "Tour progress": "Avanzamento del tour",

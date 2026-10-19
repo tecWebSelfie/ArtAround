@@ -73,3 +73,25 @@ export function contentObjectId(content: Content): string | null {
   const object = content.objects?.docs?.[0]
   return typeof object === 'string' ? object : (object?.id ?? null)
 }
+
+/**
+ * Quiz routes live beside, not inside, the navigation tree (no map). `from` is
+ * the tour cursor the visitor left, so the quiz can warn about unvisited stops
+ * and "back to the map" returns to the same step; `at`/`mobility` ride along.
+ * The alternative destination (`to`) is dropped: the quiz ends that excursion.
+ */
+export function tourQuizPath(lng: string, tourId: string, from: number, search: string) {
+  const params = new URLSearchParams(search)
+  params.delete('to')
+  const path = withNavigationPosition(`/${lng}/tour/${tourId}/quiz`, params.toString())
+  return `${path}${path.includes('?') ? '&' : '?'}from=${from}` as Route
+}
+
+export function tourQuizResultPath(lng: string, tourId: string, token: string) {
+  return `/${lng}/tour/${tourId}/quiz/result/${encodeURIComponent(token)}` as Route
+}
+
+/** Quiz question IDs are never populated on tours (`maxDepth: 0`), so a count is all we read. */
+export function tourHasQuiz(tour: Pick<Tour, 'quiz'>) {
+  return Boolean(tour.quiz?.questions?.length)
+}

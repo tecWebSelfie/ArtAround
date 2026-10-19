@@ -1,5 +1,6 @@
 {
   "Close": "Close",
+  "Complete and go to the quiz": "Complete and go to the quiz",
   "Complete tour": "Complete tour",
   "Go to next step": "Go to next step",
   "Loading map": "Loading map",
@@ -11,6 +12,7 @@
   "Object": "Object",
   "Open an object and set it as your position": "Open an object and set it as your position",
   "Open next stop": "Open next stop",
+  "Quiz": "Quiz",
   "Read content": "Read content",
   "Resume tour route": "Resume tour route",
   "Room Code": "Room Code",
@@ -19,6 +21,7 @@
   "Search museum objects and contents": "Search museum objects and contents",
   "Set as my position": "Set as my position",
   "Start Tour": "Start Tour",
+  "Take the quiz": "Take the quiz",
   "This object is not placed on the map": "This object is not placed on the map",
   "Tour completed": "Tour completed",
   "Tour progress": "Tour progress",
