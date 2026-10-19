@@ -31,6 +31,25 @@ export const Contents: CollectionConfig = {
       required: true,
     },
     {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'museumCategories',
+      hasMany: true,
+      required: false,
+      index: true,
+      admin: { description: 'Shared museum taxonomy, used by search filters.' },
+    },
+    {
+      // Bibliographic references shown at the end of the content page.
+      name: 'sources',
+      type: 'array',
+      required: false,
+      fields: [
+        editorial({ name: 'label', type: 'text', required: true }),
+        { name: 'url', type: 'text', required: false },
+      ],
+    },
+    {
       name: 'images',
       type: 'relationship',
       relationTo: 'contentImages',

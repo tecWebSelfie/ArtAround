@@ -38,11 +38,6 @@ export const mockObjectFull: Object = createObject({
   name: 'Statua in marmo di atleta',
   description:
     'Statua in marmo pario raffigurante un atleta nell’atto di lanciare il disco, copia romana da originale greco del V secolo a.C.',
-  exhibit: {
-    docs: ['exhibit-1'],
-    totalDocs: 1,
-    hasNextPage: false,
-  },
   contents: ['content-1', 'content-2'],
   thumbnail: baseThumbnail(),
   lfrs: {
@@ -59,11 +54,6 @@ export const mockObjectNoMedia: Object = createObject({
 export const mockObjectNoContents: Object = createObject({
   id: 'object-nocontents-001',
   contents: null,
-  exhibit: {
-    docs: ['exhibit-1'],
-    totalDocs: 1,
-    hasNextPage: false,
-  },
   thumbnail: baseThumbnail(),
 })
 

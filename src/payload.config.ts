@@ -11,8 +11,6 @@ import { fileURLToPath } from 'url'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
-import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { typesenseSearch } from '@rubixstudios/payload-typesense'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
@@ -35,11 +33,9 @@ import { pollMintModelOperation } from './tasks/pollMintModelOperation'
 import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
-import { Exhibits } from './collections/Exhibits'
 import { MuseumCategories } from './collections/MuseumCategories'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
-import { Pages } from './collections/Pages'
 import { Purchases } from './collections/Purchases'
 import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
@@ -78,7 +74,6 @@ export default buildConfig({
     Users,
     UserMuseumMembership,
     UsersPropics,
-    Pages,
     Museums,
     MuseumCategories,
     MuseumThumbnails,
@@ -86,7 +81,6 @@ export default buildConfig({
     Objects,
     ObjectsModels,
     ObjectsThumbnails,
-    Exhibits,
     Contents,
     ContentImages,
     Tour,
@@ -144,24 +138,15 @@ export default buildConfig({
       collections: {
         museums: { enabled: true },
         objects: { enabled: true },
-        exhibits: { enabled: true },
         contents: { enabled: true },
       },
     }),
-    redirectsPlugin({
-      collections: ['pages'],
-    }),
-    nestedDocsPlugin({
-      collections: ['pages'],
-      generateLabel: (_, doc) => String(doc.title),
-      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${String(doc.slug)}`, ''),
-    }),
     importExportPlugin({
-      collections: [{ slug: 'users' }, { slug: 'pages' }, { slug: 'roles' }],
+      collections: [{ slug: 'users' }, { slug: 'roles' }],
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({
-      targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug, Tour.slug],
+      targetCollections: [Museums.slug, Objects.slug, Contents.slug, Tour.slug],
       collections: {
         roles: {
           fields: [museumFunctionField],
@@ -175,7 +160,6 @@ export default buildConfig({
                 Museum: 'Museum',
                 Content: 'Content',
                 Object: 'Object',
-                Exhibit: 'Exhibit',
               },
               actions: {
                 Create: 'Create',

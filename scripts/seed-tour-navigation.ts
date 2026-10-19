@@ -107,18 +107,6 @@ if (!museum) {
       )
     }),
   )
-  const existingExhibit = await payload.find({
-    collection: 'exhibits',
-    where: { objects: { contains: objects[0].id } },
-    limit: 1,
-    depth: 0,
-  })
-  const exhibit =
-    existingExhibit.docs[0] ??
-    (await payload.create({
-      collection: 'exhibits',
-      data: { objects: objects.map(({ id }) => id), coordinates: { x: 0, y: 0 } },
-    }))
   const existingTour = await payload.find({
     collection: 'tours',
     where: { title: { equals: label } },
@@ -182,11 +170,11 @@ if (!museum) {
     locale: 'en',
     data: {
       name: label,
-      accessibility: false,
+      accessibility: { isAccessible: false },
       shortDescription: 'A local fixture for tour navigation testing.',
       ticketInfo: { label: 'Development fixture — free entry' },
       location: { address: 'Development fixture', city: 'Test', latlng: [9.19, 45.46] },
-      exhibits: [exhibit.id],
+      objects: objects.map(({ id }) => id),
       tours: [tour.id],
       map,
       navMesh,

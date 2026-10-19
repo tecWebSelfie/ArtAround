@@ -24,36 +24,22 @@ export const getNavigationTour = cache(async (id: string) => {
 })
 
 /**
- * Builds the museum-scoped Spotlight catalog from its collection, exhibits, and
- * placed Pascal items. Only summaries cross into the client; full localized copy
- * is fetched when a visitor opens an object or content.
+ * Builds the museum-scoped Spotlight catalog from its linked objects and placed
+ * Pascal items. Only summaries cross into the client; full localized copy is
+ * fetched when a visitor opens an object or content.
  */
 export async function getNavigationCatalog(
   museum: Museum,
   lng: string,
 ): Promise<NavigationCatalogObject[]> {
   const payload = await getPayload({ config })
-  const exhibits = (museum.exhibits ?? []).map((entry) =>
-    typeof entry === 'string' ? entry : entry.id,
-  )
-  const { docs } = exhibits.length
-    ? await payload.find({
-        collection: 'exhibits',
-        where: { id: { in: exhibits } },
-        select: { objects: true },
-        depth: 0,
-        pagination: false,
-      })
-    : { docs: [] }
+  // Museums link their objects directly. The Pascal map stays a second source
+  // so objects placed in the 3D map appear even before they are linked.
   const ids = new Set(
     (museum.objects ?? []).map((entry) => (typeof entry === 'string' ? entry : entry.id)),
   )
-  // Exhibits are a second source of museum membership, so they join the direct list.
-  for (const exhibit of docs)
-    for (const object of exhibit.objects ?? [])
-      ids.add(typeof object === 'string' ? object : object.id)
   // Also include objects present on the Pascal map, even if they haven't been
-  // added to the museum or one of its exhibits yet.
+  // linked to the museum yet.
   const map = validateBuildJson(museum.map).parsed
   for (const node of Object.values(map?.nodes ?? {})) {
     const id = museumObjectId(node)

@@ -26,13 +26,67 @@ export const Objects: CollectionConfig = {
   fields: [
     editorial({ name: 'name', type: 'text', required: true }),
     editorial({ name: 'description', type: 'textarea', required: false, maxLength: 500 }),
-    {
-      name: 'exhibit',
-      type: 'join',
-      collection: 'exhibits',
-      on: 'objects',
-      hasMany: false,
+    editorial({ name: 'artist', type: 'text', required: false, maxLength: 120 }),
+    editorial({
+      name: 'dating',
+      type: 'text',
       required: false,
+      maxLength: 80,
+      admin: { description: 'Free-form date or period, e.g. "c. 1510" or "16th century".' },
+    }),
+    editorial({
+      name: 'provenance',
+      type: 'textarea',
+      required: false,
+      maxLength: 1000,
+      admin: { description: 'Ownership history, excavations, donations.' },
+    }),
+    {
+      // Conservation state lives in one block so the (public) state and the
+      // internal notes never drift apart.
+      name: 'condition',
+      type: 'group',
+      required: false,
+      admin: { description: 'Conservation state and restoration notes for this object.' },
+      fields: [
+        {
+          name: 'state',
+          type: 'select',
+          required: false,
+          options: [
+            { label: 'Excellent', value: 'excellent' },
+            { label: 'Good', value: 'good' },
+            { label: 'Fair', value: 'fair' },
+            { label: 'Poor', value: 'poor' },
+            { label: 'Under restoration', value: 'restoration' },
+          ],
+        },
+        editorial({
+          name: 'notes',
+          type: 'textarea',
+          required: false,
+          maxLength: 500,
+          admin: { description: 'Damage, past restorations, handling requirements.' },
+        }),
+      ],
+    },
+    editorial({ name: 'creditLine', type: 'text', required: false, maxLength: 200 }),
+    {
+      name: 'rights',
+      type: 'text',
+      required: false,
+      admin: {
+        description:
+          'Licence or rights statement for images and reproductions, e.g. "CC BY-SA 4.0".',
+      },
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'museumCategories',
+      hasMany: true,
+      required: false,
+      index: true,
     },
     {
       name: 'contents',

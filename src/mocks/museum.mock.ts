@@ -1,6 +1,5 @@
 import { mockObjectsList } from '@/mocks/object.mock'
 import type { Museum, MuseumThumbnail } from '@/payload-types'
-import { Exhibit } from '@/payload-types'
 import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } from '@pascal-app/core'
 import { createRealisticMuseumMap } from './museum-map.mock'
 import { mockToursList } from './tour.mock'
@@ -75,7 +74,7 @@ function baseMuseum(): Museum {
     id: 'museum-001',
     name: 'Museo Civico di Esempio',
     shortDescription: 'Breve descrizione del museo in meno di cento caratteri.',
-    accessibility: true,
+    accessibility: { isAccessible: true },
     ticketInfo: {
       label: 'Biglietti',
       url: 'https://example.com/biglietti',
@@ -97,15 +96,7 @@ function baseMuseum(): Museum {
         url: 'https://picsum.photos/200/300',
       },
     ] satisfies MuseumThumbnail[],
-    exhibits: [
-      {
-        id: 'exhibit-1',
-        objects: mockObjectsList,
-        coordinates: { x: 100, y: 200 },
-        updatedAt: TIMESTAMP,
-        createdAt: TIMESTAMP,
-      },
-    ] satisfies Exhibit[],
+    objects: mockObjectsList,
   }
 }
 
@@ -143,7 +134,7 @@ export const mockMuseumFull: Museum = createMuseum({
       version: 1,
     },
   },
-  accessibility: true,
+  accessibility: { isAccessible: true },
   map: createRealisticMuseumMap('museum-full-001'),
   phone: {
     e164: '+390200000000',
@@ -195,7 +186,6 @@ export const mockMuseumFull: Museum = createMuseum({
       height: 800,
     },
   ],
-  exhibits: ['exhibit-1', 'exhibit-2'],
   objects: mockObjectsList,
   openingHours: {
     monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
@@ -289,7 +279,7 @@ export const mockMuseumClosed: Museum = createMuseum({
 
 export const mockMuseumWithServices: Museum = createMuseum({
   id: 'museum-services-001',
-  accessibility: true,
+  accessibility: { isAccessible: true },
   openingHours: {
     monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
     tuesday: null,

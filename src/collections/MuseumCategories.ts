@@ -16,7 +16,7 @@ export const MuseumCategories: CollectionConfig = {
   slug: 'museumCategories',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'slug', 'parent', 'order'],
+    defaultColumns: ['name', 'slug', 'parent', 'featured'],
     description: 'Taxonomy used to group and filter museums.',
   },
   access: {
@@ -102,11 +102,11 @@ export const MuseumCategories: CollectionConfig = {
       },
     },
     {
-      name: 'order',
-      type: 'number',
+      name: 'featured',
+      type: 'checkbox',
       required: false,
-      defaultValue: 0,
-      admin: { description: 'Sort weight in listings. Lower values come first.' },
+      defaultValue: false,
+      admin: { description: 'Surface this category in the home/catalog shortcuts.' },
     },
     {
       // Reverse view: every museum tagged with this category.
