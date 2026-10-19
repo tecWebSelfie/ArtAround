@@ -1,3 +1,4 @@
+import { objectGenerationPrompt } from '@/lib/model-generation'
 import { Object } from '@/payload-types'
 import { TaskConfig } from 'payload'
 
@@ -59,7 +60,7 @@ export const loadObjectGenerationContext: TaskConfig<'loadObjectGenerationContex
     return {
       output: {
         name: object.name,
-        prompt: input.prompt?.trim() || `${object.name}. ${object.description ?? ''}`.trim(),
+        prompt: input.prompt?.trim() || objectGenerationPrompt(object),
         skip: false,
       },
     }

@@ -22,6 +22,7 @@ import {
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 const TEXT_GRADIENT_ID = 'textGradient'
 
@@ -148,7 +149,7 @@ const TourCard = ({ tour, ...props }: CardProps & { tour: Tour }) => {
         src={
           isPopulated(tour.thumbnail) && tour.thumbnail.url
             ? tour.thumbnail.url
-            : 'https://placehold.co/600x400?text=Placeholder'
+            : PLACEHOLDER_IMAGE
         }
         className="h-full"
       >

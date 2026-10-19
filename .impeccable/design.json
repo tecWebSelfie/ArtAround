@@ -1,38 +1,92 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-18T15:18:46.120Z",
+  "generatedAt": "2026-10-19T08:12:26.362Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
       "navigation-blue": {
         "role": "primary",
         "displayName": "Navigation blue",
-        "tonalRamp": ["#e7f5ff", "#d0ebff", "#a5d8ff", "#74c0fc", "#4dabf7", "#339af0", "#228be6", "#1c7ed6"]
+        "tonalRamp": [
+          "#e7f5ff",
+          "#d0ebff",
+          "#a5d8ff",
+          "#74c0fc",
+          "#4dabf7",
+          "#339af0",
+          "#228be6",
+          "#1c7ed6"
+        ]
       },
       "navigation-blue-hover": {
         "role": "primary",
         "displayName": "Navigation blue hover",
-        "tonalRamp": ["#e7f5ff", "#d0ebff", "#a5d8ff", "#74c0fc", "#4dabf7", "#339af0", "#228be6", "#1c7ed6"]
+        "tonalRamp": [
+          "#e7f5ff",
+          "#d0ebff",
+          "#a5d8ff",
+          "#74c0fc",
+          "#4dabf7",
+          "#339af0",
+          "#228be6",
+          "#1c7ed6"
+        ]
       },
       "tour-purple": {
         "role": "secondary",
         "displayName": "Tour purple",
-        "tonalRamp": ["#3b0764", "#581c87", "#6b21a8", "#7e22ce", "#9333ea", "#a855f7", "#c084fc", "#e9d5ff"]
+        "tonalRamp": [
+          "#3b0764",
+          "#581c87",
+          "#6b21a8",
+          "#7e22ce",
+          "#9333ea",
+          "#a855f7",
+          "#c084fc",
+          "#e9d5ff"
+        ]
       },
       "tour-orange": {
         "role": "secondary",
         "displayName": "Tour orange",
-        "tonalRamp": ["#7c2d12", "#9a3412", "#c2410c", "#ea580c", "#f97316", "#fb923c", "#fdba74", "#fed7aa"]
+        "tonalRamp": [
+          "#7c2d12",
+          "#9a3412",
+          "#c2410c",
+          "#ea580c",
+          "#f97316",
+          "#fb923c",
+          "#fdba74",
+          "#fed7aa"
+        ]
       },
       "grape": {
         "role": "secondary",
         "displayName": "Grape",
-        "tonalRamp": ["#f8f0fc", "#f3d9fa", "#eebefa", "#e599f7", "#da77f2", "#cc5de8", "#be4bdb", "#9c36b5"]
+        "tonalRamp": [
+          "#f8f0fc",
+          "#f3d9fa",
+          "#eebefa",
+          "#e599f7",
+          "#da77f2",
+          "#cc5de8",
+          "#be4bdb",
+          "#9c36b5"
+        ]
       },
       "content-teal": {
         "role": "secondary",
         "displayName": "Content teal",
-        "tonalRamp": ["#e6fcf5", "#c3fae8", "#96f2d7", "#63e6be", "#38d9a9", "#20c997", "#12b886", "#0ca678"]
+        "tonalRamp": [
+          "#e6fcf5",
+          "#c3fae8",
+          "#96f2d7",
+          "#63e6be",
+          "#38d9a9",
+          "#20c997",
+          "#12b886",
+          "#0ca678"
+        ]
       },
       "voice-aura": {
         "role": "secondary",
@@ -51,67 +105,226 @@
       "easy-green": {
         "role": "semantic",
         "displayName": "Easy green",
-        "tonalRamp": ["#ebfbee", "#d3f9d8", "#b2f2bb", "#8ce99a", "#69db7c", "#51cf66", "#40c057", "#2f9e44"]
+        "tonalRamp": [
+          "#ebfbee",
+          "#d3f9d8",
+          "#b2f2bb",
+          "#8ce99a",
+          "#69db7c",
+          "#51cf66",
+          "#40c057",
+          "#2f9e44"
+        ]
       },
       "medium-yellow": {
         "role": "semantic",
         "displayName": "Medium yellow",
-        "tonalRamp": ["#fff9db", "#fff3bf", "#ffec99", "#ffe066", "#ffd43b", "#fcc419", "#fab005", "#f59f00"]
+        "tonalRamp": [
+          "#fff9db",
+          "#fff3bf",
+          "#ffec99",
+          "#ffe066",
+          "#ffd43b",
+          "#fcc419",
+          "#fab005",
+          "#f59f00"
+        ]
       },
       "hard-red": {
         "role": "semantic",
         "displayName": "Hard red",
-        "tonalRamp": ["#fff5f5", "#ffe3e3", "#ffc9c9", "#ffa8a8", "#ff8787", "#ff6b6b", "#fa5252", "#e03131"]
+        "tonalRamp": [
+          "#fff5f5",
+          "#ffe3e3",
+          "#ffc9c9",
+          "#ffa8a8",
+          "#ff8787",
+          "#ff6b6b",
+          "#fa5252",
+          "#e03131"
+        ]
       },
       "surface-light": {
         "role": "neutral",
         "displayName": "Surface light",
-        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#868e96", "#adb5bd", "#dee2e6", "#f8f9fa", "#ffffff"]
+        "tonalRamp": [
+          "#242424",
+          "#424242",
+          "#6b6b6b",
+          "#868e96",
+          "#adb5bd",
+          "#dee2e6",
+          "#f8f9fa",
+          "#ffffff"
+        ]
       },
       "surface-subtle": {
         "role": "neutral",
         "displayName": "Surface subtle",
-        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#868e96", "#adb5bd", "#dee2e6", "#f1f3f5", "#f8f9fa"]
+        "tonalRamp": [
+          "#242424",
+          "#424242",
+          "#6b6b6b",
+          "#868e96",
+          "#adb5bd",
+          "#dee2e6",
+          "#f1f3f5",
+          "#f8f9fa"
+        ]
       },
       "surface-dark": {
         "role": "neutral",
         "displayName": "Surface dark",
-        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#a6a6a6"]
+        "tonalRamp": [
+          "#1a1b1e",
+          "#242424",
+          "#2e2e2e",
+          "#424242",
+          "#525252",
+          "#656565",
+          "#7a7a7a",
+          "#a6a6a6"
+        ]
       },
       "control-dark": {
         "role": "neutral",
         "displayName": "Control dark",
-        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#a6a6a6"]
+        "tonalRamp": [
+          "#1a1b1e",
+          "#242424",
+          "#2e2e2e",
+          "#424242",
+          "#525252",
+          "#656565",
+          "#7a7a7a",
+          "#a6a6a6"
+        ]
       },
       "border-dark": {
         "role": "neutral",
         "displayName": "Border dark",
-        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#525252", "#656565", "#7a7a7a", "#8f8f8f"]
+        "tonalRamp": [
+          "#1a1b1e",
+          "#242424",
+          "#2e2e2e",
+          "#424242",
+          "#525252",
+          "#656565",
+          "#7a7a7a",
+          "#8f8f8f"
+        ]
       },
       "text-dark-scheme": {
         "role": "neutral",
         "displayName": "Text dark scheme",
-        "tonalRamp": ["#242424", "#424242", "#5c5f66", "#7a7a7a", "#909296", "#a6a6a6", "#b8b8b8", "#c9c9c9"]
+        "tonalRamp": [
+          "#242424",
+          "#424242",
+          "#5c5f66",
+          "#7a7a7a",
+          "#909296",
+          "#a6a6a6",
+          "#b8b8b8",
+          "#c9c9c9"
+        ]
       },
       "editor-background": {
         "role": "neutral",
         "displayName": "Editor background",
-        "tonalRamp": ["#1a1b1e", "#242424", "#2e2e2e", "#424242", "#6b6b6b", "#adb5bd", "#e9ecef", "#ffffff"]
+        "tonalRamp": [
+          "#1a1b1e",
+          "#242424",
+          "#2e2e2e",
+          "#424242",
+          "#6b6b6b",
+          "#adb5bd",
+          "#e9ecef",
+          "#ffffff"
+        ]
       },
       "editor-foreground": {
         "role": "neutral",
         "displayName": "Editor foreground",
-        "tonalRamp": ["#e9ecef", "#dee2e6", "#ced4da", "#adb5bd", "#868e96", "#495057", "#343a40", "#212529"]
+        "tonalRamp": [
+          "#e9ecef",
+          "#dee2e6",
+          "#ced4da",
+          "#adb5bd",
+          "#868e96",
+          "#495057",
+          "#343a40",
+          "#212529"
+        ]
       },
       "editor-primary": {
         "role": "neutral",
         "displayName": "Editor primary",
-        "tonalRamp": ["#1a1b1e", "#212529", "#343a40", "#495057", "#6b6b6b", "#9e9e9e", "#ced4da", "#e9ecef"]
+        "tonalRamp": [
+          "#1a1b1e",
+          "#212529",
+          "#343a40",
+          "#495057",
+          "#6b6b6b",
+          "#9e9e9e",
+          "#ced4da",
+          "#e9ecef"
+        ]
       },
       "editor-border": {
         "role": "neutral",
         "displayName": "Editor border",
-        "tonalRamp": ["#242424", "#424242", "#6b6b6b", "#9e9e9e", "#ced4da", "#dee2e6", "#e9ecef", "#f1f3f5"]
+        "tonalRamp": [
+          "#242424",
+          "#424242",
+          "#6b6b6b",
+          "#9e9e9e",
+          "#ced4da",
+          "#dee2e6",
+          "#e9ecef",
+          "#f1f3f5"
+        ]
+      },
+      "paid-orange": {
+        "role": "secondary",
+        "displayName": "Paid orange",
+        "tonalRamp": [
+          "#d9480f",
+          "#e8590c",
+          "#f76707",
+          "#fd7e14",
+          "#ff922b",
+          "#ffa94d",
+          "#ffc078",
+          "#ffe8cc"
+        ]
+      },
+      "marker-red": {
+        "role": "tertiary",
+        "displayName": "Shop marker red",
+        "tonalRamp": [
+          "#c92a2a",
+          "#e03131",
+          "#f03e3e",
+          "#fa5252",
+          "#ff6b6b",
+          "#ff8787",
+          "#ffc9c9",
+          "#fff5f5"
+        ]
+      },
+      "exit-red": {
+        "role": "tertiary",
+        "displayName": "Exit marker red",
+        "tonalRamp": [
+          "#c92a2a",
+          "#e03131",
+          "#fa5252",
+          "#ff6b6b",
+          "#ff8787",
+          "#ffa8a8",
+          "#ffc9c9",
+          "#fff5f5"
+        ]
       }
     },
     "typographyMeta": {
@@ -167,11 +380,26 @@
       }
     ],
     "breakpoints": [
-      { "name": "xs", "value": "36em" },
-      { "name": "sm", "value": "48em" },
-      { "name": "md", "value": "62em" },
-      { "name": "lg", "value": "75em" },
-      { "name": "xl", "value": "88em" }
+      {
+        "name": "xs",
+        "value": "36em"
+      },
+      {
+        "name": "sm",
+        "value": "48em"
+      },
+      {
+        "name": "md",
+        "value": "62em"
+      },
+      {
+        "name": "lg",
+        "value": "75em"
+      },
+      {
+        "name": "xl",
+        "value": "88em"
+      }
     ]
   },
   "components": [
@@ -215,9 +443,9 @@
       "name": "Search-result card",
       "kind": "card",
       "refersTo": "card-result",
-      "description": "The recurring calm container: bordered white card with small radius and small shadow, used for listing objects, contents, and tours.",
-      "html": "<article class=\"ds-result-card\"><div class=\"ds-result-title\">Still Life with Fruit</div><div class=\"ds-result-meta\">Room 4 · Oil on canvas</div></article>",
-      "css": ".ds-result-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-sm,0 4px 12px rgba(0,0,0,.06));transition:box-shadow .15s ease,transform .15s ease}.ds-result-card:hover{box-shadow:var(--mantine-shadow-md,0 8px 20px rgba(0,0,0,.1))}.ds-result-title{font-size:15px;font-weight:600;color:var(--mantine-color-text,#212529)}.ds-result-meta{margin-top:4px;font-size:13px;color:var(--mantine-color-dimmed,#868e96)}"
+      "description": "The recurring calm container, implemented once as SearchResultCard (src/components/mantine/SearchResultCard.tsx): bordered card, md radius, sm shadow, 160px cover image, one-line title, two-line dimmed description, optional details below. SearchResultsGrid lays out tours, objects and contents results; variant=\"content\" adds the 2px teal outline. No hover lift.",
+      "html": "<article class=\"ds-result-card\"><div class=\"ds-result-img\" role=\"img\" aria-label=\"Cover image\"></div><div class=\"ds-result-title\">Still Life with Fruit</div><div class=\"ds-result-meta\">Room 4 · Oil on canvas</div></article>",
+      "css": ".ds-result-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-sm,0 4px 12px rgba(0,0,0,.06));overflow:hidden}.ds-result-img{height:160px;margin:-12px -12px 10px;background:var(--mantine-color-gray-2,#e9ecef)}.ds-result-title{font-size:15px;font-weight:600;color:var(--mantine-color-text,#212529)}.ds-result-meta{margin-top:4px;font-size:13px;color:var(--mantine-color-dimmed,#868e96)}"
     },
     {
       "name": "Tour card frame",
@@ -240,6 +468,46 @@
       "description": "Staff editor floating toolbar: 6px padding, xs shadow, scrollable inside a bounded height. Observed at top 4.5rem / left 0.75rem over the canvas.",
       "html": "<div class=\"ds-editor-toolbar\" role=\"toolbar\" aria-label=\"Creation tools\"><button class=\"ds-editor-tool\" aria-label=\"Add wall\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 21h18M5 21V5l7-3 7 3v16\"/></svg></button><button class=\"ds-editor-tool\" aria-label=\"Add object\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M12 5v14M5 12h14\"/></svg></button><p class=\"ds-editor-hint\">Place walls to outline the room</p></div>",
       "css": ".ds-editor-toolbar{display:flex;flex-direction:column;gap:6px;width:max-content;max-width:11rem;padding:6px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-xs,0 1px 3px rgba(0,0,0,.08));font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-editor-tool{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#212529);cursor:pointer;transition:background .15s ease}.ds-editor-tool:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-editor-tool:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:1px}.ds-editor-hint{margin:0;font-size:12px;color:var(--mantine-color-dimmed,#868e96)}"
+    },
+    {
+      "name": "Unlock button",
+      "kind": "button",
+      "refersTo": "button-unlock",
+      "description": "Acquisition action: filled paid orange with a trailing shopping-bag icon and the formatted price. Always beside the navigate action.",
+      "html": "<button class=\"ds-btn-unlock\">Unlock for € 4.00<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg></button>",
+      "css": ".ds-btn-unlock{display:inline-flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-orange-6,#fd7e14);color:#000;transition:background .15s ease}.ds-btn-unlock:hover{background:var(--mantine-color-orange-7,#f76707)}.ds-btn-unlock:focus-visible{outline:2px solid var(--mantine-color-orange-6,#fd7e14);outline-offset:2px}"
+    },
+    {
+      "name": "Locked price badge",
+      "kind": "chip",
+      "refersTo": "badge-locked",
+      "description": "Light orange pill with a lock icon and the price, next to a locked content title. Icon + label, never color alone.",
+      "html": "<span class=\"ds-badge-locked\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg>€ 2.50</span>",
+      "css": ".ds-badge-locked{display:inline-flex;align-items:center;gap:4px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.25px;height:20px;padding:0 8px;border-radius:1000px;background:var(--mantine-color-orange-light,rgba(253,126,20,.1));color:var(--mantine-color-orange-light-color,#e8590c)}"
+    },
+    {
+      "name": "Editable section",
+      "kind": "container",
+      "refersTo": "staff-row",
+      "description": "Inline editing on visitor pages: h4-sized title, subtle pencil action that becomes an X (aria-pressed) and swaps the read view for the form in place.",
+      "html": "<section class=\"ds-editable\"><header><h4>Details</h4><button class=\"ds-edit-toggle\" aria-label=\"Edit Details\" aria-pressed=\"false\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M21.17 6.81a1 1 0 0 0-3.99-3.99L3.84 16.17a2 2 0 0 0-.5.83l-1.32 4.35a.5.5 0 0 0 .62.62l4.35-1.32a2 2 0 0 0 .83-.5z\"/></svg></button></header><p>Opening hours, address and accessibility notes.</p></section>",
+      "css": ".ds-editable{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;gap:10px;max-width:420px}.ds-editable header{display:flex;justify-content:space-between;align-items:center}.ds-editable h4{margin:0;font-size:1.125rem;font-weight:700;line-height:1.45}.ds-editable p{margin:0;font-size:14px;color:var(--mantine-color-dimmed,#868e96)}.ds-edit-toggle{width:28px;height:28px;display:grid;place-items:center;border:0;border-radius:var(--mantine-radius-sm,4px);background:transparent;color:var(--mantine-color-blue-6,#228be6);cursor:pointer}.ds-edit-toggle:hover{background:var(--mantine-color-blue-light,rgba(34,139,230,.1))}.ds-edit-toggle:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}"
+    },
+    {
+      "name": "Museum services toolbar",
+      "kind": "toolbar",
+      "refersTo": "map-tool-icon",
+      "description": "Right-hand mirror of the creation toolbar: vertical bordered paper with 44px marker-colored action icons; the active filter is light + aria-pressed.",
+      "html": "<div class=\"ds-services-bar\" role=\"group\" aria-label=\"Museum services\"><button class=\"ds-svc\" style=\"--c:#228be6\" aria-label=\"Toilets\" aria-pressed=\"true\">WC</button><button class=\"ds-svc\" style=\"--c:#40c057\" aria-label=\"Food\" aria-pressed=\"false\">F</button><button class=\"ds-svc\" style=\"--c:#fd7e14\" aria-label=\"Info point\" aria-pressed=\"false\">i</button><button class=\"ds-svc\" style=\"--c:#fa5252\" aria-label=\"Shop\" aria-pressed=\"false\">S</button></div>",
+      "css": ".ds-services-bar{display:inline-flex;flex-direction:column;gap:6px;padding:6px;background:var(--mantine-color-body,#fff);border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);box-shadow:var(--mantine-shadow-xs,0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.1))}.ds-svc{width:44px;height:44px;font:700 13px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-default,#fff);color:var(--c);cursor:pointer}.ds-svc:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-svc[aria-pressed=true]{border-color:transparent;background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-svc:focus-visible{outline:2px solid var(--c);outline-offset:2px}"
+    },
+    {
+      "name": "Bottom navigation",
+      "kind": "navigation",
+      "refersTo": "tab-active",
+      "description": "Grow-distributed icon-over-label entries: green Navigator, red Marketplace, blue Account, grape My museums; light when active (aria-current), subtle otherwise.",
+      "html": "<nav class=\"ds-bottom-nav\"><a href=\"#\" style=\"--c:#2f9e44\" aria-current=\"page\">Navigator</a><a href=\"#\" style=\"--c:#e03131\">Marketplace</a><a href=\"#\" style=\"--c:#1c7ed6\">Account</a><a href=\"#\" style=\"--c:#ae3ec9\">My museums</a></nav>",
+      "css": ".ds-bottom-nav{display:flex;gap:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-bottom-nav a{flex:1;text-align:center;padding:12px 8px;font-size:12px;line-height:1;text-decoration:none;color:var(--c);border-radius:var(--mantine-radius-sm,4px)}.ds-bottom-nav a::before{content:\"\";display:block;width:20px;height:20px;margin:0 auto 4px;border:2px solid currentColor;border-radius:50%}.ds-bottom-nav a:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}.ds-bottom-nav a[aria-current=page]{background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-bottom-nav a:focus-visible{outline:2px solid var(--c);outline-offset:2px}"
     }
   ],
   "narrative": {
@@ -293,24 +561,37 @@
         "name": "The One Crystal Rule",
         "body": "The aura/shimmer treatment belongs to the assistance affordance and nowhere else. It is not background texture, not a card hover, and not a loading state.",
         "section": "components"
+      },
+      {
+        "name": "The Single Marker Table Rule",
+        "body": "Never pick a marker color locally. Add or change a marker kind in `markers.ts` so that the 2D chrome and the 3D material stay in sync.",
+        "section": "colors"
+      },
+      {
+        "name": "The Edit-In-Place Rule",
+        "body": "Editing reuses the visitor's typography, spacing and Mantine controls. Don't introduce the neutral shadcn/editor layer or a dashboard look to visitor-facing pages because a form appeared on them.",
+        "section": "components"
       }
     ],
     "dos": [
-      "Do use Mantine as the main visual foundation for visitor and staff task controls.",
-      "Do preserve an approachable feel for casual museum visitors.",
-      "Do keep the four namespaces distinct, and use semantic Mantine variables (--mantine-color-*) rather than hardcoding light surfaces.",
-      "Do confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
-      "Do keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
-      "Do preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
-      "Do improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
+      "**Do** use Mantine as the main visual foundation for visitor and staff task controls.",
+      "**Do** preserve an approachable feel for casual museum visitors.",
+      "**Do** keep the four namespaces distinct, and use semantic Mantine variables (`--mantine-color-*`) rather than hardcoding light surfaces.",
+      "**Do** confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
+      "**Do** keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
+      "**Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
+      "**Do** source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).",
+      "**Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",
+      "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel."
     ],
     "donts": [
-      "Don't treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
-      "Don't turn ordinary forms and navigation into continuously animated showcases.",
-      "Don't confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
-      "Don't promote the voice aura into a global motif, background, or loading treatment.",
-      "Don't present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
-      "Don't treat the unused shine-border/orbiting-circles primitives, or the hardcoded search copy, as settled design."
+      "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
+      "**Don't** turn ordinary forms and navigation into continuously animated showcases.",
+      "**Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
+      "**Don't** promote the voice aura into a global motif, background, or loading treatment.",
+      "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
+      "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
+      "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule)."
     ]
   }
 }

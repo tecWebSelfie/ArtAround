@@ -20,7 +20,8 @@ const meta = {
       </ModelGenerationProviders>
     ),
   ],
-  args: { onPosition: fn() },
+  // Default viewer may steer generation (super admin); see `NonOwner` for the restricted flow.
+  args: { onPosition: fn(), viewer: { id: 'user-001', isSuperAdmin: true } },
 } satisfies Meta<typeof ObjectModelGeneration>
 export default meta
 type Story = StoryObj<typeof meta>
@@ -43,7 +44,8 @@ export const NewObject: Story = {
     await expect(args.onPosition).toHaveBeenCalledWith(
       expect.objectContaining({
         id: 'catalog-object',
-        src: expect.stringMatching(/\/models\/exhibit\.glb$/),
+        // The mock placeholder model (src/mocks/model-generation.mock.ts).
+        src: expect.stringMatching(/\/models\/exitEntrance\.glb$/),
       }),
     )
   },
@@ -66,6 +68,29 @@ export const Preview: Story = {
     await waitFor(() =>
       expect(canvas.getByRole('button', { name: 'Approve and create model' })).toBeEnabled(),
     )
+  },
+}
+// Someone who doesn't own the object: generation from the object's data only,
+// no description, reference images or revision feedback.
+export const NonOwner: Story = {
+  args: { object: objectWithoutModel, viewer: { id: 'someone-else', isSuperAdmin: false } },
+  parameters: { msw: { handlers: modelGenerationHandlers() } },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByRole('button', { name: 'Generate preview' })).resolves.toBeVisible()
+    await expect(
+      canvas.queryByRole('textbox', { name: /Describe the object/ }),
+    ).not.toBeInTheDocument()
+    await expect(canvas.getByText(/Only the object's owner/)).toBeVisible()
+  },
+}
+export const NonOwnerPreview: Story = {
+  args: { object: objectWithoutModel, viewer: { id: 'someone-else', isSuperAdmin: false } },
+  parameters: { msw: { handlers: modelGenerationHandlers('preview') } },
+  play: async ({ canvas }) => {
+    await expect(
+      canvas.findByRole('button', { name: 'Approve and create model' }),
+    ).resolves.toBeVisible()
+    await expect(canvas.queryByRole('button', { name: 'Revise preview' })).not.toBeInTheDocument()
   },
 }
 export const Finalizing: Story = {

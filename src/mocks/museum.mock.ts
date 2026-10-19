@@ -1,6 +1,5 @@
 import { mockObjectsList } from '@/mocks/object.mock'
 import type { Museum, MuseumThumbnail } from '@/payload-types'
-import { Exhibit } from '@/payload-types'
 import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } from '@pascal-app/core'
 import { createRealisticMuseumMap } from './museum-map.mock'
 import { mockToursList } from './tour.mock'
@@ -64,12 +63,6 @@ export function createMuseumMap(museumId: string, options: MuseumMapOptions): Pa
   } satisfies ParsedBuildJson
 }
 
-const DEFAULT_MAP_OPTIONS: MuseumMapOptions = {
-  width: 12,
-  depth: 8,
-  partitions: [{ start: [6, 0], end: [6, 8] }],
-}
-
 function baseMuseum(): Museum {
   return {
     id: 'museum-001',
@@ -87,32 +80,30 @@ function baseMuseum(): Museum {
     },
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    tours: mockToursList,
+    // `tours` is the join over `tours.museum`.
+    tours: { docs: mockToursList, totalDocs: mockToursList.length, hasNextPage: false },
     thumbnails: [
       {
         alt: 'Facciata del museo',
         id: 'thumb-1',
         updatedAt: TIMESTAMP,
         createdAt: TIMESTAMP,
-        url: 'https://picsum.photos/200/300',
+        // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
+        // which breaks the visual-regression baselines.
+        url: 'https://picsum.photos/seed/thumb-1/200/300',
       },
     ] satisfies MuseumThumbnail[],
-    exhibits: [
-      {
-        id: 'exhibit-1',
-        objects: mockObjectsList,
-        coordinates: { x: 100, y: 200 },
-        updatedAt: TIMESTAMP,
-        createdAt: TIMESTAMP,
-      },
-    ] satisfies Exhibit[],
+    // Map-derived index of exhibited objects (see `syncMuseumObjects`).
+    objects: mockObjectsList,
   }
 }
 
 export function createMuseum(overrides?: Partial<Museum>): Museum {
   const museum = { ...baseMuseum(), ...overrides }
+  // Most fixtures exercise map-aware UI, so start from a complete scene; tests
+  // for the missing-map state pass `map: null` explicitly.
   if (overrides?.map === undefined) {
-    museum.map = createMuseumMap(museum.id, DEFAULT_MAP_OPTIONS)
+    museum.map = createRealisticMuseumMap(museum.id)
   }
   return museum
 }
@@ -177,7 +168,7 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Facciata del museo',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: 'https://picsum.photos/200/300',
+      url: 'https://picsum.photos/seed/thumb-1/200/300',
       filename: 'museum-facade.jpg',
       mimeType: 'image/jpeg',
       width: 1200,
@@ -188,51 +179,40 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Sala espositiva principale',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: 'https://picsum.photos/200/300',
+      url: 'https://picsum.photos/seed/thumb-2/200/300',
       filename: 'museum-hall.jpg',
       mimeType: 'image/jpeg',
       width: 1200,
       height: 800,
     },
   ],
-  exhibits: ['exhibit-1', 'exhibit-2'],
   objects: mockObjectsList,
+  // Payload stores museum opening times in date fields; use ISO timestamps so
+  // these reusable fixtures pass the same validation as seeded documents.
   openingHours: {
-    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
-    tuesday: [{ opening: '09:00', closing: '18:00', id: 'oh-tue-1' }],
-    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
-    thursday: [{ opening: '09:00', closing: '20:00', id: 'oh-thu-1' }],
-    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
-    saturday: [{ opening: '10:00', closing: '19:00', id: 'oh-sat-1' }],
-    sunday: [{ opening: '10:00', closing: '18:00', id: 'oh-sun-1' }],
+    monday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
+    ],
+    tuesday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-tue-1' },
+    ],
+    wednesday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
+    ],
+    thursday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T20:00:00.000Z', id: 'oh-thu-1' },
+    ],
+    friday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
+    ],
+    saturday: [
+      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T19:00:00.000Z', id: 'oh-sat-1' },
+    ],
+    sunday: [
+      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-sun-1' },
+    ],
     notes: null,
   },
-  /*   services: {
-    bathrooms: [
-      {
-        coordinates: { x: 10, y: 20 },
-        id: 'service-bath-1',
-      },
-    ],
-    food: [
-      {
-        coordinates: { x: 30, y: 40 },
-        id: 'service-food-1',
-      },
-    ],
-    shop: [
-      {
-        coordinates: { x: 50, y: 60 },
-        id: 'service-shop-1',
-      },
-    ],
-    infoPoint: [
-      {
-        coordinates: { x: 5, y: 5 },
-        id: 'service-info-1',
-      },
-    ],
-  }, */
   lfrs: {
     favouritesCount: 128,
     sharesCount: 42,
@@ -249,39 +229,37 @@ export const mockMuseumUffizi: Museum = createMuseum({
   id: 'museum-uffizi-001',
   name: 'Galleria degli Uffizi',
   shortDescription: 'Le collezioni rinascimentali più celebri al mondo.',
-  map: createMuseumMap('museum-uffizi-001', {
-    width: 24,
-    depth: 8,
-    partitions: [
-      { start: [8, 0], end: [8, 8] },
-      { start: [16, 0], end: [16, 8] },
-    ],
-  }),
+  map: createRealisticMuseumMap('museum-uffizi-001'),
 })
 
 export const mockMuseumBrera: Museum = createMuseum({
   id: 'museum-brera-001',
   name: 'Pinacoteca di Brera',
   shortDescription: 'Capolavori della pittura italiana dal Trecento al Novecento.',
-  map: createMuseumMap('museum-brera-001', {
-    width: 16,
-    depth: 14,
-    partitions: [
-      { start: [8, 0], end: [8, 14] },
-      { start: [8, 7], end: [16, 7] },
-    ],
-  }),
+  map: createRealisticMuseumMap('museum-brera-001'),
 })
 
 export const mockMuseumClosed: Museum = createMuseum({
   id: 'museum-closed-001',
   openingHours: {
-    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
-    tuesday: [{ opening: '09:00', closing: '18:00', id: 'oh-tue-1' }],
-    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
-    thursday: [{ opening: '09:00', closing: '18:00', id: 'oh-thu-1' }],
-    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
-    saturday: [{ opening: '10:00', closing: '13:00', id: 'oh-sat-1' }],
+    monday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
+    ],
+    tuesday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-tue-1' },
+    ],
+    wednesday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
+    ],
+    thursday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-thu-1' },
+    ],
+    friday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
+    ],
+    saturday: [
+      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T13:00:00.000Z', id: 'oh-sat-1' },
+    ],
     sunday: null,
     notes: 'Chiuso la domenica e nei giorni festivi.',
   },
@@ -291,42 +269,26 @@ export const mockMuseumWithServices: Museum = createMuseum({
   id: 'museum-services-001',
   accessibility: true,
   openingHours: {
-    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
+    monday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
+    ],
     tuesday: null,
-    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
+    wednesday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
+    ],
     thursday: null,
-    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
-    saturday: [{ opening: '10:00', closing: '19:00', id: 'oh-sat-1' }],
-    sunday: [{ opening: '10:00', closing: '18:00', id: 'oh-sun-1' }],
+    friday: [
+      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
+    ],
+    saturday: [
+      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T19:00:00.000Z', id: 'oh-sat-1' },
+    ],
+    sunday: [
+      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-sun-1' },
+    ],
     notes: 'Martedi e giovedi apertura solo su prenotazione per i servizi.',
   },
-  services: {
-    bathrooms: [
-      {
-        openingHours: {
-          monday: [{ opening: '09:00', closing: '18:00', id: 'bath-mon-1' }],
-          sunday: null,
-          notes: null,
-        },
-        coordinates: { x: 10, y: 20 },
-        id: 'service-bath-1',
-      },
-    ],
-    food: [
-      {
-        openingHours: {
-          monday: [{ opening: '12:00', closing: '15:00', id: 'food-mon-1' }],
-          notes: 'Bar aperto solo a pranzo.',
-        },
-        coordinates: { x: 30, y: 40 },
-        id: 'service-food-1',
-      },
-    ],
-    infoPoint: [
-      {
-        coordinates: { x: 5, y: 5 },
-        id: 'service-info-1',
-      },
-    ],
-  },
+  // Service markers now live in the saved map scene graph, so the museum page
+  // renders its badges from `map` instead of a Payload field.
+  map: createRealisticMuseumMap('museum-services-001', { unplacedService: 'shop' }),
 })

@@ -8,6 +8,7 @@ import {
   modelObjectOptions,
   uploadModelReference,
 } from '@/lib/model-generation-client'
+import { canSteerObject, type EditorViewer } from '@/lib/pascal/editor-viewer'
 import { objectAsset } from '@/lib/pascal/object-assets'
 import { zGenerateModelBody, zReviseOperationBody } from '@/lib/pascal/mint/client/zod.gen'
 import type { Object as MuseumObject } from '@/payload-types'
@@ -27,13 +28,22 @@ function errorMessage(error: unknown) {
     : String(error ?? '')
 }
 
-/** The UI observes Payload jobs; server workflows own all generation and saving. */
+/**
+ * The UI observes Payload jobs; server workflows own all generation and saving.
+ *
+ * Anyone may generate a missing model, but only the object's owner steers it
+ * (prompt, reference images, revision feedback). For everyone else the form
+ * offers a plain "generate from the object's data" action; the endpoint
+ * enforces the same rule (`src/endpoints/objectModelGeneration.ts`).
+ */
 export function ObjectModelGeneration({
   object,
   onPosition,
+  viewer,
 }: {
   object?: MuseumObject
   onPosition: (asset: AssetInput) => void
+  viewer: EditorViewer
 }) {
   const { t } = useTranslation('map-editor')
   const id = useId()
@@ -61,6 +71,8 @@ export function ObjectModelGeneration({
   )
   const assets = operation.data?.assets ?? previewTask?.operation.assets
   const previewImage = assets?.previewImageUrl ?? assets?.thumbnailUrl
+  // A brand-new object is created by (hence owned by) the viewer.
+  const canSteer = !objectId || canSteerObject(viewer, (currentObject.data ?? object)?.createdBy)
   const asset = currentObject.data
     ? objectAsset(currentObject.data)
     : object
@@ -79,6 +91,8 @@ export function ObjectModelGeneration({
     validate: {
       name: (name) => (!objectId && !name.trim() ? t('Enter an object title') : null),
       prompt: (prompt) => {
+        // Non-owners send no prompt: the server derives it from the object.
+        if (!canSteer) return null
         const parsed = zGenerateModelBody.safeParse({ prompt })
         return parsed.success ? null : parsed.error.issues[0]?.message
       },
@@ -107,9 +121,11 @@ export function ObjectModelGeneration({
         setObjectId(created.id)
         client.setQueryData(['model-object', created.id], created)
       }
-      const urls = await Promise.all(
-        references.map(({ file, requestId }) => uploadModelReference(file, requestId)),
-      )
+      const urls = canSteer
+        ? await Promise.all(
+            references.map(({ file, requestId }) => uploadModelReference(file, requestId)),
+          )
+        : []
       const guidance =
         urls.length === 1 ? { imageUrl: urls[0] } : urls.length > 1 ? { sourceImages: urls } : {}
       const queued = await command.mutateAsync({
@@ -117,7 +133,9 @@ export function ObjectModelGeneration({
         command: {
           action: 'start',
           requestId: submissionId.current,
-          generation: zGenerateModelBody.parse({ prompt: values.prompt, ...guidance }),
+          generation: canSteer
+            ? zGenerateModelBody.parse({ prompt: values.prompt, ...guidance })
+            : undefined,
         },
       })
       setJobId(String(queued.id))
@@ -208,24 +226,28 @@ export function ObjectModelGeneration({
           <p className={styles.hint}>
             {t('Review this preview before creating the final 3D model.')}
           </p>
-          <Textarea
-            id={`${id}-feedback`}
-            label={t('What would you like to change?')}
-            maxLength={2000}
-            {...form.getInputProps('feedback')}
-          />
+          {canSteer ? (
+            <Textarea
+              id={`${id}-feedback`}
+              label={t('What would you like to change?')}
+              maxLength={2000}
+              {...form.getInputProps('feedback')}
+            />
+          ) : null}
           <div className={styles.actions}>
             <Button loading={command.isPending} onClick={() => review('approve')} type="button">
               {t('Approve and create model')}
             </Button>
-            <Button
-              variant="default"
-              disabled={command.isPending || !form.values.feedback.trim()}
-              onClick={() => review('revise')}
-              type="button"
-            >
-              {t('Revise preview')}
-            </Button>
+            {canSteer ? (
+              <Button
+                variant="default"
+                disabled={command.isPending || !form.values.feedback.trim()}
+                onClick={() => review('revise')}
+                type="button"
+              >
+                {t('Revise preview')}
+              </Button>
+            ) : null}
           </div>
         </section>
       ) : null}
@@ -256,37 +278,50 @@ export function ObjectModelGeneration({
             ) : (
               <strong>{currentObject.data?.name ?? object?.name}</strong>
             )}
-            <Textarea
-              id={`${id}-prompt`}
-              label={t('Describe the object')}
-              required
-              maxLength={8000}
-              {...form.getInputProps('prompt')}
-            />
-            <Dropzone
-              aria-label={t('Reference images (optional)')}
-              accept={['image/png', 'image/jpeg', 'image/webp']}
-              maxSize={5 * 1024 * 1024}
-              maxFiles={8}
-              disabled={form.submitting}
-              onDrop={(files) => {
-                setReferences(files.map((file) => ({ file, requestId: crypto.randomUUID() })))
-                submissionId.current = crypto.randomUUID()
-              }}
-              onReject={() =>
-                form.setFieldError('prompt', t('Choose up to 8 images, each no larger than 5 MB.'))
-              }
-            >
-              <p>{t('Drop reference images here or click to choose files')}</p>
-            </Dropzone>
-            {references.length > 0 ? (
-              <ul>
-                {references.map(({ file, requestId }) => (
-                  <li key={requestId}>{file.name}</li>
-                ))}
-              </ul>
-            ) : null}
-            <p className={styles.hint}>{t('PNG, JPEG or WebP. Up to 8 images, 5 MB each.')}</p>
+            {canSteer ? (
+              <>
+                <Textarea
+                  id={`${id}-prompt`}
+                  label={t('Describe the object')}
+                  required
+                  maxLength={8000}
+                  {...form.getInputProps('prompt')}
+                />
+                <Dropzone
+                  aria-label={t('Reference images (optional)')}
+                  accept={['image/png', 'image/jpeg', 'image/webp']}
+                  maxSize={5 * 1024 * 1024}
+                  maxFiles={8}
+                  disabled={form.submitting}
+                  onDrop={(files) => {
+                    setReferences(files.map((file) => ({ file, requestId: crypto.randomUUID() })))
+                    submissionId.current = crypto.randomUUID()
+                  }}
+                  onReject={() =>
+                    form.setFieldError(
+                      'prompt',
+                      t('Choose up to 8 images, each no larger than 5 MB.'),
+                    )
+                  }
+                >
+                  <p>{t('Drop reference images here or click to choose files')}</p>
+                </Dropzone>
+                {references.length > 0 ? (
+                  <ul>
+                    {references.map(({ file, requestId }) => (
+                      <li key={requestId}>{file.name}</li>
+                    ))}
+                  </ul>
+                ) : null}
+                <p className={styles.hint}>{t('PNG, JPEG or WebP. Up to 8 images, 5 MB each.')}</p>
+              </>
+            ) : (
+              <p className={styles.hint}>
+                {t(
+                  "The model will be generated from the object's name, description and image. Only the object's owner can describe it differently.",
+                )}
+              </p>
+            )}
             <Button loading={form.submitting || command.isPending} type="submit">
               {t('Generate preview')}
             </Button>

@@ -22,3 +22,11 @@ export const modelGenerationCommand = z.discriminatedUnion('action', [
   }),
 ])
 export type ModelGenerationCommand = z.input<typeof modelGenerationCommand>
+
+/**
+ * The prompt an object's own data yields. Shared by the jobs task (default
+ * prompt) and the endpoint (non-owner generations), so "generated from the
+ * object document" means the same text everywhere.
+ */
+export const objectGenerationPrompt = (object: { name: string; description?: string | null }) =>
+  `${object.name}. ${object.description ?? ''}`.trim()

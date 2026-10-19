@@ -1,0 +1,19 @@
+.toolbar {
+  position: absolute;
+  top: 4.5rem;
+  right: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.375rem;
+  max-height: calc(100% - 10rem);
+  overflow-y: auto;
+  pointer-events: auto;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: var(--mantine-radius-md);
+  box-shadow: var(--mantine-shadow-xs);
+}
+
+.toolbar > button {
+  flex-shrink: 0;
+}

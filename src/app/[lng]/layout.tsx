@@ -23,7 +23,8 @@ export default async function RootLayout({ children, params }: LayoutProps<'/[ln
       </head>
       <body>
         <Providers>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* Top-left: the bottom-right default covered the navbar's assistant orb. */}
+          <ReactQueryDevtools initialIsOpen={false} buttonPosition="top-left" />
           {/* tanstack query provider */}
           <I18nProvider
             language={lng}

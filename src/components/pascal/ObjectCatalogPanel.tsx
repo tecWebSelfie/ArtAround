@@ -1,6 +1,7 @@
 'use client'
 
 import { objectLibraryOptions } from '@/lib/model-generation-client'
+import { useEditorViewer } from '@/lib/pascal/editor-viewer'
 import { objectAsset } from '@/lib/pascal/object-assets'
 import type { Object as MuseumObject } from '@/payload-types'
 import { Button, Pagination } from '@mantine/core'
@@ -16,6 +17,7 @@ import styles from './object-catalog.module.css'
 export function ObjectCatalogPanel() {
   const { t } = useTranslation('map-editor')
   const modals = useModals()
+  const viewer = useEditorViewer()
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebouncedValue(search, 300)
   const [page, setPage] = useState(1)
@@ -32,7 +34,10 @@ export function ObjectCatalogPanel() {
       size: 'lg',
       closeButtonProps: { 'aria-label': t('Close') },
       children: (
+        // Modals render under the app-level ModalsProvider, outside the
+        // editor's context tree, so the viewer is passed explicitly.
         <ObjectModelGeneration
+          viewer={viewer}
           object={object}
           onPosition={(asset) => {
             modals.closeModal(modalId)

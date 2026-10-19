@@ -1,5 +1,6 @@
 'use client'
 
+import type { Route } from 'next'
 import { useState } from 'react'
 
 import { Select, ComboboxItem } from '@mantine/core'
@@ -21,7 +22,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
   const switchLocale = (locale: string) => {
     const segments = pathname.split('/')
     segments[1] = locale
-    router.push(segments.join('/'))
+    router.push(segments.join('/') as Route)
   }
 
   return (

@@ -115,9 +115,15 @@ export const FloorplanImported: Story = {
   parameters: {
     msw: {
       handlers: [
+        // An absolute https URL (e.g. Payload on another origin), so the story
+        // doesn't depend on NEXT_PUBLIC_PAYLOAD_URL: Pascal rejects plain http
+        // origins other than localhost.
         http.post('*/api/museumMaps', () =>
           HttpResponse.json({
-            doc: { id: 'floorplan', url: '/api/museumMaps/file/museum-floorplan.svg' },
+            doc: {
+              id: 'floorplan',
+              url: 'https://cms.example.org/api/museumMaps/file/museum-floorplan.svg',
+            },
           }),
         ),
       ],

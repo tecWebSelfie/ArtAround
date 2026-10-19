@@ -1,30 +1,22 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { use } from 'react'
 import { expect } from 'storybook/test'
 
+import { serverComponentStory } from '@/mocks/server-component'
 import { mockTourMinimal, mockToursList } from '@/mocks/tour.mock'
 
 import { ToursSearchResults } from './ToursSearchResults'
 
-// With experimentalRSC, Storybook wraps the story in Suspense automatically.
-// This sync wrapper unwraps the async Server Component promise via React.use().
-// ToursSearchResults.tsx itself stays an async Server Component for the App Router.
-function ToursSearchResultsForStorybook({
-  tours,
-}: {
-  tours: (string | (typeof mockToursList)[number])[] | null | undefined
-}) {
-  return use(ToursSearchResults({ tours }))
-}
+// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
+const ToursSearchResultsStory = serverComponentStory(ToursSearchResults)
 
 const meta = {
   title: 'Search/Tours Results',
-  component: ToursSearchResultsForStorybook,
+  ...ToursSearchResultsStory,
   parameters: {
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof ToursSearchResultsForStorybook>
+} satisfies Meta<typeof ToursSearchResultsStory.component>
 
 type Story = StoryObj<typeof meta>
 

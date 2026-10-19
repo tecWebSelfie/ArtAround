@@ -1,7 +1,10 @@
 'use client'
 
+import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { DIFFICULTY_LABEL_KEY } from '@/components/mantine/DifficultyBadge'
+import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { filterPopulated } from '@/lib/isPopulated'
+import { formatPrice } from '@/lib/price'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Affix,
@@ -20,9 +23,24 @@ import {
   UnstyledButton,
   type ComboboxItem,
 } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
 import IsoCodes from 'iso-639-1'
-import { Check, ChevronRight, Clock, Compass, Pencil, Search } from 'lucide-react'
+import {
+  Check,
+  ChevronRight,
+  Clock,
+  Compass,
+  LogIn,
+  Pencil,
+  Replace,
+  Search,
+  ShoppingBag,
+} from 'lucide-react'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const QUICK_LANGUAGES = ['en', 'it', 'fr', 'es', 'de'].filter((code) => IsoCodes.validate(code))
 const MORE_LANGUAGES_VALUE = '__more-languages__'
@@ -61,14 +79,56 @@ const DIFFICULTY_OPTIONS: ComboboxItem[] = (Object.keys(DIFFICULTY_LABEL_KEY) as
   (value) => ({ value, label: DIFFICULTY_LABEL_KEY[value] }),
 )
 
-export default function TourPage({ tour }: { tour: Tour }) {
+type TourPageProps = {
+  tour: Tour
+  /** Sum (euro cents) of the contents the visitor cannot read yet; 0 = nothing to buy. */
+  price: number
+  lockedContentIds: string[]
+  isSignedIn: boolean
+  /** Payload's verdict on `tours.update` for this visitor (author or super admin). */
+  canEdit: boolean
+  /** `tours.delete`: the author, or the director of the tour's museum. */
+  canDelete?: boolean
+}
+
+/**
+ * Tour details: the ordered contents, per-content reading preferences, and
+ * the two exits of the page — start navigating right away, or deal with the
+ * locked contents (buy them all, or swap them for others in the tour editor).
+ */
+export default function TourPage({
+  tour,
+  price,
+  lockedContentIds,
+  isSignedIn,
+  canEdit,
+  canDelete = false,
+}: TourPageProps) {
+  const { t } = useTranslation('tour-page')
+  const { lng } = useParams<{ lng: string }>()
+  const [purchaseOpen, setPurchaseOpen] = useState(false)
   const contents = filterPopulated(tour.contents)
+  const locked = new Set(lockedContentIds)
+  // Authors edit their tour; anyone else customizes a copy of it.
+  const editHref = (
+    canEdit ? `/${lng}/tour/${tour.id}/edit` : `/${lng}/tour/new?from=${tour.id}`
+  ) as Route
 
   return (
     <Stack justify="space-between" className="my-5">
       <Title order={2} size="h2" className="text-center">
         {tour.title}
       </Title>
+      {canDelete && (
+        <Group justify="center">
+          <DeleteDocumentButton
+            collection="tours"
+            id={tour.id}
+            name={tour.title}
+            redirectTo={`/${lng}/navigator` as Route}
+          />
+        </Group>
+      )}
       <Timeline>
         {contents.map((content) => (
           // TimelineItem must stay a direct child of Timeline: Timeline
@@ -76,16 +136,36 @@ export default function TourPage({ tour }: { tour: Tour }) {
           // injects __align/__active into direct children only. Wrapping it
           // in another component silently disables the side-by-side layout.
           <TimelineItem key={content.id} opposite={<ContentOptions content={content} />}>
-            <ContentCard content={content} />
+            <ContentCard content={content} locked={locked.has(content.id)} />
           </TimelineItem>
         ))}
       </Timeline>
       <Affix className="w-full">
         <Group justify="center" className="w-11/12">
-          <Button color="orange" autoContrast rightSection={<Pencil size={12} />}>
-            Customize tour
-          </Button>
+          {price > 0 ? (
+            <Button
+              color="orange"
+              autoContrast
+              rightSection={<ShoppingBag size={12} />}
+              onClick={() => setPurchaseOpen(true)}
+            >
+              {t('Unlock for {{price}}', { price: formatPrice(price, lng) })}
+            </Button>
+          ) : (
+            <Button
+              component={Link}
+              href={editHref}
+              color="orange"
+              autoContrast
+              rightSection={<Pencil size={12} />}
+            >
+              {canEdit ? t('Edit tour') : t('Customize tour')}
+            </Button>
+          )}
+          {/* Always available: locked contents simply stay locked while navigating. */}
           <Button
+            component={Link}
+            href={`/${lng}/tour/${tour.id}/navigation` as Route}
             color="blue.8"
             autoContrast
             rightSection={
@@ -95,30 +175,106 @@ export default function TourPage({ tour }: { tour: Tour }) {
               </Group>
             }
           >
-            Start tour
+            {t('Start tour')}
           </Button>
         </Group>
       </Affix>
+      <PurchaseModal
+        opened={purchaseOpen}
+        onClose={() => setPurchaseOpen(false)}
+        price={formatPrice(price, lng)}
+        lockedCount={locked.size}
+        isSignedIn={isSignedIn}
+        editHref={editHref}
+        loginHref={`/${lng}/login?next=/${lng}/tour/${tour.id}` as Route}
+      />
     </Stack>
   )
 }
 
-function ContentCard({ content }: { content: Content }) {
+/**
+ * Buying a tour buys every locked content in it. The second option keeps the
+ * tour free by sending the visitor to the tour editor to replace the locked
+ * contents. Anonymous visitors can't buy, so they are offered sign-in instead.
+ */
+function PurchaseModal({
+  opened,
+  onClose,
+  price,
+  lockedCount,
+  isSignedIn,
+  editHref,
+  loginHref,
+}: {
+  opened: boolean
+  onClose: () => void
+  price: string
+  lockedCount: number
+  isSignedIn: boolean
+  editHref: Route
+  loginHref: Route
+}) {
+  const { t } = useTranslation('tour-page')
+  return (
+    <Modal opened={opened} onClose={onClose} title={t('Unlock this tour')} centered>
+      <Stack gap="md">
+        <Text size="sm">
+          {t('{{count}} contents in this tour are paid. Buying the tour unlocks all of them.', {
+            count: lockedCount,
+          })}
+        </Text>
+        {isSignedIn ? (
+          <Button
+            fullWidth
+            leftSection={<ShoppingBag size={16} />}
+            onClick={() => {
+              // Payments are a separate workstream (see src/access/entitlements.ts).
+              notifications.show({ message: t('Purchases are not available yet.') })
+            }}
+          >
+            {t('Buy all for {{price}}', { price })}
+          </Button>
+        ) : (
+          <Button fullWidth component={Link} href={loginHref} leftSection={<LogIn size={16} />}>
+            {t('Sign in to buy')}
+          </Button>
+        )}
+        <Button
+          fullWidth
+          variant="default"
+          component={Link}
+          href={isSignedIn ? editHref : loginHref}
+          leftSection={<Replace size={16} />}
+        >
+          {t('Replace the paid contents')}
+        </Button>
+      </Stack>
+    </Modal>
+  )
+}
+
+function ContentCard({ content, locked }: { content: Content; locked: boolean }) {
+  const { t } = useTranslation('tour-page')
+  const { lng } = useParams<{ lng: string }>()
   return (
     <Card shadow="sm" padding="md" radius="md" withBorder>
       <Stack gap="sm">
-        <Title order={3} size="h5" lineClamp={2}>
-          {content.title}
-        </Title>
+        <Group gap="xs" wrap="nowrap" justify="space-between">
+          <Title order={3} size="h5" lineClamp={2}>
+            {content.title}
+          </Title>
+          {/* Shared with navigation search and nearby suggestions. */}
+          {locked && <LockedPriceBadge price={content.price ?? 0} />}
+        </Group>
         <Group justify="end">
-          {/* TODO: navigate to the content page */}
           <Button
+            component={Link}
+            href={`/${lng}/content/${content.id}` as Route}
             size="compact-sm"
             variant="default"
-            onClick={() => {}}
-            aria-label={`See more about ${content.title}`}
+            aria-label={t('See more about {{title}}', { title: content.title })}
           >
-            See more
+            {t('See more')}
           </Button>
         </Group>
       </Stack>

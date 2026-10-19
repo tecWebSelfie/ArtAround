@@ -1,5 +1,5 @@
 import IsoCodes from 'iso-639-1'
-import type { Payload, TypedLocale } from 'payload'
+import type { Payload, TypedLocale, TypedUser } from 'payload'
 import type { Config } from '@/payload-types'
 
 /** Every collection slug in the generated config (incl. `translator-provenance`). */
@@ -27,11 +27,7 @@ export function normalizeLocale(raw: string | null): TypedLocale | null {
  * zero-config page loads reflecting the browser default.
  */
 export function headerLocale(headers: Headers): TypedLocale | null {
-  const first = headers
-    .get('accept-language')
-    ?.split(',')[0]
-    ?.split(';')[0]
-    ?.trim()
+  const first = headers.get('accept-language')?.split(',')[0]?.split(';')[0]?.trim()
   return normalizeLocale(first || null)
 }
 
@@ -85,8 +81,24 @@ async function isStale(
 export async function resolveLocalized<TSlug extends LocalizedSlug>(
   payload: Payload,
   origin: string,
-  { collection, id, locale }: { collection: TSlug; id: string | number; locale: TypedLocale },
+  {
+    collection,
+    id,
+    locale,
+    user = null,
+  }: {
+    collection: TSlug
+    id: string | number
+    locale: TypedLocale
+    /**
+     * The visitor the document is read for. Document reads always apply
+     * access control (`overrideAccess: false`), so field rules such as the
+     * paid-content body hold here too; `null` reads as an anonymous visitor.
+     */
+    user?: TypedUser | null
+  },
 ): Promise<LocalizedState<TSlug>> {
+  const viewer = { user, overrideAccess: false } as const
   const receipts = await payload.find({
     collection: PROVENANCE_COLLECTION,
     where: {
@@ -101,18 +113,19 @@ export async function resolveLocalized<TSlug extends LocalizedSlug>(
   })
 
   const fallbackDoc = (await payload
-    .findByID({ collection, id, locale: 'en', depth: 0 })
+    .findByID({ collection, id, locale: 'en', depth: 0, ...viewer })
     .catch(() => null)) as LocalizedDoc<TSlug> | null
   if (!fallbackDoc) return { kind: 'not-found' }
 
   if (receipts.totalDocs === 0) return { kind: 'miss', locale, doc: fallbackDoc }
 
   const localizedDoc = (await payload
-    .findByID({ collection, id, locale, fallbackLocale: false, depth: 0 })
+    .findByID({ collection, id, locale, fallbackLocale: false, depth: 0, ...viewer })
     .catch(() => null)) as LocalizedDoc<TSlug> | null
   if (!localizedDoc) return { kind: 'not-found' }
 
-  if (await isStale(origin, collection, id, locale)) return { kind: 'stale', locale, doc: localizedDoc }
+  if (await isStale(origin, collection, id, locale))
+    return { kind: 'stale', locale, doc: localizedDoc }
   return { kind: 'hit', locale, doc: localizedDoc }
 }
 

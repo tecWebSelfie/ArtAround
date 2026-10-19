@@ -1,9 +1,16 @@
+import { EditableSection } from '@/components/editing/EditableSection'
+import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataForm'
+import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
+import { lexicalToHTML } from '@/lib/richtext'
+import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
+import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
+import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
 import {
   AspectRatio,
@@ -22,39 +29,98 @@ import {
   TooltipGroup,
   Typography,
 } from '@mantine/core'
-import { convertLexicalToHTML } from '@payloadcms/richtext-lexical/html'
 import {
   Accessibility,
   Amphora,
   BadgeInfo,
+  FilePlus,
   Images,
-  Info,
-  ShoppingBag,
-  Toilet,
-  Utensils,
+  Map as MapIcon,
+  Route as Route_,
+  Users,
 } from 'lucide-react'
+import type { Route } from 'next'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
-export default async function MuseumPage({ museum }: { museum: Museum }) {
-  const { t } = await getT('museum-page')
-
-  let descriptionHTML: string | null = null
-  if (
-    museum.description &&
-    typeof museum.description === 'object' &&
-    'root' in museum.description
-  ) {
-    try {
-      descriptionHTML = convertLexicalToHTML({ data: museum.description })
-    } catch {
-      descriptionHTML = null
-    }
+/**
+ * What the visitor may do on this museum, computed server-side with `can()`
+ * (Payload's own access rules) by `page.tsx`. Absent = read-only (stories).
+ */
+export type MuseumEditing = {
+  lng: string
+  /** Director: metadata (field access on e.g. `name`). */
+  canEditDetails: boolean
+  /** Curator or director: the map (objects placement) and the staff page. */
+  canManageMap: boolean
+  /** Any signed-in visitor: tours and contents are user-generated. */
+  isSignedIn: boolean
+  /** Source-locale (`en`) values for the metadata form. */
+  source: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location'> & {
+    descriptionHTML: string
   }
+}
+
+export default async function MuseumPage({
+  museum,
+  editing,
+}: {
+  museum: Museum
+  editing?: MuseumEditing
+}) {
+  const { t } = await getT('museum-page')
+  const { t: te } = await getT('editing')
+
+  const descriptionHTML = lexicalToHTML(museum.description) || null
+  const base = editing ? `/${editing.lng}` : ''
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
+    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm" pb="xl">
       <MuseumThumbnailGallery thumbnails={museum.thumbnails} />
       <Title order={2}>{museum.name}</Title>
-      {museum.services && Object.keys(museum.services).length > 0 && (
-        <MuseumBadges services={museum.services} />
+      <MuseumBadges museum={museum} />
+      {editing && (editing.isSignedIn || editing.canManageMap) && (
+        // Complex relations get dedicated pages; metadata is edited in place (Info tab).
+        <Group gap="xs">
+          {editing.canManageMap && (
+            <LinkButton
+              href={`${base}/museum/${museum.id}/edit/mapeditor` as Route}
+              variant="light"
+              size="xs"
+              leftSection={<MapIcon size={14} />}
+            >
+              {te('Add objects to the map')}
+            </LinkButton>
+          )}
+          {editing.isSignedIn && (
+            <LinkButton
+              href={`${base}/tour/new?museum=${museum.id}` as Route}
+              variant="light"
+              size="xs"
+              leftSection={<Route_ size={14} />}
+            >
+              {te('Add tour')}
+            </LinkButton>
+          )}
+          {editing.isSignedIn && (
+            <LinkButton
+              href={`${base}/content/new` as Route}
+              variant="light"
+              size="xs"
+              leftSection={<FilePlus size={14} />}
+            >
+              {te('Add content')}
+            </LinkButton>
+          )}
+          {editing.canManageMap && (
+            <LinkButton
+              href={`${base}/museum/${museum.id}/members` as Route}
+              variant="subtle"
+              size="xs"
+              leftSection={<Users size={14} />}
+            >
+              {te('Staff')}
+            </LinkButton>
+          )}
+        </Group>
       )}
       <Text>{museum.shortDescription}</Text>
       <ArtaroundTabs
@@ -64,9 +130,8 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
             icon: <Amphora size={16} />,
             panel: (
               <Stack>
-                <ToursCarousel
-                  tours={filterPopulated<Tour>(Array.isArray(museum.tours) ? museum.tours : [])}
-                />
+                {/* `tours` is the join over `tours.museum`. */}
+                <ToursCarousel tours={filterPopulated<Tour>(museum.tours?.docs)} />
                 <ObjectsCarousel objects={museum.objects} />
               </Stack>
             ),
@@ -75,7 +140,18 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
             value: t('info'),
             icon: <BadgeInfo size={16} />,
             panel: (
-              <Stack>
+              <EditableSection
+                title={te('About this museum')}
+                canEdit={Boolean(editing?.canEditDetails)}
+                form={
+                  editing && (
+                    <MuseumMetadataForm
+                      museum={editing.source}
+                      descriptionHTML={editing.source.descriptionHTML}
+                    />
+                  )
+                }
+              >
                 <ArtaroundDataList
                   data={{
                     Description: (
@@ -90,9 +166,10 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
                       </Spoiler>
                     ),
                     Address: [museum.location.address, museum.location.city].join(', '),
+                    ...(museum.email ? { Email: museum.email } : {}),
                   }}
                 />
-              </Stack>
+              </EditableSection>
             ),
           },
         ]}
@@ -101,42 +178,28 @@ export default async function MuseumPage({ museum }: { museum: Museum }) {
   )
 }
 
-export async function MuseumBadges(props: { services: Museum['services'] }) {
-  const { services } = props
+export async function MuseumBadges(props: { museum: Museum }) {
+  const { museum } = props
+  // Services live in the saved map scene graph (Pascal `museum:service` nodes),
+  // not in a Payload field, so the page derives its badges from the map JSON.
+  const { services } = collectMuseumMarkers(mapNodes(museum.map))
+  const available = SERVICE_TYPES.filter((type) => services.some((node) => node.service === type))
 
   return (
     <Group justify="space-between">
       {/*services badges*/}
       <TooltipGroup>
         <AvatarGroup>
-          {services?.food && (
-            <Tooltip label="Food available" withArrow>
-              <Avatar color="green" radius="xl">
-                <Utensils size={16} />
-              </Avatar>
-            </Tooltip>
-          )}
-          {services?.bathrooms && (
-            <Tooltip label="Toilets available" withArrow>
-              <Avatar color="blue" radius="xl">
-                <Toilet size={16} />
-              </Avatar>
-            </Tooltip>
-          )}
-          {services?.infoPoint && (
-            <Tooltip label="Info point available" withArrow>
-              <Avatar color="orange" radius="xl">
-                <Info size={16} />
-              </Avatar>
-            </Tooltip>
-          )}
-          {services?.shop && (
-            <Tooltip label="Shop available" withArrow>
-              <Avatar color="red" radius="xl">
-                <ShoppingBag size={16} />
-              </Avatar>
-            </Tooltip>
-          )}
+          {available.map((type) => {
+            const { Icon, color, label } = SERVICE_META[type]
+            return (
+              <Tooltip key={type} label={label} withArrow>
+                <Avatar color={color} radius="xl">
+                  <Icon size={16} />
+                </Avatar>
+              </Tooltip>
+            )
+          })}
         </AvatarGroup>
         {/*Accessibility Badge */}
         <Tooltip label="Accessible" withArrow>
@@ -157,7 +220,7 @@ export async function MuseumThumbnailGallery(props: { thumbnails: Museum['thumbn
       <Image
         radius="lg"
         src={validThumb?.url}
-        fallbackSrc="https://placehold.co/600x400?text=Placeholder"
+        fallbackSrc={PLACEHOLDER_IMAGE}
         alt={validThumb?.alt ?? 'Museum thumbnail not available'}
       />
       <Overlay backgroundOpacity={0} p="sm">

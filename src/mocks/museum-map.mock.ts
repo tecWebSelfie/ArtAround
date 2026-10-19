@@ -14,6 +14,8 @@ import {
   type AnyNodeId,
   type ParsedBuildJson,
 } from '@pascal-app/core'
+import { ExitEntranceNode as MuseumExitEntranceNode } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
+import { ServiceNode, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 
 type Point = [number, number]
 
@@ -25,7 +27,10 @@ const rectangle = (x: number, z: number, width: number, depth: number): Point[] 
 ]
 
 /** Fictional 720 m² museum, open at the roof so its circulation is visible. */
-export function createRealisticMuseumMap(museumId: string): ParsedBuildJson {
+export function createRealisticMuseumMap(
+  museumId: string,
+  options: { unplacedService?: ServiceType } = {},
+): ParsedBuildJson {
   const key = museumId.replace(/[^a-zA-Z0-9_]/g, '_')
   const siteId = `site_${key}` as const
   const buildingId = `building_${key}` as const
@@ -312,5 +317,79 @@ export function createRealisticMuseumMap(museumId: string): ParsedBuildJson {
     }),
   )
 
-  return { nodes, rootNodeIds: [siteId], materials }
+  // Keep navigation and service fixtures in the same scene graph as geometry.
+  // Marker kinds are root nodes and their plugin id makes them render in Pascal.
+  const markers = [
+    ServiceNode.parse({
+      id: `service_${key}_bathrooms`,
+      name: 'Bagni accessibili',
+      position: [24, 0, 3],
+      service: 'bathrooms',
+      placed: true,
+    }),
+    ServiceNode.parse({
+      id: `service_${key}_food`,
+      name: 'Caffetteria',
+      position: [28, 0, 3],
+      service: 'food',
+      placed: true,
+      openingHours: {
+        monday: [{ opening: '09:00', closing: '17:30' }],
+        tuesday: [{ opening: '09:00', closing: '17:30' }],
+        wednesday: [{ opening: '09:00', closing: '17:30' }],
+        thursday: [{ opening: '09:00', closing: '19:00' }],
+        friday: [{ opening: '09:00', closing: '17:30' }],
+        saturday: [{ opening: '10:00', closing: '18:00' }],
+        sunday: [{ opening: '10:00', closing: '18:00' }],
+        notes: 'La cucina chiude mezz’ora prima.',
+      },
+    }),
+    ServiceNode.parse({
+      id: `service_${key}_shop`,
+      name: 'Bookshop',
+      position: [4, 0, 3],
+      service: 'shop',
+      placed: true,
+    }),
+    ServiceNode.parse({
+      id: `service_${key}_infoPoint`,
+      name: 'Biglietteria e informazioni',
+      position: [16, 0, 3],
+      service: 'infoPoint',
+      placed: true,
+    }),
+    MuseumExitEntranceNode.parse({
+      id: `exitEntrance_${key}_main`,
+      name: 'Ingresso principale',
+      position: [15, 0, 0.5],
+      direction: 'entrance',
+      placed: true,
+    }),
+    MuseumExitEntranceNode.parse({
+      id: `exitEntrance_${key}_north`,
+      name: 'Uscita di sicurezza',
+      position: [5.5, 0, 23.5],
+      direction: 'exit',
+      placed: true,
+    }),
+  ]
+  if (options.unplacedService) {
+    markers.push(
+      ServiceNode.parse({
+        id: `service_${key}_unplaced_${options.unplacedService}`,
+        name: 'Servizio da posizionare',
+        service: options.unplacedService,
+        placed: false,
+      }),
+    )
+  }
+  // Plugin marker kinds are not part of Pascal's AnyNode union.
+  for (const marker of markers) (nodes as Record<string, unknown>)[marker.id] = marker
+
+  return {
+    nodes,
+    rootNodeIds: [siteId, ...markers.map((marker) => marker.id)],
+    materials,
+    installedPlugins: ['artaround:museum-plugin'],
+  }
 }

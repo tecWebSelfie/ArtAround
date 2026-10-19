@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { use } from 'react'
 import { expect, waitFor } from 'storybook/test'
 
 import { mockContentMinimal, mockContentSecond, mockContentThird } from '@/mocks/content.mock'
@@ -22,25 +21,24 @@ import {
 } from '@/mocks/user.mock'
 
 import { UserPage } from './UserPage'
+import { serverComponentStory } from '@/mocks/server-component'
 
-// With experimentalRSC, Storybook wraps the story in Suspense automatically.
-// This sync wrapper unwraps the async Server Component promise via React.use().
-// UserPage.tsx itself stays an async Server Component for the App Router.
+// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
 // Flat User args keep one control per field in the addon panel, plus an extra
 // `curatedMuseums` control for the curator-for-specific-museums states.
 // The wrapper maps them back to the component's { user, curatedMuseums } props,
 // so UserPage.tsx itself stays a correct App Router Server Component.
 type UserPageStoryProps = User & { curatedMuseums?: (string | Museum)[] | null }
 
-function UserPageForStorybook({ curatedMuseums, ...user }: UserPageStoryProps) {
-  return use(UserPage({ user, curatedMuseums }))
-}
+const UserPageStory = serverComponentStory(
+  ({ curatedMuseums, ...user }: UserPageStoryProps) => UserPage({ user, curatedMuseums }),
+)
 
 const meta = {
   title: 'Frontend/User/UserPage',
-  component: UserPageForStorybook,
+  ...UserPageStory,
   tags: ['autodocs'],
-} satisfies Meta<typeof UserPageForStorybook>
+} satisfies Meta<typeof UserPageStory.component>
 
 export default meta
 type Story = StoryObj<typeof meta>

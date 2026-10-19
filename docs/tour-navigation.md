@@ -67,7 +67,7 @@ All navigation paths below are relative to
 | --------------------------------------- | --------------------------------------------------------------- |
 | `layout.tsx`, `TourNavigationShell.tsx` | Persistent map and shared server data                           |
 | `data.ts`                               | Cached tour read; museum/map catalog summaries                  |
-| `[stepId]/TourNavigation.tsx`           | Mantine controls, URL state, Spotlight and destination          |
+| `[stepId]/TourNavigation.tsx`           | Composes map, controls, directions navbar, guidance and orb     |
 | `[stepId]/MuseumMap.tsx`                | Museum item clicks, avatar, destination and saved-navmesh route |
 | `NavigationObjectActions.tsx`           | Related content, explicit position/destination actions          |
 | `[stepId]/@modal/open/StepModal.tsx`    | Next/complete action, retaining `at` and clearing `to`          |
@@ -120,13 +120,66 @@ check with `isOffMeshConnectionConnected`; a visual elevator alone is insufficie
 The `RouteBetweenObjects` story uses `src/mocks/tour-navigation.mock.ts`, with a real
 Navcat mesh and two catalog items separated by a divider, to show the detour.
 
+## Route guidance, GPS, suggestions and voice assistant
+
+Added 2026-10-19. One idea ties these together: **every visitor action is a URL
+command** (`[stepId]/navigation-commands.ts`). The Spotlight results, the
+empty-Spotlight pills, the overlay buttons and the voice assistant all run the
+same `NavigationCommand` (`router.replace` for URL state, `router.push` for modals).
+
+| Piece | Files | How it works |
+| --- | --- | --- |
+| Directions | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `[stepId]/DirectionsBar.tsx` | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown. |
+| GPS progress | `src/lib/gps.ts`, `[stepId]/gps-source.ts`, `[stepId]/use-route-guidance.ts`, `[stepId]/GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`. |
+| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `[stepId]/use-nearby-suggestions.tsx` | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`. |
+| Voice assistant | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech` | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
+| Settings | `[stepId]/GuidanceSettings.tsx` | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage. |
+
+The catalog (`data.ts`) is read **as the viewer** so each content summary carries
+`price` and a server-computed `locked`; the body never reaches the client.
+
+Configuration:
+
+- `GROQ_API_KEY`, `FISH_API_KEY` (server runtime env). Both AI routes have a
+  per-IP in-memory limit (`src/lib/rate-limit.ts`).
+- `NEXT_PUBLIC_GPS_SIMULATOR=true` **at build time** shows the "Simulated" GPS
+  mode and its D-pad. `NEXT_PUBLIC_*` values are baked into the build.
+- `postinstall` runs `scripts/copy-vad-assets.mjs`, copying the VAD worklet,
+  Silero model and onnxruntime WASM into `public/vad` (gitignored).
+- GPS and the microphone need a secure context: `localhost` or HTTPS.
+
+Production build and deploy (verified 2026-10-19: build passes; both guidance
+e2e specs pass against it):
+
+- Build with the deploy's public env set: `NEXT_PUBLIC_PAYLOAD_URL=<https url>`,
+  `NEXT_PUBLIC_GPS_SIMULATOR=true` (demo), then `pnpm build`. Don't run `next dev`
+  at the same time: both write `.next/dev/types`, which the build typechecks.
+- `output: 'standalone'`: run `node .next/standalone/server.js` after
+  `cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/`
+  (`public/` carries `public/vad`). `next start` also works locally but warns.
+- `next.config.ts` lists Payload's server packages in `serverExternalPackages`,
+  as `withPayload` does in dev; bundling them broke `payload.config.ts` while
+  collecting page data. `@pascal-app/editor` has a pnpm patch with typing fixes
+  (`patches/@pascal-app__editor.patch`) and `src/types/pascal-editor-deps.d.ts`
+  declares its untyped imports, because Next typechecks Pascal's shipped source.
+
+Stories: `DirectionsBar`, `GpsSimulator`, `NavigationSpotlight`, `Assistant/Orb`,
+and `TourNavigation` `RouteDirections` / `NearbySuggestion` / `AssistantOff`
+(the route mock has two zones, *West hall* and *East hall*). Unit tests:
+`tests/int/tour-guidance.int.spec.ts` (realistic fixture museum). Full flow on the
+real app: `tests/e2e/tour-guidance.e2e.spec.ts` (simulated GPS → step → suggestion)
+and `tests/e2e/voice-assistant.e2e.spec.ts` (a WAV as the microphone → command);
+see `tests/e2e/README.tour-navigation.md`. Storybook's map stories need a GPU and
+are tagged `!test`; Storybook proxies `/api/assistant` and `/api/speech` to a local
+`pnpm dev` so the orb can be tried there too.
+
 ## Local fixture and focused checks
 
 See [test instructions](../tests/e2e/README.tour-navigation.md) for commands.
 `scripts/seed-tour-navigation.ts` creates/reuses `[DEV] Tour navigation` records:
 two ordered contents, one side content, three placed objects, a room and saved
 navmesh. It suppresses Mint generation and does not change unrelated museums.
-It writes IDs and the URL to ignored `test-results/tour-navigation-fixture.json`.
+It writes IDs and the URL to ignored `.e2e-fixtures/tour-navigation-fixture.json`.
 Read that manifest instead of hardcoding IDs in tests or assuming every DB has it.
 
 The current fixture uses an absolute localhost GLTF URL: Pascal resolves relative

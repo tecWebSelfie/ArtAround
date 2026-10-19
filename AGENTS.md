@@ -6,6 +6,13 @@ Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.a
 This project uses the Pascal plugin-authoring skill at `.agents/skills/pascal-plugin-authoring/`
 for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-map work.
 
+`.agents/skills/` is the source of truth for skills. Claude Code only reads
+`.claude/skills/`, and symlinks don't materialize on this Windows checkout
+(`core.symlinks=false`), so `payload`, `pascal-plugin-authoring`, `shadcn`,
+`i18next-localization`, `vercel-react-best-practices` and
+`web-design-guidelines` are **copied** there (`impeccable` has its own copy).
+After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/`.
+
 ## Museum editor and tour navigation
 
 Use these guides as starting points for implementation and debugging:
@@ -14,6 +21,8 @@ Use these guides as starting points for implementation and debugging:
   avatar positioning, Pascal controls, local fixture, and verification status.
 - [Interactive object models](docs/interactive-object-models.md): editor catalog,
   Mint preview/approval, and Payload jobs integration.
+- [Permissions and editing](docs/permissions-and-editing.md): per-museum roles,
+  access rules, paid contents, viewer-scoped reads, and the frontend editing plan.
 
 Improve and simplify these implementations as needed; the guides describe the
 current design and should evolve with the code. Reuse Pascal APIs, Mantine,
@@ -24,6 +33,18 @@ For fast iteration, run focused checks for the affected behavior rather than the
 entire test suite. Run memory-heavy checks sequentially and state which checks
 passed and which remain open. Build on existing worktree changes, preserving
 unrelated edits.
+
+Visual regression tests (`pnpm test:visual`, `pnpm test:visual:update`) screenshot
+every Storybook story through the Vitest browser project and take several minutes
+(~8 min for the full suite). **Never run them without the user's explicit approval
+for that specific run**; propose the command and wait. Setup and opt-out
+(`parameters.visual.disable`) are documented in `.storybook/vitest.visual.ts`;
+references live in `__screenshots__/`, diffs in `.vitest-attachments/`.
+
+Stories of async Server Components spread `serverComponentStory(Component)`
+(`src/mocks/server-component.tsx`) into their meta instead of calling
+`use(Component(props))`: it resolves the component and any nested async ones in
+a loader, which Storybook's `experimentalRSC` (only a Suspense wrapper) doesn't do.
 
 Document every source edit with comments that make its intent understandable in
 the wider feature flow. For a new or materially changed nontrivial file, briefly

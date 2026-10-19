@@ -124,6 +124,7 @@ export function AgentTrackToggle({
   defaultPressed = false,
   className,
   onPressedChange,
+  value,
   ...props
 }: AgentTrackToggleProps) {
   const [uncontrolledPressed, setUncontrolledPressed] = useState(defaultPressed ?? false);
@@ -156,6 +157,8 @@ export function AgentTrackToggle({
         }),
       )}
       {...props}
+      // Base UI's Toggle takes a string value; HTML buttons also allow numbers.
+      value={value === undefined ? undefined : String(value)}
     >
       <IconComponent className={cn(pending && 'animate-spin')} />
       {props.children}

@@ -1,5 +1,6 @@
 'use client'
 
+import type { Route } from 'next'
 import { Group, Pagination, Stack } from '@mantine/core'
 import {
   CompositeFiltersInput,
@@ -51,7 +52,7 @@ export function SearchShell({
     const handle = setTimeout(() => {
       const qs = toQueryString()
       // Changing filters resets to the first page.
-      router.replace(qs ? `${basePath}?${qs}` : basePath, { scroll: false })
+      router.replace((qs ? `${basePath}?${qs}` : basePath) as Route, { scroll: false })
     }, 400)
     return () => clearTimeout(handle)
   }, [activeFilters, basePath, router, toQueryString])
@@ -59,7 +60,7 @@ export function SearchShell({
   const goToPage = (nextPage: number) => {
     const params = new URLSearchParams(toQueryString())
     params.set('page', String(nextPage))
-    router.replace(`${basePath}?${params.toString()}`, { scroll: false })
+    router.replace(`${basePath}?${params.toString()}` as Route, { scroll: false })
   }
 
   return (

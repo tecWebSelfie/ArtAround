@@ -1,3 +1,4 @@
+import type { Route } from 'next'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
@@ -18,6 +19,7 @@ import { ChevronRight } from 'lucide-react'
 import { ComponentProps } from 'react'
 
 import Link from 'next/link'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 export const ObjectsCarousel = async ({
   objects,
@@ -86,7 +88,7 @@ const CarouselCard = async ({
       <AspectRatio ratio={1 / 1}>
         <BackgroundImage
           className="rounded-xl"
-          src={thumbnail?.url ?? 'https://placehold.co/600x400?text=Placeholder'}
+          src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
         >
           <Stack justify="space-between" className="h-full" p="sm">
             <Title order={2} size="h6">
@@ -97,7 +99,7 @@ const CarouselCard = async ({
                 <BorderAnimate variant="glow">
                   <Button
                     component={Link}
-                    href={`/${lng}/object/${object.id}`}
+                    href={`/${lng}/object/${object.id}` as Route}
                     size="compact-sm"
                     variant="outline"
                     className="bg-white"

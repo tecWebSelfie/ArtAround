@@ -4,6 +4,9 @@ import { http, HttpResponse } from 'msw'
 import { createObject } from './object.mock'
 
 const timestamp = '2026-10-17T10:00:00.000Z'
+// Placeholder GLB for the mocked Mint model assets: any public asset works, and
+// this is the small plate mesh the museum map plugin already ships.
+const PLACEHOLDER_MODEL = '/models/exitEntrance.glb'
 const illustration =
   'data:image/svg+xml,' +
   encodeURIComponent(
@@ -11,7 +14,7 @@ const illustration =
   )
 const modelAssets: ModelAssets = {
   fbxUrl: null,
-  glbUrl: '/models/exhibit.glb',
+  glbUrl: PLACEHOLDER_MODEL,
   glbSizeBytes: null,
   objUrl: null,
   optimizedGlbUrl: null,
@@ -45,7 +48,7 @@ export const objectWithModel = createObject({
   model: {
     id: 'saved-model',
     userGenerated: false,
-    url: '/models/exhibit.glb',
+    url: PLACEHOLDER_MODEL,
     thumbnail: {
       id: 'preview-thumbnail',
       alt: 'Amphora model',

@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { use } from 'react'
 import { expect } from 'storybook/test'
 
 import {
@@ -13,22 +12,21 @@ import {
 import type { Museum } from '@/payload-types'
 
 import MuseumPage from './MuseumPage'
+import { serverComponentStory } from '@/mocks/server-component'
 
-// With experimentalRSC, Storybook wraps the story in Suspense automatically.
-// This sync wrapper unwraps the async Server Component promise via React.use().
-// MuseumPage.tsx itself stays an async Server Component for the App Router.
+// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
 // Flat Museum args keep one control per field in the addon panel.
 // The wrapper maps them back to the component's { museum } props,
 // so MuseumPage.tsx itself stays a correct App Router Server Component.
-function MuseumPageForStorybook(props: Museum) {
-  return use(MuseumPage({ museum: props }))
-}
+const MuseumPageStory = serverComponentStory((props: Museum) =>
+  MuseumPage({ museum: props }),
+)
 
 const meta = {
   title: 'Frontend/Museum/MuseumPage',
-  component: MuseumPageForStorybook,
+  ...MuseumPageStory,
   tags: ['autodocs'],
-} satisfies Meta<typeof MuseumPageForStorybook>
+} satisfies Meta<typeof MuseumPageStory.component>
 
 export default meta
 type Story = StoryObj<typeof meta>

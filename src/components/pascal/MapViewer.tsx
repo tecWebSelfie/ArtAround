@@ -4,6 +4,7 @@ import { Box, BoxProps } from '@mantine/core'
 import {
   AnyNode,
   loadPlugin,
+  materializeRegisteredNodeDefaults,
   sceneRegistry,
   useScene,
   type AnyNodeId,
@@ -65,9 +66,13 @@ export function MapViewer({
       .then(() => {
         if (cancelled) return
         const nodes: Record<AnyNodeId, AnyNode> = {}
-        for (const value of Object.values(map.nodes)) {
-          const node = AnyNode.parse(value)
-          nodes[node.id] = node
+        // Plugin-registered kinds (e.g. museum service markers) are not members
+        // of the `AnyNode` union, so `AnyNode.parse` rejects them. Materialize
+        // their registered defaults first, then keep `AnyNode.parse` for the
+        // built-in kinds and fall back to the stored node for plugin kinds.
+        for (const [id, value] of Object.entries(materializeRegisteredNodeDefaults(map.nodes))) {
+          const node = AnyNode.safeParse(value)
+          nodes[id as AnyNodeId] = (node.success ? node.data : value) as AnyNode
         }
         setScene(nodes, map.rootNodeIds as AnyNodeId[], {
           collections: map.collections,

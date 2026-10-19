@@ -1,0 +1,10 @@
+/* Dashed outline flags authored services that still need a map position. */
+.unplaced {
+  border-color: var(--mantine-color-yellow-6);
+  border-style: dashed;
+}
+
+.rows {
+  max-height: 60vh;
+  overflow-y: auto;
+}

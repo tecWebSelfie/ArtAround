@@ -1,6 +1,6 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
-import type { Content, ContentImage, User } from '@/payload-types'
+import type { Content, ContentImage } from '@/payload-types'
 import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
 import {
   ActionIcon,
@@ -18,13 +18,14 @@ import { ChevronRight, Clock } from 'lucide-react'
 import { ComponentProps } from 'react'
 
 import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 export { DIFFICULTY_LABEL_KEY, DIFFICULTY_META } from './DifficultyBadge'
 
 export const ContentsCarousel = async ({
   contents,
   ...props
-}: CarouselProps & { contents: User['authoredContents'] }) => {
+}: CarouselProps & { contents: (string | Content)[] | null | undefined }) => {
   const { t } = await getT('contents-carousel')
   const validContents = filterPopulated<Content>(contents)
 
@@ -99,7 +100,7 @@ const ContentsCarouselCard = async ({
           src={
             isPopulated(thumbnail) && thumbnail.url
               ? thumbnail.url
-              : 'https://placehold.co/600x400?text=Placeholder'
+              : PLACEHOLDER_IMAGE
           }
         >
           <Stack justify="space-between" className="h-full" p="sm">

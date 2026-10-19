@@ -9,6 +9,7 @@ import { JSDOM } from 'jsdom'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { getPayload } from 'payload'
 import { mockMuseumFull } from './mocks/museum.mock'
+import { createRealisticMuseumMap } from './mocks/museum-map.mock'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -273,7 +274,6 @@ try {
           description: 'Development MCP key (find+create on mcp-enabled collections)',
           museums: { find: true, create: true, update: false, delete: false },
           objects: { find: true, create: true, update: false, delete: false },
-          exhibits: { find: true, create: true, update: false, delete: false },
           contents: { find: true, create: true, update: false, delete: false },
           enableAPIKey: true,
           apiKey: rawMcpKey,
@@ -291,8 +291,22 @@ try {
   // with all of those empty are skipped, hence the fields below.
   // All lookups are by natural key (name/email) so re-seeds are idempotent.
   console.log('Seeding demo museums...')
+  // Give every seeded museum a complete editable scene, including services and
+  // entrances/exits, so each record exercises the current map feature set.
+  // Story fixtures use synthetic ids for related records; omit those relations
+  // when persisting the full museum so MongoDB can create real Payload records.
+  const {
+    id: _mockId,
+    createdAt: _mockCreatedAt,
+    updatedAt: _mockUpdatedAt,
+    thumbnails: _mockThumbnails,
+    tours: _mockTours,
+    staff: _mockStaff,
+    objects: _mockObjects,
+    ...fullMuseumSeed
+  } = mockMuseumFull
   const demoMuseums = [
-    mockMuseumFull,
+    fullMuseumSeed,
     {
       name: 'Galleria Borghese',
       shortDescription: 'Baroque masterpieces in a Roman villa',
@@ -303,6 +317,7 @@ try {
         latlng: [12.4922, 41.9142] as [number, number],
       },
       accessibility: true,
+      map: createRealisticMuseumMap('seed-galleria-borghese'),
       ticketInfo: {
         label: 'Standard ticket',
         url: 'https://www.galleriaborghese.beniculturali.it/en/tickets',
@@ -318,6 +333,7 @@ try {
         latlng: [9.1917, 45.4636] as [number, number],
       },
       accessibility: true,
+      map: createRealisticMuseumMap('seed-palazzo-reale-milano'),
       ticketInfo: {
         label: 'Standard ticket',
       },
@@ -332,6 +348,7 @@ try {
         latlng: [11.476, 43.7679] as [number, number],
       },
       accessibility: true,
+      map: createRealisticMuseumMap('seed-museo-galileo'),
       ticketInfo: {
         label: 'Standard ticket',
       },
@@ -346,6 +363,7 @@ try {
         latlng: [14.1245, 40.8533] as [number, number],
       },
       accessibility: true,
+      map: createRealisticMuseumMap('seed-museo-archeologico-napoli'),
       ticketInfo: {
         label: 'Standard ticket',
       },
@@ -360,6 +378,7 @@ try {
         latlng: [12.3358, 45.4346] as [number, number],
       },
       accessibility: true,
+      map: createRealisticMuseumMap('seed-palazzo-ducale-venezia'),
       ticketInfo: {
         label: 'Standard ticket',
       },
@@ -454,6 +473,134 @@ try {
     }
     await payload.create({ collection: 'users', data: user })
     console.log(`User "${user.email}" created`)
+  }
+
+  // Persist the tour mock scenarios as connected Payload records. Story mocks
+  // use placeholder IDs, so create their contents and objects before tours.
+  console.log('Seeding demo tour content and objects...')
+  const demoMuseum = await payload.find({
+    collection: 'museums',
+    where: { name: { equals: 'Museo Civico di Esempio' } },
+    limit: 1,
+    depth: 0,
+  })
+  const demoMuseumId = demoMuseum.docs[0]?.id
+  if (!demoMuseumId || !superAdminId) {
+    throw new Error('The demo museum and super admin are required to seed tours')
+  }
+
+  const tourStops = [
+    {
+      objectName: 'Anfora a figure rosse',
+      objectDescription: 'Anfora attica con scena di banchetto, databile al V secolo a.C.',
+      contentTitle: '[DEV] Storia della ceramica attica',
+      contentBody: 'Introduzione alla ceramica attica a figure rosse e alle sue tecniche.',
+      difficulty: 'easy' as const,
+      copyright: '© Museo Civico di Esempio',
+    },
+    {
+      objectName: 'Statua in marmo di atleta',
+      objectDescription: 'Statua in marmo pario raffigurante un atleta in movimento.',
+      contentTitle: '[DEV] Il restauro del bronzo',
+      contentBody: 'Come si restaura una statua: pulitura, consolidamento e integrazione.',
+      difficulty: 'medium' as const,
+      copyright: '© Museo Civico di Esempio',
+    },
+    {
+      objectName: 'Mosaico pavimentale',
+      objectDescription: 'Frammento di mosaico romano con motivi geometrici.',
+      contentTitle: '[DEV] Leggere un dipinto rinascimentale',
+      contentBody: 'Iconografia, prospettiva e committenza nella pittura del Rinascimento.',
+      difficulty: 'hard' as const,
+      copyright: '© Museo Civico di Esempio',
+    },
+  ]
+  const seededStops: { objectId: string; contentId: string }[] = []
+  for (const stop of tourStops) {
+    const foundContent = await payload.find({
+      collection: 'contents',
+      where: { title: { equals: stop.contentTitle } },
+      locale: 'en',
+      limit: 1,
+      depth: 0,
+    })
+    const content =
+      foundContent.docs[0] ??
+      (await payload.create({
+        collection: 'contents',
+        locale: 'en',
+        data: {
+          title: stop.contentTitle,
+          body: htmlToRichText(`<p>${stop.contentBody}</p>`),
+          copyright: stop.copyright,
+          difficulty: stop.difficulty,
+          objects: {},
+          author: superAdminId,
+        },
+      }))
+
+    const foundObject = await payload.find({
+      collection: 'objects',
+      where: { name: { equals: stop.objectName } },
+      locale: 'en',
+      limit: 1,
+      depth: 0,
+    })
+    const object =
+      foundObject.docs[0] ??
+      (await payload.create({
+        collection: 'objects',
+        locale: 'en',
+        context: { skipMintModelGeneration: true },
+        data: {
+          name: stop.objectName,
+          description: stop.objectDescription,
+          contents: [content.id],
+        },
+      }))
+    seededStops.push({ objectId: String(object.id), contentId: String(content.id) })
+  }
+
+  // Objects join a museum only by being placed on its map (museums.objects is
+  // derived from the saved scene), so the seeded stops stay catalog-only until
+  // staff position them in the map editor.
+
+  console.log('Seeding demo tours...')
+  const tourSeeds = [
+    {
+      title: '[DEV] Capolavori del museo civico',
+      description: 'Un percorso tra tre opere e le loro storie.',
+      contents: seededStops.map(({ contentId }) => contentId),
+    },
+    {
+      title: '[DEV] Il restauro del bronzo',
+      description: 'Una visita breve dedicata alle tecniche di restauro.',
+      contents: [seededStops[1]!.contentId],
+    },
+    {
+      title: '[DEV] Mosaici e geometrie antiche',
+      description: 'Motivi geometrici e tecniche dell’arte antica.',
+      contents: [seededStops[2]!.contentId],
+    },
+  ]
+  for (const tour of tourSeeds) {
+    const found = await payload.find({
+      collection: 'tours',
+      where: { title: { equals: tour.title } },
+      limit: 1,
+      depth: 0,
+    })
+    const doc =
+      found.docs[0] ??
+      (await payload.create({
+        collection: 'tours',
+        data: {
+          ...tour,
+          museum: demoMuseumId,
+          author: superAdminId,
+        },
+      }))
+    console.log(`Tour "${tour.title}" ready (${doc.id})`)
   }
 
   console.log('Database seeded successfully. Closing connection...')

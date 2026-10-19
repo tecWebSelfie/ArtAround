@@ -3,6 +3,8 @@ import { QrScanner } from './Scanner'
 
 const meta = {
   title: 'Components/Scanner',
+  // A live camera feed can't be screenshotted deterministically.
+  parameters: { visual: { disable: true } },
   component: QrScanner,
   args: {
     onScan: () => {},

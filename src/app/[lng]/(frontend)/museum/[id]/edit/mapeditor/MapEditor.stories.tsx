@@ -17,6 +17,8 @@ const meta = {
     ),
   ],
   parameters: {
+    // The live WebGL editor never renders two identical frames in a row.
+    visual: { disable: true },
     msw: {
       handlers: [
         ...modelGenerationHandlers('ready'),
@@ -30,7 +32,12 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  args: { museumId: mockMuseumFull.id },
+  // Director view: all map tools. Curators get `canManageStructure: false`.
+  args: {
+    museumId: mockMuseumFull.id,
+    canManageStructure: true,
+    viewer: { id: 'user-001', isSuperAdmin: false },
+  },
   play: async ({ canvas }) => {
     const button = await canvas.findByRole(
       'button',

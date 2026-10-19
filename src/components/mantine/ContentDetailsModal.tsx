@@ -1,6 +1,7 @@
 import { Content } from '@/payload-types'
-import { Modal, ModalProps } from '@mantine/core'
+import { Alert, Modal, ModalProps } from '@mantine/core'
 import { RichText } from '@payloadcms/richtext-lexical/react'
+import { Lock } from 'lucide-react'
 
 export const ContentDetailsModal = ({
   content,
@@ -14,11 +15,28 @@ export const ContentDetailsModal = ({
   )
 }
 
-export function ContentDetailsModalContent({ content }: { content: Content }) {
+/**
+ * Content body for pages and tour modals. A paid content read by someone not
+ * entitled to it arrives without `body` (field access on `contents.body`),
+ * so the locked notice replaces the text instead of rendering nothing.
+ */
+export function ContentDetailsModalContent({
+  content,
+  lockedLabel = 'This content is paid. Unlock it to read the full text.',
+}: {
+  content: Content
+  lockedLabel?: string
+}) {
   return (
     <div>
       <h2>{content.title}</h2>
-      <RichText data={content.body} />
+      {content.body ? (
+        <RichText data={content.body} />
+      ) : (
+        <Alert color="orange" icon={<Lock size={16} />}>
+          {lockedLabel}
+        </Alert>
+      )}
     </div>
   )
 }

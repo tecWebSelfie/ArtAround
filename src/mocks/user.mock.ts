@@ -1,11 +1,18 @@
 import type { Museum, Role, User, UserMuseumMembership } from '@/payload-types'
+import type { MuseumRole } from '@/fields/MuseumFunction'
 
 import {
   MUSEUM_FUNCTION_CURATOR,
   MUSEUM_FUNCTION_DIRECTOR,
   MUSEUM_FUNCTION_NONE,
+  MUSEUM_FUNCTION_VERIFIED,
 } from '@/fields/MuseumFunction'
-import { mockContentMinimal, mockContentSecond, mockContentThird, mockContentsList } from '@/mocks/content.mock'
+import {
+  mockContentMinimal,
+  mockContentSecond,
+  mockContentThird,
+  mockContentsList,
+} from '@/mocks/content.mock'
 import { mockMuseumBrera, mockMuseumMinimal, mockMuseumUffizi } from '@/mocks/museum.mock'
 import { mockTourMinimal, mockTourSecond } from '@/mocks/tour.mock'
 
@@ -85,12 +92,12 @@ export function createUser(overrides?: Partial<User>): User {
 }
 
 // Mirrors a `user-museum-memberships` row: links a user to a museum with a
-// staff role. `user` stays an ID string (unpopulated side is enough for the
-// join-docs mapping in UserBadges), while role and museum are populated.
+// per-museum role. `user` stays an ID string (unpopulated side is enough for
+// the join-docs mapping in UserBadges), while museum is populated.
 function mockMembership(
   id: string,
   userId: string,
-  role: Role,
+  role: MuseumRole,
   museum: Museum,
 ): UserMuseumMembership {
   return {
@@ -101,6 +108,16 @@ function mockMembership(
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
   }
+}
+
+// The per-museum verified badge is a membership too (role = verified).
+function mockVerifiedAt(userId: string, museum: Museum): UserMuseumMembership {
+  return mockMembership(
+    `membership-verified-${museum.id}-${userId}`,
+    userId,
+    MUSEUM_FUNCTION_VERIFIED,
+    museum,
+  )
 }
 
 export const mockUserMinimal: User = createUser()
@@ -117,7 +134,9 @@ export const mockUserFull: User = createUser({
     alt: 'Ritratto di Mario Bianchi',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    url: 'https://picsum.photos/200/300',
+    // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
+    // which breaks the visual-regression baselines.
+    url: 'https://picsum.photos/seed/avatar-001/200/300',
     filename: 'mario-bianchi.jpg',
     mimeType: 'image/jpeg',
     width: 512,
@@ -125,8 +144,10 @@ export const mockUserFull: User = createUser({
   },
   parentPath: '/user-001',
   loginAttempts: 0,
-  authoredTours: [mockTourMinimal, { ...mockTourSecond, title: 'I segreti del Colosseo' }],
-  authoredContents: [mockContentMinimal, mockContentThird],
+  authoredTours: {
+    docs: [mockTourMinimal, { ...mockTourSecond, title: 'I segreti del Colosseo' }],
+  },
+  authoredContents: { docs: [mockContentMinimal, mockContentThird] },
 })
 
 export const mockUserNoEmail: User = createUser({
@@ -144,28 +165,28 @@ export const mockUserVerifiedCreator: User = createUser({
   email: 'elena.verdi@example.com',
   roles: [mockRoleUser],
   name: mockName('Elena', 'Verdi'),
-  authoredContents: [mockContentMinimal],
-  verifieds: [mockMuseumMinimal],
+  authoredContents: { docs: [mockContentMinimal] },
+  verifiedAt: { docs: [mockVerifiedAt('user-creator-001', mockMuseumMinimal)] },
   highestStatus: 'verified',
 })
 
 // Verified by a museum through authored contents alone: no roles, not a
-// super-admin. The badge is driven by the `verifieds` relation.
+// super-admin. The badge is driven by a verified membership.
 export const mockUserAuthor: User = createUser({
   id: 'user-author-001',
   username: 'paolo.neri',
   email: 'paolo.neri@example.com',
   roles: [],
   name: mockName('Paolo', 'Neri'),
-  authoredContents: [mockContentSecond],
-  verifieds: [mockMuseumMinimal],
+  authoredContents: { docs: [mockContentSecond] },
+  verifiedAt: { docs: [mockVerifiedAt('user-author-001', mockMuseumMinimal)] },
   highestStatus: 'verified',
   avatar: {
     id: 'avatar-002',
     alt: 'Ritratto di Paolo Neri',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    url: 'https://picsum.photos/200/300',
+    url: 'https://picsum.photos/seed/avatar-002/200/300',
     filename: 'paolo-neri.jpg',
     mimeType: 'image/jpeg',
     width: 512,
@@ -185,19 +206,19 @@ export const mockUserCurator: User = createUser({
       mockMembership(
         'membership-curator-uffizi',
         'user-curator-001',
-        mockRoleCurator,
+        MUSEUM_FUNCTION_CURATOR,
         mockMuseumUffizi,
       ),
       mockMembership(
         'membership-curator-brera',
         'user-curator-001',
-        mockRoleCurator,
+        MUSEUM_FUNCTION_CURATOR,
         mockMuseumBrera,
       ),
     ],
     hasNextPage: false,
   },
-  verifieds: [mockMuseumUffizi],
+  verifiedAt: { docs: [mockVerifiedAt('user-curator-001', mockMuseumUffizi)] },
   highestStatus: 'curator',
 })
 
@@ -228,13 +249,13 @@ export const mockUserDirector: User = createUser({
       mockMembership(
         'membership-director-minimal',
         'user-director-001',
-        mockRoleDirector,
+        MUSEUM_FUNCTION_DIRECTOR,
         mockMuseumMinimal,
       ),
     ],
     hasNextPage: false,
   },
-  verifieds: [mockMuseumMinimal],
+  verifiedAt: { docs: [mockVerifiedAt('user-director-001', mockMuseumMinimal)] },
   highestStatus: 'director',
 })
 
@@ -254,7 +275,7 @@ export const mockUserUnpopulatedRefs: User = createUser({
   email: 'ghost.refs@example.com',
   roles: ['role-unknown'],
   name: mockName('Ghost', 'Refs'),
-  authoredContents: ['content-unknown'],
+  authoredContents: { docs: ['content-unknown'] },
 })
 
 // Prolific author: several authored contents in the contents tab.
@@ -264,5 +285,5 @@ export const mockUserManyContents: User = createUser({
   email: 'marco.prolifico@example.com',
   roles: [mockRoleUser],
   name: mockName('Marco', 'Prolifico'),
-  authoredContents: mockContentsList,
+  authoredContents: { docs: mockContentsList },
 })

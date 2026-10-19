@@ -9,6 +9,7 @@ import {
   Code,
   Group,
   Loader,
+  MantineProvider,
   Select,
   Stack,
   Text,
@@ -100,7 +101,17 @@ function interpretProbe({ probeJson, probeOk, probeStatus }: ProbeResult): {
   return { error: null, ok: true }
 }
 
+// This debug page sits outside the [lng] layout that provides Mantine, so it
+// brings its own provider (prerendering failed without one).
 export default function TypesenseTestPage() {
+  return (
+    <MantineProvider>
+      <TypesenseTest />
+    </MantineProvider>
+  )
+}
+
+function TypesenseTest() {
   const [health, setHealth] = useState<HealthState | null>(null)
   const [healthLoading, setHealthLoading] = useState(true)
   const [healthError, setHealthError] = useState<string | null>(null)

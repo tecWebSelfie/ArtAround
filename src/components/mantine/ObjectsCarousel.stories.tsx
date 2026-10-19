@@ -1,27 +1,23 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
-import { use } from 'react'
 import { expect } from 'storybook/test'
 
 import { mockObjectAmphora, mockObjectsList } from '@/mocks/object.mock'
 import type { Museum } from '@/payload-types'
 
 import { ObjectsCarousel } from './ObjectsCarousel'
+import { serverComponentStory } from '@/mocks/server-component'
 
-// With experimentalRSC, Storybook wraps the story in Suspense automatically.
-// This sync wrapper unwraps the async Server Component promise via React.use().
-// ObjectsCarousel.tsx itself stays an async Server Component for the App Router.
-function ObjectsCarouselForStorybook({ objects }: { objects: Museum['objects'] }) {
-  return use(ObjectsCarousel({ objects }))
-}
+// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
+const ObjectsCarouselStory = serverComponentStory(ObjectsCarousel)
 
 const meta = {
   title: 'Objects Carousel',
-  component: ObjectsCarouselForStorybook,
+  ...ObjectsCarouselStory,
   parameters: {
     layout: 'fullscreen',
   },
-} satisfies Meta<typeof ObjectsCarouselForStorybook>
+} satisfies Meta<typeof ObjectsCarouselStory.component>
 
 type Story = StoryObj<typeof meta>
 

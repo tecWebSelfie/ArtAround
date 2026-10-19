@@ -6,9 +6,13 @@ import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
 import { theme } from '../src/theme'
 import { mswLoader } from 'msw-storybook-addon/csf3'
+import { setStoryCanvas } from './story-canvas'
 
 const preview: Preview = {
   loaders: [mswLoader()],
+  // Expose the rendered canvas to the visual-regression hook (vitest.visual.ts);
+  // a no-op in the Storybook UI.
+  afterEach: ({ canvasElement }) => setStoryCanvas(canvasElement),
   parameters: {
     nextjs: {
       appDirectory: true,

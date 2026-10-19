@@ -1,3 +1,5 @@
+import { EditableSection } from '@/components/editing/EditableSection'
+import { ProfileForm } from '@/components/editing/forms/ProfileForm'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { ContentsCarousel } from '@/components/mantine/ContentsCarousel'
@@ -5,6 +7,7 @@ import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Museum, User } from '@/payload-types'
+import type { ReactNode } from 'react'
 import {
   Avatar,
   Badge,
@@ -21,13 +24,21 @@ import { Amphora, BadgeCheck, BadgeInfo, Landmark, Palette, Verified } from 'luc
 export const UserPage = async ({
   user,
   curatedMuseums,
+  isSelf = false,
+  accountActions,
 }: {
   user: User
   curatedMuseums?: (string | Museum)[] | null
+  /** The visitor's own profile: inline profile editing. */
+  isSelf?: boolean
+  /** Owner-only actions (sign out), rendered by the route so stories stay server-action free. */
+  accountActions?: ReactNode
 }) => {
   const { t } = await getT('user-page')
-  const populatedTours = filterPopulated(user.authoredTours)
-  const populatedContents = filterPopulated(user.authoredContents)
+  const { t: te } = await getT('editing')
+  // Authorship is a join (`contents.author` / `tours.author`), hence `.docs`.
+  const populatedTours = filterPopulated(user.authoredTours?.docs)
+  const populatedContents = filterPopulated(user.authoredContents?.docs)
 
   return (
     <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
@@ -66,7 +77,14 @@ export const UserPage = async ({
         </Stack>
       </Group>
       <UserBadges user={user} curatedMuseums={curatedMuseums} />
-      <Text>{user.bio}</Text>
+      <EditableSection
+        title={te('About me')}
+        canEdit={isSelf}
+        form={isSelf && <ProfileForm user={{ id: user.id, name: user.name, bio: user.bio }} />}
+      >
+        <Text>{user.bio}</Text>
+      </EditableSection>
+      {accountActions}
       <ArtaroundTabs
         tabs={[
           {
@@ -123,7 +141,12 @@ export async function UserBadges({
   curatedMuseums?: (string | Museum)[] | null
 }) {
   const { t } = await getT('user-page')
-  const verifiedMuseums = filterPopulated(user.verifieds) // list of museums where the user is verified, if any
+  // Museums where the user holds the verified-creator badge (verified memberships).
+  const verifiedMuseums = filterPopulated(
+    (user.verifiedAt?.docs ?? []).map((membership) =>
+      typeof membership === 'object' ? membership.museum : membership,
+    ),
+  )
   const curatorDocs = user.curatorOf?.docs ?? []
   const directorDocs = user.directorOf?.docs ?? []
   const curatedMuseums = filterPopulated(

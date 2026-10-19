@@ -9,6 +9,9 @@ const meta = {
   component: NavigatorHomePage,
   parameters: {
     layout: 'fullscreen',
+    // The hero word keeps cycling (TypeWriterText) and the search border keeps
+    // animating, so no two screenshots match.
+    visual: { disable: true },
   },
   tags: ['autodocs'],
 } satisfies Meta<typeof NavigatorHomePage>

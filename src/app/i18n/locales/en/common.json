@@ -3,7 +3,6 @@
     "label": "Select Language"
   },
   "navbar": {
-    "Marketplace": "Marketplace",
-    "Navigator": "Navigator"
+    "My museums": "My museums"
   }
 }

@@ -2,8 +2,8 @@ import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Object } from '@/payload-types'
 import { AspectRatio, Image, List, Stack, Text, Title } from '@mantine/core'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
-const PLACEHOLDER = 'https://placehold.co/600x400?text=Placeholder'
 
 // Server Component: renders the modal body. Wrap it in the `ObjectModal` shell
 // from `./Modal` (client) to get open/close behaviour — never import this file
@@ -19,7 +19,7 @@ export async function ObjectDetailsContent({ object, hideContents = false }: { o
       <AspectRatio ratio={16 / 9}>
         <Image
           radius="md"
-          src={thumbnail?.url ?? PLACEHOLDER}
+          src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
           alt={thumbnail?.alt ?? object.name}
         />
       </AspectRatio>

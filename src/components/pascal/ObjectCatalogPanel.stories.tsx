@@ -29,7 +29,11 @@ export const NeedsModel: Story = {
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Generate model for Attic amphora' }),
     )
-    await waitFor(() => expect(within(document.body).getByRole('dialog')).toBeVisible())
+    // The Mantine modal opens with a transition; in a loaded full run that
+    // takes longer than waitFor's 1s default (over 5s during visual runs).
+    await waitFor(() => expect(within(document.body).getByRole('dialog')).toBeVisible(), {
+      timeout: 15_000,
+    })
   },
 }
 export const Ready: Story = {

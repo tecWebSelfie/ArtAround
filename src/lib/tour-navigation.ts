@@ -4,7 +4,18 @@ import type { Route } from 'next'
 
 /** URL and Payload/Pascal adapters shared across the tour navigation route tree. */
 export type NavigationCatalogObject = Pick<MuseumObject, 'id' | 'name'> & {
-  contents: Pick<Content, 'id' | 'title'>[]
+  contents: NavigationCatalogContent[]
+}
+
+/**
+ * Content summary for navigation search and nearby suggestions. `locked` is
+ * decided on the server (paid and the body withheld from this visitor, see
+ * `isLocked`); the body itself never reaches the client. Both fields are
+ * optional so summaries built without viewer access read as free.
+ */
+export type NavigationCatalogContent = Pick<Content, 'id' | 'title'> & {
+  price?: number | null
+  locked?: boolean
 }
 
 /** The cursor counts completed contents; count itself represents a finished tour. */
@@ -18,19 +29,29 @@ export function tourNavigationPath(lng: string, tourId: string, step: number) {
   return `/${lng}/tour/${tourId}/navigation/${step}` as Route
 }
 
+/** Keys that describe where the visitor stands or where they are heading. */
+export type NavigationKey = 'at' | 'to' | 'mobility' | 'service' | 'exit'
+
+type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
+
+/**
+ * Destination keys are mutually exclusive: the URL carries at most one target,
+ * so choosing a service or an exit replaces an object `to` (and vice versa).
+ */
+const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
+
+const NAVIGATION_KEYS: NavigationKey[] = ['at', 'to', 'mobility', 'service', 'exit']
+
 /** Carry shareable navigation state between canonical and contextual routes. */
-export function withNavigationPosition(
-  path: string,
-  search: string | { at?: string | string[]; to?: string | string[]; mobility?: string | string[] },
-) {
+export function withNavigationPosition(path: string, search: string | NavigationSearch) {
   const input = typeof search === 'string' ? new URLSearchParams(search) : search
   const output = new URLSearchParams()
-  for (const key of ['at', 'to'] as const) {
+  for (const key of NAVIGATION_KEYS) {
     const value = input instanceof URLSearchParams ? input.get(key) : input[key]
-    if (typeof value === 'string' && value) output.set(key, value)
+    if (key === 'mobility' ? value === 'wheelchair' : typeof value === 'string' && value) {
+      output.set(key, value as string)
+    }
   }
-  const mobility = input instanceof URLSearchParams ? input.get('mobility') : input.mobility
-  if (mobility === 'wheelchair') output.set('mobility', mobility)
   return `${path}${output.size ? `?${output}` : ''}` as Route
 }
 
@@ -38,13 +59,37 @@ export function withNavigationPosition(
 export function withNavigationValue(
   path: string,
   search: string,
-  key: 'at' | 'to' | 'mobility',
+  key: NavigationKey,
   value: string | null,
 ) {
   const params = new URLSearchParams(search)
   if (value) params.set(key, value)
   else params.delete(key)
+  if (DESTINATION_KEYS.includes(key)) {
+    for (const other of DESTINATION_KEYS) if (other !== key) params.delete(other)
+  }
   return withNavigationPosition(path, params.toString())
+}
+
+/**
+ * Where the visitor asked to go. Objects come from the map's Payload IDs;
+ * `service` / `exit` accept either a marker node id or a service type / the
+ * literal `nearest`, which the map resolves to the closest placed marker.
+ */
+export type NavigationDestination =
+  | { kind: 'object'; id: string }
+  | { kind: 'service'; target: string }
+  | { kind: 'exit'; target: string }
+
+/** The single destination encoded in the URL, if the visitor chose one. */
+export function navigationDestination(search: URLSearchParams): NavigationDestination | null {
+  const to = search.get('to')
+  if (to) return { kind: 'object', id: to }
+  const service = search.get('service')
+  if (service) return { kind: 'service', target: service }
+  const exit = search.get('exit')
+  if (exit) return { kind: 'exit', target: exit }
+  return null
 }
 
 /** Shared by content links and intercepted canonical content routes. */

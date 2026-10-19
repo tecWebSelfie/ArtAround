@@ -4,10 +4,21 @@ import { writeFile } from 'node:fs/promises'
 import type { ParsedBuildJson } from '@pascal-app/core'
 import type { NavMesh } from 'navcat'
 
-const editorURL =
-  process.env.E2E_MAPEDITOR_URL ??
-  'http://localhost:3000/it/museum/6ad215d05b159f24a7616019/edit/mapeditor'
-const origin = new URL(editorURL).origin
+const configuredEditorURL = process.env.E2E_MAPEDITOR_URL
+const origin = new URL(configuredEditorURL ?? 'http://localhost:3000').origin
+
+/** Resolve the id created by Payload seed instead of relying on a stale DB id. */
+async function getEditorURL(page: import('@playwright/test').Page) {
+  if (configuredEditorURL) return configuredEditorURL
+  const response = await page.request.get(
+    `${origin}/api/museums?where[name][equals]=Museo%20Civico%20di%20Esempio&limit=1`,
+  )
+  expect(response.ok()).toBe(true)
+  const { docs } = (await response.json()) as { docs: Array<{ id: string }> }
+  const museum = docs[0]
+  if (!museum) throw new Error('Payload seed did not create Museo Civico di Esempio')
+  return `${origin}/it/museum/${museum.id}/edit/mapeditor`
+}
 
 test('map editor awaits navmesh saves and recovers from a rejected save', async ({
   page,
@@ -25,6 +36,7 @@ test('map editor awaits navmesh saves and recovers from a rejected save', async 
     },
   })
   expect(login.status()).toBe(200)
+  const editorURL = await getEditorURL(page)
 
   const saves: { map: ParsedBuildJson; navMesh: NavMesh; navMeshWheelchair: NavMesh }[] = []
   let releaseSave!: () => void
@@ -125,6 +137,7 @@ test('Italian map editor opens its object catalog and validates generation input
     })
     expect(login.status()).toBe(200)
   })
+  const editorURL = await getEditorURL(page)
 
   const catalogResponse = page.waitForResponse(
     (response) =>

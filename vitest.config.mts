@@ -31,13 +31,38 @@ export default defineConfig({
       })],
       test: {
         name: 'storybook',
+        // A file's first story also pays for that file's cold module loads
+        // (Mantine, Pascal, three). In a full run every file loads at once and
+        // that alone can exceed Vitest's 15s default, so stories that pass in
+        // isolation timed out. Passing stories don't wait any longer.
+        testTimeout: 60_000,
+        // Visual regression (`pnpm test:visual`): screenshots each story after
+        // it renders; a no-op unless VISUAL_REGRESSION=1. See .storybook/vitest.visual.ts.
+        setupFiles: ['./.storybook/vitest.visual.ts'],
+        provide: { visualRegression: process.env.VISUAL_REGRESSION === '1' },
         browser: {
           enabled: true,
           headless: true,
-          provider: playwright({}),
+          // Visual runs resize the story iframe to 390×844 and 1280×800 (see
+          // .storybook/vitest.visual.ts). The test UI scales the iframe down to
+          // fit the browser window, so give it room for both at 1:1 pixels.
+          provider: playwright(
+            process.env.VISUAL_REGRESSION === '1'
+              ? { contextOptions: { viewport: { width: 1600, height: 1100 } } }
+              : {},
+          ),
           instances: [{
             browser: 'chromium'
-          }]
+          }],
+          expect: {
+            toMatchScreenshot: {
+              // One flat folder keyed by story id instead of a __screenshots__
+              // folder beside every story file. Browser and platform stay in the
+              // name because font rendering differs between OSes.
+              resolveScreenshotPath: ({ arg, browserName, platform, ext, root }) =>
+                `${root}/__screenshots__/${arg}-${browserName}-${platform}${ext}`
+            }
+          }
         }
       }
     }]

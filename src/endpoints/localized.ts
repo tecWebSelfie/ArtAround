@@ -58,11 +58,20 @@ export function localizedReadEndpoint(collection: LocalizedSlug): Endpoint {
 
       const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local'
       const throttled = !allowEnqueue(ip)
-      const state = await resolveLocalized(req.payload, origin, { collection, id, locale })
+      // Read as the caller: paid bodies and private fields follow their access rules.
+      const state = await resolveLocalized(req.payload, origin, {
+        collection,
+        id,
+        locale,
+        user: req.user,
+      })
 
       switch (state.kind) {
         case 'not-found':
-          return Response.json({ error: `document not found: ${collection}/${id}` }, { status: 404 })
+          return Response.json(
+            { error: `document not found: ${collection}/${id}` },
+            { status: 404 },
+          )
         case 'hit':
           return Response.json({ status: 'hit', source: 'db', locale, doc: state.doc })
         case 'miss': {

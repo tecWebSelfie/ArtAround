@@ -56,3 +56,12 @@ storybook-static
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Vitest visual regression diffs/actuals (references live in __screenshots__/)
+.vitest-attachments
+
+# Voice-activity-detection runtime, copied on postinstall (scripts/copy-vad-assets.mjs)
+/public/vad
+
+# Seed output for e2e specs (scripts/seed-tour-navigation.ts)
+/.e2e-fixtures

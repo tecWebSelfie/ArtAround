@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Modal } from '@mantine/core'
-import { use } from 'react'
 import { expect, within } from 'storybook/test'
 
 import { mockContentMinimal, mockContentSecond } from '@/mocks/content.mock'
@@ -13,34 +12,29 @@ import {
 } from '@/mocks/object.mock'
 
 import { ObjectDetailsContent } from './ObjectDetailsModal'
+import { serverComponentStory } from '@/mocks/server-component'
 
 const mockObjectWithContents = createObject({
   contents: [mockContentMinimal, mockContentSecond],
 })
 
-// ObjectDetailsContent is an async Server Component. With experimentalRSC,
-// Storybook wraps the story in Suspense automatically, so unwrap the promise
-// with React.use().
-function ObjectDetailsModalForStorybook({
-  object,
-}: {
-  object: typeof mockObjectWithContents
-}) {
-  return (
+// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
+const ObjectDetailsModalStory = serverComponentStory(
+  async ({ object }: { object: typeof mockObjectWithContents }) => (
     <Modal opened title={object.name} onClose={() => {}}>
-      {use(ObjectDetailsContent({ object }))}
+      <ObjectDetailsContent object={object} />
     </Modal>
-  )
-}
+  ),
+)
 
 const meta = {
   title: 'Object Details Modal',
-  component: ObjectDetailsModalForStorybook,
+  ...ObjectDetailsModalStory,
   parameters: {
     layout: 'fullscreen',
   },
   tags: ['autodocs'],
-} satisfies Meta<typeof ObjectDetailsModalForStorybook>
+} satisfies Meta<typeof ObjectDetailsModalStory.component>
 
 export default meta
 

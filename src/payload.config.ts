@@ -25,8 +25,8 @@ import IsoCodes from 'iso-639-1'
 import { mintEndpoints } from './endpoints/mint'
 import { generateObjectModelWorkflow } from './jobs/generateObjectModelWorkflow'
 import {
-  interactiveObjectModelWorkflow,
   finalizeObjectModelWorkflow,
+  interactiveObjectModelWorkflow,
 } from './jobs/interactiveObjectModelWorkflow'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
 import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext'
@@ -35,7 +35,6 @@ import { pollMintModelOperation } from './tasks/pollMintModelOperation'
 import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
-import { Exhibits } from './collections/Exhibits'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
@@ -82,7 +81,6 @@ export default buildConfig({
     Objects,
     ObjectsModels,
     ObjectsThumbnails,
-    Exhibits,
     Contents,
     ContentImages,
     Tour,
@@ -116,8 +114,24 @@ export default buildConfig({
       collections: {
         museums: { enabled: true },
         objects: { enabled: true },
-        exhibits: { enabled: true },
         contents: { enabled: true },
+        tours: { enabled: true },
+        museumMaps: { enabled: true },
+        museumThumbnails: { enabled: true },
+        objectsModels: { enabled: true },
+        objectsThumbnails: { enabled: true },
+        contentImages: { enabled: true },
+        roles: { enabled: true },
+        'permission-actions': { enabled: true },
+        permissions: { enabled: true },
+        'permission-features': { enabled: true },
+        'roles-permissions': { enabled: true },
+        'user-museum-memberships': { enabled: true },
+        toursThumbnails: { enabled: true },
+        users: { enabled: true },
+        usersPropics: { enabled: true },
+        imports: { enabled: true },
+        exports: { enabled: true },
       },
     }),
     redirectsPlugin({
@@ -133,7 +147,10 @@ export default buildConfig({
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({
-      targetCollections: [Museums.slug, Objects.slug, Exhibits.slug, Contents.slug, Tour.slug],
+      // Adds the `createdBy` ownership field these collections' access rules
+      // rely on. Per-museum permissions themselves live in `src/access/`
+      // (memberships), not in the global role matrix.
+      targetCollections: [Museums.slug, Objects.slug, Contents.slug, Tour.slug],
       collections: {
         roles: {
           fields: [museumFunctionField],

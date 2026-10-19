@@ -104,7 +104,6 @@ export interface Config {
     objects: Object;
     objectsModels: ObjectsModel;
     objectsThumbnails: ObjectsThumbnail;
-    exhibits: Exhibit;
     contents: Content;
     contentImages: ContentImage;
     tours: Tour;
@@ -135,19 +134,22 @@ export interface Config {
   };
   collectionsJoins: {
     users: {
+      authoredContents: 'contents';
+      authoredTours: 'tours';
+      memberships: 'user-museum-memberships';
       curatorOf: 'user-museum-memberships';
       directorOf: 'user-museum-memberships';
+      verifiedAt: 'user-museum-memberships';
+    };
+    museums: {
+      tours: 'tours';
+      staff: 'user-museum-memberships';
     };
     objects: {
-      exhibit: 'exhibits';
+      museums: 'museums';
     };
     contents: {
       objects: 'objects';
-      author: 'users';
-    };
-    tours: {
-      museum: 'museums';
-      author: 'users';
     };
     'lfrs-reviews': {
       replies: 'lfrs-replies';
@@ -164,7 +166,6 @@ export interface Config {
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
     objectsModels: ObjectsModelsSelect<false> | ObjectsModelsSelect<true>;
     objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
-    exhibits: ExhibitsSelect<false> | ExhibitsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
@@ -836,10 +837,23 @@ export interface User {
     lastName: string;
     fullName: string;
   };
-  authoredContents?: (string | Content)[] | null;
-  authoredTours?: (string | Tour)[] | null;
+  authoredContents?: {
+    docs?: (string | Content)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  authoredTours?: {
+    docs?: (string | Tour)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   avatar?: (string | null) | UsersPropic;
   bio?: string | null;
+  memberships?: {
+    docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   curatorOf?: {
     docs?: (string | UserMuseumMembership)[];
     hasNextPage?: boolean;
@@ -850,7 +864,11 @@ export interface User {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  verifieds?: (string | Museum)[] | null;
+  verifiedAt?: {
+    docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   highestStatus?: ('curator' | 'director' | 'verified' | 'none') | null;
   updatedAt: string;
   createdAt: string;
@@ -930,7 +948,12 @@ export interface Content {
     };
     [k: string]: unknown;
   };
+  bodyHTML?: string | null;
   readingTimeMins?: number | null;
+  /**
+   * Euro cents. Empty or 0 = free.
+   */
+  price?: number | null;
   copyright: string;
   images?: (string | ContentImage)[] | null;
   objects: {
@@ -938,11 +961,8 @@ export interface Content {
     hasNextPage?: boolean;
     totalDocs?: number;
   };
-  author: {
-    docs?: (string | User)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+  author?: (string | null) | User;
+  attachToObject?: string | null;
   lfrs?: {
     favouritesCount?: number | null;
     ratingsCount?: number | null;
@@ -989,8 +1009,8 @@ export interface Object {
    * Editorial copy — auto-translated on demand into any locale.
    */
   description?: string | null;
-  exhibit?: {
-    docs?: (string | Exhibit)[];
+  museums?: {
+    docs?: (string | Museum)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -1003,111 +1023,6 @@ export interface Object {
   };
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "exhibits".
- */
-export interface Exhibit {
-  id: string;
-  createdBy?: string | null;
-  objects: (string | Object)[];
-  coordinates: {
-    x: number;
-    y: number;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsThumbnails".
- */
-export interface ObjectsThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsModels".
- */
-export interface ObjectsModel {
-  id: string;
-  userGenerated: boolean;
-  mintModelId?: string | null;
-  mintOperationId?: string | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "tours".
- */
-export interface Tour {
-  id: string;
-  createdBy?: string | null;
-  title: string;
-  description?: string | null;
-  contents: (string | Content)[];
-  thumbnail?: (string | null) | ToursThumbnail;
-  museum: {
-    docs?: (string | Museum)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  author: {
-    docs?: (string | User)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "toursThumbnails".
- */
-export interface ToursThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1135,6 +1050,7 @@ export interface Museum {
     };
     [k: string]: unknown;
   } | null;
+  descriptionHTML?: string | null;
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
@@ -1164,8 +1080,6 @@ export interface Museum {
       }[]
     | null;
   thumbnails?: (string | MuseumThumbnail)[] | null;
-  exhibits?: (string | Exhibit)[] | null;
-  objects?: (string | Object)[] | null;
   openingHours?: {
     monday?:
       | {
@@ -1237,265 +1151,17 @@ export interface Museum {
      */
     latlng: [number, number];
   };
-  services?: {
-    bathrooms?:
-      | {
-          openingHours?: {
-            monday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            tuesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            wednesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            thursday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            friday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            saturday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sunday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Editorial copy — auto-translated on demand into any locale.
-             */
-            notes?: string | null;
-          };
-          coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    food?:
-      | {
-          openingHours?: {
-            monday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            tuesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            wednesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            thursday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            friday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            saturday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sunday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Editorial copy — auto-translated on demand into any locale.
-             */
-            notes?: string | null;
-          };
-          coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    shop?:
-      | {
-          openingHours?: {
-            monday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            tuesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            wednesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            thursday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            friday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            saturday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sunday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Editorial copy — auto-translated on demand into any locale.
-             */
-            notes?: string | null;
-          };
-          coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
-        }[]
-      | null;
-    infoPoint?:
-      | {
-          openingHours?: {
-            monday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            tuesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            wednesday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            thursday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            friday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            saturday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            sunday?:
-              | {
-                  opening?: string | null;
-                  closing?: string | null;
-                  id?: string | null;
-                }[]
-              | null;
-            /**
-             * Editorial copy — auto-translated on demand into any locale.
-             */
-            notes?: string | null;
-          };
-          coordinates: {
-            x: number;
-            y: number;
-          };
-          id?: string | null;
-        }[]
-      | null;
+  objects?: (string | Object)[] | null;
+  tours?: {
+    docs?: (string | Tour)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
   };
-  tours?: (string | Tour)[] | null;
+  staff?: {
+    docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   map?:
     | {
         [k: string]: unknown;
@@ -2279,9 +1945,31 @@ export interface MuseumThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "usersPropics".
+ * via the `definition` "tours".
  */
-export interface UsersPropic {
+export interface Tour {
+  id: string;
+  createdBy?: string | null;
+  title: string;
+  description?: string | null;
+  contents: (string | Content)[];
+  thumbnail?: (string | null) | ToursThumbnail;
+  museum: string | Museum;
+  author?: (string | null) | User;
+  lfrs?: {
+    favouritesCount?: number | null;
+    ratingsCount?: number | null;
+    ratingsAverage?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "toursThumbnails".
+ */
+export interface ToursThumbnail {
   id: string;
   alt: string;
   updatedAt: string;
@@ -2303,10 +1991,70 @@ export interface UsersPropic {
 export interface UserMuseumMembership {
   id: string;
   user: string | User;
-  role: string | Role;
+  role: 'director' | 'curator' | 'verified';
   museum: string | Museum;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsModels".
+ */
+export interface ObjectsModel {
+  id: string;
+  userGenerated: boolean;
+  mintModelId?: string | null;
+  mintOperationId?: string | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "usersPropics".
+ */
+export interface UsersPropic {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3037,24 +2785,6 @@ export interface PayloadMcpApiKey {
      */
     delete?: boolean | null;
   };
-  exhibits?: {
-    /**
-     * Allow clients to find exhibits.
-     */
-    find?: boolean | null;
-    /**
-     * Allow clients to create exhibits.
-     */
-    create?: boolean | null;
-    /**
-     * Allow clients to update exhibits.
-     */
-    update?: boolean | null;
-    /**
-     * Allow clients to delete exhibits.
-     */
-    delete?: boolean | null;
-  };
   contents?: {
     /**
      * Allow clients to find contents.
@@ -3070,6 +2800,312 @@ export interface PayloadMcpApiKey {
     update?: boolean | null;
     /**
      * Allow clients to delete contents.
+     */
+    delete?: boolean | null;
+  };
+  tours?: {
+    /**
+     * Allow clients to find tours.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create tours.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update tours.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete tours.
+     */
+    delete?: boolean | null;
+  };
+  museumMaps?: {
+    /**
+     * Allow clients to find museumMaps.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create museumMaps.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update museumMaps.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete museumMaps.
+     */
+    delete?: boolean | null;
+  };
+  museumThumbnails?: {
+    /**
+     * Allow clients to find museumThumbnails.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create museumThumbnails.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update museumThumbnails.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete museumThumbnails.
+     */
+    delete?: boolean | null;
+  };
+  objectsModels?: {
+    /**
+     * Allow clients to find objectsModels.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create objectsModels.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update objectsModels.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete objectsModels.
+     */
+    delete?: boolean | null;
+  };
+  objectsThumbnails?: {
+    /**
+     * Allow clients to find objectsThumbnails.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create objectsThumbnails.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update objectsThumbnails.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete objectsThumbnails.
+     */
+    delete?: boolean | null;
+  };
+  contentImages?: {
+    /**
+     * Allow clients to find contentImages.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create contentImages.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update contentImages.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete contentImages.
+     */
+    delete?: boolean | null;
+  };
+  roles?: {
+    /**
+     * Allow clients to find roles.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create roles.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update roles.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete roles.
+     */
+    delete?: boolean | null;
+  };
+  permissionActions?: {
+    /**
+     * Allow clients to find permission-actions.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create permission-actions.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update permission-actions.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete permission-actions.
+     */
+    delete?: boolean | null;
+  };
+  permissions?: {
+    /**
+     * Allow clients to find permissions.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create permissions.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update permissions.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete permissions.
+     */
+    delete?: boolean | null;
+  };
+  permissionFeatures?: {
+    /**
+     * Allow clients to find permission-features.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create permission-features.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update permission-features.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete permission-features.
+     */
+    delete?: boolean | null;
+  };
+  rolesPermissions?: {
+    /**
+     * Allow clients to find roles-permissions.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create roles-permissions.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update roles-permissions.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete roles-permissions.
+     */
+    delete?: boolean | null;
+  };
+  userMuseumMemberships?: {
+    /**
+     * Allow clients to find user-museum-memberships.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create user-museum-memberships.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update user-museum-memberships.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete user-museum-memberships.
+     */
+    delete?: boolean | null;
+  };
+  toursThumbnails?: {
+    /**
+     * Allow clients to find toursThumbnails.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create toursThumbnails.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update toursThumbnails.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete toursThumbnails.
+     */
+    delete?: boolean | null;
+  };
+  users?: {
+    /**
+     * Allow clients to find users.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create users.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update users.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete users.
+     */
+    delete?: boolean | null;
+  };
+  usersPropics?: {
+    /**
+     * Allow clients to find usersPropics.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create usersPropics.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update usersPropics.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete usersPropics.
+     */
+    delete?: boolean | null;
+  };
+  imports?: {
+    /**
+     * Allow clients to find imports.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create imports.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update imports.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete imports.
+     */
+    delete?: boolean | null;
+  };
+  exports?: {
+    /**
+     * Allow clients to find exports.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create exports.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update exports.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete exports.
      */
     delete?: boolean | null;
   };
@@ -3262,10 +3298,6 @@ export interface PayloadLockedDocument {
         value: string | ObjectsThumbnail;
       } | null)
     | ({
-        relationTo: 'exhibits';
-        value: string | Exhibit;
-      } | null)
-    | ({
         relationTo: 'contents';
         value: string | Content;
       } | null)
@@ -3418,9 +3450,10 @@ export interface UsersSelect<T extends boolean = true> {
   authoredTours?: T;
   avatar?: T;
   bio?: T;
+  memberships?: T;
   curatorOf?: T;
   directorOf?: T;
-  verifieds?: T;
+  verifiedAt?: T;
   highestStatus?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -3505,6 +3538,7 @@ export interface MuseumsSelect<T extends boolean = true> {
   createdBy?: T;
   name?: T;
   description?: T;
+  descriptionHTML?: T;
   shortDescription?: T;
   accessibility?: T;
   phone?: T;
@@ -3525,8 +3559,6 @@ export interface MuseumsSelect<T extends boolean = true> {
         id?: T;
       };
   thumbnails?: T;
-  exhibits?: T;
-  objects?: T;
   openingHours?:
     | T
     | {
@@ -3594,271 +3626,9 @@ export interface MuseumsSelect<T extends boolean = true> {
         city?: T;
         latlng?: T;
       };
-  services?:
-    | T
-    | {
-        bathrooms?:
-          | T
-          | {
-              openingHours?:
-                | T
-                | {
-                    monday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    tuesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    wednesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    thursday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    friday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    saturday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    sunday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
-              coordinates?:
-                | T
-                | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
-        food?:
-          | T
-          | {
-              openingHours?:
-                | T
-                | {
-                    monday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    tuesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    wednesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    thursday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    friday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    saturday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    sunday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
-              coordinates?:
-                | T
-                | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
-        shop?:
-          | T
-          | {
-              openingHours?:
-                | T
-                | {
-                    monday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    tuesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    wednesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    thursday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    friday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    saturday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    sunday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
-              coordinates?:
-                | T
-                | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
-        infoPoint?:
-          | T
-          | {
-              openingHours?:
-                | T
-                | {
-                    monday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    tuesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    wednesday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    thursday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    friday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    saturday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    sunday?:
-                      | T
-                      | {
-                          opening?: T;
-                          closing?: T;
-                          id?: T;
-                        };
-                    notes?: T;
-                  };
-              coordinates?:
-                | T
-                | {
-                    x?: T;
-                    y?: T;
-                  };
-              id?: T;
-            };
-      };
+  objects?: T;
   tours?: T;
+  staff?: T;
   map?: T;
   navMesh?: T;
   navMeshWheelchair?: T;
@@ -3914,7 +3684,7 @@ export interface ObjectsSelect<T extends boolean = true> {
   createdBy?: T;
   name?: T;
   description?: T;
-  exhibit?: T;
+  museums?: T;
   contents?: T;
   thumbnail?: T;
   model?: T;
@@ -3968,22 +3738,6 @@ export interface ObjectsThumbnailsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "exhibits_select".
- */
-export interface ExhibitsSelect<T extends boolean = true> {
-  createdBy?: T;
-  objects?: T;
-  coordinates?:
-    | T
-    | {
-        x?: T;
-        y?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contents_select".
  */
 export interface ContentsSelect<T extends boolean = true> {
@@ -3991,11 +3745,14 @@ export interface ContentsSelect<T extends boolean = true> {
   difficulty?: T;
   title?: T;
   body?: T;
+  bodyHTML?: T;
   readingTimeMins?: T;
+  price?: T;
   copyright?: T;
   images?: T;
   objects?: T;
   author?: T;
+  attachToObject?: T;
   lfrs?:
     | T
     | {
@@ -4476,7 +4233,7 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         update?: T;
         delete?: T;
       };
-  exhibits?:
+  contents?:
     | T
     | {
         find?: T;
@@ -4484,7 +4241,135 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         update?: T;
         delete?: T;
       };
-  contents?:
+  tours?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  museumMaps?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  museumThumbnails?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  objectsModels?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  objectsThumbnails?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  contentImages?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  roles?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  permissionActions?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  permissions?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  permissionFeatures?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  rolesPermissions?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  userMuseumMemberships?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  toursThumbnails?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  users?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  usersPropics?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  imports?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  exports?:
     | T
     | {
         find?: T;
@@ -4868,7 +4753,6 @@ export interface TaskCreateCollectionExport {
       | 'objects'
       | 'objectsModels'
       | 'objectsThumbnails'
-      | 'exhibits'
       | 'contents'
       | 'contentImages'
       | 'tours'

@@ -2,7 +2,10 @@
 
 import { ObjectCatalogPanel } from '@/components/pascal/ObjectCatalogPanel'
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
+import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'
+import { MuseumServicesToolbar } from '@/components/pascal/MuseumServicesToolbar'
 import { museumPlugin } from '@/lib/pascal'
+import { EditorViewerContext, type EditorViewer } from '@/lib/pascal/editor-viewer'
 import { generateMuseumNavMeshesFromSceneRegistry } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
@@ -10,7 +13,7 @@ import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
 import { Editor } from '@pascal-app/editor'
 import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { Amphora } from 'lucide-react'
+import { Amphora, Toilet } from 'lucide-react'
 import { createNavMesh } from 'navcat'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -18,7 +21,22 @@ import { useTranslation } from 'react-i18next'
 const registerPlugin = loadPlugin(builtinPlugin)
 const registerMuseumPlugin = loadPlugin(museumPlugin)
 
-export function MapEditor({ museumId }: { museumId: string }) {
+export function MapEditor({
+  museumId,
+  canManageStructure,
+  viewer,
+}: {
+  museumId: string
+  /** Signed-in editor, shared with Pascal-mounted panels via `EditorViewerContext`. */
+  viewer: EditorViewer
+  /**
+   * Director (or super admin): building construction, services and
+   * entrances/exits. Curators only place catalog objects; the server rejects
+   * any other scene change (`guardCuratorMapEdits`), so hiding the tools here
+   * is a convenience, not the enforcement.
+   */
+  canManageStructure: boolean
+}) {
   const { t } = useTranslation('map-editor')
   const sceneReady = useRef<{ promise?: Promise<void>; resolve?: () => void }>({})
   const handleLoaderChange = useCallback((visible: boolean) => {
@@ -90,25 +108,45 @@ export function MapEditor({ museumId }: { museumId: string }) {
   if (isError || !museum) return <div>Error loading map</div>
 
   return (
-    <Box className="h-dvh">
-      <Editor
-        sidebarTabs={[
-          {
-            id: 'items',
-            label: t('Objects'),
-            component: ObjectCatalogPanel,
-            icon: <Amphora size={24} />,
-          },
-        ]}
-        layoutVersion="v2"
-        sceneOverlay={<MuseumCreationToolbar />}
-        isLoading={false}
-        onLoad={handleLoad}
-        onLoaderChange={handleLoaderChange}
-        onSave={async (scene) => {
-          await mutateAsync(scene as ParsedBuildJson)
-        }}
-      />
-    </Box>
+    <EditorViewerContext.Provider value={viewer}>
+      <Box className="h-dvh">
+        <Editor
+          sidebarTabs={[
+            {
+              id: 'items',
+              label: t('Objects'),
+              component: ObjectCatalogPanel,
+              icon: <Amphora size={24} />,
+            },
+            ...(canManageStructure
+              ? [
+                  {
+                    id: 'services',
+                    label: t('Services'),
+                    component: MuseumServicesPanel,
+                    icon: <Toilet size={24} />,
+                  },
+                ]
+              : []),
+          ]}
+          layoutVersion="v2"
+          sceneOverlay={
+            // Left: map construction. Right: museum service markers. Both are director tools.
+            canManageStructure ? (
+              <>
+                <MuseumCreationToolbar />
+                <MuseumServicesToolbar />
+              </>
+            ) : null
+          }
+          isLoading={false}
+          onLoad={handleLoad}
+          onLoaderChange={handleLoaderChange}
+          onSave={async (scene) => {
+            await mutateAsync(scene as ParsedBuildJson)
+          }}
+        />
+      </Box>
+    </EditorViewerContext.Provider>
   )
 }

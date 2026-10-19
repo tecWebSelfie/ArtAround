@@ -39,6 +39,7 @@ The central promise is adaptability throughout the visit: content preferences an
 - Museum tours, QR routes, multilingual editorial content, and interactive maps are documented in the repository. Those documents describe the current working tree, not proof of production deployment.
 - Desktop and mobile use the ordinary map view.
 - Visitor position changes only through an explicit position confirmation. Opening content or a QR link must not silently change it.
+- Optional GPS adds a separate, device-local *estimated progress* along the current route (confirmed position + movement since it). It advances the shown direction step and drives nearby suggestions, but never replaces the confirmed, shareable position. Indoor GPS inaccuracy is an accepted limitation.
 - Tour contents retain their authored order while visitors may independently explore other objects and contents or choose another destination.
 - Canonical QR values are ordinary localized object and content routes. Contextual navigation modals must remain reloadable and shareable.
 

@@ -495,6 +495,35 @@ index 0c10f99f66b15643c0c9f4cb7e5b7fef755b88fc..80319293d7cd003d6a0163c492f064dc
            ...draft,
            ...updateProps,
            parentId,
+diff --git a/src/components/viewer/viewer-scene-header.tsx b/src/components/viewer/viewer-scene-header.tsx
+index 01e933f1cdbba94834b566dfbb054f2832ad0022..8c7528ecf47804f3b9320e070f0ed3c5adccfa77 100644
+--- a/src/components/viewer/viewer-scene-header.tsx
++++ b/src/components/viewer/viewer-scene-header.tsx
+@@ -1,5 +1,6 @@
+ 'use client'
+ 
++import type { Route } from 'next'
+ import { getLevelDisplayName, type LevelNode, sceneRegistry, useScene } from '@pascal-app/core'
+ import { markPerfAction, useViewer } from '@pascal-app/viewer'
+ import { ArrowLeft, ChevronRight, Layers } from 'lucide-react'
+@@ -124,7 +125,7 @@ export const ViewerSceneHeader = ({
+             <Link
+               aria-label="Back"
+               className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-white/10"
+-              href={backHref}
++              href={backHref as Route}
+               prefetch={false}
+             >
+               <ArrowLeft className="h-4 w-4 text-muted-foreground" />
+@@ -137,7 +138,7 @@ export const ViewerSceneHeader = ({
+             {owner?.username && (
+               <Link
+                 className="text-muted-foreground text-xs transition-colors hover:text-foreground"
+-                href={`/u/${owner.username}`}
++                href={`/u/${owner.username}` as Route}
+               >
+                 @{owner.username}
+               </Link>
 diff --git a/src/index.tsx b/src/index.tsx
 index 35bbf04b2e0d236259f41893d2be37f665e3178a..586ce79d51daab344b537bfdbcee9946581e69ef 100644
 --- a/src/index.tsx
@@ -513,3 +542,16 @@ index 35bbf04b2e0d236259f41893d2be37f665e3178a..586ce79d51daab344b537bfdbcee9946
  export { FloatingActionMenu as FloatingMenu } from './components/editor/floating-action-menu'
  // Embed surface — the editor's real in-canvas affordances, so a host can mount
  // authentic selection handles, interactive build tools, and the mover on top
+diff --git a/src/lib/viewer-selection.ts b/src/lib/viewer-selection.ts
+index d75e0e3a5349effe6e6e2cbf9df537ff725d14b8..95f585e161d7f8b152dff2ad05e67b32a1193a4c 100644
+--- a/src/lib/viewer-selection.ts
++++ b/src/lib/viewer-selection.ts
+@@ -107,7 +107,7 @@ export function levelOfNode(nodeId: string, nodes: ViewerNodes): string | null {
+   while (current && !seen.has(current.id)) {
+     if (current.type === 'level') return current.id
+     seen.add(current.id)
+-    current = current.parentId ? nodes[current.parentId] : undefined
++    current = (current.parentId ? nodes[current.parentId] : undefined) as typeof current
+   }
+   return null
+ }

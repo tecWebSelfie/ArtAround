@@ -40,11 +40,9 @@ function baseContent(): Content {
       totalDocs: 1,
       hasNextPage: false,
     },
-    author: {
-      docs: [],
-      totalDocs: 0,
-      hasNextPage: false,
-    },
+    // Free by default; paid fixtures override `price` (euro cents).
+    price: null,
+    author: 'user-001',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
   }

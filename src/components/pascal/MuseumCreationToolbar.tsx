@@ -39,10 +39,15 @@ export function MuseumCreationToolbar() {
       if (!levelId) throw new Error('No active level')
       const upload = await payloadSdk.create({ collection: 'museumMaps', data: {}, file })
       if (!upload.url) throw new Error('Upload did not return a file URL')
+      const fileURL = new URL(upload.url, payloadSdk.baseURL)
       const guide = GuideNode.parse({
         name: file.name,
         parentId: levelId,
-        url: new URL(upload.url, payloadSdk.baseURL).href,
+        // Pascal's URL schema only accepts https://, root-relative paths and
+        // http://localhost. Payload is normally served by this same app, so a
+        // same-origin upload is stored as a path: that also works when the
+        // editor runs over plain http on a LAN address (e.g. testing on a phone).
+        url: fileURL.origin === window.location.origin ? fileURL.pathname : fileURL.href,
       })
       useScene.getState().createNode(guide, levelId)
       return guide

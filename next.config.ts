@@ -16,6 +16,22 @@ const lngPattern = i18nConfig.supportedLngs.join('|')
 const nextConfig: NextConfig = {
   output: 'standalone',
   typedRoutes: true,
+  // Load Payload's server packages with Node in production too, as
+  // `withPayload` already does in development. Bundled by Turbopack,
+  // evaluating payload.config.ts during `next build` threw "Cannot access 'vu'
+  // before initialization" (module order inside @payloadcms/richtext-lexical's
+  // prebuilt chunks), on a different route each run. These are the packages
+  // withPayload externalizes in dev that this project uses.
+  serverExternalPackages: [
+    'payload',
+    '@payloadcms/db-mongodb',
+    '@payloadcms/email-nodemailer',
+    '@payloadcms/graphql',
+    '@payloadcms/plugin-redirects',
+  ],
+  // Dev only: lets a phone on the same Wi-Fi load `/_next/*` and HMR from the
+  // PC's LAN address (Next blocks non-localhost origins otherwise).
+  allowedDevOrigins: ['192.168.1.*'],
   redirects() {
     return [
       {

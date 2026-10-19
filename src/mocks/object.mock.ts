@@ -8,7 +8,9 @@ function baseThumbnail(): ObjectsThumbnail {
     alt: 'Veduta frontale del reperto',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    url: 'https://picsum.photos/200/300',
+    // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
+    // which breaks the visual-regression baselines.
+    url: 'https://picsum.photos/seed/object-thumb-1/200/300',
     filename: 'object-frontal.jpg',
     mimeType: 'image/jpeg',
     width: 1200,
@@ -38,8 +40,8 @@ export const mockObjectFull: Object = createObject({
   name: 'Statua in marmo di atleta',
   description:
     'Statua in marmo pario raffigurante un atleta nell’atto di lanciare il disco, copia romana da originale greco del V secolo a.C.',
-  exhibit: {
-    docs: ['exhibit-1'],
+  museums: {
+    docs: ['museum-001'],
     totalDocs: 1,
     hasNextPage: false,
   },
@@ -59,8 +61,8 @@ export const mockObjectNoMedia: Object = createObject({
 export const mockObjectNoContents: Object = createObject({
   id: 'object-nocontents-001',
   contents: null,
-  exhibit: {
-    docs: ['exhibit-1'],
+  museums: {
+    docs: ['museum-001'],
     totalDocs: 1,
     hasNextPage: false,
   },

@@ -1,38 +1,60 @@
+import {
+  anyone,
+  authenticated,
+  isSuperAdmin,
+  museumsWithRank,
+  superAdminOnly,
+} from '@/access/museumRoles'
 import { editorial } from '@/fields/editorial'
+import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
-import { getPermissionAccess } from '@zealamic/payload-plugin-rbac/utils'
+import type { Access } from 'payload'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
+
+/**
+ * Objects live in the app catalog independently of any museum: a museum
+ * exhibits an object when its map places it (`museums.objects`), and the same
+ * object (or a copy of it) may be exhibited by several museums.
+ *
+ * Curators and directors create objects, and the creator (`createdBy`,
+ * filled by the RBAC plugin's `targetCollections` hook) owns it: only the
+ * owner edits its data (name, description, media, 3D model). How a museum
+ * manages the object — placing, moving or removing it on its map — lives on
+ * the museum document and is governed there, so exhibiting staff never need
+ * write access to the object itself.
+ *
+ * Objects are never deleted by museum staff: the catalog doubles as a
+ * long-lived database of objects, and an object no museum shows today may be
+ * exhibited again. Taking it off a map only removes it from that museum
+ * (`museums.objects` is recomputed); deletion is a super-admin operation.
+ */
+const ownerOrSuperAdmin: Access = ({ req }) => {
+  if (!req.user) return false
+  if (isSuperAdmin(req)) return true
+  return { createdBy: { equals: String(req.user.id) } }
+}
+
+const anyMuseumStaff: Access = async ({ req }) =>
+  isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
   access: {
-    // The catalog is public; editing uses the existing RBAC permission matrix.
-    read: () => true,
-    create: getPermissionAccess({ featureCode: 'Object', actionCode: 'Create' }),
-    update: getPermissionAccess({
-      featureCode: 'Object',
-      actionCode: 'Update',
-      collectionSlug: 'objects',
-      mode: 'modify',
-    }),
-    delete: getPermissionAccess({
-      featureCode: 'Object',
-      actionCode: 'Delete',
-      collectionSlug: 'objects',
-      mode: 'modify',
-    }),
+    read: anyone,
+    create: anyMuseumStaff,
+    update: ownerOrSuperAdmin,
+    delete: superAdminOnly,
   },
   fields: [
     editorial({ name: 'name', type: 'text', required: true }),
     editorial({ name: 'description', type: 'textarea', required: false, maxLength: 500 }),
     {
-      name: 'exhibit',
+      // Reverse of the map-derived `museums.objects` index.
+      name: 'museums',
       type: 'join',
-      collection: 'exhibits',
+      collection: 'museums',
       on: 'objects',
-      hasMany: false,
-      required: false,
     },
     {
       name: 'contents',
@@ -88,9 +110,18 @@ export const Objects: CollectionConfig = {
   endpoints: objectModelGenerationEndpoints,
 }
 
+// Uploads: public assets of a public catalog, created by any logged-in editor.
+const uploadAccess = {
+  read: anyone,
+  create: authenticated,
+  update: superAdminOnly,
+  delete: superAdminOnly,
+}
+
 export const ObjectsThumbnails: CollectionConfig = {
   slug: 'objectsThumbnails',
   upload: true,
+  access: uploadAccess,
   fields: [
     {
       name: 'alt',
@@ -105,6 +136,7 @@ export const ObjectsModels: CollectionConfig = {
   upload: {
     mimeTypes: ['model/gltf-binary'],
   },
+  access: uploadAccess,
   fields: [
     {
       name: 'userGenerated',
