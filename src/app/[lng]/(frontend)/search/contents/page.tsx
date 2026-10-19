@@ -5,7 +5,8 @@ import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilte
 import config from '@/payload.config';
 import { Stack, Title } from '@mantine/core';
 import type { FilterDefinition } from 'mantine-composite-filters';
-import { getPayload } from 'payload';
+import { getPayload } from 'payload'
+import { museumScope } from '@/lib/museum-mode';
 
 const PAGE_SIZE = 12
 
@@ -18,6 +19,7 @@ export default async function SearchContentsPage(props: {
   const { t } = await getT('search')
   const { t: tCard } = await getT('contents-carousel-card')
   const payload = await getPayload({ config })
+  const scope = await museumScope()
 
   const definitions: FilterDefinition[] = [
     {
@@ -50,7 +52,10 @@ export default async function SearchContentsPage(props: {
 
   const result = await payload.find({
     collection: 'contents',
-    where: activeFiltersToWhere(initialFilters, definitions),
+    // Museum mode: only the locked museum's contents.
+    where: scope
+      ? { and: [activeFiltersToWhere(initialFilters, definitions), { id: { in: scope.contentIds } }] }
+      : activeFiltersToWhere(initialFilters, definitions),
     page,
     limit: PAGE_SIZE,
     depth: 1,

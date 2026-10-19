@@ -1,0 +1,37 @@
+/*
+ * Extra text arrives one whole paragraph at a time (ContentExpansion). Each
+ * paragraph settles in with a short fade and lift, like page content loading,
+ * not like a chat typing.
+ */
+.paragraph {
+  /* The app resets paragraph margins; added text needs visible breaks. */
+  margin: 0 0 var(--mantine-spacing-sm);
+  animation: settle 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes settle {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paragraph {
+    animation: none;
+  }
+}
+
+/* A linked museum entity: thumbnail over a two-line title. */
+.linked {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 72px;
+  border-radius: var(--mantine-radius-md);
+}
+
+.linked:focus-visible {
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

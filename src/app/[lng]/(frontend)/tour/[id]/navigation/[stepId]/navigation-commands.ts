@@ -10,8 +10,9 @@ import {
   withNavigationValue,
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
+import { EXPANSION_ANGLES } from '@/lib/expansion'
 import type { Route } from 'next'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -54,6 +55,7 @@ export function useNavigationCommands({
 }) {
   const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
+  const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
 
@@ -141,7 +143,12 @@ export function useNavigationCommands({
               label: wheelchairOn ? t('Standard route') : t('Wheelchair route'),
               description: t('Route'),
               group: 'quick' as const,
-              href: withNavigationValue(here, query, 'mobility', wheelchairOn ? null : 'wheelchair'),
+              href: withNavigationValue(
+                here,
+                query,
+                'mobility',
+                wheelchairOn ? null : 'wheelchair',
+              ),
               replace: true,
             },
           ]
@@ -194,8 +201,62 @@ export function useNavigationCommands({
         replace: true,
       })),
     ]
-    return [...quick, ...searchable]
-  }, [lng, tour, step, catalog, services, exits, museum.navMeshWheelchair, search, t])
+    // While a content, step or object modal is open, its "Tell me more" pills
+    // are commands too, so the voice assistant can open them ("tell me
+    // something curious about it"). They only set `?more=` on the modal URL.
+    const modalOpen = /\/(content|object)\/[^/]+$|\/open$/.test(pathname)
+    const moreLabels = {
+      more: t('Tell me more'),
+      curiosities: t('Curiosities'),
+      story: t('Its story'),
+    }
+    const expansion: NavigationCommand[] = modalOpen
+      ? EXPANSION_ANGLES.map((angle) => {
+          const params = new URLSearchParams(search)
+          params.set('more', angle)
+          return {
+            id: `more:${angle}`,
+            label: moreLabels[angle],
+            description: t('About this work'),
+            group: 'quick' as const,
+            href: `${pathname}?${params}` as Route,
+            replace: true,
+          }
+        })
+      : []
+    // On a content, the reading options are commands too ("non ho capito" →
+    // Simpler). Voice picks fixed values: easiest wording, one-minute read.
+    const contentOpen = /\/content\/[^/]+$|\/open$/.test(pathname)
+    const version = (label: string, id: string, set: Record<string, string | null>) => {
+      const params = new URLSearchParams(search)
+      for (const [key, value] of Object.entries(set)) {
+        if (value === null) params.delete(key)
+        else params.set(key, value)
+      }
+      params.delete('more')
+      return {
+        id,
+        label,
+        description: t('Reading options'),
+        group: 'quick' as const,
+        href: `${pathname}?${params}` as Route,
+        replace: true,
+      }
+    }
+    const versions: NavigationCommand[] = contentOpen
+      ? [
+          version(t('Simpler'), 'version:simpler', { level: 'easy' }),
+          version(t('Shorter'), 'version:shorter', { minutes: '1' }),
+          version(t('For children'), 'version:children', { audience: 'children' }),
+          version(t('Original'), 'version:original', {
+            level: null,
+            minutes: null,
+            audience: null,
+          }),
+        ]
+      : []
+    return [...expansion, ...versions, ...quick, ...searchable]
+  }, [lng, tour, step, catalog, services, exits, museum.navMeshWheelchair, search, pathname, t])
 
   /** Runs a command: every command is a URL change. */
   const run = useCallback(

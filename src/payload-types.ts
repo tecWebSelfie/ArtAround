@@ -106,6 +106,7 @@ export interface Config {
     objectsThumbnails: ObjectsThumbnail;
     contents: Content;
     contentImages: ContentImage;
+    contentVariants: ContentVariant;
     tours: Tour;
     toursThumbnails: ToursThumbnail;
     'translator-provenance': TranslatorProvenance;
@@ -150,6 +151,7 @@ export interface Config {
     };
     contents: {
       objects: 'objects';
+      variants: 'contentVariants';
     };
     'lfrs-reviews': {
       replies: 'lfrs-replies';
@@ -168,6 +170,7 @@ export interface Config {
     objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
     contents: ContentsSelect<false> | ContentsSelect<true>;
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
+    contentVariants: ContentVariantsSelect<false> | ContentVariantsSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
     toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
@@ -926,6 +929,7 @@ export interface Content {
   id: string;
   createdBy?: string | null;
   difficulty: Difficulty;
+  audience?: ('everyone' | 'children') | null;
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
@@ -958,6 +962,11 @@ export interface Content {
   images?: (string | ContentImage)[] | null;
   objects: {
     docs?: (string | Object)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  variants?: {
+    docs?: (string | ContentVariant)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -1956,6 +1965,20 @@ export interface Tour {
   thumbnail?: (string | null) | ToursThumbnail;
   museum: string | Museum;
   author?: (string | null) | User;
+  generation?: {
+    generated?: boolean | null;
+    model?: string | null;
+    requestKey?: string | null;
+    request?:
+      | {
+          [k: string]: unknown;
+        }
+      | unknown[]
+      | string
+      | number
+      | boolean
+      | null;
+  };
   lfrs?: {
     favouritesCount?: number | null;
     ratingsCount?: number | null;
@@ -2036,6 +2059,48 @@ export interface ObjectsModel {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentVariants".
+ */
+export interface ContentVariant {
+  id: string;
+  kind: 'more' | 'version';
+  content?: (string | null) | Content;
+  object?: (string | null) | Object;
+  angle?: ('more' | 'curiosities' | 'story') | null;
+  difficulty?: ('easy' | 'medium' | 'hard') | null;
+  audience?: ('everyone' | 'children') | null;
+  readingTimeMins?: number | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  generation?: {
+    generated?: boolean | null;
+    model?: string | null;
+    sources?:
+      | {
+          title?: string | null;
+          url?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3306,6 +3371,10 @@ export interface PayloadLockedDocument {
         value: string | ContentImage;
       } | null)
     | ({
+        relationTo: 'contentVariants';
+        value: string | ContentVariant;
+      } | null)
+    | ({
         relationTo: 'tours';
         value: string | Tour;
       } | null)
@@ -3743,6 +3812,7 @@ export interface ObjectsThumbnailsSelect<T extends boolean = true> {
 export interface ContentsSelect<T extends boolean = true> {
   createdBy?: T;
   difficulty?: T;
+  audience?: T;
   title?: T;
   body?: T;
   bodyHTML?: T;
@@ -3751,6 +3821,7 @@ export interface ContentsSelect<T extends boolean = true> {
   copyright?: T;
   images?: T;
   objects?: T;
+  variants?: T;
   author?: T;
   attachToObject?: T;
   lfrs?:
@@ -3784,6 +3855,35 @@ export interface ContentImagesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentVariants_select".
+ */
+export interface ContentVariantsSelect<T extends boolean = true> {
+  kind?: T;
+  content?: T;
+  object?: T;
+  angle?: T;
+  difficulty?: T;
+  audience?: T;
+  readingTimeMins?: T;
+  body?: T;
+  generation?:
+    | T
+    | {
+        generated?: T;
+        model?: T;
+        sources?:
+          | T
+          | {
+              title?: T;
+              url?: T;
+              id?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
@@ -3794,6 +3894,14 @@ export interface ToursSelect<T extends boolean = true> {
   thumbnail?: T;
   museum?: T;
   author?: T;
+  generation?:
+    | T
+    | {
+        generated?: T;
+        model?: T;
+        requestKey?: T;
+        request?: T;
+      };
   lfrs?:
     | T
     | {
@@ -4755,6 +4863,7 @@ export interface TaskCreateCollectionExport {
       | 'objectsThumbnails'
       | 'contents'
       | 'contentImages'
+      | 'contentVariants'
       | 'tours'
       | 'toursThumbnails'
       | 'translator-provenance'

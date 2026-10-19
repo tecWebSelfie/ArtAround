@@ -1,3 +1,4 @@
+import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import { getNavigationDocument, getNavigationTour } from '../../../../data'
 import { tourStepIndex } from '@/lib/tour-navigation'
@@ -18,6 +19,8 @@ export default async function Page({
   return (
     <NavigationModal>
       <ObjectDetailsContent object={object} hideContents />
+      {/* Extra text about the object, drawn from the contents this visitor may read. */}
+      <ContentExpansion target="objects" id={object.id} />
       <NavigationObjectActions objectId={object.id} contents={object.contents} />
     </NavigationModal>
   )

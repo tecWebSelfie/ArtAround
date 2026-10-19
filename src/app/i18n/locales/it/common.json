@@ -1,8 +1,17 @@
 {
+  "All museums": "Tutti i musei",
+  "Back to all museums": "Torna a tutti i musei",
+  "Change museum": "Cambia museo",
+  "Import a config file": "Importa un file di configurazione",
   "languageSwitcher": {
     "label": ""
   },
   "navbar": {
     "My museums": "I miei musei"
-  }
+  },
+  "No museum matches “{{query}}”.": "Nessun museo corrisponde a “{{query}}”.",
+  "or": "oppure",
+  "Search a museum": "Cerca un museo",
+  "This file is not a museum export.": "Questo file non è un'esportazione di un museo.",
+  "This museum was not found here.": "Questo museo non è stato trovato qui."
 }

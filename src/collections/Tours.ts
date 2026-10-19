@@ -95,6 +95,32 @@ export const Tour: CollectionConfig = {
       index: true,
       access: { update: ({ req }) => isSuperAdmin(req) },
     },
+    {
+      // Set only on tours planned from the visitor's form (`/api/plan-tour`).
+      // Metadata only: a planned tour looks like any other tour to visitors,
+      // and stays available to later visitors with the same needs.
+      name: 'generation',
+      type: 'group',
+      access: { update: ({ req }) => isSuperAdmin(req) },
+      fields: [
+        { name: 'generated', type: 'checkbox', defaultValue: false },
+        { name: 'model', type: 'text' },
+        {
+          // Hash of the normalized form answers: the same answers for the same
+          // museum reuse this tour instead of planning a new one.
+          name: 'requestKey',
+          type: 'text',
+          index: true,
+        },
+        {
+          // The answers themselves (time, group, interests) can be personal,
+          // so only super admins read them.
+          name: 'request',
+          type: 'json',
+          access: { read: ({ req }) => isSuperAdmin(req) },
+        },
+      ],
+    },
   ],
 }
 

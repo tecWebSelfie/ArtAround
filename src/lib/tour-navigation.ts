@@ -29,8 +29,12 @@ export function tourNavigationPath(lng: string, tourId: string, step: number) {
   return `/${lng}/tour/${tourId}/navigation/${step}` as Route
 }
 
-/** Keys that describe where the visitor stands or where they are heading. */
-export type NavigationKey = 'at' | 'to' | 'mobility' | 'service' | 'exit'
+/**
+ * Keys that describe where the visitor stands or where they are heading, plus
+ * `audience=children` (a family visit): carried across every navigation URL
+ * so each content opens in its children's version (`ContentVersion`).
+ */
+export type NavigationKey = 'at' | 'to' | 'mobility' | 'service' | 'exit' | 'audience'
 
 type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
 
@@ -40,7 +44,7 @@ type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
  */
 const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
 
-const NAVIGATION_KEYS: NavigationKey[] = ['at', 'to', 'mobility', 'service', 'exit']
+const NAVIGATION_KEYS: NavigationKey[] = ['at', 'to', 'mobility', 'service', 'exit', 'audience']
 
 /** Carry shareable navigation state between canonical and contextual routes. */
 export function withNavigationPosition(path: string, search: string | NavigationSearch) {
@@ -48,7 +52,13 @@ export function withNavigationPosition(path: string, search: string | Navigation
   const output = new URLSearchParams()
   for (const key of NAVIGATION_KEYS) {
     const value = input instanceof URLSearchParams ? input.get(key) : input[key]
-    if (key === 'mobility' ? value === 'wheelchair' : typeof value === 'string' && value) {
+    const valid =
+      key === 'mobility'
+        ? value === 'wheelchair'
+        : key === 'audience'
+          ? value === 'children'
+          : typeof value === 'string' && value
+    if (valid) {
       output.set(key, value as string)
     }
   }

@@ -1,6 +1,7 @@
 'use client'
 
 import { NavigationAssistant } from '@/components/assistant/NavigationAssistant'
+import { useSharedSpeech } from '@/components/assistant/speech-context'
 import { useSpeech } from '@/components/assistant/use-speech'
 import { Museum, Tour } from '@/payload-types'
 import {
@@ -136,7 +137,9 @@ export const TourNavigationPage = ({
   })
   const destinationName = useDestinationName(destination, catalog, markers.services, markers.exitEntrances)
   const sentence = useStepSentence()
-  const speech = useSpeech()
+  // The shell's shared player (also used by modals); stories have no shell.
+  const ownSpeech = useSpeech()
+  const speech = useSharedSpeech() ?? ownSpeech
 
   // Voice guidance: speak a step whenever it changes (new route, GPS
   // progress, or the arrows), only while the visitor has turned it on.

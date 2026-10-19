@@ -173,6 +173,43 @@ see `tests/e2e/README.tour-navigation.md`. Storybook's map stories need a GPU an
 are tagged `!test`; Storybook proxies `/api/assistant` and `/api/speech` to a local
 `pnpm dev` so the orb can be tried there too.
 
+## Generated texts, planned tours and museum mode
+
+The visitor never sees a prompt or the word "AI": every feature below is a
+button, a form or a voice command, and generated items differ from authored
+ones only in their metadata (`generation` groups).
+
+- **Tell me more / Curiosities / Its story** (`ContentExpansion`, in the
+  content, step and object modals): `?more=<angle>` on the modal URL.
+  `/api/expand` reads the original as the visitor (a locked paid body gets
+  nothing), adds facts from Wikidata (Wikimedia Deutschland's hosted MCP
+  server) and Wikipedia in the visitor's language (`expansion-sources.ts`),
+  streams one model call (`expansion-prompt.ts`) and saves the result as a
+  `contentVariants` document (Lexical, one locale per language). The text
+  appears one paragraph at a time and is read aloud when the assistant is on
+  (one shared speech player, `speech-context.tsx`). Links are
+  `[name](/object/ID)` to entities of the same museum only (`expansion.ts`).
+- **Simpler / Shorter / For children** (`ContentVersion`): `?level=`,
+  `?minutes=`, `?audience=children` replace the body with a saved or newly
+  written version (`contentVariants`, kind `version`). `audience=children` is
+  a navigation key, so a family tour keeps it on every stop.
+- Both are also voice/Spotlight commands while a modal is open
+  (`navigation-commands.ts`: `more:*`, `version:*`).
+- **Plan my visit** (`/[lng]/tour/plan`, linked from the navigator home):
+  time, first or returning visit, adults and children's ages, interests (typed
+  or dictated through `/api/transcribe`), wheelchair. `/api/plan-tour` picks
+  the museum from the interests when none is chosen, lets the model choose
+  free content IDs, keeps what fits the time (`tour-plan.ts`), orders stops by
+  nearest room (`tour-order.ts`) and saves an ordinary tour with
+  `generation.generated` and a hash of the answers, reused for identical ones.
+- **Museum mode** (`MuseumSwitch` in the tabs layout, `museum-mode.ts`): a
+  cookie locks the app to one museum; search pages and the plan form follow
+  it. "Import a config file" accepts a museum exported from the Payload admin
+  (import/export plugin, JSON or CSV, `museum-config.ts`).
+
+Checks: `tests/int/expansion|tour-order|museum-config.int.spec.ts` and the
+real-app flows in `tests/e2e/content-expansion.e2e.spec.ts`.
+
 ## Local fixture and focused checks
 
 See [test instructions](../tests/e2e/README.tour-navigation.md) for commands.

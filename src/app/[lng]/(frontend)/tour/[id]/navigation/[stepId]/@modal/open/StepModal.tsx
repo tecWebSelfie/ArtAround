@@ -1,5 +1,7 @@
 'use client'
 
+import { ContentExpansion } from '@/components/expansion/ContentExpansion'
+import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { Content } from '@/payload-types'
 import { Button, Stack } from '@mantine/core'
@@ -25,7 +27,10 @@ export function StepModal({
   const { t } = useTranslation('tour-navigation')
   return (
     <Stack>
-      <ContentDetailsModalContent content={content} />
+      <ContentVersion content={content}>
+        <ContentDetailsModalContent content={content} />
+      </ContentVersion>
+      <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />
       {nextHref && (
         <Button

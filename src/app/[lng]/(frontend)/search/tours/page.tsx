@@ -6,6 +6,7 @@ import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilte
 import { Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
+import { museumScope } from '@/lib/museum-mode'
 
 const PAGE_SIZE = 12
 
@@ -17,6 +18,7 @@ export default async function SearchToursPage(props: {
   const searchParams = await props.searchParams
   const { t } = await getT('search')
   const payload = await getPayload({ config })
+  const scope = await museumScope()
 
   const definitions: FilterDefinition[] = [
     {
@@ -38,7 +40,15 @@ export default async function SearchToursPage(props: {
 
   const result = await payload.find({
     collection: 'tours',
-    where: activeFiltersToWhere(initialFilters, definitions),
+    // Museum mode: only the locked museum's tours.
+    where: scope
+      ? {
+          and: [
+            activeFiltersToWhere(initialFilters, definitions),
+            { museum: { equals: scope.museumId } },
+          ],
+        }
+      : activeFiltersToWhere(initialFilters, definitions),
     page,
     limit: PAGE_SIZE,
     depth: 1,

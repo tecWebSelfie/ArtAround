@@ -184,6 +184,18 @@ export const Contents: CollectionConfig = {
   },
   fields: [
     DifficultyField,
+    {
+      // Who the text is written for. Personalised tours for families pick
+      // `children` contents first; any content can also be read in a
+      // children's version from its modal (`contentVariants`).
+      name: 'audience',
+      type: 'select',
+      defaultValue: 'everyone',
+      options: [
+        { label: 'Everyone', value: 'everyone' },
+        { label: 'Children', value: 'children' },
+      ],
+    },
     editorial({ name: 'title', type: 'text', required: true, unique: true }),
     {
       ...editorial({ name: 'body', type: 'richText', required: true }),
@@ -229,6 +241,14 @@ export const Contents: CollectionConfig = {
       on: 'contents',
       hasMany: false,
       required: true,
+    },
+    {
+      // Additions and other versions of this content (`contentVariants`),
+      // listed here so staff can review them from the content itself.
+      name: 'variants',
+      type: 'join',
+      collection: 'contentVariants',
+      on: 'content',
     },
     {
       // Set from the caller on create (`assignAuthor`); never reassigned.

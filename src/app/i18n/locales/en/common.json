@@ -1,8 +1,17 @@
 {
+  "All museums": "All museums",
+  "Back to all museums": "Back to all museums",
+  "Change museum": "Change museum",
+  "Import a config file": "Import a config file",
   "languageSwitcher": {
     "label": "Select Language"
   },
   "navbar": {
     "My museums": "My museums"
-  }
+  },
+  "No museum matches “{{query}}”.": "No museum matches “{{query}}”.",
+  "or": "or",
+  "Search a museum": "Search a museum",
+  "This file is not a museum export.": "This file is not a museum export.",
+  "This museum was not found here.": "This museum was not found here."
 }

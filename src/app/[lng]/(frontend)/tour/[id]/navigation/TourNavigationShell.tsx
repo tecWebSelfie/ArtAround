@@ -5,6 +5,7 @@ import { validateBuildJson } from '@pascal-app/core'
 import { useParams } from 'next/navigation'
 import type { Museum, Tour } from '@/payload-types'
 import { museumObjectId, tourStepIndex, type NavigationCatalogObject } from '@/lib/tour-navigation'
+import { SpeechProvider } from '@/components/assistant/speech-context'
 import { TourNavigationPage } from './[stepId]/TourNavigation'
 
 type TourNavigationData = {
@@ -45,14 +46,17 @@ export function TourNavigationShell({
 
   return (
     <TourNavigationDataContext.Provider value={{ tour, catalog, placedObjectIds }}>
-      {step === null ? (
-        children
-      ) : (
-        <>
-          <TourNavigationPage tour={tour} step={step} museum={museum} catalog={catalog} />
-          {children}
-        </>
-      )}
+      {/* Map and modal slot share one speech player (see speech-context). */}
+      <SpeechProvider>
+        {step === null ? (
+          children
+        ) : (
+          <>
+            <TourNavigationPage tour={tour} step={step} museum={museum} catalog={catalog} />
+            {children}
+          </>
+        )}
+      </SpeechProvider>
     </TourNavigationDataContext.Provider>
   )
 }

@@ -19,13 +19,19 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { Mic } from 'lucide-react'
+import { Route as RouteIcon } from 'lucide-react'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 
 export default function NavigatorHomePage({
   onOptionSubmit,
 }: {
   onOptionSubmit?: ComboboxProps['onOptionSubmit']
 }) {
+  const { t } = useTranslation('plan-visit')
+  const { lng } = useParams<{ lng: string }>()
   return (
     <Stack mx={{ base: 'md', sm: 'xl' }}>
       <Stack mt="10dvh">
@@ -65,15 +71,19 @@ export default function NavigatorHomePage({
         </Center>
         <Divider orientation="vertical" />
         <Center flex="1 1 0" miw={0}>
+          {/* Plan my visit: a short form that builds a tour for the visitor's
+              time, group and interests (tour/plan, /api/plan-tour). */}
           <Stack align="center" maw="100%" miw={0}>
             <ActionIcon
+              component={Link}
+              href={`/${lng}/tour/plan` as Route}
               autoContrast
               size={rem('clamp(72px, 22vw, 150px)')}
               variant="filled"
               className="rounded-full"
-              aria-label="Turn the microphone on"
+              aria-label={t('Plan my visit')}
             >
-              <Mic size="80%" />
+              <RouteIcon size="70%" aria-hidden />
             </ActionIcon>
             <Text
               ta="center"
@@ -82,7 +92,7 @@ export default function NavigatorHomePage({
               fz={{ base: 'xs', sm: 'sm' }}
               maw="100%"
             >
-              Or turn the mic on and tell us what you want
+              {t('Or plan a visit around your time and interests')}
             </Text>
           </Stack>
         </Center>

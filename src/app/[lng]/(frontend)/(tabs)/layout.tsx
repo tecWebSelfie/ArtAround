@@ -1,5 +1,7 @@
 import { getSession } from '@/lib/session'
-import { AppShellFooter, Stack } from '@mantine/core'
+import { MuseumSwitch } from '@/components/mantine/MuseumSwitch'
+import { museumScope } from '@/lib/museum-mode'
+import { AppShellFooter, Group, Stack } from '@mantine/core'
 import { NavBar, type MyMuseum } from './NavBar'
 
 export default async function TabsLayout({ children }: { children: React.ReactNode }) {
@@ -21,8 +23,31 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
       : [],
   )
 
+  // Museum mode: the switch shows the locked museum (or "All museums") on
+  // every tab, and opens the "Change museum" modal.
+  const [scope, museums] = await Promise.all([
+    museumScope(),
+    payload.find({
+      collection: 'museums',
+      limit: 200,
+      depth: 0,
+      sort: 'name',
+      select: { name: true, location: true },
+    }),
+  ])
+
   return (
     <>
+      <Group justify="flex-end" px={{ base: 'md', sm: 'xl' }} pt="sm">
+        <MuseumSwitch
+          current={scope ? { id: scope.museumId, name: scope.name } : null}
+          museums={museums.docs.map((museum) => ({
+            id: museum.id,
+            name: museum.name,
+            city: museum.location?.city,
+          }))}
+        />
+      </Group>
       <Stack>{children}</Stack>
       <AppShellFooter component="nav">
         <NavBar account={user ? { id: String(user.id) } : null} myMuseums={myMuseums} />

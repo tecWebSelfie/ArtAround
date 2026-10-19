@@ -28,7 +28,7 @@ export const SearchFocus: Story = {
 
     await expect(canvas.getByText("Everything's")).toBeVisible()
     await expect(canvas.getByText('Scan tour QR to start')).toBeVisible()
-    await expect(canvas.getByText('Or turn the mic on and tell us what you want')).toBeVisible()
+    await expect(canvas.getByText('Or plan a visit around your time and interests')).toBeVisible()
 
     // Reflection renders an aria-hidden duplicate of the autocomplete below the
     // real one; the first match in DOM order is the interactive input.

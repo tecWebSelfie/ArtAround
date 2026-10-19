@@ -35,6 +35,7 @@ import { pollMintModelOperation } from './tasks/pollMintModelOperation'
 import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
+import { ContentVariants } from './collections/ContentVariants'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
 import { Pages } from './collections/Pages'
@@ -83,6 +84,8 @@ export default buildConfig({
     ObjectsThumbnails,
     Contents,
     ContentImages,
+    // Generated or hand-written additions and versions of contents (/api/expand).
+    ContentVariants,
     Tour,
     ToursThumbnails,
   ],
@@ -143,7 +146,9 @@ export default buildConfig({
       generateURL: (docs) => docs.reduce((url, doc) => `${url}/${String(doc.slug)}`, ''),
     }),
     importExportPlugin({
-      collections: [{ slug: 'users' }, { slug: 'pages' }, { slug: 'roles' }],
+      // `museums`: exporting a museum gives the config file that locks the
+      // app to it ("Change museum" → Import a config file, MuseumSwitch).
+      collections: [{ slug: 'users' }, { slug: 'pages' }, { slug: 'roles' }, { slug: 'museums' }],
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({

@@ -1,3 +1,5 @@
+import { ContentExpansion } from '@/components/expansion/ContentExpansion'
+import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import {
   contentObjectId,
@@ -27,7 +29,12 @@ export default async function Page({
   const content = await getNavigationDocument('contents', contentId, lng)
   return (
     <NavigationModal>
-      <ContentDetailsModalContent content={content} />
+      {/* Simpler / Shorter / For children: swaps the body for another version. */}
+      <ContentVersion content={content}>
+        <ContentDetailsModalContent content={content} />
+      </ContentVersion>
+      {/* "Tell me more" pills and the extra text, right after the body. */}
+      <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />
     </NavigationModal>
   )
