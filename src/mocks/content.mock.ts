@@ -34,6 +34,7 @@ function baseContent(): Content {
     title: 'Storia della ceramica attica',
     body: mockBody('Introduzione alla ceramica attica a figure rosse e alle sue tecniche.'),
     copyright: '© Museo Civico di Esempio',
+    pricing: { currency: 'eur' },
     images: null,
     objects: {
       docs: ['object-1'],

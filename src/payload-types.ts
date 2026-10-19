@@ -109,6 +109,7 @@ export interface Config {
     contentImages: ContentImage;
     tours: Tour;
     toursThumbnails: ToursThumbnail;
+    purchases: Purchase;
     'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -135,6 +136,7 @@ export interface Config {
   };
   collectionsJoins: {
     users: {
+      purchases: 'purchases';
       curatorOf: 'user-museum-memberships';
       directorOf: 'user-museum-memberships';
     };
@@ -169,6 +171,7 @@ export interface Config {
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
     tours: ToursSelect<false> | ToursSelect<true>;
     toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
+    purchases: PurchasesSelect<false> | PurchasesSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -850,10 +853,19 @@ export interface User {
     lastName: string;
     fullName: string;
   };
+  description?: string | null;
   authoredContents?: (string | Content)[] | null;
   authoredTours?: (string | Tour)[] | null;
   avatar?: (string | null) | UsersPropic;
   bio?: string | null;
+  /**
+   * Paid content and tours for this user. Read-only — written by the Stripe webhook.
+   */
+  purchases?: {
+    docs?: (string | Purchase)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
   curatorOf?: {
     docs?: (string | UserMuseumMembership)[];
     hasNextPage?: boolean;
@@ -956,6 +968,20 @@ export interface Content {
     docs?: (string | User)[];
     hasNextPage?: boolean;
     totalDocs?: number;
+  };
+  /**
+   * Sell this document as a one-off purchase. Free when priceCents is empty/0.
+   */
+  pricing: {
+    /**
+     * Price in cents (e.g. 499 = €4.99). Leave empty or 0 to keep it free.
+     */
+    priceCents?: number | null;
+    currency: 'eur' | 'usd' | 'gbp';
+    /**
+     * Optional. A pre-created Stripe Price ID (price_…). When empty, checkout builds the price inline from priceCents.
+     */
+    stripePriceID?: string | null;
   };
   lfrs?: {
     favouritesCount?: number | null;
@@ -1081,7 +1107,28 @@ export interface ObjectsModel {
 export interface Tour {
   id: string;
   createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   description?: string | null;
   contents: (string | Content)[];
   thumbnail?: (string | null) | ToursThumbnail;
@@ -1094,6 +1141,20 @@ export interface Tour {
     docs?: (string | User)[];
     hasNextPage?: boolean;
     totalDocs?: number;
+  };
+  /**
+   * Sell this document as a one-off purchase. Free when priceCents is empty/0.
+   */
+  pricing: {
+    /**
+     * Price in cents (e.g. 499 = €4.99). Leave empty or 0 to keep it free.
+     */
+    priceCents?: number | null;
+    currency: 'eur' | 'usd' | 'gbp';
+    /**
+     * Optional. A pre-created Stripe Price ID (price_…). When empty, checkout builds the price inline from priceCents.
+     */
+    stripePriceID?: string | null;
   };
   lfrs?: {
     favouritesCount?: number | null;
@@ -2311,6 +2372,44 @@ export interface UsersPropic {
   focalY?: number | null;
 }
 /**
+ * One row per paid Stripe Checkout session. Written by Stripe, read-only in the admin panel.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases".
+ */
+export interface Purchase {
+  id: string;
+  user: string | User;
+  /**
+   * The purchased content or tour.
+   */
+  target:
+    | {
+        relationTo: 'contents';
+        value: string | Content;
+      }
+    | {
+        relationTo: 'tours';
+        value: string | Tour;
+      };
+  status: 'paid' | 'refunded' | 'failed';
+  /**
+   * Stripe Checkout Session ID (cs_…). Unique — makes webhooks idempotent.
+   */
+  stripeSessionID: string;
+  stripePaymentIntentID?: string | null;
+  productTitle?: string | null;
+  /**
+   * Amount actually paid, in cents.
+   */
+  amountCents?: number | null;
+  currency?: string | null;
+  email?: string | null;
+  purchasedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "user-museum-memberships".
  */
@@ -3296,6 +3395,10 @@ export interface PayloadLockedDocument {
         value: string | ToursThumbnail;
       } | null)
     | ({
+        relationTo: 'purchases';
+        value: string | Purchase;
+      } | null)
+    | ({
         relationTo: 'translator-provenance';
         value: string | TranslatorProvenance;
       } | null)
@@ -3428,10 +3531,12 @@ export interface UsersSelect<T extends boolean = true> {
         lastName?: T;
         fullName?: T;
       };
+  description?: T;
   authoredContents?: T;
   authoredTours?: T;
   avatar?: T;
   bio?: T;
+  purchases?: T;
   curatorOf?: T;
   directorOf?: T;
   verifieds?: T;
@@ -4010,6 +4115,13 @@ export interface ContentsSelect<T extends boolean = true> {
   images?: T;
   objects?: T;
   author?: T;
+  pricing?:
+    | T
+    | {
+        priceCents?: T;
+        currency?: T;
+        stripePriceID?: T;
+      };
   lfrs?:
     | T
     | {
@@ -4046,11 +4158,19 @@ export interface ContentImagesSelect<T extends boolean = true> {
 export interface ToursSelect<T extends boolean = true> {
   createdBy?: T;
   title?: T;
+  body?: T;
   description?: T;
   contents?: T;
   thumbnail?: T;
   museum?: T;
   author?: T;
+  pricing?:
+    | T
+    | {
+        priceCents?: T;
+        currency?: T;
+        stripePriceID?: T;
+      };
   lfrs?:
     | T
     | {
@@ -4079,6 +4199,24 @@ export interface ToursThumbnailsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases_select".
+ */
+export interface PurchasesSelect<T extends boolean = true> {
+  user?: T;
+  target?: T;
+  status?: T;
+  stripeSessionID?: T;
+  stripePaymentIntentID?: T;
+  productTitle?: T;
+  amountCents?: T;
+  currency?: T;
+  email?: T;
+  purchasedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4854,6 +4992,10 @@ export interface TaskTranslateDocument {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null);
     source_lng: string;
     target_lng: string;
@@ -4887,6 +5029,7 @@ export interface TaskCreateCollectionExport {
       | 'contentImages'
       | 'tours'
       | 'toursThumbnails'
+      | 'purchases'
       | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
@@ -5016,6 +5159,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null);
     source_lng: string;
     strategy: string;

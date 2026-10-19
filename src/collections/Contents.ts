@@ -1,5 +1,6 @@
 import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
+import { pricingField } from '@/fields/PricingField'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { CollectionConfig, FieldHook } from 'payload'
@@ -52,6 +53,9 @@ export const Contents: CollectionConfig = {
       hasMany: false,
       required: true,
     },
+    // Price it (leave `priceCents` empty for free) to make it purchasable
+    // through `POST /api/checkout`.
+    pricingField(),
   ],
 }
 

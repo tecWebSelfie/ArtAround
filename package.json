@@ -124,6 +124,7 @@
     "reading-time-estimator": "^2.15.0",
     "server-only": "^0.0.1",
     "sharp": "0.34.2",
+    "stripe": "^10.17.0",
     "tailwindcss": "^4.3.3",
     "three": "^0.186.1",
     "three-mesh-bvh": "^0.9.16",
@@ -199,14 +200,14 @@
       "sharp",
       "unrs-resolver"
     ],
-    "patchedDependencies": {
-      "payload-phone-number-plugin": "patches/payload-phone-number-plugin.patch",
-      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch"
-    },
     "overrides": {
       "valibot": "1.5.0",
       "@mantine/core": "9.6.3",
       "@mantine/hooks": "9.6.3"
+    },
+    "patchedDependencies": {
+      "payload-phone-number-plugin": "patches/payload-phone-number-plugin.patch",
+      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch"
     }
   },
   "loki": {

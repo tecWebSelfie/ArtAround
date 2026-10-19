@@ -112,6 +112,7 @@ export const Users: CollectionConfig = {
     // Email added by default
     // Add more fields as needed
     nameFieldsGroup,
+    { name: 'description', type: 'text', required: false },
     {
       name: 'authoredContents',
       type: 'relationship',
@@ -137,6 +138,17 @@ export const Users: CollectionConfig = {
       type: 'textarea',
       defaultValue: 'This user has not added a bio yet.',
       localized: true,
+    },
+    {
+      // Reverse view of the `purchases` collection: everything this user owns.
+      name: 'purchases',
+      type: 'join',
+      collection: 'purchases',
+      on: 'user',
+      admin: {
+        description:
+          'Paid content and tours for this user. Read-only — written by the Stripe webhook.',
+      },
     },
     {
       name: 'curatorOf',

@@ -22,6 +22,7 @@ function baseTour(): Tour {
     id: 'tour-001',
     title: 'La Monna Lisa e i suoi misteri',
     description: 'Un percorso tra le sale rinascimentali alla scoperta dei segreti della Gioconda.',
+    pricing: { currency: 'eur' },
     contents: ['content-001', 'content-002'],
     museum: {
       docs: ['museum-001'],

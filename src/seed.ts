@@ -395,6 +395,7 @@ try {
         fullName: 'Davide Bianchi',
       },
       bio: 'Street art guide in Turin',
+      description: 'Street art guide in Turin',
     },
     {
       username: 'chiara',
@@ -406,6 +407,7 @@ try {
         fullName: 'Chiara Moretti',
       },
       bio: 'Modern sculpture enthusiast from Bologna',
+      description: 'Modern sculpture enthusiast from Bologna',
     },
     {
       username: 'luca',
@@ -417,6 +419,7 @@ try {
         fullName: 'Luca Ferrari',
       },
       bio: 'Museum volunteer and audio guide narrator',
+      description: 'Museum volunteer and audio guide narrator',
     },
     {
       username: 'anna',
@@ -428,6 +431,7 @@ try {
         fullName: 'Anna Rossi',
       },
       bio: 'Baroque painting scholar in Naples',
+      description: 'Baroque painting scholar in Naples',
     },
     {
       username: 'paolo',
@@ -439,6 +443,7 @@ try {
         fullName: 'Paolo Greco',
       },
       bio: 'Digital archivist for Sicilian museums',
+      description: 'Digital archivist for Sicilian museums',
     },
   ] satisfies RequiredDataFromCollectionSlug<'users'>[]
   for (const user of demoUsers) {

@@ -42,6 +42,7 @@ if (!museum) {
             title: `${label}: ${title}`,
             difficulty: 'easy',
             copyright: 'Development fixture',
+            pricing: { currency: 'eur' },
             objects: {},
             author: {},
             body: {
@@ -131,6 +132,7 @@ if (!museum) {
       data: {
         title: label,
         contents: contents.slice(0, 2).map(({ id }) => id),
+        pricing: { currency: 'eur' },
         museum: {},
         author: {},
       },
