@@ -12,6 +12,10 @@ colors:
   medium-yellow: '#fab005'
   hard-red: '#c92a2a'
   voice-aura: '#1FD5F9'
+  feedback-correct: '#2f9e44'
+  feedback-wrong: '#e03131'
+  chart-highlight: '#ff922b'
+  chart-muted: '#ced4da'
   surface-light: '#ffffff'
   surface-subtle: '#f8f9fa'
   surface-dark: '#242424'
@@ -84,6 +88,24 @@ components:
     backgroundColor: '{colors.surface-light}'
     rounded: '{rounded.md}'
     padding: '0.375rem'
+  answer-option:
+    backgroundColor: '{colors.surface-light}'
+    textColor: '{colors.editor-foreground}'
+    rounded: '{rounded.md}'
+    height: '3.5rem'
+    padding: '0.75rem 1.625rem'
+  answer-option-correct:
+    textColor: '{colors.feedback-correct}'
+    rounded: '{rounded.md}'
+  answer-option-wrong:
+    textColor: '{colors.feedback-wrong}'
+    rounded: '{rounded.md}'
+  footer-action:
+    backgroundColor: '{colors.navigation-blue}'
+    textColor: '{colors.surface-light}'
+    rounded: '{rounded.sm}'
+    height: '2.625rem'
+    width: '100%'
 ---
 
 # Design System: ArtAround
@@ -134,7 +156,10 @@ The palette is Mantine's stock control palette plus Tailwind gradient stops, wit
 - **Content teal** (`content-teal`, Mantine teal.6): the content identity. Content outlines use Tailwind `border-teal-600` (`border-2`), and content headings use a Mantine `teal → cyan` gradient. Preserve the distinction when tracing styles; do not silently substitute one value for another.
 - **Voice aura** (`voice-aura`): the default accent of the `agents-ui` shader visualizer (`#1FD5F9`). Recorded as evidence of the current default, not as a palette commitment — the assistance affordance is not shipped, and this value has not been reconciled with the Mantine palette.
 
-### Neutral
+### Feedback and data
+
+- **Answer right / answer wrong** (`feedback-correct`, Mantine green.8; `feedback-wrong`, Mantine red.8): the quiz's verdict text and the `light` tint of a graded answer option. Always paired with a ✓ / ✗ icon and a word ("Right answer", "Your answer"), per The Triplet Rule. These are darker steps than the difficulty green/red so small labels keep contrast on their light tints.
+- **Your bar / everyone else** (`chart-highlight`, Mantine orange.5; `chart-muted`, Mantine gray.4): the score-distribution chart on quiz results. Orange is the warm half of the tour identity, so "you" reads as part of the tour; every other band stays quiet gray. Per-question rates use a neutral `gray.6` `Progress`, not a hue.
 
 - **Light surface / subtle surface** (`surface-light`, `surface-subtle`): white and Mantine gray.0. Objects use relatively plain image-led presentation so the museum image or object can lead.
 - **Dark surface / dark control / dark border / dark-scheme text**: the rendered Mantine dark theme uses the corresponding frontmatter values. Prefer Mantine's semantic variables over hardcoded light surfaces so scheme switching keeps working.
@@ -142,6 +167,8 @@ The palette is Mantine's stock control palette plus Tailwind gradient stops, wit
 - **Dimmed text**: supporting copy uses Mantine's `dimmed` token (e.g. catalog hints); the navigator's "Or" divider label uses gray.7.
 
 ### Named Rules
+
+**The Highlight-One Rule.** A chart colors exactly one series or bar: the visitor's own. Everything else is `chart-muted`. If nothing belongs to the viewer, the chart is single-hue.
 
 **The Triplet Rule.** Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (`Leaf`/green, `Gauge`/yellow, `Flame`/red.9). Keep all three when restyling.
 
@@ -162,6 +189,8 @@ The palette is Mantine's stock control palette plus Tailwind gradient stops, wit
 
 These are inherited Mantine values, not a new custom scale. The prototype does not establish a universal reading-column width. Text blocks lean on Mantine's `textWrap="balance"` and `lineClamp` rather than a fixed measure.
 
+- **Counters and scores:** progress counters ("Question 3 of 5"), the result score and numbered review items use tabular numerals (`font-variant-numeric: tabular-nums`) so digits do not jitter as they change. The result score is the one oversized number (36px, weight 800, with a dimmed 20px "/total").
+
 ### Named Rules
 
 **The Gradient-Span Rule.** A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.
@@ -178,7 +207,11 @@ Content and object carousels show 60% slide width at base, 33.3333% at `sm`, and
 
 The museum map supports floating task controls. The staff creation toolbar is positioned at top 4.5rem and left 0.75rem, with bounded height and vertical scrolling; the object catalog keeps a scrollable body and wraps its actions. These measurements describe current layouts; they should be refined when content, touch use, or viewport constraints expose defects.
 
+**Focused task pages** (the end-of-tour quiz and its results) leave the map layout entirely: a single `Container size="xs"` reading column (540px, `md` side padding) inside `AppShellMain`, so the shell reserves room for the fixed 64px `AppShellFooter`. The footer carries exactly one full-width forward action ("Next question", "See your results", "Back to the navigator"); secondary actions stay in the column. The quiz adds a sticky in-column header (back icon, tour title, "Question n of N", progress bar) on the body background. Sections on the results page are separated by `xl` stack gaps and titled with compact `h4`-sized headings; review items are a divided list, not cards.
+
 ### Named Rules
+
+**The Thumb-Reach Rule.** On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not.
 
 **The Overlay Opt-In Rule.** Floating controls over a map or canvas sit in a transparent, non-interactive overlay container; each control re-enables pointer events on itself. Never give the container pointer events back.
 
@@ -242,9 +275,29 @@ Each component below leads with its character, then shape, color assignment, sta
 
 - **ArtaroundTabs:** a moving 2px blue bottom indicator (`FloatingIndicator`) over `grow`-distributed tabs, optional icons, optional panels, and a `none` variant. Selected state is the underline, not a filled block.
 - **Bottom app navigation:** green Navigator and red Marketplace, `light` when active and `subtle` when inactive, with a separate language switcher.
-- **Tour progress:** a horizontally scrolling Mantine `Stepper` (`size="xs"`, `iconSize={24}`) whose active stop scrolls itself into view on change; clicking a stop opens that content without moving the tour cursor.
+- **Tour progress:** a horizontally scrolling Mantine `Stepper` (`size="xs"`, `iconSize={24}`) whose active stop scrolls itself into view on change; clicking a stop opens that content without moving the tour cursor. A tour with a quiz ends with one more step, "Quiz", marked by a checklist icon; it is visible from the start and selectable at any time. When the tour is complete, the footer pairs a compact `h4` "Tour completed" with a primary "Take the quiz".
 - **Tour content modals:** open in contextual Mantine modals while the map stays mounted; closing returns to the current tour context. Shareable modal URLs and explicit visitor position are behavioral requirements in PRODUCT.md and `docs/tour-navigation.md`; visual refinements must preserve them.
 - **Spotlight:** the map's search affordance is a Spotlight over the museum-scoped catalog, deliberately separate from the tour's ordered progress.
+
+### Quiz answers and feedback
+
+The quiz's one bespoke control: calm, large, and honest about the result.
+
+- **Answer option:** a full-width `Button size="lg"` (`answer-option`): `default` variant, `md` radius, at least 56px tall, label left-aligned and wrapping (`white-space: normal`, line-height 1.35, weight 500). Four per question, stacked with `sm` gaps inside a labelled group.
+- **States:** idle → the chosen option shows Mantine's inline loader while the others stop responding → graded. The right option turns `light` green with ✓ + "Right answer"; a wrong pick turns `light` red with ✗ + "Your answer"; the rest stay default with dimmed text. Graded options are `aria-disabled`, never grayed out, so the comparison stays readable.
+- **Feedback panel:** a bordered `md`-radius `Paper` below the options: a bold verdict in `feedback-correct` / `feedback-wrong` ("Correct!" / "Not quite."), the explanation as body text, and subtle `compact-sm` "Read the content again" buttons with a book icon. The panel sits in a polite live region; a wrong answer also announces the right one to screen readers.
+- **Quiz progress:** a `sm` `Progress` whose filled section carries the tour gradient (`from-purple-700 to-orange-400`), the only place the gradient appears in the quiz.
+- **Intro:** tour title as the `h2`-sized heading, one dimmed line for length ("Final quiz · 5 questions · about 3 min"), an orange `Alert` with a warning icon when stops are still ahead, then stacked actions: primary start/resume, default "Start over", subtle "Back to the tour".
+- **Read again:** contents open in a right-side `Drawer` (`size="lg"`), never by navigating away from the quiz or results.
+
+### Quiz results
+
+- **Score:** a 160px `RingProgress` (14px stroke, round caps) whose single section is the score percentage: green from 50%, orange below. The score in the ring's center is the ring's label, not decoration beside it. A one-line verdict follows.
+- **Comparison:** a plain sentence states the takeaway ("You did better than 62% of visitors"); a 180px `@mantine/charts` `BarChart` below shows the shape: no y-axis, grid, tick lines or tooltip, value labels on bars, own band in `chart-highlight` and named "(you)" on the axis. Below the statistics threshold, a dimmed sentence replaces both.
+- **Review:** numbered prompt (dimmed tabular number), ✓/✗ lines for your answer and the right answer, dimmed explanation, an `xs` gray `Progress` with "n% of visitors got this right", and a read-again or "Stop not visited yet: open it" action. Items are separated by `Divider`s.
+- **Closing actions:** the plugin's star rating (`LfrsRating`), then Share and Retake as an evenly split pair of `default` buttons, and Back to the navigator in the footer.
+
+**The Chart-Follows-Sentence Rule.** A chart never carries the takeaway alone. The sentence above it states the finding; the chart adds the distribution, and its container exposes a text summary for screen readers.
 
 ### Voice affordance (scoped signature; not yet shipped)
 
@@ -274,6 +327,9 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Do** keep content meaning available through labels and icons as well as color (see The Triplet Rule).
 - **Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.
 - **Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.
+- **Do** put a focused task's single forward action full-width in the 64px footer, with the content inside `AppShellMain` (see The Thumb-Reach Rule).
+- **Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.
+- **Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).
 
 ### Don't:
 
@@ -283,5 +339,7 @@ Two files in `src/components/ui` (`shine-border.tsx`, `orbiting-circles.tsx`) ex
 - **Don't** promote the voice aura into a global motif, background, or loading treatment.
 - **Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.
 - **Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.
+- **Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.
+- **Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.
 
-<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. -->
+<!-- Extraction sources: src/theme.ts (empty createTheme); src/app/[lng]/(frontend)/globals.css and layout.tsx; src/app/[lng]/(frontend)/(tabs)/{layout.tsx,NavBar.tsx,navigator/NavigatorPage.tsx}; tour/[id]/navigation/[stepId]/{TourNavigation.tsx,TourProgress.tsx}; src/components/mantine/{ArtaroundTabs,DifficultyBadge,DurationBadge,ArtAroundGlobalSearch,ToursCarousel,ContentsCarousel,ObjectsCarousel,TypeWriterText}.tsx; src/components/pascal/{museum-creation-toolbar,object-catalog}.module.css; src/components/agents-ui/agent-audio-visualizer-aura.tsx; src/components/ui/{shine-border,orbiting-circles}.tsx; Storybook docs for ArtaroundTabs, DifficultyBadge, ToursCarousel, ArtAroundGlobalSearch; package.json (Mantine 9.6.3, Tailwind v4, shadcn). Rendered navigator, tour carousel, and dark tabs were inspected in the prior pass; this refresh verified claims against source. Merge 2026-10-19: tour/[id]/quiz/{TourQuiz,QuizContentDrawer}.tsx, quiz/result/[token]/QuizResult.tsx (+ stories, rendered at 390px and 1280px), navigation/[stepId]/{TourProgress,TourNavigation}.tsx; @mantine/charts 9.6.3. -->

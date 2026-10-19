@@ -1,67 +1,207 @@
-# Payload Blank Template
+# ArtAround
 
-This template comes configured with the bare minimum to get started on anything you need.
+ArtAround is a modern web application built with Next.js and Payload CMS, extended with a LiveKit-powered voice AI agent. It combines a headless CMS, a MongoDB-backed content layer, and an interactive conversational assistant to support content-driven experiences and AI-enhanced interfaces.
 
-## Quick start
+## Overview
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+This project is designed as a flexible foundation for:
 
-## Quick Start - local setup
+- publishing and managing structured content through Payload CMS
+- serving a public-facing Next.js frontend
+- supporting custom API routes and backend logic
+- integrating a voice assistant through LiveKit
+- testing UI, API, and end-to-end flows with modern tooling
 
-To spin up this template locally, follow these steps:
+## Tech Stack
 
-### Clone
+- Next.js 16
+- React 19
+- TypeScript
+- Payload CMS 3
+- MongoDB
+- LiveKit Agents
+- Tailwind CSS / Mantine / UI component patterns
+- Vite + Vitest + Playwright
+- Storybook
+- Sentry
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+## Project Structure
 
-### Development
+```txt
+.
+├── src/
+│   ├── app/
+│   │   ├── (frontend)           # public-facing frontend routes
+│   │   ├── (payload)            # Payload admin and related setup
+│   │   ├── api/                 # custom API routes
+│   │   ├── my-route/            # example custom route
+│   │   └── global-error.tsx
+│   ├── collections/
+│   │   ├── Media.ts             # media upload collection
+│   │   ├── Pages.ts             # pages collection
+│   │   └── Users.ts             # auth-enabled user collection
+│   ├── components/
+│   ├── hooks/
+│   ├── lib/
+│   ├── mocks/
+│   ├── stories/
+│   ├── payload.config.ts        # Payload CMS configuration
+│   ├── payload-types.ts         # generated Payload types
+│   ├── theme.ts
+│   ├── instrumentation.ts
+│   └── instrumentation-client.ts
+├── my-agent/
+│   └── src/
+│       ├── agent.ts             # LiveKit voice AI agent
+│       ├── main.ts              # agent entry point
+│       ├── agent.test.ts        # agent test example
+│       └── models/              # AI model/provider configuration
+├── public/
+├── tests/
+├── .env.example
+├── .env.mongo.example
+├── docker-compose.yml
+├── Dockerfile
+├── Dockerfile.devcontainer
+├── package.json
+├── pnpm-lock.yaml
+├── next.config.ts
+├── playwright.config.ts
+├── vitest.config.mts
+├── README.md
+├── template.compose.payload.yml
+├── LICENSE
+└── .gitignore
+```
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+## Features
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+### Payload CMS
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+The app uses Payload CMS as the content and admin backbone. Key configuration includes:
 
-#### Docker (Optional)
+- a `Users` collection for authentication
+- a `Media` collection for uploaded assets
+- a `Pages` collection for content pages
+- MongoDB adapter and rich text editor configuration
+- Stripe, redirects, import/export, nested docs, and MCP plugins
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+### Frontend
 
-To do so, follow these steps:
+The public app lives under `src/app/(frontend)`. This area contains the user-facing Next.js routes and the LiveKit agent example interface.
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+### AI Voice Assistant
 
-## How it works
+The repository includes a LiveKit-based voice AI project in `my-agent/`.
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+The app exposes a token endpoint at `src/app/api/token/route.ts` for LiveKit session setup, while the agent itself is configured in `my-agent/src/agent.ts`.
 
-### Collections
+## Local Development
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+### Prerequisites
 
-- #### Users (Authentication)
+- Node.js 18.20+ or 20.9+
+- pnpm
+- MongoDB
+- Docker (recommended for local services and LiveKit)
 
-  Users are auth-enabled collections that have access to the admin panel.
+### Install dependencies
 
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
+```bash
+pnpm install
+```
 
-- #### Media
+### Environment setup
 
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
+Copy the sample environment files:
 
-### Docker
+```bash
+cp .env.example .env
+cp .env.mongo.example .env.mongo
+```
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+Configure the required values, including:
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+- `DATABASE_URL`
+- `PAYLOAD_SECRET`
+- `LIVEKIT_URL`
+- `LIVEKIT_API_KEY`
+- `LIVEKIT_API_SECRET`
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+The agent also uses additional provider keys defined in `my-agent/.env.example`.
 
-## Questions
+### Run the app
 
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+```bash
+pnpm dev
+```
+
+Then open:
+
+```txt
+http://localhost:3000
+```
+
+### Run the LiveKit agent
+
+```bash
+pnpm agent:dev
+```
+
+or:
+
+```bash
+pnpm agent:console
+```
+
+These commands start the required services and launch the LiveKit agent in development mode.
+
+## Docker
+
+The repository includes Docker support for local development:
+
+```bash
+docker compose up
+```
+
+The Compose configuration includes:
+
+- the app container
+- a MongoDB container
+- the LiveKit services used by the agent
+
+## Testing
+
+Run the full test suite with:
+
+```bash
+pnpm test
+```
+
+You can also run the test suites separately:
+
+```bash
+pnpm test:int
+pnpm test:e2e
+```
+
+## Available Scripts
+
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm test
+pnpm storybook
+pnpm agent:dev
+pnpm agent:console
+pnpm generate:types
+```
+
+## Notes
+
+ArtAround is a foundation for a content platform with AI-powered interaction. It is structured for extension and customization, with Payload collections, Next.js routes, and LiveKit agent support ready to be adapted for a production application.
+
+## License
+
+MIT
