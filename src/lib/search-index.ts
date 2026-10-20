@@ -233,7 +233,11 @@ export async function buildSearchDoc({
         excerpt: joinParts(tour.description, museum?.name, museum?.city),
         kind,
         city: museum?.city ?? '',
-        priceCents: await tourListPrice({ payload, contentIds: relationshipIds(tour.contents), req }),
+        priceCents: await tourListPrice({
+          payload,
+          contentIds: relationshipIds(tour.contents),
+          req,
+        }),
         sourceCreatedAt,
       }
     }
@@ -241,7 +245,10 @@ export async function buildSearchDoc({
       const content = doc as unknown as Content
       return {
         title: content.title,
-        excerpt: joinParts(lexicalText(content.body)),
+        // A paid body is readable only by entitled visitors (`canReadPaidBody`),
+        // so it never enters the index: it would be matchable, and shown as a
+        // result subtitle, for everyone. Paid contents are found by title.
+        excerpt: (content.price ?? 0) > 0 ? '' : joinParts(lexicalText(content.body)),
         kind,
         city: '',
         priceCents: content.price ?? 0,

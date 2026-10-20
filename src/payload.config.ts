@@ -12,6 +12,7 @@ import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
 import { searchPlugin } from '@payloadcms/plugin-search'
+import { superAdminOnly } from './access/museumRoles'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
@@ -288,6 +289,18 @@ export default buildConfig({
         return { ...searchDoc, ...data }
       },
       searchOverrides: {
+        // The plugin defaults to public `read` and leaves update/delete to
+        // Payload's "any signed-in user". Rows are derived data the server
+        // reads with `overrideAccess` (search-query.ts, search-index.ts) and
+        // the plugin writes through the Local API, so REST/GraphQL access is
+        // super-admin only: visitors can't read paid excerpts or rewrite rows
+        // (title/priority) to promote documents. The admin Reindex button
+        // checks update+delete, so super admins keep it.
+        access: {
+          read: superAdminOnly,
+          update: superAdminOnly,
+          delete: superAdminOnly,
+        },
         fields: ({ defaultFields }): Field[] => [
           ...defaultFields,
           {

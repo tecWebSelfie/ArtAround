@@ -33,6 +33,16 @@ external search service.
   rows embed the museum name and city. A content's price change refreshes the
   rows of the tours that include it (`refreshTourPrices` in `Contents`).
 
+## Access
+
+The `search` collection is server-side data. The plugin's defaults (public
+`read`, update/delete for any signed-in user) are overridden to super-admin
+only, so REST/GraphQL can't leak excerpts or let visitors rewrite rows (for
+example raise a row's `priority`). All app reads go through
+`querySearchIndex()` with `overrideAccess`, and the plugin syncs through the
+Local API. Paid contents are indexed by title only: their body never enters the
+`excerpt`.
+
 ## Result scopes
 
 Both scopes read the same `search` collection through
