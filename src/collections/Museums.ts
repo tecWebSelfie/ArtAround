@@ -30,7 +30,9 @@ import { SocialLinks } from '@/fields/SocialLinks'
 import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
-import navMeshSchema from '@/lib/schemas/navmesh.schema.json'
+// Import attribute: native ESM (Playwright's loader for e2e helpers that
+// import the Payload config) refuses a JSON module without it.
+import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json' }
 import { museumObjectId } from '@/lib/tour-navigation'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
