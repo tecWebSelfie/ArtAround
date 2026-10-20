@@ -24,6 +24,7 @@
     "build-storybook": "storybook build",
     "react-doctor": "npx react-doctor@latest",
     "knip": "knip",
+    "models:standee": "node scripts/generate-default-standee.mjs",
     "search:reindex": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/reindex-search.ts",
     "agent:dev": "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
     "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",

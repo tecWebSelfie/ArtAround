@@ -28,6 +28,7 @@ import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_DIRECTOR } from '@/fields/Muse
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { SocialLinks } from '@/fields/SocialLinks'
 import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
+import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json'
 import { museumObjectId } from '@/lib/tour-navigation'
@@ -77,17 +78,35 @@ const syncMuseumObjects: CollectionBeforeChangeHook<Museum> = async ({ data, req
         .filter((id): id is string => !!id),
     ),
   ].filter((id) => OBJECT_ID.test(id))
+  // Objects placed with the default standee (no Mint model at placement time)
+  // need their model populated so a model generated since can replace it.
+  const pendingDefault = Object.values(nodes).some((node) => {
+    const asset = museumObjectId(node) ? (node as { asset?: { src?: unknown } }).asset : null
+    return asset ? usesDefaultModel(asset) : false
+  })
   const { docs } = placed.length
     ? await req.payload.find({
         collection: 'objects',
         where: { id: { in: placed } },
-        select: {},
-        depth: 0,
+        select: pendingDefault ? { name: true, model: true, thumbnail: true } : {},
+        depth: pendingDefault ? 1 : 0,
         pagination: false,
         req,
       })
     : { docs: [] }
   data.objects = docs.map((object) => String(object.id))
+  if (pendingDefault) {
+    // Swap the real model into standee nodes; position, rotation and the
+    // object ID are kept, so tours and the derived index are unaffected.
+    // Runs after `guardCuratorMapEdits`, and only touches museum-object nodes,
+    // which curators may change anyway.
+    const byId = new Map(docs.map((object) => [String(object.id), object]))
+    for (const [nodeId, node] of Object.entries(nodes)) {
+      const object = byId.get(museumObjectId(node) ?? '')
+      if (object)
+        nodes[nodeId] = upgradeDefaultModelNode(node as { asset?: Record<string, unknown> }, object)
+    }
+  }
   return data
 }
 

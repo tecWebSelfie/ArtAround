@@ -2,7 +2,7 @@
 
 import { objectLibraryOptions } from '@/lib/model-generation-client'
 import { useEditorViewer } from '@/lib/pascal/editor-viewer'
-import { objectAsset } from '@/lib/pascal/object-assets'
+import { objectAsset, placeableObjectAsset } from '@/lib/pascal/object-assets'
 import type { Object as MuseumObject } from '@/payload-types'
 import { Button, Pagination } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
@@ -23,10 +23,11 @@ export function ObjectCatalogPanel() {
   const [page, setPage] = useState(1)
   const library = useQuery(objectLibraryOptions(debouncedSearch, page))
   const objects = library.data?.docs ?? []
-  const assets = objects.flatMap((object) => {
-    const asset = objectAsset(object)
-    return asset ? [asset] : []
-  })
+  // Every object is placeable: without a Mint model (failed, pending or never
+  // generated) it is placed as the default info standee, and the model swaps in
+  // on a later map save once it exists (see `object-assets.ts`).
+  const assets = objects.map(placeableObjectAsset)
+  // Objects still on the default model also stay listed with a Generate action.
   const missing = objects.filter((object) => !objectAsset(object))
   function openGeneration(object?: MuseumObject) {
     const modalId = modals.openModal({

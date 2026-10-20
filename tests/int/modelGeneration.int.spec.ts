@@ -7,7 +7,12 @@ import {
 } from '@/jobs/interactiveObjectModelWorkflow'
 import { pollMintModelOperation } from '@/tasks/pollMintModelOperation'
 import { modelGenerationCommand } from '@/lib/model-generation'
-import { objectAsset } from '@/lib/pascal/object-assets'
+import {
+  objectAsset,
+  placeableObjectAsset,
+  upgradeDefaultModelNode,
+  usesDefaultModel,
+} from '@/lib/pascal/object-assets'
 import { createObject } from '@/mocks/object.mock'
 
 const mint = vi.hoisted(() => ({
@@ -183,6 +188,32 @@ describe('generated contracts and asset adapter', () => {
       ).href,
     )
     expect(asset?.source).toBe('library')
+  })
+  // Objects without a Mint model are placed as the default standee, keeping
+  // their Payload ID, and the real model replaces it once it exists.
+  it('places model-less objects as the default standee and upgrades them later', () => {
+    const pending = createObject({ model: null })
+    const asset = placeableObjectAsset(pending)
+    expect(objectAsset(pending)).toBeNull()
+    expect(asset).toMatchObject({ id: pending.id, category: 'museum-objects' })
+    expect(usesDefaultModel(asset)).toBe(true)
+
+    const node = { id: 'item_1', position: [1, 0, 2], asset }
+    expect(upgradeDefaultModelNode(node, pending)).toBe(node)
+    const ready = createObject({
+      id: pending.id,
+      model: {
+        id: 'saved-model',
+        userGenerated: false,
+        url: '/api/objectsModels/file/model.glb',
+        createdAt: '2026-10-17',
+        updatedAt: '2026-10-17',
+      },
+    })
+    const upgraded = upgradeDefaultModelNode(node, ready)
+    expect(upgraded.position).toEqual([1, 0, 2])
+    expect(upgraded.asset).toMatchObject({ id: pending.id, src: objectAsset(ready)?.src })
+    expect(usesDefaultModel(upgraded.asset)).toBe(false)
   })
   it('retains generated image-count validation in the browser/server command', () => {
     const requestId = '1537177e-c7a4-4c6a-bb24-0102284b5e48'

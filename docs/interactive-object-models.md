@@ -32,6 +32,31 @@ Both workflows use Payload's `interactive-models` queue and the same per-object
 concurrency key. Mint polling uses asynchronous timers, bounded to thirty minutes.
 The first job completes at preview; no job waits on a human decision.
 
+## Default model (info standee)
+
+Every object is placeable, even without a Mint model (generation failed, still
+pending, or never started). `placeableObjectAsset()` in
+`src/lib/pascal/object-assets.ts` returns the object's Mint asset when it has
+one and otherwise the bundled default: a matte exhibition info standee
+(`public/models/default-standee.glb`, ~10 KB, 0.35 × 1.09 × 0.26 m, origin at
+the floor centre, +Y up, reading side facing +Z). Its catalog thumbnail is the
+object's own thumbnail, or `public/models/default-standee.svg`. The asset keeps
+the Payload object ID and the `museum-objects` category, so `museumObjectId()`,
+`syncMuseumObjects` and the curator map guard treat it like any other object.
+Objects on the default model also stay in the "Needs a model" list.
+
+Placed nodes store the model URL, so a model generated later does not change
+them immediately. On the next save of the museum map, `syncMuseumObjects`
+replaces the standee's `src`, `thumbnail` and `dimensions` with the object's
+Mint asset (`upgradeDefaultModelNode()`), keeping the node ID, position and
+rotation. Until then, editors and visitors still see the standee.
+
+Pascal renders item GLBs at native size, so the model is in real metres.
+Regenerate it with `pnpm models:standee` (`scripts/generate-default-standee.mjs`,
+three.js `GLTFExporter` in Node with a small `FileReader` polyfill). The script
+reloads the file with `GLTFLoader` and prints its bounding box; if the size
+changes, update `DEFAULT_MODEL_DIMENSIONS` in `object-assets.ts`.
+
 ## Existing APIs and contracts
 
 - `src/lib/model-generation-client.ts` exposes TanStack query/mutation options.
