@@ -33,6 +33,14 @@ current design and should evolve with the code. Reuse Pascal APIs, Mantine,
 Payload types/SDK, and generated Mint SDK/schemas where they fit; introduce other
 libraries or abstractions when they make the solution simpler.
 
+## Search
+
+Marketplace and navigator search use the official Payload search plugin
+(`@payloadcms/plugin-search`) and its generated `search` collection. The
+marketplace scope is tours/contents/users; the navigator scope is
+museums/objects/tours/users plus museum city matching. See
+[Search](docs/search.md) for the indexed fields, scopes, and reindex command.
+
 For fast iteration, run focused checks for the affected behavior rather than the
 entire test suite. Run memory-heavy checks sequentially and state which checks
 passed and which remain open. Build on existing worktree changes, preserving
@@ -100,6 +108,7 @@ GET /api/objects/:id/localized?locale=fr
 → { status: 'stale-refreshing', source: 'db-stale', ... }                 // serves stored + refreshes
 → { status: 'miss-throttled', ... } (429) / { error } (400/404)
 ```
+
 `?locale=` is optional: omitted, the server falls back to the request's
 `Accept-Language` header (explicit param always wins; present-but-invalid stays 400).
 

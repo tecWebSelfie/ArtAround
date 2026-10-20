@@ -11,7 +11,7 @@
  * can render it directly.
  */
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { Card, Grid, Image, Stack, Text } from '@mantine/core'
+import { Card, CardSection, Grid, GridCol, Image, Stack, Text } from '@mantine/core'
 import type { Key, ReactNode } from 'react'
 
 export function SearchResultsGrid<T>({
@@ -37,9 +37,11 @@ export function SearchResultsGrid<T>({
   return (
     <Grid>
       {items.map((item) => (
-        <Grid.Col key={getKey(item)} span={{ base: 12, sm: 6, md: 4 }}>
+        // `GridCol`, not `Grid.Col`: compound members of client components are
+        // undefined when rendered from a server component.
+        <GridCol key={getKey(item)} span={{ base: 12, sm: 6, md: 4 }}>
           {renderItem(item)}
-        </Grid.Col>
+        </GridCol>
       ))}
     </Grid>
   )
@@ -70,9 +72,9 @@ export function SearchResultCard({
       withBorder
       className={variant === 'content' ? 'border-2 border-solid border-teal-600' : undefined}
     >
-      <Card.Section>
+      <CardSection>
         <Image h={160} fit="cover" src={imageUrl || PLACEHOLDER_IMAGE} alt={imageAlt} />
-      </Card.Section>
+      </CardSection>
       <Stack gap={4} mt="xs">
         <Text fw={500} lineClamp={1}>
           {title}

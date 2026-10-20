@@ -26,10 +26,10 @@ importers:
         version: 1.1.0
       '@ai-sdk/fish-audio':
         specifier: ^3.0.40
-        version: 3.0.40(zod@4.5.4)
+        version: 3.0.42(zod@4.5.4)
       '@ai-sdk/groq':
         specifier: ^4.0.63
-        version: 4.0.63(zod@4.5.4)
+        version: 4.0.66(zod@4.5.4)
       '@ai-sdk/mcp':
         specifier: 2.0.61
         version: 2.0.61(zod@4.5.4)
@@ -153,6 +153,9 @@ importers:
       '@payloadcms/plugin-redirects':
         specifier: 3.89.0
         version: 3.89.0(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))
+      '@payloadcms/plugin-search':
+        specifier: 3.89.0
+        version: 3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
       '@payloadcms/plugin-stripe':
         specifier: 3.89.0
         version: 3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
@@ -180,9 +183,6 @@ importers:
       '@ricky0123/vad-web':
         specifier: ^0.0.31
         version: 0.0.31
-      '@rubixstudios/payload-typesense':
-        specifier: ^1.6.13
-        version: 1.6.13(@babel/runtime@7.29.7)(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))
       '@sentry/nextjs':
         specifier: ^10.70.0
         version: 10.74.0(@opentelemetry/core@2.11.0(@opentelemetry/api@1.9.1))(@opentelemetry/sdk-trace-base@2.11.0(@opentelemetry/api@1.9.1))(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(react@19.2.6)(webpack@5.111.0(@swc/core@1.16.2(@swc/helpers@0.5.23))(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.34.2))
@@ -221,7 +221,7 @@ importers:
         version: 1.3.0(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))
       ai:
         specifier: ^7.0.143
-        version: 7.0.143(zod@4.5.4)
+        version: 7.0.146(zod@4.5.4)
       chroma-js:
         specifier: ^3.2.0
         version: 3.2.0
@@ -351,9 +351,6 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
-      typesense:
-        specifier: ^3.1.0
-        version: 3.1.1(@babel/runtime@7.29.7)
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -502,20 +499,20 @@ packages:
   '@adobe/leonardo-contrast-colors@1.1.0':
     resolution: {integrity: sha512-URFR8vNgNsE/rnXqljVrx6OyZV3nQXTfbDDWZwTUYfOkmBr9hRB7ENK8f7pT7gHDjSuCf2bjJ227u4PUHUXHHg==}
 
-  '@ai-sdk/fish-audio@3.0.40':
-    resolution: {integrity: sha512-o4mq0E1+YRtkEWQ0SeAT3OC/P2IoYdIbvH7VyyyaNiGD24kqioK+LXk+O4PCxOlc1wIXq3bEBjSBJJ5WXaj3tw==}
+  '@ai-sdk/fish-audio@3.0.42':
+    resolution: {integrity: sha512-Yop7lxXhK/A2vjot1QgMycUTek5ZIMH4jIRjaMjiyDkTDvmUYbHQmBheWH9oJzkV/jdIU48jC/DDiK2FNOPxvw==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/gateway@4.0.116':
-    resolution: {integrity: sha512-YK2As2GpxmyHi5w6R4FLepiLcs6MbIMxh6nyTMgHaoHKoM5aWEXvKDe/JqdMQ1ivOy3EPJiEBgRI677YTGxfHQ==}
+  '@ai-sdk/gateway@4.0.119':
+    resolution: {integrity: sha512-CJczvdtOAW9URKHY74TAup1CPc+HTB0lbcbd0mPTweiJ64tk6T3BFxREixBwfNDP6d0XIzdBWucJnDL47gW0XA==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/groq@4.0.63':
-    resolution: {integrity: sha512-848iFLbM9oOA4XitjDeRuF6rLSDYJBIodGGWjCnI6RFfcK4AkRKz6ddTg2Pu2jj5qJgH3yDF0rIgkFW4QljoDw==}
+  '@ai-sdk/groq@4.0.66':
+    resolution: {integrity: sha512-CaLYuuKt3xlS1pDF0tCNgc4fJuO38b/6nwfox8xTZlEBqL2cGqQCYeRL2ByCNJyHGrl/jMO2TlfAqopg6rk8kg==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -532,8 +529,8 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/provider-utils@5.0.62':
-    resolution: {integrity: sha512-//6sHa6QNQdM2KHOg5pxp1UMFQB4U8cqdw/kSm9BMr0DLeaFgG3TXZfxhpwRZmxgBpOrzMVZ/gwLXH309+Ortw==}
+  '@ai-sdk/provider-utils@5.0.64':
+    resolution: {integrity: sha512-BDU8rDR6mBR+na5U/Dj4B33LX980x200lqhBGRIOxxx1NFunoixuvvweqIB+sCsCoFC8cGCsa82Ce2fKoAPOqw==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -542,8 +539,8 @@ packages:
     resolution: {integrity: sha512-ryVZSSfmpEsr4bM8rbt9cSBWal+KGYRrm57C+k/hiPQHMiMahaqg2bPF0MpxSUWY8mGpt7s/ajM6PAqNTMKqPQ==}
     engines: {node: '>=22'}
 
-  '@ai-sdk/provider@4.0.29':
-    resolution: {integrity: sha512-nV7UpLADtKn9f0xfnxVZAeFEKuNkScJv5rOpHL7qeWe2EwEEBa3pd6P0QVK6D6coCJ0E8FyCgoM50AffTYrzDQ==}
+  '@ai-sdk/provider@4.0.31':
+    resolution: {integrity: sha512-3wJnwVTFg8SwOyoZCv+ov7Re2GB+7IQnU5a5MYJACrtiWDDUHgqTBeeesq2MB2ddgojzL8hgWleltwpAgtUqfg==}
     engines: {node: '>=22'}
 
   '@alloc/quick-lru@5.3.0':
@@ -3300,6 +3297,13 @@ packages:
     peerDependencies:
       payload: 3.89.0
 
+  '@payloadcms/plugin-search@3.89.0':
+    resolution: {integrity: sha512-TerCxA2njTskqu4Lh1KOGunUmUqJrUy8rtpByb0u+tchD0flDSL/w7+Xk9LyQMShHR3C5XbYRakO2DVb+PD9aQ==}
+    peerDependencies:
+      payload: 3.89.0
+      react: ^19.0.1 || ^19.1.2 || ^19.2.1
+      react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
+
   '@payloadcms/plugin-stripe@3.89.0':
     resolution: {integrity: sha512-YrP8itHwtH/rSf5i8etOrTkxU1I7GZhrNlyl3JGI4jhxo6fVd3T5Kw1n4DA2jEpW9gBUDD/aSmmPMXPZt9o2RA==}
     peerDependencies:
@@ -4317,12 +4321,6 @@ packages:
 
   '@rtsao/scc@1.1.0':
     resolution: {integrity: sha512-zt6OdqaDoOnJ1ZYsCYGt9YmWzDXl4vQdKTyJev62gFhRGKdx7mcT54V9KIjg+d2wi9EXsPvAPKe7i7WjfVWB8g==}
-
-  '@rubixstudios/payload-typesense@1.6.13':
-    resolution: {integrity: sha512-ceIw2JsqZcNWFl6u80Mcj0NoV3oqSEdkecJZJmyBtVxa9f2qgaDDw8bspoUWuloXjDLLgHi/v5Y8bqg4mYuofA==}
-    engines: {node: '>=24', pnpm: '>=10'}
-    peerDependencies:
-      payload: ^3.90.1
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -5864,8 +5862,8 @@ packages:
     resolution: {integrity: sha512-kja8j7PjmncONqaTsB8fQ+wE2mSU2DJ9D4XKoJ5PFWIdRMa6SLSN1ff4mOr4jCbfRSsxR4keIiySJU0N9T5hIQ==}
     engines: {node: '>= 8.0.0'}
 
-  ai@7.0.143:
-    resolution: {integrity: sha512-y9QNgCK9QRHRCcHEUNoU2vemJ+q2zFX5M9T7xHCMZutfcWCqZPckkAfDbp+KHwqZDiJs5AqoKazj64cb20m5PA==}
+  ai@7.0.146:
+    resolution: {integrity: sha512-dNeZs+zlp47upGQKuw2/o8zNbuzEdTlD+0uWi3DTeDU3DH38iWkaNMy8fAl4z3IsgKvsM9x+dzUF5VNYR9CzEw==}
     engines: {node: '>=22'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -6027,9 +6025,6 @@ packages:
   axe-core@4.13.0:
     resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
     engines: {node: '>=4'}
-
-  axios@1.20.0:
-    resolution: {integrity: sha512-r8aOh8j9cGKpgQAqpzrUHnSIc6a59Y3Xf/cv8sy1DrHCkZHzQGEuoq1tARk6qSyDdtQGSDgpb9kFlruzPvrgwg==}
 
   axobject-query@4.1.0:
     resolution: {integrity: sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ==}
@@ -7252,15 +7247,6 @@ packages:
 
   focus-trap@7.5.4:
     resolution: {integrity: sha512-N7kHdlgsO/v+iD/dMoJKtsSqs5Dz/dXZVebRgJw23LDk+jMi/974zyiOYDziY2JPp8xivq9BmUGwIJMiuSBi7w==}
-
-  follow-redirects@1.16.1:
-    resolution: {integrity: sha512-FNvFGzoMLWmE6Yj9spb/zjd7yiNCHiAW9/Tg9CXrQ8wuu32HtlJOwWO11OJafl5FfY3DxTdQ0vj42zU1kvv5jg==}
-    engines: {node: '>=4.0'}
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
 
   fontkit@2.0.4:
     resolution: {integrity: sha512-syetQadaUEDNdxdugga9CpEYVaQIxOwk7GlwZWWZ19//qW4zE5bknOKeMBDYAASwnpaSHKJITRLMF9m1fp3s6g==}
@@ -9496,10 +9482,6 @@ packages:
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
-  proxy-from-env@2.1.0:
-    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
-    engines: {node: '>=10'}
-
   pump@3.0.4:
     resolution: {integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==}
 
@@ -10616,11 +10598,6 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  typesense@3.1.1:
-    resolution: {integrity: sha512-MbipLTJCebw/AakwFdo06P3/u1gQ0pWCiRjcL0I1bdLqHvtDr8bjP7N18Tfo/PTGIsj2aVr0QGkdv7lOjRBNNw==}
-    peerDependencies:
-      '@babel/runtime': ^7.23.2
-
   ufo@1.6.4:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
 
@@ -11269,23 +11246,23 @@ snapshots:
       ciecam02: 0.4.6
       hsluv: 1.0.2
 
-  '@ai-sdk/fish-audio@3.0.40(zod@4.5.4)':
+  '@ai-sdk/fish-audio@3.0.42(zod@4.5.4)':
     dependencies:
-      '@ai-sdk/provider': 4.0.29
-      '@ai-sdk/provider-utils': 5.0.62(zod@4.5.4)
+      '@ai-sdk/provider': 4.0.31
+      '@ai-sdk/provider-utils': 5.0.64(zod@4.5.4)
       zod: 4.5.4
 
-  '@ai-sdk/gateway@4.0.116(zod@4.5.4)':
+  '@ai-sdk/gateway@4.0.119(zod@4.5.4)':
     dependencies:
-      '@ai-sdk/provider': 4.0.29
-      '@ai-sdk/provider-utils': 5.0.62(zod@4.5.4)
+      '@ai-sdk/provider': 4.0.31
+      '@ai-sdk/provider-utils': 5.0.64(zod@4.5.4)
       '@vercel/oidc': 3.2.0
       zod: 4.5.4
 
-  '@ai-sdk/groq@4.0.63(zod@4.5.4)':
+  '@ai-sdk/groq@4.0.66(zod@4.5.4)':
     dependencies:
-      '@ai-sdk/provider': 4.0.29
-      '@ai-sdk/provider-utils': 5.0.62(zod@4.5.4)
+      '@ai-sdk/provider': 4.0.31
+      '@ai-sdk/provider-utils': 5.0.64(zod@4.5.4)
       zod: 4.5.4
 
   '@ai-sdk/mcp@2.0.61(zod@4.5.4)':
@@ -11305,9 +11282,9 @@ snapshots:
       undici: 7.29.1
       zod: 4.5.4
 
-  '@ai-sdk/provider-utils@5.0.62(zod@4.5.4)':
+  '@ai-sdk/provider-utils@5.0.64(zod@4.5.4)':
     dependencies:
-      '@ai-sdk/provider': 4.0.29
+      '@ai-sdk/provider': 4.0.31
       '@standard-schema/spec': 1.1.0
       '@workflow/serde': 4.1.0
       eventsource-parser: 3.1.1
@@ -11318,7 +11295,7 @@ snapshots:
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/provider@4.0.29':
+  '@ai-sdk/provider@4.0.31':
     dependencies:
       json-schema: 0.4.0
 
@@ -13967,6 +13944,21 @@ snapshots:
       '@payloadcms/translations': 3.89.0
       payload: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
 
+  '@payloadcms/plugin-search@3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)':
+    dependencies:
+      '@payloadcms/next': 3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
+      '@payloadcms/ui': 3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)
+      payload: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
+    transitivePeerDependencies:
+      - '@types/react'
+      - graphql
+      - monaco-editor
+      - next
+      - supports-color
+      - typescript
+
   '@payloadcms/plugin-stripe@3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.3.3(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@5.9.3)':
     dependencies:
       '@payloadcms/translations': 3.89.0
@@ -14968,16 +14960,6 @@ snapshots:
     optional: true
 
   '@rtsao/scc@1.1.0': {}
-
-  '@rubixstudios/payload-typesense@1.6.13(@babel/runtime@7.29.7)(payload@3.89.0(graphql@16.14.2)(typescript@5.9.3))':
-    dependencies:
-      payload: 3.89.0(graphql@16.14.2)(typescript@5.9.3)
-      typesense: 3.1.1(@babel/runtime@7.29.7)
-      zod: 4.6.5
-    transitivePeerDependencies:
-      - '@babel/runtime'
-      - debug
-      - supports-color
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -16710,11 +16692,11 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  ai@7.0.143(zod@4.5.4):
+  ai@7.0.146(zod@4.5.4):
     dependencies:
-      '@ai-sdk/gateway': 4.0.116(zod@4.5.4)
-      '@ai-sdk/provider': 4.0.29
-      '@ai-sdk/provider-utils': 5.0.62(zod@4.5.4)
+      '@ai-sdk/gateway': 4.0.119(zod@4.5.4)
+      '@ai-sdk/provider': 4.0.31
+      '@ai-sdk/provider-utils': 5.0.64(zod@4.5.4)
       zod: 4.5.4
 
   ajv-formats@2.1.1(ajv@8.20.0):
@@ -16890,16 +16872,6 @@ snapshots:
       possible-typed-array-names: 1.1.0
 
   axe-core@4.13.0: {}
-
-  axios@1.20.0:
-    dependencies:
-      follow-redirects: 1.16.1
-      form-data: 4.0.6
-      https-proxy-agent: 5.0.1
-      proxy-from-env: 2.1.0
-    transitivePeerDependencies:
-      - debug
-      - supports-color
 
   axobject-query@4.1.0: {}
 
@@ -18286,8 +18258,6 @@ snapshots:
   focus-trap@7.5.4:
     dependencies:
       tabbable: 6.5.0
-
-  follow-redirects@1.16.1: {}
 
   fontkit@2.0.4:
     dependencies:
@@ -20747,8 +20717,6 @@ snapshots:
 
   proxy-from-env@1.1.0: {}
 
-  proxy-from-env@2.1.0: {}
-
   pump@3.0.4:
     dependencies:
       end-of-stream: 1.4.5
@@ -22100,16 +22068,6 @@ snapshots:
       - '@swc/wasm'
 
   typescript@5.9.3: {}
-
-  typesense@3.1.1(@babel/runtime@7.29.7):
-    dependencies:
-      '@babel/runtime': 7.29.7
-      axios: 1.20.0
-      loglevel: 1.9.2
-      tslib: 2.8.1
-    transitivePeerDependencies:
-      - debug
-      - supports-color
 
   ufo@1.6.4: {}
 

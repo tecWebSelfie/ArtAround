@@ -2,8 +2,7 @@ import type { Route } from 'next'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Object as PayloadObject } from '@/payload-types'
-import { Button } from '@mantine/core'
-import Link from 'next/link'
+import { LinkButton } from '@/components/editing/LinkButton'
 
 import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
 
@@ -30,15 +29,15 @@ export const ObjectsSearchResults = async ({
             title={object.name}
             description={object.description}
           >
-            <Button
-              component={Link}
+            {/* LinkButton: a server component can't pass `Link` (a function) to Mantine's client Button. */}
+            <LinkButton
               href={`/${lng}/object/${object.id}` as Route}
               size="compact-sm"
               variant="light"
               fullWidth
             >
               {t('View details')}
-            </Button>
+            </LinkButton>
           </SearchResultCard>
         )
       }}

@@ -33,10 +33,6 @@ auth = "oauth"
 [mcp_servers.deepwiki]
 url = "https://mcp.deepwiki.com/mcp"
 
-[mcp_servers.typesense]
-command = "node"
-args = [".codex/typesense-mcp.mjs"]
-
 [mcp_servers.chrome-devtools]
 command = "npx"
 args = ["-y", "chrome-devtools-mcp@latest"]

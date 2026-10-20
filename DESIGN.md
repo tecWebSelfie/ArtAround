@@ -495,7 +495,7 @@ Plain forms in the planner column (see Layout → Auth screens), nothing bespoke
 
 - **Landing pages:** see Layout → Checkout landing pages. Success never trusts the redirect: it states what the purchases collection says. "Payment received" when the bought tour or content is owned, "Payment not confirmed yet" (it unlocks when Stripe confirms) otherwise, "Sign in to see your purchase" for a signed-out visitor. A Stripe reference, when present, is a dimmed `xs` line.
 - **Checkout errors** stay where the action was taken: red `sm` text with `role="alert"` under the button that failed (the modal's "Buy all", `BuyButton`), never a page change.
-- **Sandbox shop (`/[lng]/stripe-test`)** is a developer harness, like `typesense-test`, not a product pattern.
+- **Sandbox shop (`/[lng]/stripe-test`)** is a developer harness, not a product pattern.
 
 ### Motion and small playful exceptions
 

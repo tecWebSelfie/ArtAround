@@ -3,7 +3,7 @@ import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import nodemailer from 'nodemailer'
 import path from 'path'
-import { buildConfig, LocalizationConfig } from 'payload'
+import { buildConfig, LocalizationConfig, type Field } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -11,8 +11,8 @@ import { fileURLToPath } from 'url'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
+import { searchPlugin } from '@payloadcms/plugin-search'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
-import { typesenseSearch } from '@rubixstudios/payload-typesense'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
@@ -44,6 +44,13 @@ import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
 import { museumFunctionField } from './fields/MuseumFunction'
 import { onCheckoutCompleted } from './hooks/onCheckoutCompleted'
+import {
+  buildSearchDoc,
+  SEARCH_KINDS,
+  SEARCH_PLUGIN_COLLECTIONS,
+  SEARCH_PRIORITIES,
+  type SearchPluginCollection,
+} from './lib/search-index'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -257,28 +264,72 @@ export default buildConfig({
       // Custom callback to check if a user is an admin
       isAdmin: ({ req }) => req.user?.collection === 'users' && Boolean(req.user?.isSuperAdmin),
     }),
-    typesenseSearch({
-      typesense: {
-        apiKey: process.env.TYPESENSE_API_KEY || '',
-        nodes: [
+    // Unified Payload-native search index. The plugin owns the generated
+    // `search` collection and keeps it in sync from the source collections.
+    // `beforeSync` flattens localized titles, rich text and museum city into
+    // plain searchable text, and exposes the flat fields used by the
+    // marketplace filters (kind + priceCents).
+    searchPlugin({
+      collections: [...SEARCH_PLUGIN_COLLECTIONS],
+      // Index one stable (English) projection instead of one row per locale.
+      // Cards are hydrated in the visitor's locale from the original document.
+      localize: false,
+      defaultPriorities: { ...SEARCH_PRIORITIES },
+      beforeSync: async ({ collectionSlug, originalDoc, payload, req, searchDoc }) => {
+        if (!SEARCH_PLUGIN_COLLECTIONS.includes(collectionSlug as SearchPluginCollection)) {
+          return searchDoc
+        }
+        const data = await buildSearchDoc({
+          payload,
+          collection: collectionSlug as SearchPluginCollection,
+          id: String(searchDoc.doc.value ?? originalDoc.id),
+          req,
+        })
+        return { ...searchDoc, ...data }
+      },
+      searchOverrides: {
+        fields: ({ defaultFields }): Field[] => [
+          ...defaultFields,
           {
-            host: process.env.TYPESENSE_HOST || '',
-            port: Number(process.env.TYPESENSE_PORT || 443),
-            protocol: (process.env.TYPESENSE_PROTOCOL || 'https') as 'http' | 'https',
+            name: 'kind',
+            type: 'select',
+            required: true,
+            index: true,
+            options: SEARCH_KINDS.map((kind) => ({
+              label: kind.charAt(0).toUpperCase() + kind.slice(1),
+              value: kind,
+            })),
+            admin: { readOnly: true },
+          },
+          {
+            name: 'excerpt',
+            type: 'textarea',
+            admin: { readOnly: true },
+          },
+          {
+            name: 'city',
+            type: 'text',
+            index: true,
+            admin: { readOnly: true },
+          },
+          {
+            name: 'priceCents',
+            type: 'number',
+            index: true,
+            admin: { readOnly: true },
+          },
+          {
+            name: 'sourceCreatedAt',
+            type: 'date',
+            index: true,
+            admin: { readOnly: true },
           },
         ],
-        connectionTimeoutSeconds: 5,
-      },
-      collections: {
-        museums: {
-          enabled: true,
-          searchFields: ['name', 'location'],
-          displayName: 'Museums',
-        },
-        users: {
-          enabled: true,
-          searchFields: ['name', 'description'],
-          displayName: 'Users',
+        admin: {
+          defaultColumns: ['title', 'kind', 'city', 'priority'],
+          useAsTitle: 'title',
+          description:
+            'Automatically generated search rows. Use the Reindex button after changing search configuration.',
         },
       },
     }),

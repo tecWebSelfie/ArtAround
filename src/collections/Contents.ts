@@ -17,6 +17,7 @@ import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_VERIFIED } from '@/fields/MuseumFunction'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
+import { refreshSearchDocs } from '@/lib/search-index'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -170,6 +171,36 @@ const attachToObject: CollectionAfterChangeHook<Content> = async ({
   return doc
 }
 
+/**
+ * A tour's search row carries its list price, the sum of its contents' prices
+ * (docs/search.md). The search plugin re-indexes this content on save; when the
+ * price changed, the rows of the tours that include it are refreshed too.
+ */
+const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
+  if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
+  try {
+    const tours = await req.payload.find({
+      collection: 'tours',
+      where: { contents: { contains: doc.id } },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    await refreshSearchDocs({
+      payload: req.payload,
+      collection: 'tours',
+      ids: tours.docs.map((tour) => String(tour.id)),
+      req,
+    })
+  } catch (error) {
+    // Search is derived data: never fail the content save over it.
+    req.payload.logger.error({ err: error, msg: `Could not refresh tour prices for ${doc.id}` })
+  }
+  return doc
+}
+
 export const Contents: CollectionConfig = {
   slug: 'contents',
   access: {
@@ -181,7 +212,7 @@ export const Contents: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, storeReadingTime],
-    afterChange: [attachToObject],
+    afterChange: [attachToObject, refreshTourPrices],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
   },

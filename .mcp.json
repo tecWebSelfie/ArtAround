@@ -45,16 +45,6 @@
       "type": "http",
       "url": "https://mcp.deepwiki.com/mcp"
     },
-    "typesense": {
-      "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@typesensekit/mcp"],
-      "env": {
-        "TYPESENSE_URL": "https://${TYPESENSE_HOST}",
-        "TYPESENSE_API_KEY": "${TYPESENSE_API_KEY}",
-        "TYPESENSEKIT_READ_ONLY": "false"
-      }
-    },
     "chrome-devtools": {
       "type": "stdio",
       "command": "cmd",

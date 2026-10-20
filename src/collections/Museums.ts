@@ -1,11 +1,13 @@
 import {
   APIError,
   type CollectionAfterChangeHook,
+  type CollectionAfterDeleteHook,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
   type Field,
   type FieldAccess,
   type JSONField,
+  type PayloadRequest,
 } from 'payload'
 import { fieldAffectsData } from 'payload/shared'
 import { OpeningHours } from '../fields/OpeningHours'
@@ -26,6 +28,7 @@ import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_DIRECTOR } from '@/fields/Muse
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { SocialLinks } from '@/fields/SocialLinks'
 import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
+import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json'
 import { museumObjectId } from '@/lib/tour-navigation'
 import type { Museum } from '@/payload-types'
@@ -128,6 +131,65 @@ const appointCreatorAsDirector: CollectionAfterChangeHook<Museum> = async ({
   return doc
 }
 
+/**
+ * Refreshes the search rows of a museum's tours and objects (docs/search.md):
+ * the search plugin re-indexes the museum itself, but its name and city are
+ * also part of the search text of its tours and exhibited objects. Tours point
+ * at their museum (`tours.museum`), so they are looked up; objects come from
+ * the map-derived `museums.objects`, old and new values together so an object
+ * removed from the map loses the museum's city too.
+ */
+async function refreshMuseumDependents({
+  doc,
+  previousDoc,
+  req,
+}: {
+  doc: Museum
+  previousDoc?: Museum
+  req: PayloadRequest
+}) {
+  try {
+    const tours = await req.payload.find({
+      collection: 'tours',
+      where: { museum: { equals: doc.id } },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    const objectIds = [
+      ...museumRelationIds(doc, 'objects'),
+      ...museumRelationIds(previousDoc, 'objects'),
+    ]
+    await Promise.all([
+      refreshSearchDocs({
+        payload: req.payload,
+        collection: 'tours',
+        ids: tours.docs.map((tour) => String(tour.id)),
+        req,
+      }),
+      refreshSearchDocs({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
+    ])
+  } catch (error) {
+    // Search is derived data: a failure here must not roll back the museum save.
+    req.payload.logger.error({
+      err: error,
+      msg: `Could not refresh dependent search rows for museum ${doc.id}`,
+    })
+  }
+}
+
+const refreshSearchAfterChange: CollectionAfterChangeHook<Museum> = async (args) => {
+  await refreshMuseumDependents(args)
+  return args.doc
+}
+
+const refreshSearchAfterDelete: CollectionAfterDeleteHook<Museum> = async ({ doc, req }) => {
+  await refreshMuseumDependents({ doc, req })
+  return doc
+}
+
 export const Museums: CollectionConfig = {
   slug: 'museums',
   access: {
@@ -141,7 +203,8 @@ export const Museums: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['description'])],
     beforeChange: [guardCuratorMapEdits, syncMuseumObjects],
-    afterChange: [appointCreatorAsDirector],
+    afterChange: [appointCreatorAsDirector, refreshSearchAfterChange],
+    afterDelete: [refreshSearchAfterDelete],
   },
   fields: [
     ...[

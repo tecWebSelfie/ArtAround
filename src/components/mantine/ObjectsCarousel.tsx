@@ -8,7 +8,6 @@ import {
   ActionIcon,
   AspectRatio,
   BackgroundImage,
-  Button,
   Group,
   Stack,
   Text,
@@ -18,7 +17,7 @@ import {
 import { ChevronRight } from 'lucide-react'
 import { ComponentProps } from 'react'
 
-import Link from 'next/link'
+import { LinkButton } from '@/components/editing/LinkButton'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 export const ObjectsCarousel = async ({
@@ -86,10 +85,7 @@ const CarouselCard = async ({
   return (
     <CarouselSlide {...props}>
       <AspectRatio ratio={1 / 1}>
-        <BackgroundImage
-          className="rounded-xl"
-          src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
-        >
+        <BackgroundImage className="rounded-xl" src={thumbnail?.url ?? PLACEHOLDER_IMAGE}>
           <Stack justify="space-between" className="h-full" p="sm">
             <Title order={2} size="h6">
               {object.name}
@@ -97,8 +93,8 @@ const CarouselCard = async ({
             <Stack>
               <Group justify="end">
                 <BorderAnimate variant="glow">
-                  <Button
-                    component={Link}
+                  {/* LinkButton: a server component can't pass `Link` (a function) to Mantine's client Button. */}
+                  <LinkButton
                     href={`/${lng}/object/${object.id}` as Route}
                     size="compact-sm"
                     variant="outline"
@@ -106,7 +102,7 @@ const CarouselCard = async ({
                     classNames={{ root: 'border-none' }}
                   >
                     {t('View details')}
-                  </Button>
+                  </LinkButton>
                 </BorderAnimate>
               </Group>
             </Stack>

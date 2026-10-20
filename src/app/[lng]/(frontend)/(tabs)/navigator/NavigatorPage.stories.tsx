@@ -7,6 +7,9 @@ import NavigatorHomePage from './NavigatorPage'
 const meta = {
   title: 'Frontend/Navigator/NavigatorPage',
   component: NavigatorHomePage,
+  args: {
+    lng: 'en',
+  },
   parameters: {
     layout: 'fullscreen',
     // The hero word keeps cycling (TypeWriterText) and the search border keeps

@@ -49,7 +49,6 @@
     "storybook",
     "notion",
     "deepwiki",
-    "typesense",
     "chrome-devtools",
     "playwright"
   ]

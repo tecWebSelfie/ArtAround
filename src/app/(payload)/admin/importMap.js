@@ -44,6 +44,8 @@ import { ImportSaveButton as ImportSaveButton_cdf7e044479f899a31f804427d568b36 }
 import { PermissionActionReorderClient as PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { PermissionFeatureReorderClient as PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
 import { RolePermissionMatrixClient as RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4 } from '@zealamic/payload-plugin-rbac/client'
+import { LinkToDoc as LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
+import { ReindexButton as ReindexButton_aead06e4cbf6b2620c5c51c9ab283634 } from '@payloadcms/plugin-search/client'
 import { default as default_5668654bc04fc84f784cb30b290f6f3d } from '@focus-reactive/payload-plugin-translator/client/app/cache/CacheProvider'
 import { ImportExportProvider as ImportExportProvider_cdf7e044479f899a31f804427d568b36 } from '@payloadcms/plugin-import-export/rsc'
 import { ReviewModerationView as ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb } from 'payload-lfrs/admin'
@@ -97,6 +99,8 @@ export const importMap = {
   "@zealamic/payload-plugin-rbac/client#PermissionActionReorderClient": PermissionActionReorderClient_5f81c42974d0124cf31493820a53a6b4,
   "@zealamic/payload-plugin-rbac/client#PermissionFeatureReorderClient": PermissionFeatureReorderClient_5f81c42974d0124cf31493820a53a6b4,
   "@zealamic/payload-plugin-rbac/client#RolePermissionMatrixClient": RolePermissionMatrixClient_5f81c42974d0124cf31493820a53a6b4,
+  "@payloadcms/plugin-search/client#LinkToDoc": LinkToDoc_aead06e4cbf6b2620c5c51c9ab283634,
+  "@payloadcms/plugin-search/client#ReindexButton": ReindexButton_aead06e4cbf6b2620c5c51c9ab283634,
   "@focus-reactive/payload-plugin-translator/client/app/cache/CacheProvider#default": default_5668654bc04fc84f784cb30b290f6f3d,
   "@payloadcms/plugin-import-export/rsc#ImportExportProvider": ImportExportProvider_cdf7e044479f899a31f804427d568b36,
   "payload-lfrs/admin#ReviewModerationView": ReviewModerationView_cb5276bd0bb02a0fe5f46717e8188aeb,
