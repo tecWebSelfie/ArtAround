@@ -44,15 +44,6 @@
         "type": "remote",
         "url": "https://mcp.deepwiki.com/mcp"
       },
-      "typesense": {
-        "type": "local",
-        "command": ["npx", "-y", "@typesensekit/mcp"],
-        "environment": {
-          "TYPESENSE_URL": "https://{env:TYPESENSE_HOST}",
-          "TYPESENSE_API_KEY": "{env:TYPESENSE_API_KEY}",
-          "TYPESENSEKIT_READ_ONLY": "false"
-        }
-      },
       "chrome-devtools": {
         "type": "local",
         "command": ["npx", "-y", "chrome-devtools-mcp@latest"]

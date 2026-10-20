@@ -29,8 +29,8 @@ function formatPrice(cents: number, currency: string): string {
  * document with a price, shows what the signed-in user already owns, and starts
  * Stripe Checkout through `/api/checkout`.
  *
- * Sibling to `typesense-test` / `test-translation` — a throwaway harness page,
- * not part of the product UI.
+ * Sibling to `test-translation` — a throwaway harness page, not part of the
+ * product UI.
  */
 export default async function StripeTestPage(props: { params: Promise<{ lng: string }> }) {
   const { lng } = await props.params

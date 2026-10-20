@@ -7,6 +7,9 @@ import NavigatorHomePage from './NavigatorPage'
 const meta = {
   title: 'Frontend/Navigator/NavigatorPage',
   component: NavigatorHomePage,
+  args: {
+    lng: 'en',
+  },
   parameters: {
     layout: 'fullscreen',
   },

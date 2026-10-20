@@ -1,11 +1,20 @@
-import type { ArrayField, CollectionConfig, JSONField } from 'payload'
+import type {
+  ArrayField,
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
+  CollectionConfig,
+  JSONField,
+  PayloadRequest,
+} from 'payload'
 import { OpeningHours } from '../fields/OpeningHours'
 import { TicketInfo } from '../fields/TicketInfo'
 
 import { Coordinates } from '@/fields/Coordinates'
 import { editorial } from '@/fields/editorial'
 import { SocialLinks } from '@/fields/SocialLinks'
+import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json'
+import type { Museum } from '@/payload-types'
 import { getPermissionAccess } from '@zealamic/payload-plugin-rbac'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 
@@ -28,6 +37,13 @@ export const Museums: CollectionConfig = {
       mode: 'modify',
     }),
   },
+  hooks: {
+    // The search plugin re-indexes the museum itself. Tours/objects embed the
+    // museum name and city in their search text, so refresh those dependent
+    // rows whenever museum metadata or relationships change.
+    afterChange: [refreshMuseumAfterChange],
+    afterDelete: [refreshMuseumAfterDelete],
+  },
   fields: [
     {
       name: 'name',
@@ -45,8 +61,7 @@ export const Museums: CollectionConfig = {
       type: 'group',
       required: false,
       admin: {
-        description:
-          'Step-free access and the services available to visitors with disabilities.',
+        description: 'Step-free access and the services available to visitors with disabilities.',
       },
       fields: [
         {
@@ -231,6 +246,50 @@ export const MuseumMaps: CollectionConfig = {
   slug: 'museumMaps',
   upload: true,
   fields: [],
+}
+
+/**
+ * Refreshes the search rows of a museum's tours and objects. `previousDoc` is
+ * included so a relation removed by this save is refreshed as well; otherwise a
+ * tour that moved to another museum would keep the old city in the index.
+ */
+async function refreshMuseumDependents({
+  doc,
+  previousDoc,
+  req,
+}: {
+  doc: Museum
+  previousDoc?: Museum
+  req: PayloadRequest
+}) {
+  const tourIds = [...museumRelationIds(doc, 'tours'), ...museumRelationIds(previousDoc, 'tours')]
+  const objectIds = [
+    ...museumRelationIds(doc, 'objects'),
+    ...museumRelationIds(previousDoc, 'objects'),
+  ]
+
+  try {
+    await Promise.all([
+      refreshSearchDocs({ payload: req.payload, collection: 'tours', ids: tourIds, req }),
+      refreshSearchDocs({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
+    ])
+  } catch (error) {
+    // Search is derived data: a failure here must not roll back the museum save.
+    req.payload.logger.error({
+      err: error,
+      msg: `Could not refresh dependent search rows for museum ${doc.id}`,
+    })
+  }
+}
+
+async function refreshMuseumAfterChange(args: Parameters<CollectionAfterChangeHook<Museum>>[0]) {
+  await refreshMuseumDependents(args)
+  return args.doc
+}
+
+async function refreshMuseumAfterDelete(args: Parameters<CollectionAfterDeleteHook<Museum>>[0]) {
+  await refreshMuseumDependents({ doc: args.doc, req: args.req })
+  return args.doc
 }
 
 function museumService(services: 'bathrooms' | 'food' | 'shop' | 'infoPoint'): ArrayField {

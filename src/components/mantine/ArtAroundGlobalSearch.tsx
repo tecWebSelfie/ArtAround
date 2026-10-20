@@ -1,6 +1,6 @@
 'use client'
 
-import type { Content, Museum, Tour, User } from '@/payload-types'
+import type { Difficulty } from '@/payload-types'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import {
   Button,
@@ -12,6 +12,7 @@ import {
   ComboboxTarget,
   Group,
   Stack,
+  Text,
   TextInput,
   useCombobox,
 } from '@mantine/core'
@@ -20,18 +21,31 @@ import { Search } from 'lucide-react'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
 
-export type AutoCompleteItem = (
-  | { kind: 'content'; content: Content }
-  | { kind: 'tour'; tour: Tour }
-  | { kind: 'museum'; museum: Museum }
-  | { kind: 'user'; user: User }
-) & { key: string }
+/**
+ * Display-only shape returned by `/api/navigator-search`.
+ *
+ * The combobox intentionally does not receive full Payload documents: search
+ * rows already carry the title/excerpt/city needed for the dropdown, and keeping
+ * the payload small avoids leaking fields the public API does not need.
+ */
+export type AutoCompleteItem = {
+  kind: 'content' | 'tour' | 'museum' | 'object' | 'user'
+  key: string
+  title: string
+  /** Canonical localized URL (for example `/en/museum/ID`). */
+  href: string
+  subtitle?: string
+  city?: string
+  difficulty?: Difficulty
+  readingTimeMins?: number
+}
 
 export function ArtAroundGlobalSearch({
   items,
   onChange,
   value, // use it if you want to control the value of the input
   defaultValue, // use it if you want to set the initial value of the input (uncontrolled input)
+  filter,
   ...props
 }: ComboboxProps & {
   value?: string
@@ -45,16 +59,9 @@ export function ArtAroundGlobalSearch({
     finalValue: '',
   })
   const filteredOptions = items.filter(
-    props.filter ??
+    filter ??
       ((item) => {
-        const label =
-          item.kind === 'content'
-            ? item.content.title
-            : item.kind === 'tour'
-              ? item.tour.title
-              : item.kind === 'museum'
-                ? item.museum.name
-                : item.user.name.fullName
+        const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
         return label.toLowerCase().includes(_value.toLowerCase())
       }),
   )
@@ -87,22 +94,18 @@ export function ArtAroundGlobalSearch({
       <ComboboxDropdown>
         <ComboboxOptions>
           {filteredOptions.map((item) => {
-            const value = `${item.kind}/${item.key}`
-            if (item.kind == 'tour') {
+            if (item.kind === 'tour') {
               return (
-                <BorderAnimate variant="draw" my="xs" key={value}>
-                  <ComboboxOption value={`${item.kind}/${item.key}`}>
-                    {renderDropdownItem(item)}
-                  </ComboboxOption>
+                <BorderAnimate variant="draw" my="xs" key={item.href}>
+                  <ComboboxOption value={item.href}>{renderDropdownItem(item)}</ComboboxOption>
                 </BorderAnimate>
               )
-            } else {
-              return (
-                <ComboboxOption value={value} key={value}>
-                  {renderDropdownItem(item)}
-                </ComboboxOption>
-              )
             }
+            return (
+              <ComboboxOption value={item.href} key={item.href}>
+                {renderDropdownItem(item)}
+              </ComboboxOption>
+            )
           })}
         </ComboboxOptions>
       </ComboboxDropdown>
@@ -111,28 +114,21 @@ export function ArtAroundGlobalSearch({
 }
 
 function renderDropdownItem(item: AutoCompleteItem) {
-  switch (item.kind) {
-    case 'content':
-      return <ContentDropdownItem content={item.content} />
-    case 'tour':
-      return <TourDropdownItem tour={item.tour} />
-    case 'museum':
-      return <MuseumDropdownItem museum={item.museum} />
-    case 'user':
-      return <UserDropdownItem user={item.user} />
-    default:
-      return assertNever(item)
-  }
+  return item.kind === 'content' ? (
+    <ContentDropdownItem item={item} />
+  ) : (
+    <ResultDropdownItem item={item} />
+  )
 }
 
-const ContentDropdownItem = ({ content }: { content: Content }) => {
+const ContentDropdownItem = ({ item }: { item: AutoCompleteItem }) => {
   return (
     <Stack>
-      <div>{content.title}</div>
+      <div>{item.title}</div>
       <Group justify="space-between">
         <Group justify="left" gap={'xs'}>
-          {content.readingTimeMins && <DurationBadge time={content.readingTimeMins} />}
-          <DifficultyBadge difficulty={content.difficulty} />
+          {item.readingTimeMins && <DurationBadge time={item.readingTimeMins} />}
+          {item.difficulty && <DifficultyBadge difficulty={item.difficulty} />}
         </Group>
         <Button size="compact-xs">See more</Button>
       </Group>
@@ -140,30 +136,21 @@ const ContentDropdownItem = ({ content }: { content: Content }) => {
   )
 }
 
-const TourDropdownItem = ({ tour }: { tour: Tour }) => {
+/** Shared compact row for tours, museums, objects and profiles. */
+const ResultDropdownItem = ({ item }: { item: AutoCompleteItem }) => {
   return (
-    <div>
-      <div>{tour.title}</div>
-    </div>
+    <Stack gap={2}>
+      <Text fw={600}>{item.title}</Text>
+      {item.subtitle ? (
+        <Text size="xs" c="dimmed" lineClamp={1}>
+          {item.subtitle}
+        </Text>
+      ) : null}
+      {item.city && !item.subtitle?.includes(item.city) ? (
+        <Text size="xs" c="dimmed">
+          {item.city}
+        </Text>
+      ) : null}
+    </Stack>
   )
-}
-
-const MuseumDropdownItem = ({ museum }: { museum: Museum }) => {
-  return (
-    <div>
-      <div>{museum.name}</div>
-    </div>
-  )
-}
-
-const UserDropdownItem = ({ user }: { user: User }) => {
-  return (
-    <div>
-      <div>{user.name.fullName}</div>
-    </div>
-  )
-}
-
-function assertNever(value: never): never {
-  throw new Error(`Unhandled autocomplete item: ${JSON.stringify(value)}`)
 }

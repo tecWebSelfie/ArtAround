@@ -1,43 +1,15 @@
-import { ArtAroundGlobalSearch, AutoCompleteItem } from '@/components/mantine/ArtAroundGlobalSearch'
-import { TypeWriterText } from '@/components/mantine/TypeWriterText'
-import { mockContentSecond } from '@/mocks/content.mock'
-import { mockTourThird } from '@/mocks/tour.mock'
 import { QRCode } from '@gfazioli/mantine-qr-code'
-import { Reflection } from '@gfazioli/mantine-reflection'
-import {
-  ActionIcon,
-  Box,
-  Center,
-  ComboboxProps,
-  Divider,
-  Flex,
-  Group,
-  Paper,
-  rem,
-  Stack,
-  StackProps,
-  Text,
-  Title,
-} from '@mantine/core'
+import { ActionIcon, Center, Divider, Flex, Paper, rem, Stack, Text, Title } from '@mantine/core'
 import { Mic } from 'lucide-react'
+import { NavigatorSearch } from './NavigatorSearch'
 
-export default function NavigatorHomePage({
-  onOptionSubmit,
-}: {
-  onOptionSubmit?: ComboboxProps['onOptionSubmit']
-}) {
+export default function NavigatorHomePage({ lng }: { lng: string }) {
   return (
     <Stack mx={{ base: 'md', sm: 'xl' }}>
       <Stack mt="10dvh">
         <Stack gap="xl">
           <NavigationHomeTitle />
-          <NavigatorHomeSearchBar
-            items={[
-              { kind: 'content', content: mockContentSecond, key: mockContentSecond.id },
-              { kind: 'tour', tour: mockTourThird, key: mockTourThird.id },
-            ]}
-            onOptionSubmit={onOptionSubmit}
-          />
+          <NavigatorSearch lng={lng} />
         </Stack>
       </Stack>
       <Divider my="md" label="Or" styles={{ label: { color: 'var(--mantine-color-gray-7)' } }} />
@@ -99,42 +71,5 @@ function NavigationHomeTitle() {
         Artaround
       </Text>
     </Title>
-  )
-}
-
-export function NavigatorHomeSearchBar({
-  items,
-  onOptionSubmit,
-  ...props
-}: { items: AutoCompleteItem[]; onOptionSubmit: ComboboxProps['onOptionSubmit'] } & StackProps) {
-  return (
-    <Stack {...props}>
-      <Group ta="center" gap="xs" display="inline-block">
-        <Text span>Tours made by&nbsp;</Text>
-        <Box miw="9ch" display="inline-block" ta="left">
-          <TypeWriterText
-            fw="bolder"
-            loopColors={{ creators: 'red.8', curators: 'green.8', museums: 'blue.8' }}
-            value={['creators', 'curators', 'museums']}
-            fallbackColor="gray"
-          />
-        </Box>
-      </Group>
-      <Reflection
-        rippleStrength={30}
-        rippleFrequency={0.025}
-        reflectionDistance={-10}
-        reflectionOpacity={0}
-        reflectionStretch={0.33}
-        shadowOffset={-50}
-        shadowOpacity={0.2}
-        shadowBlur={5.51}
-        shadowSize={29}
-        shadowScaleX={1}
-        shadowScaleY={1.24}
-      >
-        <ArtAroundGlobalSearch items={items} onOptionSubmit={onOptionSubmit} />
-      </Reflection>
-    </Stack>
   )
 }
