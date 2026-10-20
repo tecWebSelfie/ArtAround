@@ -25,7 +25,6 @@ const nextConfig: NextConfig = {
   serverExternalPackages: [
     'payload',
     '@payloadcms/db-mongodb',
-    '@payloadcms/email-nodemailer',
     '@payloadcms/graphql',
     '@payloadcms/plugin-redirects',
   ],

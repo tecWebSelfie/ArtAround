@@ -311,7 +311,7 @@ only demonstrated feature failures. Avoid broad unrelated cleanup.
   the contextual modal opened. Inspect both stages and final UI.
 - Real `getUserMedia` needs permission and a secure context. `localhost` is allowed;
   a phone visiting plain HTTP on a LAN IP generally needs HTTPS instead.
-- Local LiveKit connection failures and Nodemailer authentication errors have
+- Local LiveKit connection failures have
   appeared during testing. Report relevant effects without treating them as proof
   of QR failure. Never copy environment secrets or credentials into documentation.
 - If route changes leave stale generated references, regenerate types. If HMR

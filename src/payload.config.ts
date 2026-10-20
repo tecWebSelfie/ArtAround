@@ -1,7 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
-import { nodemailerAdapter } from '@payloadcms/email-nodemailer'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-import nodemailer from 'nodemailer'
 import path from 'path'
 import { buildConfig, LocalizationConfig, type Field } from 'payload'
 import sharp from 'sharp'
@@ -390,17 +388,6 @@ export default buildConfig({
       finalizeObjectModelWorkflow,
     ],
   },
-  email: nodemailerAdapter({
-    defaultFromAddress: 'artaround@progettantisti.com',
-    defaultFromName: 'Payload',
-    // Nodemailer transportOptions
-    transport: nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT || '587',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    }),
-  }),
+  // No email adapter: the project gave up on email (no verification or password
+  // reset flows). Payload only logs a warning that emails go to the console.
 })
