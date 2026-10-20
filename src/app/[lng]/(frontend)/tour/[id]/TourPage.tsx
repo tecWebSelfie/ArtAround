@@ -41,6 +41,7 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { TourQrButton } from './TourQrButton'
 
 const QUICK_LANGUAGES = ['en', 'it', 'fr', 'es', 'de'].filter((code) => IsoCodes.validate(code))
 const MORE_LANGUAGES_VALUE = '__more-languages__'
@@ -119,16 +120,17 @@ export default function TourPage({
       <Title order={2} size="h2" className="text-center">
         {tour.title}
       </Title>
-      {canDelete && (
-        <Group justify="center">
+      <Group justify="center">
+        <TourQrButton tourId={tour.id} title={tour.title} />
+        {canDelete && (
           <DeleteDocumentButton
             collection="tours"
             id={tour.id}
             name={tour.title}
             redirectTo={`/${lng}/navigator` as Route}
           />
-        </Group>
-      )}
+        )}
+      </Group>
       <Timeline>
         {contents.map((content) => (
           // TimelineItem must stay a direct child of Timeline: Timeline
