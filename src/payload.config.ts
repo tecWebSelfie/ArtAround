@@ -16,8 +16,26 @@ import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
 import { payloadLFRs } from 'payload-lfrs'
 import { phoneNumberPlugin } from 'payload-phone-number-plugin'
 
+import { bg } from '@payloadcms/translations/languages/bg'
+import { cs } from '@payloadcms/translations/languages/cs'
+import { da } from '@payloadcms/translations/languages/da'
+import { de } from '@payloadcms/translations/languages/de'
 import { en } from '@payloadcms/translations/languages/en'
+import { es } from '@payloadcms/translations/languages/es'
+import { et } from '@payloadcms/translations/languages/et'
+import { fr } from '@payloadcms/translations/languages/fr'
+import { hr } from '@payloadcms/translations/languages/hr'
+import { hu } from '@payloadcms/translations/languages/hu'
 import { it } from '@payloadcms/translations/languages/it'
+import { lt } from '@payloadcms/translations/languages/lt'
+import { lv } from '@payloadcms/translations/languages/lv'
+import { nl } from '@payloadcms/translations/languages/nl'
+import { pl } from '@payloadcms/translations/languages/pl'
+import { pt } from '@payloadcms/translations/languages/pt'
+import { ro } from '@payloadcms/translations/languages/ro'
+import { sk } from '@payloadcms/translations/languages/sk'
+import { sl } from '@payloadcms/translations/languages/sl'
+import { sv } from '@payloadcms/translations/languages/sv'
 import IsoCodes from 'iso-639-1'
 import { mintEndpoints } from './endpoints/mint'
 import { generateObjectModelWorkflow } from './jobs/generateObjectModelWorkflow'
@@ -76,7 +94,30 @@ export default buildConfig({
     },
   },
   i18n: {
-    supportedLanguages: { en, it },
+    // Admin panel languages: the app's EU languages that Payload ships
+    // translations for (no el, fi, ga, mt yet; those admins see English).
+    supportedLanguages: {
+      bg,
+      cs,
+      da,
+      de,
+      en,
+      es,
+      et,
+      fr,
+      hr,
+      hu,
+      it,
+      lt,
+      lv,
+      nl,
+      pl,
+      pt,
+      ro,
+      sk,
+      sl,
+      sv,
+    },
     fallbackLanguage: 'en',
   },
   collections: [
