@@ -30,7 +30,16 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'], channel: process.env.PLAYWRIGHT_CHANNEL || 'chromium' },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: process.env.PLAYWRIGHT_CHANNEL || 'chromium',
+        // Software WebGL: headless Chromium no longer falls back to SwiftShader
+        // on its own, and without WebGL the Pascal map never draws, so tour
+        // navigation stays on "Finding your route" (group-tour, tour-guidance).
+        launchOptions: {
+          args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
+        },
+      },
     },
   ],
   webServer:
