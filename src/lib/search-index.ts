@@ -89,17 +89,6 @@ function joinParts(...parts: Array<string | null | undefined>) {
     .slice(0, 2000)
 }
 
-function lexicalText(value: unknown): string {
-  if (!value || typeof value !== 'object') return ''
-  try {
-    return convertLexicalToPlaintext({ data: value as never }).trim()
-  } catch {
-    // Search must never fail a save because an editor stored an old/partial
-    // rich-text shape.
-    return ''
-  }
-}
-
 function createdAt(value: unknown): string | undefined {
   if (!value) return undefined
   const date = new Date(String(value))
@@ -191,7 +180,9 @@ export async function buildSearchDoc({
       const museum = await museumForRelation({ payload, relation: 'tours', id, req })
       return {
         title: tour.title,
-        excerpt: joinParts(tour.description, museum?.name, museum?.city),
+        // Descriptions are intentionally not indexed: search matches titles and
+        // museum/city metadata only.
+        excerpt: joinParts(museum?.name, museum?.city),
         kind,
         city: museum?.city ?? '',
         priceCents: tour.pricing?.priceCents ?? 0,
@@ -202,7 +193,8 @@ export async function buildSearchDoc({
       const content = doc as unknown as Content
       return {
         title: content.title,
-        excerpt: joinParts(lexicalText(content.body)),
+        // Rich-text bodies are intentionally not indexed.
+        excerpt: '',
         kind,
         city: '',
         priceCents: content.pricing?.priceCents ?? 0,
@@ -217,7 +209,8 @@ export async function buildSearchDoc({
         user.username
       return {
         title: name,
-        excerpt: joinParts(user.username, user.description, user.bio),
+        // Username stays searchable; description and bio are not indexed.
+        excerpt: joinParts(user.username),
         kind,
         city: '',
         priceCents: 0,
@@ -228,12 +221,9 @@ export async function buildSearchDoc({
       const museum = doc as unknown as Museum
       return {
         title: museum.name,
-        excerpt: joinParts(
-          museum.shortDescription,
-          lexicalText(museum.description),
-          museum.location?.city,
-          museum.location?.region,
-        ),
+        // Descriptions are intentionally not indexed; city/region remain so the
+        // navigator can match by place.
+        excerpt: joinParts(museum.location?.city, museum.location?.region),
         kind,
         city: museum.location?.city ?? '',
         priceCents: 0,
@@ -245,7 +235,8 @@ export async function buildSearchDoc({
       const museum = await museumForRelation({ payload, relation: 'objects', id, req })
       return {
         title: object.name,
-        excerpt: joinParts(object.artist, object.description, museum?.name, museum?.city),
+        // Artist and museum metadata stay searchable; the description does not.
+        excerpt: joinParts(object.artist, museum?.name, museum?.city),
         kind,
         city: museum?.city ?? '',
         priceCents: 0,

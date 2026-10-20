@@ -8,18 +8,23 @@ external search service.
 
 `searchPlugin()` in `src/payload.config.ts` indexes:
 
-| Payload collection | Search kind | Searchable text                                      | City        | Price |
-| ------------------ | ----------- | ---------------------------------------------------- | ----------- | ----- |
-| `tours`            | `tour`      | title, description, museum name, museum city         | from museum | yes   |
-| `contents`         | `content`   | title, rich-text body                                | –           | yes   |
-| `users`            | `user`      | full name, username, description, bio                | –           | –     |
-| `museums`          | `museum`    | name, short description, rich-text description, city | yes         | –     |
-| `objects`          | `object`    | name, artist, description, museum name, museum city  | from museum | –     |
+| Payload collection | Search kind | Searchable text                             | City        | Price |
+| ------------------ | ----------- | ------------------------------------------- | ----------- | ----- |
+| `tours`            | `tour`      | title, museum name, museum city             | from museum | yes   |
+| `contents`         | `content`   | title                                       | –           | yes   |
+| `users`            | `user`      | full name, username                         | –           | –     |
+| `museums`          | `museum`    | name, city, region                          | yes         | –     |
+| `objects`          | `object`    | name, artist, museum name, museum city      | from museum | –     |
+
+Descriptions are deliberately excluded from the index for every collection:
+`tours.description`, `contents.body` (rich text), `users.description`/`bio`,
+`museums.shortDescription`/`description` (rich text) and `objects.description`.
+Search hence matches titles and the metadata listed above only.
 
 `src/lib/search-index.ts` owns the projection:
 
-- `buildSearchDoc()` flattens localized/rich-text/relationship data into
-  `title`, `excerpt`, `kind`, `city`, `priceCents` and `sourceCreatedAt`.
+- `buildSearchDoc()` flattens relationship/location data into `title`, `excerpt`,
+  `kind`, `city`, `priceCents` and `sourceCreatedAt`.
 - The index is deliberately English-only (`localize: false`). Cards are hydrated
   from the original Payload documents in the visitor's locale, so translated
   titles, prices and images stay correct.
