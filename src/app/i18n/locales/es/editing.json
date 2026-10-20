@@ -83,11 +83,17 @@
   "This content is paid. Unlock it to read the full text.": "Este contenido es de pago. Desbloquéalo para leer el texto completo.",
   "Title": "Título",
   "Undo": "Deshacer",
-  "Username": "Nombre de usuario",
   "Verified creator": "Creador verificado",
   "Write a content about this object": "Escribe un contenido sobre este objeto",
   "You will be the director of this museum and can invite curators afterwards.": "Serás el director de este museo y podrás invitar a curadores después.",
   "Browse contents": "Explorar contenidos",
   "Write a new content": "Escribir un contenido nuevo",
-  "An object on show at {{museum}} — the stop goes there on the map": "Un objeto expuesto en {{museum}} — la parada se sitúa allí en el mapa"
+  "An object on show at {{museum}} — the stop goes there on the map": "Un objeto expuesto en {{museum}} — la parada se sitúa allí en el mapa",
+  "Person": "Persona",
+  "Search by name or username": "Buscar por nombre o nombre de usuario",
+  "No users found": "No se encontraron usuarios",
+  "Use my location": "Usar mi ubicación",
+  "Where the museum is on the map": "Dónde está el museo en el mapa",
+  "This device cannot share its location": "Este dispositivo no puede compartir su ubicación",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tu ubicación no está disponible — permítela o escribe las coordenadas de una app de mapas"
 }

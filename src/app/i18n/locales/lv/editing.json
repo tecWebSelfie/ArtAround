@@ -83,11 +83,17 @@
   "This content is paid. Unlock it to read the full text.": "Šis saturs ir maksas. Atbloķē to, lai lasītu visu tekstu.",
   "Title": "Nosaukums",
   "Undo": "Atsaukt",
-  "Username": "Lietotājvārds",
   "Verified creator": "Verificēts autors",
   "Write a content about this object": "Uzraksti saturu par šo objektu",
   "You will be the director of this museum and can invite curators afterwards.": "Tu būsi šī muzeja direktors un vēlāk varēsi uzaicināt kuratorus.",
   "Browse contents": "Pārlūkot saturu",
   "Write a new content": "Rakstīt jaunu saturu",
-  "An object on show at {{museum}} — the stop goes there on the map": "{{museum}} eksponēts priekšmets — pietura kartē tiks novietota tur"
+  "An object on show at {{museum}} — the stop goes there on the map": "{{museum}} eksponēts priekšmets — pietura kartē tiks novietota tur",
+  "Person": "Persona",
+  "Search by name or username": "Meklēt pēc vārda vai lietotājvārda",
+  "No users found": "Lietotāji nav atrasti",
+  "Use my location": "Izmantot manu atrašanās vietu",
+  "Where the museum is on the map": "Kur muzejs atrodas kartē",
+  "This device cannot share its location": "Šī ierīce nevar kopīgot savu atrašanās vietu",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tava atrašanās vieta nav pieejama — atļauj to vai ievadi koordinātas no karšu lietotnes"
 }

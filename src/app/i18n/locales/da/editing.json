@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Dette indhold er betalt. Lås det op for at læse hele teksten.",
   "Title": "Titel",
   "Undo": "Fortryd",
-  "Username": "Brugernavn",
   "Verified creator": "Verificeret skaber",
   "Write a content about this object": "Skriv et indhold om denne genstand",
   "You will be the director of this museum and can invite curators afterwards.": "Du bliver direktør for museet og kan bagefter invitere kuratorer.",
   "Browse contents": "Gennemse indhold",
   "Write a new content": "Skriv nyt indhold",
-  "An object on show at {{museum}} — the stop goes there on the map": "En genstand udstillet på {{museum}} — stoppet placeres der på kortet"
+  "An object on show at {{museum}} — the stop goes there on the map": "En genstand udstillet på {{museum}} — stoppet placeres der på kortet",
+  "Person": "Person",
+  "Search by name or username": "Søg efter navn eller brugernavn",
+  "No users found": "Ingen brugere fundet",
+  "Use my location": "Brug min placering",
+  "Where the museum is on the map": "Hvor museet ligger på kortet",
+  "This device cannot share its location": "Denne enhed kan ikke dele sin placering",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Din placering er ikke tilgængelig — tillad den, eller skriv koordinaterne fra en kortapp"
 }

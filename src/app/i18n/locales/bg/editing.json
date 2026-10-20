@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Това съдържание е платено. Отключи го, за да прочетеш целия текст.",
   "Title": "Заглавие",
   "Undo": "Отмени",
-  "Username": "Потребителско име",
   "Verified creator": "Потвърден автор",
   "Write a content about this object": "Напиши съдържание за този обект",
   "You will be the director of this museum and can invite curators afterwards.": "Ще бъдеш директор на този музей и после можеш да поканиш куратори.",
   "Browse contents": "Разгледай съдържанието",
   "Write a new content": "Напиши ново съдържание",
-  "An object on show at {{museum}} — the stop goes there on the map": "Експонат в {{museum}} — спирката се поставя там на картата"
+  "An object on show at {{museum}} — the stop goes there on the map": "Експонат в {{museum}} — спирката се поставя там на картата",
+  "Person": "Човек",
+  "Search by name or username": "Търси по име или потребителско име",
+  "No users found": "Няма намерени потребители",
+  "Use my location": "Използвай местоположението ми",
+  "Where the museum is on the map": "Къде е музеят на картата",
+  "This device cannot share its location": "Това устройство не може да споделя местоположението си",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Местоположението ти не е достъпно — разреши го или въведи координатите от приложение с карти"
 }

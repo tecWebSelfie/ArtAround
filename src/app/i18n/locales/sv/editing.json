@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Det här innehållet är betalt. Lås upp det för att läsa hela texten.",
   "Title": "Titel",
   "Undo": "Ångra",
-  "Username": "Användarnamn",
   "Verified creator": "Verifierad skapare",
   "Write a content about this object": "Skriv ett innehåll om det här föremålet",
   "You will be the director of this museum and can invite curators afterwards.": "Du blir chef för museet och kan sedan bjuda in intendenter.",
   "Browse contents": "Bläddra bland innehåll",
   "Write a new content": "Skriv nytt innehåll",
-  "An object on show at {{museum}} — the stop goes there on the map": "Ett föremål som visas på {{museum}} — stoppet placeras där på kartan"
+  "An object on show at {{museum}} — the stop goes there on the map": "Ett föremål som visas på {{museum}} — stoppet placeras där på kartan",
+  "Person": "Person",
+  "Search by name or username": "Sök på namn eller användarnamn",
+  "No users found": "Inga användare hittades",
+  "Use my location": "Använd min plats",
+  "Where the museum is on the map": "Var museet ligger på kartan",
+  "This device cannot share its location": "Den här enheten kan inte dela sin plats",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Din plats är inte tillgänglig — tillåt den eller skriv in koordinaterna från en kartapp"
 }

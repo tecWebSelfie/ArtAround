@@ -84,11 +84,17 @@
   "This content is paid. Unlock it to read the full text.": "Šis turinys mokamas. Atrakink jį, kad perskaitytum visą tekstą.",
   "Title": "Pavadinimas",
   "Undo": "Anuliuoti",
-  "Username": "Naudotojo vardas",
   "Verified creator": "Patvirtintas kūrėjas",
   "Write a content about this object": "Parašyk turinį apie šį objektą",
   "You will be the director of this museum and can invite curators afterwards.": "Būsi šio muziejaus direktorius ir vėliau galėsi pakviesti kuratorių.",
   "Browse contents": "Naršyti turinį",
   "Write a new content": "Rašyti naują turinį",
-  "An object on show at {{museum}} — the stop goes there on the map": "{{museum}} eksponuojamas objektas — stotelė žemėlapyje bus ten"
+  "An object on show at {{museum}} — the stop goes there on the map": "{{museum}} eksponuojamas objektas — stotelė žemėlapyje bus ten",
+  "Person": "Asmuo",
+  "Search by name or username": "Ieškoti pagal vardą arba naudotojo vardą",
+  "No users found": "Naudotojų nerasta",
+  "Use my location": "Naudoti mano vietą",
+  "Where the museum is on the map": "Kur muziejus yra žemėlapyje",
+  "This device cannot share its location": "Šis įrenginys negali bendrinti savo vietos",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tavo vieta nepasiekiama — leisk ją arba įvesk koordinates iš žemėlapių programėlės"
 }

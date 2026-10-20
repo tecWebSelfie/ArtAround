@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "This content is paid. Unlock it to read the full text.",
   "Title": "Title",
   "Undo": "Undo",
-  "Username": "Username",
   "Verified creator": "Verified creator",
   "Write a content about this object": "Write a content about this object",
   "You will be the director of this museum and can invite curators afterwards.": "You will be the director of this museum and can invite curators afterwards.",
   "Browse contents": "Browse contents",
   "Write a new content": "Write a new content",
-  "An object on show at {{museum}} — the stop goes there on the map": "An object on show at {{museum}} — the stop goes there on the map"
+  "An object on show at {{museum}} — the stop goes there on the map": "An object on show at {{museum}} — the stop goes there on the map",
+  "Person": "Person",
+  "Search by name or username": "Search by name or username",
+  "No users found": "No users found",
+  "Use my location": "Use my location",
+  "Where the museum is on the map": "Where the museum is on the map",
+  "This device cannot share its location": "This device cannot share its location",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Your location is not available — allow it, or type the coordinates from a map app"
 }

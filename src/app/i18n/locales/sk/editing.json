@@ -84,11 +84,17 @@
   "This content is paid. Unlock it to read the full text.": "Tento obsah je platený. Odomkni si ho a prečítaj si celý text.",
   "Title": "Názov",
   "Undo": "Späť",
-  "Username": "Používateľské meno",
   "Verified creator": "Overený tvorca",
   "Write a content about this object": "Napíš obsah o tomto objekte",
   "You will be the director of this museum and can invite curators afterwards.": "Staneš sa riaditeľom tohto múzea a neskôr môžeš pozvať kurátorov.",
   "Browse contents": "Prehliadať obsah",
   "Write a new content": "Napísať nový obsah",
-  "An object on show at {{museum}} — the stop goes there on the map": "Predmet vystavený v {{museum}} — zastávka sa umiestni na mape tam"
+  "An object on show at {{museum}} — the stop goes there on the map": "Predmet vystavený v {{museum}} — zastávka sa umiestni na mape tam",
+  "Person": "Osoba",
+  "Search by name or username": "Hľadať podľa mena alebo používateľského mena",
+  "No users found": "Nenašli sa žiadni používatelia",
+  "Use my location": "Použiť moju polohu",
+  "Where the museum is on the map": "Kde je múzeum na mape",
+  "This device cannot share its location": "Toto zariadenie nemôže zdieľať svoju polohu",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja poloha nie je dostupná — povoľ ju alebo zadaj súradnice z mapovej aplikácie"
 }

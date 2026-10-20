@@ -84,11 +84,17 @@
   "This content is paid. Unlock it to read the full text.": "Ta treść jest płatna. Odblokuj ją, aby przeczytać cały tekst.",
   "Title": "Tytuł",
   "Undo": "Cofnij",
-  "Username": "Nazwa użytkownika",
   "Verified creator": "Zweryfikowany twórca",
   "Write a content about this object": "Napisz treść o tym obiekcie",
   "You will be the director of this museum and can invite curators afterwards.": "Zostaniesz dyrektorem tego muzeum i później możesz zaprosić kuratorów.",
   "Browse contents": "Przeglądaj treści",
   "Write a new content": "Napisz nową treść",
-  "An object on show at {{museum}} — the stop goes there on the map": "Obiekt wystawiony w {{museum}} — przystanek pojawi się w tym miejscu na mapie"
+  "An object on show at {{museum}} — the stop goes there on the map": "Obiekt wystawiony w {{museum}} — przystanek pojawi się w tym miejscu na mapie",
+  "Person": "Osoba",
+  "Search by name or username": "Szukaj po imieniu lub nazwie użytkownika",
+  "No users found": "Nie znaleziono użytkowników",
+  "Use my location": "Użyj mojej lokalizacji",
+  "Where the museum is on the map": "Gdzie muzeum znajduje się na mapie",
+  "This device cannot share its location": "To urządzenie nie może udostępnić swojej lokalizacji",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Twoja lokalizacja jest niedostępna — zezwól na nią lub wpisz współrzędne z aplikacji z mapami"
 }

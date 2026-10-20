@@ -2,17 +2,8 @@
 
 import type { MuseumRole } from '@/fields/MuseumFunction'
 import { payloadSdk } from '@/payload-sdk'
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Paper,
-  Select,
-  Stack,
-  Text,
-  TextInput,
-  Title,
-} from '@mantine/core'
+import { UserPicker } from './UserPicker'
+import { ActionIcon, Button, Group, Paper, Select, Stack, Text, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { Trash2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -152,7 +143,12 @@ export function MembersManager({
               {t('Add someone')}
             </Title>
             <Group align="end" grow>
-              <TextInput label={t('Username')} {...invite.getInputProps('username')} />
+              <UserPicker
+                label={t('Person')}
+                value={invite.values.username || null}
+                onChange={(username) => invite.setFieldValue('username', username ?? '')}
+                error={invite.errors.username as string | undefined}
+              />
               <Select
                 label={t('Role')}
                 data={roleOptions}

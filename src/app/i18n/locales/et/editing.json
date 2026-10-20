@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "See sisu on tasuline. Ava see, et lugeda kogu teksti.",
   "Title": "Pealkiri",
   "Undo": "Võta tagasi",
-  "Username": "Kasutajanimi",
   "Verified creator": "Kinnitatud looja",
   "Write a content about this object": "Kirjuta sellest objektist sisu",
   "You will be the director of this museum and can invite curators afterwards.": "Sinust saab selle muuseumi direktor ja hiljem saad kutsuda kuraatoreid.",
   "Browse contents": "Sirvi sisu",
   "Write a new content": "Kirjuta uus sisu",
-  "An object on show at {{museum}} — the stop goes there on the map": "Muuseumis {{museum}} eksponeeritud ese — peatus paigutatakse kaardil sinna"
+  "An object on show at {{museum}} — the stop goes there on the map": "Muuseumis {{museum}} eksponeeritud ese — peatus paigutatakse kaardil sinna",
+  "Person": "Isik",
+  "Search by name or username": "Otsi nime või kasutajanime järgi",
+  "No users found": "Kasutajaid ei leitud",
+  "Use my location": "Kasuta minu asukohta",
+  "Where the museum is on the map": "Kus muuseum kaardil asub",
+  "This device cannot share its location": "See seade ei saa oma asukohta jagada",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Sinu asukoht pole saadaval — luba see või sisesta koordinaadid kaardirakendusest"
 }

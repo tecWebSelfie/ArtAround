@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Deze content is betaald. Ontgrendel hem om de volledige tekst te lezen.",
   "Title": "Titel",
   "Undo": "Ongedaan maken",
-  "Username": "Gebruikersnaam",
   "Verified creator": "Geverifieerde maker",
   "Write a content about this object": "Schrijf een content over dit object",
   "You will be the director of this museum and can invite curators afterwards.": "Je wordt directeur van dit museum en kunt daarna curatoren uitnodigen.",
   "Browse contents": "Inhoud bekijken",
   "Write a new content": "Nieuwe inhoud schrijven",
-  "An object on show at {{museum}} — the stop goes there on the map": "Een object te zien in {{museum}} — de stop komt daar op de kaart"
+  "An object on show at {{museum}} — the stop goes there on the map": "Een object te zien in {{museum}} — de stop komt daar op de kaart",
+  "Person": "Persoon",
+  "Search by name or username": "Zoeken op naam of gebruikersnaam",
+  "No users found": "Geen gebruikers gevonden",
+  "Use my location": "Mijn locatie gebruiken",
+  "Where the museum is on the map": "Waar het museum op de kaart ligt",
+  "This device cannot share its location": "Dit apparaat kan zijn locatie niet delen",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Je locatie is niet beschikbaar — sta deze toe of typ de coördinaten uit een kaartapp"
 }

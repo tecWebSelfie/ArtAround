@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Αυτό το περιεχόμενο είναι επί πληρωμή. Ξεκλείδωσέ το για να διαβάσεις όλο το κείμενο.",
   "Title": "Τίτλος",
   "Undo": "Αναίρεση",
-  "Username": "Όνομα χρήστη",
   "Verified creator": "Επαληθευμένος δημιουργός",
   "Write a content about this object": "Γράψε ένα περιεχόμενο για αυτό το αντικείμενο",
   "You will be the director of this museum and can invite curators afterwards.": "Θα είσαι ο διευθυντής αυτού του μουσείου και μετά μπορείς να προσκαλέσεις επιμελητές.",
   "Browse contents": "Περιήγηση στα περιεχόμενα",
   "Write a new content": "Γράψε νέο περιεχόμενο",
-  "An object on show at {{museum}} — the stop goes there on the map": "Ένα έκθεμα του {{museum}} — η στάση τοποθετείται εκεί στον χάρτη"
+  "An object on show at {{museum}} — the stop goes there on the map": "Ένα έκθεμα του {{museum}} — η στάση τοποθετείται εκεί στον χάρτη",
+  "Person": "Άτομο",
+  "Search by name or username": "Αναζήτηση με όνομα ή όνομα χρήστη",
+  "No users found": "Δεν βρέθηκαν χρήστες",
+  "Use my location": "Χρήση της τοποθεσίας μου",
+  "Where the museum is on the map": "Πού βρίσκεται το μουσείο στον χάρτη",
+  "This device cannot share its location": "Αυτή η συσκευή δεν μπορεί να μοιραστεί την τοποθεσία της",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Η τοποθεσία σου δεν είναι διαθέσιμη — επίτρεψέ την ή γράψε τις συντεταγμένες από μια εφαρμογή χαρτών"
 }

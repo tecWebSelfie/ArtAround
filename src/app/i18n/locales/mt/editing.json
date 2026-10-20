@@ -85,11 +85,17 @@
   "This content is paid. Unlock it to read the full text.": "Dan il-kontenut huwa bi ħlas. Iftħu biex taqra t-test kollu.",
   "Title": "Titlu",
   "Undo": "Erġa' lura",
-  "Username": "Isem tal-utent",
   "Verified creator": "Kreatur ivverifikat",
   "Write a content about this object": "Ikteb kontenut dwar dan l-oġġett",
   "You will be the director of this museum and can invite curators afterwards.": "Int se tkun id-direttur ta' dan il-mużew u tista' tistieden kuraturi wara.",
   "Browse contents": "Ifli l-kontenut",
   "Write a new content": "Ikteb kontenut ġdid",
-  "An object on show at {{museum}} — the stop goes there on the map": "Oġġett espost f'{{museum}} — il-waqfa titqiegħed hemm fuq il-mappa"
+  "An object on show at {{museum}} — the stop goes there on the map": "Oġġett espost f'{{museum}} — il-waqfa titqiegħed hemm fuq il-mappa",
+  "Person": "Persuna",
+  "Search by name or username": "Fittex bl-isem jew bl-isem tal-utent",
+  "No users found": "Ma nstabu l-ebda utenti",
+  "Use my location": "Uża l-post tiegħi",
+  "Where the museum is on the map": "Fejn qiegħed il-mużew fuq il-mappa",
+  "This device cannot share its location": "Dan it-tagħmir ma jistax jaqsam il-post tiegħu",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Il-post tiegħek mhux disponibbli — ħallih, jew ikteb il-koordinati minn app tal-mapep"
 }

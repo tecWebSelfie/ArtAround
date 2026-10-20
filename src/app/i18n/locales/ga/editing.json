@@ -85,11 +85,17 @@
   "This content is paid. Unlock it to read the full text.": "Is ábhar íoctha é seo. Díghlasáil é chun an téacs iomlán a léamh.",
   "Title": "Teideal",
   "Undo": "Cuir ar neamhní",
-  "Username": "Ainm úsáideora",
   "Verified creator": "Cruthaitheoir fíoraithe",
   "Write a content about this object": "Scríobh ábhar faoin réad seo",
   "You will be the director of this museum and can invite curators afterwards.": "Is tusa a bheidh mar stiúrthóir ar an músaem seo agus is féidir leat coimeádaithe a thabhairt isteach ina dhiaidh sin.",
   "Browse contents": "Brabhsáil ábhar",
   "Write a new content": "Scríobh ábhar nua",
-  "An object on show at {{museum}} — the stop goes there on the map": "Rud ar taispeáint i {{museum}} — cuirtear an stad ansin ar an léarscáil"
+  "An object on show at {{museum}} — the stop goes there on the map": "Rud ar taispeáint i {{museum}} — cuirtear an stad ansin ar an léarscáil",
+  "Person": "Duine",
+  "Search by name or username": "Cuardaigh de réir ainm nó ainm úsáideora",
+  "No users found": "Níor aimsíodh úsáideoirí",
+  "Use my location": "Úsáid mo shuíomh",
+  "Where the museum is on the map": "Cá bhfuil an músaem ar an léarscáil",
+  "This device cannot share its location": "Ní féidir leis an ngléas seo a shuíomh a roinnt",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Níl do shuíomh ar fáil — ceadaigh é, nó clóscríobh na comhordanáidí ó aip léarscáileanna"
 }

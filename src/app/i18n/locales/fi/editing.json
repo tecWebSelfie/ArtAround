@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Tämä sisältö on maksullinen. Avaa se lukeaksesi koko tekstin.",
   "Title": "Otsikko",
   "Undo": "Kumoa",
-  "Username": "Käyttäjänimi",
   "Verified creator": "Vahvistettu tekijä",
   "Write a content about this object": "Kirjoita sisältö tästä esineestä",
   "You will be the director of this museum and can invite curators afterwards.": "Sinusta tulee tämän museon johtaja, ja voit kutsua kuraattoreita myöhemmin.",
   "Browse contents": "Selaa sisältöjä",
   "Write a new content": "Kirjoita uusi sisältö",
-  "An object on show at {{museum}} — the stop goes there on the map": "Kohteessa {{museum}} esillä oleva esine — kohde sijoitetaan siihen kartalla"
+  "An object on show at {{museum}} — the stop goes there on the map": "Kohteessa {{museum}} esillä oleva esine — kohde sijoitetaan siihen kartalla",
+  "Person": "Henkilö",
+  "Search by name or username": "Hae nimellä tai käyttäjänimellä",
+  "No users found": "Käyttäjiä ei löytynyt",
+  "Use my location": "Käytä sijaintiani",
+  "Where the museum is on the map": "Missä museo on kartalla",
+  "This device cannot share its location": "Tämä laite ei voi jakaa sijaintiaan",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Sijaintisi ei ole saatavilla — salli se tai kirjoita koordinaatit karttasovelluksesta"
 }

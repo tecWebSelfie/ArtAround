@@ -83,11 +83,17 @@
   "This content is paid. Unlock it to read the full text.": "Ovaj sadržaj se plaća. Otključaj ga da pročitaš cijeli tekst.",
   "Title": "Naslov",
   "Undo": "Poništi",
-  "Username": "Korisničko ime",
   "Verified creator": "Verificirani autor",
   "Write a content about this object": "Napiši sadržaj o ovom objektu",
   "You will be the director of this museum and can invite curators afterwards.": "Bit ćeš ravnatelj ovog muzeja i kasnije možeš pozvati kustose.",
   "Browse contents": "Pregledaj sadržaje",
   "Write a new content": "Napiši novi sadržaj",
-  "An object on show at {{museum}} — the stop goes there on the map": "Izložak u {{museum}} — postaja se tamo postavlja na karti"
+  "An object on show at {{museum}} — the stop goes there on the map": "Izložak u {{museum}} — postaja se tamo postavlja na karti",
+  "Person": "Osoba",
+  "Search by name or username": "Traži po imenu ili korisničkom imenu",
+  "No users found": "Nema pronađenih korisnika",
+  "Use my location": "Koristi moju lokaciju",
+  "Where the museum is on the map": "Gdje se muzej nalazi na karti",
+  "This device cannot share its location": "Ovaj uređaj ne može dijeliti svoju lokaciju",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja lokacija nije dostupna — dopusti je ili upiši koordinate iz aplikacije s kartama"
 }

@@ -82,11 +82,17 @@
   "This content is paid. Unlock it to read the full text.": "Ez a tartalom fizetős. Oldd fel a teljes szöveg elolvasásához.",
   "Title": "Cím",
   "Undo": "Visszavonás",
-  "Username": "Felhasználónév",
   "Verified creator": "Ellenőrzött alkotó",
   "Write a content about this object": "Írj tartalmat erről a tárgyról",
   "You will be the director of this museum and can invite curators afterwards.": "Te leszel a múzeum igazgatója, és később kurátorokat is meghívhatsz.",
   "Browse contents": "Tartalmak böngészése",
   "Write a new content": "Új tartalom írása",
-  "An object on show at {{museum}} — the stop goes there on the map": "A(z) {{museum}} egyik kiállított tárgya — a megálló ott kerül a térképre"
+  "An object on show at {{museum}} — the stop goes there on the map": "A(z) {{museum}} egyik kiállított tárgya — a megálló ott kerül a térképre",
+  "Person": "Személy",
+  "Search by name or username": "Keresés név vagy felhasználónév alapján",
+  "No users found": "Nincs találat",
+  "Use my location": "Saját helyzetem használata",
+  "Where the museum is on the map": "Hol van a múzeum a térképen",
+  "This device cannot share its location": "Ez az eszköz nem tudja megosztani a helyzetét",
+  "Your location is not available — allow it, or type the coordinates from a map app": "A helyzeted nem érhető el — engedélyezd, vagy írd be a koordinátákat egy térképalkalmazásból"
 }

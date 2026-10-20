@@ -83,11 +83,17 @@
   "This content is paid. Unlock it to read the full text.": "Ce contenu est payant. Débloque-le pour lire le texte complet.",
   "Title": "Titre",
   "Undo": "Annuler",
-  "Username": "Nom d’utilisateur",
   "Verified creator": "Créateur vérifié",
   "Write a content about this object": "Écris un contenu sur cet objet",
   "You will be the director of this museum and can invite curators afterwards.": "Tu seras directeur de ce musée et pourras ensuite inviter des conservateurs.",
   "Browse contents": "Parcourir les contenus",
   "Write a new content": "Écrire un nouveau contenu",
-  "An object on show at {{museum}} — the stop goes there on the map": "Un objet exposé à {{museum}}  — l'étape y est placée sur la carte"
+  "An object on show at {{museum}} — the stop goes there on the map": "Un objet exposé à {{museum}}  — l'étape y est placée sur la carte",
+  "Person": "Personne",
+  "Search by name or username": "Rechercher par nom ou nom d'utilisateur",
+  "No users found": "Aucun utilisateur trouvé",
+  "Use my location": "Utiliser ma position",
+  "Where the museum is on the map": "L'emplacement du musée sur la carte",
+  "This device cannot share its location": "Cet appareil ne peut pas partager sa position",
+  "Your location is not available — allow it, or type the coordinates from a map app": "Votre position n'est pas disponible — autorisez-la, ou saisissez les coordonnées depuis une application de cartes"
 }
