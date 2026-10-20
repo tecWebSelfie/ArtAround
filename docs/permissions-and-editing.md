@@ -67,6 +67,8 @@ Super admins bypass all of the above.
 - `objects.contents` stays the authored object → content relation (tour
   navigation reads it). Creating a content with the write-only
   `attachToObject: <objectId>` links it there without object-edit rights.
+  A content belongs to one object only: `objects.contents` rejects a content
+  already attached to another object (`validateExclusiveContents`).
 - Object ownership: `createdBy` (RBAC plugin) is the owner. Only the owner
   edits the object's data. Objects without `createdBy` (seeded/legacy) are
   editable by super admins only.

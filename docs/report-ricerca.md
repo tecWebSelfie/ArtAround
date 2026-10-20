@@ -12,9 +12,11 @@ Commit coinvolti:
 | `52de090` | Merge di `169df1f` e adattamento al modello dati del branch            |
 | `26f6092` | Sicurezza: indice leggibile e scrivibile solo dal server               |
 | `293efbd` | Navigazione libera (tocca la ricerca solo nella Spotlight della mappa) |
+| `fa87961` | Barra della home: tour, contenuti e musei con dettagli; modalità museo |
+| merge     | Il tuo `bcda40f` (niente corpi né descrizioni nell'indice)             |
 
-`bcda40f` (il tuo commit successivo, "exclude descriptions") **non è ancora
-integrato**: vedi in fondo.
+`bcda40f` (il tuo commit successivo, "exclude descriptions") è integrato: vedi
+la sezione 6.
 
 ## 1. Adattamenti al modello dati
 
@@ -91,8 +93,8 @@ Verifiche (tutte passate): `GET /api/search` anonimo e da utente → 403;
 da super admin → 200; navigator e marketplace funzionano come prima.
 
 Nello stesso commit i contenuti a pagamento venivano indicizzati senza corpo.
-Il tuo `bcda40f` va oltre (nessun corpo o descrizione per nessuno), quindi
-quella parte verrà sostituita dalla tua al merge.
+Il tuo `bcda40f` va oltre (nessun corpo o descrizione per nessuno) e al merge ha
+sostituito quella parte.
 
 ## 3. Navigator e Typesense (merge `52de090`)
 
@@ -128,47 +130,40 @@ documento salvato (tour / content / user / museum / object)
 lettura (solo server, overrideAccess)
   ├─ marketplace: querySearchIndex(kinds tour/content/user, filtro prezzo, -sourceCreatedAt)
   │                → idratazione nella lingua del visitatore → MarketplaceCard
-  └─ navigator:   /api/navigator-search → querySearchIndex(museum/object/tour/user, -priority)
-                   → riordino per corrispondenza su città/titolo → idratazione → dropdown
+  └─ navigator:   /api/navigator-search → querySearchIndex(tour/content/museum, -priority,
+                   40 righe, solo il museo bloccato in modalità museo)
+                   → riordino per città/titolo → prime `limit` → idratazione → dropdown
 ```
 
 - La ricerca è testuale: `like` (sottostringa, senza maiuscole/minuscole) su
   `title`, `excerpt` e `city`. Niente fuzzy né semantica (decisione presa).
 - Ricostruire l'indice dopo modifiche a `buildSearchDoc()`: `pnpm search:reindex`.
 
-## 6. Il tuo `bcda40f`: come si integra
+## 6. Il tuo `bcda40f`: integrato
 
-Merge di prova fatto in un worktree separato:
+- **Conflitto** in `search-index.ts` sull'`excerpt` dei contenuti: presa la tua
+  versione (estratto vuoto); il resto mantiene gli adattamenti della sezione 1.
+  Tolto l'import di `convertLexicalToPlaintext`, rimasto inutilizzato.
+- **`opencode.json`:** la tua correzione (`mcp.{…}`) è entrata senza conflitti.
+- Indice ricostruito con `pnpm search:reindex`.
+- **Effetto da sapere:** la ricerca trova solo titoli e metadati (città,
+  regione, artista, museo). Un tema che compare solo nel testo (per esempio
+  "Tintoretto") non dà risultati. Se servisse, si può indicizzare un campo
+  pubblico breve (categorie, un riassunto) invece del corpo.
 
-- **Un solo conflitto**, in `search-index.ts` sull'`excerpt` dei contenuti: si
-  risolve prendendo la tua versione (estratto vuoto). Il resto del file si fonde
-  da solo e mantiene gli adattamenti della sezione 1.
-- **`opencode.json`:** la tua correzione (`mcp.{…}` invece di `mcp.servers.{…}`)
-  entra senza conflitti.
-- **Effetto da sapere:** dopo il merge la ricerca trova solo titoli e metadati
-  (città, regione, artista, museo). Un tema o un nome che compare solo nel
-  testo (per esempio "Tintoretto", oppure "Florence" nella descrizione del
-  Museo Galileo) non dà più risultati. Se servisse una via di mezzo, si può
-  indicizzare un campo pubblico breve (categorie, fonti, un riassunto) invece
-  del corpo.
+## 7. Barra della home (`fa87961`)
 
-## 7. Ancora aperto
+Fatto quanto era rimasto aperto dall'audit:
 
-Dall'audit della barra della home e dal controllo del plugin:
+- **Ambito:** tour, contenuti e musei (`NAVIGATOR_SEARCH_KINDS`). Priorità:
+  tour 10, contenuti 8, musei 6.
+- **Ranking prima del taglio:** la route prende 40 righe (`RANK_POOL`), le
+  riordina (città esatta, titolo, città parziale) e poi tiene `limit`.
+- **Modalità museo:** con `museumScope()` restano solo il museo, i suoi tour e
+  i contenuti sulla sua mappa (`restrictTo` di `querySearchIndex()`).
+- **Dettagli nel dropdown:** durata, difficoltà, tappe (tour) e prezzo
+  (contenuti a pagamento), letti all'idratazione; i tour hanno l'icona a
+  gradiente. Ogni risultato apre la pagina di dettaglio.
 
-- **Ambito della home:** deve cercare **tour, contenuti e musei**. Oggi cerca
-  musei, oggetti, tour e utenti, e scarta i contenuti (`NAVIGATOR_SEARCH_KINDS`
-  e il `continue` su `content` nella route).
-- **Troncamento prima del ranking:** la route prende 8 righe per priorità e poi
-  le riordina; una corrispondenza esatta può restare fuori dalle 8.
-- **Modalità museo:** `/api/navigator-search` non legge `museumScope()`.
-- **Destinazione dei risultati:** i contenuti aprono la pagina di dettaglio
-  (deciso); da lì "Trovalo sulla mappa" porta alla navigazione libera.
-- **Funzioni del plugin non ancora usate:**
-  - `skipSync` per saltare le lingue diverse da `en` (oggi ogni traduzione
-    automatica rifà la sync di una riga che resta comunque in inglese);
-  - `defaultPriorities` come funzione, per esempio per far salire i tour dei
-    musei con una mappa;
-  - campi di dettaglio nella riga (`searchOverrides.fields` + `beforeSync`),
-    per mostrare nel dropdown durata, tappe, museo, difficoltà e tempo di
-    lettura senza idratazioni in più.
+Ancora non usati: `skipSync` per le lingue diverse da `en` e i campi di
+dettaglio salvati direttamente nella riga (`searchOverrides.fields`).

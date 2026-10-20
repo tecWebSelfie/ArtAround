@@ -8,13 +8,13 @@ external search service.
 
 `searchPlugin()` in `src/payload.config.ts` indexes:
 
-| Payload collection | Search kind | Searchable text                             | City        | Price |
-| ------------------ | ----------- | ------------------------------------------- | ----------- | ----- |
-| `tours`            | `tour`      | title, museum name, museum city             | from museum | yes   |
-| `contents`         | `content`   | title                                       | –           | yes   |
-| `users`            | `user`      | full name, username                         | –           | –     |
-| `museums`          | `museum`    | name, city, region                          | yes         | –     |
-| `objects`          | `object`    | name, artist, museum name, museum city      | from museum | –     |
+| Payload collection | Search kind | Searchable text                        | City        | Price |
+| ------------------ | ----------- | -------------------------------------- | ----------- | ----- |
+| `tours`            | `tour`      | title, museum name, museum city        | from museum | yes   |
+| `contents`         | `content`   | title                                  | –           | yes   |
+| `users`            | `user`      | full name, username                    | –           | –     |
+| `museums`          | `museum`    | name, city, region                     | yes         | –     |
+| `objects`          | `object`    | name, artist, museum name, museum city | from museum | –     |
 
 Descriptions are deliberately excluded from the index for every collection:
 `tours.description`, `contents.body` (rich text), `users.description`/`bio`,
@@ -45,8 +45,8 @@ The `search` collection is server-side data. The plugin's defaults (public
 only, so REST/GraphQL can't leak excerpts or let visitors rewrite rows (for
 example raise a row's `priority`). All app reads go through
 `querySearchIndex()` with `overrideAccess`, and the plugin syncs through the
-Local API. Paid contents are indexed by title only: their body never enters the
-`excerpt`.
+Local API. No rich-text body or description is indexed, so a paid body can't
+leak through a match or a subtitle.
 
 ## Result scopes
 
@@ -56,15 +56,27 @@ Both scopes read the same `search` collection through
 - **Marketplace** (`src/lib/marketplace.ts`): `tours`, `contents`, `users`.
   Empty-query browsing and text searches use the same rows. Price filters apply
   to tours/contents; users are included in "All" only with a text query.
-- **Navigator** (`/api/navigator-search`): `museums`, `objects`, `tours`, `users`.
-  The query also matches museum city, so typing "Roma" surfaces museums and
-  related tours/objects in Rome. The navigator dropdown shows the city as
-  metadata and links to the canonical localized page.
+- **Navigator** (`/api/navigator-search`, the home dropdown): `tours`,
+  `contents`, `museums` (`NAVIGATOR_SEARCH_KINDS`). Every result opens its
+  detail page, whose CTA leads into the map (or to buying a locked content).
+  - The query also matches museum city ("Roma" surfaces museums and tours in
+    Rome).
+  - Ordering: rows sort by `priority` (`SEARCH_PRIORITIES`: tours 10, contents
+    8, museums 6, objects 5, users 4), then the route ranks a pool of
+    `RANK_POOL` (40) rows by exact city, title and partial city match before
+    keeping `limit`, so an exact match is never cut by priority.
+  - Museum mode (`museumScope()`): only the locked museum, its tours and the
+    contents on its map (`restrictTo` in `querySearchIndex()`).
+  - Rows are hydrated in the visitor's locale with what the dropdown shows:
+    minutes (a tour's `durationMinutes`, else its contents' reading time; at
+    least 1), difficulty (a tour's hardest content), stops, and a paid
+    content's price.
 
 ## Reindex
 
 Normal creates/updates/deletes sync automatically. Rebuild the whole index after
-enabling search, adding a collection, or changing `buildSearchDoc()`:
+enabling search, adding a collection, or changing `buildSearchDoc()` or
+`SEARCH_PRIORITIES`:
 
 ```bash
 pnpm search:reindex
