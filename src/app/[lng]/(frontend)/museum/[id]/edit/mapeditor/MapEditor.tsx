@@ -1,21 +1,28 @@
 'use client'
 
-import { ObjectCatalogPanel } from '@/components/pascal/ObjectCatalogPanel'
+import { ObjectCatalogPanel, useObjectGeneration } from '@/components/pascal/ObjectCatalogPanel'
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'
 import { MuseumServicesToolbar } from '@/components/pascal/MuseumServicesToolbar'
 import { museumPlugin } from '@/lib/pascal'
-import { EditorViewerContext, type EditorViewer } from '@/lib/pascal/editor-viewer'
+import { CREATE_PARAM, PLACE_PARAM } from '@/lib/museum-picker'
+import {
+  EditorMuseumContext,
+  EditorViewerContext,
+  type EditorViewer,
+} from '@/lib/pascal/editor-viewer'
+import { placeableObjectAsset } from '@/lib/pascal/object-assets'
 import { generateMuseumNavMeshesFromSceneRegistry } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
-import { Editor } from '@pascal-app/editor'
+import { activateCatalogItem, Editor } from '@pascal-app/editor'
 import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Amphora, Toilet } from 'lucide-react'
 import { createNavMesh } from 'navcat'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePathname, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 const registerPlugin = loadPlugin(builtinPlugin)
@@ -39,6 +46,9 @@ export function MapEditor({
 }) {
   const { t } = useTranslation('map-editor')
   const sceneReady = useRef<{ promise?: Promise<void>; resolve?: () => void }>({})
+  // True once the stored scene is on screen: the moment an object from the
+  // objects search (`?place=`) can be put in hand.
+  const [sceneLoaded, setSceneLoaded] = useState(false)
   const handleLoaderChange = useCallback((visible: boolean) => {
     if (visible) {
       sceneReady.current.promise ??= new Promise<void>((resolve) => {
@@ -47,6 +57,7 @@ export function MapEditor({
     } else {
       sceneReady.current.resolve?.()
       sceneReady.current = {}
+      setSceneLoaded(true)
     }
   }, [])
   const {
@@ -94,7 +105,11 @@ export function MapEditor({
   // which crashes FloorplanPanel's `polygon.map(([x, z]) => …)` — normalize.
   const handleLoad = useCallback(async () => {
     const map = (museum?.map as ParsedBuildJson) ?? null
-    if (!map) return null
+    if (!map) {
+      // Nothing to load, so no loader cycle will report it.
+      setSceneLoaded(true)
+      return null
+    }
     for (const node of Object.values(map.nodes ?? {})) {
       const polygon = (node as { polygon?: { points?: unknown } })?.polygon
       if (Array.isArray(polygon?.points)) {
@@ -104,49 +119,80 @@ export function MapEditor({
     return map
   }, [museum?.map])
 
+  // Arrival from the objects search (`src/lib/museum-picker.ts`): put the
+  // picked object in hand (`?place=`), or open the new-object modal
+  // (`?create=1`). Handled once, then the params are dropped so a reload
+  // doesn't repeat it: with `history.replaceState`, never `router.replace`,
+  // which re-renders the server page, refreshes the museum query and makes
+  // Pascal reload the scene (back to select mode, unsaved edits gone).
+  const searchParams = useSearchParams()
+  const pathname = usePathname()
+  const openGeneration = useObjectGeneration()
+  const arrivalHandled = useRef(false)
+  useEffect(() => {
+    const place = searchParams.get(PLACE_PARAM)
+    const create = searchParams.get(CREATE_PARAM) === '1'
+    if (!sceneLoaded || arrivalHandled.current || (!place && !create)) return
+    arrivalHandled.current = true
+    window.history.replaceState(null, '', pathname)
+    if (create) openGeneration()
+    if (place) {
+      // Same read as the catalog panel (`objectLibraryOptions`): depth 2
+      // reaches the model file the placeable asset points at.
+      payloadSdk
+        .findByID({ collection: 'objects', id: place, depth: 2, locale: 'en' })
+        .then((object) => activateCatalogItem(placeableObjectAsset(object)))
+        .catch(() => {
+          // A stale or foreign id: the editor simply opens without an object in hand.
+        })
+    }
+  }, [sceneLoaded, searchParams, pathname, openGeneration])
+
   if (!ready || isLoading) return <div>Loading...</div>
   if (isError || !museum) return <div>Error loading map</div>
 
   return (
-    <EditorViewerContext.Provider value={viewer}>
-      <Box className="h-dvh">
-        <Editor
-          sidebarTabs={[
-            {
-              id: 'items',
-              label: t('Objects'),
-              component: ObjectCatalogPanel,
-              icon: <Amphora size={24} />,
-            },
-            ...(canManageStructure
-              ? [
-                  {
-                    id: 'services',
-                    label: t('Services'),
-                    component: MuseumServicesPanel,
-                    icon: <Toilet size={24} />,
-                  },
-                ]
-              : []),
-          ]}
-          layoutVersion="v2"
-          sceneOverlay={
-            // Left: map construction. Right: museum service markers. Both are director tools.
-            canManageStructure ? (
-              <>
-                <MuseumCreationToolbar />
-                <MuseumServicesToolbar />
-              </>
-            ) : null
-          }
-          isLoading={false}
-          onLoad={handleLoad}
-          onLoaderChange={handleLoaderChange}
-          onSave={async (scene) => {
-            await mutateAsync(scene as ParsedBuildJson)
-          }}
-        />
-      </Box>
-    </EditorViewerContext.Provider>
+    <EditorMuseumContext.Provider value={museumId}>
+      <EditorViewerContext.Provider value={viewer}>
+        <Box className="h-dvh">
+          <Editor
+            sidebarTabs={[
+              {
+                id: 'items',
+                label: t('Objects'),
+                component: ObjectCatalogPanel,
+                icon: <Amphora size={24} />,
+              },
+              ...(canManageStructure
+                ? [
+                    {
+                      id: 'services',
+                      label: t('Services'),
+                      component: MuseumServicesPanel,
+                      icon: <Toilet size={24} />,
+                    },
+                  ]
+                : []),
+            ]}
+            layoutVersion="v2"
+            sceneOverlay={
+              // Left: map construction. Right: museum service markers. Both are director tools.
+              canManageStructure ? (
+                <>
+                  <MuseumCreationToolbar />
+                  <MuseumServicesToolbar />
+                </>
+              ) : null
+            }
+            isLoading={false}
+            onLoad={handleLoad}
+            onLoaderChange={handleLoaderChange}
+            onSave={async (scene) => {
+              await mutateAsync(scene as ParsedBuildJson)
+            }}
+          />
+        </Box>
+      </EditorViewerContext.Provider>
+    </EditorMuseumContext.Provider>
   )
 }

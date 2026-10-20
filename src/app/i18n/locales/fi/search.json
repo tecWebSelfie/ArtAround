@@ -35,5 +35,12 @@
   "Write a new content": "Kirjoita uusi sisältö",
   "Add to tour": "Lisää kierrokseen",
   "Add {{title}} to the tour": "Lisää {{title}} kierrokseen",
-  "In the tour": "Kierroksella"
+  "In the tour": "Kierroksella",
+  "Add an object": "Lisää esine",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Valitse luettelosta esine sijoitettavaksi kohteen {{museum}} kartalle",
+  "Back to the map": "Takaisin karttaan",
+  "Create a new object": "Luo uusi esine",
+  "On show": "Esillä",
+  "Place on the map": "Sijoita kartalle",
+  "Place {{name}} on the map": "Sijoita {{name}} kartalle"
 }

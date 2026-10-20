@@ -37,5 +37,12 @@
   "Write a new content": "Napiši novo vsebino",
   "Add to tour": "Dodaj v ogled",
   "Add {{title}} to the tour": "Dodaj {{title}} v ogled",
-  "In the tour": "V ogledu"
+  "In the tour": "V ogledu",
+  "Add an object": "Dodaj predmet",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Izberi predmet iz kataloga in ga postavi na zemljevid {{museum}}",
+  "Back to the map": "Nazaj na zemljevid",
+  "Create a new object": "Ustvari nov predmet",
+  "On show": "Razstavljeno",
+  "Place on the map": "Postavi na zemljevid",
+  "Place {{name}} on the map": "Postavi {{name}} na zemljevid"
 }

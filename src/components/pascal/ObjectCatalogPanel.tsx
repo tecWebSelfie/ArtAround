@@ -1,12 +1,17 @@
 'use client'
 
 import { objectLibraryOptions } from '@/lib/model-generation-client'
-import { useEditorViewer } from '@/lib/pascal/editor-viewer'
+import { museumPickerHref } from '@/lib/museum-picker'
+import { useEditorMuseum, useEditorViewer } from '@/lib/pascal/editor-viewer'
 import { objectAsset, placeableObjectAsset } from '@/lib/pascal/object-assets'
 import type { Object as MuseumObject } from '@/payload-types'
-import { Button, Pagination } from '@mantine/core'
+import { Button, Group, Pagination } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useModals } from '@mantine/modals'
+import { Search } from 'lucide-react'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { activateCatalogItem, ItemsPanel } from '@pascal-app/editor'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
@@ -14,22 +19,16 @@ import { useTranslation } from 'react-i18next'
 import { ObjectModelGeneration } from './ObjectModelGeneration'
 import styles from './object-catalog.module.css'
 
-export function ObjectCatalogPanel() {
+/**
+ * Opens the new-object / generate-model modal; "Position" puts the result in
+ * hand. Shared by the catalog panel and the editor's `?create=1` arrival from
+ * the objects search (`src/lib/museum-picker.ts`).
+ */
+export function useObjectGeneration() {
   const { t } = useTranslation('map-editor')
   const modals = useModals()
   const viewer = useEditorViewer()
-  const [search, setSearch] = useState('')
-  const [debouncedSearch] = useDebouncedValue(search, 300)
-  const [page, setPage] = useState(1)
-  const library = useQuery(objectLibraryOptions(debouncedSearch, page))
-  const objects = library.data?.docs ?? []
-  // Every object is placeable: without a Mint model (failed, pending or never
-  // generated) it is placed as the default info standee, and the model swaps in
-  // on a later map save once it exists (see `object-assets.ts`).
-  const assets = objects.map(placeableObjectAsset)
-  // Objects still on the default model also stay listed with a Generate action.
-  const missing = objects.filter((object) => !objectAsset(object))
-  function openGeneration(object?: MuseumObject) {
+  return function openGeneration(object?: MuseumObject) {
     const modalId = modals.openModal({
       title: object?.name ?? t('Create a new object'),
       size: 'lg',
@@ -48,13 +47,46 @@ export function ObjectCatalogPanel() {
       ),
     })
   }
+}
+
+export function ObjectCatalogPanel() {
+  const { t } = useTranslation('map-editor')
+  const { lng } = useParams<{ lng: string }>()
+  const museumId = useEditorMuseum()
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 300)
+  const [page, setPage] = useState(1)
+  const library = useQuery(objectLibraryOptions(debouncedSearch, page))
+  const objects = library.data?.docs ?? []
+  // Every object is placeable: without a Mint model (failed, pending or never
+  // generated) it is placed as the default info standee, and the model swaps in
+  // on a later map save once it exists (see `object-assets.ts`).
+  const assets = objects.map(placeableObjectAsset)
+  // Objects still on the default model also stay listed with a Generate action.
+  const missing = objects.filter((object) => !objectAsset(object))
+  const openGeneration = useObjectGeneration()
   return (
     <section className={styles.panel} aria-label={t('Object catalog')}>
       <header className={styles.header}>
         <h2>{t('Objects')}</h2>
-        <Button size="xs" onClick={() => openGeneration()} type="button">
-          {t('Create a new object')}
-        </Button>
+        <Group gap="xs">
+          <Button size="xs" onClick={() => openGeneration()} type="button">
+            {t('Create a new object')}
+          </Button>
+          {/* The full-page catalog (filters, descriptions, "On show"): picking
+            an object there comes back here with it in hand. */}
+          {museumId && (
+            <Button
+              size="xs"
+              variant="light"
+              component={Link}
+              href={museumPickerHref(lng, museumId) as Route}
+              leftSection={<Search size={14} aria-hidden />}
+            >
+              {t('Browse the catalog')}
+            </Button>
+          )}
+        </Group>
       </header>
       {library.isPending ? (
         <p className={styles.header} role="status">

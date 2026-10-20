@@ -38,5 +38,12 @@
   "Write a new content": "Scríobh ábhar nua",
   "Add to tour": "Cuir leis an turas",
   "Add {{title}} to the tour": "Cuir {{title}} leis an turas",
-  "In the tour": "Sa turas"
+  "In the tour": "Sa turas",
+  "Add an object": "Cuir rud leis",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Roghnaigh rud ón gcatalóg chun é a chur ar léarscáil {{museum}}",
+  "Back to the map": "Ar ais chuig an léarscáil",
+  "Create a new object": "Cruthaigh rud nua",
+  "On show": "Ar taispeáint",
+  "Place on the map": "Cuir ar an léarscáil",
+  "Place {{name}} on the map": "Cuir {{name}} ar an léarscáil"
 }

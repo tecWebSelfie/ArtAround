@@ -35,5 +35,12 @@
   "Write a new content": "Γράψε νέο περιεχόμενο",
   "Add to tour": "Προσθήκη στην ξενάγηση",
   "Add {{title}} to the tour": "Προσθήκη του {{title}} στην ξενάγηση",
-  "In the tour": "Στην ξενάγηση"
+  "In the tour": "Στην ξενάγηση",
+  "Add an object": "Προσθήκη αντικειμένου",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Διάλεξε ένα αντικείμενο από τον κατάλογο για να το τοποθετήσεις στον χάρτη του {{museum}}",
+  "Back to the map": "Πίσω στον χάρτη",
+  "Create a new object": "Δημιουργία νέου αντικειμένου",
+  "On show": "Σε έκθεση",
+  "Place on the map": "Τοποθέτηση στον χάρτη",
+  "Place {{name}} on the map": "Τοποθέτηση του {{name}} στον χάρτη"
 }

@@ -35,5 +35,12 @@
   "Write a new content": "Write a new content",
   "Add to tour": "Add to tour",
   "Add {{title}} to the tour": "Add {{title}} to the tour",
-  "In the tour": "In the tour"
+  "In the tour": "In the tour",
+  "Add an object": "Add an object",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Pick an object from the catalog to place it on the map of {{museum}}",
+  "Back to the map": "Back to the map",
+  "Create a new object": "Create a new object",
+  "On show": "On show",
+  "Place on the map": "Place on the map",
+  "Place {{name}} on the map": "Place {{name}} on the map"
 }

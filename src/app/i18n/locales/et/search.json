@@ -35,5 +35,12 @@
   "Write a new content": "Kirjuta uus sisu",
   "Add to tour": "Lisa tuuri",
   "Add {{title}} to the tour": "Lisa {{title}} tuuri",
-  "In the tour": "Tuuris"
+  "In the tour": "Tuuris",
+  "Add an object": "Lisa ese",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Vali kataloogist ese, et paigutada see muuseumi {{museum}} kaardile",
+  "Back to the map": "Tagasi kaardile",
+  "Create a new object": "Loo uus ese",
+  "On show": "Väljas",
+  "Place on the map": "Paiguta kaardile",
+  "Place {{name}} on the map": "Paiguta {{name}} kaardile"
 }

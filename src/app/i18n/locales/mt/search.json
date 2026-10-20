@@ -38,5 +38,12 @@
   "Write a new content": "Ikteb kontenut ġdid",
   "Add to tour": "Żid mat-tour",
   "Add {{title}} to the tour": "Żid {{title}} mat-tour",
-  "In the tour": "Fit-tour"
+  "In the tour": "Fit-tour",
+  "Add an object": "Żid oġġett",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Agħżel oġġett mill-katalgu biex tqiegħdu fuq il-mappa ta' {{museum}}",
+  "Back to the map": "Lura għall-mappa",
+  "Create a new object": "Oħloq oġġett ġdid",
+  "On show": "Espost",
+  "Place on the map": "Poġġi fuq il-mappa",
+  "Place {{name}} on the map": "Poġġi {{name}} fuq il-mappa"
 }

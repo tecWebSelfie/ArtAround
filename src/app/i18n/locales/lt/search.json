@@ -37,5 +37,12 @@
   "Write a new content": "Rašyti naują turinį",
   "Add to tour": "Pridėti prie turo",
   "Add {{title}} to the tour": "Pridėti {{title}} prie turo",
-  "In the tour": "Ture"
+  "In the tour": "Ture",
+  "Add an object": "Pridėti objektą",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Pasirink objektą iš katalogo, kad padėtum jį {{museum}} žemėlapyje",
+  "Back to the map": "Atgal į žemėlapį",
+  "Create a new object": "Kurti naują objektą",
+  "On show": "Eksponuojama",
+  "Place on the map": "Padėti žemėlapyje",
+  "Place {{name}} on the map": "Padėti {{name}} žemėlapyje"
 }

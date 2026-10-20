@@ -162,6 +162,16 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
    - `/[lng]/museum/[id]/members` — staff list with typed CRUD on memberships.
    - Museum page actions: "Add objects to the map" (map editor, curator+),
      "Add tour", "Add content", "Staff".
+   - Adding objects to a museum = placing them on its map. Besides the
+     editor's own catalog panel, "Browse the catalog" opens
+     `/[lng]/search/objects?pick=museum&museum=<id>` (map editors only): the
+     whole catalog with filters, objects already on the map marked "On show",
+     the others with "Place on the map" → back to the editor with
+     `?place=<objectId>`, the object in hand for one click on the map; "Create
+     a new object" → `?create=1` opens the model-generation modal. Pascal's
+     autosave (with an exit flush) keeps unsaved map edits across the trip;
+     the editor drops the params with `history.replaceState` (a
+     `router.replace` would reload the scene). See `src/lib/museum-picker.ts`.
    - NavBar: account entry and a "My museums" menu for directors, curators
      and verified creators.
 3. **Rich text**: Mantine `RichTextEditor` (`@mantine/tiptap`) edits HTML,

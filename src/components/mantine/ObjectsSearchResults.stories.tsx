@@ -60,3 +60,22 @@ export const Unpopulated: Story = {
     await expect(canvas.findByText('No objects found')).resolves.toBeTruthy()
   },
 }
+
+// Museum picker (the map editor's "Browse the catalog"): the first object is
+// already on the map, the others are placed in one click.
+export const MuseumPicker: Story = {
+  args: {
+    objects: mockObjectsList,
+    picker: { museumId: 'museum-1', returnTo: '/en/museum/museum-1/edit/mapeditor' },
+    onShow: new Set([mockObjectsList[0]!.id]),
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByText('On show')).resolves.toBeTruthy()
+    const places = await canvas.findAllByRole('link', { name: /^Place .* on the map$/ })
+    await expect(places).toHaveLength(mockObjectsList.length - 1)
+    // Picking returns to the map editor with the object in hand.
+    await expect(places[0]!.getAttribute('href')).toMatch(
+      /^\/en\/museum\/museum-1\/edit\/mapeditor\?place=/,
+    )
+  },
+}

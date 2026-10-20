@@ -78,10 +78,14 @@ export const Paginated: Story = {
     },
   },
   play: async ({ canvas }) => {
-    await expect(canvas.findByText('Attic amphora')).resolves.toBeVisible()
+    // A model-less object is listed twice (the catalog tile and "Needs a
+    // model"), so match all and check the first; the pagination is what's tested.
+    const firstVisible = async (name: string) =>
+      expect((await canvas.findAllByText(name))[0]).toBeVisible()
+    await firstVisible('Attic amphora')
     await userEvent.click(canvas.getByRole('button', { name: 'Next' }))
-    await expect(canvas.findByText('Roman bust')).resolves.toBeVisible()
+    await firstVisible('Roman bust')
     await userEvent.click(canvas.getByRole('button', { name: 'Previous' }))
-    await expect(canvas.findByText('Attic amphora')).resolves.toBeVisible()
+    await firstVisible('Attic amphora')
   },
 }

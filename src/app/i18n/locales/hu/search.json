@@ -35,5 +35,12 @@
   "Write a new content": "Új tartalom írása",
   "Add to tour": "Hozzáadás a túrához",
   "Add {{title}} to the tour": "{{title}} hozzáadása a túrához",
-  "In the tour": "A túrában"
+  "In the tour": "A túrában",
+  "Add an object": "Tárgy hozzáadása",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Válassz egy tárgyat a katalógusból, hogy elhelyezd a(z) {{museum}} térképén",
+  "Back to the map": "Vissza a térképhez",
+  "Create a new object": "Új tárgy létrehozása",
+  "On show": "Kiállítva",
+  "Place on the map": "Elhelyezés a térképen",
+  "Place {{name}} on the map": "{{name}} elhelyezése a térképen"
 }

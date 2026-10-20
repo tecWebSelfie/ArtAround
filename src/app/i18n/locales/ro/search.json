@@ -36,5 +36,12 @@
   "Write a new content": "Scrie un conținut nou",
   "Add to tour": "Adaugă în tur",
   "Add {{title}} to the tour": "Adaugă {{title}} în tur",
-  "In the tour": "În tur"
+  "In the tour": "În tur",
+  "Add an object": "Adaugă un obiect",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Alege un obiect din catalog pentru a-l plasa pe harta {{museum}}",
+  "Back to the map": "Înapoi la hartă",
+  "Create a new object": "Creează un obiect nou",
+  "On show": "Expus",
+  "Place on the map": "Plasează pe hartă",
+  "Place {{name}} on the map": "Plasează {{name}} pe hartă"
 }

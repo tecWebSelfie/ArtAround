@@ -36,5 +36,12 @@
   "Write a new content": "Escrever um novo conteúdo",
   "Add to tour": "Adicionar ao percurso",
   "Add {{title}} to the tour": "Adicionar {{title}} ao percurso",
-  "In the tour": "No percurso"
+  "In the tour": "No percurso",
+  "Add an object": "Adicionar um objeto",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Escolhe um objeto do catálogo para o colocar no mapa de {{museum}}",
+  "Back to the map": "Voltar ao mapa",
+  "Create a new object": "Criar um novo objeto",
+  "On show": "Em exposição",
+  "Place on the map": "Colocar no mapa",
+  "Place {{name}} on the map": "Colocar {{name}} no mapa"
 }

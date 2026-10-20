@@ -37,5 +37,12 @@
   "Write a new content": "Napsat nový obsah",
   "Add to tour": "Přidat do prohlídky",
   "Add {{title}} to the tour": "Přidat {{title}} do prohlídky",
-  "In the tour": "V prohlídce"
+  "In the tour": "V prohlídce",
+  "Add an object": "Přidat předmět",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Vyber předmět z katalogu a umísti ho na mapu {{museum}}",
+  "Back to the map": "Zpět na mapu",
+  "Create a new object": "Vytvořit nový předmět",
+  "On show": "Vystaveno",
+  "Place on the map": "Umístit na mapu",
+  "Place {{name}} on the map": "Umístit {{name}} na mapu"
 }

@@ -35,5 +35,12 @@
   "Write a new content": "Напиши ново съдържание",
   "Add to tour": "Добави към обиколката",
   "Add {{title}} to the tour": "Добави {{title}} към обиколката",
-  "In the tour": "В обиколката"
+  "In the tour": "В обиколката",
+  "Add an object": "Добави обект",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Избери обект от каталога, за да го поставиш на картата на {{museum}}",
+  "Back to the map": "Обратно към картата",
+  "Create a new object": "Създай нов обект",
+  "On show": "Изложен",
+  "Place on the map": "Постави на картата",
+  "Place {{name}} on the map": "Постави {{name}} на картата"
 }

@@ -35,5 +35,12 @@
   "Write a new content": "Skriv nytt innehåll",
   "Add to tour": "Lägg till i turen",
   "Add {{title}} to the tour": "Lägg till {{title}} i turen",
-  "In the tour": "I turen"
+  "In the tour": "I turen",
+  "Add an object": "Lägg till ett föremål",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Välj ett föremål ur katalogen för att placera det på kartan över {{museum}}",
+  "Back to the map": "Tillbaka till kartan",
+  "Create a new object": "Skapa ett nytt föremål",
+  "On show": "Visas",
+  "Place on the map": "Placera på kartan",
+  "Place {{name}} on the map": "Placera {{name}} på kartan"
 }

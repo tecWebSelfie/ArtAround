@@ -36,5 +36,12 @@
   "Write a new content": "Rakstīt jaunu saturu",
   "Add to tour": "Pievienot tūrei",
   "Add {{title}} to the tour": "Pievienot {{title}} tūrei",
-  "In the tour": "Tūrē"
+  "In the tour": "Tūrē",
+  "Add an object": "Pievienot priekšmetu",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Izvēlies priekšmetu no kataloga, lai to novietotu {{museum}} kartē",
+  "Back to the map": "Atpakaļ uz karti",
+  "Create a new object": "Izveidot jaunu priekšmetu",
+  "On show": "Izstādīts",
+  "Place on the map": "Novietot kartē",
+  "Place {{name}} on the map": "Novietot {{name}} kartē"
 }

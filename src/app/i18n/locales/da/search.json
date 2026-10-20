@@ -35,5 +35,12 @@
   "Write a new content": "Skriv nyt indhold",
   "Add to tour": "Føj til turen",
   "Add {{title}} to the tour": "Føj {{title}} til turen",
-  "In the tour": "I turen"
+  "In the tour": "I turen",
+  "Add an object": "Tilføj en genstand",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Vælg en genstand fra kataloget for at placere den på kortet over {{museum}}",
+  "Back to the map": "Tilbage til kortet",
+  "Create a new object": "Opret en ny genstand",
+  "On show": "Udstillet",
+  "Place on the map": "Placér på kortet",
+  "Place {{name}} on the map": "Placér {{name}} på kortet"
 }

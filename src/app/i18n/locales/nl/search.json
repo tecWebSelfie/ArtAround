@@ -35,5 +35,12 @@
   "Write a new content": "Nieuwe inhoud schrijven",
   "Add to tour": "Aan tour toevoegen",
   "Add {{title}} to the tour": "{{title}} aan de tour toevoegen",
-  "In the tour": "In de tour"
+  "In the tour": "In de tour",
+  "Add an object": "Object toevoegen",
+  "Pick an object from the catalog to place it on the map of {{museum}}": "Kies een object uit de catalogus om het op de kaart van {{museum}} te plaatsen",
+  "Back to the map": "Terug naar de kaart",
+  "Create a new object": "Nieuw object maken",
+  "On show": "Te zien",
+  "Place on the map": "Op de kaart plaatsen",
+  "Place {{name}} on the map": "{{name}} op de kaart plaatsen"
 }
