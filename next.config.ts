@@ -39,6 +39,15 @@ const nextConfig: NextConfig = {
         destination: '/:lng*/navigator',
         permanent: false,
       },
+      // Glue for the planned museum-owned navigation (docs/tour-navigation.md,
+      // phase 2): the museum-shaped tour URL already works and lands on the
+      // current tour tree. Temporary (307) so it can be inverted once the tree
+      // moves under the museum. The query (`at`, `to`, …) is kept by Next.
+      {
+        source: `/:lng(${lngPattern})/museum/:museumId/navigation/tour/:tourId/:rest*`,
+        destination: '/:lng/tour/:tourId/navigation/:rest*',
+        permanent: false,
+      },
     ]
   },
   images: {

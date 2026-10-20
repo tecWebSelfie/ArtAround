@@ -88,6 +88,10 @@ actions, scanner and commands derive "here" from it through
   `/[lng]/museum/[id]/navigation/tour/[tourId]/[stepId]` (one shell, the map
   stays mounted when a tour starts), with permanent redirects from the current
   `/[lng]/tour/[id]/navigation/...` URLs and the group/QR/test updates.
+- Until then, a temporary redirect in `next.config.ts` glues the two:
+  `/[lng]/museum/[id]/navigation/tour/[tourId]/[...rest]` (query kept) lands on
+  `/[lng]/tour/[tourId]/navigation/[...rest]`. New links may already use the
+  museum shape; phase 2 inverts the redirect.
 
 ## Code map and reuse boundaries
 
