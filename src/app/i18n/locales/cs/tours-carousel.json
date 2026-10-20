@@ -1,4 +1,11 @@
 {
+  "{{count}} stops_one": "{{count}} zastávka",
+  "{{count}} stops_few": "{{count}} zastávky",
+  "{{count}} stops_many": "{{count}} zastávky",
+  "{{count}} stops_other": "{{count}} zastávek",
+  "{{current}} of {{total}}": "{{current}} z {{total}}",
+  "Open the tour {{title}}": "Otevřít prohlídku {{title}}",
+  "Open this tour": "Otevřít tuto prohlídku",
   "Show next tour": "Zobrazit další prohlídku",
   "Show previous tour": "Zobrazit předchozí prohlídku",
   "Tours": "Prohlídky"

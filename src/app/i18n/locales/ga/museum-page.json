@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Inrochtaineacht",
+  "Accessible": "Inrochtana",
+  "Accessible toilets": "Leithris inrochtana",
+  "Address": "Seoladh",
+  "Audio guides": "Treoracha fuaime",
   "contents": "ábhar",
+  "Description": "Cur síos",
+  "Elevator": "Ardaitheoir",
+  "Email": "Ríomhphost",
   "Explore the map": "Taiscéal an léarscáil",
   "Hide": "Folaigh",
   "info": "eolas",
   "No description available": "Níl aon chur síos ar fáil",
-  "Show more": "Taispeáin tuilleadh"
+  "Photos": "Grianghraif",
+  "Service animals welcome": "Fáilte roimh ainmhithe cúnaimh",
+  "Show more": "Taispeáin tuilleadh",
+  "Sign language": "Teanga chomharthaíochta",
+  "Step-free entrance": "Bealach isteach gan chéimeanna",
+  "Tactile paths": "Cosáin tadhlacha"
 }

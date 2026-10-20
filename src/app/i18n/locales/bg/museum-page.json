@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Достъпност",
+  "Accessible": "Достъпен",
+  "Accessible toilets": "Достъпни тоалетни",
+  "Address": "Адрес",
+  "Audio guides": "Аудиогидове",
   "contents": "съдържания",
+  "Description": "Описание",
+  "Elevator": "Асансьор",
+  "Email": "Имейл",
   "Explore the map": "Разгледай картата",
   "Hide": "Скрий",
   "info": "инфо",
   "No description available": "Няма налично описание",
-  "Show more": "Покажи още"
+  "Photos": "Снимки",
+  "Service animals welcome": "Кучета помощници са добре дошли",
+  "Show more": "Покажи още",
+  "Sign language": "Жестов език",
+  "Step-free entrance": "Вход без стъпала",
+  "Tactile paths": "Тактилни пътеки"
 }

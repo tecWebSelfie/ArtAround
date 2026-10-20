@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Přístupnost",
+  "Accessible": "Bezbariérové",
+  "Accessible toilets": "Bezbariérové toalety",
+  "Address": "Adresa",
+  "Audio guides": "Audioprůvodci",
   "contents": "obsahy",
+  "Description": "Popis",
+  "Elevator": "Výtah",
+  "Email": "E-mail",
   "Explore the map": "Prozkoumat mapu",
   "Hide": "Skrýt",
   "info": "informace",
   "No description available": "Popis není k dispozici",
-  "Show more": "Zobrazit více"
+  "Photos": "Fotky",
+  "Service animals welcome": "Asistenční psi vítáni",
+  "Show more": "Zobrazit více",
+  "Sign language": "Znakový jazyk",
+  "Step-free entrance": "Bezbariérový vstup",
+  "Tactile paths": "Hmatové pásy"
 }

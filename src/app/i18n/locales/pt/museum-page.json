@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Acessibilidade",
+  "Accessible": "Acessível",
+  "Accessible toilets": "Casas de banho acessíveis",
+  "Address": "Morada",
+  "Audio guides": "Audioguias",
   "contents": "conteúdos",
+  "Description": "Descrição",
+  "Elevator": "Elevador",
+  "Email": "E-mail",
   "Explore the map": "Explorar o mapa",
   "Hide": "Ocultar",
   "info": "info",
   "No description available": "Sem descrição disponível",
-  "Show more": "Mostrar mais"
+  "Photos": "Fotos",
+  "Service animals welcome": "Animais de assistência admitidos",
+  "Show more": "Mostrar mais",
+  "Sign language": "Língua gestual",
+  "Step-free entrance": "Entrada sem degraus",
+  "Tactile paths": "Percursos táteis"
 }

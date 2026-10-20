@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Accessibilité",
+  "Accessible": "Accessible",
+  "Accessible toilets": "Toilettes accessibles",
+  "Address": "Adresse",
+  "Audio guides": "Audioguides",
   "contents": "contenus",
+  "Description": "Description",
+  "Elevator": "Ascenseur",
+  "Email": "E-mail",
   "Explore the map": "Explorer la carte",
   "Hide": "Masquer",
   "info": "infos",
   "No description available": "Aucune description disponible",
-  "Show more": "Afficher plus"
+  "Photos": "Photos",
+  "Service animals welcome": "Animaux d'assistance acceptés",
+  "Show more": "Afficher plus",
+  "Sign language": "Langue des signes",
+  "Step-free entrance": "Entrée de plain-pied",
+  "Tactile paths": "Bandes podotactiles"
 }

@@ -55,6 +55,8 @@ export type MarketplaceCardLabels = {
   viewProfile: string
   min: string
   minRead: string
+  /** Translated difficulty names (the badge's own labels are English keys). */
+  difficulty: Record<Difficulty, string>
 }
 
 function formatPrice(cents: number, currency: string, locale: string) {
@@ -167,7 +169,9 @@ export function MarketplaceCard({
               </Group>
             ) : null}
             {isContent && item.difficulty ? (
-              <DifficultyBadge difficulty={item.difficulty} size="xs" />
+              <DifficultyBadge difficulty={item.difficulty} size="xs">
+                {labels.difficulty[item.difficulty]}
+              </DifficultyBadge>
             ) : null}
             {isContent && item.readingTimeMins ? (
               <Group gap={4}>

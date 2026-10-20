@@ -30,7 +30,7 @@ export const SearchFocus: Story = {
     const canvas = within(canvasElement)
 
     await expect(canvas.getByText("Everything's")).toBeVisible()
-    await expect(canvas.getByText('Scan tour QR to start')).toBeVisible()
+    await expect(canvas.getByText('Scan a tour QR code to start')).toBeVisible()
     await expect(canvas.getByText('Or plan a visit around your time and interests')).toBeVisible()
 
     // Reflection renders an aria-hidden duplicate of the autocomplete below the

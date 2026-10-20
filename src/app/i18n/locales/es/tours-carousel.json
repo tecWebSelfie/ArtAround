@@ -1,4 +1,10 @@
 {
+  "{{count}} stops_one": "{{count}} parada",
+  "{{count}} stops_many": "{{count}} paradas",
+  "{{count}} stops_other": "{{count}} paradas",
+  "{{current}} of {{total}}": "{{current}} de {{total}}",
+  "Open the tour {{title}}": "Abrir el recorrido {{title}}",
+  "Open this tour": "Abrir este recorrido",
   "Show next tour": "Mostrar el siguiente tour",
   "Show previous tour": "Mostrar el tour anterior",
   "Tours": "Tours"

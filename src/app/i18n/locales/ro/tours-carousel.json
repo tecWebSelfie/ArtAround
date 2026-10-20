@@ -1,4 +1,10 @@
 {
+  "{{count}} stops_one": "{{count}} oprire",
+  "{{count}} stops_few": "{{count}} opriri",
+  "{{count}} stops_other": "{{count}} de opriri",
+  "{{current}} of {{total}}": "{{current}} din {{total}}",
+  "Open the tour {{title}}": "Deschide turul {{title}}",
+  "Open this tour": "Deschide acest tur",
   "Show next tour": "Arată turul următor",
   "Show previous tour": "Arată turul anterior",
   "Tours": "Tururi"

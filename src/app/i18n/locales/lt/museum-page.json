@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Prieinamumas",
+  "Accessible": "Pritaikyta",
+  "Accessible toilets": "Pritaikyti tualetai",
+  "Address": "Adresas",
+  "Audio guides": "Audiogidai",
   "contents": "turinys",
+  "Description": "Aprašymas",
+  "Elevator": "Liftas",
+  "Email": "El. paštas",
   "Explore the map": "Tyrinėk žemėlapį",
   "Hide": "Slėpti",
   "info": "informacija",
   "No description available": "Aprašymo nėra",
-  "Show more": "Rodyti daugiau"
+  "Photos": "Nuotraukos",
+  "Service animals welcome": "Pagalbiniai šunys laukiami",
+  "Show more": "Rodyti daugiau",
+  "Sign language": "Gestų kalba",
+  "Step-free entrance": "Įėjimas be laiptų",
+  "Tactile paths": "Taktiliniai takai"
 }

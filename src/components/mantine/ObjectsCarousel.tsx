@@ -1,25 +1,19 @@
 import type { Route } from 'next'
+import Link from 'next/link'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
-import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
-import {
-  ActionIcon,
-  AspectRatio,
-  BackgroundImage,
-  Group,
-  Stack,
-  Text,
-  Title,
-  UnstyledButton,
-} from '@mantine/core'
-import { ChevronRight } from 'lucide-react'
+import { AspectRatio, BackgroundImage, Stack, Text, Title } from '@mantine/core'
 import { ComponentProps } from 'react'
 
-import { LinkButton } from '@/components/editing/LinkButton'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
+/**
+ * The museum's objects as a swipeable row of square cards. Each card is one
+ * link to the object page, titled over a bottom scrim with the object's own
+ * facts (artist, dating) so the row reads as a collection, not just photos.
+ */
 export const ObjectsCarousel = async ({
   objects,
   ...props
@@ -29,7 +23,7 @@ export const ObjectsCarousel = async ({
 
   if (validObjects.length === 0) {
     return (
-      <Text size="sm" color="gray">
+      <Text size="sm" c="dimmed">
         {t('No objects available')}
       </Text>
     )
@@ -37,12 +31,12 @@ export const ObjectsCarousel = async ({
 
   return (
     <Stack>
-      <Group align="center" gap="sm">
-        <Title size="1em">{t('Objects')}</Title>
-        <UnstyledButton variant="text" c="blue.8" className="transform hover:border-b">
-          <Text size="sm">{t('See more') + ' >'}</Text>
-        </UnstyledButton>
-      </Group>
+      <Title order={3} size="h5">
+        {t('Objects')}{' '}
+        <Text span c="dimmed" fw={400} inherit className="tabular-nums">
+          {validObjects.length}
+        </Text>
+      </Title>
       <Carousel
         {...props}
         emblaOptions={{
@@ -55,21 +49,6 @@ export const ObjectsCarousel = async ({
         {validObjects.map((object) => (
           <CarouselCard object={object} key={object.id} />
         ))}
-        <CarouselSlide>
-          <Stack justify="center" align="center" className="h-full">
-            <ActionIcon
-              variant="outline"
-              color="gray"
-              radius={'lg'}
-              aria-label={t('See more objects')}
-            >
-              <ChevronRight size={16} />
-            </ActionIcon>
-            <Text size="sm" color="gray">
-              {t('See more objects')}
-            </Text>
-          </Stack>
-        </CarouselSlide>
       </Carousel>
     </Stack>
   )
@@ -79,36 +58,40 @@ const CarouselCard = async ({
   object,
   ...props
 }: ComponentProps<typeof CarouselSlide> & { object: PayloadObject }) => {
-  const { t, lng } = await getT('objects-carousel-card')
+  const { lng } = await getT('objects-carousel')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
+  const facts = [object.artist, object.dating].filter(Boolean).join(' · ')
 
   return (
     <CarouselSlide {...props}>
-      <AspectRatio ratio={1 / 1}>
-        <BackgroundImage className="rounded-xl" src={thumbnail?.url ?? PLACEHOLDER_IMAGE}>
-          <Stack justify="space-between" className="h-full" p="sm">
-            <Title order={2} size="h6">
-              {object.name}
-            </Title>
-            <Stack>
-              <Group justify="end">
-                <BorderAnimate variant="glow">
-                  {/* LinkButton: a server component can't pass `Link` (a function) to Mantine's client Button. */}
-                  <LinkButton
-                    href={`/${lng}/object/${object.id}` as Route}
-                    size="compact-sm"
-                    variant="outline"
-                    className="bg-white"
-                    classNames={{ root: 'border-none' }}
-                  >
-                    {t('View details')}
-                  </LinkButton>
-                </BorderAnimate>
-              </Group>
+      <Link
+        href={`/${lng}/object/${object.id}` as Route}
+        className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)"
+      >
+        <AspectRatio ratio={1 / 1}>
+          <BackgroundImage
+            className="overflow-hidden rounded-xl transition-transform duration-300 hover:scale-[1.02]"
+            src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
+          >
+            {/* Bottom scrim: white type stays readable on any photograph. */}
+            <Stack
+              justify="flex-end"
+              gap={2}
+              className="h-full bg-linear-to-t from-black/75 via-black/15 to-transparent"
+              p="sm"
+            >
+              <Title order={4} size="h6" c="white" lineClamp={2}>
+                {object.name}
+              </Title>
+              {facts && (
+                <Text size="xs" c="gray.3" lineClamp={1}>
+                  {facts}
+                </Text>
+              )}
             </Stack>
-          </Stack>
-        </BackgroundImage>
-      </AspectRatio>
+          </BackgroundImage>
+        </AspectRatio>
+      </Link>
     </CarouselSlide>
   )
 }

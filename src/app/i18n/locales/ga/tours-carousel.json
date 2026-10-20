@@ -1,4 +1,12 @@
 {
+  "{{count}} stops_one": "{{count}} stad",
+  "{{count}} stops_two": "{{count}} stad",
+  "{{count}} stops_few": "{{count}} stad",
+  "{{count}} stops_many": "{{count}} stad",
+  "{{count}} stops_other": "{{count}} stad",
+  "{{current}} of {{total}}": "{{current}} as {{total}}",
+  "Open the tour {{title}}": "Oscail an turas {{title}}",
+  "Open this tour": "Oscail an turas seo",
   "Show next tour": "Taispeáin an chéad turas eile",
   "Show previous tour": "Taispeáin an turas roimhe seo",
   "Tours": "Turais"

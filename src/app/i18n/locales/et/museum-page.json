@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Ligipääsetavus",
+  "Accessible": "Ligipääsetav",
+  "Accessible toilets": "Ligipääsetavad tualetid",
+  "Address": "Aadress",
+  "Audio guides": "Audiogiidid",
   "contents": "sisu",
+  "Description": "Kirjeldus",
+  "Elevator": "Lift",
+  "Email": "E-post",
   "Explore the map": "Avasta kaarti",
   "Hide": "Peida",
   "info": "info",
   "No description available": "Kirjeldus puudub",
-  "Show more": "Näita rohkem"
+  "Photos": "Fotod",
+  "Service animals welcome": "Abikoerad on oodatud",
+  "Show more": "Näita rohkem",
+  "Sign language": "Viipekeel",
+  "Step-free entrance": "Trepivaba sissepääs",
+  "Tactile paths": "Reljeefsed juhtteed"
 }

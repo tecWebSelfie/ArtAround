@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Accesibilitate",
+  "Accessible": "Accesibil",
+  "Accessible toilets": "Toalete accesibile",
+  "Address": "Adresă",
+  "Audio guides": "Ghiduri audio",
   "contents": "conținuturi",
+  "Description": "Descriere",
+  "Elevator": "Lift",
+  "Email": "E-mail",
   "Explore the map": "Explorează harta",
   "Hide": "Ascunde",
   "info": "info",
   "No description available": "Nicio descriere disponibilă",
-  "Show more": "Arată mai mult"
+  "Photos": "Fotografii",
+  "Service animals welcome": "Câinii de asistență sunt bineveniți",
+  "Show more": "Arată mai mult",
+  "Sign language": "Limbaj semne",
+  "Step-free entrance": "Intrare fără trepte",
+  "Tactile paths": "Trasee tactile"
 }

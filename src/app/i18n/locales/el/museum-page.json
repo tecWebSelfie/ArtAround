@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Προσβασιμότητα",
+  "Accessible": "Προσβάσιμο",
+  "Accessible toilets": "Προσβάσιμες τουαλέτες",
+  "Address": "Διεύθυνση",
+  "Audio guides": "Ηχητικοί οδηγοί",
   "contents": "περιεχόμενα",
+  "Description": "Περιγραφή",
+  "Elevator": "Ανελκυστήρας",
+  "Email": "Email",
   "Explore the map": "Εξερεύνησε τον χάρτη",
   "Hide": "Απόκρυψη",
   "info": "πληροφορίες",
   "No description available": "Δεν υπάρχει διαθέσιμη περιγραφή",
-  "Show more": "Περισσότερα"
+  "Photos": "Φωτογραφίες",
+  "Service animals welcome": "Επιτρέπονται σκύλοι βοήθειας",
+  "Show more": "Περισσότερα",
+  "Sign language": "Νοηματική γλώσσα",
+  "Step-free entrance": "Είσοδος χωρίς σκαλιά",
+  "Tactile paths": "Απτικοί οδηγοί"
 }

@@ -3,6 +3,7 @@ import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataFor
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
+import { MuseumGallery } from '@/components/mantine/MuseumGallery'
 import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
@@ -13,13 +14,11 @@ import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
 import {
-  AspectRatio,
   Avatar,
   AvatarGroup,
-  Button,
   Group,
-  Image,
-  Overlay,
+  List,
+  ListItem,
   Spoiler,
   Stack,
   Text,
@@ -33,15 +32,15 @@ import {
   Accessibility,
   Amphora,
   BadgeInfo,
+  Check,
   Compass,
   FilePlus,
-  Images,
   Map as MapIcon,
+  MapPin,
   Route as Route_,
   Users,
 } from 'lucide-react'
 import type { Route } from 'next'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 /**
  * What the visitor may do on this museum, computed server-side with `can()`
@@ -75,12 +74,39 @@ export default async function MuseumPage({
   const { t: te } = await getT('editing')
 
   const descriptionHTML = lexicalToHTML(museum.description) || null
+  // Only the facilities the museum confirmed; unknown ones are left unsaid.
+  const access = museum.accessibility
+  const accessFeatures = [
+    access?.stepFreeEntrance && t('Step-free entrance'),
+    access?.elevator && t('Elevator'),
+    access?.accessibleBathrooms && t('Accessible toilets'),
+    access?.tactilePaths && t('Tactile paths'),
+    access?.audioGuides && t('Audio guides'),
+    access?.signLanguage && t('Sign language'),
+    access?.serviceAnimals && t('Service animals welcome'),
+  ].filter((feature): feature is string => Boolean(feature))
   const base = editing ? `/${editing.lng}` : ''
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm" pb="xl">
-      <MuseumThumbnailGallery thumbnails={museum.thumbnails} />
-      <Title order={2}>{museum.name}</Title>
-      <MuseumBadges museum={museum} />
+    // Capped at Mantine's `md` container: past ~960px the cover and the tour
+    // deck grow taller than the viewport and push the contents below the fold.
+    <Stack mx={{ base: 'md', sm: 'xl', md: 'auto' }} maw={{ md: 960 }} mt="sm" pb="xl">
+      <MuseumGallery
+        photos={(museum.thumbnails ?? []).filter(
+          (thumbnail): thumbnail is MuseumThumbnail => typeof thumbnail !== 'string',
+        )}
+      />
+      <Stack gap={4}>
+        <Title order={1} size="h2">
+          {museum.name}
+        </Title>
+        {museum.location?.city && (
+          <Group gap={4} c="dimmed" fz="sm">
+            <MapPin size={14} aria-hidden />
+            {museum.location.city}
+          </Group>
+        )}
+      </Stack>
+      <MuseumBadges museum={museum} accessibleLabel={t('Accessible')} />
       {navigationHref && (
         // Navigation blue + compass: moving inside the museum (DESIGN.md →
         // Buttons). The tour gradient is kept for what starts a tour.
@@ -171,7 +197,7 @@ export default async function MuseumPage({
               >
                 <ArtaroundDataList
                   data={{
-                    Description: (
+                    [t('Description')]: (
                       <Spoiler maxHeight={80} showLabel={t('Show more')} hideLabel={t('Hide')}>
                         <Typography>
                           {!descriptionHTML ? (
@@ -182,8 +208,27 @@ export default async function MuseumPage({
                         </Typography>
                       </Spoiler>
                     ),
-                    Address: [museum.location.address, museum.location.city].join(', '),
-                    ...(museum.email ? { Email: museum.email } : {}),
+                    [t('Address')]: [museum.location.address, museum.location.city].join(', '),
+                    ...(museum.email ? { [t('Email')]: museum.email } : {}),
+                    ...(accessFeatures.length
+                      ? {
+                          [t('Accessibility')]: (
+                            <List
+                              spacing={4}
+                              size="sm"
+                              icon={
+                                <ThemeIcon size={18} radius="xl" variant="light" color="blue">
+                                  <Check size={12} aria-hidden />
+                                </ThemeIcon>
+                              }
+                            >
+                              {accessFeatures.map((feature) => (
+                                <ListItem key={feature}>{feature}</ListItem>
+                              ))}
+                            </List>
+                          ),
+                        }
+                      : {}),
                   }}
                 />
               </EditableSection>
@@ -195,8 +240,8 @@ export default async function MuseumPage({
   )
 }
 
-export async function MuseumBadges(props: { museum: Museum }) {
-  const { museum } = props
+export async function MuseumBadges(props: { museum: Museum; accessibleLabel: string }) {
+  const { museum, accessibleLabel } = props
   // Services live in the saved map scene graph (Pascal `museum:service` nodes),
   // not in a Payload field, so the page derives its badges from the map JSON.
   const { services } = collectMuseumMarkers(mapNodes(museum.map))
@@ -211,49 +256,31 @@ export async function MuseumBadges(props: { museum: Museum }) {
             const { Icon, color, label } = SERVICE_META[type]
             return (
               <Tooltip key={type} label={label} withArrow>
-                <Avatar color={color} radius="xl">
-                  <Icon size={16} />
+                <Avatar color={color} radius="xl" role="img" aria-label={label}>
+                  <Icon size={16} aria-hidden />
                 </Avatar>
               </Tooltip>
             )
           })}
         </AvatarGroup>
-        {/*Accessibility Badge */}
-        <Tooltip label="Accessible" withArrow>
-          <ThemeIcon radius="xl" size="lg" variant="filled" color="blue" autoContrast>
-            <Accessibility size={16} />
-          </ThemeIcon>
-        </Tooltip>
+        {/* Shown only when the museum declares itself accessible: the badge is
+            a claim visitors with access needs rely on, never decoration. */}
+        {museum.accessibility?.isAccessible && (
+          <Tooltip label={accessibleLabel} withArrow>
+            <ThemeIcon
+              radius="xl"
+              size="lg"
+              variant="filled"
+              color="blue"
+              autoContrast
+              role="img"
+              aria-label={accessibleLabel}
+            >
+              <Accessibility size={16} aria-hidden />
+            </ThemeIcon>
+          </Tooltip>
+        )}
       </TooltipGroup>
     </Group>
-  )
-}
-
-export async function MuseumThumbnailGallery(props: { thumbnails: Museum['thumbnails'] }) {
-  const validThumb = props.thumbnails?.find((t): t is MuseumThumbnail => typeof t !== 'string')
-
-  return (
-    <AspectRatio pos="relative" ratio={16 / 9}>
-      <Image
-        radius="lg"
-        src={validThumb?.url}
-        fallbackSrc={PLACEHOLDER_IMAGE}
-        alt={validThumb?.alt ?? 'Museum thumbnail not available'}
-      />
-      <Overlay backgroundOpacity={0} p="sm">
-        <Group align="end" h="100%" justify="end">
-          <Button
-            styles={{ section: { marginLeft: 5 } }}
-            rightSection={<Images size={10} />}
-            size="compact-xs"
-            variant="white"
-            color="blue.8"
-            autoContrast
-          >
-            See more
-          </Button>
-        </Group>
-      </Overlay>
-    </AspectRatio>
   )
 }

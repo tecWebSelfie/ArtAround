@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Dostopnost",
+  "Accessible": "Dostopno",
+  "Accessible toilets": "Dostopna stranišča",
+  "Address": "Naslov",
+  "Audio guides": "Avdiovodniki",
   "contents": "vsebine",
+  "Description": "Opis",
+  "Elevator": "Dvigalo",
+  "Email": "E-pošta",
   "Explore the map": "Raziskuj zemljevid",
   "Hide": "Skrij",
   "info": "informacije",
   "No description available": "Opis ni na voljo",
-  "Show more": "Pokaži več"
+  "Photos": "Fotografije",
+  "Service animals welcome": "Psi pomočniki so dobrodošli",
+  "Show more": "Pokaži več",
+  "Sign language": "Znakovni jezik",
+  "Step-free entrance": "Vhod brez stopnic",
+  "Tactile paths": "Taktilne poti"
 }

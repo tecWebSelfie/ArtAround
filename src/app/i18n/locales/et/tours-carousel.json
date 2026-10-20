@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} peatus",
+  "{{count}} stops_other": "{{count}} peatust",
+  "{{current}} of {{total}}": "{{current}}/{{total}}",
+  "Open the tour {{title}}": "Ava tuur {{title}}",
+  "Open this tour": "Ava see tuur",
   "Show next tour": "Näita järgmist tuuri",
   "Show previous tour": "Näita eelmist tuuri",
   "Tours": "Tuurid"

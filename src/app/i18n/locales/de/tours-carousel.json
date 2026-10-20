@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} Station",
+  "{{count}} stops_other": "{{count}} Stationen",
+  "{{current}} of {{total}}": "{{current}} von {{total}}",
+  "Open the tour {{title}}": "Tour {{title}} öffnen",
+  "Open this tour": "Diese Tour öffnen",
   "Show next tour": "Nächste Tour anzeigen",
   "Show previous tour": "Vorherige Tour anzeigen",
   "Tours": "Touren"

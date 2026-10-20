@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Tilgængelighed",
+  "Accessible": "Tilgængelig",
+  "Accessible toilets": "Handicaptoiletter",
+  "Address": "Adresse",
+  "Audio guides": "Audioguides",
   "contents": "indhold",
+  "Description": "Beskrivelse",
+  "Elevator": "Elevator",
+  "Email": "E-mail",
   "Explore the map": "Udforsk kortet",
   "Hide": "Skjul",
   "info": "info",
   "No description available": "Ingen beskrivelse tilgængelig",
-  "Show more": "Vis mere"
+  "Photos": "Fotos",
+  "Service animals welcome": "Servicehunde er velkomne",
+  "Show more": "Vis mere",
+  "Sign language": "Tegnsprog",
+  "Step-free entrance": "Trinfri indgang",
+  "Tactile paths": "Taktile ledelinjer"
 }

@@ -43,11 +43,27 @@ export default function NavigatorHomePage({
           <NavigatorSearch lng={lng} onNavigate={onNavigate} />
         </Stack>
       </Stack>
-      <Divider my="md" label="Or" styles={{ label: { color: 'var(--mantine-color-gray-7)' } }} />
+      <Divider
+        my="md"
+        label={t('Or')}
+        styles={{ label: { color: 'var(--mantine-color-gray-7)' } }}
+      />
       <Flex align="stretch" justify="center" gap={{ base: 'xs', sm: 'md' }} wrap="nowrap">
         <Center flex="1 1 0" miw={0}>
-          <Paper type="button" component="button" p="xs" withBorder shadow="sm" maw="100%" miw={0}>
+          {/* Opens the camera scanner (/scan). The QR drawn here is only an
+              illustration of what to look for, hidden from screen readers. */}
+          <Paper
+            component={Link}
+            href={`/${lng}/scan` as Route}
+            p="xs"
+            withBorder
+            shadow="sm"
+            maw="100%"
+            miw={0}
+            className="transition-shadow hover:shadow-md"
+          >
             <QRCode
+              aria-hidden
               color="blue"
               value="dw"
               image="/compass.svg"
@@ -55,14 +71,14 @@ export default function NavigatorHomePage({
               size={rem('clamp(72px, 22vw, 160px)')}
             />
             <Text
-              color="blue"
+              c="blue.8"
               ta="center"
               textWrap="balance"
               lineClamp={2}
               fz={{ base: 'xs', sm: 'sm' }}
               maw="100%"
             >
-              Scan tour QR to start
+              {t('Scan a tour QR code to start')}
             </Text>
           </Paper>
         </Center>

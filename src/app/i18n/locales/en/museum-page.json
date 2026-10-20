@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Accessibility",
+  "Accessible": "Accessible",
+  "Accessible toilets": "Accessible toilets",
+  "Address": "Address",
+  "Audio guides": "Audio guides",
   "contents": "contents",
+  "Description": "Description",
+  "Elevator": "Elevator",
+  "Email": "Email",
   "Explore the map": "Explore the map",
   "Hide": "Hide",
   "info": "info",
   "No description available": "No description available",
-  "Show more": "Show more"
+  "Photos": "Photos",
+  "Service animals welcome": "Service animals welcome",
+  "Show more": "Show more",
+  "Sign language": "Sign language",
+  "Step-free entrance": "Step-free entrance",
+  "Tactile paths": "Tactile paths"
 }

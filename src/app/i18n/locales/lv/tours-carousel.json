@@ -1,4 +1,10 @@
 {
+  "{{count}} stops_zero": "{{count}} pieturu",
+  "{{count}} stops_one": "{{count}} pietura",
+  "{{count}} stops_other": "{{count}} pieturas",
+  "{{current}} of {{total}}": "{{current}} no {{total}}",
+  "Open the tour {{title}}": "Atvērt tūri {{title}}",
+  "Open this tour": "Atvērt šo tūri",
   "Show next tour": "Rādīt nākamo tūri",
   "Show previous tour": "Rādīt iepriekšējo tūri",
   "Tours": "Tūres"

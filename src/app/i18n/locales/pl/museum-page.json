@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Dostępność",
+  "Accessible": "Dostępne",
+  "Accessible toilets": "Toalety dla niepełnosprawnych",
+  "Address": "Adres",
+  "Audio guides": "Audioprzewodniki",
   "contents": "treści",
+  "Description": "Opis",
+  "Elevator": "Winda",
+  "Email": "E-mail",
   "Explore the map": "Poznaj mapę",
   "Hide": "Ukryj",
   "info": "informacje",
   "No description available": "Brak opisu",
-  "Show more": "Pokaż więcej"
+  "Photos": "Zdjęcia",
+  "Service animals welcome": "Psy asystujące mile widziane",
+  "Show more": "Pokaż więcej",
+  "Sign language": "Język migowy",
+  "Step-free entrance": "Wejście bez schodów",
+  "Tactile paths": "Ścieżki dotykowe"
 }

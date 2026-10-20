@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Akadálymentesség",
+  "Accessible": "Akadálymentes",
+  "Accessible toilets": "Akadálymentes mosdók",
+  "Address": "Cím",
+  "Audio guides": "Audioguide-ok",
   "contents": "tartalmak",
+  "Description": "Leírás",
+  "Elevator": "Lift",
+  "Email": "E-mail",
   "Explore the map": "Fedezd fel a térképet",
   "Hide": "Elrejtés",
   "info": "infó",
   "No description available": "Nincs elérhető leírás",
-  "Show more": "Továbbiak"
+  "Photos": "Fotók",
+  "Service animals welcome": "Segítőkutyák szívesen látottak",
+  "Show more": "Továbbiak",
+  "Sign language": "Jelnyelv",
+  "Step-free entrance": "Lépcsőmentes bejárat",
+  "Tactile paths": "Taktilis vezetősávok"
 }

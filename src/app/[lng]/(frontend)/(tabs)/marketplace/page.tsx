@@ -33,6 +33,8 @@ export default async function Marketplace(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   const { t } = await getT('marketplace')
+  // Difficulty names are shared with search (search.json), not duplicated here.
+  const { t: ts } = await getT('search')
 
   const query = (firstValue(searchParams.q) ?? '').trim()
   const kind = parseKind(firstValue(searchParams.kind))
@@ -112,6 +114,7 @@ export default async function Marketplace(props: {
                 viewProfile: t('viewProfile'),
                 min: t('min'),
                 minRead: t('minRead'),
+                difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
               }}
             />
           ))}

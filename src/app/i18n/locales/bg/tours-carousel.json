@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} спирка",
+  "{{count}} stops_other": "{{count}} спирки",
+  "{{current}} of {{total}}": "{{current}} от {{total}}",
+  "Open the tour {{title}}": "Отвори обиколката {{title}}",
+  "Open this tour": "Отвори тази обиколка",
   "Show next tour": "Покажи следващата обиколка",
   "Show previous tour": "Покажи предишната обиколка",
   "Tours": "Обиколки"

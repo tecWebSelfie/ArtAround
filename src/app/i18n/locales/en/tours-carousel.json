@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} stops",
+  "{{count}} stops_other": "{{count}} stops",
+  "{{current}} of {{total}}": "{{current}} of {{total}}",
+  "Open the tour {{title}}": "Open the tour {{title}}",
+  "Open this tour": "Open this tour",
   "Show next tour": "Show next tour",
   "Show previous tour": "Show previous tour",
   "Tours": "Tours"

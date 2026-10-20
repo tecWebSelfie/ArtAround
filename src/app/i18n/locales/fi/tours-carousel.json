@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} kohde",
+  "{{count}} stops_other": "{{count}} kohdetta",
+  "{{current}} of {{total}}": "{{current}}/{{total}}",
+  "Open the tour {{title}}": "Avaa kierros {{title}}",
+  "Open this tour": "Avaa tämä kierros",
   "Show next tour": "Näytä seuraava kierros",
   "Show previous tour": "Näytä edellinen kierros",
   "Tours": "Kierrokset"

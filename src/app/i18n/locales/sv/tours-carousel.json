@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} stopp",
+  "{{count}} stops_other": "{{count}} stopp",
+  "{{current}} of {{total}}": "{{current}} av {{total}}",
+  "Open the tour {{title}}": "Öppna turen {{title}}",
+  "Open this tour": "Öppna den här turen",
   "Show next tour": "Visa nästa tur",
   "Show previous tour": "Visa föregående tur",
   "Tours": "Turer"

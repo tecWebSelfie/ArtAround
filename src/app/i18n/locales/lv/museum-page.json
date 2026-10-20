@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Pieejamība",
+  "Accessible": "Pieejams",
+  "Accessible toilets": "Pielāgotas tualetes",
+  "Address": "Adrese",
+  "Audio guides": "Audiogidi",
   "contents": "saturs",
+  "Description": "Apraksts",
+  "Elevator": "Lifts",
+  "Email": "E-pasts",
   "Explore the map": "Izpēti karti",
   "Hide": "Paslēpt",
   "info": "informācija",
   "No description available": "Apraksts nav pieejams",
-  "Show more": "Rādīt vairāk"
+  "Photos": "Foto",
+  "Service animals welcome": "Asistējošie suņi gaidīti",
+  "Show more": "Rādīt vairāk",
+  "Sign language": "Zīmju valoda",
+  "Step-free entrance": "Ieeja bez pakāpieniem",
+  "Tactile paths": "Taktilie ceļi"
 }

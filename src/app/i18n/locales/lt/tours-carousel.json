@@ -1,4 +1,11 @@
 {
+  "{{count}} stops_one": "{{count}} stotelė",
+  "{{count}} stops_few": "{{count}} stotelės",
+  "{{count}} stops_many": "{{count}} stotelės",
+  "{{count}} stops_other": "{{count}} stotelių",
+  "{{current}} of {{total}}": "{{current}} iš {{total}}",
+  "Open the tour {{title}}": "Atidaryti turą {{title}}",
+  "Open this tour": "Atidaryti šį turą",
   "Show next tour": "Rodyti kitą turą",
   "Show previous tour": "Rodyti ankstesnį turą",
   "Tours": "Turai"

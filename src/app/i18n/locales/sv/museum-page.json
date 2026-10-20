@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Tillgänglighet",
+  "Accessible": "Tillgänglig",
+  "Accessible toilets": "Tillgängliga toaletter",
+  "Address": "Adress",
+  "Audio guides": "Audioguider",
   "contents": "innehåll",
+  "Description": "Beskrivning",
+  "Elevator": "Hiss",
+  "Email": "E-post",
   "Explore the map": "Utforska kartan",
   "Hide": "Dölj",
   "info": "info",
   "No description available": "Ingen beskrivning tillgänglig",
-  "Show more": "Visa mer"
+  "Photos": "Foton",
+  "Service animals welcome": "Assistanshundar välkomna",
+  "Show more": "Visa mer",
+  "Sign language": "Teckenspråk",
+  "Step-free entrance": "Trappfri entré",
+  "Tactile paths": "Taktila ledstråk"
 }

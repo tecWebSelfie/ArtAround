@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} megálló",
+  "{{count}} stops_other": "{{count}} megálló",
+  "{{current}} of {{total}}": "{{current}}/{{total}}",
+  "Open the tour {{title}}": "A(z) {{title}} túra megnyitása",
+  "Open this tour": "Túra megnyitása",
   "Show next tour": "Következő túra",
   "Show previous tour": "Előző túra",
   "Tours": "Túrák"

@@ -1,6 +1,7 @@
 'use client'
 
 import { isPopulated } from '@/lib/isPopulated'
+import { summarizeTour } from '@/lib/tour-summary'
 import { Tour } from '@/payload-types'
 import { BorderAnimate, type BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
@@ -19,18 +20,30 @@ import {
   Text,
   Title,
 } from '@mantine/core'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowRight, ChevronDown, ChevronUp, Clock, MapPin } from 'lucide-react'
+import type { Route } from 'next'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 const TEXT_GRADIENT_ID = 'textGradient'
 
+/**
+ * The museum's (or an author's) tours as a stacked deck, the tour identity's
+ * one playful discovery component. The deck selects; the footer button opens
+ * the selected tour, so the cards themselves stay non-interactive options.
+ * Each card carries its figures (stops, minutes) so a visitor can compare
+ * tours while flipping through them, before opening one.
+ */
 export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours: Tour[] }) => {
   const [index, setIndex] = useState(0)
   const { t } = useTranslation('tours-carousel')
+  const { lng } = useParams<{ lng: string }>()
 
-  const currentTourId = tours[index]?.id
+  const currentTour = tours[index]
+  const currentTourId = currentTour?.id
 
   const set = (tourId: string | number) => {
     const newIndex = tours.findIndex((tour) => tour.id === tourId)
@@ -68,7 +81,7 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
           className="w-full bg-linear-to-br from-purple-700 to-orange-400"
         >
           <CardSection inheritPadding withBorder py="xs">
-            <Group align="center" className="h-full">
+            <Group align="center" justify="space-between" className="h-full">
               <Badge radius="xl" variant="white" className="py-3">
                 <Text
                   className="font-semibold"
@@ -78,6 +91,12 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
                   {t('Tours')}
                 </Text>
               </Badge>
+              {/* Where the visitor is in the deck: the arrows alone don't say how many remain. */}
+              {tours.length > 1 && (
+                <Text size="sm" fw={600} c="white" className="tabular-nums">
+                  {t('{{current}} of {{total}}', { current: index + 1, total: tours.length })}
+                </Text>
+              )}
             </Group>
           </CardSection>
           <CardSection pt="md" inheritPadding>
@@ -97,7 +116,7 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
                   blurStep={0.7}
                   data={tours.map((tour) => ({
                     value: tour.id,
-                    view: <TourCard tour={tour} />,
+                    view: <TourCard tour={tour} lng={lng} />,
                   }))}
                 />
               </AspectRatio>
@@ -131,53 +150,63 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
               </Stack>
             </Group>
           </CardSection>
-          <CardSection className="p-2">
-            <Button className="w-full" variant="white">
-              Explore all tours
-            </Button>
-          </CardSection>
+          {currentTour && (
+            <CardSection className="p-2">
+              <Button
+                component={Link}
+                href={`/${lng}/tour/${currentTour.id}` as Route}
+                fullWidth
+                variant="white"
+                rightSection={<ArrowRight size={16} aria-hidden />}
+                aria-label={t('Open the tour {{title}}', { title: currentTour.title })}
+              >
+                {t('Open this tour')}
+              </Button>
+            </CardSection>
+          )}
         </Card>
       </BorderAnimate>
     </>
   )
 }
 
-const TourCard = ({ tour, ...props }: CardProps & { tour: Tour }) => {
+/**
+ * One card of the deck: the cover under a bottom scrim that keeps the white
+ * title and figures readable on any photo. Purely presentational (it sits in a
+ * `role="option"`), so it holds no link or button of its own.
+ */
+const TourCard = ({ tour, lng, ...props }: CardProps & { tour: Tour; lng: string }) => {
+  const { t } = useTranslation('tours-carousel')
+  const summary = summarizeTour(tour)
+  const minutes = summary.visitMinutes
   return (
     <Card className="h-full p-0 border-solid border  border-mantine-grape-6" {...props}>
       <BackgroundImage
         src={
-          isPopulated(tour.thumbnail) && tour.thumbnail.url
-            ? tour.thumbnail.url
-            : PLACEHOLDER_IMAGE
+          isPopulated(tour.thumbnail) && tour.thumbnail.url ? tour.thumbnail.url : PLACEHOLDER_IMAGE
         }
         className="h-full"
       >
-        <Center className="h-full">
-          <Stack justify="space-between" className="w-full h-full" p={'xs'}>
-            <Title order={3} size="h5" className="text-white" lineClamp={1}>
+        <Center className="h-full items-end bg-linear-to-t from-black/75 via-black/20 to-transparent">
+          <Stack gap={4} className="w-full" p="sm">
+            <Title order={3} size="h5" className="text-white" lineClamp={2}>
               {tour.title}
             </Title>
-            <Group justify="end">
-              <BorderAnimate variant="glow">
-                {/* Rendered as non-interactive text: the card views sit inside
-                    role="option" elements, so a real button here trips the
-                    nested-interactive and aria-hidden-focus rules. Restore
-                    the Button once a details action is wired up. */}
-                <Button
-                  component="span"
-                  classNames={{
-                    label:
-                      'bg-linear-to-r from-purple-700 to-orange-400 bg-clip-text text-transparent',
-                    root: 'border-none',
-                  }}
-                  size="compact-sm"
-                  variant="outline"
-                  className="bg-white"
-                >
-                  View details
-                </Button>
-              </BorderAnimate>
+            <Group gap="sm" c="white" fz="xs" fw={500}>
+              <Group gap={4} wrap="nowrap">
+                <MapPin size={14} aria-hidden />
+                {t('{{count}} stops', { count: summary.stops })}
+              </Group>
+              {minutes != null && (
+                <Group gap={4} wrap="nowrap">
+                  <Clock size={14} aria-hidden />
+                  {new Intl.NumberFormat(lng, {
+                    style: 'unit',
+                    unit: 'minute',
+                    unitDisplay: 'short',
+                  }).format(minutes)}
+                </Group>
+              )}
             </Group>
           </Stack>
         </Center>

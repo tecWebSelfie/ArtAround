@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Esteettömyys",
+  "Accessible": "Esteetön",
+  "Accessible toilets": "Esteettömät WC:t",
+  "Address": "Osoite",
+  "Audio guides": "Ääniopastukset",
   "contents": "sisällöt",
+  "Description": "Kuvaus",
+  "Elevator": "Hissi",
+  "Email": "Sähköposti",
   "Explore the map": "Tutki karttaa",
   "Hide": "Piilota",
   "info": "tiedot",
   "No description available": "Kuvausta ei ole saatavilla",
-  "Show more": "Näytä lisää"
+  "Photos": "Kuvat",
+  "Service animals welcome": "Avustajakoirat tervetulleita",
+  "Show more": "Näytä lisää",
+  "Sign language": "Viittomakieli",
+  "Step-free entrance": "Esteetön sisäänkäynti",
+  "Tactile paths": "Kohokuvioidut opasteet"
 }

@@ -1,4 +1,12 @@
 {
+  "{{count}} stops_one": "{{count}} waqfa",
+  "{{count}} stops_two": "{{count}} waqfiet",
+  "{{count}} stops_few": "{{count}} waqfiet",
+  "{{count}} stops_many": "{{count}} waqfa",
+  "{{count}} stops_other": "{{count}} waqfa",
+  "{{current}} of {{total}}": "{{current}} minn {{total}}",
+  "Open the tour {{title}}": "Iftaħ it-tour {{title}}",
+  "Open this tour": "Iftaħ dan it-tour",
   "Show next tour": "Uri t-tour li jmiss",
   "Show previous tour": "Uri t-tour ta' qabel",
   "Tours": "Tours"

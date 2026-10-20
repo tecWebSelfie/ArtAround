@@ -39,7 +39,9 @@ export function DifficultyBadge({
       size={size}
       variant={variant}
       autoContrast={autoContrast}
-      color={meta.color}
+      // A shaded color ("red.9") is meant for the filled chip; Mantine's light
+      // and outline variants need the bare palette name or they render solid.
+      color={variant === 'filled' ? meta.color : meta.color.split('.')[0]}
       leftSection={<DifficultyIcon size={14} />}
       {...props}
     >

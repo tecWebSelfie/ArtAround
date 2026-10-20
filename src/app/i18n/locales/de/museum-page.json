@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Barrierefreiheit",
+  "Accessible": "Barrierefrei",
+  "Accessible toilets": "Barrierefreie Toiletten",
+  "Address": "Adresse",
+  "Audio guides": "Audioguides",
   "contents": "Inhalte",
+  "Description": "Beschreibung",
+  "Elevator": "Aufzug",
+  "Email": "E-Mail",
   "Explore the map": "Karte erkunden",
   "Hide": "Ausblenden",
   "info": "Info",
   "No description available": "Keine Beschreibung verfügbar",
-  "Show more": "Mehr anzeigen"
+  "Photos": "Fotos",
+  "Service animals welcome": "Assistenzhunde willkommen",
+  "Show more": "Mehr anzeigen",
+  "Sign language": "Gebärdensprache",
+  "Step-free entrance": "Stufenloser Eingang",
+  "Tactile paths": "Taktile Leitsysteme"
 }

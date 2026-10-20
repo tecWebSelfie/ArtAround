@@ -1,8 +1,21 @@
 {
+  "Accessibility": "Toegankelijkheid",
+  "Accessible": "Toegankelijk",
+  "Accessible toilets": "Toegankelijke toiletten",
+  "Address": "Adres",
+  "Audio guides": "Audiotours",
   "contents": "content",
+  "Description": "Beschrijving",
+  "Elevator": "Lift",
+  "Email": "E-mail",
   "Explore the map": "Verken de kaart",
   "Hide": "Verbergen",
   "info": "info",
   "No description available": "Geen beschrijving beschikbaar",
-  "Show more": "Meer tonen"
+  "Photos": "Foto's",
+  "Service animals welcome": "Hulphonden welkom",
+  "Show more": "Meer tonen",
+  "Sign language": "Gebarentaal",
+  "Step-free entrance": "Drempelvrije ingang",
+  "Tactile paths": "Geleidelijnen"
 }

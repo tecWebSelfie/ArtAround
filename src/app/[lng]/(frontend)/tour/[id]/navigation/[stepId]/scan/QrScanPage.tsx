@@ -5,6 +5,7 @@ import { QrScanner } from '@/components/Scanner'
 import { CloseButton, Stack } from '@mantine/core'
 import type { Route } from 'next'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { inLanguage } from '@/lib/app-url'
 import { withNavigationPosition } from '@/lib/tour-navigation'
 import { useNavigationScope } from '../../TourNavigationShell'
@@ -13,14 +14,21 @@ import { useNavigationScope } from '../../TourNavigationShell'
  * Scans canonical museum links and routes them into the current navigation (a
  * tour, or free navigation of the museum) with `at`/`to` intact: the canonical
  * object/content URL is intercepted by that navigation's modal slot.
+ * Outside a navigation (the navigator home's `/scan`) a scanned link opens as
+ * an ordinary page, and closing returns to the navigator.
  */
 export function QrScanPage() {
   const router = useRouter()
+  const { t } = useTranslation('tour-navigation')
   const { lng: currentLng } = useParams<{ lng: string }>()
   const search = useSearchParams()
   const navigation = useNavigationScope()
   const close = () => {
-    if (navigation) router.replace(withNavigationPosition(navigation.base, search.toString()))
+    router.replace(
+      navigation
+        ? withNavigationPosition(navigation.base, search.toString())
+        : (`/${currentLng}/navigator` as Route),
+    )
   }
   return (
     <QrScanner
@@ -39,7 +47,7 @@ export function QrScanPage() {
         )
       }}
       onClose={close}
-      onInvalid={(rawValue) => console.error('QR code non valido:', rawValue)}
+      onInvalid={(rawValue) => console.error('Unsupported QR code:', rawValue)}
       styles={{
         container: {
           position: 'fixed',
@@ -54,7 +62,7 @@ export function QrScanPage() {
     >
       <Stack p="md" align="end">
         <CloseButton
-          aria-label="Chiudi scanner"
+          aria-label={t('Close the scanner')}
           onClick={close}
           size={'lg'}
           className="border solid rounded-full bg-(--mantine-color-white)"

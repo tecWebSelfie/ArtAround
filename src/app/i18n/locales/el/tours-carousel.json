@@ -1,4 +1,9 @@
 {
+  "{{count}} stops_one": "{{count}} στάση",
+  "{{count}} stops_other": "{{count}} στάσεις",
+  "{{current}} of {{total}}": "{{current}} από {{total}}",
+  "Open the tour {{title}}": "Άνοιγμα της ξενάγησης {{title}}",
+  "Open this tour": "Άνοιγμα αυτής της ξενάγησης",
   "Show next tour": "Επόμενη ξενάγηση",
   "Show previous tour": "Προηγούμενη ξενάγηση",
   "Tours": "Ξεναγήσεις"
