@@ -1,5 +1,5 @@
 {
-  "{{count}} stops_one": "{{count}} stops",
+  "{{count}} stops_one": "{{count}} stop",
   "{{count}} stops_other": "{{count}} stops",
   "{{current}} of {{total}}": "{{current}} of {{total}}",
   "Open the tour {{title}}": "Open the tour {{title}}",

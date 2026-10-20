@@ -3,6 +3,7 @@ import { Tour } from '@/payload-types'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
 import { AspectRatio, Divider, Group, Image, Stack, StackProps, Title } from '@mantine/core'
+import { Map } from 'lucide-react'
 import { StartTourButton } from './StartTourButton'
 
 /**
@@ -15,14 +16,28 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
   return (
     <Stack {...props} justify="space-evenly" align="center">
       <Stack justify="center" align="center">
-        <Title className="text-center">{tour.title}</Title>
-        <AspectRatio ratio={1} className="w-10/12">
-          <Image
-            fit="cover"
-            className="rounded-full"
-            src={tourThumbnail?.url || 'https://via.placeholder.com/300x200?text=No+Tour+Thumbnail'}
-            alt={tourThumbnail?.alt || t('tour thumbnail not available')}
-          />
+        <Title order={2} className="text-center text-balance">
+          {tour.title}
+        </Title>
+        {/* Capped so the start actions stay above the fold on a phone. */}
+        <AspectRatio ratio={1} className="w-8/12" maw={320}>
+          {tourThumbnail?.url ? (
+            <Image
+              fit="cover"
+              className="rounded-full"
+              src={tourThumbnail.url}
+              alt={tourThumbnail.alt ?? ''}
+            />
+          ) : (
+            // No cover yet: the tour's own brand gradient (as on marketplace
+            // cards) instead of a grey "no thumbnail" image. Decorative.
+            <div
+              className="flex items-center justify-center rounded-full bg-linear-135 from-(--mantine-color-grape-6) to-(--mantine-color-orange-4) text-white"
+              aria-hidden
+            >
+              <Map size="35%" strokeWidth={1.5} />
+            </div>
+          )}
         </AspectRatio>
       </Stack>
       <Stack justify="center" align="center">

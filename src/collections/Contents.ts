@@ -41,8 +41,10 @@ import { readingTime } from 'reading-time-estimator'
  * field level so REST, the localized endpoint and server pages all agree.
  */
 
+// At least one minute for any written body: the estimator rounds a short
+// paragraph down to 0, which cards would show as "0 min read".
 const readingMinutes = (body: Content['body'] | undefined) =>
-  body ? readingTime(convertLexicalToPlaintext({ data: body })).minutes : undefined
+  body ? Math.max(1, readingTime(convertLexicalToPlaintext({ data: body })).minutes) : undefined
 
 const canReadPaidBody: FieldAccess<Content> = async ({ req, doc }) => {
   if (!doc?.price) return true
@@ -241,9 +243,10 @@ export const Contents: CollectionConfig = {
       type: 'number',
       required: false,
       hooks: {
-        // Older documents predate the stored value: compute it when the body is readable.
+        // Older documents predate the stored value (or stored the estimator's
+        // 0 for short bodies): compute it when the body is readable.
         afterRead: [
-          ({ value, siblingData }) => value ?? readingMinutes(siblingData.body),
+          ({ value, siblingData }) => value || readingMinutes(siblingData.body),
         ] as FieldHook<Content, number | undefined, Content>[],
       },
     },

@@ -286,10 +286,15 @@ export default function TourPage({
       {/* The Thumb-Reach Rule: the way forward lives in the 64px footer. */}
       <AppShellFooter p="xs">
         <Container size="sm" px="md">
+          {/* Two equal halves of a 390px phone leave ~170px per button: tighter
+              padding and sm text keep "Customize tour" / "Unlock for €4.99"
+              (and their longer translations) whole instead of "Customize to…". */}
           <Group grow gap="xs" wrap="nowrap">
             {price > 0 ? (
               <Button
                 size="md"
+                px="xs"
+                fz="sm"
                 color="orange"
                 autoContrast
                 rightSection={<ShoppingBag size={16} />}
@@ -300,6 +305,8 @@ export default function TourPage({
             ) : (
               <Button
                 size="md"
+                px="xs"
+                fz="sm"
                 component={Link}
                 href={editHref}
                 color="orange"
@@ -312,6 +319,8 @@ export default function TourPage({
             {/* Always available: locked contents simply stay locked while navigating. */}
             <Button
               size="md"
+              px="xs"
+              fz="sm"
               component={Link}
               href={`/${lng}/tour/${tour.id}/navigation` as Route}
               // The tour gradient: starting a tour is the app's main way in

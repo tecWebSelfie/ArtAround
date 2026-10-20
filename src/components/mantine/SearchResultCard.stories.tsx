@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { Button } from '@mantine/core'
 import { expect } from 'storybook/test'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
 
@@ -36,7 +37,7 @@ export const Default: Story = {
   play: async ({ canvas }) => {
     // No image URL: the shared placeholder must still render with the alt text.
     const image = await canvas.findByAltText('Mona Lisa')
-    await expect(image.getAttribute('src')).toContain('placehold.co')
+    await expect(image.getAttribute('src')).toBe(PLACEHOLDER_IMAGE)
   },
 }
 

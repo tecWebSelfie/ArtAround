@@ -1,7 +1,6 @@
 'use client'
 
 import { useAuth } from '@/components/auth/AuthProvider'
-import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import type { MuseumRole } from '@/fields/MuseumFunction'
 import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
 import {
@@ -18,8 +17,6 @@ import type { Route } from 'next'
 import { useT } from 'next-i18next/client'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter } from 'next/navigation'
-
-import i18nConfig from '@/../i18n.config'
 
 const items = [
   {
@@ -107,8 +104,11 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
     router.refresh()
   }
 
+  // Tight horizontal padding (px={4}) on every entry: with four entries a
+  // phone leaves ~90px each, enough for "Marketplace" only without the
+  // default button padding.
   return (
-    <Group grow gap="xs">
+    <Group grow gap={4}>
       {items.map((item) => {
         // Links must be localized (/it/navigator) so the active-state check
         // matches the actual pathname (no redirect hop).
@@ -125,6 +125,7 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
             aria-current={isActive ? 'page' : undefined}
             h="auto"
             py="sm"
+            px={4}
           >
             <ItemContent Icon={item.Icon} label={t(item.label)} />
           </Button>
@@ -142,6 +143,7 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
               fullWidth
               h="auto"
               py="sm"
+              px={4}
             >
               <Center>
                 <Stack gap={4} align="center">
@@ -177,6 +179,7 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
           variant="subtle"
           h="auto"
           py="sm"
+          px={4}
         >
           <ItemContent Icon={LogIn} label={t('SignIn')} />
         </Button>
@@ -190,6 +193,7 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
               autoContrast
               h="auto"
               py="sm"
+              px={4}
             >
               <ItemContent Icon={Landmark} label={t('My museums')} />
             </Button>
@@ -216,7 +220,6 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
           </Menu.Dropdown>
         </Menu>
       )}
-      <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
     </Group>
   )
 }

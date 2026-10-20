@@ -2,8 +2,9 @@
 
 import { Select } from '@mantine/core'
 import IsoCodes from 'iso-639-1'
+import { Languages } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
-import { Trans, useT } from 'next-i18next/client'
+import { useT } from 'next-i18next/client'
 import type { Route } from 'next'
 
 /** A language by its own name ("Deutsch", "Ελληνικά"), so anyone finds theirs. */
@@ -16,6 +17,10 @@ function languageName(code: string) {
  * Language picker: swaps the `/{lng}` segment of the current URL, so the page
  * re-renders in the chosen language (the i18n proxy then remembers it in its
  * cookie). Searchable, since the app speaks every official EU language.
+ *
+ * A compact pill (no visible label, the icon and the language's own name say
+ * what it is) that sits in the tabs' top bar next to the museum switch: in the
+ * 64px bottom bar it squeezed the tab labels ("Navigat…", "Marketpla…").
  */
 export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] }) {
   const { i18n, t } = useT()
@@ -31,11 +36,12 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
 
   return (
     <Select
-      label={
-        <Trans t={t} i18nKey="languageSwitcher.label" default>
-          Select Language
-        </Trans>
-      }
+      aria-label={t('languageSwitcher.label')}
+      size="xs"
+      radius="xl"
+      variant="filled"
+      leftSection={<Languages size={14} aria-hidden />}
+      comboboxProps={{ width: 200, position: 'bottom-end' }}
       data={supportedLngs
         .map((lng) => ({ value: lng, label: languageName(lng) }))
         .sort((a, b) => a.label.localeCompare(b.label))}
@@ -48,7 +54,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
         // of truth for both string and object data.
         if (value) switchLocale(value)
       }}
-      w={140}
+      w={130}
     />
   )
 }

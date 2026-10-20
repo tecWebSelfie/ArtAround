@@ -1,5 +1,7 @@
 import { getSession } from '@/lib/session'
+import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import { MuseumSwitch } from '@/components/mantine/MuseumSwitch'
+import i18nConfig from '@/../i18n.config'
 import { museumScope } from '@/lib/museum-mode'
 import { AppShellFooter, Group, Stack } from '@mantine/core'
 import { NavBar, type MyMuseum } from './NavBar'
@@ -38,7 +40,10 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
 
   return (
     <>
-      <Group justify="flex-end" px={{ base: 'md', sm: 'xl' }} pt="sm">
+      {/* Context controls (language, museum scope) live up here so the bottom
+          bar keeps only the tabs and account entries. */}
+      <Group justify="flex-end" gap="xs" wrap="nowrap" px={{ base: 'md', sm: 'xl' }} pt="sm">
+        <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
         <MuseumSwitch
           current={scope ? { id: scope.museumId, name: scope.name } : null}
           museums={museums.docs.map((museum) => ({

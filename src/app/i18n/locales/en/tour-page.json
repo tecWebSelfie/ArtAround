@@ -1,7 +1,7 @@
 {
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} content in this tour is paid. Buying the tour unlocks it.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} contents in this tour are paid. Buying the tour unlocks all of them.",
-  "{{count}} stops_one": "{{count}} stops",
+  "{{count}} stops_one": "{{count}} stop",
   "{{count}} stops_other": "{{count}} stops",
   "{{distance}} on foot": "{{distance}} on foot",
   "{{duration}} of reading": "{{duration}} of reading",
