@@ -7,10 +7,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.devcontainer
+    # DATABASE_URL comes from .env, with the credentials of .env.mongo:
+    # mongodb://USER:PASSWORD@mongodb:27017/artaround?authSource=admin
     env_file:
       - .env
-    environment:
-      DATABASE_URL: mongodb://mongodb:27017/artaround
     depends_on:
       mongodb:
         condition: service_healthy

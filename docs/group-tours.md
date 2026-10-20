@@ -13,7 +13,8 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   start page, a shared link, or a QR code (the in-tour scanner accepts room links).
   All open `/[lng]/room/{code}`, which asks for a name (remembered on the device only).
 - **Waiting room:** the code in large type, "Share link" (system share sheet, copy as
-  fallback), "Show QR code", and the live list of who has arrived. The host presses
+  fallback), "Show QR code" (both language-free, `/room/CODE`: each guest joins, and
+  then follows the host, in their own language), and the live list of who has arrived. The host presses
   "Start the tour" whenever ready; people can still join afterwards and land where the
   group is.
 - **During the tour, guests follow the host.** Shared: the step, position (`at`),
@@ -41,16 +42,16 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
 One LiveKit room per group; the code is the room name. Nothing about rooms is stored
 in Payload.
 
-| Piece | Where | Notes |
-| --- | --- | --- |
-| Shared rules | `src/lib/group.ts` | Code format, name schema (zod, shared by forms and API), `groupLocation` (what the host shares), `followHref` (where a guest goes). Unit-tested in `tests/int/group.int.spec.ts`. |
-| Server | `src/lib/group-room.ts` | `RoomServiceClient`: create (metadata: tour, host name, SHA-256 of the host key), find, delete; `AccessToken` per participant. |
-| API | `src/app/api/rooms/` | `POST /api/rooms` opens a room → `{ code, hostKey }`; `POST /api/rooms/token` is LiveKit's standard token endpoint (`TokenSource.endpoint`) with `X-Host-Key` / `X-Guest-Id` headers; `GET`/`DELETE /api/rooms/{code}` check and end. |
-| Connection | `src/components/group/GroupProvider.tsx` | Mounted once in the frontend layout; membership in localStorage (`aa-group`); provides LiveKit's `RoomContext`, so components use `@livekit/components-react` hooks (`useParticipants`, `useRemoteParticipant`, `useParticipantAttributes`, `useConnectionState`, `useRoomInfo`). `GroupSync` publishes / follows the host's location. |
-| UI | `src/components/group/` | `JoinGroupForm`, `StartGroupButton`, `GroupNameForm` (`@mantine/form` + the zod schema), `GroupMembers`, `ShareGroup` (QR via `@gfazioli/mantine-qr-code`), `GroupBadge`, `use-group-exit` (`@mantine/modals` confirms). |
-| Pages | `room/[code]/` | Join form, waiting room, "group has ended". |
-| Guest limits | `NavigationModal`, `navigation-commands.ts`, `TourProgress`, `StepModal`, `NavigationObjectActions` | Each reads `useIsGroupGuest()`. |
-| Quiz | `tour/[id]/quiz/group-quiz.ts`, `GroupQuizBoard.tsx` | Guest progress and result token as attributes; host board; `groupQuizScores` Server Function reads scores by token. |
+| Piece        | Where                                                                                               | Notes                                                                                                                                                                                                                                                                                                                                  |
+| ------------ | --------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared rules | `src/lib/group.ts`                                                                                  | Code format, name schema (zod, shared by forms and API), `groupLocation` (what the host shares), `followHref` (where a guest goes). Unit-tested in `tests/int/group.int.spec.ts`.                                                                                                                                                      |
+| Server       | `src/lib/group-room.ts`                                                                             | `RoomServiceClient`: create (metadata: tour, host name, SHA-256 of the host key), find, delete; `AccessToken` per participant.                                                                                                                                                                                                         |
+| API          | `src/app/api/rooms/`                                                                                | `POST /api/rooms` opens a room → `{ code, hostKey }`; `POST /api/rooms/token` is LiveKit's standard token endpoint (`TokenSource.endpoint`) with `X-Host-Key` / `X-Guest-Id` headers; `GET`/`DELETE /api/rooms/{code}` check and end.                                                                                                  |
+| Connection   | `src/components/group/GroupProvider.tsx`                                                            | Mounted once in the frontend layout; membership in localStorage (`aa-group`); provides LiveKit's `RoomContext`, so components use `@livekit/components-react` hooks (`useParticipants`, `useRemoteParticipant`, `useParticipantAttributes`, `useConnectionState`, `useRoomInfo`). `GroupSync` publishes / follows the host's location. |
+| UI           | `src/components/group/`                                                                             | `JoinGroupForm`, `StartGroupButton`, `GroupNameForm` (`@mantine/form` + the zod schema), `GroupMembers`, `ShareGroup` (QR via `@gfazioli/mantine-qr-code`), `GroupBadge`, `use-group-exit` (`@mantine/modals` confirms).                                                                                                               |
+| Pages        | `room/[code]/`                                                                                      | Join form, waiting room, "group has ended".                                                                                                                                                                                                                                                                                            |
+| Guest limits | `NavigationModal`, `navigation-commands.ts`, `TourProgress`, `StepModal`, `NavigationObjectActions` | Each reads `useIsGroupGuest()`.                                                                                                                                                                                                                                                                                                        |
+| Quiz         | `tour/[id]/quiz/group-quiz.ts`, `GroupQuizBoard.tsx`                                                | Guest progress and result token as attributes; host board; `groupQuizScores` Server Function reads scores by token.                                                                                                                                                                                                                    |
 
 Live state is LiveKit **participant attributes**, delivered to late joiners too:
 

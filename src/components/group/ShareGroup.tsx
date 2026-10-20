@@ -1,25 +1,23 @@
 'use client'
 
-import { roomPath } from '@/lib/group'
+import { roomSharePath } from '@/lib/group'
 import { QRCode } from '@gfazioli/mantine-qr-code'
 import { Button, Center, Group, Modal, Stack, Text } from '@mantine/core'
 import { useClipboard, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { QrCode, Share2 } from 'lucide-react'
-import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /**
  * The host's two ways to let people in: share the join link (the system
  * share sheet, or a copy when there is none) or show a QR code to scan.
- * Both open `/[lng]/room/{code}`, the join page.
+ * Both open `/room/{code}`, the join page, in the guest's own language.
  */
 export function ShareGroup({ code }: { code: string }) {
   const { t } = useTranslation('group')
-  const { lng } = useParams<{ lng: string }>()
   const clipboard = useClipboard()
   const [qrOpened, qr] = useDisclosure(false)
-  const link = () => `${window.location.origin}${roomPath(lng, code)}`
+  const link = () => `${window.location.origin}${roomSharePath(code)}`
 
   const share = async () => {
     const url = link()

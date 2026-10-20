@@ -4,7 +4,8 @@ import i18nConfig from '@/../i18n.config'
 import { QrScanner } from '@/components/Scanner'
 import { CloseButton, Stack } from '@mantine/core'
 import type { Route } from 'next'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { inLanguage } from '@/lib/app-url'
 import { withNavigationPosition } from '@/lib/tour-navigation'
 import { useNavigationScope } from '../../TourNavigationShell'
 
@@ -15,6 +16,7 @@ import { useNavigationScope } from '../../TourNavigationShell'
  */
 export function QrScanPage() {
   const router = useRouter()
+  const { lng: currentLng } = useParams<{ lng: string }>()
   const search = useSearchParams()
   const navigation = useNavigationScope()
   const close = () => {
@@ -22,15 +24,20 @@ export function QrScanPage() {
   }
   return (
     <QrScanner
-      isAllowedPath={(pathname) => ALLOWED_QR_PATTERNS.some(({ match }) => match.test(pathname))}
-      onScan={(url) =>
+      // Codes may be language-free (`/tour/42`): match and open them in the
+      // app's current language (inLanguage).
+      isAllowedPath={(pathname) =>
+        ALLOWED_QR_PATTERNS.some(({ match }) => match.test(inLanguage(pathname, currentLng)))
+      }
+      onScan={(url) => {
+        const pathname = inLanguage(url.pathname, currentLng)
         // A group's QR code opens its join page as is; museum links keep the position.
         router.replace(
-          (GROUP_ROOM.test(url.pathname)
-            ? url.pathname
-            : withNavigationPosition(url.pathname, search.toString())) as Route,
+          (GROUP_ROOM.test(pathname)
+            ? pathname
+            : withNavigationPosition(pathname, search.toString())) as Route,
         )
-      }
+      }}
       onClose={close}
       onInvalid={(rawValue) => console.error('QR code non valido:', rawValue)}
       styles={{

@@ -4,18 +4,17 @@ import { QRCode } from '@gfazioli/mantine-qr-code'
 import { ActionIcon, Center, Modal, Stack, Text, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { QrCode } from 'lucide-react'
-import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /**
  * A small button on the tour page that shows the tour's QR code, e.g. for a
  * museum to print it or for a visitor to pass the tour to a companion's phone.
- * The value is the canonical tour URL (`/[lng]/tour/[id]`): the in-app scanner
- * accepts it (QrScanPage), and any camera app simply opens this page.
+ * The value is the language-free tour URL (`/tour/[id]`), safe to print: a
+ * camera app opens it in the visitor's language through the i18n proxy, the
+ * in-app scanner in the app's language (`inLanguage`, QrScanPage).
  */
 export function TourQrButton({ tourId, title }: { tourId: string; title: string }) {
   const { t } = useTranslation('tour-page')
-  const { lng } = useParams<{ lng: string }>()
   const [opened, modal] = useDisclosure(false)
 
   return (
@@ -31,7 +30,7 @@ export function TourQrButton({ tourId, title }: { tourId: string; title: string 
             {/* Built on open: `window` only exists in the browser. */}
             {opened && (
               <QRCode
-                value={`${window.location.origin}/${lng}/tour/${tourId}`}
+                value={`${window.location.origin}/tour/${tourId}`}
                 size="min(70vw, 280px)"
                 errorCorrectionLevel="M"
               />

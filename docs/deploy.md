@@ -14,6 +14,14 @@ assegnato (qui `https://IL-NOSTRO-DOMINIO`).
 - Le chiavi esterne che vogliamo attivare (Groq, Fish Audio, LiveKit, Mint,
   Stripe sandbox). Senza, l'app parte lo stesso e quelle funzioni danno errore.
 
+### Mongo con o senza password
+
+L'immagine ufficiale di Mongo attiva l'autenticazione solo con
+`MONGO_INITDB_ROOT_USERNAME` e `MONGO_INITDB_ROOT_PASSWORD`, e solo quando crea un
+volume dati **vuoto**. Se `mongo` non ha un utente, l'URL senza credenziali
+funziona; se ce l'ha, servono `UTENTE:PASSWORD@…?authSource=admin` (passo 2). Lo
+stesso vale per il compose di sviluppo (`.env.mongo.example`).
+
 ## 1. Codice
 
 ```bash
@@ -155,6 +163,17 @@ docker exec -it artaround sh -c 'pnpm install --frozen-lockfile && pnpm build'
 docker exec artaround sh -c 'pkill -f "next start"; true'
 docker exec -d artaround sh -c 'pnpm start > /app/app.log 2>&1'
 ```
+
+## QR da stampare
+
+Il QR di un tour ("Mostra il codice QR" nella sua pagina) contiene
+`https://IL-NOSTRO-DOMINIO/tour/ID`, senza lingua: ognuno lo apre nella propria
+(italiano o inglese, le altre ricadono sull'inglese). Prima di stampare:
+
+- generalo dal dominio vero, non da `localhost`: il QR usa l'indirizzo da cui lo
+  apri;
+- stampa quando i tour sul server sono definitivi: l'ID cambia se il tour viene
+  ricreato o il database rifatto.
 
 ## Nota sul `Dockerfile` del repo
 

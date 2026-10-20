@@ -18,6 +18,9 @@ const i18nConfig: I18nConfig = {
     'plan-visit',
     'tour-quiz',
     'group',
+    // Home search (ArtAroundGlobalSearch, NavigatorSearch) and the tours carousel.
+    'search',
+    'tours-carousel',
   ],
   // Prefixes `createProxy` must skip entirely. Webapp routes are /{lng}/… —
   // the `(frontend)` segment is a route group: it scopes the folders but

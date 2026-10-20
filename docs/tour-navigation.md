@@ -18,9 +18,12 @@ and cached build artifacts are not reliable handoff state.
 - Advancing retains position and clears the alternative destination. Resuming the
   tour route also clears that destination without advancing the cursor.
 - Map interaction opens only museum object items, not walls or other geometry.
-- Canonical QR values are ordinary localized Next.js paths such as
-  `/it/object/ID` or `/it/content/ID`. Contextual tour modals must remain reloadable
-  and shareable. Do not add a separate QR identifier system.
+- Canonical QR values are ordinary Next.js paths such as `/object/ID`,
+  `/content/ID` or `/tour/ID`. Printed and shared codes are **language-free**: a
+  camera app opens them through the i18n proxy in the visitor's language, the
+  in-app scanner in the app's language (`inLanguage` in `src/lib/app-url.ts`,
+  which also replaces the prefix of older `/it/…` codes). Contextual tour modals
+  must remain reloadable and shareable. Do not add a separate QR identifier system.
 
 ## URL and route contract
 

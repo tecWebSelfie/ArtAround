@@ -36,6 +36,12 @@ export function normalizeRoomCode(input: string) {
 export const roomPath = (lng: string, code: string) => `/${lng}/room/${code}`
 
 /**
+ * The invite link and QR: language-free, so each guest joins (and then follows
+ * the host) in their own language; the i18n proxy picks it on arrival.
+ */
+export const roomSharePath = (code: string) => `/room/${code}`
+
+/**
  * URL params the whole group shares: where everyone is and where they are going.
  * Everything else (wheelchair routing, reading options, "Tell me more", quiz
  * question) stays personal.
