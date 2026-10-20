@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T02:21:22.786Z",
+  "generatedAt": "2026-10-20T06:54:50+00:00",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -698,6 +698,30 @@
       "description": "Host's quiz page in a group: finished count over the gradient progress, one row per guest with progress, finished, or score and an Answers link.",
       "html": "<div class=\"ds-gq\"><h2>Your group is taking the quiz</h2><p class=\"ds-gq-t\">Tour of the West hall</p><p class=\"ds-gq-n\">1 of 2 finished</p><div class=\"ds-gq-p\"><span style=\"width:50%\"></span></div><ul><li><span>Marco</span><b>2 of 3</b><a href=\"#\">Answers</a></li><li><span>Giulia</span><i>1 of 3 answered</i></li></ul><button>End the quiz</button></div>",
       "css": ".ds-gq{max-width:360px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529}.ds-gq h2{margin:0;font-size:26px}.ds-gq p{margin:0}.ds-gq-t{color:#868e96;margin-bottom:16px!important}.ds-gq-n{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}.ds-gq-p{height:8px;border-radius:32px;background:#e9ecef;margin:6px 0 16px;overflow:hidden}.ds-gq-p span{display:block;height:100%;background:linear-gradient(90deg,#6b21a8,#fb923c)}.ds-gq ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px}.ds-gq li{display:flex;gap:8px;align-items:center}.ds-gq li span{flex:1}.ds-gq i{font-style:normal;color:#868e96;font-variant-numeric:tabular-nums}.ds-gq a{color:#228be6}.ds-gq button{width:100%;height:42px;border:0;border-radius:4px;background:#228be6;color:#fff;font-weight:600;font-size:16px;cursor:pointer}.ds-gq button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Auth card",
+      "kind": "card",
+      "refersTo": "auth-card",
+      "description": "Standalone sign-in / sign-up card, centered outside the tabs: title, dimmed subtitle, labelled fields with inline errors, full-width primary submit, cross-link.",
+      "html": "<form class=\"ds-auth-card\"><h1 class=\"ds-auth-title\">Welcome back</h1><p class=\"ds-auth-sub\">Sign in to continue your art tour.</p><label class=\"ds-auth-label\">Email or username <span>*</span><input class=\"ds-auth-input ds-auth-input-error\" placeholder=\"you@example.com or your username\"></label><p class=\"ds-auth-error\">Enter your email or username.</p><label class=\"ds-auth-label\">Password <span>*</span><input class=\"ds-auth-input\" type=\"password\"></label><button class=\"ds-auth-submit\" type=\"button\">Sign in</button><p class=\"ds-auth-switch\">New to ArtAround? <a href=\"#\">Create one</a></p></form>",
+      "css": ".ds-auth-card { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; max-width: 380px; background: #fff; border: 1px solid #dee2e6; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 1px 2px rgba(0,0,0,.1); padding: 2rem; display: flex; flex-direction: column; gap: 1rem; color: #000; } .ds-auth-title { margin: 0; font-size: 1.625rem; font-weight: 700; line-height: 1.35; } .ds-auth-sub { margin: -0.75rem 0 0; font-size: .875rem; color: #868e96; } .ds-auth-label { display: flex; flex-direction: column; gap: 4px; font-size: .875rem; font-weight: 500; } .ds-auth-label span { color: #fa5252; } .ds-auth-input { height: 2.25rem; border: 1px solid #ced4da; border-radius: .25rem; padding: 0 .75rem; font: inherit; font-weight: 400; } .ds-auth-input:focus-visible { outline: none; border-color: #228be6; } .ds-auth-input-error { border-color: #fa5252; color: #fa5252; } .ds-auth-error { margin: -0.75rem 0 0; font-size: .75rem; color: #fa5252; } .ds-auth-submit { height: 2.25rem; border: 0; border-radius: .25rem; background: #228be6; color: #fff; font: inherit; font-weight: 600; font-size: .875rem; cursor: pointer; } .ds-auth-submit:hover { background: #1c7ed6; } .ds-auth-submit:focus-visible { outline: 2px solid #228be6; outline-offset: 2px; } .ds-auth-switch { margin: 0; text-align: center; font-size: .875rem; } .ds-auth-switch a { color: #228be6; text-decoration: none; } .ds-auth-switch a:hover { text-decoration: underline; }"
+    },
+    {
+      "name": "Account menu entry",
+      "kind": "nav",
+      "refersTo": "account-avatar",
+      "description": "Signed-in bottom-navigation entry: 20px initials avatar over a one-line clamped name, opening an upward menu with Profile and a red Sign out.",
+      "html": "<div class=\"ds-acct\"><ul class=\"ds-acct-menu\" role=\"menu\"><li role=\"menuitem\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M20 21a8 8 0 0 0-16 0\"/></svg>Profile</li><li role=\"menuitem\" class=\"ds-acct-out\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"/><path d=\"m16 17 5-5-5-5\"/><path d=\"M21 12H9\"/></svg>Sign out</li></ul><button class=\"ds-acct-btn\" aria-label=\"Account\"><span class=\"ds-acct-avatar\">CM</span><span class=\"ds-acct-name\">Chiara Moretti</span></button></div>",
+      "css": ".ds-acct { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; } .ds-acct-menu { list-style: none; margin: 0; padding: 4px; width: 200px; background: #fff; border: 1px solid #dee2e6; border-radius: .25rem; box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 10px 15px -5px rgba(0,0,0,.05); } .ds-acct-menu li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: .875rem; border-radius: .25rem; cursor: pointer; } .ds-acct-menu li:hover { background: #f1f3f5; } .ds-acct-out { color: #fa5252; } .ds-acct-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 160px; padding: 10px 0; border: 0; border-radius: .25rem; background: transparent; color: #228be6; cursor: pointer; font: inherit; } .ds-acct-btn:hover { background: rgba(34,139,230,.1); } .ds-acct-btn:focus-visible { outline: 2px solid #228be6; outline-offset: 2px; } .ds-acct-avatar { width: 20px; height: 20px; border-radius: 50%; background: #e7f5ff; color: #1971c2; font-size: 8px; font-weight: 700; display: grid; place-items: center; } .ds-acct-name { font-size: .75rem; line-height: 1; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }"
+    },
+    {
+      "name": "Checkout landing",
+      "kind": "card",
+      "refersTo": "button-primary",
+      "description": "Stripe success/cancel landing: one bordered outcome card, then one full-width primary button back to where the purchase began.",
+      "html": "<div class=\"ds-co\"><div class=\"ds-co-card\"><h2>Checkout cancelled</h2><p>No payment was taken. You can try again whenever you like.</p></div><button class=\"ds-co-btn\" type=\"button\">Go back</button></div>",
+      "css": ".ds-co { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; max-width: 520px; display: flex; flex-direction: column; gap: 1rem; } .ds-co-card { border: 1px solid #dee2e6; border-radius: .25rem; padding: 1.25rem; background: #fff; } .ds-co-card h2 { margin: 0; font-size: 1.625rem; font-weight: 700; } .ds-co-card p { margin: .75rem 0 0; color: #868e96; } .ds-co-btn { height: 2.25rem; border: 0; border-radius: .25rem; background: #228be6; color: #fff; font: inherit; font-weight: 600; font-size: .875rem; cursor: pointer; } .ds-co-btn:hover { background: #1c7ed6; } .ds-co-btn:focus-visible { outline: 2px solid #228be6; outline-offset: 2px; }"
     }
   ],
   "narrative": {
@@ -819,7 +843,9 @@
       "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
       "**Do** put a focused task's single forward action full-width in the 64px footer, with the content inside `AppShellMain` (see The Thumb-Reach Rule).",
       "**Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
-      "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule)."
+      "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",
+      "**Do** keep sign-in and sign-up on the standalone centered card outside the tabs, with one identifier field, inline field errors and the server's message in one red `Alert`.",
+      "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
@@ -833,7 +859,9 @@
       "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
       "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).",
       "**Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.",
-      "**Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values."
+      "**Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.",
+      "**Don't** treat the `stripe-test` sandbox shop, or the checkout pages' hardcoded copy and emoji, as product patterns.",
+      "**Don't** add another bottom-navigation entry until the 390px row stops truncating its labels."
     ]
   }
 }
