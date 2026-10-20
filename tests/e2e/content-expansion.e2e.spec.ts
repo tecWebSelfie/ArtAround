@@ -54,7 +54,14 @@ test('a tour content modal adds "Tell me more" text and a simpler version', asyn
 test('"Plan my visit" turns the form into a tour preview', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 })
   await page.goto(at('/en/tour/plan'), { waitUntil: 'domcontentloaded' })
-  await page.getByRole('combobox', { name: 'Museum' }).fill('[DEV]')
+  // Typing before hydration is lost (dev builds hydrate slowly): retry the
+  // search until the option list answers.
+  const museum = page.getByRole('combobox', { name: 'Museum' })
+  await expect(async () => {
+    await museum.fill('')
+    await museum.fill('[DEV]')
+    await expect(page.getByRole('option').first()).toBeVisible({ timeout: 1_000 })
+  }).toPass({ timeout: 120_000 })
   await page.getByRole('option').first().click()
   await page.getByText('30 min').click()
   await page.getByRole('textbox', { name: 'Interests' }).fill('Something for curious kids')
@@ -69,7 +76,11 @@ test('"Plan my visit" turns the form into a tour preview', async ({ page }) => {
 test('importing a museum config file locks the app to that museum', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto(at('/en/navigator'), { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Change museum' }).click()
+  // A click before hydration opens nothing: retry until the dialog is up.
+  await expect(async () => {
+    await page.getByRole('button', { name: 'Change museum' }).click()
+    await expect(page.getByRole('dialog')).toBeVisible({ timeout: 1_000 })
+  }).toPass({ timeout: 120_000 })
   if (shots) await page.screenshot({ path: `${shots}/museum-switch.png` })
   const config = JSON.stringify([{ id: fixture!.museumId, name: '[DEV] Tour navigation 3' }])
   await page.locator('input[type="file"]').setInputFiles({

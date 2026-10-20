@@ -178,7 +178,9 @@ test('Italian map editor opens its object catalog and validates generation input
     expect((await catalogResponse).status()).toBe(200)
     const catalog = page.getByRole('region', { name: 'Catalogo degli oggetti' })
     await expect(catalog).toBeVisible()
-    await catalog.getByRole('button', { name: 'Crea un nuovo oggetto' }).click()
+    // Listed twice on purpose (the panel header and Pascal's leading catalog
+    // tile); either opens the same modal.
+    await catalog.getByRole('button', { name: 'Crea un nuovo oggetto' }).first().click()
     await expect(page.getByRole('dialog')).toBeVisible()
   })
 
@@ -242,7 +244,9 @@ test('Italian map editor opens its object catalog and validates generation input
           expect.objectContaining({
             type: 'guide',
             name: file.name,
-            url: `${origin}/api/museumMaps/file/e2e-floorplan.svg`,
+            // Same-origin uploads are stored as a root-relative path
+            // (MuseumCreationToolbar), so the map also works over a LAN address.
+            url: '/api/museumMaps/file/e2e-floorplan.svg',
           }),
         ]),
       )

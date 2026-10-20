@@ -235,7 +235,11 @@ const fixtureTour = await payload.find({
   depth: 0,
 })
 const tourId = fixtureTour.docs[0]?.id
-if (tourId && !fixtureTour.docs[0].museum) {
+// Also when it points elsewhere: a fixture museum deleted and recreated
+// (e.g. to reset its map) leaves the tour linked to the old id.
+const linkedMuseum = fixtureTour.docs[0]?.museum
+const linkedMuseumId = typeof linkedMuseum === 'object' ? linkedMuseum?.id : linkedMuseum
+if (tourId && linkedMuseumId !== museum.id) {
   await payload.update({ collection: 'tours', id: tourId, data: { museum: museum.id }, depth: 0 })
   console.info('Linked the fixture tour to its museum.')
 }

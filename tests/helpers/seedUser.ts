@@ -10,33 +10,46 @@ export const testUser = {
   isSuperAdmin: true,
 } satisfies RequiredDataFromCollectionSlug<'users'>
 
+/** Set when `seedTestUser` created the user, so cleanup removes only its own. */
+let createdByTest = false
+
 /**
- * Seeds a test user for e2e admin tests.
+ * Ensures the admin test user exists. Its email is the seeded super admin's
+ * (`src/seed.ts`), which other e2e specs log in as: an existing user is
+ * reused (password and super admin flag reset to the known values) rather
+ * than deleted, so running the admin spec never wipes the dev database's
+ * admin out from under the rest of the suite.
  */
 export async function seedTestUser(): Promise<void> {
   const payload = await getPayload({ config })
-
-  // Delete existing test user if any
-  await payload.delete({
+  const existing = await payload.find({
     collection: 'users',
-    where: {
-      email: {
-        equals: testUser.email,
-      },
-    },
+    where: { email: { equals: testUser.email } },
+    limit: 1,
   })
 
-  // Create fresh test user
+  if (existing.docs[0]) {
+    await payload.update({
+      collection: 'users',
+      id: existing.docs[0].id,
+      data: { password: testUser.password, isSuperAdmin: true },
+    })
+    createdByTest = false
+    return
+  }
+
   await payload.create({
     collection: 'users',
     data: testUser,
   })
+  createdByTest = true
 }
 
 /**
- * Cleans up test user after tests
+ * Removes the test user, but only if `seedTestUser` created it.
  */
 export async function cleanupTestUser(): Promise<void> {
+  if (!createdByTest) return
   const payload = await getPayload({ config })
 
   await payload.delete({
@@ -47,4 +60,5 @@ export async function cleanupTestUser(): Promise<void> {
       },
     },
   })
+  createdByTest = false
 }
