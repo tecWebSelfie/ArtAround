@@ -1,0 +1,59 @@
+{
+  "All museums": "Tous les musées",
+  "auth": {
+    "confirmPassword": "Confirmer le mot de passe",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Saisis une adresse e-mail valide.",
+      "emailRequired": "Saisis ton adresse e-mail.",
+      "firstNameRequired": "Saisis ton prénom.",
+      "generic": "Une erreur s’est produite. Réessaie.",
+      "identifierRequired": "Saisis ton e-mail ou ton nom d’utilisateur.",
+      "lastNameRequired": "Saisis ton nom.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas.",
+      "passwordRequired": "Saisis ton mot de passe.",
+      "passwordTooShort": "Utilise au moins 8 caractères.",
+      "usernameInvalid": "Utilise uniquement des lettres, des chiffres, des points, des tirets ou des tirets bas.",
+      "usernameRequired": "Choisis un nom d’utilisateur.",
+      "usernameTooShort": "Utilise au moins 3 caractères."
+    },
+    "firstName": "Prénom",
+    "haveAccount": "Tu as déjà un compte ?",
+    "identifier": "E-mail ou nom d’utilisateur",
+    "identifierPlaceholder": "toi@exemple.com ou ton nom d’utilisateur",
+    "lastName": "Nom",
+    "noAccount": "Nouveau sur ArtAround ?",
+    "password": "Mot de passe",
+    "passwordHint": "Au moins 8 caractères.",
+    "signIn": "Se connecter",
+    "signInLink": "Se connecter",
+    "signInSubtitle": "Connecte-toi pour poursuivre ton parcours artistique.",
+    "signInTitle": "Bon retour",
+    "signUp": "Créer un compte",
+    "signUpLink": "Crées-en un",
+    "signUpSubtitle": "Enregistre tes parcours, achats et favoris au même endroit.",
+    "signUpTitle": "Crée ton compte",
+    "username": "Nom d’utilisateur",
+    "usernameHint": "C’est ainsi que les autres explorateurs te verront."
+  },
+  "Back to all museums": "Retour à tous les musées",
+  "Change museum": "Changer de musée",
+  "Import a config file": "Importer un fichier de configuration",
+  "languageSwitcher": {
+    "label": "Choisir la langue"
+  },
+  "navbar": {
+    "Account": "Compte",
+    "Marketplace": "Marketplace",
+    "My museums": "Mes musées",
+    "Navigator": "Navigateur",
+    "Profile": "Profil",
+    "SignIn": "Se connecter",
+    "SignOut": "Se déconnecter"
+  },
+  "No museum matches “{{query}}”.": "Aucun musée ne correspond à « {{query}} ».",
+  "or": "ou",
+  "Search a museum": "Rechercher un musée",
+  "This file is not a museum export.": "Ce fichier n’est pas un export de musée.",
+  "This museum was not found here.": "Ce musée est introuvable ici."
+}

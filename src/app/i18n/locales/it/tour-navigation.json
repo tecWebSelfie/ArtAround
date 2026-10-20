@@ -104,7 +104,7 @@
   "Toilets": "Bagni",
   "Tour": "Tour",
   "Tour · {{count}} stops_one": "Tour · {{count}} tappa",
-  "Tour · {{count}} stops_many": "",
+  "Tour · {{count}} stops_many": "Tour · {{count}} tappe",
   "Tour · {{count}} stops_other": "Tour · {{count}} tappe",
   "Tour completed": "Tour completato",
   "Tour progress": "Avanzamento del tour",

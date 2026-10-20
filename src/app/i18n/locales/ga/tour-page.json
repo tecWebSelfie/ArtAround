@@ -1,0 +1,19 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais é.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._two": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "Tá {{count}} n-ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",
+  "Buy all for {{price}}": "Ceannaigh iad go léir ar {{price}}",
+  "Customize tour": "Saincheap an turas",
+  "Edit tour": "Cuir an turas in eagar",
+  "Replace the paid contents": "Cuir ábhar eile in áit an ábhair íoctha",
+  "Scan to open this tour": "Scan chun an turas seo a oscailt",
+  "See more": "Tuilleadh",
+  "See more about {{title}}": "Tuilleadh faoi {{title}}",
+  "Show QR code": "Taispeáin an cód QR",
+  "Sign in to buy": "Logáil isteach chun ceannach",
+  "Start tour": "Tosaigh an turas",
+  "Unlock for {{price}}": "Díghlasáil ar {{price}}",
+  "Unlock this tour": "Díghlasáil an turas seo"
+}

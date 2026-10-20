@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Tagasi sisu juurde",
+  "Back to the navigator": "Tagasi navigaatorisse",
+  "Back to the tour": "Tagasi tuuri juurde",
+  "Checkout cancelled": "Makse tühistati",
+  "No payment was taken. You can unlock it whenever you like.": "Raha ei võetud. Saad selle avada millal iganes soovid.",
+  "Payment not confirmed yet": "Makse pole veel kinnitatud",
+  "Payment received": "Makse kätte saadud",
+  "Payment reference {{id}}": "Makse viide {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Ostud salvestatakse kontole, millega maksti. Logi sellega sisse ja leiad oma ostu avatuna.",
+  "Sign in": "Logi sisse",
+  "Sign in to see your purchase": "Logi sisse, et oma ostu näha",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe pole seda makset meile veel kinnitanud. See avaneb sinu kontol kohe, kui kinnitus tuleb; sul pole vaja midagi muud teha.",
+  "The paid contents of this tour are now unlocked on your account.": "Selle tuuri tasuline sisu on nüüd sinu kontol avatud.",
+  "Your purchase is now unlocked on your account.": "Sinu ost on nüüd sinu kontol avatud."
+}

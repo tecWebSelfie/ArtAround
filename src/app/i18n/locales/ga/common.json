@@ -1,0 +1,59 @@
+{
+  "All museums": "Gach músaem",
+  "auth": {
+    "confirmPassword": "Deimhnigh an pasfhocal",
+    "email": "Ríomhphost",
+    "errors": {
+      "emailInvalid": "Cuir isteach seoladh ríomhphoist bailí.",
+      "emailRequired": "Cuir isteach do sheoladh ríomhphoist.",
+      "firstNameRequired": "Cuir isteach do chéad ainm.",
+      "generic": "Chuaigh rud éigin amú. Bain triail eile as.",
+      "identifierRequired": "Cuir isteach do ríomhphost nó d'ainm úsáideora.",
+      "lastNameRequired": "Cuir isteach do shloinne.",
+      "passwordMismatch": "Ní hionann na pasfhocail.",
+      "passwordRequired": "Cuir isteach do phasfhocal.",
+      "passwordTooShort": "Úsáid 8 gcarachtar ar a laghad.",
+      "usernameInvalid": "Ná húsáid ach litreacha, uimhreacha, poncanna, daiseanna nó fostríocanna.",
+      "usernameRequired": "Roghnaigh ainm úsáideora.",
+      "usernameTooShort": "Úsáid 3 charachtar ar a laghad."
+    },
+    "firstName": "Céad ainm",
+    "haveAccount": "An bhfuil cuntas agat cheana?",
+    "identifier": "Ríomhphost nó ainm úsáideora",
+    "identifierPlaceholder": "tusa@example.com nó d'ainm úsáideora",
+    "lastName": "Sloinne",
+    "noAccount": "Nua ar ArtAround?",
+    "password": "Pasfhocal",
+    "passwordHint": "8 gcarachtar ar a laghad.",
+    "signIn": "Logáil isteach",
+    "signInLink": "Logáil isteach",
+    "signInSubtitle": "Logáil isteach chun leanúint ar aghaidh le do thuras ealaíne.",
+    "signInTitle": "Fáilte ar ais",
+    "signUp": "Cruthaigh cuntas",
+    "signUpLink": "Cruthaigh ceann",
+    "signUpSubtitle": "Sábháil do thurais, do cheannacháin agus do cheanáin in aon áit amháin.",
+    "signUpTitle": "Cruthaigh do chuntas",
+    "username": "Ainm úsáideora",
+    "usernameHint": "Seo mar a fheicfidh taiscéalaithe eile thú."
+  },
+  "Back to all museums": "Ar ais chuig gach músaem",
+  "Change museum": "Athraigh músaem",
+  "Import a config file": "Iompórtáil comhad cumraíochta",
+  "languageSwitcher": {
+    "label": "Roghnaigh teanga"
+  },
+  "navbar": {
+    "Account": "Cuntas",
+    "Marketplace": "Margadh",
+    "My museums": "Mo mhúsaeim",
+    "Navigator": "Nascleanaí",
+    "Profile": "Próifíl",
+    "SignIn": "Logáil isteach",
+    "SignOut": "Logáil amach"
+  },
+  "No museum matches “{{query}}”.": "Níl aon mhúsaem ag teacht le “{{query}}”.",
+  "or": "nó",
+  "Search a museum": "Cuardaigh músaem",
+  "This file is not a museum export.": "Ní easpórtáil músaeim é an comhad seo.",
+  "This museum was not found here.": "Níor aimsíodh an músaem seo anseo."
+}

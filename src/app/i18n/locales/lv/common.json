@@ -1,0 +1,59 @@
+{
+  "All museums": "Visi muzeji",
+  "auth": {
+    "confirmPassword": "Apstiprini paroli",
+    "email": "E-pasts",
+    "errors": {
+      "emailInvalid": "Ievadi derīgu e-pasta adresi.",
+      "emailRequired": "Ievadi savu e-pasta adresi.",
+      "firstNameRequired": "Ievadi savu vārdu.",
+      "generic": "Kaut kas nogāja greizi. Lūdzu, mēģini vēlreiz.",
+      "identifierRequired": "Ievadi savu e-pastu vai lietotājvārdu.",
+      "lastNameRequired": "Ievadi savu uzvārdu.",
+      "passwordMismatch": "Paroles nesakrīt.",
+      "passwordRequired": "Ievadi savu paroli.",
+      "passwordTooShort": "Izmanto vismaz 8 rakstzīmes.",
+      "usernameInvalid": "Izmanto tikai burtus, ciparus, punktus, domuzīmes vai pasvītras.",
+      "usernameRequired": "Izvēlies lietotājvārdu.",
+      "usernameTooShort": "Izmanto vismaz 3 rakstzīmes."
+    },
+    "firstName": "Vārds",
+    "haveAccount": "Tev jau ir konts?",
+    "identifier": "E-pasts vai lietotājvārds",
+    "identifierPlaceholder": "tu@example.com vai tavs lietotājvārds",
+    "lastName": "Uzvārds",
+    "noAccount": "Pirmo reizi ArtAround?",
+    "password": "Parole",
+    "passwordHint": "Vismaz 8 rakstzīmes.",
+    "signIn": "Pieslēgties",
+    "signInLink": "Pieslēgties",
+    "signInSubtitle": "Pieslēdzies, lai turpinātu savu mākslas tūri.",
+    "signInTitle": "Laipni lūdzam atpakaļ",
+    "signUp": "Izveidot kontu",
+    "signUpLink": "Izveido to",
+    "signUpSubtitle": "Glabā savas tūres, pirkumus un izlasi vienuviet.",
+    "signUpTitle": "Izveido savu kontu",
+    "username": "Lietotājvārds",
+    "usernameHint": "Tā tevi redzēs citi pētnieki."
+  },
+  "Back to all museums": "Atpakaļ uz visiem muzejiem",
+  "Change museum": "Mainīt muzeju",
+  "Import a config file": "Importēt konfigurācijas failu",
+  "languageSwitcher": {
+    "label": "Izvēlies valodu"
+  },
+  "navbar": {
+    "Account": "Konts",
+    "Marketplace": "Marketplace",
+    "My museums": "Mani muzeji",
+    "Navigator": "Navigators",
+    "Profile": "Profils",
+    "SignIn": "Pieslēgties",
+    "SignOut": "Atslēgties"
+  },
+  "No museum matches “{{query}}”.": "Neviens muzejs neatbilst “{{query}}”.",
+  "or": "vai",
+  "Search a museum": "Meklēt muzeju",
+  "This file is not a museum export.": "Šis fails nav muzeja eksports.",
+  "This museum was not found here.": "Šis muzejs šeit netika atrasts."
+}

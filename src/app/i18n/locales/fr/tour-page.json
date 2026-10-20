@@ -1,0 +1,17 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} contenu de ce parcours est payant. En achetant le parcours, tu le débloques.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} contenus de ce parcours sont payants. En achetant le parcours, tu les débloques tous.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} contenus de ce parcours sont payants. En achetant le parcours, tu les débloques tous.",
+  "Buy all for {{price}}": "Tout acheter pour {{price}}",
+  "Customize tour": "Personnaliser le parcours",
+  "Edit tour": "Modifier le parcours",
+  "Replace the paid contents": "Remplacer les contenus payants",
+  "Scan to open this tour": "Scanne pour ouvrir ce parcours",
+  "See more": "En savoir plus",
+  "See more about {{title}}": "En savoir plus sur {{title}}",
+  "Show QR code": "Afficher le code QR",
+  "Sign in to buy": "Connecte-toi pour acheter",
+  "Start tour": "Commencer le parcours",
+  "Unlock for {{price}}": "Débloquer pour {{price}}",
+  "Unlock this tour": "Débloquer ce parcours"
+}

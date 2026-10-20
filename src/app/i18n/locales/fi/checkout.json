@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Takaisin sisältöön",
+  "Back to the navigator": "Takaisin navigaattoriin",
+  "Back to the tour": "Takaisin kierrokselle",
+  "Checkout cancelled": "Maksu peruttu",
+  "No payment was taken. You can unlock it whenever you like.": "Mitään ei veloitettu. Voit avata sen milloin haluat.",
+  "Payment not confirmed yet": "Maksua ei ole vielä vahvistettu",
+  "Payment received": "Maksu vastaanotettu",
+  "Payment reference {{id}}": "Maksun viite {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Ostokset tallennetaan tilille, jolta maksettiin. Kirjaudu sillä sisään, niin löydät ostoksesi avattuina.",
+  "Sign in": "Kirjaudu sisään",
+  "Sign in to see your purchase": "Kirjaudu sisään nähdäksesi ostoksesi",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe ei ole vielä vahvistanut maksua meille. Se avautuu tilillesi heti, kun vahvistus tulee; sinun ei tarvitse tehdä muuta.",
+  "The paid contents of this tour are now unlocked on your account.": "Tämän kierroksen maksullinen sisältö on nyt avattu tilillesi.",
+  "Your purchase is now unlocked on your account.": "Ostoksesi on nyt avattu tilillesi."
+}

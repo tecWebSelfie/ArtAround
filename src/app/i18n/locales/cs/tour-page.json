@@ -1,0 +1,18 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} obsah v této prohlídce je placený. Koupí prohlídky ho odemkneš.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} obsahy v této prohlídce jsou placené. Koupí prohlídky odemkneš všechny.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} obsahu v této prohlídce je placeno. Koupí prohlídky odemkneš všechny.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} obsahů v této prohlídce je placených. Koupí prohlídky odemkneš všechny.",
+  "Buy all for {{price}}": "Koupit vše za {{price}}",
+  "Customize tour": "Přizpůsobit prohlídku",
+  "Edit tour": "Upravit prohlídku",
+  "Replace the paid contents": "Nahradit placené obsahy",
+  "Scan to open this tour": "Naskenuj a otevři tuto prohlídku",
+  "See more": "Zobrazit více",
+  "See more about {{title}}": "Více o: {{title}}",
+  "Show QR code": "Zobrazit QR kód",
+  "Sign in to buy": "Přihlas se a nakupuj",
+  "Start tour": "Spustit prohlídku",
+  "Unlock for {{price}}": "Odemknout za {{price}}",
+  "Unlock this tour": "Odemknout tuto prohlídku"
+}

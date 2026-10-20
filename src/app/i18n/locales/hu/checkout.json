@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Vissza a tartalomhoz",
+  "Back to the navigator": "Vissza a navigátorhoz",
+  "Back to the tour": "Vissza a túrához",
+  "Checkout cancelled": "Fizetés megszakítva",
+  "No payment was taken. You can unlock it whenever you like.": "Nem történt terhelés. Bármikor feloldhatod, amikor csak szeretnéd.",
+  "Payment not confirmed yet": "A fizetés még nincs megerősítve",
+  "Payment received": "Fizetés beérkezett",
+  "Payment reference {{id}}": "Fizetési azonosító: {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "A vásárlások ahhoz a fiókhoz mentődnek, amelyikkel fizettél. Jelentkezz be azzal, és feloldva találod őket.",
+  "Sign in": "Bejelentkezés",
+  "Sign in to see your purchase": "Jelentkezz be a vásárlásod megtekintéséhez",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "A Stripe még nem erősítette meg nekünk ezt a fizetést. Amint megteszi, feloldódik a fiókodban; neked nincs más teendőd.",
+  "The paid contents of this tour are now unlocked on your account.": "A túra fizetős tartalmai mostantól fel vannak oldva a fiókodban.",
+  "Your purchase is now unlocked on your account.": "A vásárlásod mostantól fel van oldva a fiókodban."
+}

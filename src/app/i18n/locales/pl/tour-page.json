@@ -1,0 +1,18 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} treść w tej trasie jest płatna. Zakup trasy ją odblokuje.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} treści w tej trasie są płatne. Zakup trasy odblokuje je wszystkie.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} treści w tej trasie jest płatnych. Zakup trasy odblokuje je wszystkie.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} treści w tej trasie jest płatne. Zakup trasy odblokuje je wszystkie.",
+  "Buy all for {{price}}": "Kup wszystko za {{price}}",
+  "Customize tour": "Dostosuj trasę",
+  "Edit tour": "Edytuj trasę",
+  "Replace the paid contents": "Zamień płatne treści",
+  "Scan to open this tour": "Zeskanuj, aby otworzyć tę trasę",
+  "See more": "Zobacz więcej",
+  "See more about {{title}}": "Zobacz więcej o: {{title}}",
+  "Show QR code": "Pokaż kod QR",
+  "Sign in to buy": "Zaloguj się, aby kupić",
+  "Start tour": "Rozpocznij trasę",
+  "Unlock for {{price}}": "Odblokuj za {{price}}",
+  "Unlock this tour": "Odblokuj tę trasę"
+}

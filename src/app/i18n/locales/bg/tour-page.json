@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} съдържание в тази обиколка е платено. Купи обиколката, за да го отключиш.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} съдържания в тази обиколка са платени. Купи обиколката, за да ги отключиш всички.",
+  "Buy all for {{price}}": "Купи всичко за {{price}}",
+  "Customize tour": "Персонализирай обиколката",
+  "Edit tour": "Редактирай обиколката",
+  "Replace the paid contents": "Замени платените съдържания",
+  "Scan to open this tour": "Сканирай, за да отвориш тази обиколка",
+  "See more": "Виж още",
+  "See more about {{title}}": "Научи повече за {{title}}",
+  "Show QR code": "Покажи QR кода",
+  "Sign in to buy": "Влез, за да купиш",
+  "Start tour": "Започни обиколката",
+  "Unlock for {{price}}": "Отключи за {{price}}",
+  "Unlock this tour": "Отключи тази обиколка"
+}

@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Selles tuuris on {{count}} tasuline sisu. Tuuri ostes avaneb see.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "Selles tuuris on {{count}} tasulist sisu. Tuuri ostes avanevad need kõik.",
+  "Buy all for {{price}}": "Osta kõik hinnaga {{price}}",
+  "Customize tour": "Kohanda tuuri",
+  "Edit tour": "Muuda tuuri",
+  "Replace the paid contents": "Asenda tasuline sisu",
+  "Scan to open this tour": "Skanni, et see tuur avada",
+  "See more": "Vaata veel",
+  "See more about {{title}}": "Vaata rohkem: {{title}}",
+  "Show QR code": "Näita QR-koodi",
+  "Sign in to buy": "Logi ostmiseks sisse",
+  "Start tour": "Alusta tuuri",
+  "Unlock for {{price}}": "Ava hinnaga {{price}}",
+  "Unlock this tour": "Ava see tuur"
+}

@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "A túrában {{count}} tartalom fizetős. A túra megvásárlásával feloldod.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "A túrában {{count}} tartalom fizetős. A túra megvásárlásával mindet feloldod.",
+  "Buy all for {{price}}": "Az összes megvásárlása: {{price}}",
+  "Customize tour": "Túra testreszabása",
+  "Edit tour": "Túra szerkesztése",
+  "Replace the paid contents": "Fizetős tartalmak cseréje",
+  "Scan to open this tour": "Olvasd be a túra megnyitásához",
+  "See more": "Továbbiak",
+  "See more about {{title}}": "Bővebben: {{title}}",
+  "Show QR code": "QR-kód megjelenítése",
+  "Sign in to buy": "Jelentkezz be a vásárláshoz",
+  "Start tour": "Túra indítása",
+  "Unlock for {{price}}": "Feloldás: {{price}}",
+  "Unlock this tour": "Túra feloldása"
+}

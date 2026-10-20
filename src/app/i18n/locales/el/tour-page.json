@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} περιεχόμενο αυτής της ξενάγησης είναι επί πληρωμή. Αν αγοράσεις την ξενάγηση, ξεκλειδώνεται.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} περιεχόμενα αυτής της ξενάγησης είναι επί πληρωμή. Αν αγοράσεις την ξενάγηση, ξεκλειδώνονται όλα.",
+  "Buy all for {{price}}": "Αγόρασε όλα με {{price}}",
+  "Customize tour": "Προσαρμογή ξενάγησης",
+  "Edit tour": "Επεξεργασία ξενάγησης",
+  "Replace the paid contents": "Αντικατάστησε τα επί πληρωμή περιεχόμενα",
+  "Scan to open this tour": "Σάρωσε για να ανοίξεις αυτήν την ξενάγηση",
+  "See more": "Δες περισσότερα",
+  "See more about {{title}}": "Δες περισσότερα για {{title}}",
+  "Show QR code": "Εμφάνιση κωδικού QR",
+  "Sign in to buy": "Συνδέσου για αγορά",
+  "Start tour": "Έναρξη ξενάγησης",
+  "Unlock for {{price}}": "Ξεκλείδωμα με {{price}}",
+  "Unlock this tour": "Ξεκλείδωσε αυτήν την ξενάγηση"
+}

@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Wróć do treści",
+  "Back to the navigator": "Wróć do nawigatora",
+  "Back to the tour": "Wróć do trasy",
+  "Checkout cancelled": "Płatność anulowana",
+  "No payment was taken. You can unlock it whenever you like.": "Nie pobrano żadnej opłaty. Możesz odblokować to w dowolnej chwili.",
+  "Payment not confirmed yet": "Płatność jeszcze niepotwierdzona",
+  "Payment received": "Płatność otrzymana",
+  "Payment reference {{id}}": "Numer płatności {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Zakupy są zapisywane na koncie, z którego zapłacono. Zaloguj się na nie, a znajdziesz swoje odblokowane treści.",
+  "Sign in": "Zaloguj się",
+  "Sign in to see your purchase": "Zaloguj się, aby zobaczyć swój zakup",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nie potwierdził nam jeszcze tej płatności. Zakup odblokuje się na Twoim koncie, gdy tylko to nastąpi – nie musisz nic więcej robić.",
+  "The paid contents of this tour are now unlocked on your account.": "Płatne treści tej trasy są już odblokowane na Twoim koncie.",
+  "Your purchase is now unlocked on your account.": "Twój zakup jest już odblokowany na Twoim koncie."
+}

@@ -1,0 +1,18 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Šiame ture {{count}} turinys yra mokamas. Nusipirkus turą, jis atrakinamas.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "Šiame ture {{count}} turiniai yra mokami. Nusipirkus turą, atrakinami visi.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "Šiame ture {{count}} turinio yra mokama. Nusipirkus turą, atrakinamas visas.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "Šiame ture {{count}} turinių yra mokama. Nusipirkus turą, atrakinami visi.",
+  "Buy all for {{price}}": "Pirkti viską už {{price}}",
+  "Customize tour": "Pritaikyti turą",
+  "Edit tour": "Redaguoti turą",
+  "Replace the paid contents": "Pakeisti mokamą turinį",
+  "Scan to open this tour": "Nuskenuok, kad atidarytum šį turą",
+  "See more": "Žiūrėti daugiau",
+  "See more about {{title}}": "Daugiau apie {{title}}",
+  "Show QR code": "Rodyti QR kodą",
+  "Sign in to buy": "Prisijunk, kad pirktum",
+  "Start tour": "Pradėti turą",
+  "Unlock for {{price}}": "Atrakinti už {{price}}",
+  "Unlock this tour": "Atrakink šį turą"
+}

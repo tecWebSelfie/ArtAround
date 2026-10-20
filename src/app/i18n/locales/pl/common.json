@@ -1,0 +1,59 @@
+{
+  "All museums": "Wszystkie muzea",
+  "auth": {
+    "confirmPassword": "Potwierdź hasło",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Podaj prawidłowy adres e-mail.",
+      "emailRequired": "Podaj swój adres e-mail.",
+      "firstNameRequired": "Podaj swoje imię.",
+      "generic": "Coś poszło nie tak. Spróbuj ponownie.",
+      "identifierRequired": "Podaj e-mail lub nazwę użytkownika.",
+      "lastNameRequired": "Podaj swoje nazwisko.",
+      "passwordMismatch": "Hasła nie są takie same.",
+      "passwordRequired": "Podaj hasło.",
+      "passwordTooShort": "Użyj co najmniej 8 znaków.",
+      "usernameInvalid": "Używaj tylko liter, cyfr, kropek, myślników i podkreśleń.",
+      "usernameRequired": "Wybierz nazwę użytkownika.",
+      "usernameTooShort": "Użyj co najmniej 3 znaków."
+    },
+    "firstName": "Imię",
+    "haveAccount": "Masz już konto?",
+    "identifier": "E-mail lub nazwa użytkownika",
+    "identifierPlaceholder": "ty@example.com lub Twoja nazwa użytkownika",
+    "lastName": "Nazwisko",
+    "noAccount": "Pierwszy raz w ArtAround?",
+    "password": "Hasło",
+    "passwordHint": "Co najmniej 8 znaków.",
+    "signIn": "Zaloguj się",
+    "signInLink": "Zaloguj się",
+    "signInSubtitle": "Zaloguj się, aby kontynuować swoją artystyczną trasę.",
+    "signInTitle": "Witaj ponownie",
+    "signUp": "Utwórz konto",
+    "signUpLink": "Utwórz je",
+    "signUpSubtitle": "Zapisuj trasy, zakupy i ulubione w jednym miejscu.",
+    "signUpTitle": "Utwórz swoje konto",
+    "username": "Nazwa użytkownika",
+    "usernameHint": "Tak będą Cię widzieć inni odkrywcy."
+  },
+  "Back to all museums": "Wróć do wszystkich muzeów",
+  "Change museum": "Zmień muzeum",
+  "Import a config file": "Importuj plik konfiguracyjny",
+  "languageSwitcher": {
+    "label": "Wybierz język"
+  },
+  "navbar": {
+    "Account": "Konto",
+    "Marketplace": "Marketplace",
+    "My museums": "Moje muzea",
+    "Navigator": "Nawigator",
+    "Profile": "Profil",
+    "SignIn": "Zaloguj się",
+    "SignOut": "Wyloguj się"
+  },
+  "No museum matches “{{query}}”.": "Żadne muzeum nie pasuje do „{{query}}”.",
+  "or": "lub",
+  "Search a museum": "Szukaj muzeum",
+  "This file is not a museum export.": "Ten plik nie jest eksportem muzeum.",
+  "This museum was not found here.": "Nie znaleziono tu tego muzeum."
+}

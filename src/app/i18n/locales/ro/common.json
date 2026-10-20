@@ -1,0 +1,59 @@
+{
+  "All museums": "Toate muzeele",
+  "auth": {
+    "confirmPassword": "Confirmă parola",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Introdu o adresă de e-mail validă.",
+      "emailRequired": "Introdu adresa ta de e-mail.",
+      "firstNameRequired": "Introdu prenumele.",
+      "generic": "Ceva n-a mers bine. Încearcă din nou.",
+      "identifierRequired": "Introdu e-mailul sau numele de utilizator.",
+      "lastNameRequired": "Introdu numele de familie.",
+      "passwordMismatch": "Parolele nu se potrivesc.",
+      "passwordRequired": "Introdu parola.",
+      "passwordTooShort": "Folosește cel puțin 8 caractere.",
+      "usernameInvalid": "Folosește doar litere, cifre, puncte, cratime sau liniuțe de subliniere.",
+      "usernameRequired": "Alege un nume de utilizator.",
+      "usernameTooShort": "Folosește cel puțin 3 caractere."
+    },
+    "firstName": "Prenume",
+    "haveAccount": "Ai deja un cont?",
+    "identifier": "E-mail sau nume de utilizator",
+    "identifierPlaceholder": "tu@exemplu.com sau numele tău de utilizator",
+    "lastName": "Nume de familie",
+    "noAccount": "Ești nou pe ArtAround?",
+    "password": "Parolă",
+    "passwordHint": "Cel puțin 8 caractere.",
+    "signIn": "Conectează-te",
+    "signInLink": "Conectează-te",
+    "signInSubtitle": "Conectează-te ca să-ți continui turul artistic.",
+    "signInTitle": "Bine ai revenit",
+    "signUp": "Creează cont",
+    "signUpLink": "Creează unul",
+    "signUpSubtitle": "Salvează-ți tururile, achizițiile și favoritele într-un singur loc.",
+    "signUpTitle": "Creează-ți contul",
+    "username": "Nume de utilizator",
+    "usernameHint": "Așa te vor vedea ceilalți exploratori."
+  },
+  "Back to all museums": "Înapoi la toate muzeele",
+  "Change museum": "Schimbă muzeul",
+  "Import a config file": "Importă un fișier de configurare",
+  "languageSwitcher": {
+    "label": "Alege limba"
+  },
+  "navbar": {
+    "Account": "Cont",
+    "Marketplace": "Marketplace",
+    "My museums": "Muzeele mele",
+    "Navigator": "Navigator",
+    "Profile": "Profil",
+    "SignIn": "Conectare",
+    "SignOut": "Deconectare"
+  },
+  "No museum matches “{{query}}”.": "Niciun muzeu nu corespunde cu „{{query}}”.",
+  "or": "sau",
+  "Search a museum": "Caută un muzeu",
+  "This file is not a museum export.": "Acest fișier nu este un export de muzeu.",
+  "This museum was not found here.": "Acest muzeu nu a fost găsit aici."
+}

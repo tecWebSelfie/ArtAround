@@ -1,0 +1,59 @@
+{
+  "All museums": "Alle musea",
+  "auth": {
+    "confirmPassword": "Bevestig wachtwoord",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Vul een geldig e-mailadres in.",
+      "emailRequired": "Vul je e-mailadres in.",
+      "firstNameRequired": "Vul je voornaam in.",
+      "generic": "Er ging iets mis. Probeer het opnieuw.",
+      "identifierRequired": "Vul je e-mailadres of gebruikersnaam in.",
+      "lastNameRequired": "Vul je achternaam in.",
+      "passwordMismatch": "De wachtwoorden komen niet overeen.",
+      "passwordRequired": "Vul je wachtwoord in.",
+      "passwordTooShort": "Gebruik minstens 8 tekens.",
+      "usernameInvalid": "Gebruik alleen letters, cijfers, punten, streepjes of underscores.",
+      "usernameRequired": "Kies een gebruikersnaam.",
+      "usernameTooShort": "Gebruik minstens 3 tekens."
+    },
+    "firstName": "Voornaam",
+    "haveAccount": "Heb je al een account?",
+    "identifier": "E-mail of gebruikersnaam",
+    "identifierPlaceholder": "jij@voorbeeld.nl of je gebruikersnaam",
+    "lastName": "Achternaam",
+    "noAccount": "Nieuw bij ArtAround?",
+    "password": "Wachtwoord",
+    "passwordHint": "Minstens 8 tekens.",
+    "signIn": "Inloggen",
+    "signInLink": "Inloggen",
+    "signInSubtitle": "Log in om verder te gaan met je kunsttour.",
+    "signInTitle": "Welkom terug",
+    "signUp": "Account aanmaken",
+    "signUpLink": "Maak er een aan",
+    "signUpSubtitle": "Bewaar je tours, aankopen en favorieten op één plek.",
+    "signUpTitle": "Maak je account aan",
+    "username": "Gebruikersnaam",
+    "usernameHint": "Zo zien andere ontdekkers je."
+  },
+  "Back to all museums": "Terug naar alle musea",
+  "Change museum": "Ander museum",
+  "Import a config file": "Een configuratiebestand importeren",
+  "languageSwitcher": {
+    "label": "Taal kiezen"
+  },
+  "navbar": {
+    "Account": "Account",
+    "Marketplace": "Marktplaats",
+    "My museums": "Mijn musea",
+    "Navigator": "Navigator",
+    "Profile": "Profiel",
+    "SignIn": "Inloggen",
+    "SignOut": "Uitloggen"
+  },
+  "No museum matches “{{query}}”.": "Geen museum gevonden voor “{{query}}”.",
+  "or": "of",
+  "Search a museum": "Zoek een museum",
+  "This file is not a museum export.": "Dit bestand is geen museumexport.",
+  "This museum was not found here.": "Dit museum is hier niet gevonden."
+}

@@ -1,0 +1,59 @@
+{
+  "All museums": "Всички музеи",
+  "auth": {
+    "confirmPassword": "Потвърди паролата",
+    "email": "Имейл",
+    "errors": {
+      "emailInvalid": "Въведи валиден имейл адрес.",
+      "emailRequired": "Въведи своя имейл адрес.",
+      "firstNameRequired": "Въведи името си.",
+      "generic": "Нещо се обърка. Опитай отново.",
+      "identifierRequired": "Въведи имейл или потребителско име.",
+      "lastNameRequired": "Въведи фамилията си.",
+      "passwordMismatch": "Паролите не съвпадат.",
+      "passwordRequired": "Въведи паролата си.",
+      "passwordTooShort": "Използвай поне 8 знака.",
+      "usernameInvalid": "Използвай само букви, цифри, точки, тирета или долни черти.",
+      "usernameRequired": "Избери потребителско име.",
+      "usernameTooShort": "Използвай поне 3 знака."
+    },
+    "firstName": "Име",
+    "haveAccount": "Вече имаш профил?",
+    "identifier": "Имейл или потребителско име",
+    "identifierPlaceholder": "ti@primer.com или потребителското ти име",
+    "lastName": "Фамилия",
+    "noAccount": "Нов си в ArtAround?",
+    "password": "Парола",
+    "passwordHint": "Поне 8 знака.",
+    "signIn": "Вход",
+    "signInLink": "Вход",
+    "signInSubtitle": "Влез, за да продължиш своята обиколка из изкуството.",
+    "signInTitle": "Добре дошъл отново",
+    "signUp": "Създай профил",
+    "signUpLink": "Създай профил",
+    "signUpSubtitle": "Запази обиколките, покупките и любимите си на едно място.",
+    "signUpTitle": "Създай своя профил",
+    "username": "Потребителско име",
+    "usernameHint": "Така ще те виждат другите изследователи."
+  },
+  "Back to all museums": "Обратно към всички музеи",
+  "Change museum": "Смени музея",
+  "Import a config file": "Импортирай конфигурационен файл",
+  "languageSwitcher": {
+    "label": "Избери език"
+  },
+  "navbar": {
+    "Account": "Акаунт",
+    "Marketplace": "Пазар",
+    "My museums": "Моите музеи",
+    "Navigator": "Навигатор",
+    "Profile": "Профил",
+    "SignIn": "Вход",
+    "SignOut": "Изход"
+  },
+  "No museum matches “{{query}}”.": "Няма музей, който да отговаря на „{{query}}“.",
+  "or": "или",
+  "Search a museum": "Търси музей",
+  "This file is not a museum export.": "Този файл не е експорт на музей.",
+  "This museum was not found here.": "Този музей не е намерен тук."
+}

@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Zpět na obsah",
+  "Back to the navigator": "Zpět do navigátoru",
+  "Back to the tour": "Zpět na prohlídku",
+  "Checkout cancelled": "Platba zrušena",
+  "No payment was taken. You can unlock it whenever you like.": "Nebyla stržena žádná platba. Odemknout si to můžeš, kdykoli budeš chtít.",
+  "Payment not confirmed yet": "Platba zatím nebyla potvrzena",
+  "Payment received": "Platba přijata",
+  "Payment reference {{id}}": "Číslo platby {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Nákupy se ukládají k účtu, ze kterého se platilo. Přihlas se k němu a najdeš je odemčené.",
+  "Sign in": "Přihlásit se",
+  "Sign in to see your purchase": "Přihlas se a uvidíš svůj nákup",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nám tuto platbu zatím nepotvrdil. Jakmile se tak stane, odemkne se na tvém účtu – nic dalšího dělat nemusíš.",
+  "The paid contents of this tour are now unlocked on your account.": "Placený obsah této prohlídky je teď na tvém účtu odemčený.",
+  "Your purchase is now unlocked on your account.": "Tvůj nákup je teď na tvém účtu odemčený."
+}

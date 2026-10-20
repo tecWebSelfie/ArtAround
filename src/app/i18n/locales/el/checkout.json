@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Πίσω στο περιεχόμενο",
+  "Back to the navigator": "Πίσω στον πλοηγό",
+  "Back to the tour": "Πίσω στην ξενάγηση",
+  "Checkout cancelled": "Η πληρωμή ακυρώθηκε",
+  "No payment was taken. You can unlock it whenever you like.": "Δεν έγινε καμία χρέωση. Μπορείς να το ξεκλειδώσεις όποτε θέλεις.",
+  "Payment not confirmed yet": "Η πληρωμή δεν έχει επιβεβαιωθεί ακόμα",
+  "Payment received": "Η πληρωμή ελήφθη",
+  "Payment reference {{id}}": "Κωδικός πληρωμής {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Οι αγορές αποθηκεύονται στον λογαριασμό που πλήρωσε. Συνδέσου με αυτόν για να τις βρεις ξεκλείδωτες.",
+  "Sign in": "Σύνδεση",
+  "Sign in to see your purchase": "Συνδέσου για να δεις την αγορά σου",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Το Stripe δεν μας έχει επιβεβαιώσει ακόμα αυτήν την πληρωμή. Θα ξεκλειδωθεί στον λογαριασμό σου μόλις γίνει· δεν χρειάζεται να κάνεις τίποτα άλλο.",
+  "The paid contents of this tour are now unlocked on your account.": "Τα επί πληρωμή περιεχόμενα αυτής της ξενάγησης είναι πλέον ξεκλείδωτα στον λογαριασμό σου.",
+  "Your purchase is now unlocked on your account.": "Η αγορά σου είναι πλέον ξεκλείδωτη στον λογαριασμό σου."
+}

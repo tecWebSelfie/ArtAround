@@ -1,0 +1,59 @@
+{
+  "All museums": "Svi muzeji",
+  "auth": {
+    "confirmPassword": "Potvrdi lozinku",
+    "email": "E-pošta",
+    "errors": {
+      "emailInvalid": "Unesi valjanu adresu e-pošte.",
+      "emailRequired": "Unesi svoju adresu e-pošte.",
+      "firstNameRequired": "Unesi svoje ime.",
+      "generic": "Nešto je pošlo po zlu. Pokušaj ponovno.",
+      "identifierRequired": "Unesi e-poštu ili korisničko ime.",
+      "lastNameRequired": "Unesi svoje prezime.",
+      "passwordMismatch": "Lozinke se ne podudaraju.",
+      "passwordRequired": "Unesi lozinku.",
+      "passwordTooShort": "Upotrijebi najmanje 8 znakova.",
+      "usernameInvalid": "Koristi samo slova, brojke, točke, crtice ili podvlake.",
+      "usernameRequired": "Odaberi korisničko ime.",
+      "usernameTooShort": "Upotrijebi najmanje 3 znaka."
+    },
+    "firstName": "Ime",
+    "haveAccount": "Već imaš račun?",
+    "identifier": "E-pošta ili korisničko ime",
+    "identifierPlaceholder": "ti@primjer.com ili tvoje korisničko ime",
+    "lastName": "Prezime",
+    "noAccount": "Prvi put koristiš ArtAround?",
+    "password": "Lozinka",
+    "passwordHint": "Najmanje 8 znakova.",
+    "signIn": "Prijavi se",
+    "signInLink": "Prijavi se",
+    "signInSubtitle": "Prijavi se i nastavi svoju umjetničku turu.",
+    "signInTitle": "Drago nam je što si opet tu",
+    "signUp": "Izradi račun",
+    "signUpLink": "Izradi ga",
+    "signUpSubtitle": "Spremi svoje ture, kupnje i favorite na jednom mjestu.",
+    "signUpTitle": "Izradi svoj račun",
+    "username": "Korisničko ime",
+    "usernameHint": "Ovako će te vidjeti drugi istraživači."
+  },
+  "Back to all museums": "Natrag na sve muzeje",
+  "Change museum": "Promijeni muzej",
+  "Import a config file": "Uvezi konfiguracijsku datoteku",
+  "languageSwitcher": {
+    "label": "Odaberi jezik"
+  },
+  "navbar": {
+    "Account": "Račun",
+    "Marketplace": "Tržnica",
+    "My museums": "Moji muzeji",
+    "Navigator": "Navigator",
+    "Profile": "Profil",
+    "SignIn": "Prijava",
+    "SignOut": "Odjava"
+  },
+  "No museum matches “{{query}}”.": "Nijedan muzej ne odgovara upitu „{{query}}”.",
+  "or": "ili",
+  "Search a museum": "Pretraži muzeje",
+  "This file is not a museum export.": "Ova datoteka nije izvoz muzeja.",
+  "This museum was not found here.": "Ovaj muzej ovdje nije pronađen."
+}

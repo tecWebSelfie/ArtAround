@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} Inhalt dieser Tour ist kostenpflichtig. Mit dem Kauf der Tour schaltest du ihn frei.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} Inhalte dieser Tour sind kostenpflichtig. Mit dem Kauf der Tour schaltest du alle frei.",
+  "Buy all for {{price}}": "Alles für {{price}} kaufen",
+  "Customize tour": "Tour anpassen",
+  "Edit tour": "Tour bearbeiten",
+  "Replace the paid contents": "Kostenpflichtige Inhalte ersetzen",
+  "Scan to open this tour": "Scannen, um diese Tour zu öffnen",
+  "See more": "Mehr erfahren",
+  "See more about {{title}}": "Mehr über {{title}} erfahren",
+  "Show QR code": "QR-Code anzeigen",
+  "Sign in to buy": "Zum Kaufen anmelden",
+  "Start tour": "Tour starten",
+  "Unlock for {{price}}": "Für {{price}} freischalten",
+  "Unlock this tour": "Diese Tour freischalten"
+}

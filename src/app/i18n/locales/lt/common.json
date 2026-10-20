@@ -1,0 +1,59 @@
+{
+  "All museums": "Visi muziejai",
+  "auth": {
+    "confirmPassword": "Pakartok slaptažodį",
+    "email": "El. paštas",
+    "errors": {
+      "emailInvalid": "Įvesk galiojantį el. pašto adresą.",
+      "emailRequired": "Įvesk savo el. pašto adresą.",
+      "firstNameRequired": "Įvesk savo vardą.",
+      "generic": "Kažkas nepavyko. Bandyk dar kartą.",
+      "identifierRequired": "Įvesk savo el. paštą arba naudotojo vardą.",
+      "lastNameRequired": "Įvesk savo pavardę.",
+      "passwordMismatch": "Slaptažodžiai nesutampa.",
+      "passwordRequired": "Įvesk savo slaptažodį.",
+      "passwordTooShort": "Naudok bent 8 simbolius.",
+      "usernameInvalid": "Naudok tik raides, skaičius, taškus, brūkšnelius arba pabraukimus.",
+      "usernameRequired": "Pasirink naudotojo vardą.",
+      "usernameTooShort": "Naudok bent 3 simbolius."
+    },
+    "firstName": "Vardas",
+    "haveAccount": "Jau turi paskyrą?",
+    "identifier": "El. paštas arba naudotojo vardas",
+    "identifierPlaceholder": "tu@example.com arba tavo naudotojo vardas",
+    "lastName": "Pavardė",
+    "noAccount": "ArtAround naujokas?",
+    "password": "Slaptažodis",
+    "passwordHint": "Bent 8 simboliai.",
+    "signIn": "Prisijungti",
+    "signInLink": "Prisijungti",
+    "signInSubtitle": "Prisijunk ir tęsk savo meno turą.",
+    "signInTitle": "Sveikas sugrįžęs",
+    "signUp": "Sukurti paskyrą",
+    "signUpLink": "Sukurk ją",
+    "signUpSubtitle": "Laikyk savo turus, pirkinius ir mėgstamus vienoje vietoje.",
+    "signUpTitle": "Susikurk paskyrą",
+    "username": "Naudotojo vardas",
+    "usernameHint": "Taip tave matys kiti tyrinėtojai."
+  },
+  "Back to all museums": "Grįžti į visus muziejus",
+  "Change museum": "Keisti muziejų",
+  "Import a config file": "Importuoti konfigūracijos failą",
+  "languageSwitcher": {
+    "label": "Pasirink kalbą"
+  },
+  "navbar": {
+    "Account": "Paskyra",
+    "Marketplace": "Marketplace",
+    "My museums": "Mano muziejai",
+    "Navigator": "Navigatorius",
+    "Profile": "Profilis",
+    "SignIn": "Prisijungti",
+    "SignOut": "Atsijungti"
+  },
+  "No museum matches “{{query}}”.": "Pagal „{{query}}“ muziejų nerasta.",
+  "or": "arba",
+  "Search a museum": "Ieškoti muziejaus",
+  "This file is not a museum export.": "Šis failas nėra muziejaus eksportas.",
+  "This museum was not found here.": "Šis muziejus čia nerastas."
+}

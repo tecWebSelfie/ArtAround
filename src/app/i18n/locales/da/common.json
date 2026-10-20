@@ -1,0 +1,59 @@
+{
+  "All museums": "Alle museer",
+  "auth": {
+    "confirmPassword": "Bekræft adgangskode",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Indtast en gyldig e-mailadresse.",
+      "emailRequired": "Indtast din e-mailadresse.",
+      "firstNameRequired": "Indtast dit fornavn.",
+      "generic": "Noget gik galt. Prøv igen.",
+      "identifierRequired": "Indtast din e-mail eller dit brugernavn.",
+      "lastNameRequired": "Indtast dit efternavn.",
+      "passwordMismatch": "Adgangskoderne er ikke ens.",
+      "passwordRequired": "Indtast din adgangskode.",
+      "passwordTooShort": "Brug mindst 8 tegn.",
+      "usernameInvalid": "Brug kun bogstaver, tal, punktummer, bindestreger eller understregninger.",
+      "usernameRequired": "Vælg et brugernavn.",
+      "usernameTooShort": "Brug mindst 3 tegn."
+    },
+    "firstName": "Fornavn",
+    "haveAccount": "Har du allerede en konto?",
+    "identifier": "E-mail eller brugernavn",
+    "identifierPlaceholder": "dig@eksempel.dk eller dit brugernavn",
+    "lastName": "Efternavn",
+    "noAccount": "Ny på ArtAround?",
+    "password": "Adgangskode",
+    "passwordHint": "Mindst 8 tegn.",
+    "signIn": "Log ind",
+    "signInLink": "Log ind",
+    "signInSubtitle": "Log ind for at fortsætte din kunsttur.",
+    "signInTitle": "Velkommen tilbage",
+    "signUp": "Opret konto",
+    "signUpLink": "Opret en",
+    "signUpSubtitle": "Gem dine ture, køb og favoritter ét sted.",
+    "signUpTitle": "Opret din konto",
+    "username": "Brugernavn",
+    "usernameHint": "Sådan ser andre opdagelsesrejsende dig."
+  },
+  "Back to all museums": "Tilbage til alle museer",
+  "Change museum": "Skift museum",
+  "Import a config file": "Importér en konfigurationsfil",
+  "languageSwitcher": {
+    "label": "Vælg sprog"
+  },
+  "navbar": {
+    "Account": "Konto",
+    "Marketplace": "Markedsplads",
+    "My museums": "Mine museer",
+    "Navigator": "Navigator",
+    "Profile": "Profil",
+    "SignIn": "Log ind",
+    "SignOut": "Log ud"
+  },
+  "No museum matches “{{query}}”.": "Intet museum matcher “{{query}}”.",
+  "or": "eller",
+  "Search a museum": "Søg efter et museum",
+  "This file is not a museum export.": "Denne fil er ikke en museumseksport.",
+  "This museum was not found here.": "Museet blev ikke fundet her."
+}

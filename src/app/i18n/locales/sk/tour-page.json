@@ -1,0 +1,18 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} obsah v tejto prehliadke je platený. Kúpou prehliadky ho odomkneš.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} obsahy v tejto prehliadke sú platené. Kúpou prehliadky odomkneš všetky.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} obsahu v tejto prehliadke je platených. Kúpou prehliadky odomkneš všetky.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} obsahov v tejto prehliadke je platených. Kúpou prehliadky odomkneš všetky.",
+  "Buy all for {{price}}": "Kúpiť všetko za {{price}}",
+  "Customize tour": "Prispôsobiť prehliadku",
+  "Edit tour": "Upraviť prehliadku",
+  "Replace the paid contents": "Nahradiť platené obsahy",
+  "Scan to open this tour": "Naskenuj a otvor túto prehliadku",
+  "See more": "Zobraziť viac",
+  "See more about {{title}}": "Viac o: {{title}}",
+  "Show QR code": "Zobraziť QR kód",
+  "Sign in to buy": "Prihlás sa a nakupuj",
+  "Start tour": "Spustiť prehliadku",
+  "Unlock for {{price}}": "Odomknúť za {{price}}",
+  "Unlock this tour": "Odomknúť túto prehliadku"
+}

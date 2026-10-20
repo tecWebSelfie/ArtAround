@@ -1,0 +1,59 @@
+{
+  "All museums": "Kõik muuseumid",
+  "auth": {
+    "confirmPassword": "Kinnita parool",
+    "email": "E-post",
+    "errors": {
+      "emailInvalid": "Sisesta kehtiv e-posti aadress.",
+      "emailRequired": "Sisesta oma e-posti aadress.",
+      "firstNameRequired": "Sisesta oma eesnimi.",
+      "generic": "Midagi läks valesti. Proovi uuesti.",
+      "identifierRequired": "Sisesta oma e-post või kasutajanimi.",
+      "lastNameRequired": "Sisesta oma perekonnanimi.",
+      "passwordMismatch": "Paroolid ei ühti.",
+      "passwordRequired": "Sisesta oma parool.",
+      "passwordTooShort": "Kasuta vähemalt 8 märki.",
+      "usernameInvalid": "Kasuta ainult tähti, numbreid, punkte, sidekriipse või alakriipse.",
+      "usernameRequired": "Vali kasutajanimi.",
+      "usernameTooShort": "Kasuta vähemalt 3 märki."
+    },
+    "firstName": "Eesnimi",
+    "haveAccount": "Sul on juba konto?",
+    "identifier": "E-post või kasutajanimi",
+    "identifierPlaceholder": "sina@example.com või sinu kasutajanimi",
+    "lastName": "Perekonnanimi",
+    "noAccount": "Oled ArtAroundis uus?",
+    "password": "Parool",
+    "passwordHint": "Vähemalt 8 märki.",
+    "signIn": "Logi sisse",
+    "signInLink": "Logi sisse",
+    "signInSubtitle": "Logi sisse, et oma kunstituuri jätkata.",
+    "signInTitle": "Tere tulemast tagasi",
+    "signUp": "Loo konto",
+    "signUpLink": "Loo konto",
+    "signUpSubtitle": "Hoia oma tuurid, ostud ja lemmikud ühes kohas.",
+    "signUpTitle": "Loo oma konto",
+    "username": "Kasutajanimi",
+    "usernameHint": "Nii näevad sind teised avastajad."
+  },
+  "Back to all museums": "Tagasi kõigi muuseumide juurde",
+  "Change museum": "Vaheta muuseumi",
+  "Import a config file": "Impordi seadistusfail",
+  "languageSwitcher": {
+    "label": "Vali keel"
+  },
+  "navbar": {
+    "Account": "Konto",
+    "Marketplace": "Marketplace",
+    "My museums": "Minu muuseumid",
+    "Navigator": "Navigaator",
+    "Profile": "Profiil",
+    "SignIn": "Logi sisse",
+    "SignOut": "Logi välja"
+  },
+  "No museum matches “{{query}}”.": "Päringule „{{query}}” ei vasta ükski muuseum.",
+  "or": "või",
+  "Search a museum": "Otsi muuseumi",
+  "This file is not a museum export.": "See fail ei ole muuseumi eksport.",
+  "This museum was not found here.": "Seda muuseumi siit ei leitud."
+}

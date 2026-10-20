@@ -1,0 +1,59 @@
+{
+  "All museums": "Alla museer",
+  "auth": {
+    "confirmPassword": "Bekräfta lösenord",
+    "email": "E-post",
+    "errors": {
+      "emailInvalid": "Ange en giltig e-postadress.",
+      "emailRequired": "Ange din e-postadress.",
+      "firstNameRequired": "Ange ditt förnamn.",
+      "generic": "Något gick fel. Försök igen.",
+      "identifierRequired": "Ange din e-post eller ditt användarnamn.",
+      "lastNameRequired": "Ange ditt efternamn.",
+      "passwordMismatch": "Lösenorden matchar inte.",
+      "passwordRequired": "Ange ditt lösenord.",
+      "passwordTooShort": "Använd minst 8 tecken.",
+      "usernameInvalid": "Använd bara bokstäver, siffror, punkter, bindestreck eller understreck.",
+      "usernameRequired": "Välj ett användarnamn.",
+      "usernameTooShort": "Använd minst 3 tecken."
+    },
+    "firstName": "Förnamn",
+    "haveAccount": "Har du redan ett konto?",
+    "identifier": "E-post eller användarnamn",
+    "identifierPlaceholder": "du@exempel.se eller ditt användarnamn",
+    "lastName": "Efternamn",
+    "noAccount": "Ny på ArtAround?",
+    "password": "Lösenord",
+    "passwordHint": "Minst 8 tecken.",
+    "signIn": "Logga in",
+    "signInLink": "Logga in",
+    "signInSubtitle": "Logga in för att fortsätta din konsttur.",
+    "signInTitle": "Välkommen tillbaka",
+    "signUp": "Skapa konto",
+    "signUpLink": "Skapa ett",
+    "signUpSubtitle": "Spara dina turer, köp och favoriter på ett ställe.",
+    "signUpTitle": "Skapa ditt konto",
+    "username": "Användarnamn",
+    "usernameHint": "Så här ser andra upptäckare dig."
+  },
+  "Back to all museums": "Tillbaka till alla museer",
+  "Change museum": "Byt museum",
+  "Import a config file": "Importera en konfigurationsfil",
+  "languageSwitcher": {
+    "label": "Välj språk"
+  },
+  "navbar": {
+    "Account": "Konto",
+    "Marketplace": "Marknadsplats",
+    "My museums": "Mina museer",
+    "Navigator": "Navigator",
+    "Profile": "Profil",
+    "SignIn": "Logga in",
+    "SignOut": "Logga ut"
+  },
+  "No museum matches “{{query}}”.": "Inget museum matchar ”{{query}}”.",
+  "or": "eller",
+  "Search a museum": "Sök efter ett museum",
+  "This file is not a museum export.": "Den här filen är inte en museiexport.",
+  "This museum was not found here.": "Det här museet hittades inte här."
+}

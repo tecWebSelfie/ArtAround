@@ -1,0 +1,17 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} sadržaj u ovoj turi se plaća. Kupnjom ture otključavaš ga.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} sadržaja u ovoj turi se plaćaju. Kupnjom ture otključavaš ih sve.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} sadržaja u ovoj turi se plaća. Kupnjom ture otključavaš ih sve.",
+  "Buy all for {{price}}": "Kupi sve za {{price}}",
+  "Customize tour": "Prilagodi turu",
+  "Edit tour": "Uredi turu",
+  "Replace the paid contents": "Zamijeni plaćene sadržaje",
+  "Scan to open this tour": "Skeniraj za otvaranje ove ture",
+  "See more": "Prikaži više",
+  "See more about {{title}}": "Saznaj više: {{title}}",
+  "Show QR code": "Prikaži QR kod",
+  "Sign in to buy": "Prijavi se za kupnju",
+  "Start tour": "Započni turu",
+  "Unlock for {{price}}": "Otključaj za {{price}}",
+  "Unlock this tour": "Otključaj ovu turu"
+}

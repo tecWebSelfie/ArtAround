@@ -1,0 +1,59 @@
+{
+  "All museums": "Kaikki museot",
+  "auth": {
+    "confirmPassword": "Vahvista salasana",
+    "email": "Sähköposti",
+    "errors": {
+      "emailInvalid": "Anna kelvollinen sähköpostiosoite.",
+      "emailRequired": "Anna sähköpostiosoitteesi.",
+      "firstNameRequired": "Anna etunimesi.",
+      "generic": "Jokin meni pieleen. Yritä uudelleen.",
+      "identifierRequired": "Anna sähköpostiosoitteesi tai käyttäjänimesi.",
+      "lastNameRequired": "Anna sukunimesi.",
+      "passwordMismatch": "Salasanat eivät täsmää.",
+      "passwordRequired": "Anna salasanasi.",
+      "passwordTooShort": "Käytä vähintään 8 merkkiä.",
+      "usernameInvalid": "Käytä vain kirjaimia, numeroita, pisteitä, väliviivoja tai alaviivoja.",
+      "usernameRequired": "Valitse käyttäjänimi.",
+      "usernameTooShort": "Käytä vähintään 3 merkkiä."
+    },
+    "firstName": "Etunimi",
+    "haveAccount": "Onko sinulla jo tili?",
+    "identifier": "Sähköposti tai käyttäjänimi",
+    "identifierPlaceholder": "sinä@esimerkki.fi tai käyttäjänimesi",
+    "lastName": "Sukunimi",
+    "noAccount": "Uusi ArtAroundissa?",
+    "password": "Salasana",
+    "passwordHint": "Vähintään 8 merkkiä.",
+    "signIn": "Kirjaudu sisään",
+    "signInLink": "Kirjaudu sisään",
+    "signInSubtitle": "Kirjaudu sisään jatkaaksesi taidekierrostasi.",
+    "signInTitle": "Tervetuloa takaisin",
+    "signUp": "Luo tili",
+    "signUpLink": "Luo tili",
+    "signUpSubtitle": "Tallenna kierroksesi, ostoksesi ja suosikkisi yhteen paikkaan.",
+    "signUpTitle": "Luo tilisi",
+    "username": "Käyttäjänimi",
+    "usernameHint": "Näin muut tutkimusmatkailijat näkevät sinut."
+  },
+  "Back to all museums": "Takaisin kaikkiin museoihin",
+  "Change museum": "Vaihda museota",
+  "Import a config file": "Tuo määritystiedosto",
+  "languageSwitcher": {
+    "label": "Valitse kieli"
+  },
+  "navbar": {
+    "Account": "Tili",
+    "Marketplace": "Kauppapaikka",
+    "My museums": "Omat museot",
+    "Navigator": "Navigaattori",
+    "Profile": "Profiili",
+    "SignIn": "Kirjaudu sisään",
+    "SignOut": "Kirjaudu ulos"
+  },
+  "No museum matches “{{query}}”.": "Mikään museo ei vastaa hakua ”{{query}}”.",
+  "or": "tai",
+  "Search a museum": "Hae museota",
+  "This file is not a museum export.": "Tämä tiedosto ei ole museon vientitiedosto.",
+  "This museum was not found here.": "Museota ei löytynyt täältä."
+}

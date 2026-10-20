@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Обратно към съдържанието",
+  "Back to the navigator": "Обратно към навигатора",
+  "Back to the tour": "Обратно към обиколката",
+  "Checkout cancelled": "Плащането е отказано",
+  "No payment was taken. You can unlock it whenever you like.": "Нищо не е таксувано. Можеш да го отключиш, когато пожелаеш.",
+  "Payment not confirmed yet": "Плащането още не е потвърдено",
+  "Payment received": "Плащането е получено",
+  "Payment reference {{id}}": "Референция на плащането {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Покупките се запазват в профила, от който е платено. Влез с него, за да ги намериш отключени.",
+  "Sign in": "Вход",
+  "Sign in to see your purchase": "Влез, за да видиш покупката си",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe все още не ни е потвърдил това плащане. То ще се отключи в профила ти веднага щом го направи; не е нужно да правиш нищо друго.",
+  "The paid contents of this tour are now unlocked on your account.": "Платените съдържания в тази обиколка вече са отключени в профила ти.",
+  "Your purchase is now unlocked on your account.": "Покупката ти вече е отключена в профила ти."
+}

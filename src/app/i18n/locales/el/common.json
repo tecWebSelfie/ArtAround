@@ -1,0 +1,59 @@
+{
+  "All museums": "Όλα τα μουσεία",
+  "auth": {
+    "confirmPassword": "Επιβεβαίωση κωδικού",
+    "email": "Email",
+    "errors": {
+      "emailInvalid": "Γράψε ένα έγκυρο email.",
+      "emailRequired": "Γράψε το email σου.",
+      "firstNameRequired": "Γράψε το όνομά σου.",
+      "generic": "Κάτι πήγε στραβά. Δοκίμασε ξανά.",
+      "identifierRequired": "Γράψε το email ή το όνομα χρήστη σου.",
+      "lastNameRequired": "Γράψε το επώνυμό σου.",
+      "passwordMismatch": "Οι κωδικοί δεν ταιριάζουν.",
+      "passwordRequired": "Γράψε τον κωδικό σου.",
+      "passwordTooShort": "Χρησιμοποίησε τουλάχιστον 8 χαρακτήρες.",
+      "usernameInvalid": "Χρησιμοποίησε μόνο γράμματα, αριθμούς, τελείες, παύλες ή κάτω παύλες.",
+      "usernameRequired": "Διάλεξε ένα όνομα χρήστη.",
+      "usernameTooShort": "Χρησιμοποίησε τουλάχιστον 3 χαρακτήρες."
+    },
+    "firstName": "Όνομα",
+    "haveAccount": "Έχεις ήδη λογαριασμό;",
+    "identifier": "Email ή όνομα χρήστη",
+    "identifierPlaceholder": "you@example.com ή το όνομα χρήστη σου",
+    "lastName": "Επώνυμο",
+    "noAccount": "Νέος στο ArtAround;",
+    "password": "Κωδικός",
+    "passwordHint": "Τουλάχιστον 8 χαρακτήρες.",
+    "signIn": "Σύνδεση",
+    "signInLink": "Σύνδεση",
+    "signInSubtitle": "Συνδέσου για να συνεχίσεις την καλλιτεχνική σου ξενάγηση.",
+    "signInTitle": "Καλώς ήρθες ξανά",
+    "signUp": "Δημιουργία λογαριασμού",
+    "signUpLink": "Δημιούργησε έναν",
+    "signUpSubtitle": "Κράτα τις ξεναγήσεις, τις αγορές και τα αγαπημένα σου σε ένα μέρος.",
+    "signUpTitle": "Δημιούργησε τον λογαριασμό σου",
+    "username": "Όνομα χρήστη",
+    "usernameHint": "Έτσι θα σε βλέπουν οι άλλοι εξερευνητές."
+  },
+  "Back to all museums": "Πίσω σε όλα τα μουσεία",
+  "Change museum": "Αλλαγή μουσείου",
+  "Import a config file": "Εισαγωγή αρχείου ρυθμίσεων",
+  "languageSwitcher": {
+    "label": "Επιλογή γλώσσας"
+  },
+  "navbar": {
+    "Account": "Λογαριασμός",
+    "Marketplace": "Marketplace",
+    "My museums": "Τα μουσεία μου",
+    "Navigator": "Πλοηγός",
+    "Profile": "Προφίλ",
+    "SignIn": "Σύνδεση",
+    "SignOut": "Αποσύνδεση"
+  },
+  "No museum matches “{{query}}”.": "Κανένα μουσείο δεν ταιριάζει με «{{query}}».",
+  "or": "ή",
+  "Search a museum": "Αναζήτηση μουσείου",
+  "This file is not a museum export.": "Αυτό το αρχείο δεν είναι εξαγωγή μουσείου.",
+  "This museum was not found here.": "Αυτό το μουσείο δεν βρέθηκε εδώ."
+}

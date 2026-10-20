@@ -1,0 +1,19 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} kontenut f'dan it-tour huwa bi ħlas. Jekk tixtri t-tour, tiftħu.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._two": "{{count}} kontenuti f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} kontenuti f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} kontenut f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} kontenut f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",
+  "Buy all for {{price}}": "Ixtri kollox għal {{price}}",
+  "Customize tour": "Personalizza t-tour",
+  "Edit tour": "Editja t-tour",
+  "Replace the paid contents": "Ibdel il-kontenuti bi ħlas",
+  "Scan to open this tour": "Skennja biex tiftaħ dan it-tour",
+  "See more": "Ara aktar",
+  "See more about {{title}}": "Ara aktar dwar {{title}}",
+  "Show QR code": "Uri l-kodiċi QR",
+  "Sign in to buy": "Idħol biex tixtri",
+  "Start tour": "Ibda t-tour",
+  "Unlock for {{price}}": "Iftaħ għal {{price}}",
+  "Unlock this tour": "Iftaħ dan it-tour"
+}

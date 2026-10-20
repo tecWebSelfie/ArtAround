@@ -1,0 +1,17 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} conteúdo deste tour é pago. Ao comprares o tour, desbloqueia-lo.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} conteúdos deste tour são pagos. Ao comprares o tour, desbloqueia-los todos.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} conteúdos deste tour são pagos. Ao comprares o tour, desbloqueia-los todos.",
+  "Buy all for {{price}}": "Comprar tudo por {{price}}",
+  "Customize tour": "Personalizar o tour",
+  "Edit tour": "Editar tour",
+  "Replace the paid contents": "Substituir os conteúdos pagos",
+  "Scan to open this tour": "Lê o código para abrir este tour",
+  "See more": "Saber mais",
+  "See more about {{title}}": "Saber mais sobre {{title}}",
+  "Show QR code": "Mostrar código QR",
+  "Sign in to buy": "Inicia sessão para comprar",
+  "Start tour": "Começar o tour",
+  "Unlock for {{price}}": "Desbloquear por {{price}}",
+  "Unlock this tour": "Desbloquear este tour"
+}

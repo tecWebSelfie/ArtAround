@@ -1,13 +1,13 @@
 {
-  "contents": "",
-  "Curator": "",
-  "Curator at": "",
-  "Email": "",
-  "info": "",
-  "Member since": "",
-  "No contents authored yet": "",
-  "No Tours authored yet": "",
-  "Username": "",
-  "Verified creator": "",
-  "Verified creator tooltip": ""
+  "contents": "contenuti",
+  "Curator": "Curatore",
+  "Curator at": "Curatore presso",
+  "Email": "Email",
+  "info": "info",
+  "Member since": "Membro dal",
+  "No contents authored yet": "Nessun contenuto ancora scritto",
+  "No Tours authored yet": "Nessun tour ancora creato",
+  "Username": "Nome utente",
+  "Verified creator": "Creatore verificato",
+  "Verified creator tooltip": "Creatore verificato da ArtAround"
 }

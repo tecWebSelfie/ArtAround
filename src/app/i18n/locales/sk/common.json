@@ -1,0 +1,59 @@
+{
+  "All museums": "Všetky múzeá",
+  "auth": {
+    "confirmPassword": "Potvrď heslo",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Zadaj platnú e-mailovú adresu.",
+      "emailRequired": "Zadaj svoju e-mailovú adresu.",
+      "firstNameRequired": "Zadaj svoje meno.",
+      "generic": "Niečo sa pokazilo. Skús to znova.",
+      "identifierRequired": "Zadaj e-mail alebo používateľské meno.",
+      "lastNameRequired": "Zadaj svoje priezvisko.",
+      "passwordMismatch": "Heslá sa nezhodujú.",
+      "passwordRequired": "Zadaj heslo.",
+      "passwordTooShort": "Použi aspoň 8 znakov.",
+      "usernameInvalid": "Používaj len písmená, číslice, bodky, pomlčky alebo podčiarkovníky.",
+      "usernameRequired": "Vyber si používateľské meno.",
+      "usernameTooShort": "Použi aspoň 3 znaky."
+    },
+    "firstName": "Meno",
+    "haveAccount": "Už máš účet?",
+    "identifier": "E-mail alebo používateľské meno",
+    "identifierPlaceholder": "ty@example.com alebo tvoje používateľské meno",
+    "lastName": "Priezvisko",
+    "noAccount": "Si v ArtAround prvýkrát?",
+    "password": "Heslo",
+    "passwordHint": "Aspoň 8 znakov.",
+    "signIn": "Prihlásiť sa",
+    "signInLink": "Prihlás sa",
+    "signInSubtitle": "Prihlás sa a pokračuj vo svojej umeleckej prehliadke.",
+    "signInTitle": "Vitaj späť",
+    "signUp": "Vytvoriť účet",
+    "signUpLink": "Vytvor si ho",
+    "signUpSubtitle": "Ukladaj si prehliadky, nákupy a obľúbené na jednom mieste.",
+    "signUpTitle": "Vytvor si účet",
+    "username": "Používateľské meno",
+    "usernameHint": "Takto ťa uvidia ostatní objavitelia."
+  },
+  "Back to all museums": "Späť na všetky múzeá",
+  "Change museum": "Zmeniť múzeum",
+  "Import a config file": "Importovať konfiguračný súbor",
+  "languageSwitcher": {
+    "label": "Vyber jazyk"
+  },
+  "navbar": {
+    "Account": "Účet",
+    "Marketplace": "Trhovisko",
+    "My museums": "Moje múzeá",
+    "Navigator": "Navigátor",
+    "Profile": "Profil",
+    "SignIn": "Prihlásiť sa",
+    "SignOut": "Odhlásiť sa"
+  },
+  "No museum matches “{{query}}”.": "Žiadne múzeum nezodpovedá „{{query}}“.",
+  "or": "alebo",
+  "Search a museum": "Hľadať múzeum",
+  "This file is not a museum export.": "Tento súbor nie je export múzea.",
+  "This museum was not found here.": "Toto múzeum sa tu nenašlo."
+}

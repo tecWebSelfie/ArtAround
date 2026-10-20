@@ -1,0 +1,59 @@
+{
+  "All museums": "Všechna muzea",
+  "auth": {
+    "confirmPassword": "Potvrď heslo",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Zadej platnou e-mailovou adresu.",
+      "emailRequired": "Zadej svou e-mailovou adresu.",
+      "firstNameRequired": "Zadej své jméno.",
+      "generic": "Něco se pokazilo. Zkus to znovu.",
+      "identifierRequired": "Zadej e-mail nebo uživatelské jméno.",
+      "lastNameRequired": "Zadej své příjmení.",
+      "passwordMismatch": "Hesla se neshodují.",
+      "passwordRequired": "Zadej heslo.",
+      "passwordTooShort": "Použij alespoň 8 znaků.",
+      "usernameInvalid": "Používej jen písmena, číslice, tečky, pomlčky nebo podtržítka.",
+      "usernameRequired": "Vyber si uživatelské jméno.",
+      "usernameTooShort": "Použij alespoň 3 znaky."
+    },
+    "firstName": "Jméno",
+    "haveAccount": "Už máš účet?",
+    "identifier": "E-mail nebo uživatelské jméno",
+    "identifierPlaceholder": "ty@example.com nebo tvoje uživatelské jméno",
+    "lastName": "Příjmení",
+    "noAccount": "Jsi v ArtAround poprvé?",
+    "password": "Heslo",
+    "passwordHint": "Alespoň 8 znaků.",
+    "signIn": "Přihlásit se",
+    "signInLink": "Přihlas se",
+    "signInSubtitle": "Přihlas se a pokračuj ve své umělecké prohlídce.",
+    "signInTitle": "Vítej zpět",
+    "signUp": "Vytvořit účet",
+    "signUpLink": "Vytvoř si ho",
+    "signUpSubtitle": "Ukládej si prohlídky, nákupy a oblíbené na jednom místě.",
+    "signUpTitle": "Vytvoř si účet",
+    "username": "Uživatelské jméno",
+    "usernameHint": "Takhle tě uvidí ostatní objevitelé."
+  },
+  "Back to all museums": "Zpět na všechna muzea",
+  "Change museum": "Změnit muzeum",
+  "Import a config file": "Importovat konfigurační soubor",
+  "languageSwitcher": {
+    "label": "Vyber jazyk"
+  },
+  "navbar": {
+    "Account": "Účet",
+    "Marketplace": "Tržiště",
+    "My museums": "Moje muzea",
+    "Navigator": "Navigátor",
+    "Profile": "Profil",
+    "SignIn": "Přihlásit se",
+    "SignOut": "Odhlásit se"
+  },
+  "No museum matches “{{query}}”.": "Žádné muzeum neodpovídá „{{query}}“.",
+  "or": "nebo",
+  "Search a museum": "Hledat muzeum",
+  "This file is not a museum export.": "Tento soubor není export muzea.",
+  "This museum was not found here.": "Toto muzeum tu nebylo nalezeno."
+}

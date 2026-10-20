@@ -1,0 +1,59 @@
+{
+  "All museums": "Il-mużewijiet kollha",
+  "auth": {
+    "confirmPassword": "Ikkonferma l-password",
+    "email": "Email",
+    "errors": {
+      "emailInvalid": "Daħħal indirizz tal-email validu.",
+      "emailRequired": "Daħħal l-indirizz tal-email tiegħek.",
+      "firstNameRequired": "Daħħal l-ewwel isem tiegħek.",
+      "generic": "Inqala' xi problema. Erġa' pprova.",
+      "identifierRequired": "Daħħal l-email jew l-isem tal-utent tiegħek.",
+      "lastNameRequired": "Daħħal il-kunjom tiegħek.",
+      "passwordMismatch": "Il-passwords ma jaqblux.",
+      "passwordRequired": "Daħħal il-password tiegħek.",
+      "passwordTooShort": "Uża mill-inqas 8 karattri.",
+      "usernameInvalid": "Uża biss ittri, numri, punti, lineetti jew linji ta' taħt.",
+      "usernameRequired": "Agħżel isem tal-utent.",
+      "usernameTooShort": "Uża mill-inqas 3 karattri."
+    },
+    "firstName": "L-ewwel isem",
+    "haveAccount": "Diġà għandek kont?",
+    "identifier": "Email jew isem tal-utent",
+    "identifierPlaceholder": "int@example.com jew l-isem tal-utent tiegħek",
+    "lastName": "Kunjom",
+    "noAccount": "Ġdid fuq ArtAround?",
+    "password": "Password",
+    "passwordHint": "Mill-inqas 8 karattri.",
+    "signIn": "Idħol",
+    "signInLink": "Idħol",
+    "signInSubtitle": "Idħol biex tkompli t-tour tal-arti tiegħek.",
+    "signInTitle": "Merħba lura",
+    "signUp": "Oħloq kont",
+    "signUpLink": "Oħloq wieħed",
+    "signUpSubtitle": "Żomm it-tours, ix-xiri u l-favoriti tiegħek f'post wieħed.",
+    "signUpTitle": "Oħloq il-kont tiegħek",
+    "username": "Isem tal-utent",
+    "usernameHint": "Hekk se jarawk l-esploraturi l-oħra."
+  },
+  "Back to all museums": "Lura għall-mużewijiet kollha",
+  "Change museum": "Ibdel il-mużew",
+  "Import a config file": "Importa fajl ta' konfigurazzjoni",
+  "languageSwitcher": {
+    "label": "Agħżel il-lingwa"
+  },
+  "navbar": {
+    "Account": "Kont",
+    "Marketplace": "Suq",
+    "My museums": "Il-mużewijiet tiegħi",
+    "Navigator": "Navigatur",
+    "Profile": "Profil",
+    "SignIn": "Idħol",
+    "SignOut": "Oħroġ"
+  },
+  "No museum matches “{{query}}”.": "L-ebda mużew ma jaqbel ma’ “{{query}}”.",
+  "or": "jew",
+  "Search a museum": "Fittex mużew",
+  "This file is not a museum export.": "Dan il-fajl mhuwiex esportazzjoni ta’ mużew.",
+  "This museum was not found here.": "Dan il-mużew ma nstabx hawn."
+}

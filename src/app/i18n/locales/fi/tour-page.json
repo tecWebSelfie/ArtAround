@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} sisältö tällä kierroksella on maksullinen. Kierroksen ostaminen avaa sen.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} sisältöä tällä kierroksella on maksullisia. Kierroksen ostaminen avaa ne kaikki.",
+  "Buy all for {{price}}": "Osta kaikki hintaan {{price}}",
+  "Customize tour": "Muokkaa kierrosta itsellesi",
+  "Edit tour": "Muokkaa kierrosta",
+  "Replace the paid contents": "Vaihda maksulliset sisällöt",
+  "Scan to open this tour": "Avaa tämä kierros skannaamalla",
+  "See more": "Näytä lisää",
+  "See more about {{title}}": "Lisää aiheesta {{title}}",
+  "Show QR code": "Näytä QR-koodi",
+  "Sign in to buy": "Kirjaudu sisään ostaaksesi",
+  "Start tour": "Aloita kierros",
+  "Unlock for {{price}}": "Avaa hintaan {{price}}",
+  "Unlock this tour": "Avaa tämä kierros"
+}

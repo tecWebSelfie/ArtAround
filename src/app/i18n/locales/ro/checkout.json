@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Înapoi la conținut",
+  "Back to the navigator": "Înapoi la navigator",
+  "Back to the tour": "Înapoi la tur",
+  "Checkout cancelled": "Plată anulată",
+  "No payment was taken. You can unlock it whenever you like.": "Nu s-a încasat nimic. Îl poți debloca oricând vrei.",
+  "Payment not confirmed yet": "Plata nu este încă confirmată",
+  "Payment received": "Plată primită",
+  "Payment reference {{id}}": "Referința plății {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Achizițiile sunt salvate în contul care a plătit. Conectează-te cu el ca să le găsești deblocate.",
+  "Sign in": "Conectează-te",
+  "Sign in to see your purchase": "Conectează-te ca să-ți vezi achiziția",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nu ne-a confirmat încă această plată. Se deblochează în contul tău imediat ce o face; nu mai trebuie să faci nimic.",
+  "The paid contents of this tour are now unlocked on your account.": "Conținuturile plătite ale acestui tur sunt acum deblocate în contul tău.",
+  "Your purchase is now unlocked on your account.": "Achiziția ta este acum deblocată în contul tău."
+}

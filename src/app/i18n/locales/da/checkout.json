@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Tilbage til indholdet",
+  "Back to the navigator": "Tilbage til navigatoren",
+  "Back to the tour": "Tilbage til turen",
+  "Checkout cancelled": "Betaling annulleret",
+  "No payment was taken. You can unlock it whenever you like.": "Der blev ikke trukket nogen betaling. Du kan låse op, når du har lyst.",
+  "Payment not confirmed yet": "Betalingen er ikke bekræftet endnu",
+  "Payment received": "Betaling modtaget",
+  "Payment reference {{id}}": "Betalingsreference {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Køb gemmes på den konto, der betalte. Log ind med den for at finde dine køb låst op.",
+  "Sign in": "Log ind",
+  "Sign in to see your purchase": "Log ind for at se dit køb",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe har ikke bekræftet betalingen over for os endnu. Den låses op på din konto, så snart det sker; du skal ikke gøre andet.",
+  "The paid contents of this tour are now unlocked on your account.": "Det betalte indhold i denne tur er nu låst op på din konto.",
+  "Your purchase is now unlocked on your account.": "Dit køb er nu låst op på din konto."
+}

@@ -3,7 +3,7 @@
     " Replace them to keep the tour free": {}
   },
   "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._one": "{{count}} tappa è un contenuto a pagamento che non possiedi. Sostituiscila per mantenere il tour gratuito.",
-  "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._many": "",
+  "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._many": "{{count}} tappe sono contenuti a pagamento che non possiedi. Sostituiscile per mantenere il tour gratuito.",
   "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._other": "{{count}} tappe sono contenuti a pagamento che non possiedi. Sostituiscile per mantenere il tour gratuito.",
   "About me": "Su di me",
   "About this museum": "Informazioni sul museo",

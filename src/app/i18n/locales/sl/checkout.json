@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Nazaj na vsebino",
+  "Back to the navigator": "Nazaj v navigator",
+  "Back to the tour": "Nazaj na ogled",
+  "Checkout cancelled": "Plačilo preklicano",
+  "No payment was taken. You can unlock it whenever you like.": "Nič ni bilo zaračunano. Odkleneš ga lahko kadar koli.",
+  "Payment not confirmed yet": "Plačilo še ni potrjeno",
+  "Payment received": "Plačilo prejeto",
+  "Payment reference {{id}}": "Številka plačila {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Nakupi se shranijo v račun, s katerim je bilo plačano. Prijavi se vanj in tam jih najdeš odklenjene.",
+  "Sign in": "Prijava",
+  "Sign in to see your purchase": "Prijavi se in si oglej svoj nakup",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nam tega plačila še ni potrdil. Ko ga bo, se odklene v tvojem računu – ničesar drugega ti ni treba storiti.",
+  "The paid contents of this tour are now unlocked on your account.": "Plačljive vsebine tega ogleda so zdaj odklenjene v tvojem računu.",
+  "Your purchase is now unlocked on your account.": "Tvoj nakup je zdaj odklenjen v tvojem računu."
+}

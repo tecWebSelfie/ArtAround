@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Terug naar de content",
+  "Back to the navigator": "Terug naar de navigator",
+  "Back to the tour": "Terug naar de tour",
+  "Checkout cancelled": "Afrekenen geannuleerd",
+  "No payment was taken. You can unlock it whenever you like.": "Er is niets betaald. Je kunt het ontgrendelen wanneer je maar wilt.",
+  "Payment not confirmed yet": "Betaling nog niet bevestigd",
+  "Payment received": "Betaling ontvangen",
+  "Payment reference {{id}}": "Betalingskenmerk {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Aankopen worden opgeslagen op het account waarmee is betaald. Log daarmee in om ze ontgrendeld terug te vinden.",
+  "Sign in": "Inloggen",
+  "Sign in to see your purchase": "Log in om je aankoop te zien",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe heeft deze betaling nog niet aan ons bevestigd. Zodra dat gebeurt, wordt hij op je account ontgrendeld; je hoeft verder niets te doen.",
+  "The paid contents of this tour are now unlocked on your account.": "De betaalde content van deze tour is nu ontgrendeld op je account.",
+  "Your purchase is now unlocked on your account.": "Je aankoop is nu ontgrendeld op je account."
+}

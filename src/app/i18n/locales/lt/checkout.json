@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Grįžti į turinį",
+  "Back to the navigator": "Grįžti į navigatorių",
+  "Back to the tour": "Grįžti į turą",
+  "Checkout cancelled": "Mokėjimas atšauktas",
+  "No payment was taken. You can unlock it whenever you like.": "Pinigai nebuvo nuskaičiuoti. Atrakinti gali bet kada.",
+  "Payment not confirmed yet": "Mokėjimas dar nepatvirtintas",
+  "Payment received": "Mokėjimas gautas",
+  "Payment reference {{id}}": "Mokėjimo nuoroda {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Pirkiniai išsaugomi paskyroje, iš kurios sumokėta. Prisijunk su ja ir rasi savo pirkinį atrakintą.",
+  "Sign in": "Prisijungti",
+  "Sign in to see your purchase": "Prisijunk, kad pamatytum savo pirkinį",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe mums dar nepatvirtino šio mokėjimo. Kai tik patvirtins, pirkinys tavo paskyroje atsirakins; daugiau nieko daryti nereikia.",
+  "The paid contents of this tour are now unlocked on your account.": "Mokamas šio turo turinys tavo paskyroje dabar atrakintas.",
+  "Your purchase is now unlocked on your account.": "Tavo pirkinys paskyroje dabar atrakintas."
+}

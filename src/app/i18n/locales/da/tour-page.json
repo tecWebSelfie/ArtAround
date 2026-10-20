@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} indhold i denne tur er betalt. Køb turen for at låse det op.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} indhold i denne tur er betalt. Køb turen for at låse dem alle op.",
+  "Buy all for {{price}}": "Køb alt for {{price}}",
+  "Customize tour": "Tilpas tur",
+  "Edit tour": "Rediger tur",
+  "Replace the paid contents": "Udskift det betalte indhold",
+  "Scan to open this tour": "Scan for at åbne turen",
+  "See more": "Se mere",
+  "See more about {{title}}": "Se mere om {{title}}",
+  "Show QR code": "Vis QR-kode",
+  "Sign in to buy": "Log ind for at købe",
+  "Start tour": "Start tur",
+  "Unlock for {{price}}": "Lås op for {{price}}",
+  "Unlock this tour": "Lås turen op"
+}

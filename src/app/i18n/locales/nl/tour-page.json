@@ -1,0 +1,16 @@
+{
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} content in deze tour is betaald. Als je de tour koopt, ontgrendel je hem.",
+  "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} contents in deze tour zijn betaald. Als je de tour koopt, ontgrendel je ze allemaal.",
+  "Buy all for {{price}}": "Alles kopen voor {{price}}",
+  "Customize tour": "Tour aanpassen",
+  "Edit tour": "Tour bewerken",
+  "Replace the paid contents": "Vervang de betaalde content",
+  "Scan to open this tour": "Scan om deze tour te openen",
+  "See more": "Meer zien",
+  "See more about {{title}}": "Meer zien over {{title}}",
+  "Show QR code": "QR-code tonen",
+  "Sign in to buy": "Log in om te kopen",
+  "Start tour": "Start tour",
+  "Unlock for {{price}}": "Ontgrendelen voor {{price}}",
+  "Unlock this tour": "Ontgrendel deze tour"
+}

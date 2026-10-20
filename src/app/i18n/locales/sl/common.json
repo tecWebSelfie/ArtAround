@@ -1,0 +1,59 @@
+{
+  "All museums": "Vsi muzeji",
+  "auth": {
+    "confirmPassword": "Potrdi geslo",
+    "email": "E-pošta",
+    "errors": {
+      "emailInvalid": "Vnesi veljaven e-poštni naslov.",
+      "emailRequired": "Vnesi svoj e-poštni naslov.",
+      "firstNameRequired": "Vnesi svoje ime.",
+      "generic": "Nekaj je šlo narobe. Poskusi znova.",
+      "identifierRequired": "Vnesi e-pošto ali uporabniško ime.",
+      "lastNameRequired": "Vnesi svoj priimek.",
+      "passwordMismatch": "Gesli se ne ujemata.",
+      "passwordRequired": "Vnesi geslo.",
+      "passwordTooShort": "Uporabi vsaj 8 znakov.",
+      "usernameInvalid": "Uporabljaj samo črke, številke, pike, vezaje ali podčrtaje.",
+      "usernameRequired": "Izberi uporabniško ime.",
+      "usernameTooShort": "Uporabi vsaj 3 znake."
+    },
+    "firstName": "Ime",
+    "haveAccount": "Že imaš račun?",
+    "identifier": "E-pošta ali uporabniško ime",
+    "identifierPlaceholder": "ti@example.com ali tvoje uporabniško ime",
+    "lastName": "Priimek",
+    "noAccount": "Si nov v ArtAround?",
+    "password": "Geslo",
+    "passwordHint": "Vsaj 8 znakov.",
+    "signIn": "Prijava",
+    "signInLink": "Prijavi se",
+    "signInSubtitle": "Prijavi se in nadaljuj svoj umetniški ogled.",
+    "signInTitle": "Dobrodošel nazaj",
+    "signUp": "Ustvari račun",
+    "signUpLink": "Ustvari ga",
+    "signUpSubtitle": "Shrani oglede, nakupe in priljubljene na enem mestu.",
+    "signUpTitle": "Ustvari svoj račun",
+    "username": "Uporabniško ime",
+    "usernameHint": "Tako te bodo videli drugi raziskovalci."
+  },
+  "Back to all museums": "Nazaj na vse muzeje",
+  "Change museum": "Zamenjaj muzej",
+  "Import a config file": "Uvozi konfiguracijsko datoteko",
+  "languageSwitcher": {
+    "label": "Izberi jezik"
+  },
+  "navbar": {
+    "Account": "Račun",
+    "Marketplace": "Tržnica",
+    "My museums": "Moji muzeji",
+    "Navigator": "Navigator",
+    "Profile": "Profil",
+    "SignIn": "Prijava",
+    "SignOut": "Odjava"
+  },
+  "No museum matches “{{query}}”.": "Noben muzej se ne ujema z »{{query}}«.",
+  "or": "ali",
+  "Search a museum": "Poišči muzej",
+  "This file is not a museum export.": "Ta datoteka ni izvoz muzeja.",
+  "This museum was not found here.": "Tega muzeja tukaj ni bilo mogoče najti."
+}

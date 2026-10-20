@@ -1,0 +1,59 @@
+{
+  "All museums": "Todos los museos",
+  "auth": {
+    "confirmPassword": "Confirmar contraseña",
+    "email": "Correo electrónico",
+    "errors": {
+      "emailInvalid": "Introduce un correo electrónico válido.",
+      "emailRequired": "Introduce tu correo electrónico.",
+      "firstNameRequired": "Introduce tu nombre.",
+      "generic": "Algo ha salido mal. Inténtalo de nuevo.",
+      "identifierRequired": "Introduce tu correo o tu nombre de usuario.",
+      "lastNameRequired": "Introduce tus apellidos.",
+      "passwordMismatch": "Las contraseñas no coinciden.",
+      "passwordRequired": "Introduce tu contraseña.",
+      "passwordTooShort": "Usa al menos 8 caracteres.",
+      "usernameInvalid": "Usa solo letras, números, puntos, guiones o guiones bajos.",
+      "usernameRequired": "Elige un nombre de usuario.",
+      "usernameTooShort": "Usa al menos 3 caracteres."
+    },
+    "firstName": "Nombre",
+    "haveAccount": "¿Ya tienes una cuenta?",
+    "identifier": "Correo o nombre de usuario",
+    "identifierPlaceholder": "tu@ejemplo.com o tu nombre de usuario",
+    "lastName": "Apellidos",
+    "noAccount": "¿Eres nuevo en ArtAround?",
+    "password": "Contraseña",
+    "passwordHint": "Al menos 8 caracteres.",
+    "signIn": "Iniciar sesión",
+    "signInLink": "Inicia sesión",
+    "signInSubtitle": "Inicia sesión para continuar tu tour artístico.",
+    "signInTitle": "Hola de nuevo",
+    "signUp": "Crear cuenta",
+    "signUpLink": "Crea una",
+    "signUpSubtitle": "Guarda tus tours, compras y favoritos en un solo lugar.",
+    "signUpTitle": "Crea tu cuenta",
+    "username": "Nombre de usuario",
+    "usernameHint": "Así te verán otros exploradores."
+  },
+  "Back to all museums": "Volver a todos los museos",
+  "Change museum": "Cambiar de museo",
+  "Import a config file": "Importar un archivo de configuración",
+  "languageSwitcher": {
+    "label": "Seleccionar idioma"
+  },
+  "navbar": {
+    "Account": "Cuenta",
+    "Marketplace": "Marketplace",
+    "My museums": "Mis museos",
+    "Navigator": "Navegador",
+    "Profile": "Perfil",
+    "SignIn": "Iniciar sesión",
+    "SignOut": "Cerrar sesión"
+  },
+  "No museum matches “{{query}}”.": "Ningún museo coincide con “{{query}}”.",
+  "or": "o",
+  "Search a museum": "Buscar un museo",
+  "This file is not a museum export.": "Este archivo no es una exportación de museo.",
+  "This museum was not found here.": "No se ha encontrado este museo aquí."
+}

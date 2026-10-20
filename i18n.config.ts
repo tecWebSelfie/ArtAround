@@ -1,6 +1,34 @@
 import type { I18nConfig } from 'next-i18next/proxy'
 
-const SUPPORTED_LANGUAGES = ['en', 'it'] as const
+// English (source) plus the other official EU languages. Adding one here
+// localizes routes, the switcher and i18next-cli; fill its JSON files under
+// src/app/i18n/locales/<code>/ (`npx i18next-cli extract`, then translate).
+const SUPPORTED_LANGUAGES = [
+  'en',
+  'bg',
+  'cs',
+  'da',
+  'de',
+  'el',
+  'es',
+  'et',
+  'fi',
+  'fr',
+  'ga',
+  'hr',
+  'hu',
+  'it',
+  'lt',
+  'lv',
+  'mt',
+  'nl',
+  'pl',
+  'pt',
+  'ro',
+  'sk',
+  'sl',
+  'sv',
+] as const
 
 const i18nConfig: I18nConfig = {
   supportedLngs: [...SUPPORTED_LANGUAGES],

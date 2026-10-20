@@ -1,0 +1,59 @@
+{
+  "All museums": "Összes múzeum",
+  "auth": {
+    "confirmPassword": "Jelszó megerősítése",
+    "email": "E-mail",
+    "errors": {
+      "emailInvalid": "Adj meg egy érvényes e-mail-címet.",
+      "emailRequired": "Add meg az e-mail-címed.",
+      "firstNameRequired": "Add meg a keresztneved.",
+      "generic": "Hiba történt. Próbáld újra.",
+      "identifierRequired": "Add meg az e-mail-címed vagy a felhasználóneved.",
+      "lastNameRequired": "Add meg a vezetékneved.",
+      "passwordMismatch": "A jelszavak nem egyeznek.",
+      "passwordRequired": "Add meg a jelszavad.",
+      "passwordTooShort": "Legalább 8 karaktert használj.",
+      "usernameInvalid": "Csak betűket, számokat, pontot, kötőjelet vagy aláhúzást használj.",
+      "usernameRequired": "Válassz felhasználónevet.",
+      "usernameTooShort": "Legalább 3 karaktert használj."
+    },
+    "firstName": "Keresztnév",
+    "haveAccount": "Van már fiókod?",
+    "identifier": "E-mail vagy felhasználónév",
+    "identifierPlaceholder": "te@pelda.hu vagy a felhasználóneved",
+    "lastName": "Vezetéknév",
+    "noAccount": "Új vagy az ArtAroundon?",
+    "password": "Jelszó",
+    "passwordHint": "Legalább 8 karakter.",
+    "signIn": "Bejelentkezés",
+    "signInLink": "Jelentkezz be",
+    "signInSubtitle": "Jelentkezz be, és folytasd a művészeti túrádat.",
+    "signInTitle": "Örülünk, hogy újra itt vagy",
+    "signUp": "Fiók létrehozása",
+    "signUpLink": "Hozz létre egyet",
+    "signUpSubtitle": "Mentsd el a túráidat, vásárlásaidat és kedvenceidet egy helyen.",
+    "signUpTitle": "Hozd létre a fiókodat",
+    "username": "Felhasználónév",
+    "usernameHint": "Így látnak majd a többi felfedező."
+  },
+  "Back to all museums": "Vissza az összes múzeumhoz",
+  "Change museum": "Múzeum váltása",
+  "Import a config file": "Konfigurációs fájl importálása",
+  "languageSwitcher": {
+    "label": "Nyelv kiválasztása"
+  },
+  "navbar": {
+    "Account": "Fiók",
+    "Marketplace": "Piactér",
+    "My museums": "Múzeumaim",
+    "Navigator": "Navigátor",
+    "Profile": "Profil",
+    "SignIn": "Bejelentkezés",
+    "SignOut": "Kijelentkezés"
+  },
+  "No museum matches “{{query}}”.": "Egy múzeum sem felel meg ennek: „{{query}}”.",
+  "or": "vagy",
+  "Search a museum": "Múzeum keresése",
+  "This file is not a museum export.": "Ez a fájl nem múzeumexport.",
+  "This museum was not found here.": "Ez a múzeum nem található itt."
+}

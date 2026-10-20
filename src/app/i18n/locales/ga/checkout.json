@@ -1,0 +1,16 @@
+{
+  "Back to the content": "Ar ais chuig an ábhar",
+  "Back to the navigator": "Ar ais chuig an nascleanaí",
+  "Back to the tour": "Ar ais chuig an turas",
+  "Checkout cancelled": "Cuireadh an ceannach ar ceal",
+  "No payment was taken. You can unlock it whenever you like.": "Níor gearradh aon íocaíocht. Is féidir leat é a dhíghlasáil am ar bith is mian leat.",
+  "Payment not confirmed yet": "Níl an íocaíocht deimhnithe fós",
+  "Payment received": "Fuarthas an íocaíocht",
+  "Payment reference {{id}}": "Tagairt íocaíochta {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Sábháiltear ceannacháin sa chuntas a d'íoc astu. Logáil isteach leis chun do cheannachán a fháil díghlasáilte.",
+  "Sign in": "Logáil isteach",
+  "Sign in to see your purchase": "Logáil isteach chun do cheannachán a fheiceáil",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Níor dheimhnigh Stripe an íocaíocht seo dúinn fós. Díghlasálfar é i do chuntas a luaithe is a dhéanfaidh sé sin; níl aon rud eile le déanamh agat.",
+  "The paid contents of this tour are now unlocked on your account.": "Tá ábhar íoctha an turais seo díghlasáilte anois i do chuntas.",
+  "Your purchase is now unlocked on your account.": "Tá do cheannachán díghlasáilte anois i do chuntas."
+}
