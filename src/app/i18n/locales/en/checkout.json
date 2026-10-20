@@ -1,0 +1,15 @@
+{
+  "Back to the navigator": "Back to the navigator",
+  "Back to the tour": "Back to the tour",
+  "Checkout cancelled": "Checkout cancelled",
+  "No payment was taken. You can unlock it whenever you like.": "No payment was taken. You can unlock it whenever you like.",
+  "Payment not confirmed yet": "Payment not confirmed yet",
+  "Payment received": "Payment received",
+  "Payment reference {{id}}": "Payment reference {{id}}",
+  "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.": "Purchases are saved to the account that paid. Sign in with it to find yours unlocked.",
+  "Sign in": "Sign in",
+  "Sign in to see your purchase": "Sign in to see your purchase",
+  "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.",
+  "The paid contents of this tour are now unlocked on your account.": "The paid contents of this tour are now unlocked on your account.",
+  "Your purchase is now unlocked on your account.": "Your purchase is now unlocked on your account."
+}

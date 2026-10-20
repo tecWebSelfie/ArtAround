@@ -13,7 +13,6 @@ import {
   Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { AlertCircle } from 'lucide-react'
 import Link from 'next/link'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
@@ -111,21 +110,13 @@ export function SignupForm() {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <Stack gap="md">
+      {/* Same single column as "Plan my visit" (DESIGN.md → Layout): h1 with a
+          dimmed intro, the fields, one full-width primary action. */}
+      <Stack gap="lg">
         <Stack gap={4}>
-          <Title order={1} size="h2">
-            {t('signUpTitle')}
-          </Title>
-          <Text c="dimmed" size="sm">
-            {t('signUpSubtitle')}
-          </Text>
+          <Title order={1}>{t('signUpTitle')}</Title>
+          <Text c="dimmed">{t('signUpSubtitle')}</Text>
         </Stack>
-
-        {error ? (
-          <Alert color="red" icon={<AlertCircle size={18} />} title={t('errors.title')}>
-            {error}
-          </Alert>
-        ) : null}
 
         <SimpleGrid cols={{ base: 1, xs: 2 }} spacing="md">
           <TextInput
@@ -172,6 +163,9 @@ export function SignupForm() {
           required
           {...form.getInputProps('confirmPassword')}
         />
+
+        {/* Server errors (Payload's message) sit right above the action they block. */}
+        {error && <Alert color="orange">{error}</Alert>}
 
         <Button fullWidth loading={loading} type="submit">
           {t('signUp')}

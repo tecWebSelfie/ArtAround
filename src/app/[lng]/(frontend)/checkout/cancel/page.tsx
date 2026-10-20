@@ -1,5 +1,6 @@
-import { Button, Card, Stack, Text, Title } from '@mantine/core'
-import { checkoutReturnPath } from '../return-path'
+import { getT } from '@/i18n.server'
+import { CheckoutOutcome } from '../CheckoutOutcome'
+import { checkoutReturn } from '../return-path'
 
 /** Landing page when the buyer backs out of Stripe Checkout. Nothing was charged. */
 export default async function CheckoutCancel(props: {
@@ -7,19 +8,16 @@ export default async function CheckoutCancel(props: {
   searchParams: Promise<{ collection?: string | string[]; id?: string | string[] }>
 }) {
   const { lng } = await props.params
-  const search = await props.searchParams
-
+  const back = checkoutReturn(lng, await props.searchParams)
+  const { t } = await getT('checkout')
   return (
-    <Stack p="lg" maw={520} mx="auto">
-      <Card withBorder p="lg">
-        <Title order={2}>Checkout cancelled</Title>
-        <Text mt="sm" c="dimmed">
-          No payment was taken. You can try again whenever you like.
-        </Text>
-      </Card>
-      <Button component="a" href={checkoutReturnPath(lng, search)}>
-        Go back
-      </Button>
-    </Stack>
+    <CheckoutOutcome
+      title={t('Checkout cancelled')}
+      description={t('No payment was taken. You can unlock it whenever you like.')}
+      action={{
+        label: back.isTour ? t('Back to the tour') : t('Back to the navigator'),
+        href: back.href,
+      }}
+    />
   )
 }

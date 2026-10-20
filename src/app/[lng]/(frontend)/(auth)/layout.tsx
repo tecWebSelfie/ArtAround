@@ -1,19 +1,15 @@
-import { Container, Paper, Stack } from '@mantine/core'
+import { Container } from '@mantine/core'
 
 /**
  * Chrome for the standalone auth screens (`/login`, `/signup`). They live
- * outside the `(tabs)` group on purpose: no bottom navbar, just a centered card.
- * The 64px offset reserves the AppShell footer slot inherited from the
- * `(frontend)` layout.
+ * outside the `(tabs)` group on purpose: no bottom navbar. The column matches
+ * "Plan my visit" (`Container size="xs"`, `py="xl"`): a plain form on the page,
+ * not a raised card, per DESIGN.md's Functional-First Rule.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <Container size="xs" py="xl">
-      <Stack justify="center" mih="calc(100dvh - 64px)">
-        <Paper withBorder shadow="sm" radius="lg" p={{ base: 'md', sm: 'xl' }}>
-          {children}
-        </Paper>
-      </Stack>
+      {children}
     </Container>
   )
 }

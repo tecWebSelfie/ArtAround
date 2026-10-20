@@ -30,7 +30,7 @@ export function BuyButton({ collection, id, locale, label = 'Buy', disabled }: B
         {label}
       </Button>
       {error ? (
-        <Text size="xs" c="red" role="alert">
+        <Text size="sm" c="red" role="alert">
           {error}
         </Text>
       ) : null}

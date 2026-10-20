@@ -50,7 +50,18 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
       </Group>
       <Stack>{children}</Stack>
       <AppShellFooter component="nav">
-        <NavBar account={user ? { id: String(user.id) } : null} myMuseums={myMuseums} />
+        <NavBar
+          account={
+            user
+              ? {
+                  id: String(user.id),
+                  name: user.name?.fullName || user.username,
+                  avatarUrl: typeof user.avatar === 'object' ? user.avatar?.url : null,
+                }
+              : null
+          }
+          myMuseums={myMuseums}
+        />
       </AppShellFooter>
     </>
   )

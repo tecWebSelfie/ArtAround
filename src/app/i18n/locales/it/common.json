@@ -13,7 +13,6 @@
       "passwordMismatch": "Le password non coincidono.",
       "passwordRequired": "Inserisci la tua password.",
       "passwordTooShort": "Usa almeno 8 caratteri.",
-      "title": "Qualcosa è andato storto",
       "usernameInvalid": "Usa solo lettere, numeri, punti, trattini o underscore.",
       "usernameRequired": "Scegli un nome utente.",
       "usernameTooShort": "Usa almeno 3 caratteri."
@@ -23,7 +22,7 @@
     "identifier": "Email o nome utente",
     "identifierPlaceholder": "tu@esempio.com o il tuo nome utente",
     "lastName": "Cognome",
-    "noAccount": "Nuovo su Artaround?",
+    "noAccount": "Nuovo su ArtAround?",
     "password": "Password",
     "passwordHint": "Almeno 8 caratteri.",
     "signIn": "Accedi",
