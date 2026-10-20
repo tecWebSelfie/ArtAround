@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { parseAppUrl } from '@/lib/app-url'
 import {
+  museumNavigationPath,
+  navigationBasePath,
+  navigationContentPath,
   tourContentPath,
   tourQuizPath,
   tourQuizResultPath,
@@ -81,6 +84,18 @@ describe('tour navigation', () => {
     ).toBeNull()
   })
 
+  it('derives map and content URLs for a tour and for free navigation of a museum', () => {
+    const tour = { id: 't', contents: ['c1', 'c2'] }
+    const inTour = { kind: 'tour' as const, tour, step: 1 }
+    const free = { kind: 'free' as const, museumId: 'm' }
+    expect(museumNavigationPath('it', 'm')).toBe('/it/museum/m/navigation')
+    expect(navigationBasePath('it', inTour)).toBe('/it/tour/t/navigation/1')
+    expect(navigationBasePath('it', free)).toBe('/it/museum/m/navigation')
+    // In a tour the next stop opens `/open`; free navigation has no next stop.
+    expect(navigationContentPath('it', inTour, 'c2')).toBe('/it/tour/t/navigation/1/open')
+    expect(navigationContentPath('it', inTour, 'c1')).toBe('/it/tour/t/navigation/1/content/c1')
+    expect(navigationContentPath('it', free, 'c2')).toBe('/it/museum/m/navigation/content/c2')
+  })
   it('opens the quiz with the left cursor, keeping position and dropping the destination', () => {
     expect(tourQuizPath('it', 't', 3, 'at=a&to=b&mobility=wheelchair&q=2')).toBe(
       '/it/tour/t/quiz?at=a&mobility=wheelchair&from=3',

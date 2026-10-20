@@ -5,13 +5,11 @@ import { Button, Stack } from '@mantine/core'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import {
-  tourContentPath,
-  tourNavigationPath,
-  tourStepIndex,
+  navigationContentPath,
   withNavigationValue,
   withNavigationPosition,
 } from '@/lib/tour-navigation'
-import { useTourNavigationData } from './TourNavigationShell'
+import { useNavigationScope } from './TourNavigationShell'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 
 /**
@@ -25,17 +23,17 @@ export function NavigationObjectActions({
   objectId: string | null
   contents?: MuseumObject['contents']
 }) {
-  const data = useTourNavigationData()
-  const { lng, id: tourId, stepId } = useParams<{ lng: string; id: string; stepId: string }>()
+  const navigation = useNavigationScope()
+  const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
   const guest = useIsGroupGuest()
-  const step = data ? tourStepIndex(stepId, data.tour.contents.length) : null
-  if (!data || step === null || guest) return null
-  const base = tourNavigationPath(lng, tourId, step)
+  if (!navigation || guest) return null
+  // Tour step or free navigation: actions stay on the map the visitor is on.
+  const { base, scope, data } = navigation
   const href = (path: string) => withNavigationPosition(path, search.toString())
-  const contentHref = (id: string) => href(tourContentPath(lng, data.tour, step, id))
+  const contentHref = (id: string) => href(navigationContentPath(lng, scope, id))
   const setPosition = (id: string | null) =>
     router.replace(withNavigationValue(base, search.toString(), 'at', id), { scroll: false })
   const navigateTo = (id: string | null) =>

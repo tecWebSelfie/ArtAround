@@ -33,6 +33,7 @@ import {
   Accessibility,
   Amphora,
   BadgeInfo,
+  Compass,
   FilePlus,
   Images,
   Map as MapIcon,
@@ -63,9 +64,12 @@ export type MuseumEditing = {
 export default async function MuseumPage({
   museum,
   editing,
+  navigationHref,
 }: {
   museum: Museum
   editing?: MuseumEditing
+  /** Free navigation of this museum, when its map is saved (`museumNavigationEntry`). */
+  navigationHref?: Route | null
 }) {
   const { t } = await getT('museum-page')
   const { t: te } = await getT('editing')
@@ -77,6 +81,19 @@ export default async function MuseumPage({
       <MuseumThumbnailGallery thumbnails={museum.thumbnails} />
       <Title order={2}>{museum.name}</Title>
       <MuseumBadges museum={museum} />
+      {navigationHref && (
+        // Navigation blue + compass: moving inside the museum (DESIGN.md →
+        // Buttons). The tour gradient is kept for what starts a tour.
+        <LinkButton
+          href={navigationHref}
+          color="blue.8"
+          autoContrast
+          leftSection={<Compass size={18} aria-hidden />}
+          w={{ base: '100%', sm: 'auto' }}
+        >
+          {t('Explore the map')}
+        </LinkButton>
+      )}
       {editing && (editing.isSignedIn || editing.canManageMap) && (
         // Complex relations get dedicated pages; metadata is edited in place (Info tab).
         <Group gap="xs">

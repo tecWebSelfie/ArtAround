@@ -5,9 +5,10 @@ import { LinkButton } from '@/components/editing/LinkButton'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { getT } from '@/i18n.server'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
+import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { can, getSession } from '@/lib/session'
 import { Container, Group } from '@mantine/core'
-import { FileText } from 'lucide-react'
+import { Compass, FileText } from 'lucide-react'
 import type { Route } from 'next'
 
 /**
@@ -18,9 +19,11 @@ import type { Route } from 'next'
 export default async function Content({ params }: PageProps<'/[lng]/content/[id]'>) {
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
-  const [canEdit, canDelete] = await Promise.all([
+  const [canEdit, canDelete, navigationHref] = await Promise.all([
     can('contents', id, 'update'),
     can('contents', id, 'delete'),
+    // The museum map with this content open and its object as destination.
+    contentNavigationEntry(lng, id),
   ])
   const { payload } = await getSession()
   const source = canEdit
@@ -33,6 +36,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
       })
     : null
   const { t } = await getT('editing')
+  const { t: tn } = await getT('tour-navigation')
 
   return (
     <Container size="md" py="md">
@@ -46,6 +50,20 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
           lockedLabel={t('This content is paid. Unlock it to read the full text.')}
         />
       </EditableSection>
+      {navigationHref && (
+        // Offered for locked contents too: navigation is always available and
+        // the content simply stays locked on the map (DESIGN.md → Buttons).
+        <LinkButton
+          href={navigationHref}
+          mt="md"
+          color="blue.8"
+          autoContrast
+          leftSection={<Compass size={18} aria-hidden />}
+          w={{ base: '100%', sm: 'auto' }}
+        >
+          {tn('Find it on the map')}
+        </LinkButton>
+      )}
       {(canEdit || canDelete) && (
         <Group mt="md" gap="xs">
           {canEdit && (

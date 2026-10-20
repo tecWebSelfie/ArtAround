@@ -18,9 +18,7 @@ import { serverComponentStory } from '@/mocks/server-component'
 // Flat Museum args keep one control per field in the addon panel.
 // The wrapper maps them back to the component's { museum } props,
 // so MuseumPage.tsx itself stays a correct App Router Server Component.
-const MuseumPageStory = serverComponentStory((props: Museum) =>
-  MuseumPage({ museum: props }),
-)
+const MuseumPageStory = serverComponentStory((props: Museum) => MuseumPage({ museum: props }))
 
 const meta = {
   title: 'Frontend/Museum/MuseumPage',

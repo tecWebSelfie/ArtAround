@@ -166,8 +166,10 @@ export default function TourPage({
           <Button
             component={Link}
             href={`/${lng}/tour/${tour.id}/navigation` as Route}
-            color="blue.8"
-            autoContrast
+            // The tour gradient: starting a tour is the app's main way in
+            // (DESIGN.md → Colors, tour identity); moving freely stays blue.
+            variant="gradient"
+            gradient={{ from: 'grape', to: 'orange' }}
             rightSection={
               <Group gap={0} align="end">
                 <Compass size={12} />

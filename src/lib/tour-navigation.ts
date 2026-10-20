@@ -30,6 +30,38 @@ export function tourNavigationPath(lng: string, tourId: string, step: number) {
 }
 
 /**
+ * Free navigation: the museum's map with no tour. The visitor explores, picks
+ * destinations and opens contents; the same modal, scanner and URL-state rules
+ * as a tour apply, without a cursor (`/[lng]/museum/[id]/navigation`).
+ */
+export function museumNavigationPath(lng: string, museumId: string) {
+  return `/${lng}/museum/${museumId}/navigation` as Route
+}
+
+/**
+ * Which navigation the map is showing. A tour carries its ordered contents and
+ * the cursor; free navigation only knows its museum. Every "where am I" path
+ * (modal close, commands, scanner, object actions) derives from this.
+ */
+export type NavigationScope =
+  | { kind: 'tour'; tour: Pick<Tour, 'id' | 'contents'>; step: number }
+  | { kind: 'free'; museumId: string }
+
+/** The map URL of the current navigation, without modal or search state. */
+export function navigationBasePath(lng: string, scope: NavigationScope) {
+  return scope.kind === 'tour'
+    ? tourNavigationPath(lng, scope.tour.id, scope.step)
+    : museumNavigationPath(lng, scope.museumId)
+}
+
+/** Where a content opens over the current map (the tour's next stop opens `/open`). */
+export function navigationContentPath(lng: string, scope: NavigationScope, contentId: string) {
+  return scope.kind === 'tour'
+    ? tourContentPath(lng, scope.tour, scope.step, contentId)
+    : (`${museumNavigationPath(lng, scope.museumId)}/content/${contentId}` as const)
+}
+
+/**
  * Keys that describe where the visitor stands or where they are heading, plus
  * `audience=children` (a family visit): carried across every navigation URL
  * so each content opens in its children's version (`ContentVersion`).

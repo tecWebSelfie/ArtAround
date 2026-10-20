@@ -1,15 +1,18 @@
 'use client'
 
-import type { Museum, Tour } from '@/payload-types'
+import type { Museum } from '@/payload-types'
 import type { ExitEntranceMarker, ServiceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import {
-  tourContentPath,
+  navigationBasePath,
+  navigationContentPath,
   tourNavigationPath,
   withNavigationPosition,
   withNavigationValue,
   type NavigationCatalogObject,
+  type NavigationScope,
 } from '@/lib/tour-navigation'
+import type { NavigationTourSummary } from '../TourNavigationShell'
 import { EXPANSION_ANGLES } from '@/lib/expansion'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import type { Route } from 'next'
@@ -31,7 +34,7 @@ export type NavigationCommand = {
   label: string
   description: string
   /** `quick` commands are the empty-Spotlight pills; the rest are search results. */
-  group: 'quick' | 'object' | 'content' | 'service' | 'exit'
+  group: 'quick' | 'tour' | 'object' | 'content' | 'service' | 'exit'
   href: Route
   /** Same-page URL state (destination, mobility) replaces; modal routes push. */
   replace: boolean
@@ -41,15 +44,16 @@ export type NavigationCommand = {
 
 export function useNavigationCommands({
   museum,
-  tour,
-  step,
+  scope,
+  tours = [],
   catalog,
   services,
   exits,
 }: {
   museum: Museum
-  tour: Tour
-  step: number
+  scope: NavigationScope
+  /** Free navigation: the museum's tours, offered as "start this tour". */
+  tours?: NavigationTourSummary[]
   catalog: NavigationCatalogObject[]
   services: ServiceMarker[]
   exits: ExitEntranceMarker[]
@@ -63,7 +67,7 @@ export function useNavigationCommands({
 
   const commands = useMemo<NavigationCommand[]>(() => {
     const query = search.toString()
-    const here = tourNavigationPath(lng, tour.id, step)
+    const here = navigationBasePath(lng, scope)
     const href = (path: string) => withNavigationPosition(path, query)
     // Choosing one destination clears the others (see withNavigationValue).
     const destination = (key: 'to' | 'service' | 'exit', value: string | null) =>
@@ -84,7 +88,8 @@ export function useNavigationCommands({
     // Only placed markers have a map position to route to.
     const placedServices = services.filter((node) => node.placed)
     const placedExits = exits.filter((node) => node.placed && node.direction === 'exit')
-    const next = tour.contents[step]
+    const tour = scope.kind === 'tour' ? scope.tour : null
+    const next = tour?.contents[scope.kind === 'tour' ? scope.step : 0]
     const nextId = typeof next === 'string' ? next : next?.id
     const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
     const wheelchairAvailable = Boolean(museum.navMeshWheelchair)
@@ -98,7 +103,7 @@ export function useNavigationCommands({
               label: t('Open next stop'),
               description: t('Tour'),
               group: 'quick' as const,
-              href: href(tourContentPath(lng, tour, step, nextId)),
+              href: href(navigationContentPath(lng, scope, nextId)),
               replace: false,
             },
           ]
@@ -106,9 +111,11 @@ export function useNavigationCommands({
       ...(hasDestination
         ? [
             {
+              // Same id in both modes (the overlay toggles services off with
+              // it): a tour resumes its route, free navigation clears the target.
               id: 'resume-tour',
-              label: t('Resume tour route'),
-              description: t('Tour'),
+              label: tour ? t('Resume tour route') : t('Clear destination'),
+              description: tour ? t('Tour') : t('Route'),
               group: 'quick' as const,
               href: destination('to', null),
               replace: true,
@@ -165,7 +172,25 @@ export function useNavigationCommands({
       },
     ]
 
+    // Free navigation can turn into a tour: starting one keeps the confirmed
+    // position, wheelchair route and audience, and drops any free destination
+    // (the tour routes to its first stop).
+    const startTour = new URLSearchParams(query)
+    for (const key of ['to', 'service', 'exit']) startTour.delete(key)
+    const tourCommands: NavigationCommand[] =
+      scope.kind === 'free'
+        ? tours.map((item) => ({
+            id: `tour:${item.id}`,
+            label: item.title,
+            description: t('Tour · {{count}} stops', { count: item.stops }),
+            group: 'tour' as const,
+            href: withNavigationPosition(tourNavigationPath(lng, item.id, 0), startTour.toString()),
+            replace: false,
+          }))
+        : []
+
     const searchable: NavigationCommand[] = [
+      ...tourCommands,
       ...catalog.flatMap((object) => [
         {
           id: `object:${object.id}`,
@@ -180,7 +205,7 @@ export function useNavigationCommands({
           label: content.title,
           description: object.name,
           group: 'content' as const,
-          href: href(tourContentPath(lng, tour, step, content.id)),
+          href: href(navigationContentPath(lng, scope, content.id)),
           replace: false,
           ...(content.locked && content.price ? { lockedPrice: content.price } : {}),
         })),
@@ -264,8 +289,8 @@ export function useNavigationCommands({
     return guest ? all.filter(({ id }) => /^(more|version):/.test(id) || id === 'wheelchair') : all
   }, [
     lng,
-    tour,
-    step,
+    scope,
+    tours,
     catalog,
     services,
     exits,

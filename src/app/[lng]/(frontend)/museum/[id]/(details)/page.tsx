@@ -1,4 +1,5 @@
 import { lexicalToHTML } from '@/lib/richtext'
+import { museumNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
@@ -37,6 +38,7 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
   return (
     <MuseumPage
       museum={museum}
+      navigationHref={museumNavigationEntry(lng, museum)}
       editing={{
         lng,
         canEditDetails,

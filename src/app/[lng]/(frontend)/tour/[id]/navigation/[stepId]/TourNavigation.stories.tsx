@@ -44,8 +44,7 @@ const ROUTE_MODEL_URL = '/models/exitEntrance.glb'
 
 export const Default: Story = {
   args: {
-    tour: { ...mockTourFull, museum: mockMuseumFull },
-    step: 0,
+    scope: { kind: 'tour', tour: { ...mockTourFull, museum: mockMuseumFull }, step: 0 },
     museum: mockMuseumFull,
     catalog: [],
   },
@@ -185,9 +184,7 @@ export const SimulatedGps: Story = {
 export const AssistantOff: Story = {
   ...RouteBetweenObjects,
   play: async ({ canvas }) => {
-    await expect(
-      canvas.getByRole('button', { name: 'Turn on the voice assistant' }),
-    ).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Turn on the voice assistant' })).toBeVisible()
     // "Open next stop" moved from the navbar to the map overlay.
     await expect(canvas.getByRole('button', { name: 'Open next stop' })).toBeVisible()
   },
@@ -203,8 +200,47 @@ export const NoMap: Story = {
 }
 
 export const Completed: Story = {
-  args: { ...Default.args, step: mockTourFull.contents.length },
+  args: {
+    ...Default.args,
+    scope: {
+      kind: 'tour',
+      tour: { ...mockTourFull, museum: mockMuseumFull },
+      step: mockTourFull.contents.length,
+    },
+  },
   play: async ({ canvas }) => {
     await expect(canvas.getByText('Tour completed')).toBeVisible()
+  },
+}
+
+/**
+ * Free navigation (`/museum/[id]/navigation`): the header names the museum,
+ * there is no tour progress or default destination, and the empty Spotlight
+ * leads with the museum's tours.
+ */
+export const FreeNavigation: Story = {
+  args: {
+    scope: { kind: 'free', museumId: mockMuseumFull.id },
+    museum: { ...mockMuseumFull, map: null },
+    catalog: [],
+    tours: [
+      { id: mockTourFull.id, title: mockTourFull.title, stops: mockTourFull.contents.length },
+    ],
+  },
+  parameters: {
+    visual: { disable: false },
+    nextjs: {
+      navigation: {
+        segments: [
+          ['lng', 'en'],
+          ['id', mockMuseumFull.id],
+        ],
+      },
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('Free visit')).toBeVisible()
+    await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
+    await expect(canvas.getByText('Choose where to go from search')).toBeVisible()
   },
 }

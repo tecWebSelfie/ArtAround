@@ -4,18 +4,22 @@ import i18nConfig from '@/../i18n.config'
 import { QrScanner } from '@/components/Scanner'
 import { CloseButton, Stack } from '@mantine/core'
 import type { Route } from 'next'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { withNavigationPosition, tourNavigationPath } from '@/lib/tour-navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { withNavigationPosition } from '@/lib/tour-navigation'
+import { useNavigationScope } from '../../TourNavigationShell'
 
-/** Scans canonical museum links and routes them into this tour with `at`/`to` intact. */
+/**
+ * Scans canonical museum links and routes them into the current navigation (a
+ * tour, or free navigation of the museum) with `at`/`to` intact: the canonical
+ * object/content URL is intercepted by that navigation's modal slot.
+ */
 export function QrScanPage() {
   const router = useRouter()
   const search = useSearchParams()
-  const { lng, id: tourId, stepId } = useParams<{ lng: string; id: string; stepId: string }>()
-  const close = () =>
-    router.replace(
-      withNavigationPosition(tourNavigationPath(lng, tourId, Number(stepId)), search.toString()),
-    )
+  const navigation = useNavigationScope()
+  const close = () => {
+    if (navigation) router.replace(withNavigationPosition(navigation.base, search.toString()))
+  }
   return (
     <QrScanner
       isAllowedPath={(pathname) => ALLOWED_QR_PATTERNS.some(({ match }) => match.test(pathname))}
@@ -69,6 +73,7 @@ const ALLOWED_QR_PATTERNS = [
     '/[lng]/tour/[id]/navigation/[stepId]',
     new RegExp(`^/(${lng})/tour/([^/]+)/navigation/([^/]+)$`),
   ),
+  scannable('/[lng]/museum/[id]/navigation', new RegExp(`^/(${lng})/museum/([^/]+)/navigation$`)),
   scannable('/[lng]/tour/[id]', new RegExp(`^/(${lng})/tour/([^/]+)$`)),
   scannable('/[lng]/object/[id]', new RegExp(`^/(${lng})/object/([^/]+)$`)),
   scannable('/[lng]/content/[id]', new RegExp(`^/(${lng})/content/([^/]+)$`)),

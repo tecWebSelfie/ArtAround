@@ -26,18 +26,18 @@ and cached build artifacts are not reliable handoff state.
 
 Base: `/[lng]/tour/[id]/navigation/[stepId]`.
 
-| State                            | Location                             |
-| -------------------------------- | ------------------------------------ |
-| Completed-content cursor         | `stepId` pathname segment            |
-| Confirmed position               | `?at=OBJECT_ID`                      |
-| Optional alternative destination | `?to=OBJECT_ID`                      |
-| Wheelchair routing                 | `?mobility=wheelchair`              |
-| Expected next content            | `/open` parallel modal               |
-| Other content                    | `/content/CONTENT_ID` parallel modal |
-| Object details                   | `/object/OBJECT_ID` parallel modal   |
-| Scanner                          | `/scan`                              |
-| End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md)) |
-| Group join page and waiting room | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
+| State                                 | Location                                                                                       |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Completed-content cursor              | `stepId` pathname segment                                                                      |
+| Confirmed position                    | `?at=OBJECT_ID`                                                                                |
+| Optional alternative destination      | `?to=OBJECT_ID`                                                                                |
+| Wheelchair routing                    | `?mobility=wheelchair`                                                                         |
+| Expected next content                 | `/open` parallel modal                                                                         |
+| Other content                         | `/content/CONTENT_ID` parallel modal                                                           |
+| Object details                        | `/object/OBJECT_ID` parallel modal                                                             |
+| Scanner                               | `/scan`                                                                                        |
+| End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md))                |
+| Group join page and waiting room      | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
 next-content routing, and museum object identification. `at`, `to`, and the
@@ -59,6 +59,35 @@ removed: they intercepted the same content and caused compilation failures.
 Do not restore a second interceptor for the same canonical route. After changing
 route topology, run `pnpm exec next typegen` to refresh generated route types.
 Read the installed Next guides in `node_modules/next/dist/docs/` for route changes.
+
+## Free navigation (no tour)
+
+Base: `/[lng]/museum/[id]/navigation`. The same persistent shell
+(`TourNavigationShell` with `tour={null}`) and the same URL keys (`at`, `to`,
+`mobility`, `service`, `exit`, `audience`); there is no cursor, no `/open` and
+no quiz. `src/lib/tour-navigation.ts` exposes `NavigationScope`
+(`{ kind: 'tour', tour, step }` / `{ kind: 'free', museumId }`) with
+`navigationBasePath()` and `navigationContentPath()`; modal close, object
+actions, scanner and commands derive "here" from it through
+`useNavigationScope()`.
+
+| State                    | Location                                                                                  |
+| ------------------------ | ----------------------------------------------------------------------------------------- |
+| Free map                 | `/[lng]/museum/[id]/navigation`                                                           |
+| Content / object (modal) | `…/navigation/content/ID`, `…/object/ID`                                                  |
+| Scanner                  | `…/navigation/scan`                                                                       |
+| Start one of its tours   | Spotlight `tour:ID` → `/[lng]/tour/ID/navigation/0`, keeping `at`, `mobility`, `audience` |
+
+- Entry points: "Explore the map" on the museum page, "Find it on the map" on
+  a content page (opens `…/content/ID?to=OBJECT`), both from
+  `src/lib/navigation-entry.ts` and offered only when the museum has a saved map.
+- The museum detail page lives in the `museum/[id]/(details)` route group so its
+  `@object` interceptor does not wrap the navigation tree: the free tree has its
+  own `@modal/(...)[lng]/{content,object}` interceptors (one per tree).
+- Group tours stay tour-only. Phase 2 moves tour navigation under
+  `/[lng]/museum/[id]/navigation/tour/[tourId]/[stepId]` (one shell, the map
+  stays mounted when a tour starts), with permanent redirects from the current
+  `/[lng]/tour/[id]/navigation/...` URLs and the group/QR/test updates.
 
 ## Code map and reuse boundaries
 
@@ -129,13 +158,13 @@ command** (`[stepId]/navigation-commands.ts`). The Spotlight results, the
 empty-Spotlight pills, the overlay buttons and the voice assistant all run the
 same `NavigationCommand` (`router.replace` for URL state, `router.push` for modals).
 
-| Piece | Files | How it works |
-| --- | --- | --- |
-| Directions | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `[stepId]/DirectionsBar.tsx` | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown. |
-| GPS progress | `src/lib/gps.ts`, `[stepId]/gps-source.ts`, `[stepId]/use-route-guidance.ts`, `[stepId]/GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`. |
-| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `[stepId]/use-nearby-suggestions.tsx` | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`. |
-| Voice assistant | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech` | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
-| Settings | `[stepId]/GuidanceSettings.tsx` | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage. |
+| Piece              | Files                                                                                                     | How it works                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------ | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `[stepId]/DirectionsBar.tsx`                     | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                          |
+| GPS progress       | `src/lib/gps.ts`, `[stepId]/gps-source.ts`, `[stepId]/use-route-guidance.ts`, `[stepId]/GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                    |
+| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `[stepId]/use-nearby-suggestions.tsx`                                    | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                           |
+| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`                               | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
+| Settings           | `[stepId]/GuidanceSettings.tsx`                                                                           | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                          |
 
 The catalog (`data.ts`) is read **as the viewer** so each content summary carries
 `price` and a server-computed `locked`; the body never reaches the client.
@@ -167,7 +196,7 @@ e2e specs pass against it):
 
 Stories: `DirectionsBar`, `GpsSimulator`, `NavigationSpotlight`, `Assistant/Orb`,
 and `TourNavigation` `RouteDirections` / `NearbySuggestion` / `AssistantOff`
-(the route mock has two zones, *West hall* and *East hall*). Unit tests:
+(the route mock has two zones, _West hall_ and _East hall_). Unit tests:
 `tests/int/tour-guidance.int.spec.ts` (realistic fixture museum). Full flow on the
 real app: `tests/e2e/tour-guidance.e2e.spec.ts` (simulated GPS → step → suggestion)
 and `tests/e2e/voice-assistant.e2e.spec.ts` (a WAV as the microphone → command);

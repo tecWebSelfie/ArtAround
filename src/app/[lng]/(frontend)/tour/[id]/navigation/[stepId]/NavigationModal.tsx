@@ -3,13 +3,15 @@
 import { useHostName, useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { Button, Divider, Group, Modal, Text } from '@mantine/core'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
-import { tourNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { withNavigationPosition } from '@/lib/tour-navigation'
+import { useNavigationScope } from '../TourNavigationShell'
 import { useTranslation } from 'react-i18next'
 
 /**
- * Shared modal shell so closing a detail returns to the current tour URL and state.
+ * Shared modal shell so closing a detail returns to the current map URL and
+ * state: the tour step, or free navigation of the museum.
  *
  * In a group, a guest's modal is the host's: it opened when the host opened
  * it and closes when the host closes it (GroupProvider follows the host's
@@ -18,7 +20,7 @@ import { useTranslation } from 'react-i18next'
  */
 export function NavigationModal({ children }: { children: ReactNode }) {
   const router = useRouter()
-  const { lng, id: tourId, stepId } = useParams<{ lng: string; id: string; stepId: string }>()
+  const navigation = useNavigationScope()
   const search = useSearchParams()
   const { t } = useTranslation('tour-navigation')
   const guest = useIsGroupGuest()
@@ -32,13 +34,8 @@ export function NavigationModal({ children }: { children: ReactNode }) {
       closeOnEscape={!guest}
       closeOnClickOutside={!guest}
       onClose={() => {
-        if (guest) return
-        router.replace(
-          withNavigationPosition(
-            tourNavigationPath(lng, tourId, Number(stepId)),
-            search.toString(),
-          ),
-        )
+        if (guest || !navigation) return
+        router.replace(withNavigationPosition(navigation.base, search.toString()))
       }}
     >
       {children}

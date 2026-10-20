@@ -20,6 +20,7 @@ import {
   Overlay,
   Progress,
   Stack,
+  Text,
   Title,
 } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
@@ -57,32 +58,46 @@ import { useNearbySuggestions } from './use-nearby-suggestions'
 import { useRouteGuidance } from './use-route-guidance'
 import {
   contentObjectId,
+  navigationBasePath,
   navigationDestination,
   tourHasQuiz as hasQuiz,
-  tourNavigationPath,
   tourQuizPath,
   withNavigationValue,
   type NavigationCatalogObject,
   type NavigationDestination,
 } from '@/lib/tour-navigation'
+import type { NavigationTourSummary } from '../TourNavigationShell'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
+/** The tour (with its cursor) the map follows, or free navigation of the museum. */
+export type NavigationPageScope =
+  { kind: 'tour'; tour: Tour; step: number } | { kind: 'free'; museumId: string }
+
 /**
- * Composes the map, ordered tour progress, search, scan, and route guidance:
- * step-by-step directions in the navbar, optional GPS progress, nearby
- * suggestions, and the opt-in voice assistant (the orb). Search, pills and
- * the assistant all run the same URL commands (`navigation-commands.ts`).
+ * Composes the map, search, scan, and route guidance: step-by-step directions
+ * in the navbar, optional GPS progress, nearby suggestions, and the opt-in
+ * voice assistant (the orb). Search, pills and the assistant all run the same
+ * URL commands (`navigation-commands.ts`).
+ *
+ * In a tour it adds the ordered progress, the next stop as the default
+ * destination, and the quiz. In free navigation (`scope.kind === 'free'`) the
+ * header names the museum, there is no default destination, and the Spotlight
+ * also lists the museum's tours to start one from here.
  */
 export const TourNavigationPage = ({
-  tour,
-  step,
+  scope,
   museum,
   catalog,
-}: { tour: Tour; step: number; museum: Museum; catalog: NavigationCatalogObject[] } & Omit<
-  AppShellMainProps,
-  'step'
->) => {
+  tours = [],
+}: {
+  scope: NavigationPageScope
+  museum: Museum
+  catalog: NavigationCatalogObject[]
+  tours?: NavigationTourSummary[]
+} & Omit<AppShellMainProps, 'step'>) => {
+  const tour = scope.kind === 'tour' ? scope.tour : null
+  const step = scope.kind === 'tour' ? scope.step : 0
   // URL state stays in the URL; this component reads it where map behavior needs it.
   const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
@@ -99,7 +114,7 @@ export const TourNavigationPage = ({
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
   const [startEntranceId, setStartEntranceId] = useState<string | null>(null)
-  const next = tour.contents[step]
+  const next = tour?.contents[step]
   const nextId = typeof next === 'string' ? next : next?.id
   // Route guidance follows the next ordered content unless the visitor chose `to`.
   const defaultDestination =
@@ -120,7 +135,7 @@ export const TourNavigationPage = ({
   // museum has no wheelchair-specific mesh saved.
   const wheelchairRoute =
     Boolean(museum.navMeshWheelchair) && search.get('mobility') === 'wheelchair'
-  const complete = step === tour.contents.length
+  const complete = tour !== null && step === tour.contents.length
   // Group guests follow the host, who leads them into the quiz too.
   const guest = useIsGroupGuest()
 
@@ -129,8 +144,8 @@ export const TourNavigationPage = ({
   const guidance = useRouteGuidance({ route, rooms, fix: gps.fix })
   const { commands, run } = useNavigationCommands({
     museum,
-    tour,
-    step,
+    scope,
+    tours,
     catalog,
     services: markers.services,
     exits: markers.exitEntrances,
@@ -160,10 +175,15 @@ export const TourNavigationPage = ({
   const here =
     guidance.estimate ??
     (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
+  // Nearby suggestions skip the tour's own stops; in free navigation every
+  // content in the room is worth suggesting.
+  const tourContents = tour?.contents
   const tourContentIds = useMemo(
     () =>
-      new Set(tour.contents.map((content) => (typeof content === 'string' ? content : content.id))),
-    [tour.contents],
+      new Set(
+        (tourContents ?? []).map((content) => (typeof content === 'string' ? content : content.id)),
+      ),
+    [tourContents],
   )
   const commandById = (id: string) => commands.find((command) => command.id === id)
   const nearbyHistory = useNearbySuggestions({
@@ -178,12 +198,7 @@ export const TourNavigationPage = ({
     },
     onGo: ({ object }) =>
       router.replace(
-        withNavigationValue(
-          tourNavigationPath(lng, tour.id, step),
-          search.toString(),
-          'to',
-          object.id,
-        ),
+        withNavigationValue(navigationBasePath(lng, scope), search.toString(), 'to', object.id),
         { scroll: false },
       ),
   })
@@ -205,36 +220,48 @@ export const TourNavigationPage = ({
   return (
     <>
       <AppShellHeader px="xs" pb="xs" className="rounded-b-xl">
-        <Stack gap="xs">
-          {/* In a group, the pill beside the title opens the group panel (GroupBadge). */}
-          <Group justify="center" gap="xs" wrap="nowrap">
+        {tour ? (
+          <Stack gap="xs">
+            {/* In a group, the pill beside the title opens the group panel (GroupBadge). */}
+            <Group justify="center" gap="xs" wrap="nowrap">
+              <Title size="h5" ta="center">
+                {tour.title}
+              </Title>
+              <GroupBadge />
+            </Group>
+            <Grid>
+              <GridCol span={1}>
+                <FlagTriangleRight size={14} />
+              </GridCol>
+              <GridCol span={'auto'} align={'center'}>
+                <Progress
+                  aria-label={t('Tour progress')}
+                  size={'xs'}
+                  value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
+                />
+              </GridCol>
+              <GridCol span={1}>
+                <FlagBannerFoldIcon size={14} />
+              </GridCol>
+            </Grid>
+            <TourProgress
+              contents={tour.contents}
+              step={step}
+              entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
+              hasQuiz={hasQuiz(tour)}
+            />
+          </Stack>
+        ) : (
+          // Free navigation: no progress to show, only where the visitor is.
+          <Stack gap={0} align="center" pt="xs">
             <Title size="h5" ta="center">
-              {tour.title}
+              {museum.name}
             </Title>
-            <GroupBadge />
-          </Group>
-          <Grid>
-            <GridCol span={1}>
-              <FlagTriangleRight size={14} />
-            </GridCol>
-            <GridCol span={'auto'} align={'center'}>
-              <Progress
-                aria-label={t('Tour progress')}
-                size={'xs'}
-                value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
-              />
-            </GridCol>
-            <GridCol span={1}>
-              <FlagBannerFoldIcon size={14} />
-            </GridCol>
-          </Grid>
-          <TourProgress
-            contents={tour.contents}
-            step={step}
-            entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
-            hasQuiz={hasQuiz(tour)}
-          />
-        </Stack>
+            <Text size="xs" c="dimmed">
+              {t('Free visit')}
+            </Text>
+          </Stack>
+        )}
       </AppShellHeader>
 
       <AppShellMain h="100dvh" className={`overflow-hidden`}>
@@ -295,7 +322,7 @@ export const TourNavigationPage = ({
               }
               // A completed tour with a quiz offers it right where "Tour completed" shows.
               action={
-                complete && hasQuiz(tour) && !guest ? (
+                tour && complete && hasQuiz(tour) && !guest ? (
                   <Button
                     size="compact-sm"
                     onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}
@@ -313,7 +340,9 @@ export const TourNavigationPage = ({
               onEnable={() => settings.setAssistant(true)}
               commands={commands.map(({ id, label, description }) => ({ id, label, description }))}
               context={[
-                `Museum: ${museum.name}. Tour: ${tour.title}, stop ${step + 1} of ${tour.contents.length}.`,
+                tour
+                  ? `Museum: ${museum.name}. Tour: ${tour.title}, stop ${step + 1} of ${tour.contents.length}.`
+                  : `Museum: ${museum.name}. Free visit, no tour.`,
                 destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
                 currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
               ].join(' ')}
