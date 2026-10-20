@@ -85,5 +85,8 @@
   "Username": "Brugernavn",
   "Verified creator": "Verificeret skaber",
   "Write a content about this object": "Skriv et indhold om denne genstand",
-  "You will be the director of this museum and can invite curators afterwards.": "Du bliver direktør for museet og kan bagefter invitere kuratorer."
+  "You will be the director of this museum and can invite curators afterwards.": "Du bliver direktør for museet og kan bagefter invitere kuratorer.",
+  "Browse contents": "Gennemse indhold",
+  "Write a new content": "Skriv nyt indhold",
+  "An object on show at {{museum}} — the stop goes there on the map": "En genstand udstillet på {{museum}} — stoppet placeres der på kortet"
 }

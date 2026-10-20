@@ -85,5 +85,8 @@
   "Username": "Benutzername",
   "Verified creator": "Verifizierter Creator",
   "Write a content about this object": "Schreibe einen Inhalt über dieses Objekt",
-  "You will be the director of this museum and can invite curators afterwards.": "Du wirst Direktor dieses Museums und kannst danach Kuratoren einladen."
+  "You will be the director of this museum and can invite curators afterwards.": "Du wirst Direktor dieses Museums und kannst danach Kuratoren einladen.",
+  "Browse contents": "Inhalte durchsuchen",
+  "Write a new content": "Neuen Inhalt schreiben",
+  "An object on show at {{museum}} — the stop goes there on the map": "Ein ausgestelltes Objekt im {{museum}} — Dort wird die Station auf der Karte platziert"
 }

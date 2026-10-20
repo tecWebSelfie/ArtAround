@@ -8,6 +8,7 @@ import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { useTranslation } from 'react-i18next'
+import { backToTourHref } from '@/lib/tour-picker'
 import { ObjectPicker } from '../ObjectPicker'
 import { PriceInput } from '../PriceInput'
 import { RichTextInput } from '../RichTextInput'
@@ -35,11 +36,17 @@ export function ContentForm({
   content,
   bodyHTML = '',
   initialObject,
+  museum,
+  returnTo,
 }: {
   /** Existing content (source-locale values) when editing; absent to create. */
   content?: Pick<Content, 'id' | 'title' | 'difficulty' | 'copyright' | 'price'>
   bodyHTML?: string
   initialObject?: { id: string; name: string } | null
+  /** Writing a tour stop: only this museum's objects can be chosen. */
+  museum?: { name: string; objectIds: string[] } | null
+  /** Writing a tour stop: the tour editor to return to (`backToTourHref`). */
+  returnTo?: string | null
 }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
@@ -80,7 +87,13 @@ export function ContentForm({
         data: { ...data, attachToObject: object } as RequiredDataFromCollectionSlug<'contents'>,
       })
     },
-    (saved) => router.push(`/${lng}/content/${saved.id}` as Route),
+    // A new tour stop goes straight back into the tour being edited.
+    (saved) =>
+      router.push(
+        (returnTo && !content
+          ? backToTourHref(returnTo, saved.id)
+          : `/${lng}/content/${saved.id}`) as Route,
+      ),
   )
 
   return (
@@ -91,6 +104,7 @@ export function ContentForm({
           <ObjectPicker
             value={form.values.object}
             initial={initialObject}
+            museum={museum}
             onChange={(id) => form.setFieldValue('object', id)}
             error={form.errors.object as string | undefined}
           />

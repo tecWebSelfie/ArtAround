@@ -28,5 +28,12 @@
   "Title": "Titel",
   "Tour": "Tur",
   "Tours made by": "Turer skapade av",
-  "View details": "Visa detaljer"
+  "View details": "Visa detaljer",
+  "Add a stop": "Lägg till ett stopp",
+  "Contents about the objects on show at {{museum}}": "Innehåll om föremålen som visas på {{museum}}",
+  "Back to the tour": "Tillbaka till turen",
+  "Write a new content": "Skriv nytt innehåll",
+  "Add to tour": "Lägg till i turen",
+  "Add {{title}} to the tour": "Lägg till {{title}} i turen",
+  "In the tour": "I turen"
 }

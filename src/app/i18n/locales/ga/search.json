@@ -31,5 +31,12 @@
   "Title": "Teideal",
   "Tour": "Turas",
   "Tours made by": "Turais a rinne",
-  "View details": "Féach na sonraí"
+  "View details": "Féach na sonraí",
+  "Add a stop": "Cuir stad leis",
+  "Contents about the objects on show at {{museum}}": "Ábhar faoi na nithe ar taispeáint i {{museum}}",
+  "Back to the tour": "Ar ais chuig an turas",
+  "Write a new content": "Scríobh ábhar nua",
+  "Add to tour": "Cuir leis an turas",
+  "Add {{title}} to the tour": "Cuir {{title}} leis an turas",
+  "In the tour": "Sa turas"
 }

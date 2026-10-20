@@ -28,5 +28,12 @@
   "Title": "Cím",
   "Tour": "Túra",
   "Tours made by": "Túrák, készítette:",
-  "View details": "Részletek"
+  "View details": "Részletek",
+  "Add a stop": "Megálló hozzáadása",
+  "Contents about the objects on show at {{museum}}": "Tartalmak a(z) {{museum}} kiállított tárgyairól",
+  "Back to the tour": "Vissza a túrához",
+  "Write a new content": "Új tartalom írása",
+  "Add to tour": "Hozzáadás a túrához",
+  "Add {{title}} to the tour": "{{title}} hozzáadása a túrához",
+  "In the tour": "A túrában"
 }

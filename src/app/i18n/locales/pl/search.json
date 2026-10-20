@@ -30,5 +30,12 @@
   "Title": "Tytuł",
   "Tour": "Trasa",
   "Tours made by": "Trasy autorstwa",
-  "View details": "Zobacz szczegóły"
+  "View details": "Zobacz szczegóły",
+  "Add a stop": "Dodaj przystanek",
+  "Contents about the objects on show at {{museum}}": "Treści o obiektach wystawionych w {{museum}}",
+  "Back to the tour": "Wróć do trasy",
+  "Write a new content": "Napisz nową treść",
+  "Add to tour": "Dodaj do trasy",
+  "Add {{title}} to the tour": "Dodaj {{title}} do trasy",
+  "In the tour": "W trasie"
 }

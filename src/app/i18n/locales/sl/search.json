@@ -30,5 +30,12 @@
   "Title": "Naslov",
   "Tour": "Ogled",
   "Tours made by": "Ogledi avtorja",
-  "View details": "Oglej si podrobnosti"
+  "View details": "Oglej si podrobnosti",
+  "Add a stop": "Dodaj postajo",
+  "Contents about the objects on show at {{museum}}": "Vsebine o predmetih, razstavljenih v {{museum}}",
+  "Back to the tour": "Nazaj na ogled",
+  "Write a new content": "Napiši novo vsebino",
+  "Add to tour": "Dodaj v ogled",
+  "Add {{title}} to the tour": "Dodaj {{title}} v ogled",
+  "In the tour": "V ogledu"
 }

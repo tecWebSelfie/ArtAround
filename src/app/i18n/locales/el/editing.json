@@ -85,5 +85,8 @@
   "Username": "Όνομα χρήστη",
   "Verified creator": "Επαληθευμένος δημιουργός",
   "Write a content about this object": "Γράψε ένα περιεχόμενο για αυτό το αντικείμενο",
-  "You will be the director of this museum and can invite curators afterwards.": "Θα είσαι ο διευθυντής αυτού του μουσείου και μετά μπορείς να προσκαλέσεις επιμελητές."
+  "You will be the director of this museum and can invite curators afterwards.": "Θα είσαι ο διευθυντής αυτού του μουσείου και μετά μπορείς να προσκαλέσεις επιμελητές.",
+  "Browse contents": "Περιήγηση στα περιεχόμενα",
+  "Write a new content": "Γράψε νέο περιεχόμενο",
+  "An object on show at {{museum}} — the stop goes there on the map": "Ένα έκθεμα του {{museum}} — η στάση τοποθετείται εκεί στον χάρτη"
 }

@@ -29,5 +29,12 @@
   "Title": "Titlu",
   "Tour": "Tur",
   "Tours made by": "Tururi create de",
-  "View details": "Vezi detalii"
+  "View details": "Vezi detalii",
+  "Add a stop": "Adaugă o oprire",
+  "Contents about the objects on show at {{museum}}": "Conținuturi despre obiectele expuse la {{museum}}",
+  "Back to the tour": "Înapoi la tur",
+  "Write a new content": "Scrie un conținut nou",
+  "Add to tour": "Adaugă în tur",
+  "Add {{title}} to the tour": "Adaugă {{title}} în tur",
+  "In the tour": "În tur"
 }

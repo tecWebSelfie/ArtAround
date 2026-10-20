@@ -85,5 +85,8 @@
   "Username": "Потребителско име",
   "Verified creator": "Потвърден автор",
   "Write a content about this object": "Напиши съдържание за този обект",
-  "You will be the director of this museum and can invite curators afterwards.": "Ще бъдеш директор на този музей и после можеш да поканиш куратори."
+  "You will be the director of this museum and can invite curators afterwards.": "Ще бъдеш директор на този музей и после можеш да поканиш куратори.",
+  "Browse contents": "Разгледай съдържанието",
+  "Write a new content": "Напиши ново съдържание",
+  "An object on show at {{museum}} — the stop goes there on the map": "Експонат в {{museum}} — спирката се поставя там на картата"
 }

@@ -88,5 +88,8 @@
   "Username": "Isem tal-utent",
   "Verified creator": "Kreatur ivverifikat",
   "Write a content about this object": "Ikteb kontenut dwar dan l-oġġett",
-  "You will be the director of this museum and can invite curators afterwards.": "Int se tkun id-direttur ta' dan il-mużew u tista' tistieden kuraturi wara."
+  "You will be the director of this museum and can invite curators afterwards.": "Int se tkun id-direttur ta' dan il-mużew u tista' tistieden kuraturi wara.",
+  "Browse contents": "Ifli l-kontenut",
+  "Write a new content": "Ikteb kontenut ġdid",
+  "An object on show at {{museum}} — the stop goes there on the map": "Oġġett espost f'{{museum}} — il-waqfa titqiegħed hemm fuq il-mappa"
 }

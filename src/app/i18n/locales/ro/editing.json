@@ -86,5 +86,8 @@
   "Username": "Nume de utilizator",
   "Verified creator": "Creator verificat",
   "Write a content about this object": "Scrie un conținut despre acest obiect",
-  "You will be the director of this museum and can invite curators afterwards.": "Vei fi directorul acestui muzeu și poți invita curatori ulterior."
+  "You will be the director of this museum and can invite curators afterwards.": "Vei fi directorul acestui muzeu și poți invita curatori ulterior.",
+  "Browse contents": "Răsfoiește conținuturile",
+  "Write a new content": "Scrie un conținut nou",
+  "An object on show at {{museum}} — the stop goes there on the map": "Un obiect expus la {{museum}} — oprirea este plasată acolo pe hartă"
 }

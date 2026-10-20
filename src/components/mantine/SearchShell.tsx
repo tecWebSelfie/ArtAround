@@ -26,6 +26,7 @@ export function SearchShell({
   basePath,
   storageKeyPrefix,
   placeholder,
+  keepParams,
   children,
 }: {
   definitions: FilterDefinition[]
@@ -35,6 +36,8 @@ export function SearchShell({
   basePath: string
   storageKeyPrefix: string
   placeholder: string
+  /** Non-filter query parameters to keep on every URL (e.g. the tour picker's). */
+  keepParams?: Record<string, string>
   children: ReactNode
 }) {
   const router = useRouter()
@@ -43,6 +46,9 @@ export function SearchShell({
     initialFilters,
   })
   const skipFirstRender = useRef(true)
+  // Stable across renders unless the page changes mode (the effect below
+  // must not re-run, and reset the page, on every render).
+  const keep = JSON.stringify(keepParams ?? {})
 
   useEffect(() => {
     if (skipFirstRender.current) {
@@ -50,15 +56,18 @@ export function SearchShell({
       return
     }
     const handle = setTimeout(() => {
-      const qs = toQueryString()
+      const params = new URLSearchParams(toQueryString())
+      for (const [key, value] of Object.entries(JSON.parse(keep))) params.set(key, String(value))
+      const qs = params.toString()
       // Changing filters resets to the first page.
       router.replace((qs ? `${basePath}?${qs}` : basePath) as Route, { scroll: false })
     }, 400)
     return () => clearTimeout(handle)
-  }, [activeFilters, basePath, router, toQueryString])
+  }, [activeFilters, basePath, router, toQueryString, keep])
 
   const goToPage = (nextPage: number) => {
     const params = new URLSearchParams(toQueryString())
+    for (const [key, value] of Object.entries(keepParams ?? {})) params.set(key, value)
     params.set('page', String(nextPage))
     router.replace(`${basePath}?${params.toString()}` as Route, { scroll: false })
   }

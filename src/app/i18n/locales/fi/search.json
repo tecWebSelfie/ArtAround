@@ -28,5 +28,12 @@
   "Title": "Otsikko",
   "Tour": "Kierros",
   "Tours made by": "Kierrokset tekijältä",
-  "View details": "Näytä tiedot"
+  "View details": "Näytä tiedot",
+  "Add a stop": "Lisää kohde",
+  "Contents about the objects on show at {{museum}}": "Sisällöt, jotka koskevat kohteessa {{museum}} esillä olevia esineitä",
+  "Back to the tour": "Takaisin kierrokseen",
+  "Write a new content": "Kirjoita uusi sisältö",
+  "Add to tour": "Lisää kierrokseen",
+  "Add {{title}} to the tour": "Lisää {{title}} kierrokseen",
+  "In the tour": "Kierroksella"
 }

@@ -85,5 +85,8 @@
   "Username": "Gebruikersnaam",
   "Verified creator": "Geverifieerde maker",
   "Write a content about this object": "Schrijf een content over dit object",
-  "You will be the director of this museum and can invite curators afterwards.": "Je wordt directeur van dit museum en kunt daarna curatoren uitnodigen."
+  "You will be the director of this museum and can invite curators afterwards.": "Je wordt directeur van dit museum en kunt daarna curatoren uitnodigen.",
+  "Browse contents": "Inhoud bekijken",
+  "Write a new content": "Nieuwe inhoud schrijven",
+  "An object on show at {{museum}} — the stop goes there on the map": "Een object te zien in {{museum}} — de stop komt daar op de kaart"
 }

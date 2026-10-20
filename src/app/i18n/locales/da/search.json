@@ -28,5 +28,12 @@
   "Title": "Titel",
   "Tour": "Tur",
   "Tours made by": "Ture lavet af",
-  "View details": "Se detaljer"
+  "View details": "Se detaljer",
+  "Add a stop": "Tilføj et stop",
+  "Contents about the objects on show at {{museum}}": "Indhold om genstandene udstillet på {{museum}}",
+  "Back to the tour": "Tilbage til turen",
+  "Write a new content": "Skriv nyt indhold",
+  "Add to tour": "Føj til turen",
+  "Add {{title}} to the tour": "Føj {{title}} til turen",
+  "In the tour": "I turen"
 }

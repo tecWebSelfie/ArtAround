@@ -28,5 +28,12 @@
   "Title": "Τίτλος",
   "Tour": "Ξενάγηση",
   "Tours made by": "Ξεναγήσεις από",
-  "View details": "Λεπτομέρειες"
+  "View details": "Λεπτομέρειες",
+  "Add a stop": "Προσθήκη στάσης",
+  "Contents about the objects on show at {{museum}}": "Περιεχόμενα για τα εκθέματα του {{museum}}",
+  "Back to the tour": "Πίσω στην ξενάγηση",
+  "Write a new content": "Γράψε νέο περιεχόμενο",
+  "Add to tour": "Προσθήκη στην ξενάγηση",
+  "Add {{title}} to the tour": "Προσθήκη του {{title}} στην ξενάγηση",
+  "In the tour": "Στην ξενάγηση"
 }

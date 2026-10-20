@@ -87,5 +87,8 @@
   "Username": "Naudotojo vardas",
   "Verified creator": "Patvirtintas kūrėjas",
   "Write a content about this object": "Parašyk turinį apie šį objektą",
-  "You will be the director of this museum and can invite curators afterwards.": "Būsi šio muziejaus direktorius ir vėliau galėsi pakviesti kuratorių."
+  "You will be the director of this museum and can invite curators afterwards.": "Būsi šio muziejaus direktorius ir vėliau galėsi pakviesti kuratorių.",
+  "Browse contents": "Naršyti turinį",
+  "Write a new content": "Rašyti naują turinį",
+  "An object on show at {{museum}} — the stop goes there on the map": "{{museum}} eksponuojamas objektas — stotelė žemėlapyje bus ten"
 }

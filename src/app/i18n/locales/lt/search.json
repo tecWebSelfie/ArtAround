@@ -30,5 +30,12 @@
   "Title": "Pavadinimas",
   "Tour": "Turas",
   "Tours made by": "Turų autorius",
-  "View details": "Daugiau informacijos"
+  "View details": "Daugiau informacijos",
+  "Add a stop": "Pridėti stotelę",
+  "Contents about the objects on show at {{museum}}": "Turinys apie {{museum}} eksponuojamus objektus",
+  "Back to the tour": "Atgal į turą",
+  "Write a new content": "Rašyti naują turinį",
+  "Add to tour": "Pridėti prie turo",
+  "Add {{title}} to the tour": "Pridėti {{title}} prie turo",
+  "In the tour": "Ture"
 }

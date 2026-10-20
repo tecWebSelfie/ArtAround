@@ -88,5 +88,8 @@
   "Username": "Ainm úsáideora",
   "Verified creator": "Cruthaitheoir fíoraithe",
   "Write a content about this object": "Scríobh ábhar faoin réad seo",
-  "You will be the director of this museum and can invite curators afterwards.": "Is tusa a bheidh mar stiúrthóir ar an músaem seo agus is féidir leat coimeádaithe a thabhairt isteach ina dhiaidh sin."
+  "You will be the director of this museum and can invite curators afterwards.": "Is tusa a bheidh mar stiúrthóir ar an músaem seo agus is féidir leat coimeádaithe a thabhairt isteach ina dhiaidh sin.",
+  "Browse contents": "Brabhsáil ábhar",
+  "Write a new content": "Scríobh ábhar nua",
+  "An object on show at {{museum}} — the stop goes there on the map": "Rud ar taispeáint i {{museum}} — cuirtear an stad ansin ar an léarscáil"
 }

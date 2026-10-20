@@ -28,5 +28,12 @@
   "Title": "Pealkiri",
   "Tour": "Tuur",
   "Tours made by": "Tuurid, mille autor on",
-  "View details": "Vaata lähemalt"
+  "View details": "Vaata lähemalt",
+  "Add a stop": "Lisa peatus",
+  "Contents about the objects on show at {{museum}}": "Sisu muuseumis {{museum}} eksponeeritud esemete kohta",
+  "Back to the tour": "Tagasi tuuri juurde",
+  "Write a new content": "Kirjuta uus sisu",
+  "Add to tour": "Lisa tuuri",
+  "Add {{title}} to the tour": "Lisa {{title}} tuuri",
+  "In the tour": "Tuuris"
 }

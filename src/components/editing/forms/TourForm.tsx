@@ -1,6 +1,7 @@
 'use client'
 
 import { formatPrice } from '@/lib/price'
+import { ADD_PARAM, DRAFT_PARAM, newStopHref, tourPickerHref } from '@/lib/tour-picker'
 import { payloadSdk } from '@/payload-sdk'
 import { DragDropProvider } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable'
@@ -20,9 +21,11 @@ import {
   Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { ArrowDown, ArrowUp, GripVertical, Lock, Trash2 } from 'lucide-react'
+import { ArrowDown, ArrowUp, GripVertical, Lock, PenLine, Search, Trash2 } from 'lucide-react'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 
@@ -59,7 +62,7 @@ function SortableStop({
   onMove,
   onRemove,
   ...timelineProps
-}: TimelineItemProps & {
+}: Omit<TimelineItemProps, 'content'> & {
   id: string
   index: number
   content: TourCandidate
@@ -130,6 +133,11 @@ function SortableStop({
  * from the museum's exhibited objects; locked (paid, not owned) ones are
  * flagged so the author can swap them — the purchase modal links here.
  * Customizing someone else's tour creates a new tour owned by the visitor.
+ *
+ * Adding stops: the quick select for a known title, or "Browse contents" /
+ * "Write a new content", which leave for the contents search in picker mode
+ * (`src/lib/tour-picker.ts`) and come back with `?draft=1&add=<id>`. The
+ * unsaved draft lives in sessionStorage meanwhile, so nothing typed is lost.
  */
 export function TourForm({
   tourId,
@@ -146,6 +154,15 @@ export function TourForm({
   const { t } = useTranslation('editing')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  // This editor's own URL (museum/from query kept, round-trip params dropped):
+  // where the picker returns, and the draft's storage key.
+  const editorQuery = new URLSearchParams(searchParams.toString())
+  editorQuery.delete(DRAFT_PARAM)
+  editorQuery.delete(ADD_PARAM)
+  const editorUrl = editorQuery.size ? `${pathname}?${editorQuery}` : pathname
+  const draftKey = `tour-draft:${editorUrl}`
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
   const form = useForm<TourValues>({
     initialValues: {
@@ -160,6 +177,47 @@ export function TourForm({
     },
   })
   const selected = form.values.contents
+
+  // Back from the picker: restore the draft, append the picked content, then
+  // drop the round-trip params so a reload doesn't add it again.
+  // Once per arrival: the save effect below overwrites storage right after
+  // this reads it, so a second run (React's dev double-invoke) must not
+  // restore again.
+  const restored = useRef(false)
+  useEffect(() => {
+    if (restored.current || searchParams.get(DRAFT_PARAM) !== '1') return
+    restored.current = true
+    let draft: TourValues | null = null
+    try {
+      const stored = sessionStorage.getItem(draftKey)
+      draft = stored ? (JSON.parse(stored) as TourValues) : null
+    } catch {
+      // Storage blocked (private mode): start from the saved tour instead.
+    }
+    const base = draft ?? form.getValues()
+    const added = searchParams.get(ADD_PARAM)
+    const contents = base.contents.filter((id) => byId.has(id))
+    if (added && byId.has(added) && !contents.includes(added)) contents.push(added)
+    form.setValues({ ...base, contents })
+    router.replace(editorUrl as Route, { scroll: false })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Keep the draft while the author browses or writes contents elsewhere.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(draftKey, JSON.stringify(form.values))
+    } catch {
+      // Storage blocked: the round trip then keeps only the picked stop.
+    }
+  }, [draftKey, form.values])
+  const clearDraft = () => {
+    try {
+      sessionStorage.removeItem(draftKey)
+    } catch {}
+  }
+
+  const picker = { museumId: museum.id, returnTo: editorUrl, have: selected }
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
 
   const save = useSave(
@@ -174,7 +232,10 @@ export function TourForm({
         ? payloadSdk.update({ collection: 'tours', id: tourId, data })
         : payloadSdk.create({ collection: 'tours', data })
     },
-    (saved) => router.push(`/${lng}/tour/${saved.id}` as Route),
+    (saved) => {
+      clearDraft()
+      router.push(`/${lng}/tour/${saved.id}` as Route)
+    },
   )
 
   const move = (index: number, delta: number) => {
@@ -262,10 +323,37 @@ export function TourForm({
             nothingFoundMessage={t('No contents available in this museum')}
             error={form.errors.contents}
           />
+          <Group gap="xs">
+            <Button
+              component={Link}
+              href={tourPickerHref(lng, picker) as Route}
+              variant="light"
+              leftSection={<Search size={16} aria-hidden />}
+            >
+              {t('Browse contents')}
+            </Button>
+            <Button
+              component={Link}
+              href={newStopHref(lng, picker) as Route}
+              variant="light"
+              color="teal"
+              autoContrast
+              leftSection={<PenLine size={16} aria-hidden />}
+            >
+              {t('Write a new content')}
+            </Button>
+          </Group>
         </Stack>
 
         <Group justify="end">
-          <Button variant="default" onClick={() => router.back()} disabled={save.isPending}>
+          <Button
+            variant="default"
+            onClick={() => {
+              clearDraft()
+              router.back()
+            }}
+            disabled={save.isPending}
+          >
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>

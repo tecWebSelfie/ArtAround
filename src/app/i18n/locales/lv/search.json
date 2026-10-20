@@ -29,5 +29,12 @@
   "Title": "Nosaukums",
   "Tour": "Tūre",
   "Tours made by": "Tūres, ko veidojis",
-  "View details": "Skatīt sīkāk"
+  "View details": "Skatīt sīkāk",
+  "Add a stop": "Pievienot pieturu",
+  "Contents about the objects on show at {{museum}}": "Saturs par {{museum}} eksponētajiem priekšmetiem",
+  "Back to the tour": "Atpakaļ uz tūri",
+  "Write a new content": "Rakstīt jaunu saturu",
+  "Add to tour": "Pievienot tūrei",
+  "Add {{title}} to the tour": "Pievienot {{title}} tūrei",
+  "In the tour": "Tūrē"
 }

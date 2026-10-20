@@ -28,5 +28,12 @@
   "Title": "Title",
   "Tour": "Tour",
   "Tours made by": "Tours made by",
-  "View details": "View details"
+  "View details": "View details",
+  "Add a stop": "Add a stop",
+  "Contents about the objects on show at {{museum}}": "Contents about the objects on show at {{museum}}",
+  "Back to the tour": "Back to the tour",
+  "Write a new content": "Write a new content",
+  "Add to tour": "Add to tour",
+  "Add {{title}} to the tour": "Add {{title}} to the tour",
+  "In the tour": "In the tour"
 }

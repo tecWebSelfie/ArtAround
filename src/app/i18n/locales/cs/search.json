@@ -30,5 +30,12 @@
   "Title": "Název",
   "Tour": "Prohlídka",
   "Tours made by": "Prohlídky od",
-  "View details": "Zobrazit detaily"
+  "View details": "Zobrazit detaily",
+  "Add a stop": "Přidat zastávku",
+  "Contents about the objects on show at {{museum}}": "Obsah o předmětech vystavených v {{museum}}",
+  "Back to the tour": "Zpět na prohlídku",
+  "Write a new content": "Napsat nový obsah",
+  "Add to tour": "Přidat do prohlídky",
+  "Add {{title}} to the tour": "Přidat {{title}} do prohlídky",
+  "In the tour": "V prohlídce"
 }

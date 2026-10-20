@@ -150,6 +150,14 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      reordered by drag (grip handle, `@dnd-kit/react`, auto-scroll + keyboard)
      or up/down buttons (precise on long tours, WCAG 2.5.7 alternative);
      locked stops are flagged so they can be replaced.
+     Adding stops: a quick select, or "Browse contents" → `/[lng]/search/contents`
+     in picker mode (`?pick=tour&museum=&returnTo=&have=`: only the museum's
+     exhibited contents, each with "Add to tour" or "In the tour", locked ones
+     priced) and "Write a new content" → `/[lng]/content/new?museum=&returnTo=`
+     (object limited to the museum's exhibited ones). Both come back to the
+     editor with `?draft=1&add=<id>`; the unsaved draft waits in sessionStorage.
+     URL helpers and `returnTo` validation (tour editors only, no open
+     redirect) live in `src/lib/tour-picker.ts`.
    - `/[lng]/museum/new` — creates a museum (creator becomes director).
    - `/[lng]/museum/[id]/members` — staff list with typed CRUD on memberships.
    - Museum page actions: "Add objects to the map" (map editor, curator+),

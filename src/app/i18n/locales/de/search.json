@@ -28,5 +28,12 @@
   "Title": "Titel",
   "Tour": "Tour",
   "Tours made by": "Touren von",
-  "View details": "Details ansehen"
+  "View details": "Details ansehen",
+  "Add a stop": "Station hinzufügen",
+  "Contents about the objects on show at {{museum}}": "Inhalte zu den Objekten im {{museum}}",
+  "Back to the tour": "Zurück zur Tour",
+  "Write a new content": "Neuen Inhalt schreiben",
+  "Add to tour": "Zur Tour hinzufügen",
+  "Add {{title}} to the tour": "{{title}} zur Tour hinzufügen",
+  "In the tour": "In der Tour"
 }

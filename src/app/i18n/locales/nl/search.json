@@ -28,5 +28,12 @@
   "Title": "Titel",
   "Tour": "Tour",
   "Tours made by": "Tours gemaakt door",
-  "View details": "Details bekijken"
+  "View details": "Details bekijken",
+  "Add a stop": "Stop toevoegen",
+  "Contents about the objects on show at {{museum}}": "Inhoud over de objecten te zien in {{museum}}",
+  "Back to the tour": "Terug naar de tour",
+  "Write a new content": "Nieuwe inhoud schrijven",
+  "Add to tour": "Aan tour toevoegen",
+  "Add {{title}} to the tour": "{{title}} aan de tour toevoegen",
+  "In the tour": "In de tour"
 }

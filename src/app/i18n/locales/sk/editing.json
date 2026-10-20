@@ -87,5 +87,8 @@
   "Username": "Používateľské meno",
   "Verified creator": "Overený tvorca",
   "Write a content about this object": "Napíš obsah o tomto objekte",
-  "You will be the director of this museum and can invite curators afterwards.": "Staneš sa riaditeľom tohto múzea a neskôr môžeš pozvať kurátorov."
+  "You will be the director of this museum and can invite curators afterwards.": "Staneš sa riaditeľom tohto múzea a neskôr môžeš pozvať kurátorov.",
+  "Browse contents": "Prehliadať obsah",
+  "Write a new content": "Napísať nový obsah",
+  "An object on show at {{museum}} — the stop goes there on the map": "Predmet vystavený v {{museum}} — zastávka sa umiestni na mape tam"
 }

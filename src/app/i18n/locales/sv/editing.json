@@ -85,5 +85,8 @@
   "Username": "Användarnamn",
   "Verified creator": "Verifierad skapare",
   "Write a content about this object": "Skriv ett innehåll om det här föremålet",
-  "You will be the director of this museum and can invite curators afterwards.": "Du blir chef för museet och kan sedan bjuda in intendenter."
+  "You will be the director of this museum and can invite curators afterwards.": "Du blir chef för museet och kan sedan bjuda in intendenter.",
+  "Browse contents": "Bläddra bland innehåll",
+  "Write a new content": "Skriv nytt innehåll",
+  "An object on show at {{museum}} — the stop goes there on the map": "Ett föremål som visas på {{museum}} — stoppet placeras där på kartan"
 }

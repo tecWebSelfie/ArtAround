@@ -29,5 +29,12 @@
   "Title": "Naslov",
   "Tour": "Tura",
   "Tours made by": "Ture koje je izradio",
-  "View details": "Pogledaj detalje"
+  "View details": "Pogledaj detalje",
+  "Add a stop": "Dodaj postaju",
+  "Contents about the objects on show at {{museum}}": "Sadržaji o izlošcima u {{museum}}",
+  "Back to the tour": "Natrag na turu",
+  "Write a new content": "Napiši novi sadržaj",
+  "Add to tour": "Dodaj u turu",
+  "Add {{title}} to the tour": "Dodaj {{title}} u turu",
+  "In the tour": "U turi"
 }

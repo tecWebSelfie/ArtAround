@@ -31,5 +31,12 @@
   "Title": "Titlu",
   "Tour": "Tour",
   "Tours made by": "Tours magħmula minn",
-  "View details": "Ara d-dettalji"
+  "View details": "Ara d-dettalji",
+  "Add a stop": "Żid waqfa",
+  "Contents about the objects on show at {{museum}}": "Kontenut dwar l-oġġetti esposti f'{{museum}}",
+  "Back to the tour": "Lura għat-tour",
+  "Write a new content": "Ikteb kontenut ġdid",
+  "Add to tour": "Żid mat-tour",
+  "Add {{title}} to the tour": "Żid {{title}} mat-tour",
+  "In the tour": "Fit-tour"
 }

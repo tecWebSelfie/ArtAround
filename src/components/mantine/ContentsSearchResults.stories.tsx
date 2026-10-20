@@ -60,3 +60,25 @@ export const Unpopulated: Story = {
     await expect(canvas.findByText('No contents found')).resolves.toBeTruthy()
   },
 }
+
+// Tour picker (the tour editor's "Browse contents"): the first content is
+// already a stop, the second is paid and locked, the rest can be added.
+export const TourPicker: Story = {
+  args: {
+    contents: mockContentsList,
+    picker: {
+      museumId: 'museum-1',
+      returnTo: '/en/tour/tour-1/edit',
+      have: [mockContentsList[0]!.id],
+    },
+    lockedPrices: new Map([[mockContentsList[1]!.id, 499]]),
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByText('In the tour')).resolves.toBeTruthy()
+    const adds = await canvas.findAllByRole('link', { name: /^Add .* to the tour$/ })
+    await expect(adds).toHaveLength(mockContentsList.length - 1)
+    // Picking returns to the editor with the draft restored and the stop added.
+    await expect(adds[0]!.getAttribute('href')).toMatch(/^\/en\/tour\/tour-1\/edit\?draft=1&add=/)
+    await expect(canvas.findByText(/4[.,]99/)).resolves.toBeTruthy()
+  },
+}

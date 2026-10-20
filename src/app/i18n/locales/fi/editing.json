@@ -85,5 +85,8 @@
   "Username": "Käyttäjänimi",
   "Verified creator": "Vahvistettu tekijä",
   "Write a content about this object": "Kirjoita sisältö tästä esineestä",
-  "You will be the director of this museum and can invite curators afterwards.": "Sinusta tulee tämän museon johtaja, ja voit kutsua kuraattoreita myöhemmin."
+  "You will be the director of this museum and can invite curators afterwards.": "Sinusta tulee tämän museon johtaja, ja voit kutsua kuraattoreita myöhemmin.",
+  "Browse contents": "Selaa sisältöjä",
+  "Write a new content": "Kirjoita uusi sisältö",
+  "An object on show at {{museum}} — the stop goes there on the map": "Kohteessa {{museum}} esillä oleva esine — kohde sijoitetaan siihen kartalla"
 }
