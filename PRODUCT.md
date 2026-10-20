@@ -29,7 +29,7 @@ The central promise is adaptability throughout the visit: content preferences an
 - Staff author museum content and tours and manage spatial maps and object models. Existing editor documentation describes model generation with preview, revision, and approval before placement.
 - The marketplace is intended to support discovering free and paid contents and tours, filtering options, and buying paid offerings.
 - Marketplace and navigator must connect seamlessly. A free or already-owned content or tour page should provide a CTA into the navigator.
-- Shared navigation is planned: users can join a tour together, and a room master can optionally require participants to follow the master's steps. This supports guided groups and classrooms as well as other group visits.
+- Shared navigation: users can visit a tour together. The group's creator (the host) leads, and because a group moves together, guests always follow the host's steps, destination and opened content, while their language, accessibility route and reading choices stay their own. This supports guided groups and classrooms as well as other group visits (see `docs/group-tours.md`).
 - Tours may optionally offer an end-of-tour quiz; this is not limited to classroom use.
 
 ## Capabilities and Constraints
@@ -55,7 +55,7 @@ The central promise is adaptability throughout the visit: content preferences an
 
 ### Open decisions
 
-Detailed marketplace filters, payment and entitlement rules, group-room permissions and synchronization, quiz behavior, and the scope and factual grounding of visitor assistance remain to be specified. Do not present these planned capabilities as shipped without checking the implementation.
+Detailed marketplace filters, payment and entitlement rules, and the scope and factual grounding of visitor assistance remain to be specified. Do not present these planned capabilities as shipped without checking the implementation.
 
 Accessibility-aware routing is a confirmed requirement. Supported access needs, museum accessibility data and its maintenance, direction formats, and behavior when no suitable route is available remain to be specified.
 

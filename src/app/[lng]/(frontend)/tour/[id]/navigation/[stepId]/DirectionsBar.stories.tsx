@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
+import { Button } from '@mantine/core'
 import { useState } from 'react'
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
 import type { DirectionStep } from '@/lib/tour-directions'
@@ -17,7 +18,14 @@ const steps: DirectionStep[] = [
     metres: 11,
     from: 3,
   },
-  { kind: 'enter', room: 'Archeologia', door: 'Ingresso archeologia', turn: 'left', metres: 3, from: 14 },
+  {
+    kind: 'enter',
+    room: 'Archeologia',
+    door: 'Ingresso archeologia',
+    turn: 'left',
+    metres: 3,
+    from: 14,
+  },
   { kind: 'arrive', side: 'left', from: 15 },
 ]
 
@@ -109,6 +117,23 @@ export const TourCompleted: Story = {
   args: { status: 'complete', steps: [] },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('status')).toHaveTextContent('Tour completed')
+  },
+}
+
+/** A tour with a quiz offers it right in the "Tour completed" state (hidden for group guests). */
+export const TourCompletedWithQuiz: Story = {
+  args: {
+    status: 'complete',
+    steps: [],
+    action: (
+      <Button size="compact-sm" onClick={fn()}>
+        Take the quiz
+      </Button>
+    ),
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole('status')).toHaveTextContent('Tour completed')
+    await expect(canvas.getByRole('button', { name: 'Take the quiz' })).toBeVisible()
   },
 }
 

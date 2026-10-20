@@ -42,16 +42,12 @@ import {
   ScanQrCode,
   Search,
 } from 'lucide-react'
-import {
-  Suspense,
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentPropsWithoutRef,
-} from 'react'
+import { Suspense, useEffect, useMemo, useState, type ComponentPropsWithoutRef } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
 import { DirectionsBar, useStepSentence, type DirectionsStatus } from './DirectionsBar'
+import { GroupBadge } from '@/components/group/GroupBadge'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { GuidanceSettings, useGuidanceSettings } from './GuidanceSettings'
 import { GpsSimulator } from './GpsSimulator'
 import { useGpsFix } from './gps-source'
@@ -125,6 +121,8 @@ export const TourNavigationPage = ({
   const wheelchairRoute =
     Boolean(museum.navMeshWheelchair) && search.get('mobility') === 'wheelchair'
   const complete = step === tour.contents.length
+  // Group guests follow the host, who leads them into the quiz too.
+  const guest = useIsGroupGuest()
 
   const settings = useGuidanceSettings()
   const gps = useGpsFix(settings.gpsMode)
@@ -137,7 +135,12 @@ export const TourNavigationPage = ({
     services: markers.services,
     exits: markers.exitEntrances,
   })
-  const destinationName = useDestinationName(destination, catalog, markers.services, markers.exitEntrances)
+  const destinationName = useDestinationName(
+    destination,
+    catalog,
+    markers.services,
+    markers.exitEntrances,
+  )
   const sentence = useStepSentence()
   // The shell's shared player (also used by modals); stories have no shell.
   const ownSpeech = useSpeech()
@@ -146,16 +149,20 @@ export const TourNavigationPage = ({
   // Voice guidance: speak a step whenever it changes (new route, GPS
   // progress, or the arrows), only while the visitor has turned it on.
   const currentStep = guidance.steps[guidance.current]
-  const spokenStep = currentStep && settings.voiceGuidance ? sentence(currentStep, destinationName) : null
+  const spokenStep =
+    currentStep && settings.voiceGuidance ? sentence(currentStep, destinationName) : null
   const { speak } = speech
   useEffect(() => {
     if (spokenStep) speak(spokenStep).catch(() => {})
   }, [spokenStep, speak])
 
   // Nearby suggestions follow the GPS estimate, or else the confirmed start.
-  const here = guidance.estimate ?? (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
+  const here =
+    guidance.estimate ??
+    (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
   const tourContentIds = useMemo(
-    () => new Set(tour.contents.map((content) => (typeof content === 'string' ? content : content.id))),
+    () =>
+      new Set(tour.contents.map((content) => (typeof content === 'string' ? content : content.id))),
     [tour.contents],
   )
   const commandById = (id: string) => commands.find((command) => command.id === id)
@@ -171,7 +178,12 @@ export const TourNavigationPage = ({
     },
     onGo: ({ object }) =>
       router.replace(
-        withNavigationValue(tourNavigationPath(lng, tour.id, step), search.toString(), 'to', object.id),
+        withNavigationValue(
+          tourNavigationPath(lng, tour.id, step),
+          search.toString(),
+          'to',
+          object.id,
+        ),
         { scroll: false },
       ),
   })
@@ -194,9 +206,13 @@ export const TourNavigationPage = ({
     <>
       <AppShellHeader px="xs" pb="xs" className="rounded-b-xl">
         <Stack gap="xs">
-          <Title size="h5" ta="center">
-            {tour.title}
-          </Title>
+          {/* In a group, the pill beside the title opens the group panel (GroupBadge). */}
+          <Group justify="center" gap="xs" wrap="nowrap">
+            <Title size="h5" ta="center">
+              {tour.title}
+            </Title>
+            <GroupBadge />
+          </Group>
           <Grid>
             <GridCol span={1}>
               <FlagTriangleRight size={14} />
@@ -253,9 +269,7 @@ export const TourNavigationPage = ({
               onRun={run}
               services={markers.services}
               exits={markers.exitEntrances}
-              settings={
-                <GuidanceSettings settings={settings} gpsError={gps.error} />
-              }
+              settings={<GuidanceSettings settings={settings} gpsError={gps.error} />}
               simulator={
                 settings.gpsMode === 'simulated' ? <GpsSimulator onMove={gps.move} /> : null
               }
@@ -281,7 +295,7 @@ export const TourNavigationPage = ({
               }
               // A completed tour with a quiz offers it right where "Tour completed" shows.
               action={
-                complete && hasQuiz(tour) ? (
+                complete && hasQuiz(tour) && !guest ? (
                   <Button
                     size="compact-sm"
                     onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}

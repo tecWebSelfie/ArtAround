@@ -1,3 +1,4 @@
+import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { ArtAroundGlobalSearch, AutoCompleteItem } from '@/components/mantine/ArtAroundGlobalSearch'
 import { TypeWriterText } from '@/components/mantine/TypeWriterText'
 import { mockContentSecond } from '@/mocks/content.mock'
@@ -97,6 +98,10 @@ export default function NavigatorHomePage({
           </Stack>
         </Center>
       </Flex>
+      {/* Group tours: the code a friend or teacher gives out (JoinGroupForm → /room/{code}). */}
+      <Box mt="lg">
+        <JoinGroupForm />
+      </Box>
     </Stack>
   )
 }

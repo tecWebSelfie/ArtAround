@@ -32,11 +32,12 @@ import { ArrowLeft, ArrowRight, BookOpen, Check, TriangleAlert, X } from 'lucide
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState, useTransition } from 'react'
+import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { checkQuizAnswer, submitQuizAttempt } from './actions'
 import { QuizContentDrawer } from './QuizContentDrawer'
 import { emptyQuizSession, type QuizSession, saveQuizSession, useQuizSession } from './quiz-session'
+import { useGroupQuizGuest } from './group-quiz'
 
 export type QuizTourSummary = { id: string; title: string; stopCount: number }
 
@@ -47,6 +48,9 @@ export type QuizTourSummary = { id: string; title: string; stopCount: number }
  * `history.pushState`, which Next syncs with `useSearchParams` without a server
  * round trip, so Back/Forward and reloads keep working. Skipping ahead through
  * the URL is clamped to the first unanswered question.
+ *
+ * In a group, guests take this same quiz; `useGroupQuizGuest` reports their
+ * progress and result to the host, and hands the quiz in when the host ends it.
  */
 export function TourQuiz({
   tour,
@@ -96,8 +100,13 @@ export function TourQuiz({
     else window.history.pushState(null, '', url)
   }
 
+  // Set once the attempt is saved: clearing the saved answers must not send the
+  // visitor back to question 1 while the result page is loading.
+  const leaving = useRef(false)
+
   // Normalize a URL pointing past the first unanswered question.
   useEffect(() => {
+    if (leaving.current) return
     if (restored && index !== null && index + 1 !== requested) goTo(index + 1, true)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the clamp changes
   }, [restored, index, requested])
@@ -148,6 +157,8 @@ export function TourQuiz({
           choices: session.choices,
         })
         if (result.status === 'ok') {
+          groupQuiz.finished(result.token)
+          leaving.current = true
           saveQuizSession(tour.id, null)
           router.push(tourQuizResultPath(lng, tour.id, result.token))
           return
@@ -165,6 +176,15 @@ export function TourQuiz({
         })
       }
     })
+
+  const groupQuiz = useGroupQuizGuest({
+    tourId: tour.id,
+    answered,
+    total: questions.length,
+    submit,
+  })
+  // Guests follow the host, so the way back to the map is the host's to take.
+  const backHref = groupQuiz.active ? undefined : mapHref
 
   // A deep link to a question waits for the restored answers instead of flashing the intro.
   if (index !== null && !restored) {
@@ -184,7 +204,7 @@ export function TourQuiz({
         questionCount={questions.length}
         unvisited={Math.max(0, tour.stopCount - from)}
         answered={restored ? answered : 0}
-        mapHref={mapHref}
+        mapHref={backHref}
         onStart={() => goTo(Math.min(lastReachable, questions.length - 1) + 1)}
         onRestart={() => {
           update(emptyQuizSession())
@@ -215,16 +235,18 @@ export function TourQuiz({
               style={{ zIndex: 1 }}
             >
               <Group gap="xs" wrap="nowrap">
-                <ActionIcon
-                  component={Link}
-                  href={mapHref}
-                  variant="subtle"
-                  color="gray"
-                  aria-label={t('Leave the quiz and return to the map')}
-                  title={t('Back to the map')}
-                >
-                  <ArrowLeft size={18} />
-                </ActionIcon>
+                {backHref && (
+                  <ActionIcon
+                    component={Link}
+                    href={backHref}
+                    variant="subtle"
+                    color="gray"
+                    aria-label={t('Leave the quiz and return to the map')}
+                    title={t('Back to the map')}
+                  >
+                    <ArrowLeft size={18} />
+                  </ActionIcon>
+                )}
                 <Text fw={600} size="sm" truncate="end" flex={1}>
                   {tour.title}
                 </Text>
@@ -440,7 +462,8 @@ function QuizIntro({
   questionCount: number
   unvisited: number
   answered: number
-  mapHref: Route
+  /** Missing for group guests, who return to the map with the host. */
+  mapHref?: Route
   onStart: () => void
   onRestart: () => void
 }) {
@@ -497,15 +520,17 @@ function QuizIntro({
                 {t('Start over')}
               </Button>
             )}
-            <Button
-              size="md"
-              variant="subtle"
-              component={Link}
-              href={mapHref}
-              leftSection={<ArrowLeft size={18} />}
-            >
-              {t('Back to the tour')}
-            </Button>
+            {mapHref && (
+              <Button
+                size="md"
+                variant="subtle"
+                component={Link}
+                href={mapHref}
+                leftSection={<ArrowLeft size={18} />}
+              >
+                {t('Back to the tour')}
+              </Button>
+            )}
           </Stack>
         </Stack>
       </Container>

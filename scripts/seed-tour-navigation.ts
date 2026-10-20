@@ -21,8 +21,7 @@ const WEST_HALL_ID = 'zone_navigation_fixture_west'
  */
 function addFixtureRooms(nodes: Record<string, unknown>) {
   const level = Object.values(nodes).find((node) => LevelNode.safeParse(node).success) as
-    | { id: string; children?: string[] }
-    | undefined
+    { id: string; children?: string[] } | undefined
   if (!level) return
   const rooms = [
     { id: WEST_HALL_ID, name: 'West hall', x: 0 },
@@ -239,6 +238,43 @@ const tourId = fixtureTour.docs[0]?.id
 if (tourId && !fixtureTour.docs[0].museum) {
   await payload.update({ collection: 'tours', id: tourId, data: { museum: museum.id }, depth: 0 })
   console.info('Linked the fixture tour to its museum.')
+}
+// A short end-of-tour quiz, so the quiz and the group quiz can be tested.
+// Tour-owned questions (no `relatedTo`): they live and die with this tour.
+if (tourId && !fixtureTour.docs[0].quiz?.questions?.length) {
+  const questions = await Promise.all(
+    [
+      {
+        prompt: 'Which hall is Object 1 in?',
+        correctAnswer: 'West hall',
+        wrong: ['East hall', 'North hall', 'The garden'],
+      },
+      {
+        prompt: 'How many stops does this tour have?',
+        correctAnswer: 'Two',
+        wrong: ['One', 'Three', 'Five'],
+      },
+    ].map(({ prompt, correctAnswer, wrong }) =>
+      payload.create({
+        collection: 'quizQuestions',
+        data: {
+          prompt,
+          correctAnswer,
+          wrongAnswers: wrong.map((text) => ({ text })),
+          difficulty: 'medium',
+        },
+        locale: 'en',
+        depth: 0,
+      }),
+    ),
+  )
+  await payload.update({
+    collection: 'tours',
+    id: tourId,
+    data: { quiz: { questions: questions.map(({ id }) => id) } },
+    depth: 0,
+  })
+  console.info('Added a two-question quiz to the fixture tour.')
 }
 // Not under test-results/: Playwright empties that folder when a run starts.
 await mkdir('.e2e-fixtures', { recursive: true })

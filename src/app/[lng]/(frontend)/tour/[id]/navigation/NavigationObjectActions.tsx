@@ -12,8 +12,12 @@ import {
   withNavigationPosition,
 } from '@/lib/tour-navigation'
 import { useTourNavigationData } from './TourNavigationShell'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 
-/** Shared actions for object and content panels; choosing a place is always explicit. */
+/**
+ * Shared actions for object and content panels; choosing a place is always explicit.
+ * Group guests get none: position and destination are the host's (GroupProvider).
+ */
 export function NavigationObjectActions({
   objectId,
   contents,
@@ -26,8 +30,9 @@ export function NavigationObjectActions({
   const search = useSearchParams()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
+  const guest = useIsGroupGuest()
   const step = data ? tourStepIndex(stepId, data.tour.contents.length) : null
-  if (!data || step === null) return null
+  if (!data || step === null || guest) return null
   const base = tourNavigationPath(lng, tourId, step)
   const href = (path: string) => withNavigationPosition(path, search.toString())
   const contentHref = (id: string) => href(tourContentPath(lng, data.tour, step, id))

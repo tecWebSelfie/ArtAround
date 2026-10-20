@@ -52,7 +52,16 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
   const payload = await getPayload({ config })
   const locale = normalizeLocale(lng) ?? 'en'
   const states = await Promise.all(
-    ids.map((id) => resolveLocalized(payload, ORIGIN, { collection: 'quizQuestions', id, locale })),
+    // Questions aren't readable by visitors (they carry the answer), so this
+    // server-only read skips access; only reduced views leave the server.
+    ids.map((id) =>
+      resolveLocalized(payload, ORIGIN, {
+        collection: 'quizQuestions',
+        id,
+        locale,
+        overrideAccess: true,
+      }),
+    ),
   )
   const missing = states.flatMap((state) =>
     state.kind === 'miss' || state.kind === 'stale' ? [state.doc.id] : [],

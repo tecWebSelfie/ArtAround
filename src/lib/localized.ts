@@ -86,19 +86,26 @@ export async function resolveLocalized<TSlug extends LocalizedSlug>(
     id,
     locale,
     user = null,
+    overrideAccess = false,
   }: {
     collection: TSlug
     id: string | number
     locale: TypedLocale
     /**
-     * The visitor the document is read for. Document reads always apply
-     * access control (`overrideAccess: false`), so field rules such as the
+     * The visitor the document is read for. Document reads apply
+     * access control by default, so field rules such as the
      * paid-content body hold here too; `null` reads as an anonymous visitor.
      */
     user?: TypedUser | null
+    /**
+     * Skip access control, for server-only reads whose result never reaches
+     * the browser as is (quiz questions: `src/lib/quiz.server.ts` sends only
+     * reduced views without the answer).
+     */
+    overrideAccess?: boolean
   },
 ): Promise<LocalizedState<TSlug>> {
-  const viewer = { user, overrideAccess: false } as const
+  const viewer = { user, overrideAccess }
   const receipts = await payload.find({
     collection: PROVENANCE_COLLECTION,
     where: {

@@ -37,6 +37,7 @@ Base: `/[lng]/tour/[id]/navigation/[stepId]`.
 | Object details                   | `/object/OBJECT_ID` parallel modal   |
 | Scanner                          | `/scan`                              |
 | End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md)) |
+| Group join page and waiting room | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
 next-content routing, and museum object identification. `at`, `to`, and the

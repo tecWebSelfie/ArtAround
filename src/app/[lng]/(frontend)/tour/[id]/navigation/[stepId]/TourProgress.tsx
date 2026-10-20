@@ -13,6 +13,7 @@ import {
   withNavigationValue,
 } from '@/lib/tour-navigation'
 import { ListChecks } from 'lucide-react'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -22,6 +23,7 @@ import { useTranslation } from 'react-i18next'
  * that entrance leads the stepper as the starting step.
  * A tour with a quiz ends with a "Quiz" step: visible from the start, so visitors know it is
  * coming, and selectable at any time (the quiz intro warns about stops still ahead).
+ * For group guests it is read-only progress: the host chooses the steps.
  */
 export function TourProgress({
   contents,
@@ -42,6 +44,7 @@ export function TourProgress({
   const hasEntrance = Boolean(entranceLabel)
   // The stepper's first index belongs to the entrance when it is shown.
   const offset = hasEntrance ? 1 : 0
+  const guest = useIsGroupGuest()
 
   useEffect(() => {
     activeStep.current?.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' })
@@ -57,33 +60,37 @@ export function TourProgress({
         classNames={{
           separator: 'min-w-1/12',
         }}
-        onStepClick={(index) => {
-          // The starting step means "back to the plain tour route": it clears the
-          // chosen destination without ever writing a position.
-          if (hasEntrance && index === 0) {
-            router.replace(
-              withNavigationValue(
-                tourNavigationPath(lng, tourId, step),
-                search.toString(),
-                'to',
-                null,
-              ),
-              { scroll: false },
-            )
-            return
-          }
-          // The step after the last stop is the quiz.
-          if (index - offset === contents.length) {
-            router.push(tourQuizPath(lng, tourId, step, search.toString()))
-            return
-          }
-          const content = contents[index - offset]
-          if (content) {
-            const contentId = typeof content === 'string' ? content : content.id
-            const path = tourContentPath(lng, { id: tourId, contents }, step, contentId)
-            router.push(withNavigationPosition(path, search.toString()))
-          }
-        }}
+        onStepClick={
+          guest
+            ? undefined
+            : (index) => {
+                // The starting step means "back to the plain tour route": it clears the
+                // chosen destination without ever writing a position.
+                if (hasEntrance && index === 0) {
+                  router.replace(
+                    withNavigationValue(
+                      tourNavigationPath(lng, tourId, step),
+                      search.toString(),
+                      'to',
+                      null,
+                    ),
+                    { scroll: false },
+                  )
+                  return
+                }
+                // The step after the last stop is the quiz.
+                if (index - offset === contents.length) {
+                  router.push(tourQuizPath(lng, tourId, step, search.toString()))
+                  return
+                }
+                const content = contents[index - offset]
+                if (content) {
+                  const contentId = typeof content === 'string' ? content : content.id
+                  const path = tourContentPath(lng, { id: tourId, contents }, step, contentId)
+                  router.push(withNavigationPosition(path, search.toString()))
+                }
+              }
+        }
       >
         {hasEntrance && <StepperStep label={entranceLabel ?? t('Entrance')} />}
         {contents.map((content, index) => (

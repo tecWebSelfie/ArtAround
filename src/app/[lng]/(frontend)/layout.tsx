@@ -8,6 +8,7 @@ import MswProvider from '@/mocks/MswProvider'
 import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 
+import { GroupProvider } from '@/components/group/GroupProvider'
 import { AgentProvider } from './AgentProvider'
 
 export const metadata = {
@@ -27,20 +28,23 @@ export default async function Layout(props: { children: React.ReactNode }) {
       <AgentProvider>
         <MantineProvider theme={theme}>
           <Notifications />
-          <ModalsProvider>
-            <AppShell
-              footer={{
-                height: 64,
-                offset: true,
-              }}
-              header={{
-                height: 'auto',
-                offset: false,
-              }}
-            >
-              {children}
-            </AppShell>
-          </ModalsProvider>
+          {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
+          <GroupProvider>
+            <ModalsProvider>
+              <AppShell
+                footer={{
+                  height: 64,
+                  offset: true,
+                }}
+                header={{
+                  height: 'auto',
+                  offset: false,
+                }}
+              >
+                {children}
+              </AppShell>
+            </ModalsProvider>
+          </GroupProvider>
         </MantineProvider>
       </AgentProvider>
     </MswProvider>

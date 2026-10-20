@@ -13,7 +13,14 @@ import {
   UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { ChevronLeft, ChevronRight, Footprints, MapPinCheck, MapPinOff, Navigation } from 'lucide-react'
+import {
+  ChevronLeft,
+  ChevronRight,
+  Footprints,
+  MapPinCheck,
+  MapPinOff,
+  Navigation,
+} from 'lucide-react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -93,7 +100,8 @@ export function DirectionsBar({
           : status === 'loading'
             ? t('Finding your route')
             : t('Choose where to go from search')
-    const Icon = status === 'complete' ? MapPinCheck : status === 'unavailable' ? MapPinOff : Navigation
+    const Icon =
+      status === 'complete' ? MapPinCheck : status === 'unavailable' ? MapPinOff : Navigation
     return (
       <Group gap="xs" wrap="nowrap" role="status" aria-live="polite" className="min-h-12 px-1">
         <Icon size={20} aria-hidden />

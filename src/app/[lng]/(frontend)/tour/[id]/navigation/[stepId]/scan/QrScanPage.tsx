@@ -20,7 +20,12 @@ export function QrScanPage() {
     <QrScanner
       isAllowedPath={(pathname) => ALLOWED_QR_PATTERNS.some(({ match }) => match.test(pathname))}
       onScan={(url) =>
-        router.replace(withNavigationPosition(url.pathname, search.toString()) as Route)
+        // A group's QR code opens its join page as is; museum links keep the position.
+        router.replace(
+          (GROUP_ROOM.test(url.pathname)
+            ? url.pathname
+            : withNavigationPosition(url.pathname, search.toString())) as Route,
+        )
       }
       onClose={close}
       onInvalid={(rawValue) => console.error('QR code non valido:', rawValue)}
@@ -68,4 +73,8 @@ const ALLOWED_QR_PATTERNS = [
   scannable('/[lng]/object/[id]', new RegExp(`^/(${lng})/object/([^/]+)$`)),
   scannable('/[lng]/content/[id]', new RegExp(`^/(${lng})/content/([^/]+)$`)),
   scannable('/[lng]/museum/[id]', new RegExp(`^/(${lng})/museum/([^/]+)$`)),
+  // Group tours: the host's "Show QR code" (ShareGroup).
+  scannable('/[lng]/room/[code]', new RegExp(`^/(${lng})/room/([^/]+)$`)),
 ]
+
+const GROUP_ROOM = new RegExp(`^/(${lng})/room/`)

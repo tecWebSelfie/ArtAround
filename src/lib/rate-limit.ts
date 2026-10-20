@@ -2,9 +2,10 @@ import 'server-only'
 
 /**
  * Tiny in-memory limiter for the AI routes (`/api/assistant`, `/api/speech`,
- * `/api/expand`, `/api/plan-tour`, `/api/transcribe`),
- * which call paid speech and language APIs: at most `limit` requests per
- * client IP and route per minute. Per server instance only; enough for one deployment.
+ * `/api/expand`, `/api/plan-tour`, `/api/transcribe`), which call paid speech and
+ * language APIs, and the group room routes (`/api/rooms`, `/api/rooms/token`):
+ * at most `limit` requests per client IP and route per minute. Per server
+ * instance only; enough for one deployment.
  */
 const WINDOW_MS = 60_000
 const hits = new Map<string, number[]>()

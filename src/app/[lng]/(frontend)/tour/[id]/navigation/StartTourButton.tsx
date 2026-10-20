@@ -1,17 +1,22 @@
-import { getT } from '@/i18n.server'
+'use client'
+
 import { BorderAnimate, BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { Group, Text, UnstyledButton } from '@mantine/core'
 import { cn } from 'cn'
 import { PlayCircle } from 'lucide-react'
 import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import { tourNavigationPath } from '@/lib/tour-navigation'
 
-/** Starts a fresh tour at cursor zero using the active locale's shareable route. */
-export const StartTourButton = async ({
-  tourId,
-  ...props
-}: { tourId: string } & BorderAnimateProps) => {
-  const { t, i18n } = await getT('tour-navigation')
+/**
+ * Starts a fresh tour at cursor zero using the active locale's shareable route.
+ * A client component: it hands `Link` to Mantine as `component`, and functions
+ * can't cross from a server component into client ones.
+ */
+export const StartTourButton = ({ tourId, ...props }: { tourId: string } & BorderAnimateProps) => {
+  const { t } = useTranslation('tour-navigation')
+  const { lng } = useParams<{ lng: string }>()
   return (
     <BorderAnimate
       {...props}
@@ -19,11 +24,7 @@ export const StartTourButton = async ({
       borderWidth={'sm'}
       className={cn('transition hover:scale-105', props.className)}
     >
-      <UnstyledButton
-        component={Link}
-        href={tourNavigationPath(i18n.resolvedLanguage ?? 'en', tourId, 0)}
-        className="p-2"
-      >
+      <UnstyledButton component={Link} href={tourNavigationPath(lng, tourId, 0)} className="p-2">
         <Group align="center" gap="xs" justify="center">
           <Text
             className="font-semibold"

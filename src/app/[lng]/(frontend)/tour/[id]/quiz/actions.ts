@@ -96,3 +96,33 @@ export async function submitQuizAttempt(
   updateTag(quizStatsTag(tourId))
   return { status: 'ok', token }
 }
+
+const tokensInput = z.object({ tourId: id, tokens: z.array(z.string().min(1).max(64)).max(200) })
+
+export type GroupQuizScore = { token: string; score: number; total: number; percent: number }
+
+/**
+ * Scores for the group quiz board (GroupQuizBoard): the host received each
+ * guest's result token through the group, and reads the scores with them.
+ * A token is the same secret that opens the guest's own result page.
+ */
+export async function groupQuizScores(
+  input: z.input<typeof tokensInput>,
+): Promise<GroupQuizScore[]> {
+  const parsed = tokensInput.safeParse(input)
+  if (!parsed.success || !parsed.data.tokens.length) return []
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'quizAttempts',
+    where: { token: { in: parsed.data.tokens }, tour: { equals: parsed.data.tourId } },
+    limit: parsed.data.tokens.length,
+    depth: 0,
+    select: { token: true, score: true, total: true, percent: true },
+  })
+  return docs.map(({ token, score, total, percent }) => ({
+    token,
+    score: score ?? 0,
+    total: total ?? 0,
+    percent: percent ?? 0,
+  }))
+}

@@ -14,6 +14,7 @@
   "Each question has four answers and only one is right. You see straight away whether you got it, with a short explanation.": "Ogni domanda ha quattro risposte e una sola è giusta. Scopri subito se hai indovinato, con una breve spiegazione.",
   "Excellent work!": "Ottimo lavoro!",
   "Final quiz · {{count}} questions · about {{minutes}} min_one": "Quiz finale · {{count}} domanda · circa {{minutes}} min",
+  "Final quiz · {{count}} questions · about {{minutes}} min_many": "Quiz finale · {{count}} domande · circa {{minutes}} min",
   "Final quiz · {{count}} questions · about {{minutes}} min_other": "Quiz finale · {{count}} domande · circa {{minutes}} min",
   "How was the tour?": "Com'è stato il tour?",
   "I scored {{score}}/{{total}} on the “{{tour}}” quiz.": "Ho totalizzato {{score}}/{{total}} nel quiz «{{tour}}».",

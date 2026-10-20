@@ -1,10 +1,14 @@
 import { getT } from '@/i18n.server'
 import { Tour } from '@/payload-types'
-import { AspectRatio, Image, Stack, StackProps, TextInput, ThemeIcon, Title } from '@mantine/core'
-import { UserRoundGroup } from 'lucide-react'
+import { JoinGroupForm } from '@/components/group/JoinGroupForm'
+import { StartGroupButton } from '@/components/group/StartGroupButton'
+import { AspectRatio, Divider, Group, Image, Stack, StackProps, Title } from '@mantine/core'
 import { StartTourButton } from './StartTourButton'
 
-/** Server-rendered introduction shown before the persistent map session starts. */
+/**
+ * Server-rendered introduction shown before the persistent map session starts:
+ * start alone, open a group as its host, or join a group with its code.
+ */
 export default async function NavigationPage({ tour, ...props }: { tour: Tour } & StackProps) {
   const { t } = await getT('tour-navigation')
   const tourThumbnail = typeof tour.thumbnail === 'object' ? tour.thumbnail : null
@@ -22,19 +26,12 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
         </AspectRatio>
       </Stack>
       <Stack justify="center" align="center">
-        <TextInput
-          className="w-10/12"
-          size="xs"
-          radius={'md'}
-          variant="default"
-          placeholder={t('Room Code')}
-          rightSection={
-            <ThemeIcon autoContrast>
-              <UserRoundGroup />
-            </ThemeIcon>
-          }
-        />
-        <StartTourButton tourId={tour.id} />
+        <Group justify="center" gap="md">
+          <StartTourButton tourId={tour.id} />
+          <StartGroupButton tourId={tour.id} />
+        </Group>
+        <Divider label={t('or')} w="100%" />
+        <JoinGroupForm />
       </Stack>
     </Stack>
   )

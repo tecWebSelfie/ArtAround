@@ -1,13 +1,14 @@
 import { getTourQuiz, quizQuestionViews } from '@/lib/quiz.server'
 import { tourStepIndex } from '@/lib/tour-navigation'
 import { notFound } from 'next/navigation'
-import { TourQuiz } from './TourQuiz'
+import { QuizPageContent } from './GroupQuizBoard'
 
 /**
  * Quiz entry (`/[lng]/tour/[id]/quiz?from=N`), outside the map layout. Only the
  * reduced question views cross into the client component: never pass the full
  * questions, whose `correctAnswer` would be serialized into the RSC payload.
  * `?q=` is read by the client, so moving between questions needs no server render.
+ * A group's host gets the group's board instead of the quiz (GroupQuizBoard).
  */
 export default async function QuizPage({
   params,
@@ -21,7 +22,7 @@ export default async function QuizPage({
   const step = tourStepIndex(typeof from === 'string' ? from : '', quiz.tour.stopCount)
 
   return (
-    <TourQuiz
+    <QuizPageContent
       tour={{ id: quiz.tour.id, title: quiz.tour.title, stopCount: quiz.tour.stopCount }}
       questions={quizQuestionViews(quiz)}
       from={step ?? quiz.tour.stopCount}

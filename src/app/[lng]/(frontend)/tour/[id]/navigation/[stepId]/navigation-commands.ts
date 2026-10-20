@@ -11,6 +11,7 @@ import {
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
 import { EXPANSION_ANGLES } from '@/lib/expansion'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import type { Route } from 'next'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
@@ -58,6 +59,7 @@ export function useNavigationCommands({
   const pathname = usePathname()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
+  const guest = useIsGroupGuest()
 
   const commands = useMemo<NavigationCommand[]>(() => {
     const query = search.toString()
@@ -255,8 +257,24 @@ export function useNavigationCommands({
           }),
         ]
       : []
-    return [...expansion, ...versions, ...quick, ...searchable]
-  }, [lng, tour, step, catalog, services, exits, museum.navMeshWheelchair, search, pathname, t])
+    const all = [...expansion, ...versions, ...quick, ...searchable]
+    // In a group the host decides where everyone goes: a guest keeps only
+    // what changes their own reading and route (Tell me more, reading
+    // options, wheelchair), never a step, destination or another modal.
+    return guest ? all.filter(({ id }) => /^(more|version):/.test(id) || id === 'wheelchair') : all
+  }, [
+    lng,
+    tour,
+    step,
+    catalog,
+    services,
+    exits,
+    museum.navMeshWheelchair,
+    search,
+    pathname,
+    t,
+    guest,
+  ])
 
   /** Runs a command: every command is a URL change. */
   const run = useCallback(

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-19T23:32:18.305Z",
+  "generatedAt": "2026-10-20T02:21:22.786Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -675,6 +675,29 @@
       "description": "Results comparison: the sentence states the finding, the bars add the shape. Only the visitor's band is colored, and it is also named \"(you)\".",
       "html": "<figure class=\"ds-dist\"><p class=\"ds-dist__lead\">You did better than 62% of visitors.</p><div class=\"ds-dist__bars\" role=\"img\" aria-label=\"Visitors per score band: 0–20% 3, 21–40% 8, 41–60% 14, 61–80% (you) 11, 81–100% 6\"><div class=\"ds-dist__col\"><span>3</span><i style=\"height:21%\"></i><b>0–20%</b></div><div class=\"ds-dist__col\"><span>8</span><i style=\"height:57%\"></i><b>21–40%</b></div><div class=\"ds-dist__col\"><span>14</span><i style=\"height:100%\"></i><b>41–60%</b></div><div class=\"ds-dist__col ds-dist__col--you\"><span>11</span><i style=\"height:79%\"></i><b>61–80% (you)</b></div><div class=\"ds-dist__col\"><span>6</span><i style=\"height:43%\"></i><b>81–100%</b></div></div></figure>",
       "css": ".ds-dist{margin:0;max-width:540px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-dist__lead{font-size:16px;margin:0 0 12px;color:#000}.ds-dist__bars{display:flex;align-items:flex-end;gap:12px;height:180px}.ds-dist__col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}.ds-dist__col i{display:block;width:100%;background:#ced4da}.ds-dist__col span{font-size:12px;color:#495057;font-variant-numeric:tabular-nums}.ds-dist__col b{font-size:12px;font-weight:400;color:#868e96;white-space:nowrap}.ds-dist__col--you i{background:#ff922b}.ds-dist__col--you b{color:#495057;font-weight:600}"
+    },
+    {
+      "name": "Group waiting room",
+      "kind": "list",
+      "refersTo": "room-code",
+      "description": "Host view before the start: tour heading, the room code in monospace, share pair, live member list, start and end.",
+      "html": "<div class=\"ds-gw\"><p class=\"ds-gw-l\">Group code</p><p class=\"ds-gw-c\">3WM8JY</p><div class=\"ds-gw-r\"><button class=\"ds-gw-b\">Share link</button><button class=\"ds-gw-b\">Show QR code</button></div><hr><p class=\"ds-gw-n\">2 in the group</p><ul class=\"ds-gw-m\"><li><span class=\"ds-gw-a\">AN</span>Anna <em>(you)</em><b>Host</b></li><li><span class=\"ds-gw-a\">MA</span>Marco</li></ul><hr><button class=\"ds-gw-s\">Start the tour</button><button class=\"ds-gw-e\">End the group tour</button></div>",
+      "css": ".ds-gw{max-width:360px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529;display:flex;flex-direction:column;gap:12px}.ds-gw p{margin:0}.ds-gw-l{text-align:center;font-size:14px;color:#868e96}.ds-gw-c{text-align:center;font:700 40px/1 ui-monospace,monospace;letter-spacing:.12em}.ds-gw-r{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ds-gw-b{height:36px;border:1px solid #dee2e6;border-radius:4px;background:#fff;font-weight:600;cursor:pointer}.ds-gw hr{border:0;border-top:1px solid #dee2e6;margin:0;width:100%}.ds-gw-n{font-size:14px;font-weight:500}.ds-gw-m{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}.ds-gw-m li{display:flex;align-items:center;gap:12px}.ds-gw-m em{color:#868e96;font-style:normal;margin-left:-8px}.ds-gw-m b{margin-left:auto;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:11px;padding:2px 8px;border-radius:32px;text-transform:uppercase}.ds-gw-a{width:26px;height:26px;border-radius:50%;background:#e7f5ff;color:#1c7ed6;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}.ds-gw-s{height:42px;border:0;border-radius:4px;background:#228be6;color:#fff;font-weight:600;font-size:16px;cursor:pointer}.ds-gw-e{height:36px;border:0;background:transparent;color:#e03131;font-weight:600;cursor:pointer}.ds-gw button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Group pill",
+      "kind": "button",
+      "refersTo": "group-pill",
+      "description": "Head count beside the tour title; orange for guests while the host is away. Opens the \"Your group\" panel.",
+      "html": "<div class=\"ds-gp\"><h5>Tour of the West hall</h5><button class=\"ds-gp-b\" aria-label=\"Your group, 12 people\">12</button><button class=\"ds-gp-b is-away\" aria-label=\"Your group, 12 people\">12</button></div>",
+      "css": ".ds-gp{font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;display:flex;align-items:center;gap:8px}.ds-gp h5{margin:0;font-size:16px}.ds-gp-b{height:26px;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-weight:600;font-size:14px;cursor:pointer}.ds-gp-b.is-away{background:rgba(253,126,20,.1);color:#e8590c}.ds-gp-b:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+    },
+    {
+      "name": "Group quiz board",
+      "kind": "list",
+      "description": "Host's quiz page in a group: finished count over the gradient progress, one row per guest with progress, finished, or score and an Answers link.",
+      "html": "<div class=\"ds-gq\"><h2>Your group is taking the quiz</h2><p class=\"ds-gq-t\">Tour of the West hall</p><p class=\"ds-gq-n\">1 of 2 finished</p><div class=\"ds-gq-p\"><span style=\"width:50%\"></span></div><ul><li><span>Marco</span><b>2 of 3</b><a href=\"#\">Answers</a></li><li><span>Giulia</span><i>1 of 3 answered</i></li></ul><button>End the quiz</button></div>",
+      "css": ".ds-gq{max-width:360px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529}.ds-gq h2{margin:0;font-size:26px}.ds-gq p{margin:0}.ds-gq-t{color:#868e96;margin-bottom:16px!important}.ds-gq-n{font-size:14px;font-weight:500;font-variant-numeric:tabular-nums}.ds-gq-p{height:8px;border-radius:32px;background:#e9ecef;margin:6px 0 16px;overflow:hidden}.ds-gq-p span{display:block;height:100%;background:linear-gradient(90deg,#6b21a8,#fb923c)}.ds-gq ul{list-style:none;margin:0 0 16px;padding:0;display:flex;flex-direction:column;gap:10px;font-size:14px}.ds-gq li{display:flex;gap:8px;align-items:center}.ds-gq li span{flex:1}.ds-gq i{font-style:normal;color:#868e96;font-variant-numeric:tabular-nums}.ds-gq a{color:#228be6}.ds-gq button{width:100%;height:42px;border:0;border-radius:4px;background:#228be6;color:#fff;font-weight:600;font-size:16px;cursor:pointer}.ds-gq button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     }
   ],
   "narrative": {
@@ -774,6 +797,11 @@
         "name": "The Same-Voice Rule",
         "body": "Generated text wears the museum's own voice: no chat bubbles, avatars, typing cursor, word-by-word streaming, sparkle icon, \"AI\" wording or \"generated\" badge. It arrives one whole paragraph at a time, and only the metadata (`generation` groups in Payload) tells it apart from authored text.",
         "section": "components"
+      },
+      {
+        "name": "The Follow-the-Host Rule",
+        "body": "In a group, guests never get a control that would move them away from the host (steps, destinations, \"go to\" commands, scanner, position); they keep every control that only changes how they read or move (language, reading options, Tell me more, wheelchair route). Hide such controls; don't disable them. This covers the stepper (read-only progress), the step modal's \"Go to next step\", the object actions, the directions strip's \"Take the quiz\", and the quiz's \"Back to the map\".",
+        "section": "components"
       }
     ],
     "dos": [
@@ -799,6 +827,7 @@
       "**Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
       "**Don't** promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.",
       "**Don't** draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.",
+      "**Don't** give group guests a disabled step or destination control; hide it (see The Follow-the-Host Rule).",
       "**Don't** label generated text or tours as AI, add sparkles, chat bubbles or a typing effect, or open a free prompt box (see The Same-Voice Rule).",
       "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
       "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",

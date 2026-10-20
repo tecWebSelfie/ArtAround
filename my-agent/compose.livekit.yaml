@@ -6,7 +6,10 @@ services:
   livekit:
     image: livekit/livekit-server
     <<: *env-local
-    command: --dev --bind 0.0.0.0
+    # --node-ip: advertise the host's loopback for WebRTC. Without it the
+    # server offers its container IP, browsers never finish connecting, and
+    # rooms (group tours) hang in "connecting".
+    command: --dev --bind 0.0.0.0 --node-ip 127.0.0.1
     ports:
       - "7880:7880"
       - "7881:7881"

@@ -11,11 +11,13 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'next/navigation'
 import { contentObjectId, tourQuizPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { NavigationObjectActions } from '../../../NavigationObjectActions'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 
 /**
  * Shows the next ordered content and advances only when the visitor confirms.
  * On the last stop of a tour with a quiz, completing goes straight to the quiz
  * (with the completed cursor as `from`), which is the tour's final step.
+ * In a group only the host moves on; guests follow (GroupProvider).
  */
 export function StepModal({
   step: content,
@@ -34,6 +36,7 @@ export function StepModal({
   const { lng, id: tourId } = useParams<{ lng: string; id: string }>()
   const { t } = useTranslation('tour-navigation')
   const toQuiz = lastStep && quizFrom !== undefined
+  const guest = useIsGroupGuest()
   return (
     <Stack>
       <ContentVersion content={content}>
@@ -41,7 +44,7 @@ export function StepModal({
       </ContentVersion>
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />
-      {nextHref && (
+      {nextHref && !guest && (
         <Button
           onClick={() => {
             const params = new URLSearchParams(search)
