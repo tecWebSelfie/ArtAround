@@ -40,14 +40,16 @@ export const SEARCH_COLLECTION_BY_KIND: Record<SearchDocKind, SearchPluginCollec
 }
 
 /**
- * Cross-collection priority used by the navigator dropdown. Higher values are
- * shown first; the marketplace keeps its own newest-first ordering.
+ * Cross-collection priority used by the home dropdown. Higher values are shown
+ * first: tours lead (starting a tour is the app's main way in), then contents,
+ * then museums. The marketplace keeps its own newest-first ordering. Stored per
+ * row: run `pnpm search:reindex` after changing these.
  */
 export const SEARCH_PRIORITIES: Record<SearchPluginCollection, number> = {
-  museums: 10,
-  objects: 8,
-  tours: 6,
-  contents: 5,
+  tours: 10,
+  contents: 8,
+  museums: 6,
+  objects: 5,
   users: 4,
 }
 

@@ -9,7 +9,8 @@ import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
-import type { Access } from 'payload'
+import type { Access, RelationshipFieldValidation } from 'payload'
+import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 
 /**
@@ -37,6 +38,37 @@ const ownerOrSuperAdmin: Access = ({ req }) => {
 
 const anyMuseumStaff: Access = async ({ req }) =>
   isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
+
+/**
+ * A content is about exactly one object: it may appear in the `contents` of at
+ * most one object (`contents.objects` is a single-object join, and navigation
+ * routes a content to "its" object). Saving an object that lists a content
+ * already attached elsewhere is rejected with the other object's name, so the
+ * editor detaches it there first instead of silently moving it.
+ */
+const validateExclusiveContents: RelationshipFieldValidation = async (value, options) => {
+  const base = await relationship(value, options)
+  if (base !== true) return base
+  const { req, id } = options
+  const selected = (Array.isArray(value) ? value : value ? [value] : [])
+    .map((entry) => String(extractID(entry as never)))
+    .filter(Boolean)
+  if (!selected.length || !req?.payload) return true
+  const { docs } = await req.payload.find({
+    collection: 'objects',
+    where: {
+      and: [{ contents: { in: selected } }, ...(id ? [{ id: { not_equals: id } }] : [])],
+    },
+    select: { name: true },
+    depth: 0,
+    limit: 1,
+    req,
+  })
+  const other = docs[0]
+  return other
+    ? `A content can belong to one object only: one of these is already attached to "${other.name}".`
+    : true
+}
 
 export const Objects: CollectionConfig = {
   slug: 'objects',
@@ -119,12 +151,15 @@ export const Objects: CollectionConfig = {
       index: true,
     },
     {
+      // The authored object → content relation (ordered). Exclusive per
+      // content: see `validateExclusiveContents`.
       name: 'contents',
       type: 'relationship',
       relationTo: 'contents',
       hasMany: true,
       required: false,
       minRows: 1,
+      validate: validateExclusiveContents,
     },
     {
       name: 'thumbnail',

@@ -4,7 +4,9 @@ import { ContentMetadataForm } from '@/components/editing/forms/ContentMetadataF
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { getT } from '@/i18n.server'
+import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
+import { isLocked } from '@/lib/price'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { can, getSession } from '@/lib/session'
 import { Container, Group } from '@mantine/core'
@@ -19,11 +21,13 @@ import type { Route } from 'next'
 export default async function Content({ params }: PageProps<'/[lng]/content/[id]'>) {
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
+  const locked = isLocked(content)
   const [canEdit, canDelete, navigationHref] = await Promise.all([
     can('contents', id, 'update'),
     can('contents', id, 'delete'),
-    // The museum map with this content open and its object as destination.
-    contentNavigationEntry(lng, id),
+    // The museum map with this content open and its object as destination;
+    // not offered while the content is locked (buying it comes first).
+    locked ? null : contentNavigationEntry(lng, id),
   ])
   const { payload } = await getSession()
   const source = canEdit
@@ -50,9 +54,13 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
           lockedLabel={t('This content is paid. Unlock it to read the full text.')}
         />
       </EditableSection>
+      {locked && (
+        <Group mt="md">
+          <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} />
+        </Group>
+      )}
       {navigationHref && (
-        // Offered for locked contents too: navigation is always available and
-        // the content simply stays locked on the map (DESIGN.md → Buttons).
+        // Readable contents only: a locked one offers the purchase instead.
         <LinkButton
           href={navigationHref}
           mt="md"

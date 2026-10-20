@@ -1,6 +1,7 @@
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
+import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import {
   contentObjectId,
   tourContentPath,
@@ -33,6 +34,8 @@ export default async function Page({
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />
       </ContentVersion>
+      {/* Locked: buying comes right after the locked notice. */}
+      <ContentUnlock content={content} lng={lng} next={path} />
       {/* "Tell me more" pills and the extra text, right after the body. */}
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />

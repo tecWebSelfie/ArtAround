@@ -1,5 +1,7 @@
 'use client'
 
+import type { ReactNode } from 'react'
+
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
@@ -24,12 +26,15 @@ export function StepModal({
   nextHref,
   lastStep = false,
   quizFrom,
+  unlock,
 }: {
   step: Content
   nextHref?: Route
   lastStep?: boolean
   /** Set when the tour has a quiz: the completed cursor the last stop's action passes to it. */
   quizFrom?: number
+  /** Purchase action for a locked paid stop, rendered by the server page (`ContentUnlock`). */
+  unlock?: ReactNode
 }) {
   const router = useRouter()
   const search = useSearchParams()
@@ -42,6 +47,7 @@ export function StepModal({
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />
       </ContentVersion>
+      {unlock}
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />
       {nextHref && !guest && (

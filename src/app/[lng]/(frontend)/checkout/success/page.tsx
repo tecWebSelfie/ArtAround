@@ -78,7 +78,11 @@ export default async function CheckoutSuccess(props: {
     ? await hasPurchased(payload, user.id, back.target.collection, back.target.id)
     : false
   const action = {
-    label: back.isTour ? t('Back to the tour') : t('Back to the navigator'),
+    label: back.isTour
+      ? t('Back to the tour')
+      : back.target?.collection === 'contents'
+        ? t('Back to the content')
+        : t('Back to the navigator'),
     href: back.href,
   }
 

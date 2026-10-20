@@ -1,7 +1,8 @@
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
-import { contentObjectId } from '@/lib/tour-navigation'
+import { ContentUnlock } from '@/components/payments/ContentUnlock'
+import { contentObjectId, museumNavigationPath } from '@/lib/tour-navigation'
 import { getNavigationDocument } from '@/app/[lng]/(frontend)/tour/[id]/navigation/data'
 import { NavigationObjectActions } from '@/app/[lng]/(frontend)/tour/[id]/navigation/NavigationObjectActions'
 import { NavigationModal } from '@/app/[lng]/(frontend)/tour/[id]/navigation/[stepId]/NavigationModal'
@@ -15,7 +16,7 @@ export default async function Page({
 }: {
   params: Promise<{ lng: string; id: string; contentId: string }>
 }) {
-  const { lng, contentId } = await params
+  const { lng, id, contentId } = await params
   const content = await getNavigationDocument('contents', contentId, lng)
   return (
     <NavigationModal>
@@ -23,6 +24,12 @@ export default async function Page({
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />
       </ContentVersion>
+      {/* Locked: buying comes right after the locked notice. */}
+      <ContentUnlock
+        content={content}
+        lng={lng}
+        next={`${museumNavigationPath(lng, id)}/content/${contentId}`}
+      />
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />
       <NavigationObjectActions objectId={contentObjectId(content)} />
     </NavigationModal>

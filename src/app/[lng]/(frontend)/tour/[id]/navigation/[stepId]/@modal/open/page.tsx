@@ -1,3 +1,4 @@
+import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { StepModal } from './StepModal'
 import { getNavigationDocument, getNavigationTour } from '../../../data'
 import { tourNavigationPath, tourStepIndex } from '@/lib/tour-navigation'
@@ -26,6 +27,13 @@ export default async function OpenStepModal({
         nextHref={tourNavigationPath(lng, tourId, step + 1)}
         lastStep={step + 1 === tour.contents.length}
         quizFrom={tour.quiz?.questions?.length ? step + 1 : undefined}
+        unlock={
+          <ContentUnlock
+            content={content}
+            lng={lng}
+            next={`${tourNavigationPath(lng, tourId, step)}/open`}
+          />
+        }
       />
     </NavigationModal>
   )

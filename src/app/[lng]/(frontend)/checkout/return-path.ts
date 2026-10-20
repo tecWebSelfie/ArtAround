@@ -3,8 +3,8 @@ import type { Route } from 'next'
 /**
  * Where the checkout landing pages send the buyer back to. `POST /api/checkout`
  * appends `collection` and `id` to Stripe's success/cancel URLs: a tour returns
- * to its page (now unlocked, or still locked after a cancel); anything else
- * goes back to the navigator, since contents open inside tours and museums.
+ * to its page (now unlocked, or still locked after a cancel), a content to its
+ * page; anything else goes back to the navigator.
  */
 export function checkoutReturn(
   lng: string,
@@ -19,6 +19,10 @@ export function checkoutReturn(
   const target = id && collection ? { collection, id } : undefined
   if (target?.collection === 'tours') {
     return { href: `/${lng}/tour/${target.id}` as Route, isTour: true, target }
+  }
+  if (target?.collection === 'contents') {
+    // Back on the content page: once unlocked it offers "Find it on the map".
+    return { href: `/${lng}/content/${target.id}` as Route, isTour: false, target }
   }
   return { href: `/${lng}/navigator` as Route, isTour: false, target }
 }

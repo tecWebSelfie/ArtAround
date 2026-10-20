@@ -67,6 +67,7 @@ export async function querySearchIndex({
   limit = 12,
   sort = '-sourceCreatedAt',
   locale,
+  restrictTo,
 }: {
   payload: Payload
   query?: string
@@ -76,11 +77,22 @@ export async function querySearchIndex({
   limit?: number
   sort?: string | string[]
   locale?: TypedLocale
+  /**
+   * Museum mode: per kind, the only source ids allowed (e.g. the locked
+   * museum, its tours and contents). Kinds missing here are not restricted.
+   */
+  restrictTo?: Partial<Record<SearchDocKind, string[]>>
 }): Promise<{ hits: SearchHit[]; total: number }> {
   const conditions: Where[] = []
 
   if (kinds.length > 0) {
-    conditions.push({ kind: { in: kinds } })
+    const kindCondition = (kind: SearchDocKind): Where => {
+      const ids = restrictTo?.[kind]
+      return ids
+        ? { and: [{ kind: { equals: kind } }, { 'doc.value': { in: ids } }] }
+        : { kind: { equals: kind } }
+    }
+    conditions.push(restrictTo ? { or: kinds.map(kindCondition) } : { kind: { in: kinds } })
   }
 
   const trimmed = query.trim()
@@ -118,6 +130,10 @@ export async function querySearchIndex({
   return { hits, total: result.totalDocs }
 }
 
-/** Navigator scope: museums, objects, tours and users. City matching is part of
- *  the query above, so a museum's city is searchable without a separate kind. */
-export const NAVIGATOR_SEARCH_KINDS: SearchDocKind[] = ['museum', 'object', 'tour', 'user']
+/**
+ * Home (navigator) search scope: what a visitor can go and see — tours (the
+ * main way to use the app), contents and museums. Objects stay reachable from
+ * QR codes and museum pages, people from the marketplace. City matching is
+ * part of the query above, so a museum's city is searchable too.
+ */
+export const NAVIGATOR_SEARCH_KINDS: SearchDocKind[] = ['tour', 'content', 'museum']

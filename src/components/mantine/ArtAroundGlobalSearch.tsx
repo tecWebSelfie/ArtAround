@@ -3,7 +3,7 @@
 import type { Difficulty } from '@/payload-types'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import {
-  Button,
+  Badge,
   Combobox,
   ComboboxDropdown,
   ComboboxOption,
@@ -14,19 +14,23 @@ import {
   Stack,
   Text,
   TextInput,
+  ThemeIcon,
   useCombobox,
 } from '@mantine/core'
 import { useUncontrolled } from '@mantine/hooks'
-import { Search } from 'lucide-react'
+import { BookOpen, Landmark, Route as RouteIcon, Search, Shapes, UserRound } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
+import { LockedPriceBadge } from './LockedPriceBadge'
 
 /**
  * Display-only shape returned by `/api/navigator-search`.
  *
- * The combobox intentionally does not receive full Payload documents: search
- * rows already carry the title/excerpt/city needed for the dropdown, and keeping
- * the payload small avoids leaking fields the public API does not need.
+ * The combobox does not receive full Payload documents, only what a row shows.
+ * Tours and contents carry their essentials (time, difficulty; stops for a
+ * tour, the price for a paid content); objects and people, used elsewhere,
+ * render as a plain title row.
  */
 export type AutoCompleteItem = {
   kind: 'content' | 'tour' | 'museum' | 'object' | 'user'
@@ -36,8 +40,13 @@ export type AutoCompleteItem = {
   href: string
   subtitle?: string
   city?: string
+  /** Tour: visit length; content: reading time. In minutes. */
+  minutes?: number
   difficulty?: Difficulty
-  readingTimeMins?: number
+  /** Tour: number of stops. */
+  stops?: number
+  /** Content: list price in euro cents when paid. */
+  priceCents?: number
 }
 
 export function ArtAroundGlobalSearch({
@@ -52,6 +61,7 @@ export function ArtAroundGlobalSearch({
   defaultValue?: string
   onChange?: (value: string) => void
 } & { items: AutoCompleteItem[]; filter?: (item: AutoCompleteItem) => boolean }) {
+  const { t } = useTranslation('search')
   const [_value, handleChange] = useUncontrolled({
     value,
     defaultValue,
@@ -78,7 +88,8 @@ export function ArtAroundGlobalSearch({
             size="lg"
             radius="xl"
             w="100%"
-            placeholder="Look for the next tour"
+            placeholder={t('Look for the next tour')}
+            aria-label={t('Search tours, contents and museums')}
             value={_value}
             onChange={(e) => {
               handleChange(e.currentTarget.value)
@@ -95,15 +106,18 @@ export function ArtAroundGlobalSearch({
         <ComboboxOptions>
           {filteredOptions.map((item) => {
             if (item.kind === 'tour') {
+              // Tours keep the drawn-border accent (DESIGN.md → Inputs).
               return (
                 <BorderAnimate variant="draw" my="xs" key={item.href}>
-                  <ComboboxOption value={item.href}>{renderDropdownItem(item)}</ComboboxOption>
+                  <ComboboxOption value={item.href}>
+                    <ResultRow item={item} />
+                  </ComboboxOption>
                 </BorderAnimate>
               )
             }
             return (
               <ComboboxOption value={item.href} key={item.href}>
-                {renderDropdownItem(item)}
+                <ResultRow item={item} />
               </ComboboxOption>
             )
           })}
@@ -113,44 +127,77 @@ export function ArtAroundGlobalSearch({
   )
 }
 
-function renderDropdownItem(item: AutoCompleteItem) {
-  return item.kind === 'content' ? (
-    <ContentDropdownItem item={item} />
-  ) : (
-    <ResultDropdownItem item={item} />
-  )
-}
+/** Leading mark per kind: the tour gradient, content teal, a plain museum. */
+const KIND_ICON = {
+  tour: { Icon: RouteIcon, variant: 'gradient', gradient: { from: 'grape', to: 'orange' } },
+  content: { Icon: BookOpen, variant: 'light', color: 'teal' },
+  museum: { Icon: Landmark, variant: 'light', color: 'blue' },
+  object: { Icon: Shapes, variant: 'light', color: 'gray' },
+  user: { Icon: UserRound, variant: 'light', color: 'gray' },
+} as const
 
-const ContentDropdownItem = ({ item }: { item: AutoCompleteItem }) => {
+/**
+ * One result. Everything is plain text and badges, no nested controls: the
+ * whole option is the action (it opens the detail page).
+ */
+function ResultRow({ item }: { item: AutoCompleteItem }) {
+  const { t } = useTranslation('search')
+  const { Icon, ...mark } = KIND_ICON[item.kind]
+  const kindLabel = {
+    tour: t('Tour'),
+    content: t('Content'),
+    museum: t('Museum'),
+    object: t('Object'),
+    user: t('Person'),
+  }[item.kind]
+  // Literal `t()` calls so `i18next-cli extract` sees the labels.
+  const difficultyLabel = { easy: t('Easy'), medium: t('Medium'), hard: t('Hard') }
+  const hasDetails =
+    item.minutes !== undefined ||
+    item.difficulty !== undefined ||
+    item.stops !== undefined ||
+    item.priceCents !== undefined
   return (
-    <Stack>
-      <div>{item.title}</div>
-      <Group justify="space-between">
-        <Group justify="left" gap={'xs'}>
-          {item.readingTimeMins && <DurationBadge time={item.readingTimeMins} />}
-          {item.difficulty && <DifficultyBadge difficulty={item.difficulty} />}
-        </Group>
-        <Button size="compact-xs">See more</Button>
-      </Group>
-    </Stack>
-  )
-}
-
-/** Shared compact row for tours, museums, objects and profiles. */
-const ResultDropdownItem = ({ item }: { item: AutoCompleteItem }) => {
-  return (
-    <Stack gap={2}>
-      <Text fw={600}>{item.title}</Text>
-      {item.subtitle ? (
-        <Text size="xs" c="dimmed" lineClamp={1}>
-          {item.subtitle}
+    <Group gap="sm" wrap="nowrap" align="flex-start">
+      <ThemeIcon {...mark} radius="xl" size="md" aria-label={kindLabel} role="img">
+        <Icon size={14} aria-hidden />
+      </ThemeIcon>
+      <Stack gap={4} miw={0}>
+        <Text fw={600} lh={1.3}>
+          {item.title}
         </Text>
-      ) : null}
-      {item.city && !item.subtitle?.includes(item.city) ? (
-        <Text size="xs" c="dimmed">
-          {item.city}
-        </Text>
-      ) : null}
-    </Stack>
+        {item.subtitle ? (
+          <Text size="xs" c="dimmed" lineClamp={1}>
+            {item.subtitle}
+          </Text>
+        ) : null}
+        {item.city && !item.subtitle?.includes(item.city) ? (
+          <Text size="xs" c="dimmed">
+            {item.city}
+          </Text>
+        ) : null}
+        {hasDetails && (
+          // The essentials for choosing: time and difficulty first.
+          <Group gap={4}>
+            {item.minutes !== undefined && (
+              <DurationBadge time={item.minutes} size="xs" variant="light" color="gray" />
+            )}
+            {item.difficulty && (
+              <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">
+                {difficultyLabel[item.difficulty]}
+              </DifficultyBadge>
+            )}
+            {item.stops !== undefined && (
+              <Badge size="xs" variant="light" color="gray">
+                {t('{{count}} stops', { count: item.stops })}
+              </Badge>
+            )}
+            {item.priceCents !== undefined && (
+              <LockedPriceBadge price={item.priceCents} size="xs" />
+            )}
+          </Group>
+        )}
+      </Stack>
+    </Group>
   )
 }

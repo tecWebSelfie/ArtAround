@@ -9,6 +9,7 @@ import { Reflection } from '@gfazioli/mantine-reflection'
 import { Box, Group, Stack, Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 const EMPTY_ITEMS: AutoCompleteItem[] = []
 
@@ -16,10 +17,10 @@ const EMPTY_ITEMS: AutoCompleteItem[] = []
  * Navigator search combobox.
  *
  * Results come from the Payload `search` collection through
- * `/api/navigator-search`, limited to the navigator scope (museums, objects,
- * tours, users). The server also matches museum cities, so typing "Roma"
- * surfaces museums/tours/objects in that city; the city is shown as result
- * metadata.
+ * `/api/navigator-search`, limited to the home scope (tours first, then
+ * contents and museums; only the locked museum in museum mode). The server
+ * also matches museum cities, so typing "Roma" surfaces what is in Rome.
+ * Choosing a result opens its detail page.
  */
 export function NavigatorSearch({
   lng,
@@ -31,6 +32,7 @@ export function NavigatorSearch({
   /** Override for tests/stories; the real page uses a normal browser navigation. */
   onNavigate?: (href: string) => void
 }) {
+  const { t } = useTranslation('search')
   const [query, setQuery] = useState('')
   const [items, setItems] = useState<AutoCompleteItem[]>(initialItems)
   const [loading, setLoading] = useState(false)
@@ -63,7 +65,7 @@ export function NavigatorSearch({
   return (
     <Stack>
       <Group ta="center" gap="xs" display="inline-block">
-        <Text span>Tours made by&nbsp;</Text>
+        <Text span>{t('Tours made by')}&nbsp;</Text>
         <Box miw="9ch" display="inline-block" ta="left">
           <TypeWriterText
             fw="bolder"
@@ -104,11 +106,12 @@ export function NavigatorSearch({
           }}
         />
       </Reflection>
-      {!loading && query.trim().length >= 2 && items.length === 0 ? (
-        <Text size="xs" c="dimmed" ta="center">
-          No matching museums, objects, tours or people.
-        </Text>
-      ) : null}
+      {/* Always mounted, so screen readers hear when nothing matched. */}
+      <Text size="xs" c="dimmed" ta="center" role="status" aria-live="polite">
+        {!loading && query.trim().length >= 2 && items.length === 0
+          ? t('No matching tours, contents or museums.')
+          : ''}
+      </Text>
     </Stack>
   )
 }
