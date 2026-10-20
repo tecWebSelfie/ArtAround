@@ -1,5 +1,42 @@
 {
   "All museums": "All museums",
+  "auth": {
+    "confirmPassword": "Confirm password",
+    "email": "Email",
+    "errors": {
+      "emailInvalid": "Enter a valid email address.",
+      "emailRequired": "Enter your email address.",
+      "firstNameRequired": "Enter your first name.",
+      "generic": "Something went wrong. Please try again.",
+      "identifierRequired": "Enter your email or username.",
+      "lastNameRequired": "Enter your last name.",
+      "passwordMismatch": "Passwords do not match.",
+      "passwordRequired": "Enter your password.",
+      "passwordTooShort": "Use at least 8 characters.",
+      "title": "Something went wrong",
+      "usernameInvalid": "Use letters, numbers, dots, dashes or underscores only.",
+      "usernameRequired": "Choose a username.",
+      "usernameTooShort": "Use at least 3 characters."
+    },
+    "firstName": "First name",
+    "haveAccount": "Already have an account?",
+    "identifier": "Email or username",
+    "identifierPlaceholder": "you@example.com or your username",
+    "lastName": "Last name",
+    "noAccount": "New to Artaround?",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "signIn": "Sign in",
+    "signInLink": "Sign in",
+    "signInSubtitle": "Sign in to continue your art tour.",
+    "signInTitle": "Welcome back",
+    "signUp": "Create account",
+    "signUpLink": "Create one",
+    "signUpSubtitle": "Save your tours, purchases and favorites in one place.",
+    "signUpTitle": "Create your account",
+    "username": "Username",
+    "usernameHint": "This is how other explorers will see you."
+  },
   "Back to all museums": "Back to all museums",
   "Change museum": "Change museum",
   "Import a config file": "Import a config file",
@@ -7,7 +44,13 @@
     "label": "Select Language"
   },
   "navbar": {
-    "My museums": "My museums"
+    "Account": "Account",
+    "Marketplace": "Marketplace",
+    "My museums": "My museums",
+    "Navigator": "Navigator",
+    "Profile": "Profile",
+    "SignIn": "Sign in",
+    "SignOut": "Sign out"
   },
   "No museum matches “{{query}}”.": "No museum matches “{{query}}”.",
   "or": "or",

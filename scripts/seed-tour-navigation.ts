@@ -182,7 +182,7 @@ if (!museum) {
     locale: 'en',
     data: {
       name: label,
-      accessibility: false,
+      accessibility: { isAccessible: false },
       shortDescription: 'A local fixture for tour navigation testing.',
       ticketInfo: { label: 'Development fixture — free entry' },
       location: { address: 'Development fixture', city: 'Test', latlng: [9.19, 45.46] },

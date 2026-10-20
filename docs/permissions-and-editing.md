@@ -29,7 +29,8 @@ Code map:
 - `src/access/museumRoles.ts` — memberships cached in `req.context`, rank
   helpers, museum⇄object⇄content lookups.
 - `src/access/entitlements.ts` — **purchase seam** (`getOwnedContentIds`,
-  `ownsContent`). Payments will plug in here only.
+  `ownsContent`), backed by the Stripe `purchases` collection through
+  `src/lib/entitlements.ts` (memoized on `req.context`).
 - `user-museum-memberships` access (`src/collections/Users.ts`) — staff
   management is plain collection CRUD guarded by `canManage`, so the UI uses
   the SDK's typed `payloadSdk.create/update/delete`.
@@ -43,6 +44,7 @@ Code map:
 | `contents`  | anyone; paid `body` restricted | any signed-in user                    | author                                                                                                       | author, or staff above the author's rank in a museum of the content |
 | `tours`     | anyone                         | any signed-in user                    | author                                                                                                       | author, or director of `tour.museum`                                |
 | `users`     | anyone (email only to self)    | anyone (sign-up)                      | self                                                                                                         | self                                                                |
+| `purchases` | own rows; super admin all      | super admin (rows come from Stripe)   | super admin                                                                                                  | super admin                                                         |
 | memberships | anyone                         | roles below the actor's rank          | roles below the actor's rank, never own row                                                                  | roles below the actor's rank, never own row                         |
 
 Super admins bypass all of the above.
@@ -90,6 +92,25 @@ Super admins bypass all of the above.
   (`src/lib/price.ts`). A tour's price = sum of its locked contents.
 - Display: `formatPrice(cents, lng)` (`Intl.NumberFormat`, EUR). Choosing and
   converting a local currency needs region + exchange rates → payments work.
+
+### Purchases (Stripe, sandbox)
+
+- `POST /api/checkout { collection: 'contents' | 'tours', id }` prices the
+  purchase for the signed-in buyer with `quoteCheckout`
+  (`src/lib/checkout-quote.ts`), reading the document _as the buyer_: a
+  content costs its `price` while locked; a tour costs the sum of its contents
+  locked for the buyer. Nothing locked → 409. The quote's content ids travel in
+  the Checkout Session metadata (`unlocks`, at most 20).
+- `checkout.session.completed` (webhook, `src/hooks/onCheckoutCompleted.ts`)
+  and the success page (reconciliation) both call `recordPurchaseFromSession`,
+  idempotent on `stripeSessionID`. The row stores `target` (what was bought)
+  and `unlockedContents` (a snapshot: paid contents added to a tour later are
+  not unlocked for free).
+- Ownership (`ownsContent`) = a `paid` purchase whose target is the content or
+  whose `unlockedContents` contains it. Refunded/failed rows unlock nothing.
+- UI: the tour page's "Unlock" modal starts checkout for the tour; the sandbox
+  shop `/[lng]/stripe-test` lists every paid content and the tours containing
+  one. Success/cancel pages return to the tour (`?collection=&id=`).
 
 ### Reading on behalf of a visitor
 
@@ -140,16 +161,23 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
    jsdom is imported lazily — a top-level import breaks the Next bundle).
 4. **Delete** — `DeleteDocumentButton` (confirm modal) when
    `can(collection, id, 'delete')`; contents and tours only.
-5. **Minimal auth** — server-side only, no client auth fetches:
-   - current user: `getSession()` (Local API `payload.auth({ headers })`),
-     read in the layout and passed down (e.g. to `NavBar` for the account entry);
-   - `/[lng]/login`: a server action calling `login({ collection: 'users',
-config, username, password })` from `@payloadcms/next/auth` (sets the
-     auth cookie), then `redirect(next)`;
-   - `/[lng]/signup`: a server action with Local API `payload.create({ collection:
-'users', data, overrideAccess: false })`, then `login`;
-   - logout: server action with `logout({ config })` from `@payloadcms/next/auth`.
-     Intentionally minimal: a dedicated auth workstream will replace it.
+5. **Auth** — Payload's own REST auth (`/api/users/{login,logout,me}`,
+   `POST /api/users`) through `src/lib/auth-client.ts`, mirrored into React by
+   `AuthProvider` (frontend layout):
+   - server pages still read the session with `getSession()` (Local API
+     `payload.auth({ headers })`); the tabs layout passes it to `NavBar` so the
+     account entry renders before the client `/me` probe answers;
+   - `/[lng]/login` and `/[lng]/signup` (`LoginForm`, `SignupForm`): email
+     **or** username (`loginWithUsername.allowEmailLogin`); after success they
+     go to `?next=` when it is a same-site path (`useReturnTo`), else the
+     navigator. Signed-in visitors are redirected to their profile;
+   - sign-up is a public `POST /api/users`; `sanitizePublicSignup` strips
+     privileged fields on REST creates, `protectPrivilegedFields` on updates;
+   - sign out (NavBar menu, profile `SignOutButton`) goes through
+     `AuthProvider.logout()` then `router.refresh()`, so client and server
+     views of the session change together;
+   - the Payload admin panel is for super admins only (`Users.access.admin`);
+     staff edit from the frontend.
 
 ### Editing localized fields
 
@@ -188,5 +216,9 @@ allowed, any other node change rejected). Not yet run against a database:
    (`museums.objects`) without deleting it.
 8. Users: another user's profile has no `email`; self-update cannot set
    `isSuperAdmin`/`roles`.
-9. Data migration for existing databases: tours need `museum`, contents and
-   tours `author`, museums a map re-save to fill `objects`.
+9. Purchases: anonymous → 401 at checkout; a tour whose contents the buyer can
+   already read → 409; a paid tour purchase makes its contents' `body` readable
+   to the buyer only; a refunded row unlocks nothing; users read only their
+   own `purchases`. Public REST sign-up with `isSuperAdmin: true` is stripped.
+10. Data migration for existing databases: tours need `museum`, contents and
+    tours `author`, museums a map re-save to fill `objects`.

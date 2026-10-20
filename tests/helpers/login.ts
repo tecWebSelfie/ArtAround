@@ -20,7 +20,8 @@ export async function login({
 }: LoginOptions): Promise<void> {
   await page.goto(`${serverURL}/admin/login`)
 
-  await page.fill('#field-email', user.email)
+  // `loginWithUsername.allowEmailLogin`: one field that accepts email or username.
+  await page.fill('#field-username', user.email)
   await page.fill('#field-password', user.password)
   await page.click('button[type="submit"]')
 

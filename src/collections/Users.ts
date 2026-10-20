@@ -26,6 +26,8 @@ import type {
 } from 'payload'
 import { GroupField, TypeWithID } from 'payload'
 
+import { sanitizePublicSignup } from '@/hooks/sanitizePublicSignup'
+
 export const USERS_COLLECTION_SLUG = 'users'
 export const TOURS_COLLECTION_SLUG = 'tours'
 
@@ -104,22 +106,35 @@ export const Users: CollectionConfig = {
     useAsTitle: 'username',
   },
   auth: {
-    loginWithUsername: true,
+    // Visitors can authenticate with either their email or their username.
+    // `allowEmailLogin` is required: with a plain `loginWithUsername: true`
+    // Payload disables email-based login and only accepts `username`.
+    loginWithUsername: {
+      allowEmailLogin: true,
+    },
   },
   access: {
+    // Only RBAC super admins may open the Payload admin panel. This is
+    // evaluated after authentication, so regular frontend accounts still
+    // exist normally but are redirected to the admin login/unauthorized page.
+    // Museum staff edit from the frontend (docs/permissions-and-editing.md).
+    admin: ({ req }) => isSuperAdmin(req),
     read: anyone,
-    // Public sign-up; privileged fields are guarded by `protectPrivilegedFields`.
+    // Public sign-up: `sanitizePublicSignup` strips what a visitor may not
+    // choose on create, `protectPrivilegedFields` guards later updates.
     create: anyone,
     update: selfOrSuperAdmin,
     delete: selfOrSuperAdmin,
   },
   hooks: {
+    beforeValidate: [sanitizePublicSignup],
     beforeChange: [protectPrivilegedFields],
     afterRead: [hidePrivateFields],
   },
   fields: [
     // Email added by default (auth); hidden from other visitors by `hidePrivateFields`.
     nameFieldsGroup,
+    { name: 'description', type: 'text', required: false },
     {
       // Reverse of `contents.author`: authorship lives on the content, so
       // creating a content never requires editing the user.
@@ -152,6 +167,17 @@ export const Users: CollectionConfig = {
       type: 'join',
       collection: 'user-museum-memberships',
       on: 'user',
+    },
+    {
+      // Reverse view of the `purchases` collection: everything this user owns.
+      name: 'purchases',
+      type: 'join',
+      collection: 'purchases',
+      on: 'user',
+      admin: {
+        description:
+          'Paid content and tours for this user. Read-only — written by the Stripe webhook.',
+      },
     },
     {
       name: 'curatorOf',

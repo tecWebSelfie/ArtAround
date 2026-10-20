@@ -154,11 +154,36 @@ export const Museums: CollectionConfig = {
       richTextHtmlInput('description'),
       editorial({ name: 'shortDescription', type: 'text', required: true, maxLength: 100 }),
       {
+        // Accessibility is one block: a single flag used for catalog filters
+        // plus the features shown on the museum page and the wheelchair route
+        // (`navMeshWheelchair`). The old virtual checkbox persisted nothing, so
+        // `accessibility.isAccessible` is the source of truth.
         name: 'accessibility',
-        type: 'checkbox',
-        virtual: true,
-        required: true,
-        // da rivedere quando si implementerà il modello dati per la mappa del museo
+        type: 'group',
+        required: false,
+        admin: {
+          description: 'Step-free access and the services available to visitors with disabilities.',
+        },
+        fields: [
+          {
+            name: 'isAccessible',
+            type: 'checkbox',
+            required: true,
+            defaultValue: false,
+            index: true,
+            admin: {
+              description: 'Step-free access to the main visit route (used for catalog filters).',
+            },
+          },
+          { name: 'stepFreeEntrance', type: 'checkbox', defaultValue: false },
+          { name: 'elevator', type: 'checkbox', defaultValue: false },
+          { name: 'accessibleBathrooms', type: 'checkbox', defaultValue: false },
+          { name: 'tactilePaths', type: 'checkbox', defaultValue: false },
+          { name: 'audioGuides', type: 'checkbox', defaultValue: false },
+          { name: 'signLanguage', type: 'checkbox', defaultValue: false },
+          { name: 'serviceAnimals', type: 'checkbox', defaultValue: false },
+          editorial({ name: 'notes', type: 'textarea', required: false, maxLength: 500 }),
+        ],
       } satisfies Field,
       phoneNumberField({
         name: 'phone',
@@ -212,12 +237,40 @@ export const Museums: CollectionConfig = {
             index: true,
           },
           {
+            name: 'region',
+            type: 'text',
+            required: false,
+          },
+          {
+            name: 'postalCode',
+            type: 'text',
+            required: false,
+          },
+          {
+            name: 'country',
+            type: 'text',
+            required: false,
+            defaultValue: 'IT',
+            admin: { description: 'ISO 3166-1 alpha-2 code, e.g. "IT".' },
+          },
+          {
             name: 'latlng',
             type: 'point',
             hidden: true,
             required: true,
           },
         ],
+      } satisfies Field,
+      {
+        name: 'categories',
+        type: 'relationship',
+        relationTo: 'museumCategories',
+        hasMany: true,
+        required: false,
+        index: true,
+        admin: {
+          description: 'Taxonomy tags used to group and filter the museum catalog.',
+        },
       } satisfies Field,
     ].map(directorOnly),
     {

@@ -11,8 +11,6 @@ import { fileURLToPath } from 'url'
 import { formBuilderPlugin } from '@payloadcms/plugin-form-builder'
 import { importExportPlugin } from '@payloadcms/plugin-import-export'
 import { mcpPlugin } from '@payloadcms/plugin-mcp'
-import { nestedDocsPlugin } from '@payloadcms/plugin-nested-docs'
-import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { stripePlugin } from '@payloadcms/plugin-stripe'
 import { typesenseSearch } from '@rubixstudios/payload-typesense'
 import { payloadPluginRBAC } from '@zealamic/payload-plugin-rbac'
@@ -36,14 +34,16 @@ import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { ContentVariants } from './collections/ContentVariants'
+import { MuseumCategories } from './collections/MuseumCategories'
 import { MuseumMaps, Museums, MuseumThumbnails } from './collections/Museums'
 import { Objects, ObjectsModels, ObjectsThumbnails } from './collections/Objects'
-import { Pages } from './collections/Pages'
+import { Purchases } from './collections/Purchases'
 import { QuizAttempts } from './collections/QuizAttempts'
 import { QuizQuestions } from './collections/QuizQuestions'
 import { Tour, ToursThumbnails } from './collections/Tours'
 import { UserMuseumMembership, Users, UsersPropics } from './collections/Users'
 import { museumFunctionField } from './fields/MuseumFunction'
+import { onCheckoutCompleted } from './hooks/onCheckoutCompleted'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -77,8 +77,8 @@ export default buildConfig({
     Users,
     UserMuseumMembership,
     UsersPropics,
-    Pages,
     Museums,
+    MuseumCategories,
     MuseumThumbnails,
     MuseumMaps,
     Objects,
@@ -92,6 +92,8 @@ export default buildConfig({
     ToursThumbnails,
     QuizQuestions,
     QuizAttempts,
+    // Stripe receipts: who may read which paid content (src/lib/entitlements.ts).
+    Purchases,
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
@@ -108,12 +110,35 @@ export default buildConfig({
     // GET /api/{slug}/:id/localized?locale=xx on each of them.
     // GROQ_API_KEY goes in `.env` / `.env.local` (server-only, never NEXT_PUBLIC_).
     autoTranslatePlugin({
-      collections: [Museums, MuseumThumbnails, Objects, Contents, ContentImages],
+      collections: [
+        Museums,
+        MuseumCategories,
+        MuseumThumbnails,
+        Objects,
+        Contents,
+        ContentImages,
+        Tour,
+      ],
       // Translated, but without the public `/localized` read: questions carry their answer.
       serverOnly: [QuizQuestions],
     }),
+    // Stripe — sandbox only. The secret key must be a test key (`sk_test_…`).
+    // Purchase/entitlement rows live in the `purchases` collection, written by
+    // the `checkout.session.completed` webhook below (and reconciled on the
+    // success page). See `src/lib/purchases.ts` and `src/lib/entitlements.ts`.
     stripePlugin({
-      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '', // Add your Stripe secret key here
+      stripeSecretKey: process.env.STRIPE_SECRET_KEY || '',
+      // Purely cosmetic: makes the admin "View in Stripe" links point at
+      // dashboard.stripe.com/test/…. Sandbox vs live is decided by the key.
+      isTestKey: (process.env.STRIPE_SECRET_KEY ?? '').startsWith('sk_test_'),
+      // Without this secret, POST /api/stripe/webhooks accepts events but
+      // silently does nothing. Local dev: `stripe listen --forward-to
+      // localhost:3000/api/stripe/webhooks` prints the `whsec_…` value.
+      stripeWebhooksEndpointSecret: process.env.STRIPE_WEBHOOKS_ENDPOINT_SECRET,
+      logs: true,
+      webhooks: {
+        'checkout.session.completed': onCheckoutCompleted,
+      },
     }),
     formBuilderPlugin({
       // see below for a list of available options
@@ -125,6 +150,7 @@ export default buildConfig({
         objects: { enabled: true },
         contents: { enabled: true },
         tours: { enabled: true },
+        museumCategories: { enabled: true },
         museumMaps: { enabled: true },
         museumThumbnails: { enabled: true },
         objectsModels: { enabled: true },
@@ -143,18 +169,10 @@ export default buildConfig({
         exports: { enabled: true },
       },
     }),
-    redirectsPlugin({
-      collections: ['pages'],
-    }),
-    nestedDocsPlugin({
-      collections: ['pages'],
-      generateLabel: (_, doc) => String(doc.title),
-      generateURL: (docs) => docs.reduce((url, doc) => `${url}/${String(doc.slug)}`, ''),
-    }),
     importExportPlugin({
       // `museums`: exporting a museum gives the config file that locks the
       // app to it ("Change museum" → Import a config file, MuseumSwitch).
-      collections: [{ slug: 'users' }, { slug: 'pages' }, { slug: 'roles' }, { slug: 'museums' }],
+      collections: [{ slug: 'users' }, { slug: 'roles' }, { slug: 'museums' }],
     }),
     phoneNumberPlugin(),
     payloadPluginRBAC({
@@ -176,7 +194,6 @@ export default buildConfig({
                 Museum: 'Museum',
                 Content: 'Content',
                 Object: 'Object',
-                Exhibit: 'Exhibit',
               },
               actions: {
                 Create: 'Create',

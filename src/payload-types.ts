@@ -97,8 +97,8 @@ export interface Config {
     users: User;
     'user-museum-memberships': UserMuseumMembership;
     usersPropics: UsersPropic;
-    pages: Page;
     museums: Museum;
+    museumCategories: MuseumCategory;
     museumThumbnails: MuseumThumbnail;
     museumMaps: MuseumMap;
     objects: Object;
@@ -111,10 +111,10 @@ export interface Config {
     toursThumbnails: ToursThumbnail;
     quizQuestions: QuizQuestion;
     quizAttempts: QuizAttempt;
+    purchases: Purchase;
     'translator-provenance': TranslatorProvenance;
     forms: Form;
     'form-submissions': FormSubmission;
-    redirects: Redirect;
     exports: Export;
     imports: Import;
     'permission-actions': PermissionAction;
@@ -143,10 +143,14 @@ export interface Config {
       curatorOf: 'user-museum-memberships';
       directorOf: 'user-museum-memberships';
       verifiedAt: 'user-museum-memberships';
+      purchases: 'purchases';
     };
     museums: {
       tours: 'tours';
       staff: 'user-museum-memberships';
+    };
+    museumCategories: {
+      museums: 'museums';
     };
     objects: {
       museums: 'museums';
@@ -163,8 +167,8 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     'user-museum-memberships': UserMuseumMembershipsSelect<false> | UserMuseumMembershipsSelect<true>;
     usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
-    pages: PagesSelect<false> | PagesSelect<true>;
     museums: MuseumsSelect<false> | MuseumsSelect<true>;
+    museumCategories: MuseumCategoriesSelect<false> | MuseumCategoriesSelect<true>;
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
     objects: ObjectsSelect<false> | ObjectsSelect<true>;
@@ -177,10 +181,10 @@ export interface Config {
     toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
     quizQuestions: QuizQuestionsSelect<false> | QuizQuestionsSelect<true>;
     quizAttempts: QuizAttemptsSelect<false> | QuizAttemptsSelect<true>;
+    purchases: PurchasesSelect<false> | PurchasesSelect<true>;
     'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
-    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     exports: ExportsSelect<false> | ExportsSelect<true>;
     imports: ImportsSelect<false> | ImportsSelect<true>;
     'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>;
@@ -795,20 +799,34 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
-  forgotPassword: {
-    username: string;
-  };
-  login: {
-    password: string;
-    username: string;
-  };
+  forgotPassword:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
+  login:
+    | {
+        email: string;
+        password: string;
+      }
+    | {
+        password: string;
+        username: string;
+      };
   registerFirstUser: {
     password: string;
     username: string;
+    email?: string;
   };
-  unlock: {
-    username: string;
-  };
+  unlock:
+    | {
+        email: string;
+      }
+    | {
+        username: string;
+      };
 }
 export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
@@ -844,6 +862,7 @@ export interface User {
     lastName: string;
     fullName: string;
   };
+  description?: string | null;
   authoredContents?: {
     docs?: (string | Content)[];
     hasNextPage?: boolean;
@@ -858,6 +877,14 @@ export interface User {
   bio?: string | null;
   memberships?: {
     docs?: (string | UserMuseumMembership)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Paid content and tours for this user. Read-only — written by the Stripe webhook.
+   */
+  purchases?: {
+    docs?: (string | Purchase)[];
     hasNextPage?: boolean;
     totalDocs?: number;
   };
@@ -919,7 +946,7 @@ export interface Role {
     | null;
   createdBy?: string | null;
   /**
-   * Museum function granted by this role, independent of its code/name.
+   * Museum function granted by this role, independent of code/name.
    */
   museumFunction: 'curator' | 'director' | 'none';
   updatedAt: string;
@@ -963,6 +990,20 @@ export interface Content {
    */
   price?: number | null;
   copyright: string;
+  /**
+   * Shared museum taxonomy, used by search filters.
+   */
+  categories?: (string | MuseumCategory)[] | null;
+  sources?:
+    | {
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
+        label: string;
+        url?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   images?: (string | ContentImage)[] | null;
   objects: {
     docs?: (string | Object)[];
@@ -986,53 +1027,45 @@ export interface Content {
   createdAt: string;
 }
 /**
+ * Taxonomy used to group and filter museums.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "contentImages".
+ * via the `definition` "museumCategories".
  */
-export interface ContentImage {
+export interface MuseumCategory {
   id: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objects".
- */
-export interface Object {
-  id: string;
-  createdBy?: string | null;
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   name: string;
   /**
+   * Stable machine name used in URLs and filters. Auto-generated from the name.
+   */
+  slug: string;
+  /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   description?: string | null;
+  /**
+   * Optional broader category. Leave empty for a top-level category.
+   */
+  parent?: (string | null) | MuseumCategory;
+  /**
+   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
+   */
+  icon?: string | null;
+  /**
+   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
+   */
+  color?: string | null;
+  /**
+   * Surface this category in the home/catalog shortcuts.
+   */
+  featured?: boolean | null;
   museums?: {
     docs?: (string | Museum)[];
     hasNextPage?: boolean;
     totalDocs?: number;
-  };
-  contents?: (string | Content)[] | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  model?: (string | null) | ObjectsModel;
-  lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
   };
   updatedAt: string;
   createdAt: string;
@@ -1068,7 +1101,26 @@ export interface Museum {
    * Editorial copy — auto-translated on demand into any locale.
    */
   shortDescription: string;
-  accessibility: boolean;
+  /**
+   * Step-free access and the services available to visitors with disabilities.
+   */
+  accessibility: {
+    /**
+     * Step-free access to the main visit route (used for catalog filters).
+     */
+    isAccessible: boolean;
+    stepFreeEntrance?: boolean | null;
+    elevator?: boolean | null;
+    accessibleBathrooms?: boolean | null;
+    tactilePaths?: boolean | null;
+    audioGuides?: boolean | null;
+    signLanguage?: boolean | null;
+    serviceAnimals?: boolean | null;
+    /**
+     * Editorial copy — auto-translated on demand into any locale.
+     */
+    notes?: string | null;
+  };
   phone?: string | PhoneNumber | null;
   email?: string | null;
   socials?:
@@ -1158,12 +1210,22 @@ export interface Museum {
   location: {
     address: string;
     city: string;
+    region?: string | null;
+    postalCode?: string | null;
+    /**
+     * ISO 3166-1 alpha-2 code, e.g. "IT".
+     */
+    country?: string | null;
     /**
      * @minItems 2
      * @maxItems 2
      */
     latlng: [number, number];
   };
+  /**
+   * Taxonomy tags used to group and filter the museum catalog.
+   */
+  categories?: (string | MuseumCategory)[] | null;
   objects?: (string | Object)[] | null;
   tours?: {
     docs?: (string | Tour)[];
@@ -1958,12 +2020,135 @@ export interface MuseumThumbnail {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objects".
+ */
+export interface Object {
+  id: string;
+  createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null;
+  museums?: {
+    docs?: (string | Museum)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  artist?: string | null;
+  /**
+   * Free-form date or period, e.g. "c. 1510" or "16th century".
+   */
+  dating?: string | null;
+  /**
+   * Ownership history, excavations, donations.
+   */
+  provenance?: string | null;
+  /**
+   * Conservation state and restoration notes for this object.
+   */
+  condition?: {
+    state?: ('excellent' | 'good' | 'fair' | 'poor' | 'restoration') | null;
+    /**
+     * Damage, past restorations, handling requirements.
+     */
+    notes?: string | null;
+  };
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  creditLine?: string | null;
+  /**
+   * Licence or rights statement for images and reproductions, e.g. "CC BY-SA 4.0".
+   */
+  rights?: string | null;
+  categories?: (string | MuseumCategory)[] | null;
+  contents?: (string | Content)[] | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
+  model?: (string | null) | ObjectsModel;
+  lfrs?: {
+    favouritesCount?: number | null;
+    sharesCount?: number | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsThumbnails".
+ */
+export interface ObjectsThumbnail {
+  id: string;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "objectsModels".
+ */
+export interface ObjectsModel {
+  id: string;
+  userGenerated: boolean;
+  mintModelId?: string | null;
+  mintOperationId?: string | null;
+  thumbnail?: (string | null) | ObjectsThumbnail;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours".
  */
 export interface Tour {
   id: string;
   createdBy?: string | null;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
   title: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
   description?: string | null;
   contents: (string | Content)[];
   thumbnail?: (string | null) | ToursThumbnail;
@@ -1983,6 +2168,19 @@ export interface Tour {
       | boolean
       | null;
   };
+  /**
+   * Estimated visit length in minutes.
+   */
+  durationMinutes?: number | null;
+  /**
+   * Walking distance of the route, in metres.
+   */
+  distanceMeters?: number | null;
+  /**
+   * The route has a step-free variant. Requires a wheelchair nav mesh on the museum.
+   */
+  wheelchairAccessible?: boolean | null;
+  categories?: (string | MuseumCategory)[] | null;
   quiz?: {
     /**
      * Shown in this order after the last stop. Search lists questions about this tour’s contents. Questions created here without related contents belong to this tour: removing them from the quiz deletes them.
@@ -2054,6 +2252,28 @@ export interface QuizQuestion {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentImages".
+ */
+export interface ContentImage {
+  id: string;
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  alt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "user-museum-memberships".
  */
 export interface UserMuseumMembership {
@@ -2063,47 +2283,6 @@ export interface UserMuseumMembership {
   museum: string | Museum;
   updatedAt: string;
   createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsThumbnails".
- */
-export interface ObjectsThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "objectsModels".
- */
-export interface ObjectsModel {
-  id: string;
-  userGenerated: boolean;
-  mintModelId?: string | null;
-  mintOperationId?: string | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2167,33 +2346,43 @@ export interface UsersPropic {
   focalY?: number | null;
 }
 /**
+ * One row per paid Stripe Checkout session. Written by Stripe, read-only in the admin panel.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages".
+ * via the `definition` "purchases".
  */
-export interface Page {
+export interface Purchase {
   id: string;
-  title?: string | null;
-  slug?: string | null;
-  parent?: (string | null) | Page;
-  breadcrumbs?:
+  user: string | User;
+  /**
+   * The purchased content or tour.
+   */
+  target:
     | {
-        doc?: (string | null) | Page;
-        url?: string | null;
-        label?: string | null;
-        id?: string | null;
-      }[]
-    | null;
+        relationTo: 'contents';
+        value: string | Content;
+      }
+    | {
+        relationTo: 'tours';
+        value: string | Tour;
+      };
+  status: 'paid' | 'refunded' | 'failed';
+  /**
+   * Stripe Checkout Session ID (cs_…). Unique — makes webhooks idempotent.
+   */
+  stripeSessionID: string;
+  unlockedContents?: (string | Content)[] | null;
+  stripePaymentIntentID?: string | null;
+  productTitle?: string | null;
+  /**
+   * Amount actually paid, in cents.
+   */
+  amountCents?: number | null;
+  currency?: string | null;
+  email?: string | null;
+  purchasedAt?: string | null;
   updatedAt: string;
   createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -2440,24 +2629,6 @@ export interface FormSubmission {
         id?: string | null;
       }[]
     | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redirects".
- */
-export interface Redirect {
-  id: string;
-  from: string;
-  to?: {
-    type?: ('reference' | 'custom') | null;
-    reference?: {
-      relationTo: 'pages';
-      value: string | Page;
-    } | null;
-    url?: string | null;
-  };
   updatedAt: string;
   createdAt: string;
 }
@@ -2963,6 +3134,24 @@ export interface PayloadMcpApiKey {
      */
     delete?: boolean | null;
   };
+  museumCategories?: {
+    /**
+     * Allow clients to find museumCategories.
+     */
+    find?: boolean | null;
+    /**
+     * Allow clients to create museumCategories.
+     */
+    create?: boolean | null;
+    /**
+     * Allow clients to update museumCategories.
+     */
+    update?: boolean | null;
+    /**
+     * Allow clients to delete museumCategories.
+     */
+    delete?: boolean | null;
+  };
   museumMaps?: {
     /**
      * Allow clients to find museumMaps.
@@ -3412,12 +3601,12 @@ export interface PayloadLockedDocument {
         value: string | UsersPropic;
       } | null)
     | ({
-        relationTo: 'pages';
-        value: string | Page;
-      } | null)
-    | ({
         relationTo: 'museums';
         value: string | Museum;
+      } | null)
+    | ({
+        relationTo: 'museumCategories';
+        value: string | MuseumCategory;
       } | null)
     | ({
         relationTo: 'museumThumbnails';
@@ -3468,6 +3657,10 @@ export interface PayloadLockedDocument {
         value: string | QuizAttempt;
       } | null)
     | ({
+        relationTo: 'purchases';
+        value: string | Purchase;
+      } | null)
+    | ({
         relationTo: 'translator-provenance';
         value: string | TranslatorProvenance;
       } | null)
@@ -3478,10 +3671,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'form-submissions';
         value: string | FormSubmission;
-      } | null)
-    | ({
-        relationTo: 'redirects';
-        value: string | Redirect;
       } | null)
     | ({
         relationTo: 'permission-actions';
@@ -3600,11 +3789,13 @@ export interface UsersSelect<T extends boolean = true> {
         lastName?: T;
         fullName?: T;
       };
+  description?: T;
   authoredContents?: T;
   authoredTours?: T;
   avatar?: T;
   bio?: T;
   memberships?: T;
+  purchases?: T;
   curatorOf?: T;
   directorOf?: T;
   verifiedAt?: T;
@@ -3658,34 +3849,6 @@ export interface UsersPropicsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "pages_select".
- */
-export interface PagesSelect<T extends boolean = true> {
-  title?: T;
-  slug?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museums_select".
  */
 export interface MuseumsSelect<T extends boolean = true> {
@@ -3694,7 +3857,19 @@ export interface MuseumsSelect<T extends boolean = true> {
   description?: T;
   descriptionHTML?: T;
   shortDescription?: T;
-  accessibility?: T;
+  accessibility?:
+    | T
+    | {
+        isAccessible?: T;
+        stepFreeEntrance?: T;
+        elevator?: T;
+        accessibleBathrooms?: T;
+        tactilePaths?: T;
+        audioGuides?: T;
+        signLanguage?: T;
+        serviceAnimals?: T;
+        notes?: T;
+      };
   phone?: T;
   email?: T;
   socials?:
@@ -3778,8 +3953,12 @@ export interface MuseumsSelect<T extends boolean = true> {
     | {
         address?: T;
         city?: T;
+        region?: T;
+        postalCode?: T;
+        country?: T;
         latlng?: T;
       };
+  categories?: T;
   objects?: T;
   tours?: T;
   staff?: T;
@@ -3792,6 +3971,22 @@ export interface MuseumsSelect<T extends boolean = true> {
         favouritesCount?: T;
         sharesCount?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumCategories_select".
+ */
+export interface MuseumCategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  description?: T;
+  parent?: T;
+  icon?: T;
+  color?: T;
+  featured?: T;
+  museums?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -3839,6 +4034,18 @@ export interface ObjectsSelect<T extends boolean = true> {
   name?: T;
   description?: T;
   museums?: T;
+  artist?: T;
+  dating?: T;
+  provenance?: T;
+  condition?:
+    | T
+    | {
+        state?: T;
+        notes?: T;
+      };
+  creditLine?: T;
+  rights?: T;
+  categories?: T;
   contents?: T;
   thumbnail?: T;
   model?: T;
@@ -3904,6 +4111,14 @@ export interface ContentsSelect<T extends boolean = true> {
   readingTimeMins?: T;
   price?: T;
   copyright?: T;
+  categories?: T;
+  sources?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
   images?: T;
   objects?: T;
   variants?: T;
@@ -3974,6 +4189,7 @@ export interface ContentVariantsSelect<T extends boolean = true> {
 export interface ToursSelect<T extends boolean = true> {
   createdBy?: T;
   title?: T;
+  body?: T;
   description?: T;
   contents?: T;
   thumbnail?: T;
@@ -3987,6 +4203,10 @@ export interface ToursSelect<T extends boolean = true> {
         requestKey?: T;
         request?: T;
       };
+  durationMinutes?: T;
+  distanceMeters?: T;
+  wheelchairAccessible?: T;
+  categories?: T;
   quiz?:
     | T
     | {
@@ -4064,6 +4284,25 @@ export interface QuizAttemptsSelect<T extends boolean = true> {
   score?: T;
   total?: T;
   percent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "purchases_select".
+ */
+export interface PurchasesSelect<T extends boolean = true> {
+  user?: T;
+  target?: T;
+  status?: T;
+  stripeSessionID?: T;
+  unlockedContents?: T;
+  stripePaymentIntentID?: T;
+  productTitle?: T;
+  amountCents?: T;
+  currency?: T;
+  email?: T;
+  purchasedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -4227,22 +4466,6 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
         field?: T;
         value?: T;
         id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "redirects_select".
- */
-export interface RedirectsSelect<T extends boolean = true> {
-  from?: T;
-  to?:
-    | T
-    | {
-        type?: T;
-        reference?: T;
-        url?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -4486,6 +4709,14 @@ export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
         delete?: T;
       };
   tours?:
+    | T
+    | {
+        find?: T;
+        create?: T;
+        update?: T;
+        delete?: T;
+      };
+  museumCategories?:
     | T
     | {
         find?: T;
@@ -4955,6 +5186,10 @@ export interface TaskTranslateDocument {
           value: string | Museum;
         } | null)
       | ({
+          relationTo: 'museumCategories';
+          value: string | MuseumCategory;
+        } | null)
+      | ({
           relationTo: 'museumThumbnails';
           value: string | MuseumThumbnail;
         } | null)
@@ -4969,6 +5204,10 @@ export interface TaskTranslateDocument {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null)
       | ({
           relationTo: 'quizQuestions';
@@ -4994,8 +5233,8 @@ export interface TaskCreateCollectionExport {
       | 'users'
       | 'user-museum-memberships'
       | 'usersPropics'
-      | 'pages'
       | 'museums'
+      | 'museumCategories'
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
@@ -5008,10 +5247,10 @@ export interface TaskCreateCollectionExport {
       | 'toursThumbnails'
       | 'quizQuestions'
       | 'quizAttempts'
+      | 'purchases'
       | 'translator-provenance'
       | 'forms'
       | 'form-submissions'
-      | 'redirects'
       | 'exports'
       | 'imports';
     drafts?: ('yes' | 'no') | null;
@@ -5123,6 +5362,10 @@ export interface WorkflowTranslateDocumentLocales {
           value: string | Museum;
         } | null)
       | ({
+          relationTo: 'museumCategories';
+          value: string | MuseumCategory;
+        } | null)
+      | ({
           relationTo: 'museumThumbnails';
           value: string | MuseumThumbnail;
         } | null)
@@ -5137,6 +5380,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'contentImages';
           value: string | ContentImage;
+        } | null)
+      | ({
+          relationTo: 'tours';
+          value: string | Tour;
         } | null)
       | ({
           relationTo: 'quizQuestions';

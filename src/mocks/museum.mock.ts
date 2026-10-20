@@ -68,7 +68,7 @@ function baseMuseum(): Museum {
     id: 'museum-001',
     name: 'Museo Civico di Esempio',
     shortDescription: 'Breve descrizione del museo in meno di cento caratteri.',
-    accessibility: true,
+    accessibility: { isAccessible: true },
     ticketInfo: {
       label: 'Biglietti',
       url: 'https://example.com/biglietti',
@@ -134,7 +134,7 @@ export const mockMuseumFull: Museum = createMuseum({
       version: 1,
     },
   },
-  accessibility: true,
+  accessibility: { isAccessible: true },
   map: createRealisticMuseumMap('museum-full-001'),
   phone: {
     e164: '+390200000000',
@@ -267,7 +267,7 @@ export const mockMuseumClosed: Museum = createMuseum({
 
 export const mockMuseumWithServices: Museum = createMuseum({
   id: 'museum-services-001',
-  accessibility: true,
+  accessibility: { isAccessible: true },
   openingHours: {
     monday: [
       { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },

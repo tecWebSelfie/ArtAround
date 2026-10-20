@@ -1,13 +1,23 @@
 'use client'
 
+import { useAuth } from '@/components/auth/AuthProvider'
 import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import type { MuseumRole } from '@/fields/MuseumFunction'
-import { Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
-import { BadgeCheck, Compass, Landmark, Palette, Store, UserRound } from 'lucide-react'
+import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
+import {
+  BadgeCheck,
+  Compass,
+  Landmark,
+  LogIn,
+  LogOut,
+  Palette,
+  Store,
+  User as UserIcon,
+} from 'lucide-react'
 import type { Route } from 'next'
 import { useT } from 'next-i18next/client'
 import Link from 'next/link'
-import { useParams, usePathname } from 'next/navigation'
+import { useParams, usePathname, useRouter } from 'next/navigation'
 
 import i18nConfig from '@/../i18n.config'
 
@@ -50,10 +60,12 @@ function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
 }
 
 /**
- * Bottom app navigation. Everything visitor-specific comes from the server
- * session (tabs layout):
- * - `account`: signed-in visitors reach their profile, everyone else signs in
- *   and comes back to the page they were on;
+ * Bottom app navigation.
+ * - Account entry: the client session (`AuthProvider`) drives the avatar menu
+ *   (profile, sign out) so it reacts to sign-in/out without a reload. While its
+ *   first `/api/users/me` probe runs, the server session (`account`, from the
+ *   tabs layout) answers instead, so the entry never flashes a spinner.
+ *   Signed-out visitors sign in and come back to the page they were on (`?next=`).
  * - `myMuseums`: a shortcut to the museums where the visitor is director,
  *   curator or verified creator, shown only when there is at least one.
  */
@@ -61,25 +73,31 @@ export const NavBar: React.FC<{ account: { id: string } | null; myMuseums: MyMus
   function ({ account, myMuseums }) {
     const pathname = usePathname()
     const { lng } = useParams()
+    const router = useRouter()
     const { t } = useT(undefined, { keyPrefix: 'navbar' })
-    const accountHref = account
-      ? `/${lng}/user/${account.id}`
-      : `/${lng}/login?next=${encodeURIComponent(pathname)}`
+    const { logout, status, user } = useAuth()
+
+    const signedIn = status === 'loading' ? account : user ? { id: String(user.id) } : null
+    const avatarUrl = typeof user?.avatar === 'object' ? user.avatar?.url : undefined
+    const displayName = user?.name?.fullName || user?.username || t('Account')
     const inMyMuseum = myMuseums.some((museum) =>
       pathname.startsWith(`/${lng}/museum/${museum.id}`),
     )
 
+    const handleLogout = async () => {
+      try {
+        await logout()
+      } catch {
+        // The provider already cleared local state; still leave the account menu.
+      }
+      router.push(`/${lng}/navigator` as Route)
+      // Server components (tabs layout, viewer-scoped pages) re-read the session.
+      router.refresh()
+    }
+
     return (
       <Group grow gap="xs">
-        {[
-          ...items,
-          {
-            Icon: UserRound,
-            color: 'blue',
-            label: account ? 'Account' : 'Sign in',
-            href: accountHref.slice(`/${lng}`.length),
-          },
-        ].map((item) => {
+        {items.map((item) => {
           // Links must be localized (/it/navigator) so the active-state check
           // matches the actual pathname (no redirect hop).
           const href = `/${lng}${item.href}` as Route
@@ -100,6 +118,54 @@ export const NavBar: React.FC<{ account: { id: string } | null; myMuseums: MyMus
             </Button>
           )
         })}
+        {signedIn ? (
+          <Menu position="top" width={200}>
+            <Menu.Target>
+              <Button
+                variant={pathname.startsWith(`/${lng}/user/`) ? 'light' : 'subtle'}
+                fullWidth
+                h="auto"
+                py="sm"
+                aria-label={t('Account')}
+              >
+                <Center>
+                  <Stack gap={4} align="center">
+                    <Avatar size={20} src={avatarUrl} name={displayName} />
+                    <Text size="xs" lh={1} lineClamp={1} maw="10ch">
+                      {displayName}
+                    </Text>
+                  </Stack>
+                </Center>
+              </Button>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item
+                component={Link}
+                href={`/${lng}/user/${signedIn.id}` as Route}
+                leftSection={<UserIcon size={16} />}
+              >
+                {t('Profile')}
+              </Menu.Item>
+              <Menu.Item
+                color="red"
+                leftSection={<LogOut size={16} />}
+                onClick={() => void handleLogout()}
+              >
+                {t('SignOut')}
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        ) : (
+          <Button
+            component={Link}
+            href={`/${lng}/login?next=${encodeURIComponent(pathname)}` as Route}
+            variant="subtle"
+            h="auto"
+            py="sm"
+          >
+            <ItemContent Icon={LogIn} label={t('SignIn')} />
+          </Button>
+        )}
         {myMuseums.length > 0 && (
           <Menu position="top" withArrow shadow="md">
             <Menu.Target>

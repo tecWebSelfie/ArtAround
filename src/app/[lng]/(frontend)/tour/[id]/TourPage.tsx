@@ -3,6 +3,7 @@
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { DIFFICULTY_LABEL_KEY } from '@/components/mantine/DifficultyBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
+import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import type { Content, Difficulty, Tour } from '@/payload-types'
@@ -23,7 +24,6 @@ import {
   UnstyledButton,
   type ComboboxItem,
 } from '@mantine/core'
-import { notifications } from '@mantine/notifications'
 import IsoCodes from 'iso-639-1'
 import {
   Check,
@@ -187,6 +187,7 @@ export default function TourPage({
         isSignedIn={isSignedIn}
         editHref={editHref}
         loginHref={`/${lng}/login?next=/${lng}/tour/${tour.id}` as Route}
+        tourId={tour.id}
       />
     </Stack>
   )
@@ -205,6 +206,7 @@ function PurchaseModal({
   isSignedIn,
   editHref,
   loginHref,
+  tourId,
 }: {
   opened: boolean
   onClose: () => void
@@ -213,8 +215,11 @@ function PurchaseModal({
   isSignedIn: boolean
   editHref: Route
   loginHref: Route
+  tourId: string
 }) {
   const { t } = useTranslation('tour-page')
+  const { lng } = useParams<{ lng: string }>()
+  const { startCheckout, loading, error } = useCheckout()
   return (
     <Modal opened={opened} onClose={onClose} title={t('Unlock this tour')} centered>
       <Stack gap="md">
@@ -224,16 +229,23 @@ function PurchaseModal({
           })}
         </Text>
         {isSignedIn ? (
-          <Button
-            fullWidth
-            leftSection={<ShoppingBag size={16} />}
-            onClick={() => {
-              // Payments are a separate workstream (see src/access/entitlements.ts).
-              notifications.show({ message: t('Purchases are not available yet.') })
-            }}
-          >
-            {t('Buy all for {{price}}', { price })}
-          </Button>
+          <>
+            {/* Stripe Checkout charges for, and unlocks, exactly the contents
+                still locked for this visitor (src/lib/checkout-quote.ts). */}
+            <Button
+              fullWidth
+              leftSection={<ShoppingBag size={16} />}
+              loading={loading}
+              onClick={() => void startCheckout({ collection: 'tours', id: tourId, locale: lng })}
+            >
+              {t('Buy all for {{price}}', { price })}
+            </Button>
+            {error && (
+              <Text size="sm" c="red" role="alert">
+                {error}
+              </Text>
+            )}
+          </>
         ) : (
           <Button fullWidth component={Link} href={loginHref} leftSection={<LogIn size={16} />}>
             {t('Sign in to buy')}

@@ -6,6 +6,8 @@ export const testUser = {
   password: 'test',
   username: 'dev',
   name: { firstName: 'Dev', lastName: 'User', fullName: 'Dev User' },
+  // Only super admins may open the admin panel (`Users.access.admin`).
+  isSuperAdmin: true,
 } satisfies RequiredDataFromCollectionSlug<'users'>
 
 /**

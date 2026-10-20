@@ -217,8 +217,9 @@ export const Contents: CollectionConfig = {
       },
     },
     {
-      // Price in euro cents; empty or 0 means free. Display currency/format is
-      // a frontend concern (`src/lib/price.ts`).
+      // Price in euro cents; empty or 0 means free. The single price source:
+      // Stripe checkout charges it (`src/lib/checkout-quote.ts`), and display
+      // currency/format is a frontend concern (`src/lib/price.ts`).
       name: 'price',
       type: 'number',
       min: 0,
@@ -229,6 +230,25 @@ export const Contents: CollectionConfig = {
       name: 'copyright',
       type: 'text',
       required: true,
+    },
+    {
+      name: 'categories',
+      type: 'relationship',
+      relationTo: 'museumCategories',
+      hasMany: true,
+      required: false,
+      index: true,
+      admin: { description: 'Shared museum taxonomy, used by search filters.' },
+    },
+    {
+      // Bibliographic references shown at the end of the content page.
+      name: 'sources',
+      type: 'array',
+      required: false,
+      fields: [
+        editorial({ name: 'label', type: 'text', required: true }),
+        { name: 'url', type: 'text', required: false },
+      ],
     },
     {
       name: 'images',
