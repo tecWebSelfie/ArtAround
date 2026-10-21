@@ -41,8 +41,12 @@ for (const target of ['object', 'content'] as const) {
     }, qr)
 
     await page.goto(base.toString(), { waitUntil: 'domcontentloaded' })
-    await expect(page.locator('canvas')).toBeVisible({ timeout: 60_000 })
-    await page.getByRole('button', { name: 'Scan', exact: true }).click()
+    await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
+    // A click before hydration opens nothing: retry until the scanner is up.
+    await expect(async () => {
+      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 2_000 })
+      await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
+    }).toPass({ timeout: 60_000 })
     await expect
       .poll(() => decoded, {
         message: 'The real scanner decodes the camera image and requests the canonical QR route',

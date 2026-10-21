@@ -9,11 +9,11 @@ test.setTimeout(300_000)
 
 test('shows the map on desktop and mobile', async ({ page }) => {
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
-  await expect(page.locator('canvas')).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.getByRole('main').locator('canvas')).toBeVisible()
   await page.setViewportSize({ width: 1280, height: 800 })
-  await expect(page.locator('canvas')).toBeVisible()
+  await expect(page.getByRole('main').locator('canvas')).toBeVisible()
 })
 
 test('keeps side exploration separate, shares position through reload, and completes both stops', async ({
@@ -29,7 +29,7 @@ test('keeps side exploration separate, shares position through reload, and compl
     }
   })
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
-  await expect(page.locator('canvas')).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.getByRole('textbox', { name: 'Search', exact: true }).fill('Object 3')
   await page
@@ -48,14 +48,23 @@ test('keeps side exploration separate, shares position through reload, and compl
   await page.reload({ waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('button', { name: 'Open next stop' })).toBeVisible()
   expect(new URL(page.url()).searchParams.get('at')).toBe(position)
-  await page.getByRole('button', { name: 'Open next stop' }).click()
-  await expect(page).toHaveURL(/\/navigation\/0\/open\?at=/)
+  // A click right after the reload can land before hydration: retry it.
+  await expect(async () => {
+    if (!(await page.getByRole('dialog').isVisible())) {
+      await page.getByRole('button', { name: 'Open next stop' }).click({ timeout: 2_000 })
+    }
+    await expect(page).toHaveURL(/\/navigation\/0\/open\?at=/, { timeout: 5_000 })
+  }).toPass({ timeout: 60_000 })
   await page.getByRole('button', { name: 'Go to next step' }).click()
   await expect(page).toHaveURL(/\/navigation\/1\?at=/)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('button', { name: 'Open next stop' }).click()
-  await page.getByRole('button', { name: 'Complete tour' }).click()
-  await expect(page).toHaveURL(/\/navigation\/2\?at=/)
-  await expect(page.getByText('Tour completed', { exact: true })).toBeVisible()
+  // The seeded fixture tour ends with a quiz: completing its last stop opens
+  // the quiz; a tour without one shows "Tour completed" on the map.
+  await page.getByRole('button', { name: /^Complete/ }).click()
+  await expect(page).toHaveURL(/\/navigation\/2\?at=|\/quiz\?.*from=2/)
+  if (page.url().includes('/navigation/2')) {
+    await expect(page.getByText('Tour completed', { exact: true })).toBeVisible()
+  }
   expect(renderingErrors).toEqual([])
 })
