@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation'
 import type { Museum, Tour } from '@/payload-types'
 import {
   museumNavigationPath,
-  museumObjectId,
+  placedObjectIds,
   navigationBasePath,
   tourStepIndex,
   type NavigationCatalogObject,
@@ -70,16 +70,11 @@ export function TourNavigationShell({
   children: ReactNode
 }) {
   const { stepId } = useParams<{ stepId?: string }>()
-  const placedObjectIds = useMemo(() => {
-    const map = validateBuildJson(museum.map).parsed
-    // Only actual museum ItemNodes can be used as positions or destinations.
-    return new Set(
-      Object.values(map?.nodes ?? {}).flatMap((node) => {
-        const id = museumObjectId(node)
-        return id ? [id] : []
-      }),
-    )
-  }, [museum.map])
+  // Only actual museum ItemNodes can be used as positions or destinations.
+  const placedIds = useMemo(
+    () => placedObjectIds(validateBuildJson(museum.map).parsed),
+    [museum.map],
+  )
   const scope: NavigationScope | null = !tour
     ? { kind: 'free', museumId: museum.id }
     : (() => {
@@ -89,7 +84,7 @@ export function TourNavigationShell({
 
   return (
     <TourNavigationDataContext.Provider
-      value={{ tour, museumId: museum.id, catalog, placedObjectIds }}
+      value={{ tour, museumId: museum.id, catalog, placedObjectIds: placedIds }}
     >
       {/* Map and modal slot share one speech player (see speech-context). */}
       <SpeechProvider>

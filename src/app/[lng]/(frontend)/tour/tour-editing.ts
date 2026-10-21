@@ -9,9 +9,11 @@ import type { Museum } from '@/payload-types'
  * Data for the tour editor: the contents a tour of this museum can include,
  * i.e. the contents of the objects its map exhibits (`museums.objects`).
  * Read as the visitor, so `locked` reflects what they can actually read.
+ * `stopIds` (the tour being edited or copied) adds its stops that are no
+ * longer candidates, flagged (see `getUnavailableStops`).
  */
 
-export async function getTourEditorData(museumId: string) {
+export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
   const museum: Pick<Museum, 'id' | 'name' | 'objects'> = await payload.findByID({
@@ -51,7 +53,10 @@ export async function getTourEditorData(museumId: string) {
         : [],
     ),
   )
-  return { museum: { id: String(museum.id), name: museum.name }, candidates }
+  return {
+    museum: { id: String(museum.id), name: museum.name },
+    candidates: [...candidates, ...(await getUnavailableStops(stopIds, candidates))],
+  }
 }
 
 /**
@@ -60,7 +65,7 @@ export async function getTourEditorData(museumId: string) {
  * instead of silently dropping them on save; the author decides. Deleted
  * contents come back with no title (the form names them generically).
  */
-export async function getUnavailableStops(
+async function getUnavailableStops(
   contentIds: string[],
   candidates: TourCandidate[],
 ): Promise<TourCandidate[]> {
@@ -73,7 +78,7 @@ export async function getUnavailableStops(
     where: { id: { in: missing } },
     depth: 1,
     pagination: false,
-    select: { title: true, price: true, objects: true },
+    select: { title: true, price: true, body: true, objects: true },
     populate: { objects: { name: true } },
     ...(await asViewer()),
   })
@@ -86,7 +91,7 @@ export async function getUnavailableStops(
       title: content?.title ?? '',
       objectName: typeof object === 'object' && object ? object.name : '',
       price: content?.price ?? 0,
-      locked: false,
+      locked: content ? isLocked(content) : false,
       unavailable: true,
     }
   })

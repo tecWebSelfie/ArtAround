@@ -188,9 +188,9 @@ export function TourForm({
     initialValues: {
       title: initial?.title ?? '',
       description: initial?.description ?? '',
-      // Stops no longer visitable are candidates too (flagged `unavailable`),
+      // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
       // so they stay listed instead of disappearing on save.
-      contents: (initial?.contents ?? []).filter((id) => byId.has(id)),
+      contents: initial?.contents ?? [],
     },
     validate: {
       title: (value) => (value.trim() ? null : t('Required')),

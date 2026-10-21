@@ -1,4 +1,4 @@
-import { expect as baseExpect, test } from '@playwright/test'
+import { expect as baseExpect, test, type Page } from '@playwright/test'
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
@@ -7,13 +7,16 @@ const tourURL = process.env.TOUR_NAVIGATION_URL
 test.skip(!tourURL, 'Run scripts/seed-tour-navigation.ts and set TOUR_NAVIGATION_URL first.')
 test.setTimeout(300_000)
 
+// The map's own canvas (the assistant orb draws another one outside `main`).
+const mapCanvas = (page: Page) => page.getByRole('main').locator('canvas')
+
 test('shows the map on desktop and mobile', async ({ page }) => {
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
+  await expect(mapCanvas(page)).toBeVisible({ timeout: 60_000 })
   await page.setViewportSize({ width: 390, height: 844 })
-  await expect(page.getByRole('main').locator('canvas')).toBeVisible()
+  await expect(mapCanvas(page)).toBeVisible()
   await page.setViewportSize({ width: 1280, height: 800 })
-  await expect(page.getByRole('main').locator('canvas')).toBeVisible()
+  await expect(mapCanvas(page)).toBeVisible()
 })
 
 test('keeps side exploration separate, shares position through reload, and completes both stops', async ({
@@ -29,7 +32,7 @@ test('keeps side exploration separate, shares position through reload, and compl
     }
   })
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
+  await expect(mapCanvas(page)).toBeVisible({ timeout: 60_000 })
   await page.getByRole('button', { name: 'Search', exact: true }).click()
   await page.getByRole('textbox', { name: 'Search', exact: true }).fill('Object 3')
   await page
@@ -59,10 +62,9 @@ test('keeps side exploration separate, shares position through reload, and compl
   await expect(page).toHaveURL(/\/navigation\/1\?at=/)
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await page.getByRole('button', { name: 'Open next stop' }).click()
-  // The seeded fixture tour ends with a quiz: completing its last stop opens
-  // the quiz; a tour without one shows "Tour completed" on the map.
-  await page.getByRole('button', { name: /^Complete/ }).click()
-  await expect(page).toHaveURL(/\/navigation\/2\?at=|\/quiz\?.*from=2/)
+  // The seed gives the fixture tour a quiz: completing its last stop opens it.
+  await page.getByRole('button', { name: 'Complete and go to the quiz' }).click()
+  await expect(page).toHaveURL(/\/quiz\?.*from=2/)
   if (page.url().includes('/navigation/2')) {
     await expect(page.getByText('Tour completed', { exact: true })).toBeVisible()
   }

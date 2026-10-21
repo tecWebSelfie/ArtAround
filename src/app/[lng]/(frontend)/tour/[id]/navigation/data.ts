@@ -4,7 +4,7 @@ import { cache } from 'react'
 import { normalizeLocale } from '@/lib/localized'
 export { getLocalizedPageDocument as getNavigationDocument } from '@/lib/localized-page'
 import { validateBuildJson } from '@pascal-app/core'
-import { museumObjectId, type NavigationCatalogObject } from '@/lib/tour-navigation'
+import { placedObjectIds, type NavigationCatalogObject } from '@/lib/tour-navigation'
 import type { Museum } from '@/payload-types'
 import { isLocked } from '@/lib/price'
 import { asViewer } from '@/lib/session'
@@ -41,11 +41,7 @@ export async function getNavigationCatalog(
   const ids = new Set(
     (museum.objects ?? []).map((entry) => (typeof entry === 'string' ? entry : entry.id)),
   )
-  const map = validateBuildJson(museum.map).parsed
-  for (const node of Object.values(map?.nodes ?? {})) {
-    const id = museumObjectId(node)
-    if (id) ids.add(id)
-  }
+  for (const id of placedObjectIds(validateBuildJson(museum.map).parsed)) ids.add(id)
   if (!ids.size) return []
   const objects = await payload.find({
     collection: 'objects',

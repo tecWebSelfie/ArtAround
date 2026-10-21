@@ -45,12 +45,13 @@ const ROUTE_MODEL_URL = '/models/exitEntrance.glb'
 
 // The tour's stops are about the route museum's two placed objects (the
 // catalog lists them, as `objects.contents` does), so every stop is visitable.
-const visitableRouteCatalog = routeCatalog.map((object, index) => ({
+// Stops alternate between the two objects, starting from the gallery one.
+const visitableRouteCatalog = routeCatalog.map((object, objectIndex) => ({
   ...object,
   contents: [
     ...object.contents,
     ...mockContentsList
-      .filter((_, stop) => stop % 2 === (index === 0 ? 1 : 0))
+      .filter((_, stop) => stop % 2 !== objectIndex)
       .map(({ id, title }) => ({ id, title })),
   ],
 }))
@@ -65,11 +66,7 @@ export const Default: Story = {
 }
 
 export const RouteBetweenObjects: Story = {
-  args: {
-    ...Default.args,
-    museum: createRouteMuseum(ROUTE_MODEL_URL),
-    catalog: visitableRouteCatalog,
-  },
+  args: Default.args,
   parameters: {
     nextjs: {
       navigation: {

@@ -58,16 +58,15 @@ import { useNavigationCommands, type NavigationCommand } from './navigation-comm
 import { useNearbySuggestions } from './use-nearby-suggestions'
 import { useRouteGuidance } from './use-route-guidance'
 import {
-  museumObjectId,
   navigationBasePath,
   navigationDestination,
   nextVisitableStep,
+  placedObjectIds,
   stopObjectId,
+  tourAdvanceHref,
   tourHasQuiz as hasQuiz,
-  tourNavigationPath,
   tourQuizPath,
   unavailableStops,
-  withNavigationPosition,
   withNavigationValue,
   type NavigationCatalogObject,
   type NavigationDestination,
@@ -126,20 +125,17 @@ export const TourNavigationPage = ({
   // Stops the visitor can no longer reach (content gone, or its object left
   // the map): flagged in the progress bar, and skipped through a modal when
   // the cursor reaches them (see `unavailableStops`).
-  const tourContentsList = tour?.contents
-  const skipped = useMemo(() => {
-    // No map at all is its own state ("Map not available"): nothing to skip.
-    if (!tourContentsList || !museumMap.parsed) return new Set<number>()
-    const placed = new Set(
-      Object.values(museumMap.parsed?.nodes ?? {}).flatMap((node) => {
-        const id = museumObjectId(node)
-        return id ? [id] : []
-      }),
-    )
-    return unavailableStops(tourContentsList, catalog, placed)
-  }, [tourContentsList, catalog, museumMap.parsed])
-  const stepSkipped = tour !== null && skipped.has(step)
+  const tourContents = tour?.contents
+  const skipped = useMemo(
+    () =>
+      // No map at all is its own state ("Map not available"): nothing to skip.
+      tourContents && museumMap.parsed
+        ? unavailableStops(tourContents, catalog, placedObjectIds(museumMap.parsed))
+        : new Set<number>(),
+    [tourContents, catalog, museumMap.parsed],
+  )
   const skipTo = tour ? nextVisitableStep(step, tour.contents.length, skipped) : step
+  const stepSkipped = skipTo > step
   const destination = useMemo<NavigationDestination | null>(
     () =>
       navigationDestination(search) ??
@@ -202,7 +198,6 @@ export const TourNavigationPage = ({
     (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
   // Nearby suggestions skip the tour's own stops; in free navigation every
   // content in the room is worth suggesting.
-  const tourContents = tour?.contents
   const tourContentIds = useMemo(
     () =>
       new Set(
@@ -256,13 +251,10 @@ export const TourNavigationPage = ({
           completes={skipTo === tour.contents.length}
           guest={guest}
           onSkip={() => {
-            // Like the step modal's advance: keep the position, drop `to`.
-            const params = new URLSearchParams(search)
-            params.delete('to')
-            router.replace(
-              withNavigationPosition(tourNavigationPath(lng, tour.id, skipTo), params.toString()),
-              { scroll: false },
-            )
+            // Same advance as the step modal: the quiz when it ends the tour.
+            const { href, quiz } = tourAdvanceHref(lng, tour, skipTo, search.toString())
+            if (quiz) router.push(href)
+            else router.replace(href, { scroll: false })
           }}
         />
       )}

@@ -10,6 +10,7 @@ import {
   tourStepIndex,
   museumObjectId,
   nextVisitableStep,
+  tourAdvanceHref,
   unavailableStops,
   withNavigationPosition,
   withNavigationValue,
@@ -124,5 +125,20 @@ describe('tour navigation', () => {
     expect(nextVisitableStep(1, 5, skipped)).toBe(4)
     // Only unavailable stops left: the tour is complete.
     expect(nextVisitableStep(1, 4, skipped)).toBe(4)
+  })
+
+  it('advances to the next map step, or to the quiz when that ends the tour', () => {
+    const tour = { id: 't', contents: ['a', 'b'], quiz: { questions: ['q'] } }
+    expect(tourAdvanceHref('en', tour, 1, 'at=o1&to=o2')).toEqual({
+      href: '/en/tour/t/navigation/1?at=o1',
+      quiz: false,
+    })
+    expect(tourAdvanceHref('en', tour, 2, 'at=o1&to=o2')).toEqual({
+      href: '/en/tour/t/quiz?at=o1&from=2',
+      quiz: true,
+    })
+    expect(tourAdvanceHref('en', { ...tour, quiz: {} }, 2, '').href).toBe(
+      '/en/tour/t/navigation/2',
+    )
   })
 })

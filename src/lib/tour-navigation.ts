@@ -156,6 +156,19 @@ export function museumObjectId(node: unknown): string | null {
     : null
 }
 
+/**
+ * Payload object IDs placed on a parsed museum map: the single rule for which
+ * objects visitors can reach (catalog, Locate action, unavailable stops).
+ */
+export function placedObjectIds(map: { nodes: Record<string, unknown> } | null | undefined) {
+  const ids = new Set<string>()
+  for (const node of Object.values(map?.nodes ?? {})) {
+    const id = museumObjectId(node)
+    if (id) ids.add(id)
+  }
+  return ids
+}
+
 export function contentObjectId(content: Content): string | null {
   const object = content.objects?.docs?.[0]
   return typeof object === 'string' ? object : (object?.id ?? null)
@@ -221,6 +234,28 @@ export function tourQuizPath(lng: string, tourId: string, from: number, search: 
 
 export function tourQuizResultPath(lng: string, tourId: string, token: string) {
   return `/${lng}/tour/${tourId}/quiz/result/${encodeURIComponent(token)}` as Route
+}
+
+/**
+ * Where moving the cursor to `toStep` leads, keeping the position and dropping
+ * the `to` excursion: the map at that step or, when it completes a tour with a
+ * quiz, the quiz (its final step). `quiz` tells callers to push, not replace.
+ */
+export function tourAdvanceHref(
+  lng: string,
+  tour: Pick<Tour, 'id' | 'contents' | 'quiz'>,
+  toStep: number,
+  search: string,
+): { href: Route; quiz: boolean } {
+  const params = new URLSearchParams(search)
+  params.delete('to')
+  if (toStep === tour.contents.length && tourHasQuiz(tour)) {
+    return { href: tourQuizPath(lng, tour.id, toStep, params.toString()), quiz: true }
+  }
+  return {
+    href: withNavigationPosition(tourNavigationPath(lng, tour.id, toStep), params.toString()),
+    quiz: false,
+  }
 }
 
 /** Quiz question IDs are never populated on tours (`maxDepth: 0`), so a count is all we read. */

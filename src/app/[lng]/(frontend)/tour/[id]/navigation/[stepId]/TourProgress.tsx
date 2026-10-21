@@ -99,38 +99,34 @@ export function TourProgress({
         }
       >
         {hasEntrance && <StepperStep label={entranceLabel ?? t('Entrance')} />}
-        {contents.map((content, index) =>
-          skipped?.has(index) ? (
-            <StepperStep
-              key={typeof content === 'string' ? content : content.id}
-              label={typeof content === 'string' ? `${index + 1}` : content.title}
-              ref={index === step ? activeStep : undefined}
-              icon={<MapPinOff size={14} aria-hidden />}
-              color="gray"
-              allowStepSelect={false}
-              classNames={{ stepLabel: 'line-through opacity-60' }}
-              description={
-                <Badge size="xs" variant="light" color="gray">
-                  {t('Skipped')}
-                </Badge>
-              }
-            />
-          ) : (
-            <StepperStep
-              key={typeof content === 'string' ? content : content.id}
-              label={typeof content === 'string' ? `${index + 1}` : content.title}
-              ref={index === step ? activeStep : undefined}
-              description={
-                typeof content === 'object' && (
-                  <Group gap={4}>
-                    <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                    <DurationBadge time={content.readingTimeMins ?? 12} />
-                  </Group>
-                )
-              }
-            />
-          ),
-        )}
+        {contents.map((content, index) => (
+          <StepperStep
+            key={typeof content === 'string' ? content : content.id}
+            label={typeof content === 'string' ? `${index + 1}` : content.title}
+            ref={index === step ? activeStep : undefined}
+            // An unavailable stop reads as crossed out and can't be selected.
+            {...(skipped?.has(index)
+              ? {
+                  icon: <MapPinOff size={14} aria-hidden />,
+                  color: 'gray',
+                  allowStepSelect: false,
+                  classNames: { stepLabel: 'line-through opacity-60' },
+                  description: (
+                    <Badge size="xs" variant="light" color="gray">
+                      {t('Skipped')}
+                    </Badge>
+                  ),
+                }
+              : {
+                  description: typeof content === 'object' && (
+                    <Group gap={4}>
+                      <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
+                      <DurationBadge time={content.readingTimeMins ?? 12} />
+                    </Group>
+                  ),
+                })}
+          />
+        ))}
         {hasQuiz && (
           <StepperStep
             label={t('Quiz')}
