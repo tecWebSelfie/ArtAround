@@ -53,3 +53,41 @@ export async function getTourEditorData(museumId: string) {
   )
   return { museum: { id: String(museum.id), name: museum.name }, candidates }
 }
+
+/**
+ * The tour's own stops that are not candidates any more: their object left
+ * the museum map, or the content is gone. The editor keeps them, flagged,
+ * instead of silently dropping them on save; the author decides. Deleted
+ * contents come back with no title (the form names them generically).
+ */
+export async function getUnavailableStops(
+  contentIds: string[],
+  candidates: TourCandidate[],
+): Promise<TourCandidate[]> {
+  const known = new Set(candidates.map((candidate) => candidate.id))
+  const missing = contentIds.filter((id) => !known.has(id))
+  if (missing.length === 0) return []
+  const { payload } = await getSession()
+  const found = await payload.find({
+    collection: 'contents',
+    where: { id: { in: missing } },
+    depth: 1,
+    pagination: false,
+    select: { title: true, price: true, objects: true },
+    populate: { objects: { name: true } },
+    ...(await asViewer()),
+  })
+  const byId = new Map(found.docs.map((content) => [String(content.id), content]))
+  return missing.map((id) => {
+    const content = byId.get(id)
+    const object = content?.objects?.docs?.[0]
+    return {
+      id,
+      title: content?.title ?? '',
+      objectName: typeof object === 'object' && object ? object.name : '',
+      price: content?.price ?? 0,
+      locked: false,
+      unavailable: true,
+    }
+  })
+}

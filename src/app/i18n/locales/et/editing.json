@@ -94,5 +94,11 @@
   "Use my location": "Kasuta minu asukohta",
   "Where the museum is on the map": "Kus muuseum kaardil asub",
   "This device cannot share its location": "See seade ei saa oma asukohta jagada",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Sinu asukoht pole saadaval — luba see või sisesta koordinaadid kaardirakendusest"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Sinu asukoht pole saadaval — luba see või sisesta koordinaadid kaardirakendusest",
+  "No longer on show, visitors skip it": "Pole enam väljas, külastajad jätavad selle vahele",
+  "A content that no longer exists": "Sisu, mida enam pole",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Tuuril on peatus, mida ei saa enam külastada ja mis jäetakse vahele",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Tuuril on peatusi, mida ei saa enam külastada ja mis jäetakse vahele",
+  "Remove them from the tour_one": "Eemalda see tuurilt",
+  "Remove them from the tour_other": "Eemalda need tuurilt"
 }

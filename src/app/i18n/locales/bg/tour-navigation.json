@@ -123,5 +123,14 @@
   "Walk south": "Върви на юг",
   "Walk west": "Върви на запад",
   "Wheelchair route": "Маршрут за инвалидни колички",
-  "your destination": "дестинацията ти"
+  "your destination": "дестинацията ти",
+  "Your guide will move on to the next stop": "Водачът ти ще продължи към следващата спирка",
+  "Skip and finish the tour": "Пропусни и завърши обиколката",
+  "Skip to the next stop": "Към следващата спирка",
+  "Stop {{number}}": "Спирка {{number}}",
+  "Skipped": "Пропусната",
+  "The tour skips these stops because their works are no longer on show_one": "Обиколката пропуска тази спирка, защото творбата вече не е изложена",
+  "The tour skips these stops because their works are no longer on show_other": "Обиколката пропуска тези спирки, защото творбите вече не са изложени",
+  "These stops can no longer be visited_one": "Тази спирка вече не може да се посети",
+  "These stops can no longer be visited_other": "Тези спирки вече не могат да се посетят"
 }

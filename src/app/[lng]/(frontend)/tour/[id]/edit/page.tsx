@@ -3,7 +3,7 @@ import { asViewer, can, getSession, requireUser } from '@/lib/session'
 import { Container } from '@mantine/core'
 import type { Route } from 'next'
 import { redirect } from 'next/navigation'
-import { getTourEditorData } from '../../tour-editing'
+import { getTourEditorData, getUnavailableStops } from '../../tour-editing'
 
 /** Edit an own tour (author only); others customize a copy via `/tour/new?from=`. */
 export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[id]/edit'>) {
@@ -16,19 +16,22 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
   const { museum, candidates } = await getTourEditorData(
     typeof tour.museum === 'string' ? tour.museum : tour.museum.id,
   )
+  const stopIds = tour.contents.map((content) =>
+    typeof content === 'string' ? content : content.id,
+  )
+  // Stops no longer visitable stay in the editor, flagged (not dropped on save).
+  const unavailable = await getUnavailableStops(stopIds, candidates)
 
   return (
     <Container size="md" py="md">
       <TourForm
         tourId={tour.id}
         museum={museum}
-        candidates={candidates}
+        candidates={[...candidates, ...unavailable]}
         initial={{
           title: tour.title,
           description: tour.description ?? '',
-          contents: tour.contents.map((content) =>
-            typeof content === 'string' ? content : content.id,
-          ),
+          contents: stopIds,
         }}
       />
     </Container>

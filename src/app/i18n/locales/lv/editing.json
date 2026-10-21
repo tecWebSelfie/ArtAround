@@ -95,5 +95,13 @@
   "Use my location": "Izmantot manu atrašanās vietu",
   "Where the museum is on the map": "Kur muzejs atrodas kartē",
   "This device cannot share its location": "Šī ierīce nevar kopīgot savu atrašanās vietu",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tava atrašanās vieta nav pieejama — atļauj to vai ievadi koordinātas no karšu lietotnes"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tava atrašanās vieta nav pieejama — atļauj to vai ievadi koordinātas no karšu lietotnes",
+  "No longer on show, visitors skip it": "Vairs nav izstādīts, apmeklētāji to izlaiž",
+  "A content that no longer exists": "Saturs, kas vairs nepastāv",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Tūrei ir pietura, ko vairs nevar apmeklēt, un tā tiek izlaista",
+  "This tour has stops that can no longer be visited, and visitors skip them_zero": "Tūrei ir pieturas, ko vairs nevar apmeklēt, un tās tiek izlaistas",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Tūrei ir pieturas, ko vairs nevar apmeklēt, un tās tiek izlaistas",
+  "Remove them from the tour_one": "Noņemt to no tūres",
+  "Remove them from the tour_zero": "Noņemt tās no tūres",
+  "Remove them from the tour_other": "Noņemt tās no tūres"
 }

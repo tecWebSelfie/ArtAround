@@ -149,7 +149,10 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      `/[lng]/tour/[id]/edit` — `TourForm`: vertical timeline of stops,
      reordered by drag (grip handle, `@dnd-kit/react`, auto-scroll + keyboard)
      or up/down buttons (precise on long tours, WCAG 2.5.7 alternative);
-     locked stops are flagged so they can be replaced.
+     locked stops are flagged so they can be replaced. Stops that can no longer
+     be visited (object off the map, or content gone; `getUnavailableStops`) stay
+     in the list, flagged "No longer on show, visitors skip it", with a summary
+     alert offering to remove them all; they are never dropped on save.
      Adding stops: a quick select, or "Browse contents" → `/[lng]/search/contents`
      in picker mode (`?pick=tour&museum=&returnTo=&have=`: only the museum's
      exhibited contents, each with "Add to tour" or "In the tour", locked ones

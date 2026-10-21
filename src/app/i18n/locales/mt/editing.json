@@ -97,5 +97,17 @@
   "Use my location": "Uża l-post tiegħi",
   "Where the museum is on the map": "Fejn qiegħed il-mużew fuq il-mappa",
   "This device cannot share its location": "Dan it-tagħmir ma jistax jaqsam il-post tiegħu",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Il-post tiegħek mhux disponibbli — ħallih, jew ikteb il-koordinati minn app tal-mapep"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Il-post tiegħek mhux disponibbli — ħallih, jew ikteb il-koordinati minn app tal-mapep",
+  "No longer on show, visitors skip it": "M'għadux espost, il-viżitaturi jaqbżuha",
+  "A content that no longer exists": "Kontenut li m'għadux jeżisti",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "It-tour għandu waqfiet li ma jistgħux jibqgħu jinżaru u jinqabżu",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "It-tour għandu waqfiet li ma jistgħux jibqgħu jinżaru u jinqabżu",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "It-tour għandu waqfa li ma tistax tibqa' tinżar u tinqabeż",
+  "This tour has stops that can no longer be visited, and visitors skip them_two": "It-tour għandu waqfiet li ma jistgħux jibqgħu jinżaru u jinqabżu",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "It-tour għandu waqfiet li ma jistgħux jibqgħu jinżaru u jinqabżu",
+  "Remove them from the tour_few": "Neħħihom mit-tour",
+  "Remove them from the tour_many": "Neħħihom mit-tour",
+  "Remove them from the tour_one": "Neħħiha mit-tour",
+  "Remove them from the tour_two": "Neħħihom mit-tour",
+  "Remove them from the tour_other": "Neħħihom mit-tour"
 }

@@ -95,5 +95,13 @@
   "Use my location": "Koristi moju lokaciju",
   "Where the museum is on the map": "Gdje se muzej nalazi na karti",
   "This device cannot share its location": "Ovaj uređaj ne može dijeliti svoju lokaciju",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja lokacija nije dostupna — dopusti je ili upiši koordinate iz aplikacije s kartama"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja lokacija nije dostupna — dopusti je ili upiši koordinate iz aplikacije s kartama",
+  "No longer on show, visitors skip it": "Više nije izloženo, posjetitelji je preskaču",
+  "A content that no longer exists": "Sadržaj koji više ne postoji",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Tura ima postaje koje se više ne mogu posjetiti i preskaču se",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Tura ima postaju koja se više ne može posjetiti i preskače se",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Tura ima postaje koje se više ne mogu posjetiti i preskaču se",
+  "Remove them from the tour_few": "Ukloni ih iz ture",
+  "Remove them from the tour_one": "Ukloni je iz ture",
+  "Remove them from the tour_other": "Ukloni ih iz ture"
 }

@@ -46,6 +46,7 @@ import {
 import { Suspense, useEffect, useMemo, useState, type ComponentPropsWithoutRef } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
+import { SkippedStopModal } from './SkippedStopModal'
 import { DirectionsBar, useStepSentence, type DirectionsStatus } from './DirectionsBar'
 import { GroupBadge } from '@/components/group/GroupBadge'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -57,11 +58,16 @@ import { useNavigationCommands, type NavigationCommand } from './navigation-comm
 import { useNearbySuggestions } from './use-nearby-suggestions'
 import { useRouteGuidance } from './use-route-guidance'
 import {
-  contentObjectId,
+  museumObjectId,
   navigationBasePath,
   navigationDestination,
+  nextVisitableStep,
+  stopObjectId,
   tourHasQuiz as hasQuiz,
+  tourNavigationPath,
   tourQuizPath,
+  unavailableStops,
+  withNavigationPosition,
   withNavigationValue,
   type NavigationCatalogObject,
   type NavigationDestination,
@@ -115,11 +121,25 @@ export const TourNavigationPage = ({
   // the progress bar mirrors that choice as its leading step.
   const [startEntranceId, setStartEntranceId] = useState<string | null>(null)
   const next = tour?.contents[step]
-  const nextId = typeof next === 'string' ? next : next?.id
   // Route guidance follows the next ordered content unless the visitor chose `to`.
-  const defaultDestination =
-    catalog.find((object) => object.contents.some((content) => content.id === nextId))?.id ??
-    (typeof next === 'object' ? contentObjectId(next) : null)
+  const defaultDestination = stopObjectId(next, catalog)
+  // Stops the visitor can no longer reach (content gone, or its object left
+  // the map): flagged in the progress bar, and skipped through a modal when
+  // the cursor reaches them (see `unavailableStops`).
+  const tourContentsList = tour?.contents
+  const skipped = useMemo(() => {
+    // No map at all is its own state ("Map not available"): nothing to skip.
+    if (!tourContentsList || !museumMap.parsed) return new Set<number>()
+    const placed = new Set(
+      Object.values(museumMap.parsed?.nodes ?? {}).flatMap((node) => {
+        const id = museumObjectId(node)
+        return id ? [id] : []
+      }),
+    )
+    return unavailableStops(tourContentsList, catalog, placed)
+  }, [tourContentsList, catalog, museumMap.parsed])
+  const stepSkipped = tour !== null && skipped.has(step)
+  const skipTo = tour ? nextVisitableStep(step, tour.contents.length, skipped) : step
   const destination = useMemo<NavigationDestination | null>(
     () =>
       navigationDestination(search) ??
@@ -142,7 +162,7 @@ export const TourNavigationPage = ({
   const settings = useGuidanceSettings()
   const gps = useGpsFix(settings.gpsMode)
   const guidance = useRouteGuidance({ route, rooms, fix: gps.fix })
-  const { commands, run } = useNavigationCommands({
+  const { commands: allCommands, run } = useNavigationCommands({
     museum,
     scope,
     tours,
@@ -150,6 +170,11 @@ export const TourNavigationPage = ({
     services: markers.services,
     exits: markers.exitEntrances,
   })
+  // "Open next stop" would open a stop that can't be visited: the skip modal
+  // is the way on instead.
+  const commands = stepSkipped
+    ? allCommands.filter((command) => command.id !== 'next-stop')
+    : allCommands
   const destinationName = useDestinationName(
     destination,
     catalog,
@@ -219,6 +244,28 @@ export const TourNavigationPage = ({
 
   return (
     <>
+      {tour && stepSkipped && (
+        <SkippedStopModal
+          titles={tour.contents
+            .slice(step, skipTo)
+            .map((content, index) =>
+              typeof content === 'object'
+                ? content.title
+                : t('Stop {{number}}', { number: step + index + 1 }),
+            )}
+          completes={skipTo === tour.contents.length}
+          guest={guest}
+          onSkip={() => {
+            // Like the step modal's advance: keep the position, drop `to`.
+            const params = new URLSearchParams(search)
+            params.delete('to')
+            router.replace(
+              withNavigationPosition(tourNavigationPath(lng, tour.id, skipTo), params.toString()),
+              { scroll: false },
+            )
+          }}
+        />
+      )}
       <AppShellHeader px="xs" pb="xs" className="rounded-b-xl">
         {tour ? (
           <Stack gap="xs">
@@ -247,6 +294,7 @@ export const TourNavigationPage = ({
             <TourProgress
               contents={tour.contents}
               step={step}
+              skipped={skipped}
               entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
               hasQuiz={hasQuiz(tour)}
             />

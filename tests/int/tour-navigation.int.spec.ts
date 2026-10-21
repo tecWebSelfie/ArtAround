@@ -9,6 +9,8 @@ import {
   tourQuizResultPath,
   tourStepIndex,
   museumObjectId,
+  nextVisitableStep,
+  unavailableStops,
   withNavigationPosition,
   withNavigationValue,
 } from '@/lib/tour-navigation'
@@ -102,5 +104,25 @@ describe('tour navigation', () => {
     )
     expect(tourQuizPath('it', 't', 0, '')).toBe('/it/tour/t/quiz?from=0')
     expect(tourQuizResultPath('it', 't', 'a/b')).toBe('/it/tour/t/quiz/result/a%2Fb')
+  })
+
+  it('flags stops whose content is gone or whose object is not on the map, and skips them', () => {
+    const content = (id: string, objectId?: string) =>
+      ({ id, title: id, objects: { docs: objectId ? [objectId] : [] } }) as never
+    const catalog = [{ id: 'listed', name: 'Listed', contents: [{ id: 'c-listed', title: 'x' }] }]
+    const contents = [
+      content('c-placed', 'placed'),
+      content('c-unplaced', 'unplaced'),
+      'c-deleted',
+      content('c-no-object'),
+      // The catalog's authored relation wins over the content's own objects.
+      content('c-listed', 'unplaced'),
+    ] as never
+    const skipped = unavailableStops(contents, catalog, new Set(['placed', 'listed']))
+    expect([...skipped]).toEqual([1, 2, 3])
+    expect(nextVisitableStep(0, 5, skipped)).toBe(0)
+    expect(nextVisitableStep(1, 5, skipped)).toBe(4)
+    // Only unavailable stops left: the tour is complete.
+    expect(nextVisitableStep(1, 4, skipped)).toBe(4)
   })
 })

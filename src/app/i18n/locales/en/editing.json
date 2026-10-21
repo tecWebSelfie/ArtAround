@@ -94,5 +94,11 @@
   "Use my location": "Use my location",
   "Where the museum is on the map": "Where the museum is on the map",
   "This device cannot share its location": "This device cannot share its location",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Your location is not available — allow it, or type the coordinates from a map app"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Your location is not available — allow it, or type the coordinates from a map app",
+  "No longer on show, visitors skip it": "No longer on show, visitors skip it",
+  "A content that no longer exists": "A content that no longer exists",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "This tour has a stop that can no longer be visited, and visitors skip it",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "This tour has stops that can no longer be visited, and visitors skip them",
+  "Remove them from the tour_one": "Remove it from the tour",
+  "Remove them from the tour_other": "Remove them from the tour"
 }

@@ -124,5 +124,16 @@
   "Walk south": "Cammina verso sud",
   "Walk west": "Cammina verso ovest",
   "Wheelchair route": "Percorso per carrozzina",
-  "your destination": "la tua destinazione"
+  "your destination": "la tua destinazione",
+  "Your guide will move on to the next stop": "La tua guida passerà alla prossima tappa",
+  "Skip and finish the tour": "Salta e concludi il tour",
+  "Skip to the next stop": "Vai alla prossima tappa",
+  "Stop {{number}}": "Tappa {{number}}",
+  "Skipped": "Saltata",
+  "The tour skips these stops because their works are no longer on show_many": "Il tour salta queste tappe perché le loro opere non sono più esposte",
+  "The tour skips these stops because their works are no longer on show_one": "Il tour salta questa tappa perché la sua opera non è più esposta",
+  "The tour skips these stops because their works are no longer on show_other": "Il tour salta queste tappe perché le loro opere non sono più esposte",
+  "These stops can no longer be visited_many": "Queste tappe non sono più visitabili",
+  "These stops can no longer be visited_one": "Questa tappa non è più visitabile",
+  "These stops can no longer be visited_other": "Queste tappe non sono più visitabili"
 }

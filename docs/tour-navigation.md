@@ -17,6 +17,15 @@ and cached build artifacts are not reliable handoff state.
   object) as their position or as an alternative destination.
 - Advancing retains position and clears the alternative destination. Resuming the
   tour route also clears that destination without advancing the cursor.
+- A stop that can no longer be visited (its content is gone, is about no object,
+  or its object is no longer placed on the map; `unavailableStops` in
+  `src/lib/tour-navigation.ts`) stays in the tour. The stepper shows it greyed,
+  struck through and "Skipped", not selectable. When the cursor reaches it,
+  `SkippedStopModal` lists the consecutive unavailable stops and its one action
+  moves the cursor past them (`nextVisitableStep`), keeping position and clearing
+  `to`; skipping the last ones completes the tour. Group guests see the modal
+  without the action (the host's skip moves them). "Open next stop" is withdrawn
+  meanwhile. A museum with no map at all flags nothing ("Map not available").
 - Map interaction opens only museum object items, not walls or other geometry.
 - Canonical QR values are ordinary Next.js paths such as `/object/ID`,
   `/content/ID` or `/tour/ID`. Printed and shared codes are **language-free**: a

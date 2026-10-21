@@ -123,5 +123,14 @@
   "Walk south": "Menj dél felé",
   "Walk west": "Menj nyugat felé",
   "Wheelchair route": "Kerekesszékes útvonal",
-  "your destination": "az úti célod"
+  "your destination": "az úti célod",
+  "Your guide will move on to the next stop": "A vezetőd továbblép a következő megállóhoz",
+  "Skip and finish the tour": "Kihagyás és a túra befejezése",
+  "Skip to the next stop": "A következő megállóhoz",
+  "Stop {{number}}": "{{number}}. megálló",
+  "Skipped": "Kihagyva",
+  "The tour skips these stops because their works are no longer on show_one": "A túra kihagyja ezt a megállót, mert a műve már nincs kiállítva",
+  "The tour skips these stops because their works are no longer on show_other": "A túra kihagyja ezeket a megállókat, mert a műveik már nincsenek kiállítva",
+  "These stops can no longer be visited_one": "Ez a megálló már nem látogatható",
+  "These stops can no longer be visited_other": "Ezek a megállók már nem látogathatók"
 }

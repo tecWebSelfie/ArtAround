@@ -94,5 +94,11 @@
   "Use my location": "Mijn locatie gebruiken",
   "Where the museum is on the map": "Waar het museum op de kaart ligt",
   "This device cannot share its location": "Dit apparaat kan zijn locatie niet delen",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Je locatie is niet beschikbaar — sta deze toe of typ de coördinaten uit een kaartapp"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Je locatie is niet beschikbaar — sta deze toe of typ de coördinaten uit een kaartapp",
+  "No longer on show, visitors skip it": "Niet meer te zien, bezoekers slaan hem over",
+  "A content that no longer exists": "Inhoud die niet meer bestaat",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Deze tour heeft een stop die niet meer bezocht kan worden en wordt overgeslagen",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Deze tour heeft stops die niet meer bezocht kunnen worden en worden overgeslagen",
+  "Remove them from the tour_one": "Uit de tour verwijderen",
+  "Remove them from the tour_other": "Uit de tour verwijderen"
 }

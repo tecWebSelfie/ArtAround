@@ -96,5 +96,15 @@
   "Use my location": "Naudoti mano vietą",
   "Where the museum is on the map": "Kur muziejus yra žemėlapyje",
   "This device cannot share its location": "Šis įrenginys negali bendrinti savo vietos",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tavo vieta nepasiekiama — leisk ją arba įvesk koordinates iš žemėlapių programėlės"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tavo vieta nepasiekiama — leisk ją arba įvesk koordinates iš žemėlapių programėlės",
+  "No longer on show, visitors skip it": "Nebeeksponuojama, lankytojai ją praleidžia",
+  "A content that no longer exists": "Turinys, kurio nebėra",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Ture yra stotelių, kurių nebegalima aplankyti, ir jos praleidžiamos",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "Ture yra stotelių, kurių nebegalima aplankyti, ir jos praleidžiamos",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Ture yra stotelė, kurios nebegalima aplankyti, ir ji praleidžiama",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Ture yra stotelių, kurių nebegalima aplankyti, ir jos praleidžiamos",
+  "Remove them from the tour_few": "Pašalinti jas iš turo",
+  "Remove them from the tour_many": "Pašalinti jas iš turo",
+  "Remove them from the tour_one": "Pašalinti ją iš turo",
+  "Remove them from the tour_other": "Pašalinti jas iš turo"
 }

@@ -97,5 +97,17 @@
   "Use my location": "Úsáid mo shuíomh",
   "Where the museum is on the map": "Cá bhfuil an músaem ar an léarscáil",
   "This device cannot share its location": "Ní féidir leis an ngléas seo a shuíomh a roinnt",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Níl do shuíomh ar fáil — ceadaigh é, nó clóscríobh na comhordanáidí ó aip léarscáileanna"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Níl do shuíomh ar fáil — ceadaigh é, nó clóscríobh na comhordanáidí ó aip léarscáileanna",
+  "No longer on show, visitors skip it": "Níl sé ar taispeáint a thuilleadh, scipeálann cuairteoirí é",
+  "A content that no longer exists": "Ábhar nach ann dó a thuilleadh",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Tá stadanna sa turas seo nach féidir cuairt a thabhairt orthu a thuilleadh, agus scipeáiltear iad",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "Tá stadanna sa turas seo nach féidir cuairt a thabhairt orthu a thuilleadh, agus scipeáiltear iad",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Tá stad sa turas seo nach féidir cuairt a thabhairt air a thuilleadh, agus scipeáiltear é",
+  "This tour has stops that can no longer be visited, and visitors skip them_two": "Tá stadanna sa turas seo nach féidir cuairt a thabhairt orthu a thuilleadh, agus scipeáiltear iad",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Tá stadanna sa turas seo nach féidir cuairt a thabhairt orthu a thuilleadh, agus scipeáiltear iad",
+  "Remove them from the tour_few": "Bain den turas iad",
+  "Remove them from the tour_many": "Bain den turas iad",
+  "Remove them from the tour_one": "Bain den turas é",
+  "Remove them from the tour_two": "Bain den turas iad",
+  "Remove them from the tour_other": "Bain den turas iad"
 }

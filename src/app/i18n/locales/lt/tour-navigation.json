@@ -125,5 +125,18 @@
   "Walk south": "Eik į pietus",
   "Walk west": "Eik į vakarus",
   "Wheelchair route": "Maršrutas vežimėliu",
-  "your destination": "tavo tikslas"
+  "your destination": "tavo tikslas",
+  "Your guide will move on to the next stop": "Tavo gidas pereis prie kitos stotelės",
+  "Skip and finish the tour": "Praleisti ir baigti turą",
+  "Skip to the next stop": "Į kitą stotelę",
+  "Stop {{number}}": "Stotelė {{number}}",
+  "Skipped": "Praleista",
+  "The tour skips these stops because their works are no longer on show_few": "Turas praleidžia šias stoteles, nes jų kūriniai nebeeksponuojami",
+  "The tour skips these stops because their works are no longer on show_many": "Turas praleidžia šias stoteles, nes jų kūriniai nebeeksponuojami",
+  "The tour skips these stops because their works are no longer on show_one": "Turas praleidžia šią stotelę, nes jos kūrinys nebeeksponuojamas",
+  "The tour skips these stops because their works are no longer on show_other": "Turas praleidžia šias stoteles, nes jų kūriniai nebeeksponuojami",
+  "These stops can no longer be visited_few": "Šių stotelių nebegalima aplankyti",
+  "These stops can no longer be visited_many": "Šių stotelių nebegalima aplankyti",
+  "These stops can no longer be visited_one": "Šios stotelės nebegalima aplankyti",
+  "These stops can no longer be visited_other": "Šių stotelių nebegalima aplankyti"
 }

@@ -21,7 +21,16 @@ import {
   Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import { ArrowDown, ArrowUp, GripVertical, Lock, PenLine, Search, Trash2 } from 'lucide-react'
+import {
+  ArrowDown,
+  ArrowUp,
+  GripVertical,
+  Lock,
+  MapPinOff,
+  PenLine,
+  Search,
+  Trash2,
+} from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -36,6 +45,8 @@ export type TourCandidate = {
   objectName: string
   price: number
   locked: boolean
+  /** One of the tour's stops that can no longer be visited (`getUnavailableStops`). */
+  unavailable?: boolean
 }
 
 type TourValues = { title: string; description: string; contents: string[] }
@@ -85,6 +96,15 @@ function SortableStop({
             <Badge variant="light" color="orange" leftSection={<Lock size={12} />}>
               {lockedLabel}
             </Badge>
+          )}
+          {content.unavailable && (
+            // Icon + label + color (Triplet Rule): the stop stays, flagged.
+            <Group gap={4} wrap="nowrap" c="dimmed">
+              <MapPinOff size={12} aria-hidden />
+              <Text size="xs" fw={500}>
+                {t('No longer on show, visitors skip it')}
+              </Text>
+            </Group>
           )}
         </Stack>
         <Group gap={2} wrap="nowrap">
@@ -168,7 +188,8 @@ export function TourForm({
     initialValues: {
       title: initial?.title ?? '',
       description: initial?.description ?? '',
-      // Contents no longer exhibited by the museum can't be shown or reordered.
+      // Stops no longer visitable are candidates too (flagged `unavailable`),
+      // so they stay listed instead of disappearing on save.
       contents: (initial?.contents ?? []).filter((id) => byId.has(id)),
     },
     validate: {
@@ -219,6 +240,7 @@ export function TourForm({
 
   const picker = { museumId: museum.id, returnTo: editorUrl, have: selected }
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
+  const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
 
   const save = useSave(
     (values: TourValues) => {
@@ -271,6 +293,29 @@ export function TourForm({
               )}
             </Alert>
           )}
+          {unavailableSelected.length > 0 && (
+            <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>
+              <Stack gap="xs" align="start">
+                <Text size="sm">
+                  {t('This tour has stops that can no longer be visited, and visitors skip them', {
+                    count: unavailableSelected.length,
+                  })}
+                </Text>
+                <Button
+                  size="compact-sm"
+                  variant="default"
+                  onClick={() =>
+                    form.setFieldValue(
+                      'contents',
+                      selected.filter((id) => !byId.get(id)?.unavailable),
+                    )
+                  }
+                >
+                  {t('Remove them from the tour', { count: unavailableSelected.length })}
+                </Button>
+              </Stack>
+            </Alert>
+          )}
           <DragDropProvider
             onDragEnd={(event) => {
               // dnd-kit reorders the DOM optimistically while dragging; commit
@@ -289,7 +334,8 @@ export function TourForm({
                     id={id}
                     index={index}
                     bullet={<Text size="xs">{index + 1}</Text>}
-                    title={content.title}
+                    // A deleted content has no title left to show.
+                    title={content.title || t('A content that no longer exists')}
                     content={content}
                     lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
                     first={index === 0}
@@ -312,7 +358,7 @@ export function TourForm({
             searchable
             value={null}
             data={candidates
-              .filter((candidate) => !selected.includes(candidate.id))
+              .filter((candidate) => !candidate.unavailable && !selected.includes(candidate.id))
               .map((candidate) => ({
                 value: candidate.id,
                 label: `${candidate.title} — ${candidate.objectName}${

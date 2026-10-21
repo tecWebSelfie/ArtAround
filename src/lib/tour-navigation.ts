@@ -162,6 +162,51 @@ export function contentObjectId(content: Content): string | null {
 }
 
 /**
+ * The object a tour stop leads to: the catalog object that lists the content
+ * (`objects.contents`, the authored relation), else the content's own first
+ * object. `null` for a stop that arrived unpopulated (deleted or unreadable).
+ */
+export function stopObjectId(
+  content: Tour['contents'][number] | undefined,
+  catalog: readonly NavigationCatalogObject[],
+): string | null {
+  if (!content || typeof content === 'string') return null
+  return (
+    catalog.find((object) => object.contents.some((entry) => entry.id === content.id))?.id ??
+    contentObjectId(content)
+  )
+}
+
+/**
+ * Stops the visitor can no longer visit: the content is gone (unpopulated),
+ * is about no object, or its object is not placed on the museum map any more.
+ * The tour keeps them (its author decides), navigation flags and skips them.
+ * Returned as cursor indexes into `contents`.
+ */
+export function unavailableStops(
+  contents: Tour['contents'],
+  catalog: readonly NavigationCatalogObject[],
+  placedObjectIds: ReadonlySet<string>,
+): Set<number> {
+  const skipped = new Set<number>()
+  contents.forEach((content, index) => {
+    const objectId = stopObjectId(content, catalog)
+    if (!objectId || !placedObjectIds.has(objectId)) skipped.add(index)
+  })
+  return skipped
+}
+
+/**
+ * Where the cursor lands after skipping the unavailable stops from `step` on:
+ * the next visitable stop, or `contents.length` (tour completed).
+ */
+export function nextVisitableStep(step: number, count: number, skipped: ReadonlySet<number>) {
+  let next = step
+  while (next < count && skipped.has(next)) next++
+  return next
+}
+
+/**
  * Quiz routes live beside, not inside, the navigation tree (no map). `from` is
  * the tour cursor the visitor left, so the quiz can warn about unvisited stops
  * and "back to the map" returns to the same step; `at`/`mobility` ride along.

@@ -95,5 +95,13 @@
   "Use my location": "Utiliser ma position",
   "Where the museum is on the map": "L'emplacement du musée sur la carte",
   "This device cannot share its location": "Cet appareil ne peut pas partager sa position",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Votre position n'est pas disponible — autorisez-la, ou saisissez les coordonnées depuis une application de cartes"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Votre position n'est pas disponible — autorisez-la, ou saisissez les coordonnées depuis une application de cartes",
+  "No longer on show, visitors skip it": "Plus exposée, les visiteurs la sautent",
+  "A content that no longer exists": "Un contenu qui n'existe plus",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "Cette visite a des étapes qui ne peuvent plus être visitées et que les visiteurs sautent",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Cette visite a une étape qui ne peut plus être visitée et que les visiteurs sautent",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Cette visite a des étapes qui ne peuvent plus être visitées et que les visiteurs sautent",
+  "Remove them from the tour_many": "Les retirer de la visite",
+  "Remove them from the tour_one": "La retirer de la visite",
+  "Remove them from the tour_other": "Les retirer de la visite"
 }

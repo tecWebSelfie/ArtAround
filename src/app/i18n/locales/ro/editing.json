@@ -95,5 +95,13 @@
   "Use my location": "Folosește locația mea",
   "Where the museum is on the map": "Unde se află muzeul pe hartă",
   "This device cannot share its location": "Acest dispozitiv nu își poate partaja locația",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Locația ta nu este disponibilă — permite-o sau scrie coordonatele dintr-o aplicație de hărți"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Locația ta nu este disponibilă — permite-o sau scrie coordonatele dintr-o aplicație de hărți",
+  "No longer on show, visitors skip it": "Nu mai este expusă, vizitatorii o sar",
+  "A content that no longer exists": "Un conținut care nu mai există",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Turul are opriri care nu mai pot fi vizitate și sunt sărite",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Turul are o oprire care nu mai poate fi vizitată și este sărită",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Turul are opriri care nu mai pot fi vizitate și sunt sărite",
+  "Remove them from the tour_few": "Scoate-le din tur",
+  "Remove them from the tour_one": "Scoate-o din tur",
+  "Remove them from the tour_other": "Scoate-le din tur"
 }

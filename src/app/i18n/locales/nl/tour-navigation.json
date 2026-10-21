@@ -123,5 +123,14 @@
   "Walk south": "Loop naar het zuiden",
   "Walk west": "Loop naar het westen",
   "Wheelchair route": "Rolstoelroute",
-  "your destination": "je bestemming"
+  "your destination": "je bestemming",
+  "Your guide will move on to the next stop": "Je gids gaat door naar de volgende stop",
+  "Skip and finish the tour": "Overslaan en tour afronden",
+  "Skip to the next stop": "Naar de volgende stop",
+  "Stop {{number}}": "Stop {{number}}",
+  "Skipped": "Overgeslagen",
+  "The tour skips these stops because their works are no longer on show_one": "De tour slaat deze stop over omdat het werk niet meer te zien is",
+  "The tour skips these stops because their works are no longer on show_other": "De tour slaat deze stops over omdat de werken niet meer te zien zijn",
+  "These stops can no longer be visited_one": "Deze stop kan niet meer worden bezocht",
+  "These stops can no longer be visited_other": "Deze stops kunnen niet meer worden bezocht"
 }

@@ -1,4 +1,5 @@
 import { mockMuseumFull } from '@/mocks/museum.mock'
+import { mockContentsList } from '@/mocks/content.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
 import { AppShell } from '@mantine/core'
@@ -42,11 +43,24 @@ type Story = StoryObj<typeof meta>
 // Docker Chrome reaching it via host.docker.internal) and breaks every story.
 const ROUTE_MODEL_URL = '/models/exitEntrance.glb'
 
+// The tour's stops are about the route museum's two placed objects (the
+// catalog lists them, as `objects.contents` does), so every stop is visitable.
+const visitableRouteCatalog = routeCatalog.map((object, index) => ({
+  ...object,
+  contents: [
+    ...object.contents,
+    ...mockContentsList
+      .filter((_, stop) => stop % 2 === (index === 0 ? 1 : 0))
+      .map(({ id, title }) => ({ id, title })),
+  ],
+}))
+
 export const Default: Story = {
   args: {
     scope: { kind: 'tour', tour: { ...mockTourFull, museum: mockMuseumFull }, step: 0 },
-    museum: mockMuseumFull,
-    catalog: [],
+    // A map where the tour's works are placed: every stop can be visited.
+    museum: createRouteMuseum(ROUTE_MODEL_URL),
+    catalog: visitableRouteCatalog,
   },
 }
 
@@ -54,7 +68,7 @@ export const RouteBetweenObjects: Story = {
   args: {
     ...Default.args,
     museum: createRouteMuseum(ROUTE_MODEL_URL),
-    catalog: routeCatalog,
+    catalog: visitableRouteCatalog,
   },
   parameters: {
     nextjs: {
@@ -242,5 +256,34 @@ export const FreeNavigation: Story = {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     await expect(canvas.getByText('Choose where to go from search')).toBeVisible()
+  },
+}
+
+/**
+ * The next stop's work is no longer on the map (its object was removed): the
+ * stepper flags it "Skipped" and a modal explains the skip, with the action
+ * that moves the cursor past it. "Open next stop" is withdrawn meanwhile.
+ */
+export const UnavailableStop: Story = {
+  ...RouteBetweenObjects,
+  args: { ...RouteBetweenObjects.args, catalog: routeCatalog },
+  parameters: {
+    nextjs: {
+      navigation: {
+        segments: [
+          ['lng', 'en'],
+          ['id', mockTourFull.id],
+          ['stepId', '0'],
+        ],
+        query: { at: 'route-start' },
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body)
+    const dialog = await body.findByRole('dialog', { name: 'These stops can no longer be visited' })
+    await expect(within(dialog).getByText(mockContentsList[0]!.title)).toBeVisible()
+    await expect(within(dialog).getByRole('button', { name: /^Skip/ })).toBeVisible()
+    await expect(body.queryByRole('button', { name: 'Open next stop' })).toBeNull()
   },
 }

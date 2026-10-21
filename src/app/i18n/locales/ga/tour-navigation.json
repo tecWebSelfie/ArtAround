@@ -126,5 +126,20 @@
   "Walk south": "Siúil ó dheas",
   "Walk west": "Siúil siar",
   "Wheelchair route": "Bealach do chathaoireacha rothaí",
-  "your destination": "do cheann scríbe"
+  "your destination": "do cheann scríbe",
+  "Your guide will move on to the next stop": "Rachaidh do threoraí ar aghaidh chuig an gcéad stad eile",
+  "Skip and finish the tour": "Scipeáil agus críochnaigh an turas",
+  "Skip to the next stop": "Chuig an gcéad stad eile",
+  "Stop {{number}}": "Stad {{number}}",
+  "Skipped": "Scipeáilte",
+  "The tour skips these stops because their works are no longer on show_few": "Scipeálann an turas na stadanna seo mar nach bhfuil a saothair ar taispeáint a thuilleadh",
+  "The tour skips these stops because their works are no longer on show_many": "Scipeálann an turas na stadanna seo mar nach bhfuil a saothair ar taispeáint a thuilleadh",
+  "The tour skips these stops because their works are no longer on show_one": "Scipeálann an turas an stad seo mar nach bhfuil a shaothar ar taispeáint a thuilleadh",
+  "The tour skips these stops because their works are no longer on show_two": "Scipeálann an turas na stadanna seo mar nach bhfuil a saothair ar taispeáint a thuilleadh",
+  "The tour skips these stops because their works are no longer on show_other": "Scipeálann an turas na stadanna seo mar nach bhfuil a saothair ar taispeáint a thuilleadh",
+  "These stops can no longer be visited_few": "Ní féidir cuairt a thabhairt ar na stadanna seo a thuilleadh",
+  "These stops can no longer be visited_many": "Ní féidir cuairt a thabhairt ar na stadanna seo a thuilleadh",
+  "These stops can no longer be visited_one": "Ní féidir cuairt a thabhairt ar an stad seo a thuilleadh",
+  "These stops can no longer be visited_two": "Ní féidir cuairt a thabhairt ar na stadanna seo a thuilleadh",
+  "These stops can no longer be visited_other": "Ní féidir cuairt a thabhairt ar na stadanna seo a thuilleadh"
 }

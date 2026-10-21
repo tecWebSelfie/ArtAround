@@ -96,5 +96,15 @@
   "Use my location": "Użyj mojej lokalizacji",
   "Where the museum is on the map": "Gdzie muzeum znajduje się na mapie",
   "This device cannot share its location": "To urządzenie nie może udostępnić swojej lokalizacji",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Twoja lokalizacja jest niedostępna — zezwól na nią lub wpisz współrzędne z aplikacji z mapami"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Twoja lokalizacja jest niedostępna — zezwól na nią lub wpisz współrzędne z aplikacji z mapami",
+  "No longer on show, visitors skip it": "Już niewystawiane, zwiedzający je pomijają",
+  "A content that no longer exists": "Treść, która już nie istnieje",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Ta trasa ma przystanki, których nie można już zwiedzić i są pomijane",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "Ta trasa ma przystanki, których nie można już zwiedzić i są pomijane",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Ta trasa ma przystanek, którego nie można już zwiedzić i jest pomijany",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Ta trasa ma przystanki, których nie można już zwiedzić i są pomijane",
+  "Remove them from the tour_few": "Usuń je z trasy",
+  "Remove them from the tour_many": "Usuń je z trasy",
+  "Remove them from the tour_one": "Usuń go z trasy",
+  "Remove them from the tour_other": "Usuń je z trasy"
 }

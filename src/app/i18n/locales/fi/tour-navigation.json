@@ -123,5 +123,14 @@
   "Walk south": "Kävele etelään",
   "Walk west": "Kävele länteen",
   "Wheelchair route": "Pyörätuolireitti",
-  "your destination": "määränpääsi"
+  "your destination": "määränpääsi",
+  "Your guide will move on to the next stop": "Oppaasi siirtyy seuraavaan kohteeseen",
+  "Skip and finish the tour": "Ohita ja päätä kierros",
+  "Skip to the next stop": "Seuraavaan kohteeseen",
+  "Stop {{number}}": "Kohde {{number}}",
+  "Skipped": "Ohitettu",
+  "The tour skips these stops because their works are no longer on show_one": "Kierros ohittaa tämän kohteen, koska teos ei ole enää esillä",
+  "The tour skips these stops because their works are no longer on show_other": "Kierros ohittaa nämä kohteet, koska teokset eivät ole enää esillä",
+  "These stops can no longer be visited_one": "Tähän kohteeseen ei voi enää tutustua",
+  "These stops can no longer be visited_other": "Näihin kohteisiin ei voi enää tutustua"
 }

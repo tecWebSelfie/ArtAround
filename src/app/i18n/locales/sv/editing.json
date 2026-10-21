@@ -94,5 +94,11 @@
   "Use my location": "Använd min plats",
   "Where the museum is on the map": "Var museet ligger på kartan",
   "This device cannot share its location": "Den här enheten kan inte dela sin plats",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Din plats är inte tillgänglig — tillåt den eller skriv in koordinaterna från en kartapp"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Din plats är inte tillgänglig — tillåt den eller skriv in koordinaterna från en kartapp",
+  "No longer on show, visitors skip it": "Visas inte längre, besökare hoppar över det",
+  "A content that no longer exists": "Innehåll som inte längre finns",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Turen har ett stopp som inte längre kan besökas och hoppas över",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Turen har stopp som inte längre kan besökas och hoppas över",
+  "Remove them from the tour_one": "Ta bort det från turen",
+  "Remove them from the tour_other": "Ta bort dem från turen"
 }

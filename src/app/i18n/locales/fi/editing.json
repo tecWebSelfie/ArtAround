@@ -94,5 +94,11 @@
   "Use my location": "Käytä sijaintiani",
   "Where the museum is on the map": "Missä museo on kartalla",
   "This device cannot share its location": "Tämä laite ei voi jakaa sijaintiaan",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Sijaintisi ei ole saatavilla — salli se tai kirjoita koordinaatit karttasovelluksesta"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Sijaintisi ei ole saatavilla — salli se tai kirjoita koordinaatit karttasovelluksesta",
+  "No longer on show, visitors skip it": "Ei enää esillä, kävijät ohittavat sen",
+  "A content that no longer exists": "Sisältö, jota ei enää ole",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Kierroksella on kohde, jota ei voi enää käydä katsomassa ja joka ohitetaan",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Kierroksella on kohteita, joita ei voi enää käydä katsomassa ja jotka ohitetaan",
+  "Remove them from the tour_one": "Poista se kierrokselta",
+  "Remove them from the tour_other": "Poista ne kierrokselta"
 }

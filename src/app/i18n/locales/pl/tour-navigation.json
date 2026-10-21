@@ -125,5 +125,18 @@
   "Walk south": "Idź na południe",
   "Walk west": "Idź na zachód",
   "Wheelchair route": "Trasa dla wózków",
-  "your destination": "twój cel"
+  "your destination": "twój cel",
+  "Your guide will move on to the next stop": "Twój przewodnik przejdzie do następnego przystanku",
+  "Skip and finish the tour": "Pomiń i zakończ trasę",
+  "Skip to the next stop": "Do następnego przystanku",
+  "Stop {{number}}": "Przystanek {{number}}",
+  "Skipped": "Pominięty",
+  "The tour skips these stops because their works are no longer on show_few": "Trasa pomija te przystanki, bo ich dzieła nie są już wystawiane",
+  "The tour skips these stops because their works are no longer on show_many": "Trasa pomija te przystanki, bo ich dzieła nie są już wystawiane",
+  "The tour skips these stops because their works are no longer on show_one": "Trasa pomija ten przystanek, bo jego dzieło nie jest już wystawiane",
+  "The tour skips these stops because their works are no longer on show_other": "Trasa pomija te przystanki, bo ich dzieła nie są już wystawiane",
+  "These stops can no longer be visited_few": "Tych przystanków nie można już zwiedzić",
+  "These stops can no longer be visited_many": "Tych przystanków nie można już zwiedzić",
+  "These stops can no longer be visited_one": "Tego przystanku nie można już zwiedzić",
+  "These stops can no longer be visited_other": "Tych przystanków nie można już zwiedzić"
 }

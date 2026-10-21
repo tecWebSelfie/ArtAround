@@ -123,5 +123,14 @@
   "Walk south": "Walk south",
   "Walk west": "Walk west",
   "Wheelchair route": "Wheelchair route",
-  "your destination": "your destination"
+  "your destination": "your destination",
+  "Your guide will move on to the next stop": "Your guide will move on to the next stop",
+  "Skip and finish the tour": "Skip and finish the tour",
+  "Skip to the next stop": "Skip to the next stop",
+  "Stop {{number}}": "Stop {{number}}",
+  "Skipped": "Skipped",
+  "The tour skips these stops because their works are no longer on show_one": "The tour skips this stop because its work is no longer on show",
+  "The tour skips these stops because their works are no longer on show_other": "The tour skips these stops because their works are no longer on show",
+  "These stops can no longer be visited_one": "This stop can no longer be visited",
+  "These stops can no longer be visited_other": "These stops can no longer be visited"
 }

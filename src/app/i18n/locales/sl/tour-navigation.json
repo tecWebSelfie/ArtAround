@@ -125,5 +125,18 @@
   "Walk south": "Pojdi proti jugu",
   "Walk west": "Pojdi proti zahodu",
   "Wheelchair route": "Pot za invalidske vozičke",
-  "your destination": "tvoj cilj"
+  "your destination": "tvoj cilj",
+  "Your guide will move on to the next stop": "Tvoj vodnik bo nadaljeval na naslednjo postajo",
+  "Skip and finish the tour": "Preskoči in končaj ogled",
+  "Skip to the next stop": "Na naslednjo postajo",
+  "Stop {{number}}": "Postaja {{number}}",
+  "Skipped": "Preskočeno",
+  "The tour skips these stops because their works are no longer on show_few": "Ogled preskoči te postaje, ker njihova dela niso več razstavljena",
+  "The tour skips these stops because their works are no longer on show_one": "Ogled preskoči to postajo, ker njeno delo ni več razstavljeno",
+  "The tour skips these stops because their works are no longer on show_two": "Ogled preskoči te postaje, ker njihova dela niso več razstavljena",
+  "The tour skips these stops because their works are no longer on show_other": "Ogled preskoči te postaje, ker njihova dela niso več razstavljena",
+  "These stops can no longer be visited_few": "Teh postaj ni več mogoče obiskati",
+  "These stops can no longer be visited_one": "Te postaje ni več mogoče obiskati",
+  "These stops can no longer be visited_two": "Teh postaj ni več mogoče obiskati",
+  "These stops can no longer be visited_other": "Teh postaj ni več mogoče obiskati"
 }

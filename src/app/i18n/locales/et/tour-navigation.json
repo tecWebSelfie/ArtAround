@@ -123,5 +123,14 @@
   "Walk south": "Kõnni lõuna poole",
   "Walk west": "Kõnni lääne poole",
   "Wheelchair route": "Ratastoolimarsruut",
-  "your destination": "sinu sihtkoht"
+  "your destination": "sinu sihtkoht",
+  "Your guide will move on to the next stop": "Sinu giid liigub järgmise peatuse juurde",
+  "Skip and finish the tour": "Jäta vahele ja lõpeta tuur",
+  "Skip to the next stop": "Järgmise peatuse juurde",
+  "Stop {{number}}": "Peatus {{number}}",
+  "Skipped": "Vahele jäetud",
+  "The tour skips these stops because their works are no longer on show_one": "Tuur jätab selle peatuse vahele, sest teos pole enam väljas",
+  "The tour skips these stops because their works are no longer on show_other": "Tuur jätab need peatused vahele, sest teosed pole enam väljas",
+  "These stops can no longer be visited_one": "Seda peatust ei saa enam külastada",
+  "These stops can no longer be visited_other": "Neid peatusi ei saa enam külastada"
 }

@@ -125,5 +125,18 @@
   "Walk south": "Choď na juh",
   "Walk west": "Choď na západ",
   "Wheelchair route": "Bezbariérová trasa",
-  "your destination": "tvoj cieľ"
+  "your destination": "tvoj cieľ",
+  "Your guide will move on to the next stop": "Tvoj sprievodca prejde na ďalšiu zastávku",
+  "Skip and finish the tour": "Preskočiť a dokončiť prehliadku",
+  "Skip to the next stop": "Na ďalšiu zastávku",
+  "Stop {{number}}": "Zastávka {{number}}",
+  "Skipped": "Preskočená",
+  "The tour skips these stops because their works are no longer on show_few": "Prehliadka tieto zastávky preskočí, lebo ich diela už nie sú vystavené",
+  "The tour skips these stops because their works are no longer on show_many": "Prehliadka tieto zastávky preskočí, lebo ich diela už nie sú vystavené",
+  "The tour skips these stops because their works are no longer on show_one": "Prehliadka túto zastávku preskočí, lebo jej dielo už nie je vystavené",
+  "The tour skips these stops because their works are no longer on show_other": "Prehliadka tieto zastávky preskočí, lebo ich diela už nie sú vystavené",
+  "These stops can no longer be visited_few": "Tieto zastávky už nemožno navštíviť",
+  "These stops can no longer be visited_many": "Tieto zastávky už nemožno navštíviť",
+  "These stops can no longer be visited_one": "Túto zastávku už nemožno navštíviť",
+  "These stops can no longer be visited_other": "Tieto zastávky už nemožno navštíviť"
 }

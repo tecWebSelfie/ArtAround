@@ -124,5 +124,16 @@
   "Walk south": "Caminha para sul",
   "Walk west": "Caminha para oeste",
   "Wheelchair route": "Percurso para cadeira de rodas",
-  "your destination": "o teu destino"
+  "your destination": "o teu destino",
+  "Your guide will move on to the next stop": "O teu guia vai passar à próxima paragem",
+  "Skip and finish the tour": "Saltar e terminar o percurso",
+  "Skip to the next stop": "Ir para a próxima paragem",
+  "Stop {{number}}": "Paragem {{number}}",
+  "Skipped": "Saltada",
+  "The tour skips these stops because their works are no longer on show_many": "O percurso salta estas paragens porque as suas obras já não estão expostas",
+  "The tour skips these stops because their works are no longer on show_one": "O percurso salta esta paragem porque a sua obra já não está exposta",
+  "The tour skips these stops because their works are no longer on show_other": "O percurso salta estas paragens porque as suas obras já não estão expostas",
+  "These stops can no longer be visited_many": "Estas paragens já não podem ser visitadas",
+  "These stops can no longer be visited_one": "Esta paragem já não pode ser visitada",
+  "These stops can no longer be visited_other": "Estas paragens já não podem ser visitadas"
 }

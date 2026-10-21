@@ -124,5 +124,16 @@
   "Walk south": "Ej uz dienvidiem",
   "Walk west": "Ej uz rietumiem",
   "Wheelchair route": "Ratiņkrēsla maršruts",
-  "your destination": "tavs galamērķis"
+  "your destination": "tavs galamērķis",
+  "Your guide will move on to the next stop": "Tavs gids pāries uz nākamo pieturu",
+  "Skip and finish the tour": "Izlaist un pabeigt tūri",
+  "Skip to the next stop": "Uz nākamo pieturu",
+  "Stop {{number}}": "Pietura {{number}}",
+  "Skipped": "Izlaista",
+  "The tour skips these stops because their works are no longer on show_one": "Tūre izlaiž šo pieturu, jo tās darbs vairs nav izstādīts",
+  "The tour skips these stops because their works are no longer on show_zero": "Tūre izlaiž šīs pieturas, jo to darbi vairs nav izstādīti",
+  "The tour skips these stops because their works are no longer on show_other": "Tūre izlaiž šīs pieturas, jo to darbi vairs nav izstādīti",
+  "These stops can no longer be visited_one": "Šo pieturu vairs nevar apmeklēt",
+  "These stops can no longer be visited_zero": "Šīs pieturas vairs nevar apmeklēt",
+  "These stops can no longer be visited_other": "Šīs pieturas vairs nevar apmeklēt"
 }

@@ -94,5 +94,11 @@
   "Use my location": "Χρήση της τοποθεσίας μου",
   "Where the museum is on the map": "Πού βρίσκεται το μουσείο στον χάρτη",
   "This device cannot share its location": "Αυτή η συσκευή δεν μπορεί να μοιραστεί την τοποθεσία της",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Η τοποθεσία σου δεν είναι διαθέσιμη — επίτρεψέ την ή γράψε τις συντεταγμένες από μια εφαρμογή χαρτών"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Η τοποθεσία σου δεν είναι διαθέσιμη — επίτρεψέ την ή γράψε τις συντεταγμένες από μια εφαρμογή χαρτών",
+  "No longer on show, visitors skip it": "Δεν εκτίθεται πια, οι επισκέπτες την παραλείπουν",
+  "A content that no longer exists": "Περιεχόμενο που δεν υπάρχει πια",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Η ξενάγηση έχει μια στάση που δεν είναι πια επισκέψιμη και παραλείπεται",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Η ξενάγηση έχει στάσεις που δεν είναι πια επισκέψιμες και παραλείπονται",
+  "Remove them from the tour_one": "Αφαίρεσέ τη από την ξενάγηση",
+  "Remove them from the tour_other": "Αφαίρεσέ τες από την ξενάγηση"
 }

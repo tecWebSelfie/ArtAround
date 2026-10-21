@@ -94,5 +94,11 @@
   "Use my location": "Използвай местоположението ми",
   "Where the museum is on the map": "Къде е музеят на картата",
   "This device cannot share its location": "Това устройство не може да споделя местоположението си",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Местоположението ти не е достъпно — разреши го или въведи координатите от приложение с карти"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Местоположението ти не е достъпно — разреши го или въведи координатите от приложение с карти",
+  "No longer on show, visitors skip it": "Вече не е изложена, посетителите я пропускат",
+  "A content that no longer exists": "Съдържание, което вече не съществува",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Обиколката има спирка, която вече не може да се посети и се пропуска",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Обиколката има спирки, които вече не могат да се посетят и се пропускат",
+  "Remove them from the tour_one": "Премахни я от обиколката",
+  "Remove them from the tour_other": "Премахни ги от обиколката"
 }

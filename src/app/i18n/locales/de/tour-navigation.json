@@ -123,5 +123,14 @@
   "Walk south": "Geh nach Süden",
   "Walk west": "Geh nach Westen",
   "Wheelchair route": "Rollstuhlroute",
-  "your destination": "dein Ziel"
+  "your destination": "dein Ziel",
+  "Your guide will move on to the next stop": "Deine Führung geht zur nächsten Station weiter",
+  "Skip and finish the tour": "Überspringen und Tour beenden",
+  "Skip to the next stop": "Zur nächsten Station",
+  "Stop {{number}}": "Station {{number}}",
+  "Skipped": "Übersprungen",
+  "The tour skips these stops because their works are no longer on show_one": "Die Tour überspringt diese Station, weil ihr Werk nicht mehr ausgestellt ist",
+  "The tour skips these stops because their works are no longer on show_other": "Die Tour überspringt diese Stationen, weil ihre Werke nicht mehr ausgestellt sind",
+  "These stops can no longer be visited_one": "Diese Station kann nicht mehr besucht werden",
+  "These stops can no longer be visited_other": "Diese Stationen können nicht mehr besucht werden"
 }

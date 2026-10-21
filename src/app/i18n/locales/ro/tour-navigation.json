@@ -124,5 +124,16 @@
   "Walk south": "Mergi spre sud",
   "Walk west": "Mergi spre vest",
   "Wheelchair route": "Traseu pentru scaun cu rotile",
-  "your destination": "destinația ta"
+  "your destination": "destinația ta",
+  "Your guide will move on to the next stop": "Ghidul tău va trece la următoarea oprire",
+  "Skip and finish the tour": "Sari și încheie turul",
+  "Skip to the next stop": "La următoarea oprire",
+  "Stop {{number}}": "Oprirea {{number}}",
+  "Skipped": "Sărită",
+  "The tour skips these stops because their works are no longer on show_few": "Turul sare aceste opriri pentru că lucrările lor nu mai sunt expuse",
+  "The tour skips these stops because their works are no longer on show_one": "Turul sare această oprire pentru că lucrarea ei nu mai este expusă",
+  "The tour skips these stops because their works are no longer on show_other": "Turul sare aceste opriri pentru că lucrările lor nu mai sunt expuse",
+  "These stops can no longer be visited_few": "Aceste opriri nu mai pot fi vizitate",
+  "These stops can no longer be visited_one": "Această oprire nu mai poate fi vizitată",
+  "These stops can no longer be visited_other": "Aceste opriri nu mai pot fi vizitate"
 }

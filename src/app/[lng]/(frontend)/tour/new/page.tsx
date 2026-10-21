@@ -2,7 +2,7 @@ import { TourForm } from '@/components/editing/forms/TourForm'
 import { getT } from '@/i18n.server'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { Alert, Container } from '@mantine/core'
-import { getTourEditorData } from '../tour-editing'
+import { getTourEditorData, getUnavailableStops } from '../tour-editing'
 
 /**
  * Create a tour (any signed-in user). Two entry points:
@@ -43,19 +43,22 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   }
 
   const { museum, candidates } = await getTourEditorData(museumId)
+  const sourceStops = (source?.contents ?? []).map((content) =>
+    typeof content === 'string' ? content : content.id,
+  )
+  // A customized copy shows the original's unvisitable stops too, flagged.
+  const unavailable = await getUnavailableStops(sourceStops, candidates)
   return (
     <Container size="md" py="md">
       <TourForm
         museum={museum}
-        candidates={candidates}
+        candidates={[...candidates, ...unavailable]}
         initial={
           source
             ? {
                 title: source.title,
                 description: source.description ?? '',
-                contents: source.contents.map((content) =>
-                  typeof content === 'string' ? content : content.id,
-                ),
+                contents: sourceStops,
               }
             : undefined
         }

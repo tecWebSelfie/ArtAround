@@ -96,5 +96,15 @@
   "Use my location": "Použít mou polohu",
   "Where the museum is on the map": "Kde je muzeum na mapě",
   "This device cannot share its location": "Toto zařízení nemůže sdílet svou polohu",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoje poloha není dostupná — povol ji, nebo zadej souřadnice z mapové aplikace"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoje poloha není dostupná — povol ji, nebo zadej souřadnice z mapové aplikace",
+  "No longer on show, visitors skip it": "Už není vystaveno, návštěvníci ji přeskočí",
+  "A content that no longer exists": "Obsah, který už neexistuje",
+  "This tour has stops that can no longer be visited, and visitors skip them_few": "Prohlídka má zastávky, které už nelze navštívit a přeskakují se",
+  "This tour has stops that can no longer be visited, and visitors skip them_many": "Prohlídka má zastávky, které už nelze navštívit a přeskakují se",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "Prohlídka má zastávku, kterou už nelze navštívit a přeskakuje se",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "Prohlídka má zastávky, které už nelze navštívit a přeskakují se",
+  "Remove them from the tour_few": "Odebrat je z prohlídky",
+  "Remove them from the tour_many": "Odebrat je z prohlídky",
+  "Remove them from the tour_one": "Odebrat ji z prohlídky",
+  "Remove them from the tour_other": "Odebrat je z prohlídky"
 }

@@ -123,5 +123,14 @@
   "Walk south": "Gå mod syd",
   "Walk west": "Gå mod vest",
   "Wheelchair route": "Kørestolsrute",
-  "your destination": "din destination"
+  "your destination": "din destination",
+  "Your guide will move on to the next stop": "Din guide går videre til næste stop",
+  "Skip and finish the tour": "Spring over og afslut turen",
+  "Skip to the next stop": "Til næste stop",
+  "Stop {{number}}": "Stop {{number}}",
+  "Skipped": "Sprunget over",
+  "The tour skips these stops because their works are no longer on show_one": "Turen springer dette stop over, fordi værket ikke længere er udstillet",
+  "The tour skips these stops because their works are no longer on show_other": "Turen springer disse stop over, fordi værkerne ikke længere er udstillet",
+  "These stops can no longer be visited_one": "Dette stop kan ikke længere besøges",
+  "These stops can no longer be visited_other": "Disse stop kan ikke længere besøges"
 }

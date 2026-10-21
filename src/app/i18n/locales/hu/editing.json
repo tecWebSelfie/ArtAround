@@ -94,5 +94,11 @@
   "Use my location": "Saját helyzetem használata",
   "Where the museum is on the map": "Hol van a múzeum a térképen",
   "This device cannot share its location": "Ez az eszköz nem tudja megosztani a helyzetét",
-  "Your location is not available — allow it, or type the coordinates from a map app": "A helyzeted nem érhető el — engedélyezd, vagy írd be a koordinátákat egy térképalkalmazásból"
+  "Your location is not available — allow it, or type the coordinates from a map app": "A helyzeted nem érhető el — engedélyezd, vagy írd be a koordinátákat egy térképalkalmazásból",
+  "No longer on show, visitors skip it": "Már nincs kiállítva, a látogatók kihagyják",
+  "A content that no longer exists": "Már nem létező tartalom",
+  "This tour has stops that can no longer be visited, and visitors skip them_one": "A túrának van egy megállója, amely már nem látogatható, és kimarad",
+  "This tour has stops that can no longer be visited, and visitors skip them_other": "A túrának vannak megállói, amelyek már nem látogathatók, és kimaradnak",
+  "Remove them from the tour_one": "Eltávolítás a túrából",
+  "Remove them from the tour_other": "Eltávolítás a túrából"
 }
