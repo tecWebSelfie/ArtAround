@@ -10,7 +10,6 @@ import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 
 import { GroupProvider } from '@/components/group/GroupProvider'
-import { AgentProvider } from './AgentProvider'
 
 export const metadata = {
   title: 'Artaround',
@@ -27,28 +26,26 @@ export default async function Layout(props: { children: React.ReactNode }) {
   return (
     <MswProvider>
       <AuthProvider>
-        <AgentProvider>
-          <MantineProvider theme={theme}>
-            <Notifications />
-            {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
-            <GroupProvider>
-              <ModalsProvider>
-                <AppShell
-                  footer={{
-                    height: 64,
-                    offset: true,
-                  }}
-                  header={{
-                    height: 'auto',
-                    offset: false,
-                  }}
-                >
-                  {children}
-                </AppShell>
-              </ModalsProvider>
-            </GroupProvider>
-          </MantineProvider>
-        </AgentProvider>
+        <MantineProvider theme={theme}>
+          <Notifications />
+          {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
+          <GroupProvider>
+            <ModalsProvider>
+              <AppShell
+                footer={{
+                  height: 64,
+                  offset: true,
+                }}
+                header={{
+                  height: 'auto',
+                  offset: false,
+                }}
+              >
+                {children}
+              </AppShell>
+            </ModalsProvider>
+          </GroupProvider>
+        </MantineProvider>
       </AuthProvider>
     </MswProvider>
   )

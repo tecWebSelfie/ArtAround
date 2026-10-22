@@ -53,8 +53,6 @@ import { useTranslation } from 'react-i18next'
  *
  * The room is provided through LiveKit's own `RoomContext`, so any component
  * can use `@livekit/components-react` hooks (`useParticipants`, …) directly.
- * (It shadows the older voice-agent session's room below the layout; no
- * screen uses that one any more.)
  */
 
 export type GroupMembership = {
