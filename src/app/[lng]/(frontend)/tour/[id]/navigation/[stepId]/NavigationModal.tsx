@@ -1,6 +1,6 @@
 'use client'
 
-import { useHostName, useIsGroupGuest } from '@/components/group/GroupProvider'
+import { useGroupSettings, useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { Button, Divider, Group, Modal, Text } from '@mantine/core'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -46,7 +46,7 @@ export function NavigationModal({ children }: { children: ReactNode }) {
 
 function GuestModalFooter() {
   const { t } = useTranslation('group')
-  const hostName = useHostName()
+  const { hostName } = useGroupSettings()
   const { confirmLeave } = useGroupExit()
   return (
     <>

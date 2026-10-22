@@ -3,6 +3,7 @@
 import { HOST_IDENTITY } from '@/lib/group'
 import { useParticipants } from '@livekit/components-react'
 import { Avatar, Badge, Group, Stack, Text } from '@mantine/core'
+import { RoomEvent } from 'livekit-client'
 import { useTranslation } from 'react-i18next'
 
 export type GroupMember = { identity: string; name: string; isMe: boolean }
@@ -12,8 +13,15 @@ export type GroupMember = { identity: string; name: string; isMe: boolean }
  * join, reconnect and leave. Used by the waiting room and the group panel
  * during the tour; the list itself is `GroupMemberList`.
  */
+/** Who is in the room and their names; attribute changes don't matter here. */
+export const MEMBERSHIP_EVENTS = [
+  RoomEvent.ParticipantConnected,
+  RoomEvent.ParticipantDisconnected,
+  RoomEvent.ParticipantNameChanged,
+]
+
 export function GroupMembers() {
-  const participants = useParticipants()
+  const participants = useParticipants({ updateOnlyOn: MEMBERSHIP_EVENTS })
   return (
     <GroupMemberList
       members={participants.map(({ identity, name, isLocal }) => ({

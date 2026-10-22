@@ -1,6 +1,7 @@
 'use client'
 
 import { useGroup, useGroupSettings } from '@/components/group/GroupProvider'
+import { isQuizHandedIn } from '@/lib/group'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import type { QuizQuestionView } from '@/lib/quiz-core'
 import { tourQuizResultPath } from '@/lib/tour-navigation'
@@ -75,9 +76,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
   const group = useGroup()
   const ended = group?.membership.attributes?.quiz === 'ended'
   const { showResults } = useGroupSettings()
-  const done = (attributes: Record<string, string>) =>
-    Boolean(attributes.quizToken || attributes.quizDone)
-  const finished = guests.filter((guest) => done(guest.attributes)).length
+  const finished = guests.filter((guest) => isQuizHandedIn(guest.attributes)).length
   const scores = useScores(
     tour.id,
     guests.flatMap((guest) => guest.attributes.quizToken ?? []),
@@ -155,7 +154,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                           {t('Answers')}
                         </Anchor>
                       </Group>
-                    ) : done(guest.attributes) ? (
+                    ) : isQuizHandedIn(guest.attributes) ? (
                       <Group gap={4} c="green.8" wrap="nowrap">
                         <Check size={14} aria-hidden />
                         <Text size="sm" inherit>

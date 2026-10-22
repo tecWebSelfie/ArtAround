@@ -11,8 +11,8 @@ import { useDisclosure } from '@mantine/hooks'
 import { ConnectionState } from 'livekit-client'
 import { UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import { GroupMembers } from './GroupMembers'
-import { useGroup, useHostName } from './GroupProvider'
+import { GroupMembers, MEMBERSHIP_EVENTS } from './GroupMembers'
+import { useGroup, useGroupSettings } from './GroupProvider'
 import { ShareGroup } from './ShareGroup'
 import { useGroupExit } from './use-group-exit'
 
@@ -23,6 +23,8 @@ import { useGroupExit } from './use-group-exit'
  * touring alone. Turns orange for guests while the host's device is away.
  */
 export function GroupBadge() {
+  // LiveKit hooks need the group's room: touring alone (or in a story without
+  // GroupProvider) renders nothing before reaching them.
   const group = useGroup()
   return group ? <GroupBadgeButton /> : null
 }
@@ -31,9 +33,11 @@ function GroupBadgeButton() {
   const { t } = useTranslation('group')
   const group = useGroup()
   const [opened, panel] = useDisclosure(false)
-  const participants = useParticipants()
+  // Only the head count is shown: skip re-renders on attribute changes (the
+  // host's `path` moves with every step).
+  const participants = useParticipants({ updateOnlyOn: MEMBERSHIP_EVENTS })
   const connection = useConnectionState()
-  const hostName = useHostName()
+  const { hostName } = useGroupSettings()
   const hostAway = !useRemoteParticipant(HOST_IDENTITY)
   const { confirmLeave, confirmEnd } = useGroupExit()
   if (!group) return null

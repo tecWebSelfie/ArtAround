@@ -2,7 +2,7 @@
 
 import { GroupMembers } from '@/components/group/GroupMembers'
 import { GroupNameForm } from '@/components/group/GroupNameForm'
-import { useGroup, useHostName, useJoinGroup } from '@/components/group/GroupProvider'
+import { useGroup, useGroupSettings, useJoinGroup } from '@/components/group/GroupProvider'
 import { ShareGroup } from '@/components/group/ShareGroup'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { HOST_IDENTITY } from '@/lib/group'
@@ -139,7 +139,7 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
   const connection = useConnectionState()
-  const hostName = useHostName()
+  const { hostName } = useGroupSettings()
   const hostHere = Boolean(useRemoteParticipant(HOST_IDENTITY))
   const { confirmLeave, confirmEnd } = useGroupExit()
   if (!group) return null

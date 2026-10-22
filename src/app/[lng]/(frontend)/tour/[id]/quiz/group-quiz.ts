@@ -1,6 +1,7 @@
 'use client'
 
 import { useGroup, useGroupSettings } from '@/components/group/GroupProvider'
+import { isQuizHandedIn } from '@/lib/group'
 import { useEffect, useRef } from 'react'
 
 /**
@@ -31,7 +32,7 @@ export function useGroupQuizGuest({
   const active = group?.membership.role === 'guest' && group.membership.tourId === tourId
   const ended = active && group.host.quiz === 'ended'
   const saved = group?.membership.attributes
-  const handedIn = Boolean(saved?.quizToken || saved?.quizDone)
+  const handedIn = isQuizHandedIn(saved)
   const { showResults } = useGroupSettings()
   const submitted = useRef(false)
   const publish = group?.publish

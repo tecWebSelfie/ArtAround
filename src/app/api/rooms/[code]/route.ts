@@ -25,7 +25,7 @@ export async function DELETE(request: Request, { params }: RouteContext<'/api/ro
   if (!ROOM_CODE_PATTERN.test(code)) return NextResponse.json({ error: 'invalid' }, { status: 400 })
   const room = await findGroupRoom(code)
   if (!room) return new NextResponse(null, { status: 204 })
-  if (!isHostKey(room, request.headers.get('X-Host-Key') ?? undefined)) {
+  if (!isHostKey(room, request)) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 })
   }
   await endGroupRoom(code)

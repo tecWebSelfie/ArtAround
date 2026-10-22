@@ -2,7 +2,7 @@ import 'server-only'
 
 import { AccessToken, RoomServiceClient } from 'livekit-server-sdk'
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto'
-import { HOST_IDENTITY, ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from './group'
+import { parseRoomMetadata, ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH, type RoomMetadata } from './group'
 
 /**
  * Server side of group tours (see `src/lib/group.ts` for the overview).
@@ -10,9 +10,6 @@ import { HOST_IDENTITY, ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from './group'
  * the host key, so no database table is needed and rooms disappear on their
  * own once everyone has left.
  */
-
-/** `showResults`: the host chose to see each guest's quiz score ("Start with a group"). */
-type RoomMetadata = { tourId: string; hostKeyHash: string; hostName: string; showResults: boolean }
 
 /** Rooms survive a host's dropped phone or reload for this long after it empties. */
 const DEPARTURE_TIMEOUT_S = 10 * 60
@@ -27,10 +24,14 @@ function livekitConfig() {
   return { url, key, secret }
 }
 
+let service: RoomServiceClient | undefined
+/** One client per server process (it rewrites the `ws(s)://` URL to HTTP itself). */
 function rooms() {
-  const { url, key, secret } = livekitConfig()
-  // The room API speaks HTTP on the same host as the WebSocket URL.
-  return new RoomServiceClient(url.replace(/^ws/, 'http'), key, secret)
+  if (!service) {
+    const { url, key, secret } = livekitConfig()
+    service = new RoomServiceClient(url, key, secret)
+  }
+  return service
 }
 
 const sha256 = (value: string) => createHash('sha256').update(value).digest()
@@ -67,15 +68,12 @@ export async function createGroupRoom(tourId: string, hostName: string, showResu
 /** The open room for a code, or null when it never existed or has ended. */
 export async function findGroupRoom(code: string) {
   const [room] = await rooms().listRooms([code])
-  if (!room) return null
-  try {
-    return JSON.parse(room.metadata) as RoomMetadata
-  } catch {
-    return null
-  }
+  return room ? parseRoomMetadata(room.metadata) : null
 }
 
-export function isHostKey(room: RoomMetadata, hostKey: string | undefined) {
+/** Whether the request carries this room's host key (`X-Host-Key`, only the host's device has it). */
+export function isHostKey(room: RoomMetadata, request: Request) {
+  const hostKey = request.headers.get('X-Host-Key')
   if (!hostKey) return false
   return timingSafeEqual(sha256(hostKey), Buffer.from(room.hostKeyHash, 'hex'))
 }
@@ -97,7 +95,7 @@ export async function groupToken(code: string, who: { identity: string; name: st
     canPublishData: false,
     canUpdateOwnMetadata: true,
   })
-  return { serverUrl: url, token: await token.toJwt(), isHost: who.identity === HOST_IDENTITY }
+  return { serverUrl: url, token: await token.toJwt() }
 }
 
 /** Ends the group for everyone: LiveKit disconnects all devices. */

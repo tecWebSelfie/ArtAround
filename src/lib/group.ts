@@ -19,11 +19,38 @@ import { z } from 'zod'
 /** No 0/O or 1/I: codes are read aloud and typed from a screen. */
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 export const ROOM_CODE_LENGTH = 6
-export const ROOM_CODE_PATTERN = /^[A-HJ-NP-Z2-9]{6}$/
+export const ROOM_CODE_PATTERN = new RegExp(`^[${ROOM_CODE_ALPHABET}]{${ROOM_CODE_LENGTH}}$`)
 
 /** The name a visitor shows to the group; the forms and `/api/rooms` validate with the same schema. */
 export const GroupName = z.string().trim().min(1).max(30)
 export const GroupNameForm = z.object({ name: GroupName })
+
+/**
+ * A room's metadata, written by the server when the host opens it and read on
+ * both sides: the server checks the host key against its hash, devices show
+ * the host's name. `showResults`: the host chose to see each guest's quiz
+ * score ("Start with a group").
+ */
+export const RoomMetadata = z.object({
+  tourId: z.string(),
+  hostKeyHash: z.string(),
+  hostName: z.string().default(''),
+  showResults: z.boolean().default(false),
+})
+export type RoomMetadata = z.infer<typeof RoomMetadata>
+
+/** Parses a room's metadata; null when it is missing or not ours. */
+export function parseRoomMetadata(metadata: string | undefined): RoomMetadata | null {
+  try {
+    return RoomMetadata.safeParse(JSON.parse(metadata ?? '')).data ?? null
+  } catch {
+    return null
+  }
+}
+
+/** A guest handed the group quiz in: with a result token, or just "done". */
+export const isQuizHandedIn = (attributes: Record<string, string> | undefined) =>
+  Boolean(attributes?.quizToken || attributes?.quizDone)
 
 /** The host always joins with this identity, so guests can't pose as the host. */
 export const HOST_IDENTITY = 'host'

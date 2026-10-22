@@ -1,9 +1,16 @@
 'use client'
 
-import { followHref, groupLocation, HOST_IDENTITY, isQuizLocation } from '@/lib/group'
+import {
+  followHref,
+  groupLocation,
+  HOST_IDENTITY,
+  isQuizLocation,
+  parseRoomMetadata,
+} from '@/lib/group'
 import {
   RoomContext,
   useConnectionState,
+  useEvents,
   useLocalParticipant,
   useParticipantAttributes,
   useRemoteParticipant,
@@ -99,18 +106,9 @@ export const useIsGroupGuest = () => useGroup()?.membership.role === 'guest'
  * opened it: the host's name, and whether the host sees everyone's quiz score.
  */
 export function useGroupSettings() {
-  const { metadata } = useRoomInfo()
-  try {
-    const parsed = metadata
-      ? (JSON.parse(metadata) as { hostName?: string; showResults?: boolean })
-      : {}
-    return { hostName: parsed.hostName ?? '', showResults: parsed.showResults === true }
-  } catch {
-    return { hostName: '', showResults: false }
-  }
+  const room = parseRoomMetadata(useRoomInfo().metadata)
+  return { hostName: room?.hostName ?? '', showResults: room?.showResults ?? false }
 }
-
-export const useHostName = () => useGroupSettings().hostName
 
 /** A stable random id per device: a reload rejoins as the same guest. */
 function deviceGuestId() {
@@ -178,17 +176,16 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   }, [code, name, tokenSource, connect, disconnect, setMembership, t])
 
   // "End the group tour" deletes the room: every device leaves the group.
-  useEffect(() => {
-    const onDisconnected = (reason?: DisconnectReason) => {
+  useEvents(
+    room,
+    RoomEvent.Disconnected,
+    (reason?: DisconnectReason) => {
       if (reason !== DisconnectReason.ROOM_DELETED) return
       setMembership(null)
       notifications.show({ title: t('The group tour has ended'), message: '' })
-    }
-    room.on(RoomEvent.Disconnected, onDisconnected)
-    return () => {
-      room.off(RoomEvent.Disconnected, onDisconnected)
-    }
-  }, [room, setMembership, t])
+    },
+    [setMembership, t],
+  )
 
   const value = useMemo<GroupControls>(() => {
     const join = (next: GroupMembership) => setMembership(next)
@@ -234,7 +231,11 @@ export function GroupProvider({ children }: { children: ReactNode }) {
   )
 }
 
-/** Remembers the host's attributes, so guests stay put while the host's device is away. */
+/**
+ * Remembers the host's attributes, so guests stay put while the host's device
+ * is away. Two components because `useParticipantAttributes` needs a
+ * participant, and the host may not be connected.
+ */
 function HostWatcher({ onChange }: { onChange: (attributes: Record<string, string>) => void }) {
   const host = useRemoteParticipant(HOST_IDENTITY)
   return host ? <HostAttributes participant={host} onChange={onChange} /> : null

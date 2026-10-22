@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   try {
     const room = await findGroupRoom(code)
     if (!room) return NextResponse.json({ error: 'ended' }, { status: 404 })
-    const host = isHostKey(room, request.headers.get('X-Host-Key') ?? undefined)
+    const host = isHostKey(room, request)
     const { serverUrl, token } = await groupToken(code, {
       identity: host ? HOST_IDENTITY : `guest-${guestId.data}`,
       name: body.data.participant_name,

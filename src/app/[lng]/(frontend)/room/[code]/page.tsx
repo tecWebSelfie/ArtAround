@@ -13,8 +13,11 @@ import { GroupRoomPage } from './GroupRoomPage'
 export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]'>) {
   const { lng, code: raw } = await params
   const code = normalizeRoomCode(decodeURIComponent(raw))
-  const room = ROOM_CODE_PATTERN.test(code) ? await findGroupRoom(code).catch(() => null) : null
-  const { payload } = await getSession()
+  // The room (LiveKit) and the session (Payload) don't depend on each other.
+  const [room, { payload }] = await Promise.all([
+    ROOM_CODE_PATTERN.test(code) ? findGroupRoom(code).catch(() => null) : null,
+    getSession(),
+  ])
   const tour = room
     ? await payload
         .findByID({
@@ -32,7 +35,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
     <GroupRoomPage
       code={code}
       hostName={room?.hostName ?? ''}
-      showResults={room?.showResults === true}
+      showResults={room?.showResults ?? false}
       tour={
         tour
           ? {

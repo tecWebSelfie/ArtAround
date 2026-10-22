@@ -9,11 +9,11 @@ const rooms = vi.hoisted(
 )
 vi.mock('@/lib/group-room', () => ({
   findGroupRoom: async (code: string) => rooms.get(code) ?? null,
-  isHostKey: (room: { key: string }, key?: string) => key === room.key,
+  isHostKey: (room: { key: string }, request: Request) =>
+    request.headers.get('X-Host-Key') === room.key,
   groupToken: async (_code: string, who: { identity: string; name: string }) => ({
     serverUrl: 'ws://livekit.test',
     token: `token-for:${who.identity}:${who.name}`,
-    isHost: who.identity === 'host',
   }),
   endGroupRoom: async (code: string) => void rooms.delete(code),
 }))
