@@ -3,6 +3,7 @@
 import { GroupMembers } from '@/components/group/GroupMembers'
 import { GroupNameForm } from '@/components/group/GroupNameForm'
 import { useGroup, useGroupSettings, useJoinGroup } from '@/components/group/GroupProvider'
+import { GroupRoom } from '@/components/group/GroupRoom'
 import { ShareGroup } from '@/components/group/ShareGroup'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { HOST_IDENTITY } from '@/lib/group'
@@ -65,7 +66,16 @@ export function GroupRoomPage({
       {!tour ? (
         <GroupEnded />
       ) : group?.membership.code === code ? (
-        <WaitingRoom code={code} tour={tour} />
+        // LiveKit's hooks need the room, which GroupProvider creates lazily.
+        <GroupRoom
+          fallback={
+            <Center py="xl">
+              <Loader />
+            </Center>
+          }
+        >
+          <WaitingRoom code={code} tour={tour} />
+        </GroupRoom>
       ) : (
         <JoinGroup code={code} hostName={hostName} showResults={showResults} tour={tour} />
       )}

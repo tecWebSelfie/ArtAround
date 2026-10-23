@@ -1,6 +1,7 @@
 'use client'
 
 import { useGroup, useGroupSettings } from '@/components/group/GroupProvider'
+import { GroupRoom } from '@/components/group/GroupRoom'
 import { isQuizHandedIn } from '@/lib/group'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import type { QuizQuestionView } from '@/lib/quiz-core'
@@ -43,7 +44,10 @@ export function QuizPageContent(props: {
   const group = useGroup()
   const hosting = group?.membership.role === 'host' && group.membership.tourId === props.tour.id
   return hosting ? (
-    <GroupQuizBoard tour={props.tour} questionCount={props.questions.length} />
+    // LiveKit's hooks need the room, which GroupProvider creates lazily.
+    <GroupRoom>
+      <GroupQuizBoard tour={props.tour} questionCount={props.questions.length} />
+    </GroupRoom>
   ) : (
     <TourQuiz {...props} />
   )
