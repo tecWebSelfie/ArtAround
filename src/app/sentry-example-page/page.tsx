@@ -28,7 +28,7 @@ export default function Page() {
     <div>
       <Head>
         <title>sentry-example-page</title>
-        <meta name="description" step="Test Sentry for your Next.js app!" />
+        <meta name="description" content="Test Sentry for your Next.js app!" />
       </Head>
 
       <main>
