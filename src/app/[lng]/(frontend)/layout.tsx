@@ -10,6 +10,9 @@ import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 
 import { GroupProvider } from '@/components/group/GroupProvider'
+import { SiteHeader } from '@/components/navigation/SiteHeader'
+import { getSiteChrome } from '@/lib/site-chrome'
+import i18nConfig from '@/../i18n.config'
 
 export const metadata = {
   title: 'Artaround',
@@ -22,6 +25,9 @@ export const metadata = {
 // hydration mismatch (`data-mantine-color-scheme`).
 export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props
+  // The desktop top bar's account, museums and museum scope (shared, cached
+  // with the tabs layout's bottom bar for the same request).
+  const chrome = await getSiteChrome()
 
   return (
     <MswProvider>
@@ -41,6 +47,10 @@ export default async function Layout(props: { children: React.ReactNode }) {
                   offset: false,
                 }}
               >
+                {/* Desktop only (≥ md), and not on immersive map/scan/editor
+                    surfaces: see SiteHeader. In the flow (sticky), so pages
+                    start below it without an AppShell header offset. */}
+                <SiteHeader {...chrome} supportedLngs={i18nConfig.supportedLngs} />
                 {children}
               </AppShell>
             </ModalsProvider>

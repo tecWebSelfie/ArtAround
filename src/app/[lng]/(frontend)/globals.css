@@ -167,3 +167,16 @@
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* Desktop top bar (src/components/navigation/SiteHeader.tsx). Its height is
+   published only while the bar is actually on the page: from md (62em), and
+   not on immersive surfaces (map navigation, scanner, map editor), where the
+   component renders nothing. Sticky panes and in-page headers offset by it. */
+:root {
+  --site-header-height: 0px;
+}
+@media (min-width: 62em) {
+  :root:has(#site-header) {
+    --site-header-height: 56px;
+  }
+}
