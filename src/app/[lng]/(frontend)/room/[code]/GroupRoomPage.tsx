@@ -32,7 +32,13 @@ import Link from 'next/link'
 import { useParams, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
-type RoomTour = { id: string; title: string; thumbnail: { url: string; alt: string } | null }
+type RoomTour = {
+  id: string
+  /** The tour's museum: its map URL is `/museum/{museumId}/navigation/tour/{id}/…`. */
+  museumId: string
+  title: string
+  thumbnail: { url: string; alt: string } | null
+}
 
 /**
  * Join form, then waiting room, for one group code (see page.tsx).
@@ -185,7 +191,7 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
             leftSection={<Play size={18} />}
             onClick={() => {
               group.start()
-              router.push(tourNavigationPath(lng, tour.id, 0))
+              router.push(tourNavigationPath(lng, tour.museumId, tour.id, 0))
             }}
           >
             {group.membership.started ? t('Back to the tour') : t('Start the tour')}

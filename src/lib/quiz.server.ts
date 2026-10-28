@@ -37,7 +37,8 @@ export type ServerQuizQuestion = Omit<QuizQuestion, 'image'> & { image: ContentI
 
 export type TourQuiz = {
   /** `contentIds` in tour order: index < stepsCompleted means "visited". */
-  tour: { id: string; title: string; stopCount: number; contentIds: string[] }
+  /** `museumId`: "back to the map" opens the tour inside its museum's navigation. */
+  tour: { id: string; museumId: string; title: string; stopCount: number; contentIds: string[] }
   questions: ServerQuizQuestion[]
 }
 
@@ -101,13 +102,14 @@ export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<To
       collection: 'tours',
       id: tourId,
       depth: 0,
-      select: { title: true, contents: true, quiz: true },
+      select: { title: true, contents: true, quiz: true, museum: true },
     })
     .catch(() => null)
   if (!tour) return null
   return {
     tour: {
       id: tour.id,
+      museumId: typeof tour.museum === 'string' ? tour.museum : tour.museum.id,
       title: tour.title,
       stopCount: tour.contents?.length ?? 0,
       contentIds: (tour.contents ?? []).map((c) => (typeof c === 'string' ? c : c.id)),

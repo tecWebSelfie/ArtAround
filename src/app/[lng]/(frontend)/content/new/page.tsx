@@ -1,4 +1,5 @@
 import { ContentForm } from '@/components/editing/forms/ContentForm'
+import { museumScope } from '@/lib/museum-mode'
 import { getSession, requireUser } from '@/lib/session'
 import { safeTourReturnTo } from '@/lib/tour-picker'
 import { Container } from '@mantine/core'
@@ -47,6 +48,10 @@ export default async function NewContentPage({
         .catch(() => null)
     : null
 
+  // Museum mode: outside the tour flow, the object picker still offers only
+  // the locked museum's objects, like every other list in the app.
+  const scope = museum ? null : await museumScope()
+
   return (
     <Container size="md" py="md">
       <ContentForm
@@ -57,7 +62,9 @@ export default async function NewContentPage({
                 name: museum.name,
                 objectIds: (museum.objects ?? []).map((o) => (typeof o === 'string' ? o : o.id)),
               }
-            : null
+            : scope
+              ? { name: scope.name, objectIds: scope.objectIds }
+              : null
         }
         returnTo={museum ? returnTo : null}
       />

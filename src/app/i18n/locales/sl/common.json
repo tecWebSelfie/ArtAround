@@ -36,8 +36,8 @@
     "username": "Uporabniško ime",
     "usernameHint": "Tako te bodo videli drugi raziskovalci."
   },
-  "Back to all museums": "Nazaj na vse muzeje",
   "Change museum": "Zamenjaj muzej",
+  "Clear search": "Počisti iskanje",
   "Import a config file": "Uvozi konfiguracijsko datoteko",
   "languageSwitcher": {
     "label": "Izberi jezik"
@@ -47,9 +47,7 @@
     "Marketplace": "Tržnica",
     "My museums": "Moji muzeji",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Prijava",
-    "SignOut": "Odjava"
+    "SignIn": "Prijava"
   },
   "No museum matches “{{query}}”.": "Noben muzej se ne ujema z »{{query}}«.",
   "or": "ali",

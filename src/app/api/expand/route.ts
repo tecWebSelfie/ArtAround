@@ -10,6 +10,7 @@ import {
 import { expansionPrompt } from '@/lib/expansion-prompt'
 import { externalSources, type ExternalSource } from '@/lib/expansion-sources'
 import { normalizeLocale } from '@/lib/localized'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { allowRequest } from '@/lib/rate-limit'
 import { asViewer } from '@/lib/session'
 import { contentObjectId } from '@/lib/tour-navigation'
@@ -152,8 +153,12 @@ export async function POST(request: Request) {
   }
 
   // 2. Entities of the same museum the text may link to.
-  const museum = subject.object?.museums?.docs?.[0]
-  const museumId = typeof museum === 'string' ? museum : museum?.id
+  // In museum mode, prefer the locked museum when the object is in several.
+  const locked = await lockedMuseumId()
+  const museumIds = (subject.object?.museums?.docs ?? []).map((museum) =>
+    typeof museum === 'string' ? museum : museum.id,
+  )
+  const museumId = museumIds.find((id) => id === locked) ?? museumIds[0]
   const links: ExpansionLink[] = []
   if (museumId) {
     const { objects } = await payload.findByID({

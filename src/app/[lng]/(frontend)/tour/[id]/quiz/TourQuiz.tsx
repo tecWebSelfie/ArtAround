@@ -39,7 +39,8 @@ import { QuizContentDrawer } from './QuizContentDrawer'
 import { emptyQuizSession, type QuizSession, saveQuizSession, useQuizSession } from './quiz-session'
 import { useGroupQuizGuest } from './group-quiz'
 
-export type QuizTourSummary = { id: string; title: string; stopCount: number }
+/** `museumId` builds "back to the map" (the tour's map lives in its museum's navigation). */
+export type QuizTourSummary = { id: string; museumId: string; title: string; stopCount: number }
 
 /**
  * The visitor quiz: an intro screen (`/quiz`), then one question per screen
@@ -112,7 +113,7 @@ export function TourQuiz({
   }, [restored, index, requested])
 
   const mapHref = withNavigationPosition(
-    tourNavigationPath(lng, tour.id, from),
+    tourNavigationPath(lng, tour.museumId, tour.id, from),
     search.toString(),
   ) as Route
 

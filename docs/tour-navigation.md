@@ -15,8 +15,11 @@ and cached build artifacts are not reliable handoff state.
   Only the expected next content opens the `open` modal with the advance action.
 - A visitor can explicitly choose an object (including a content's associated
   object) as their position or as an alternative destination.
-- Advancing retains position and clears the alternative destination. Resuming the
-  tour route also clears that destination without advancing the cursor.
+- Advancing confirms the completed stop as the position (`at` becomes its object,
+  so heading to stop 5 shows the avatar at stop 4) and clears the alternative
+  destination; a stop about no object keeps the previous position. Skipping
+  unavailable stops keeps position. Resuming the tour route also clears that
+  destination without advancing the cursor.
 - A stop that can no longer be visited (its content is gone, is about no object,
   or its object is no longer placed on the map; `unavailableStops` in
   `src/lib/tour-navigation.ts`) stays in the tour. The stepper shows it greyed,
@@ -36,10 +39,14 @@ and cached build artifacts are not reliable handoff state.
 
 ## URL and route contract
 
-Base: `/[lng]/tour/[id]/navigation/[stepId]`.
+Base: `/[lng]/museum/[id]/navigation/tour/[tourId]/[stepId]` (`id` is the
+museum, `tourId` the tour). Tours live inside their museum's navigation so one
+persistent shell serves free navigation and every tour of the museum: starting
+a tour from the free map only changes the URL and the map stays mounted.
 
 | State                                 | Location                                                                                       |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| Tour start page (no map yet)          | `/[lng]/museum/[id]/navigation/tour/[tourId]`                                                  |
 | Completed-content cursor              | `stepId` pathname segment                                                                      |
 | Confirmed position                    | `?at=OBJECT_ID`                                                                                |
 | Optional alternative destination      | `?to=OBJECT_ID`                                                                                |
@@ -52,19 +59,46 @@ Base: `/[lng]/tour/[id]/navigation/[stepId]`.
 | Group join page and waiting room      | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
-next-content routing, and museum object identification. `at`, `to`, and the
-optional wheelchair profile are forwarded between canonical and contextual routes.
+next-content routing, and museum object identification. Build tour URLs with
+`tourStartPath(lng, museumId, tourId)` / `tourNavigationPath(lng, museumId, tourId, step)`
+(`tourMuseumId(tour)` reads the id from a populated or unpopulated relationship);
+`navigationBasePath`, `navigationContentPath`, `tourContentPath` and
+`tourAdvanceHref` take tours with their `museum`. `at`, `to`, and the optional
+wheelchair profile are forwarded between canonical and contextual routes.
 
-The navigation layout owns `TourNavigationShell`, so the map survives modal and
-step transitions. It shares the tour/catalog and map-derived placed IDs with the
-parallel modal slot. Client components read `lng`, `id`,
-`stepId`, `at`, and `to` directly with Next's route and search hooks; there is no
-URL state context to keep synchronized.
+**Old URLs.** The pre-phase-2 shape `/[lng]/tour/[id]/navigation[/...]` (printed
+QR codes, shared links, bookmarks, a group host on an older client) answers a
+**308** from the route handler `tour/[id]/navigation/[[...rest]]/route.ts`: it
+looks up the tour's museum and keeps the rest of the path (step, `/open`,
+`/content/ID`, `/object/ID`, `/scan`) and the whole query. A `next.config`
+redirect cannot do this (it cannot know the museum); the temporary
+museum-to-tour redirect that glued phase 1 is gone. Unknown tours answer 404.
 
-Inside `[stepId]/@modal`, `(...)[lng]/content/[contentId]` and
-`(...)[lng]/object/[objectId]` intercept canonical QR navigation and redirect into
-the contextual URLs. The explicit contextual pages handle reloads. Null default,
-base, and catch-all modal pages clear the slot on dismissal/navigation.
+The museum navigation layout owns `TourNavigationShell`, so the map survives
+modal, step and tour transitions. A layout cannot read the `[tourId]` below it,
+so it loads **all** the museum's tours (`getMuseumNavigationTours`) and the shell
+picks the one in the URL (a tour created after the layout rendered triggers one
+`router.refresh()`); `tour/[tourId]/layout.tsx` 404s a tour of another museum.
+The shell shares the tour/catalog and map-derived placed IDs with the parallel
+modal slots. Client components read `lng`, `id` (museum), `tourId`, `stepId`,
+`at`, and `to` directly with Next's route and search hooks; there is no URL
+state context to keep synchronized.
+
+**One interceptor per canonical route.** Interception rewrites match the
+intercepting route _and all its descendants_, so an interceptor in the tour
+tree would compete with the free map's for the same URL. The museum navigation
+`@modal/(...)[lng]/content/[contentId]` and `@modal/(...)[lng]/object/[objectId]`
+are the only ones: they read the page being left from the `Next-Url` header
+(`navigationModalTarget` in `navigation/intercept.ts`) and redirect into the
+contextual URL of that map (a tour's next stop as `/open`). The museum details
+page's `@object` interceptor (`museum/[id]/(details)`) sits on `/museum/[id]` and
+therefore also matches navigation URLs, and Next tried it first in practice: it
+uses the same helper to redirect into the map, but rendering its branch first
+remounts the map. So in-app producers go straight to contextual URLs instead of
+canonical ones: the scanner (`QrScanPage`), Spotlight commands, object actions
+and `ExpansionText` links. The explicit contextual pages handle reloads. Null
+default, base, and catch-all modal pages clear the slots on dismissal/navigation
+(the free `@modal/[...catchAll]` is what the free slot shows on tour URLs).
 
 The obsolete ancestor `tour/[id]/@step` slot and its slot-only parent layout were
 removed: they intercepted the same content and caused compilation failures.
@@ -74,59 +108,61 @@ Read the installed Next guides in `node_modules/next/dist/docs/` for route chang
 
 ## Free navigation (no tour)
 
-Base: `/[lng]/museum/[id]/navigation`. The same persistent shell
-(`TourNavigationShell` with `tour={null}`) and the same URL keys (`at`, `to`,
-`mobility`, `service`, `exit`, `audience`); there is no cursor, no `/open` and
-no quiz. `src/lib/tour-navigation.ts` exposes `NavigationScope`
+Base: `/[lng]/museum/[id]/navigation`. The same persistent shell (no `tourId` in
+the URL) and the same URL keys (`at`, `to`, `mobility`, `service`, `exit`,
+`audience`); there is no cursor, no `/open` and no quiz.
+`src/lib/tour-navigation.ts` exposes `NavigationScope`
 (`{ kind: 'tour', tour, step }` / `{ kind: 'free', museumId }`) with
 `navigationBasePath()` and `navigationContentPath()`; modal close, object
 actions, scanner and commands derive "here" from it through
 `useNavigationScope()`.
 
-| State                    | Location                                                                                  |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| Free map                 | `/[lng]/museum/[id]/navigation`                                                           |
-| Content / object (modal) | `…/navigation/content/ID`, `…/object/ID`                                                  |
-| Scanner                  | `…/navigation/scan`                                                                       |
-| Start one of its tours   | Spotlight `tour:ID` → `/[lng]/tour/ID/navigation/0`, keeping `at`, `mobility`, `audience` |
+| State                    | Location                                                                                                  |
+| ------------------------ | --------------------------------------------------------------------------------------------------------- |
+| Free map                 | `/[lng]/museum/[id]/navigation`                                                                           |
+| Content / object (modal) | `…/navigation/content/ID`, `…/object/ID`                                                                  |
+| Scanner                  | `…/navigation/scan`                                                                                       |
+| Start one of its tours   | Spotlight `tour:ID` → `…/navigation/tour/ID/0`, keeping `at`, `mobility`, `audience` (same shell and map) |
 
 - Entry points: "Explore the map" on the museum page, "Find it on the map" on
   a content page (opens `…/content/ID?to=OBJECT`), both from
   `src/lib/navigation-entry.ts` and offered only when the museum has a saved map.
 - The museum detail page lives in the `museum/[id]/(details)` route group so its
-  `@object` interceptor does not wrap the navigation tree: the free tree has its
-  own `@modal/(...)[lng]/{content,object}` interceptors (one per tree).
-- Group tours stay tour-only. Phase 2 moves tour navigation under
-  `/[lng]/museum/[id]/navigation/tour/[tourId]/[stepId]` (one shell, the map
-  stays mounted when a tour starts), with permanent redirects from the current
-  `/[lng]/tour/[id]/navigation/...` URLs and the group/QR/test updates.
-- Until then, a temporary redirect in `next.config.ts` glues the two:
-  `/[lng]/museum/[id]/navigation/tour/[tourId]/[...rest]` (query kept) lands on
-  `/[lng]/tour/[tourId]/navigation/[...rest]`. New links may already use the
-  museum shape; phase 2 inverts the redirect.
+  `@object` slot does not wrap the navigation tree (see the interceptor note above).
+- Group tours stay tour-only: the host publishes only locations of the group's
+  tour (`isTourLocation` in `src/lib/group.ts`, accepting the museum shape and
+  the old `/tour/ID/…` one).
 
 ## Code map and reuse boundaries
 
 All navigation paths below are relative to
-`src/app/[lng]/(frontend)/tour/[id]/navigation/`.
+`src/app/[lng]/(frontend)/museum/[id]/navigation/`. Map components live at its
+root because free navigation and tours share them; the tour-only route files
+live under `tour/[tourId]/`.
 
-| File                                    | Responsibility                                                  |
-| --------------------------------------- | --------------------------------------------------------------- |
-| `layout.tsx`, `TourNavigationShell.tsx` | Persistent map and shared server data                           |
-| `data.ts`                               | Cached tour read; museum/map catalog summaries                  |
-| `[stepId]/TourNavigation.tsx`           | Composes map, controls, directions navbar, guidance and orb     |
-| `[stepId]/MuseumMap.tsx`                | Museum item clicks, avatar, destination and saved-navmesh route |
-| `NavigationObjectActions.tsx`           | Related content, explicit position/destination actions          |
-| `[stepId]/@modal/open/StepModal.tsx`    | Next/complete action, retaining `at` and clearing `to`          |
-| `[stepId]/NavigationModal.tsx`          | Shared contextual modal dismissal                               |
-| `[stepId]/scan/QrScanPage.tsx`          | Allowed canonical QR paths and Next navigation                  |
+| File                                                                 | Responsibility                                                   |
+| -------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `layout.tsx`, `TourNavigationShell.tsx`                              | Persistent map, museum tours, shared server data                 |
+| `data.ts`                                                            | Cached museum/tour reads; museum tours; map catalog summaries    |
+| `intercept.ts`                                                       | `Next-Url` → contextual modal URL for the canonical interceptors |
+| `TourNavigation.tsx`                                                 | Composes map, controls, directions navbar, guidance and orb      |
+| `MuseumMap.tsx`                                                      | Museum item clicks, avatar, destination and saved-navmesh route  |
+| `NavigationObjectActions.tsx`                                        | Related content, explicit position/destination actions           |
+| `NavigationModal.tsx`                                                | Shared contextual modal dismissal                                |
+| `scan/QrScanPage.tsx`                                                | Allowed canonical QR paths, opened as contextual modals          |
+| `tour/[tourId]/layout.tsx`, `page.tsx`                               | Tour belongs to this museum; start page                          |
+| `tour/[tourId]/[stepId]/@modal/open/StepModal.tsx`                   | Next/complete action, moving `at` to the stop and clearing `to`  |
+| `src/app/[lng]/(frontend)/tour/[id]/navigation/[[...rest]]/route.ts` | 308 from the old tour URLs                                       |
 
 Other shared files:
 
 - `src/components/pascal/MapViewer.tsx`: plugin loading, scene readiness, fit bounds,
   custom selection-manager option, and orbit enablement.
-- `src/components/pascal/Avatar.tsx`: cached GLTF via Drei `Clone`, scale `0.38`
-  (source is approximately 4.5 m tall), `dispose={null}` protects cached resources.
+- `src/components/pascal/Avatar.tsx`: `AvatarMale.glb` (about 1.7 m, scale 1),
+  cloned with `SkeletonUtils.clone` so it owns its bones; it turns to face the
+  camera (`maath` `easing.dampAngle`), playing the in-place Walk clip slowed down
+  while turning and Idle once facing the viewer. `dispose={null}` protects cached
+  resources.
 - `src/lib/pascal/navigation.ts`: updated world bounds -> nearest navmesh polygon;
   only complete Navcat paths are displayed, never partial paths as successful routes.
 - `src/lib/pascal/navmesh-options.ts`: walking and wheelchair generation profiles.
@@ -170,17 +206,17 @@ Navcat mesh and two catalog items separated by a divider, to show the detour.
 ## Route guidance, GPS, suggestions and voice assistant
 
 Added 2026-10-19. One idea ties these together: **every visitor action is a URL
-command** (`[stepId]/navigation-commands.ts`). The Spotlight results, the
+command** (`navigation-commands.ts`). The Spotlight results, the
 empty-Spotlight pills, the overlay buttons and the voice assistant all run the
 same `NavigationCommand` (`router.replace` for URL state, `router.push` for modals).
 
-| Piece              | Files                                                                                                     | How it works                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------ | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `[stepId]/DirectionsBar.tsx`                     | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                          |
-| GPS progress       | `src/lib/gps.ts`, `[stepId]/gps-source.ts`, `[stepId]/use-route-guidance.ts`, `[stepId]/GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                    |
-| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `[stepId]/use-nearby-suggestions.tsx`                                    | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                           |
-| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`                               | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
-| Settings           | `[stepId]/GuidanceSettings.tsx`                                                                           | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                          |
+| Piece              | Files                                                                          | How it works                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `DirectionsBar.tsx`   | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                          |
+| GPS progress       | `src/lib/gps.ts`, `gps-source.ts`, `use-route-guidance.ts`, `GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                    |
+| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `use-nearby-suggestions.tsx`                  | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                           |
+| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`    | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
+| Settings           | `GuidanceSettings.tsx`                                                         | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                          |
 
 The catalog (`data.ts`) is read **as the viewer** so each content summary carries
 `price` and a server-computed `locked`; the body never reaches the client.
@@ -279,7 +315,9 @@ Relevant tests:
 - `tests/e2e/tour-navigation.e2e.spec.ts`: default map,
   independent exploration, position reload and progression.
 - `tests/e2e/tour-qr.e2e.spec.ts`: actual decoder with a generated QR supplied through
-  a canvas camera stream; canonical object/content requests, contextual modal and reload.
+  a canvas camera stream; the scanner opens the scanned canonical object/content
+  link straight as the tour's contextual modal (the poll waits for the URL to
+  leave `/scan`), then reload.
   The camera is simulated, not the decoder. It does not require physical webcam access.
 
 Use `PLAYWRIGHT_CHANNEL=chrome` if Playwright's pinned Chromium is unavailable,
@@ -319,8 +357,9 @@ only demonstrated feature failures. Avoid broad unrelated cleanup.
   heavy checks). Run project typecheck and browser/Next compilation sequentially.
   Cold Next routes have taken multiple minutes; do not attribute every timeout to
   a scanner defect, or keep retrying the same expensive checks without diagnosis.
-- A canonical request after scanning proves decoding happened; it does not prove
-  the contextual modal opened. Inspect both stages and final UI.
+- Inside a navigation the scanner no longer requests the canonical URL (it maps
+  it to the contextual modal itself): leaving `/scan` proves decoding happened,
+  not that the modal opened. Inspect both stages and final UI.
 - Real `getUserMedia` needs permission and a secure context. `localhost` is allowed;
   a phone visiting plain HTTP on a LAN IP generally needs HTTPS instead.
 - Local LiveKit connection failures have

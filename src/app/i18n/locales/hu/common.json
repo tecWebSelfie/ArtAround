@@ -36,8 +36,8 @@
     "username": "Felhasználónév",
     "usernameHint": "Így látnak majd a többi felfedező."
   },
-  "Back to all museums": "Vissza az összes múzeumhoz",
   "Change museum": "Múzeum váltása",
+  "Clear search": "Keresés törlése",
   "Import a config file": "Konfigurációs fájl importálása",
   "languageSwitcher": {
     "label": "Nyelv kiválasztása"
@@ -47,9 +47,7 @@
     "Marketplace": "Piactér",
     "My museums": "Múzeumaim",
     "Navigator": "Navigátor",
-    "Profile": "Profil",
-    "SignIn": "Bejelentkezés",
-    "SignOut": "Kijelentkezés"
+    "SignIn": "Bejelentkezés"
   },
   "No museum matches “{{query}}”.": "Egy múzeum sem felel meg ennek: „{{query}}”.",
   "or": "vagy",

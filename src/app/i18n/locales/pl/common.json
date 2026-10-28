@@ -36,8 +36,8 @@
     "username": "Nazwa użytkownika",
     "usernameHint": "Tak będą Cię widzieć inni odkrywcy."
   },
-  "Back to all museums": "Wróć do wszystkich muzeów",
   "Change museum": "Zmień muzeum",
+  "Clear search": "Wyczyść wyszukiwanie",
   "Import a config file": "Importuj plik konfiguracyjny",
   "languageSwitcher": {
     "label": "Wybierz język"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Moje muzea",
     "Navigator": "Nawigator",
-    "Profile": "Profil",
-    "SignIn": "Zaloguj się",
-    "SignOut": "Wyloguj się"
+    "SignIn": "Zaloguj się"
   },
   "No museum matches “{{query}}”.": "Żadne muzeum nie pasuje do „{{query}}”.",
   "or": "lub",

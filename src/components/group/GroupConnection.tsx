@@ -5,6 +5,7 @@ import {
   groupLocation,
   HOST_IDENTITY,
   isQuizLocation,
+  isTourLocation,
   parseRoomMetadata,
 } from '@/lib/group'
 import {
@@ -198,7 +199,7 @@ function GroupSync({ group }: { group: GroupContextValue }) {
   const { localParticipant } = useLocalParticipant()
   const { membership, host } = group
   const location = groupLocation(pathname, search)
-  const inTour = location.startsWith(`/tour/${membership.tourId}/`)
+  const inTour = isTourLocation(location, membership.tourId)
   const connected = useConnectionState() === ConnectionState.Connected
 
   useEffect(() => {

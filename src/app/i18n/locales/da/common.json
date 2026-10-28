@@ -36,8 +36,8 @@
     "username": "Brugernavn",
     "usernameHint": "Sådan ser andre opdagelsesrejsende dig."
   },
-  "Back to all museums": "Tilbage til alle museer",
   "Change museum": "Skift museum",
+  "Clear search": "Ryd søgning",
   "Import a config file": "Importér en konfigurationsfil",
   "languageSwitcher": {
     "label": "Vælg sprog"
@@ -47,9 +47,7 @@
     "Marketplace": "Markedsplads",
     "My museums": "Mine museer",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Log ind",
-    "SignOut": "Log ud"
+    "SignIn": "Log ind"
   },
   "No museum matches “{{query}}”.": "Intet museum matcher “{{query}}”.",
   "or": "eller",

@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} contenu de ce parcours est payant. En achetant le parcours, tu le débloques.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} contenus de ce parcours sont payants. En achetant le parcours, tu les débloques tous.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} contenus de ce parcours sont payants. En achetant le parcours, tu les débloques tous.",

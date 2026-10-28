@@ -1,6 +1,8 @@
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
+import { redirect } from 'next/navigation'
+import { navigationModalTarget } from '@/app/[lng]/(frontend)/museum/[id]/navigation/intercept'
 import { ObjectModal as Modal } from './Modal'
 
 // NOTE: no generateStaticParams here. This is an INTERCEPTED route — its URL
@@ -13,11 +15,18 @@ import { ObjectModal as Modal } from './Modal'
 
 export default async function ObjectModal({
   params,
+  searchParams,
 }: {
   params: Promise<{ lng: string; objectId: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const payload = await getPayload({ config })
   const { objectId } = await params
+  // This interceptor sits on `/[lng]/museum/[id]`, so Next also applies it to
+  // navigations leaving the museum's map (`…/navigation/...`, free or tour):
+  // there the object belongs over the map, not in this details modal.
+  const overMap = await navigationModalTarget('object', objectId, await searchParams)
+  if (overMap) redirect(overMap)
+  const payload = await getPayload({ config })
 
   const object = await payload.findByID({
     collection: 'objects',

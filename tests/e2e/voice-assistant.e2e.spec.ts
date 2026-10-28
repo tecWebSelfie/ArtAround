@@ -56,6 +56,6 @@ test('a spoken request runs the matching command', async ({ page }) => {
   expect(body.transcript.trim()).not.toBe('')
   expect(body.commandId).toMatch(/^content:/)
   // The browser ran the command: the content opened in its modal route.
-  await expect(page).toHaveURL(/\/navigation\/0\/content\//)
+  await expect(page).toHaveURL(/\/navigation\/tour\/[^/]+\/0\/content\//)
   await expect(page.getByText(/Side discovery/).first()).toBeVisible()
 })

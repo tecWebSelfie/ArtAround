@@ -36,8 +36,8 @@
     "username": "Käyttäjänimi",
     "usernameHint": "Näin muut tutkimusmatkailijat näkevät sinut."
   },
-  "Back to all museums": "Takaisin kaikkiin museoihin",
   "Change museum": "Vaihda museota",
+  "Clear search": "Tyhjennä haku",
   "Import a config file": "Tuo määritystiedosto",
   "languageSwitcher": {
     "label": "Valitse kieli"
@@ -47,9 +47,7 @@
     "Marketplace": "Kauppapaikka",
     "My museums": "Omat museot",
     "Navigator": "Navigaattori",
-    "Profile": "Profiili",
-    "SignIn": "Kirjaudu sisään",
-    "SignOut": "Kirjaudu ulos"
+    "SignIn": "Kirjaudu sisään"
   },
   "No museum matches “{{query}}”.": "Mikään museo ei vastaa hakua ”{{query}}”.",
   "or": "tai",

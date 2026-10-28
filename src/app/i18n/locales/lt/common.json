@@ -36,8 +36,8 @@
     "username": "Naudotojo vardas",
     "usernameHint": "Taip tave matys kiti tyrinėtojai."
   },
-  "Back to all museums": "Grįžti į visus muziejus",
   "Change museum": "Keisti muziejų",
+  "Clear search": "Išvalyti paiešką",
   "Import a config file": "Importuoti konfigūracijos failą",
   "languageSwitcher": {
     "label": "Pasirink kalbą"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Mano muziejai",
     "Navigator": "Navigatorius",
-    "Profile": "Profilis",
-    "SignIn": "Prisijungti",
-    "SignOut": "Atsijungti"
+    "SignIn": "Prisijungti"
   },
   "No museum matches “{{query}}”.": "Pagal „{{query}}“ muziejų nerasta.",
   "or": "arba",

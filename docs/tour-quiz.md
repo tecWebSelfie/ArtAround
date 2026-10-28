@@ -6,12 +6,12 @@ Related: [tour navigation](tour-navigation.md).
 
 ## Data model (implemented)
 
-| Piece | Where | Notes |
-| --- | --- | --- |
-| Quiz | `Tours.quiz.questions` (named "Quiz" tab) | Ordered relationship to `quizQuestions`. Empty = no quiz. One quiz per tour by construction. |
-| Question | `src/collections/QuizQuestions.ts` | `prompt`, optional `image` (`contentImages`), `correctAnswer`, `wrongAnswers` (exactly 3 rows), `explanation`, `difficulty`, `relatedTo`. |
-| Attempt | `src/collections/QuizAttempts.ts` | Server-graded run; addressed by random `token`, never by `id`. |
-| Ownership rules | `src/lib/quiz-ownership.ts` | Picker filter, validation, cleanup hooks. |
+| Piece           | Where                                     | Notes                                                                                                                                     |
+| --------------- | ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Quiz            | `Tours.quiz.questions` (named "Quiz" tab) | Ordered relationship to `quizQuestions`. Empty = no quiz. One quiz per tour by construction.                                              |
+| Question        | `src/collections/QuizQuestions.ts`        | `prompt`, optional `image` (`contentImages`), `correctAnswer`, `wrongAnswers` (exactly 3 rows), `explanation`, `difficulty`, `relatedTo`. |
+| Attempt         | `src/collections/QuizAttempts.ts`         | Server-graded run; addressed by random `token`, never by `id`.                                                                            |
+| Ownership rules | `src/lib/quiz-ownership.ts`               | Picker filter, validation, cleanup hooks.                                                                                                 |
 
 Authoring happens in the Payload admin. The Quiz tab picker uses `filterOptions`
 over the form `data`, so it already lists questions about contents added but not
@@ -51,16 +51,16 @@ Invariants enforced by hooks and validation:
 
 ## Visitor flow (implemented)
 
-| Route / file | Role |
-| --- | --- |
-| `tour/[id]/quiz/page.tsx` | Server: reads the quiz, sends only `quizQuestionViews()` (reduced, shuffled) to the client. |
-| `quiz/TourQuiz.tsx` | Intro (`/quiz`) and one question per screen (`/quiz?q=n`), feedback, submit. |
-| `quiz/actions.ts` | Server Functions `checkQuizAnswer` (feedback) and `submitQuizAttempt` (re-grade, store, expire stats). |
-| `quiz/quiz-session.ts` | `sessionStorage` store (`useSyncExternalStore`) so reloads resume. |
-| `quiz/QuizContentDrawer.tsx` | "Read the content again" without leaving the page. |
-| `quiz/result/[token]/` | Result page and `QuizResult` client view. |
-| `src/lib/quiz-core.ts` | Pure logic: HMAC option keys, shuffle, grading, score bands (unit-tested). |
-| `src/lib/quiz.server.ts` | `server-only`: localized question reads, secret binding, cached statistics. |
+| Route / file                 | Role                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `tour/[id]/quiz/page.tsx`    | Server: reads the quiz, sends only `quizQuestionViews()` (reduced, shuffled) to the client.            |
+| `quiz/TourQuiz.tsx`          | Intro (`/quiz`) and one question per screen (`/quiz?q=n`), feedback, submit.                           |
+| `quiz/actions.ts`            | Server Functions `checkQuizAnswer` (feedback) and `submitQuizAttempt` (re-grade, store, expire stats). |
+| `quiz/quiz-session.ts`       | `sessionStorage` store (`useSyncExternalStore`) so reloads resume.                                     |
+| `quiz/QuizContentDrawer.tsx` | "Read the content again" without leaving the page.                                                     |
+| `quiz/result/[token]/`       | Result page and `QuizResult` client view.                                                              |
+| `src/lib/quiz-core.ts`       | Pure logic: HMAC option keys, shuffle, grading, score bands (unit-tested).                             |
+| `src/lib/quiz.server.ts`     | `server-only`: localized question reads, secret binding, cached statistics.                            |
 
 - Entry points: the last stop's action ("Complete and go to the quiz", `StepModal`
   `quizFrom`), the final "Quiz" step of `TourProgress` (selectable any time: early
@@ -68,7 +68,8 @@ Invariants enforced by hooks and validation:
   which carries `at`/`mobility`, drops `to` and adds `from` (the cursor left). The
   tour cursor keeps its meaning; the quiz is not a step.
 - Quiz pages live outside the map layout. "Back to the map" returns to
-  `/navigation/{from}` with the same position.
+  `/[lng]/museum/{museumId}/navigation/tour/{id}/{from}` (`tourNavigationPath`; the
+  quiz reads the tour's museum for it) with the same position.
 - `?q=` changes use `history.pushState` (no server render); a URL past the first
   unanswered question is clamped. Answers are final; no skipping.
 - Options carry opaque HMAC keys (`PAYLOAD_SECRET`), stable per answer, so saved

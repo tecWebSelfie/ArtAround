@@ -53,3 +53,46 @@ export async function museumScope() {
   )
   return { museumId, name: museum.name, objectIds, contentIds }
 }
+
+export type MuseumScope = NonNullable<Awaited<ReturnType<typeof museumScope>>>
+
+/**
+ * Museum mode for the search index (`querySearchIndex({ restrictTo })`): per
+ * kind, the source ids the locked museum allows. People are the authors of its
+ * tours and contents, so a creator shows up only through work in this museum.
+ * Shared by the navigator search and the marketplace, so both scope alike.
+ */
+export async function museumSearchRestriction(scope: MuseumScope) {
+  const payload = await getPayload({ config })
+  const [tours, contents] = await Promise.all([
+    payload.find({
+      collection: 'tours',
+      where: { museum: { equals: scope.museumId } },
+      depth: 0,
+      pagination: false,
+      select: { author: true },
+    }),
+    payload.find({
+      collection: 'contents',
+      where: { id: { in: scope.contentIds } },
+      depth: 0,
+      pagination: false,
+      select: { author: true },
+    }),
+  ])
+  const authorId = (author: unknown) =>
+    typeof author === 'string' ? author : (author as { id?: string } | null)?.id
+  const authors = new Set(
+    [...tours.docs, ...contents.docs].flatMap((doc) => {
+      const id = authorId((doc as { author?: unknown }).author)
+      return id ? [String(id)] : []
+    }),
+  )
+  return {
+    museum: [scope.museumId],
+    tour: tours.docs.map((tour) => String(tour.id)),
+    content: scope.contentIds,
+    object: scope.objectIds,
+    user: [...authors],
+  }
+}

@@ -4,6 +4,10 @@ import {
   museumNavigationPath,
   navigationBasePath,
   navigationContentPath,
+  parseNavigationPathname,
+  tourMuseumId,
+  tourNavigationPath,
+  tourStartPath,
   tourContentPath,
   tourQuizPath,
   tourQuizResultPath,
@@ -20,19 +24,24 @@ import { ItemNode } from '@pascal-app/core'
 describe('tour navigation', () => {
   it('keeps confirmed position and destination in shareable URLs without unrelated query data', () => {
     expect(
-      withNavigationPosition('/it/tour/t/navigation/2/open', 'at=a&to=b&unrelated=secret'),
-    ).toBe('/it/tour/t/navigation/2/open?at=a&to=b')
-    expect(withNavigationPosition('/it/tour/t/navigation/2', { at: 'a', to: ['b', 'c'] })).toBe(
-      '/it/tour/t/navigation/2?at=a',
-    )
+      withNavigationPosition('/it/museum/m/navigation/tour/t/2/open', 'at=a&to=b&unrelated=secret'),
+    ).toBe('/it/museum/m/navigation/tour/t/2/open?at=a&to=b')
+    expect(
+      withNavigationPosition('/it/museum/m/navigation/tour/t/2', { at: 'a', to: ['b', 'c'] }),
+    ).toBe('/it/museum/m/navigation/tour/t/2?at=a')
   })
   it('preserves the wheelchair profile across navigation links and position changes', () => {
     expect(withNavigationPosition('/it/object/a', 'at=a&mobility=wheelchair&unrelated=x')).toBe(
       '/it/object/a?at=a&mobility=wheelchair',
     )
     expect(
-      withNavigationValue('/it/tour/t/navigation/2', 'at=a&mobility=wheelchair', 'to', 'b'),
-    ).toBe('/it/tour/t/navigation/2?at=a&to=b&mobility=wheelchair')
+      withNavigationValue(
+        '/it/museum/m/navigation/tour/t/2',
+        'at=a&mobility=wheelchair',
+        'to',
+        'b',
+      ),
+    ).toBe('/it/museum/m/navigation/tour/t/2?at=a&to=b&mobility=wheelchair')
     expect(withNavigationPosition('/it/object/a', 'mobility=walking')).toBe('/it/object/a')
   })
   it('accepts canonical QR paths and same-origin URLs, but not external destinations', () => {
@@ -51,12 +60,18 @@ describe('tour navigation', () => {
   })
 
   it('opens only the expected content as the next step, preserving the original order', () => {
-    const tour = { id: 'tour', contents: ['first', 'second', 'third'] }
-    expect(tourContentPath('it', tour, 1, 'second')).toBe('/it/tour/tour/navigation/1/open')
-    expect(tourContentPath('it', tour, 1, 'first')).toBe('/it/tour/tour/navigation/1/content/first')
-    expect(tourContentPath('it', tour, 1, 'third')).toBe('/it/tour/tour/navigation/1/content/third')
+    const tour = { id: 'tour', museum: 'm', contents: ['first', 'second', 'third'] }
+    expect(tourContentPath('it', tour, 1, 'second')).toBe(
+      '/it/museum/m/navigation/tour/tour/1/open',
+    )
+    expect(tourContentPath('it', tour, 1, 'first')).toBe(
+      '/it/museum/m/navigation/tour/tour/1/content/first',
+    )
+    expect(tourContentPath('it', tour, 1, 'third')).toBe(
+      '/it/museum/m/navigation/tour/tour/1/content/third',
+    )
     expect(tourContentPath('it', tour, 3, 'second')).toBe(
-      '/it/tour/tour/navigation/3/content/second',
+      '/it/museum/m/navigation/tour/tour/3/content/second',
     )
   })
 
@@ -88,16 +103,46 @@ describe('tour navigation', () => {
   })
 
   it('derives map and content URLs for a tour and for free navigation of a museum', () => {
-    const tour = { id: 't', contents: ['c1', 'c2'] }
+    const tour = { id: 't', museum: 'm', contents: ['c1', 'c2'] }
     const inTour = { kind: 'tour' as const, tour, step: 1 }
     const free = { kind: 'free' as const, museumId: 'm' }
     expect(museumNavigationPath('it', 'm')).toBe('/it/museum/m/navigation')
-    expect(navigationBasePath('it', inTour)).toBe('/it/tour/t/navigation/1')
+    expect(navigationBasePath('it', inTour)).toBe('/it/museum/m/navigation/tour/t/1')
     expect(navigationBasePath('it', free)).toBe('/it/museum/m/navigation')
     // In a tour the next stop opens `/open`; free navigation has no next stop.
-    expect(navigationContentPath('it', inTour, 'c2')).toBe('/it/tour/t/navigation/1/open')
-    expect(navigationContentPath('it', inTour, 'c1')).toBe('/it/tour/t/navigation/1/content/c1')
+    expect(navigationContentPath('it', inTour, 'c2')).toBe('/it/museum/m/navigation/tour/t/1/open')
+    expect(navigationContentPath('it', inTour, 'c1')).toBe(
+      '/it/museum/m/navigation/tour/t/1/content/c1',
+    )
     expect(navigationContentPath('it', free, 'c2')).toBe('/it/museum/m/navigation/content/c2')
+  })
+  it('nests tour URLs in their museum navigation and reads them back', () => {
+    expect(tourStartPath('it', 'm', 't')).toBe('/it/museum/m/navigation/tour/t')
+    expect(tourNavigationPath('it', 'm', 't', 2)).toBe('/it/museum/m/navigation/tour/t/2')
+    expect(tourMuseumId({ museum: 'm' })).toBe('m')
+    expect(tourMuseumId({ museum: { id: 'm' } as never })).toBe('m')
+    // The Next-Url pathname an interceptor sees: free map, tour step, modal, start page.
+    expect(parseNavigationPathname('/it/museum/m/navigation')).toEqual({
+      lng: 'it',
+      museumId: 'm',
+      tourId: null,
+      step: null,
+    })
+    expect(parseNavigationPathname('/it/museum/m/navigation/content/c')).toMatchObject({
+      tourId: null,
+    })
+    expect(parseNavigationPathname('/it/museum/m/navigation/tour/t/2/open')).toEqual({
+      lng: 'it',
+      museumId: 'm',
+      tourId: 't',
+      step: '2',
+    })
+    expect(parseNavigationPathname('/it/museum/m/navigation/tour/t')).toMatchObject({
+      tourId: 't',
+      step: null,
+    })
+    expect(parseNavigationPathname('/it/museum/m')).toBeNull()
+    expect(parseNavigationPathname('/it/tour/t/navigation/2')).toBeNull()
   })
   it('opens the quiz with the left cursor, keeping position and dropping the destination', () => {
     expect(tourQuizPath('it', 't', 3, 'at=a&to=b&mobility=wheelchair&q=2')).toBe(
@@ -128,9 +173,9 @@ describe('tour navigation', () => {
   })
 
   it('advances to the next map step, or to the quiz when that ends the tour', () => {
-    const tour = { id: 't', contents: ['a', 'b'], quiz: { questions: ['q'] } }
+    const tour = { id: 't', museum: 'm', contents: ['a', 'b'], quiz: { questions: ['q'] } }
     expect(tourAdvanceHref('en', tour, 1, 'at=o1&to=o2')).toEqual({
-      href: '/en/tour/t/navigation/1?at=o1',
+      href: '/en/museum/m/navigation/tour/t/1?at=o1',
       quiz: false,
     })
     expect(tourAdvanceHref('en', tour, 2, 'at=o1&to=o2')).toEqual({
@@ -138,7 +183,7 @@ describe('tour navigation', () => {
       quiz: true,
     })
     expect(tourAdvanceHref('en', { ...tour, quiz: {} }, 2, '').href).toBe(
-      '/en/tour/t/navigation/2',
+      '/en/museum/m/navigation/tour/t/2',
     )
   })
 })

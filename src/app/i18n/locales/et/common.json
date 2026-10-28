@@ -36,8 +36,8 @@
     "username": "Kasutajanimi",
     "usernameHint": "Nii näevad sind teised avastajad."
   },
-  "Back to all museums": "Tagasi kõigi muuseumide juurde",
   "Change museum": "Vaheta muuseumi",
+  "Clear search": "Tühjenda otsing",
   "Import a config file": "Impordi seadistusfail",
   "languageSwitcher": {
     "label": "Vali keel"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Minu muuseumid",
     "Navigator": "Navigaator",
-    "Profile": "Profiil",
-    "SignIn": "Logi sisse",
-    "SignOut": "Logi välja"
+    "SignIn": "Logi sisse"
   },
   "No museum matches “{{query}}”.": "Päringule „{{query}}” ei vasta ükski muuseum.",
   "or": "või",

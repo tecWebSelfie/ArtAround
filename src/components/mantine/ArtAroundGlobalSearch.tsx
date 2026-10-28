@@ -18,8 +18,17 @@ import {
   useCombobox,
 } from '@mantine/core'
 import { useUncontrolled } from '@mantine/hooks'
-import { BookOpen, Landmark, Route as RouteIcon, Search, Shapes, UserRound } from 'lucide-react'
+import {
+  BookOpen,
+  Euro,
+  Landmark,
+  Route as RouteIcon,
+  Search,
+  Shapes,
+  UserRound,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ClearSearchButton } from './ClearSearchButton'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
 import { LockedPriceBadge } from './LockedPriceBadge'
@@ -83,6 +92,19 @@ export function ArtAroundGlobalSearch({
         <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
           <TextInput
             leftSection={<Search size={16} />}
+            rightSection={
+              _value ? (
+                <ClearSearchButton
+                  onClear={() => {
+                    // Through `handleChange`, so the owner's query resets too
+                    // and the default results come back.
+                    handleChange('')
+                    combobox.openDropdown()
+                  }}
+                />
+              ) : null
+            }
+            rightSectionPointerEvents="all"
             bd="1px solid purple"
             bdrs="xl"
             size="lg"
@@ -163,9 +185,18 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
         <Icon size={14} aria-hidden />
       </ThemeIcon>
       <Stack gap={4} miw={0}>
-        <Text fw={600} lh={1.3}>
-          {item.title}
-        </Text>
+        <Group gap={6} wrap="nowrap" align="flex-start">
+          <Text fw={600} lh={1.3}>
+            {item.title}
+          </Text>
+          {item.priceCents !== undefined && (
+            // Paid at a glance, beside the title; the price badge below says
+            // how much in words. The icon follows PRICE_CURRENCY (EUR).
+            <ThemeIcon color="orange" variant="light" radius="xl" size="sm" className="shrink-0">
+              <Euro size={12} aria-hidden />
+            </ThemeIcon>
+          )}
+        </Group>
         {item.subtitle ? (
           <Text size="xs" c="dimmed" lineClamp={1}>
             {item.subtitle}

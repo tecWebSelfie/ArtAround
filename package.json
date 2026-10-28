@@ -117,6 +117,7 @@
     "livekit-client": "^2.0.0",
     "livekit-server-sdk": "2.19.0",
     "lucide-react": "^1.47.0",
+    "maath": "0.10.8",
     "mantine-composite-filters": "^0.5.0",
     "mantine-map": "^0.4.0",
     "maplibre-gl": "^6.11.2",

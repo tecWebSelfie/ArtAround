@@ -25,10 +25,6 @@ export function tourStepIndex(value: string, count: number): number | null {
   return Number.isSafeInteger(step) && step <= count ? step : null
 }
 
-export function tourNavigationPath(lng: string, tourId: string, step: number) {
-  return `/${lng}/tour/${tourId}/navigation/${step}` as Route
-}
-
 /**
  * Free navigation: the museum's map with no tour. The visitor explores, picks
  * destinations and opens contents; the same modal, scanner and URL-state rules
@@ -39,18 +35,55 @@ export function museumNavigationPath(lng: string, museumId: string) {
 }
 
 /**
+ * Tours live inside their museum's navigation (`…/navigation/tour/[tourId]`),
+ * so one persistent shell serves free navigation and every tour of the museum
+ * and the map stays mounted when a tour starts. This is the tour's start page
+ * (no cursor yet); the old `/[lng]/tour/[id]/navigation/...` URLs redirect here.
+ */
+export function tourStartPath(lng: string, museumId: string, tourId: string) {
+  return `${museumNavigationPath(lng, museumId)}/tour/${tourId}` as Route
+}
+
+/** The tour map at cursor `step` (completed stops). */
+export function tourNavigationPath(lng: string, museumId: string, tourId: string, step: number) {
+  return `${tourStartPath(lng, museumId, tourId)}/${step}` as Route
+}
+
+/** A tour's museum id, whether its `museum` relationship is populated or not. */
+export function tourMuseumId(tour: Pick<Tour, 'museum'>) {
+  return typeof tour.museum === 'string' ? tour.museum : tour.museum.id
+}
+
+/**
+ * Where a navigation pathname stands: the museum, and the tour and raw cursor
+ * when it is a tour URL (the cursor is validated by `tourStepIndex` against the
+ * tour). `null` outside the museum navigation tree. Interceptors use it on the
+ * `Next-Url` header to send a canonical object/content URL into the map the
+ * visitor came from.
+ */
+export function parseNavigationPathname(pathname: string) {
+  const match =
+    /^\/([^/]+)\/museum\/([^/]+)\/navigation(?:\/tour\/([^/]+)(?:\/([^/]+))?)?(?:\/|$)/.exec(
+      pathname,
+    )
+  if (!match) return null
+  const [, lng, museumId, tourId, step] = match
+  return { lng, museumId, tourId: tourId ?? null, step: step ?? null }
+}
+
+/**
  * Which navigation the map is showing. A tour carries its ordered contents and
  * the cursor; free navigation only knows its museum. Every "where am I" path
  * (modal close, commands, scanner, object actions) derives from this.
  */
 export type NavigationScope =
-  | { kind: 'tour'; tour: Pick<Tour, 'id' | 'contents'>; step: number }
+  | { kind: 'tour'; tour: Pick<Tour, 'id' | 'contents' | 'museum'>; step: number }
   | { kind: 'free'; museumId: string }
 
 /** The map URL of the current navigation, without modal or search state. */
 export function navigationBasePath(lng: string, scope: NavigationScope) {
   return scope.kind === 'tour'
-    ? tourNavigationPath(lng, scope.tour.id, scope.step)
+    ? tourNavigationPath(lng, tourMuseumId(scope.tour), scope.tour.id, scope.step)
     : museumNavigationPath(lng, scope.museumId)
 }
 
@@ -137,15 +170,16 @@ export function navigationDestination(search: URLSearchParams): NavigationDestin
 /** Shared by content links and intercepted canonical content routes. */
 export function tourContentPath(
   lng: string,
-  tour: Pick<Tour, 'id' | 'contents'>,
+  tour: Pick<Tour, 'id' | 'contents' | 'museum'>,
   step: number,
   contentId: string,
 ) {
   const next = tour.contents[step]
   const nextId = typeof next === 'string' ? next : next?.id
+  const base = tourNavigationPath(lng, tourMuseumId(tour), tour.id, step)
   return nextId === contentId
-    ? (`${tourNavigationPath(lng, tour.id, step)}/open` as const)
-    : (`${tourNavigationPath(lng, tour.id, step)}/content/${contentId}` as const)
+    ? (`${base}/open` as const)
+    : (`${base}/content/${contentId}` as const)
 }
 
 /** Catalog placement preserves the Payload object ID in the asset. */
@@ -243,7 +277,7 @@ export function tourQuizResultPath(lng: string, tourId: string, token: string) {
  */
 export function tourAdvanceHref(
   lng: string,
-  tour: Pick<Tour, 'id' | 'contents' | 'quiz'>,
+  tour: Pick<Tour, 'id' | 'contents' | 'quiz' | 'museum'>,
   toStep: number,
   search: string,
 ): { href: Route; quiz: boolean } {
@@ -253,7 +287,10 @@ export function tourAdvanceHref(
     return { href: tourQuizPath(lng, tour.id, toStep, params.toString()), quiz: true }
   }
   return {
-    href: withNavigationPosition(tourNavigationPath(lng, tour.id, toStep), params.toString()),
+    href: withNavigationPosition(
+      tourNavigationPath(lng, tourMuseumId(tour), tour.id, toStep),
+      params.toString(),
+    ),
     quiz: false,
   }
 }

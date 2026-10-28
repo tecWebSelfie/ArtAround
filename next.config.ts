@@ -38,15 +38,11 @@ const nextConfig: NextConfig = {
         destination: '/:lng*/navigator',
         permanent: false,
       },
-      // Glue for the planned museum-owned navigation (docs/tour-navigation.md,
-      // phase 2): the museum-shaped tour URL already works and lands on the
-      // current tour tree. Temporary (307) so it can be inverted once the tree
-      // moves under the museum. The query (`at`, `to`, …) is kept by Next.
-      {
-        source: `/:lng(${lngPattern})/museum/:museumId/navigation/tour/:tourId/:rest*`,
-        destination: '/:lng/tour/:tourId/navigation/:rest*',
-        permanent: false,
-      },
+      // Tour navigation lives at /:lng/museum/:museumId/navigation/tour/:tourId/…
+      // (docs/tour-navigation.md). The old /:lng/tour/:tourId/navigation/… URLs
+      // need the tour's museum, which a redirect here cannot know: the route
+      // handler src/app/[lng]/(frontend)/tour/[id]/navigation/[[...rest]]/route.ts
+      // looks it up and answers 308, keeping the rest of the path and the query.
     ]
   },
   images: {

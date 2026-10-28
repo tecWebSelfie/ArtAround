@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} innehåll i den här turen är betalt. Köp turen för att låsa upp det.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} innehåll i den här turen är betalda. Köp turen för att låsa upp alla.",
   "{{count}} stops_one": "{{count}} stopp",

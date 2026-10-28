@@ -85,7 +85,8 @@ function withoutLanguage(pathname: string) {
 }
 
 /**
- * The part of a URL the group shares, e.g. `/tour/42/navigation/3/content/7?at=9`.
+ * The part of a URL the group shares, e.g.
+ * `/museum/5/navigation/tour/42/3/content/7?at=9`.
  * The host publishes it; a guest compares it with its own to know whether to follow.
  */
 export function groupLocation(pathname: string, search: URLSearchParams) {
@@ -96,6 +97,20 @@ export function groupLocation(pathname: string, search: URLSearchParams) {
   }
   const path = withoutLanguage(pathname)
   return shared.size ? `${path}?${shared}` : path
+}
+
+/**
+ * True while a location belongs to the group's tour, so the host publishes it:
+ * the tour's map inside its museum navigation (`/museum/M/navigation/tour/T…`)
+ * and the pages beside it (`/tour/T/quiz`, and the pre-phase-2 `/tour/T/navigation…`
+ * shape, which redirects to the museum one). Other pages don't move the group.
+ */
+export function isTourLocation(location: string, tourId: string) {
+  const path = location.split('?')[0]
+  if (path.startsWith(`/tour/${tourId}/`)) return true
+  // `/museum/{museumId}/navigation/tour/{tourId}[/...]`
+  const [, museum, , navigation, tour, id] = path.split('/')
+  return museum === 'museum' && navigation === 'navigation' && tour === 'tour' && id === tourId
 }
 
 /** True while the host's location is the group quiz (guests then move freely inside it). */

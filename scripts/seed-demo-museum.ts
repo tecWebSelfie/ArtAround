@@ -21,7 +21,14 @@ import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { getPayload, type Payload } from 'payload'
-import { BlockNode, DoorNode, ItemNode, LevelNode, WallNode, type ParsedBuildJson } from '@pascal-app/core'
+import {
+  BlockNode,
+  DoorNode,
+  ItemNode,
+  LevelNode,
+  WallNode,
+  type ParsedBuildJson,
+} from '@pascal-app/core'
 import type { NavMesh, Vec3 } from 'navcat'
 import { generateSoloNavMesh } from 'navcat/blocks'
 import { getPositionsAndIndices } from 'navcat/three'
@@ -122,11 +129,9 @@ async function upsert<T extends { id: string | number }>(
   // Demo objects have no 3D model: never queue Mint generation for them.
   const context = { skipMintModelGeneration: true }
   const options = { collection, locale: 'en' as const, depth: 0, context, data: data as never }
-  return (
-    found.docs[0]
-      ? await payload.update({ ...options, id: found.docs[0].id })
-      : await payload.create(options)
-  ) as unknown as T
+  return (found.docs[0]
+    ? await payload.update({ ...options, id: found.docs[0].id })
+    : await payload.create(options)) as unknown as T
 }
 
 const { default: config } = await import('../src/payload.config')
@@ -212,8 +217,10 @@ const [positions, indices] = getPositionsAndIndices(meshes)
 for (const mesh of meshes) mesh.geometry.dispose()
 console.info('Generating the walking and wheelchair navmeshes…')
 const navMesh = generateSoloNavMesh({ positions, indices }, museumNavMeshOptions).navMesh
-const navMeshWheelchair = generateSoloNavMesh({ positions, indices }, wheelchairNavMeshOptions)
-  .navMesh
+const navMeshWheelchair = generateSoloNavMesh(
+  { positions, indices },
+  wheelchairNavMeshOptions,
+).navMesh
 
 const museum = await upsert<{ id: string }>(payload, 'museums', 'name', MUSEUM.name, {
   name: MUSEUM.name,
@@ -257,7 +264,8 @@ for (const tour of TOURS) {
   })
   const walking = routeLength(navMesh, stops)
   const wheelchair = routeLength(navMeshWheelchair, stops)
-  if (walking.failedLeg) throw new Error(`"${tour.title}": no walking route to stop ${walking.failedLeg}`)
+  if (walking.failedLeg)
+    throw new Error(`"${tour.title}": no walking route to stop ${walking.failedLeg}`)
   if (tour.wheelchairAccessible && wheelchair.failedLeg) {
     throw new Error(`"${tour.title}": no wheelchair route to stop ${wheelchair.failedLeg}`)
   }
@@ -305,7 +313,8 @@ for (const tour of TOURS) {
       data: { quiz: { questions: questions.map(({ id }) => id) } },
     })
   }
-  const url = `http://localhost:3000/en/tour/${doc.id}/navigation/0`
+  // Tours open inside their museum's navigation (tourNavigationPath).
+  const url = `http://localhost:3000/en/museum/${museum.id}/navigation/tour/${doc.id}/0`
   tours.push({ id: String(doc.id), title: tour.title, url, metres: walking.metres })
   console.info(`${tour.title}: ${tour.stops.length} stops, ${walking.metres} m → ${url}`)
 }

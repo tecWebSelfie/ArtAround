@@ -190,8 +190,10 @@ export async function getMarketplaceResults(options: {
   kind: MarketplaceKind
   price: MarketplacePrice
   page: number
+  /** Museum mode: per kind, the ids the locked museum allows (`museumSearchRestriction`). */
+  restrictTo?: Parameters<typeof querySearchIndex>[0]['restrictTo']
 }): Promise<MarketplaceResults> {
-  const { payload, locale, query, kind, price, page } = options
+  const { payload, locale, query, kind, price, page, restrictTo } = options
 
   const result = await querySearchIndex({
     payload,
@@ -202,6 +204,7 @@ export async function getMarketplaceResults(options: {
     limit: MARKETPLACE_PAGE_SIZE,
     sort: '-sourceCreatedAt',
     locale,
+    restrictTo,
   })
 
   const items = await hydrateSearchHits({ payload, locale, hits: result.hits })

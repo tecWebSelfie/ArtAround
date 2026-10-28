@@ -3,20 +3,11 @@
 import { useAuth } from '@/components/auth/AuthProvider'
 import type { MuseumRole } from '@/fields/MuseumFunction'
 import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
-import {
-  BadgeCheck,
-  Compass,
-  Landmark,
-  LogIn,
-  LogOut,
-  Palette,
-  Store,
-  User as UserIcon,
-} from 'lucide-react'
+import { BadgeCheck, Compass, Landmark, LogIn, Palette, Store } from 'lucide-react'
 import type { Route } from 'next'
 import { useT } from 'next-i18next/client'
 import Link from 'next/link'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 const items = [
   {
@@ -61,8 +52,9 @@ function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
 
 /**
  * Bottom app navigation.
- * - Account entry: the client session (`AuthProvider`) drives the avatar menu
- *   (profile, sign out) so it reacts to sign-in/out without a reload. While its
+ * - Account entry: the client session (`AuthProvider`) drives the avatar link
+ *   to the visitor's profile (where they sign out), so it reacts to
+ *   sign-in/out without a reload. While its
  *   first `/api/users/me` probe runs, the server session (`account`, from the
  *   tabs layout, with name and avatar) answers instead, so the entry renders
  *   the real visitor at once instead of a spinner or a placeholder name.
@@ -76,9 +68,8 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
 }) {
   const pathname = usePathname()
   const { lng } = useParams()
-  const router = useRouter()
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
-  const { logout, status, user } = useAuth()
+  const { status, user } = useAuth()
 
   const signedIn: NavAccount | null =
     status === 'loading'
@@ -92,17 +83,6 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
         : null
   const displayName = signedIn?.name || t('Account')
   const inMyMuseum = myMuseums.some((museum) => pathname.startsWith(`/${lng}/museum/${museum.id}`))
-
-  const handleLogout = async () => {
-    try {
-      await logout()
-    } catch {
-      // The provider already cleared local state; still leave the account menu.
-    }
-    router.push(`/${lng}/navigator` as Route)
-    // Server components (tabs layout, viewer-scoped pages) re-read the session.
-    router.refresh()
-  }
 
   // Tight horizontal padding (px={4}) on every entry: with four entries a
   // phone leaves ~90px each, enough for "Marketplace" only without the
@@ -132,46 +112,30 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
         )
       })}
       {signedIn ? (
-        <Menu position="top" width={200}>
-          <Menu.Target>
-            {/* No aria-label: the visible name is the accessible name
-                  (WCAG 2.5.3); the avatar's initials are hidden from it. */}
-            <Button
-              // Never "active": profiles live outside the tabs, so this bar is
-              // never shown on the account's own page.
-              variant="subtle"
-              fullWidth
-              h="auto"
-              py="sm"
-              px={4}
-            >
-              <Center>
-                <Stack gap={4} align="center">
-                  <Avatar size={20} src={signedIn.avatarUrl} name={displayName} aria-hidden />
-                  <Text size="xs" lh={1} lineClamp={1} maw="10ch">
-                    {displayName}
-                  </Text>
-                </Stack>
-              </Center>
-            </Button>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <Menu.Item
-              component={Link}
-              href={`/${lng}/user/${signedIn.id}` as Route}
-              leftSection={<UserIcon size={16} />}
-            >
-              {t('Profile')}
-            </Menu.Item>
-            <Menu.Item
-              color="red"
-              leftSection={<LogOut size={16} />}
-              onClick={() => void handleLogout()}
-            >
-              {t('SignOut')}
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+        // Straight to the profile: signing out lives there (`SignOutButton`,
+        // shown on the viewer's own profile), so no menu stands in between.
+        // No aria-label: the visible name is the accessible name (WCAG 2.5.3);
+        // the avatar's initials are hidden from it.
+        <Button
+          component={Link}
+          href={`/${lng}/user/${signedIn.id}` as Route}
+          // Never "active": profiles live outside the tabs, so this bar is
+          // never shown on the account's own page.
+          variant="subtle"
+          fullWidth
+          h="auto"
+          py="sm"
+          px={4}
+        >
+          <Center>
+            <Stack gap={4} align="center">
+              <Avatar size={20} src={signedIn.avatarUrl} name={displayName} aria-hidden />
+              <Text size="xs" lh={1} lineClamp={1} maw="10ch">
+                {displayName}
+              </Text>
+            </Stack>
+          </Center>
+        </Button>
       ) : (
         <Button
           component={Link}

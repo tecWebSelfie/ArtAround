@@ -1,5 +1,6 @@
 import { TourForm } from '@/components/editing/forms/TourForm'
 import { getT } from '@/i18n.server'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { Alert, Container } from '@mantine/core'
 import { getTourEditorData } from '../tour-editing'
@@ -25,11 +26,12 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         .findByID({ collection: 'tours', id: from, depth: 0, ...(await asViewer()) })
         .catch(() => null)
     : null
+  // Museum mode: with no museum in the URL, a new tour is for the locked museum.
   const museumId = source
     ? typeof source.museum === 'string'
       ? source.museum
       : source.museum.id
-    : museumParam
+    : (museumParam ?? (await lockedMuseumId()))
 
   if (!museumId) {
     const { t } = await getT('editing')

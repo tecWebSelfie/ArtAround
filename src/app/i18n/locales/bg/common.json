@@ -36,8 +36,8 @@
     "username": "Потребителско име",
     "usernameHint": "Така ще те виждат другите изследователи."
   },
-  "Back to all museums": "Обратно към всички музеи",
   "Change museum": "Смени музея",
+  "Clear search": "Изчисти търсенето",
   "Import a config file": "Импортирай конфигурационен файл",
   "languageSwitcher": {
     "label": "Избери език"
@@ -47,9 +47,7 @@
     "Marketplace": "Пазар",
     "My museums": "Моите музеи",
     "Navigator": "Навигатор",
-    "Profile": "Профил",
-    "SignIn": "Вход",
-    "SignOut": "Изход"
+    "SignIn": "Вход"
   },
   "No museum matches “{{query}}”.": "Няма музей, който да отговаря на „{{query}}“.",
   "or": "или",

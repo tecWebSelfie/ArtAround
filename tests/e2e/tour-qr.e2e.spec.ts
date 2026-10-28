@@ -22,10 +22,10 @@ for (const target of ['object', 'content'] as const) {
     const id = target === 'object' ? object.id : object.contents[0]
     const canonicalPath = `/en/${target}/${id}`
     const qr = await toDataURL(canonicalPath, { width: 480, margin: 4 })
-    let decoded = false
-    page.on('request', (request) => {
-      if (new URL(request.url()).pathname === canonicalPath) decoded = true
-    })
+    // Inside a navigation the scanner opens the scanned canonical link straight
+    // in the contextual modal (QrScanPage), so the decode shows as the URL
+    // leaving `/scan` for this tour's object/open modal.
+    const decoded = () => !/\/scan(\?|$)/.test(new URL(page.url()).pathname)
 
     // Feed a real QR image through a synthetic camera; the scanner still decodes it.
     await page.addInitScript((imageURL) => {
@@ -48,13 +48,15 @@ for (const target of ['object', 'content'] as const) {
       await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
     }).toPass({ timeout: 60_000 })
     await expect
-      .poll(() => decoded, {
-        message: 'The real scanner decodes the camera image and requests the canonical QR route',
+      .poll(decoded, {
+        message: 'The real scanner decodes the camera image and leaves the scanner',
         timeout: 300_000,
       })
       .toBe(true)
     await expect(page).toHaveURL(
-      target === 'object' ? /\/navigation\/0\/object\// : /\/navigation\/0\/open/,
+      target === 'object'
+        ? /\/navigation\/tour\/[^/]+\/0\/object\//
+        : /\/navigation\/tour\/[^/]+\/0\/open/,
       { timeout: 300_000 },
     )
     await expect(page.getByRole('dialog')).toHaveCount(1)

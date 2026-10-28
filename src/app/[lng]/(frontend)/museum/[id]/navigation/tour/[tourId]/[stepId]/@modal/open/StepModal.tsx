@@ -1,0 +1,80 @@
+'use client'
+
+import type { ReactNode } from 'react'
+
+import { ContentExpansion } from '@/components/expansion/ContentExpansion'
+import { ContentVersion } from '@/components/expansion/ContentVersion'
+import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
+import { Content } from '@/payload-types'
+import { Button, Stack } from '@mantine/core'
+import type { Route } from 'next'
+import { useParams, useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'next/navigation'
+import { contentObjectId, tourQuizPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { NavigationObjectActions } from '../../../../../NavigationObjectActions'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
+
+/**
+ * Shows the next ordered content and advances only when the visitor confirms.
+ * On the last stop of a tour with a quiz, completing goes straight to the quiz
+ * (with the completed cursor as `from`), which is the tour's final step.
+ * In a group only the host moves on; guests follow (GroupProvider).
+ */
+export function StepModal({
+  step: content,
+  nextHref,
+  lastStep = false,
+  quizFrom,
+  unlock,
+}: {
+  step: Content
+  nextHref?: Route
+  lastStep?: boolean
+  /** Set when the tour has a quiz: the completed cursor the last stop's action passes to it. */
+  quizFrom?: number
+  /** Purchase action for a locked paid stop, rendered by the server page (`ContentUnlock`). */
+  unlock?: ReactNode
+}) {
+  const router = useRouter()
+  const search = useSearchParams()
+  // `id` is the museum in the museum-owned tour URL; the tour is `tourId`.
+  const { lng, tourId } = useParams<{ lng: string; tourId: string }>()
+  const { t } = useTranslation('tour-navigation')
+  const toQuiz = lastStep && quizFrom !== undefined
+  const guest = useIsGroupGuest()
+  return (
+    <Stack>
+      <ContentVersion content={content}>
+        <ContentDetailsModalContent content={content} />
+      </ContentVersion>
+      {unlock}
+      <ContentExpansion target="contents" id={content.id} locked={!content.body} />
+      <NavigationObjectActions objectId={contentObjectId(content)} />
+      {nextHref && !guest && (
+        <Button
+          onClick={() => {
+            const params = new URLSearchParams(search)
+            params.delete('to')
+            // Completing a stop confirms the visitor is standing at it, so the
+            // avatar moves there: heading to stop 5 shows them at stop 4. A stop
+            // about no object leaves the previous position as it was.
+            const stopObject = contentObjectId(content)
+            if (stopObject) params.set('at', stopObject)
+            if (toQuiz && quizFrom !== undefined) {
+              router.push(tourQuizPath(lng, tourId, quizFrom, params.toString()))
+              return
+            }
+            router.replace(withNavigationPosition(nextHref, params.toString()) as Route)
+          }}
+        >
+          {toQuiz
+            ? t('Complete and go to the quiz')
+            : lastStep
+              ? t('Complete tour')
+              : t('Go to next step')}
+        </Button>
+      )}
+    </Stack>
+  )
+}

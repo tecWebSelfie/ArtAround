@@ -36,8 +36,8 @@
     "username": "Gebruikersnaam",
     "usernameHint": "Zo zien andere ontdekkers je."
   },
-  "Back to all museums": "Terug naar alle musea",
   "Change museum": "Ander museum",
+  "Clear search": "Zoekopdracht wissen",
   "Import a config file": "Een configuratiebestand importeren",
   "languageSwitcher": {
     "label": "Taal kiezen"
@@ -47,9 +47,7 @@
     "Marketplace": "Marktplaats",
     "My museums": "Mijn musea",
     "Navigator": "Navigator",
-    "Profile": "Profiel",
-    "SignIn": "Inloggen",
-    "SignOut": "Uitloggen"
+    "SignIn": "Inloggen"
   },
   "No museum matches “{{query}}”.": "Geen museum gevonden voor “{{query}}”.",
   "or": "of",

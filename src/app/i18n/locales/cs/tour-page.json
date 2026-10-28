@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} obsah v této prohlídce je placený. Koupí prohlídky ho odemkneš.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} obsahy v této prohlídce jsou placené. Koupí prohlídky odemkneš všechny.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "{{count}} obsahu v této prohlídce je placeno. Koupí prohlídky odemkneš všechny.",

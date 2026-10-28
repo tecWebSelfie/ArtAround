@@ -1,6 +1,7 @@
 import { normalizeRoomCode, ROOM_CODE_PATTERN } from '@/lib/group'
 import { findGroupRoom } from '@/lib/group-room'
 import { normalizeLocale } from '@/lib/localized'
+import { tourMuseumId } from '@/lib/tour-navigation'
 import { getSession } from '@/lib/session'
 import { GroupRoomPage } from './GroupRoomPage'
 
@@ -25,7 +26,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
           id: room.tourId,
           depth: 1,
           locale: normalizeLocale(lng) ?? 'en',
-          select: { title: true, thumbnail: true },
+          select: { title: true, thumbnail: true, museum: true },
         })
         .catch(() => null)
     : null
@@ -40,6 +41,8 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
         tour
           ? {
               id: tour.id,
+              // The tour map lives in its museum's navigation (tourNavigationPath).
+              museumId: tourMuseumId(tour),
               title: tour.title,
               thumbnail: thumbnail?.url ? { url: thumbnail.url, alt: thumbnail.alt } : null,
             }

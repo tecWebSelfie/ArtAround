@@ -8,6 +8,7 @@ import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { normalizeLocale, resolveLocalized } from '@/lib/localized'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { isLocked } from '@/lib/price'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import type { Content } from '@/payload-types'
@@ -37,6 +38,7 @@ async function loadContentDetails(
 ): Promise<Omit<ContentDetailsProps, 'content'>> {
   const { payload, user } = await getSession()
   const viewer = await asViewer()
+  const lockedMuseum = await lockedMuseumId()
   const locale = normalizeLocale(lng) ?? 'en'
   const objectId = firstId(content.objects?.docs)
   const authorId = typeof content.author === 'string' ? content.author : content.author?.id
@@ -101,7 +103,10 @@ async function loadContentDetails(
       : null,
     payload.find({
       collection: 'tours',
-      where: { contents: { contains: id } },
+      // Museum mode: only the locked museum's tours that include this content.
+      where: lockedMuseum
+        ? { and: [{ contents: { contains: id } }, { museum: { equals: lockedMuseum } }] }
+        : { contents: { contains: id } },
       select: { title: true, thumbnail: true, museum: true },
       populate: {
         toursThumbnails: { url: true, thumbnailURL: true, alt: true },

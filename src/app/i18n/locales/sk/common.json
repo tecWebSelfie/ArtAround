@@ -36,8 +36,8 @@
     "username": "Používateľské meno",
     "usernameHint": "Takto ťa uvidia ostatní objavitelia."
   },
-  "Back to all museums": "Späť na všetky múzeá",
   "Change museum": "Zmeniť múzeum",
+  "Clear search": "Vymazať vyhľadávanie",
   "Import a config file": "Importovať konfiguračný súbor",
   "languageSwitcher": {
     "label": "Vyber jazyk"
@@ -47,9 +47,7 @@
     "Marketplace": "Trhovisko",
     "My museums": "Moje múzeá",
     "Navigator": "Navigátor",
-    "Profile": "Profil",
-    "SignIn": "Prihlásiť sa",
-    "SignOut": "Odhlásiť sa"
+    "SignIn": "Prihlásiť sa"
   },
   "No museum matches “{{query}}”.": "Žiadne múzeum nezodpovedá „{{query}}“.",
   "or": "alebo",

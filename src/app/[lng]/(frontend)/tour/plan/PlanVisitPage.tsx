@@ -145,7 +145,7 @@ export function PlanVisitPage({
     if (wheelchair) query.set('mobility', 'wheelchair')
     // With children, every stop opens in its children's version.
     if (ages.length) query.set('audience', 'children')
-    const path = tourNavigationPath(lng, plan.id, 0)
+    const path = tourNavigationPath(lng, plan.museumId, plan.id, 0)
     router.push((query.size ? `${path}?${query}` : path) as Route)
   }
 

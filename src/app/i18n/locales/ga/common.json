@@ -36,8 +36,8 @@
     "username": "Ainm úsáideora",
     "usernameHint": "Seo mar a fheicfidh taiscéalaithe eile thú."
   },
-  "Back to all museums": "Ar ais chuig gach músaem",
   "Change museum": "Athraigh músaem",
+  "Clear search": "Glan an cuardach",
   "Import a config file": "Iompórtáil comhad cumraíochta",
   "languageSwitcher": {
     "label": "Roghnaigh teanga"
@@ -47,9 +47,7 @@
     "Marketplace": "Margadh",
     "My museums": "Mo mhúsaeim",
     "Navigator": "Nascleanaí",
-    "Profile": "Próifíl",
-    "SignIn": "Logáil isteach",
-    "SignOut": "Logáil amach"
+    "SignIn": "Logáil isteach"
   },
   "No museum matches “{{query}}”.": "Níl aon mhúsaem ag teacht le “{{query}}”.",
   "or": "nó",

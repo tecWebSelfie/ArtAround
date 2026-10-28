@@ -6,6 +6,7 @@
   "Add an interval": "Ajouter une plage horaire",
   "Add object to the map": "Ajouter un objet à la carte",
   "Approve and create model": "Valider et créer le modèle",
+  "Browse the catalog": "Parcourir le catalogue",
   "Cancel": "Annuler",
   "Checking generation status…": "Vérification de la génération…",
   "Choose a floorplan file": "Choisis un fichier de plan",
@@ -86,6 +87,5 @@
   "Wednesday": "Mercredi",
   "What would you like to change?": "Que veux-tu modifier ?",
   "You can close this window. Processing will continue.": "Tu peux fermer cette fenêtre. Le traitement va se poursuivre.",
-  "Your object is ready to position on the map.": "Ton objet est prêt à être placé sur la carte.",
-  "Browse the catalog": "Parcourir le catalogue"
+  "Your object is ready to position on the map.": "Ton objet est prêt à être placé sur la carte."
 }

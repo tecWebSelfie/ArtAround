@@ -8,6 +8,7 @@ import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { stopImage, summarizeTour } from '@/lib/tour-summary'
+import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
@@ -322,7 +323,8 @@ export default function TourPage({
               px="xs"
               fz="sm"
               component={Link}
-              href={`/${lng}/tour/${tour.id}/navigation` as Route}
+              // The tour's start page, inside its museum's navigation.
+              href={tourStartPath(lng, tourMuseumId(tour), tour.id)}
               // The tour gradient: starting a tour is the app's main way in
               // (DESIGN.md → Colors, tour identity); moving freely stays blue.
               variant="gradient"

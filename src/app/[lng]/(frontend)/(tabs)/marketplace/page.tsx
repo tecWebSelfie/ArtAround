@@ -7,6 +7,7 @@ import {
 } from '@/components/mantine/MarketplaceControls'
 import { getT } from '@/i18n.server'
 import { getMarketplaceResults, MARKETPLACE_PAGE_SIZE } from '@/lib/marketplace'
+import { museumScope, museumSearchRestriction } from '@/lib/museum-mode'
 import config from '@/payload.config'
 import { Button, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
 import { SearchX } from 'lucide-react'
@@ -49,6 +50,9 @@ export default async function Marketplace(props: {
   // The Payload search collection owns the result set for both text searches
   // and empty-query browsing. The matched IDs are hydrated into localized cards
   // from their source collections below.
+  // Museum mode: browsing and searching both list only the locked museum's
+  // tours, contents and their authors.
+  const scope = await museumScope()
   const { items, total } = await getMarketplaceResults({
     payload,
     locale: lng as TypedLocale,
@@ -56,6 +60,7 @@ export default async function Marketplace(props: {
     kind,
     price,
     page,
+    restrictTo: scope ? await museumSearchRestriction(scope) : undefined,
   })
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))

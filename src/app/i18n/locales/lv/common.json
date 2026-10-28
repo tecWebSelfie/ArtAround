@@ -36,8 +36,8 @@
     "username": "Lietotājvārds",
     "usernameHint": "Tā tevi redzēs citi pētnieki."
   },
-  "Back to all museums": "Atpakaļ uz visiem muzejiem",
   "Change museum": "Mainīt muzeju",
+  "Clear search": "Notīrīt meklēšanu",
   "Import a config file": "Importēt konfigurācijas failu",
   "languageSwitcher": {
     "label": "Izvēlies valodu"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Mani muzeji",
     "Navigator": "Navigators",
-    "Profile": "Profils",
-    "SignIn": "Pieslēgties",
-    "SignOut": "Atslēgties"
+    "SignIn": "Pieslēgties"
   },
   "No museum matches “{{query}}”.": "Neviens muzejs neatbilst “{{query}}”.",
   "or": "vai",

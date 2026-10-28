@@ -36,8 +36,8 @@
     "username": "Username",
     "usernameHint": "This is how other explorers will see you."
   },
-  "Back to all museums": "Back to all museums",
   "Change museum": "Change museum",
+  "Clear search": "Clear search",
   "Import a config file": "Import a config file",
   "languageSwitcher": {
     "label": "Select Language"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "My museums",
     "Navigator": "Navigator",
-    "Profile": "Profile",
-    "SignIn": "Sign in",
-    "SignOut": "Sign out"
+    "SignIn": "Sign in"
   },
   "No museum matches “{{query}}”.": "No museum matches “{{query}}”.",
   "or": "or",

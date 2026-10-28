@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "A túrában {{count}} tartalom fizetős. A túra megvásárlásával feloldod.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "A túrában {{count}} tartalom fizetős. A túra megvásárlásával mindet feloldod.",
   "{{count}} stops_one": "{{count}} megálló",

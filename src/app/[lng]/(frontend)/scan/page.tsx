@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 
-import { QrScanPage } from '@/app/[lng]/(frontend)/tour/[id]/navigation/[stepId]/scan/QrScanPage'
+import { QrScanPage } from '@/app/[lng]/(frontend)/museum/[id]/navigation/scan/QrScanPage'
 
 /**
  * The navigator home's "Scan a tour QR code": the same scanner as inside a

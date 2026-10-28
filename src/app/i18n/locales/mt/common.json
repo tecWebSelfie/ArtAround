@@ -36,8 +36,8 @@
     "username": "Isem tal-utent",
     "usernameHint": "Hekk se jarawk l-esploraturi l-oħra."
   },
-  "Back to all museums": "Lura għall-mużewijiet kollha",
   "Change museum": "Ibdel il-mużew",
+  "Clear search": "Ħassar it-tfittxija",
   "Import a config file": "Importa fajl ta' konfigurazzjoni",
   "languageSwitcher": {
     "label": "Agħżel il-lingwa"
@@ -47,9 +47,7 @@
     "Marketplace": "Suq",
     "My museums": "Il-mużewijiet tiegħi",
     "Navigator": "Navigatur",
-    "Profile": "Profil",
-    "SignIn": "Idħol",
-    "SignOut": "Oħroġ"
+    "SignIn": "Idħol"
   },
   "No museum matches “{{query}}”.": "L-ebda mużew ma jaqbel ma’ “{{query}}”.",
   "or": "jew",

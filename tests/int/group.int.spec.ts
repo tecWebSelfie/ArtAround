@@ -3,6 +3,7 @@ import {
   followHref,
   groupLocation,
   isQuizLocation,
+  isTourLocation,
   normalizeRoomCode,
   ROOM_CODE_PATTERN,
 } from '@/lib/group'
@@ -18,8 +19,8 @@ describe('group tours', () => {
 
   it('shares only the position and destination, without the language', () => {
     const search = new URLSearchParams('at=1&to=2&mobility=wheelchair&level=easy&more=story')
-    expect(groupLocation('/en/tour/t1/navigation/3/content/c9', search)).toBe(
-      '/tour/t1/navigation/3/content/c9?at=1&to=2',
+    expect(groupLocation('/en/museum/m1/navigation/tour/t1/3/content/c9', search)).toBe(
+      '/museum/m1/navigation/tour/t1/3/content/c9?at=1&to=2',
     )
   })
 
@@ -28,26 +29,38 @@ describe('group tours', () => {
     // Same modal: reading options stay.
     expect(
       followHref(
-        '/tour/t1/navigation/3/content/c9?at=1',
+        '/museum/m1/navigation/tour/t1/3/content/c9?at=1',
         'it',
-        '/it/tour/t1/navigation/3/content/c9',
+        '/it/museum/m1/navigation/tour/t1/3/content/c9',
         own,
       ),
-    ).toBe('/it/tour/t1/navigation/3/content/c9?at=1&mobility=wheelchair&level=easy')
+    ).toBe('/it/museum/m1/navigation/tour/t1/3/content/c9?at=1&mobility=wheelchair&level=easy')
     // New modal: reading options reset, wheelchair route stays.
     expect(
       followHref(
-        '/tour/t1/navigation/4/content/c10?at=1',
+        '/museum/m1/navigation/tour/t1/4/content/c10?at=1',
         'it',
-        '/it/tour/t1/navigation/3/content/c9',
+        '/it/museum/m1/navigation/tour/t1/3/content/c9',
         own,
       ),
-    ).toBe('/it/tour/t1/navigation/4/content/c10?at=1&mobility=wheelchair')
+    ).toBe('/it/museum/m1/navigation/tour/t1/4/content/c10?at=1&mobility=wheelchair')
   })
 
   it('recognizes the group quiz', () => {
     expect(isQuizLocation('/tour/t1/quiz', 't1')).toBe(true)
     expect(isQuizLocation('/tour/t1/quiz/result/abc', 't1')).toBe(true)
-    expect(isQuizLocation('/tour/t1/navigation/2', 't1')).toBe(false)
+    expect(isQuizLocation('/museum/m1/navigation/tour/t1/2', 't1')).toBe(false)
+  })
+
+  // The host publishes only locations of the group's tour (GroupSync).
+  it('recognizes the tour locations the host publishes', () => {
+    expect(isTourLocation('/museum/m1/navigation/tour/t1', 't1')).toBe(true)
+    expect(isTourLocation('/museum/m1/navigation/tour/t1/3/content/c9?at=1', 't1')).toBe(true)
+    expect(isTourLocation('/tour/t1/quiz', 't1')).toBe(true)
+    // Pre-phase-2 shape (redirected to the museum one).
+    expect(isTourLocation('/tour/t1/navigation/2', 't1')).toBe(true)
+    expect(isTourLocation('/museum/m1/navigation/tour/t10/2', 't1')).toBe(false)
+    expect(isTourLocation('/museum/m1/navigation', 't1')).toBe(false)
+    expect(isTourLocation('/tour/t1', 't1')).toBe(false)
   })
 })

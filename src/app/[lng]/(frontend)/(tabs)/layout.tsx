@@ -53,7 +53,10 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
           }))}
         />
       </Group>
-      <Stack>{children}</Stack>
+      {/* Keyed by the locked museum: switching museum remounts the tab, so
+          client components that fetch on their own (the navigator search)
+          start over and fetch again within the new scope. */}
+      <Stack key={scope?.museumId ?? 'all'}>{children}</Stack>
       <AppShellFooter component="nav">
         <NavBar
           account={

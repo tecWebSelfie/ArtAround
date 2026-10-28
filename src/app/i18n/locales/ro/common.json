@@ -36,8 +36,8 @@
     "username": "Nume de utilizator",
     "usernameHint": "Așa te vor vedea ceilalți exploratori."
   },
-  "Back to all museums": "Înapoi la toate muzeele",
   "Change museum": "Schimbă muzeul",
+  "Clear search": "Șterge căutarea",
   "Import a config file": "Importă un fișier de configurare",
   "languageSwitcher": {
     "label": "Alege limba"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Muzeele mele",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Conectare",
-    "SignOut": "Deconectare"
+    "SignIn": "Conectare"
   },
   "No museum matches “{{query}}”.": "Niciun muzeu nu corespunde cu „{{query}}”.",
   "or": "sau",

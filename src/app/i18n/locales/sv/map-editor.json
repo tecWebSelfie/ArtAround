@@ -6,6 +6,7 @@
   "Add an interval": "Lägg till ett tidsintervall",
   "Add object to the map": "Lägg till föremål på kartan",
   "Approve and create model": "Godkänn och skapa modell",
+  "Browse the catalog": "Bläddra i katalogen",
   "Cancel": "Avbryt",
   "Checking generation status…": "Kontrollerar genereringsstatus…",
   "Choose a floorplan file": "Välj en planritningsfil",
@@ -86,6 +87,5 @@
   "Wednesday": "Onsdag",
   "What would you like to change?": "Vad vill du ändra?",
   "You can close this window. Processing will continue.": "Du kan stänga fönstret. Bearbetningen fortsätter.",
-  "Your object is ready to position on the map.": "Ditt föremål är redo att placeras på kartan.",
-  "Browse the catalog": "Bläddra i katalogen"
+  "Your object is ready to position on the map.": "Ditt föremål är redo att placeras på kartan."
 }

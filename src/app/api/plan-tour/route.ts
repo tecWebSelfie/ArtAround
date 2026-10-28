@@ -1,5 +1,6 @@
 import config from '@/payload.config'
 import { museumRooms, roomAt } from '@/lib/museum-rooms'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
 import { allowRequest } from '@/lib/rate-limit'
@@ -56,8 +57,10 @@ export async function POST(request: Request) {
   const viewer = await asViewer()
 
   try {
-    // 1. Which museum: the chosen one, or the one named in the interests.
-    let museumId = answers.museumId
+    // 1. Which museum: in museum mode always the locked one (the app is that
+    // museum's app, whatever the request body says); else the chosen one, or
+    // the one named in the interests.
+    let museumId = (await lockedMuseumId()) ?? answers.museumId
     if (!museumId) {
       const { docs } = await payload.find({
         collection: 'museums',
@@ -162,6 +165,8 @@ export async function POST(request: Request) {
       })
       return {
         id: tour.id,
+        // Starting it opens the tour inside this museum's navigation.
+        museumId,
         title: tour.title,
         description: tour.description ?? '',
         totalMinutes: stops.reduce((sum, stop) => sum + stop.minutes + WALK_MINUTES_PER_STOP, 0),

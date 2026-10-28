@@ -36,8 +36,8 @@
     "username": "Användarnamn",
     "usernameHint": "Så här ser andra upptäckare dig."
   },
-  "Back to all museums": "Tillbaka till alla museer",
   "Change museum": "Byt museum",
+  "Clear search": "Rensa sökning",
   "Import a config file": "Importera en konfigurationsfil",
   "languageSwitcher": {
     "label": "Välj språk"
@@ -47,9 +47,7 @@
     "Marketplace": "Marknadsplats",
     "My museums": "Mina museer",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Logga in",
-    "SignOut": "Logga ut"
+    "SignIn": "Logga in"
   },
   "No museum matches “{{query}}”.": "Inget museum matchar ”{{query}}”.",
   "or": "eller",

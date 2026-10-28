@@ -36,8 +36,8 @@
     "username": "Nome de utilizador",
     "usernameHint": "É assim que os outros exploradores te vão ver."
   },
-  "Back to all museums": "Voltar a todos os museus",
   "Change museum": "Mudar de museu",
+  "Clear search": "Limpar pesquisa",
   "Import a config file": "Importar um ficheiro de configuração",
   "languageSwitcher": {
     "label": "Selecionar idioma"
@@ -47,9 +47,7 @@
     "Marketplace": "Marketplace",
     "My museums": "Os meus museus",
     "Navigator": "Navegador",
-    "Profile": "Perfil",
-    "SignIn": "Iniciar sessão",
-    "SignOut": "Terminar sessão"
+    "SignIn": "Iniciar sessão"
   },
   "No museum matches “{{query}}”.": "Nenhum museu corresponde a «{{query}}».",
   "or": "ou",

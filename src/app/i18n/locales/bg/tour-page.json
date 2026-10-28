@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} съдържание в тази обиколка е платено. Купи обиколката, за да го отключиш.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} съдържания в тази обиколка са платени. Купи обиколката, за да ги отключиш всички.",
   "{{count}} stops_one": "{{count}} спирка",
