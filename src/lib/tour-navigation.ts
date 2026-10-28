@@ -95,6 +95,23 @@ export function navigationContentPath(lng: string, scope: NavigationScope, conte
 }
 
 /**
+ * The one rule for "this object/content over the current map": interceptors
+ * (`intercept.ts`), the scanner and in-text links all build their in-map URL
+ * here, never the canonical `/[lng]/{kind}/ID` (see docs/tour-navigation.md
+ * on the museum details `@object` interceptor).
+ */
+export function navigationDetailPath(
+  lng: string,
+  scope: NavigationScope,
+  kind: 'content' | 'object',
+  id: string,
+) {
+  return kind === 'content'
+    ? navigationContentPath(lng, scope, id)
+    : (`${navigationBasePath(lng, scope)}/object/${id}` as const)
+}
+
+/**
  * Keys that describe where the visitor stands or where they are heading, plus
  * `audience=children` (a family visit): carried across every navigation URL
  * so each content opens in its children's version (`ContentVersion`).

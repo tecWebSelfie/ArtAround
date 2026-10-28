@@ -89,6 +89,11 @@ export function MuseumSwitch({
         `${museum.name} ${museum.city ?? ''}`.toLowerCase().includes(words),
       )
     : museums
+  // One list: "All museums" leads it (not while searching), then the museums.
+  const rows: { id: string | null; name: string; city?: string | null }[] = [
+    ...(words ? [] : [{ id: null, name: t('All museums') }]),
+    ...matches,
+  ]
   const busy = pending !== null
   /** Trailing mark of a row: its loader while switching, a check when current. */
   const status = (row: string, active: boolean) =>
@@ -127,42 +132,32 @@ export function MuseumSwitch({
               current choice `active` (light blue) and checked. */}
           <ScrollArea.Autosize mah={360} offsetScrollbars>
             <Stack gap={2}>
-              {!words && (
-                <NavLink
-                  component="button"
-                  label={t('All museums')}
-                  leftSection={
-                    <ThemeIcon variant="light" color="gray" radius="xl">
-                      <Globe size={16} aria-hidden />
-                    </ThemeIcon>
-                  }
-                  rightSection={status('all', !current)}
-                  active={!current}
-                  disabled={busy}
-                  onClick={() => void (current ? lockTo(null, 'all') : close())}
-                  className="rounded-md"
-                />
-              )}
-              {matches.map((museum) => {
-                const active = current?.id === museum.id
+              {rows.map((row) => {
+                // "All museums" is the row with no id: picking it unlocks the app.
+                const key = row.id ?? 'all'
+                const active = (current?.id ?? null) === row.id
                 return (
                   <NavLink
-                    key={museum.id}
+                    key={key}
                     component="button"
-                    label={museum.name}
-                    description={museum.city}
+                    label={row.name}
+                    description={row.city}
                     leftSection={
-                      <ThemeIcon variant="light" color="blue" radius="xl">
-                        <Landmark size={16} aria-hidden />
+                      <ThemeIcon variant="light" color={row.id ? 'blue' : 'gray'} radius="xl">
+                        {row.id ? (
+                          <Landmark size={16} aria-hidden />
+                        ) : (
+                          <Globe size={16} aria-hidden />
+                        )}
                       </ThemeIcon>
                     }
-                    rightSection={status(museum.id, active)}
+                    rightSection={status(key, active)}
                     active={active}
                     disabled={busy}
                     onClick={() =>
                       void (active
                         ? close()
-                        : lockTo({ id: museum.id, name: museum.name }, museum.id))
+                        : lockTo(row.id ? { id: row.id, name: row.name } : null, key))
                     }
                     className="rounded-md"
                   />
@@ -191,7 +186,7 @@ export function MuseumSwitch({
                   size="compact-sm"
                   leftSection={<FileUp size={14} aria-hidden />}
                   loading={pending === 'file'}
-                  disabled={busy && pending !== 'file'}
+                  disabled={busy}
                 >
                   {t('Import a config file')}
                 </Button>

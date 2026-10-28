@@ -18,17 +18,10 @@ import {
   useCombobox,
 } from '@mantine/core'
 import { useUncontrolled } from '@mantine/hooks'
-import {
-  BookOpen,
-  Euro,
-  Landmark,
-  Route as RouteIcon,
-  Search,
-  Shapes,
-  UserRound,
-} from 'lucide-react'
+import { BookOpen, Landmark, Route as RouteIcon, Search, Shapes, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ClearSearchButton } from './ClearSearchButton'
+import { PaidMark } from './PaidMark'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
 import { LockedPriceBadge } from './LockedPriceBadge'
@@ -189,13 +182,8 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
           <Text fw={600} lh={1.3}>
             {item.title}
           </Text>
-          {item.priceCents !== undefined && (
-            // Paid at a glance, beside the title; the price badge below says
-            // how much in words. The icon follows PRICE_CURRENCY (EUR).
-            <ThemeIcon color="orange" variant="light" radius="xl" size="sm" className="shrink-0">
-              <Euro size={12} aria-hidden />
-            </ThemeIcon>
-          )}
+          {/* Paid at a glance, beside the title; the price badge below says how much. */}
+          {item.priceCents !== undefined && <PaidMark />}
         </Group>
         {item.subtitle ? (
           <Text size="xs" c="dimmed" lineClamp={1}>

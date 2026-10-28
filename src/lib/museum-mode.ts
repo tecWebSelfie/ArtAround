@@ -3,6 +3,7 @@ import 'server-only'
 import config from '@/payload.config'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
+import { cache } from 'react'
 
 /**
  * Museum mode: the app can be locked to one museum ("Museo di Torino" mode)
@@ -23,8 +24,9 @@ export async function lockedMuseumId() {
  * What the locked museum shows: its objects (the map-derived index) and their
  * contents. Search pages add these IDs to their queries, so in museum mode
  * every list holds only that museum. `null` in global mode.
+ * React.cache: the tabs layout and its page both ask within one request.
  */
-export async function museumScope() {
+export const museumScope = cache(async () => {
   const museumId = await lockedMuseumId()
   if (!museumId) return null
   const payload = await getPayload({ config })
@@ -52,17 +54,18 @@ export async function museumScope() {
     (object.contents ?? []).map((content) => (typeof content === 'string' ? content : content.id)),
   )
   return { museumId, name: museum.name, objectIds, contentIds }
-}
-
-export type MuseumScope = NonNullable<Awaited<ReturnType<typeof museumScope>>>
+})
 
 /**
  * Museum mode for the search index (`querySearchIndex({ restrictTo })`): per
- * kind, the source ids the locked museum allows. People are the authors of its
- * tours and contents, so a creator shows up only through work in this museum.
- * Shared by the navigator search and the marketplace, so both scope alike.
+ * kind, the source ids the locked museum allows, or `undefined` in global mode
+ * (nothing restricted). People are the authors of its tours and contents, so a
+ * creator shows up only through work in this museum. Shared by the navigator
+ * search and the marketplace, so both scope alike.
  */
-export async function museumSearchRestriction(scope: MuseumScope) {
+export const museumSearchRestriction = cache(async () => {
+  const scope = await museumScope()
+  if (!scope) return undefined
   const payload = await getPayload({ config })
   const [tours, contents] = await Promise.all([
     payload.find({
@@ -80,19 +83,17 @@ export async function museumSearchRestriction(scope: MuseumScope) {
       select: { author: true },
     }),
   ])
-  const authorId = (author: unknown) =>
-    typeof author === 'string' ? author : (author as { id?: string } | null)?.id
   const authors = new Set(
-    [...tours.docs, ...contents.docs].flatMap((doc) => {
-      const id = authorId((doc as { author?: unknown }).author)
-      return id ? [String(id)] : []
+    [...tours.docs, ...contents.docs].flatMap(({ author }) => {
+      const id = typeof author === 'string' ? author : author?.id
+      return id ? [id] : []
     }),
   )
   return {
     museum: [scope.museumId],
-    tour: tours.docs.map((tour) => String(tour.id)),
+    tour: tours.docs.map((tour) => tour.id),
     content: scope.contentIds,
     object: scope.objectIds,
     user: [...authors],
   }
-}
+})

@@ -2,12 +2,11 @@ import 'server-only'
 import { headers } from 'next/headers'
 import type { Route } from 'next'
 import {
-  museumNavigationPath,
+  navigationDetailPath,
   parseNavigationPathname,
-  tourContentPath,
-  tourNavigationPath,
   tourStepIndex,
   withNavigationPosition,
+  type NavigationScope,
 } from '@/lib/tour-navigation'
 import { getNavigationTour } from './data'
 
@@ -37,19 +36,12 @@ export async function navigationModalTarget(
   const here = parseNavigationPathname((await headers()).get('next-url') ?? '')
   if (!here) return null
   const { lng, museumId, tourId, step: rawStep } = here
-  const free = withNavigationPosition(
-    `${museumNavigationPath(lng, museumId)}/${kind}/${id}`,
-    search,
-  )
-  // Free map, or a tour's start page (no map yet): open it over the free map.
-  if (!tourId || rawStep === null) return free
-  const tour = await getNavigationTour(tourId).catch(() => null)
-  const step = tour ? tourStepIndex(rawStep, tour.contents.length) : null
-  if (!tour || step === null) return free
+  // A tour at a valid cursor, else the free map (also for a tour's start
+  // page, which has no map yet).
+  const tour = tourId && rawStep !== null ? await getNavigationTour(tourId).catch(() => null) : null
+  const step = tour && rawStep !== null ? tourStepIndex(rawStep, tour.contents.length) : null
+  const scope: NavigationScope =
+    tour && step !== null ? { kind: 'tour', tour, step } : { kind: 'free', museumId }
   // A tour's next stop opens as `/open`, any other content as `/content/ID`.
-  const path =
-    kind === 'content'
-      ? tourContentPath(lng, tour, step, id)
-      : `${tourNavigationPath(lng, museumId, tour.id, step)}/object/${id}`
-  return withNavigationPosition(path, search)
+  return withNavigationPosition(navigationDetailPath(lng, scope, kind, id), search)
 }

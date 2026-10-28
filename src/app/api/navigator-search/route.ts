@@ -1,5 +1,5 @@
 import config from '@/payload.config'
-import { museumScope, museumSearchRestriction } from '@/lib/museum-mode'
+import { museumSearchRestriction } from '@/lib/museum-mode'
 import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
 import type { Content, Difficulty, Museum, Tour } from '@/payload-types'
 import { getPayload, type Payload, type TypedLocale } from 'payload'
@@ -180,7 +180,6 @@ export async function GET(request: Request) {
 
   try {
     const payload = await getPayload({ config })
-    const scope = await museumScope()
     const { hits } = await querySearchIndex({
       payload,
       query,
@@ -191,7 +190,7 @@ export async function GET(request: Request) {
       limit: Math.max(limit, RANK_POOL),
       sort: ['-priority', '-sourceCreatedAt'],
       locale,
-      restrictTo: scope ? await museumSearchRestriction(scope) : undefined,
+      restrictTo: await museumSearchRestriction(),
     })
 
     // Payload has no relevance score. When the visitor types, exact city

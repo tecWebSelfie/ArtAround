@@ -5,11 +5,13 @@ import { SignOutButton } from '@/components/auth/SignOutButton'
 import { UserPage } from './UserPage'
 
 export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) {
-  const { payload, user: viewer } = await getSession()
-  const { id } = await props.params
-  // Museum mode: the profile's tour and content carousels keep only the
-  // locked museum's work, like every other list in the app.
-  const scope = await museumScope()
+  // Museum mode (`scope`): the profile's tour and content carousels keep only
+  // the locked museum's work, like every other list in the app.
+  const [{ payload, user: viewer }, { id }, scope] = await Promise.all([
+    getSession(),
+    props.params,
+    museumScope(),
+  ])
   // As the visitor: the email is only returned to its owner.
   const user = await payload.findByID({
     id,

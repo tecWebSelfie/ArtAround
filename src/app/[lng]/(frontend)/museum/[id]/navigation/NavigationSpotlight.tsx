@@ -2,9 +2,10 @@
 
 import { ClearSearchButton } from '@/components/mantine/ClearSearchButton'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
-import { Button, Group, Stack, Text, ThemeIcon } from '@mantine/core'
+import { PaidMark } from '@/components/mantine/PaidMark'
+import { Button, Group, Stack, Text } from '@mantine/core'
 import { Spotlight, spotlight } from '@mantine/spotlight'
-import { Euro, Route as RouteIcon, Search } from 'lucide-react'
+import { Route as RouteIcon, Search } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { NavigationCommand } from './navigation-commands'
@@ -105,11 +106,8 @@ export function NavigationSpotlight({
                   command.group === 'tour' ? (
                     <RouteIcon size={18} color="var(--mantine-color-grape-6)" aria-hidden />
                   ) : command.lockedPrice ? (
-                    // Paid at a glance (same mark as the home search); the
-                    // badge on the right gives the price.
-                    <ThemeIcon color="orange" variant="light" radius="xl" size="sm">
-                      <Euro size={12} aria-hidden />
-                    </ThemeIcon>
+                    // Paid at a glance; the badge on the right gives the price.
+                    <PaidMark />
                   ) : null
                 }
                 rightSection={

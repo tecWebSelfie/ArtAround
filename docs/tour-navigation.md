@@ -228,7 +228,10 @@ Configuration:
 - `NEXT_PUBLIC_GPS_SIMULATOR=true` **at build time** shows the "Simulated" GPS
   mode and its D-pad. `NEXT_PUBLIC_*` values are baked into the build.
 - `postinstall` runs `scripts/copy-vad-assets.mjs`, copying the VAD worklet,
-  Silero model and onnxruntime WASM into `public/vad` (gitignored).
+  Silero model and onnxruntime WASM into `public/vad` (gitignored), then
+  `scripts/copy-zxing-assets.mjs`, copying the QR scanner's ZXing reader WASM
+  into `public/zxing` (gitignored). Without a native `BarcodeDetector` (Chrome on
+  Windows/Linux) the scanner loads it from there instead of a public CDN.
 - GPS and the microphone need a secure context: `localhost` or HTTPS.
 
 Production build and deploy (verified 2026-10-19: build passes; both guidance

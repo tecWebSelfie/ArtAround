@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { museumNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { navigationDetailPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { navigationModalTarget } from '../../../../intercept'
 
 /**
@@ -18,6 +18,9 @@ export default async function ObjectModal({
   const search = await searchParams
   redirect(
     (await navigationModalTarget('object', objectId, search)) ??
-      withNavigationPosition(`${museumNavigationPath(lng, id)}/object/${objectId}`, search),
+      withNavigationPosition(
+        navigationDetailPath(lng, { kind: 'free', museumId: id }, 'object', objectId),
+        search,
+      ),
   )
 }

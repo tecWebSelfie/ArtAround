@@ -68,3 +68,6 @@ storybook-static
 
 # Personal Claude Code settings (shared hooks live in .claude/settings.json)
 .claude/settings.local.json
+
+# QR scanner ZXing reader, copied on postinstall (scripts/copy-zxing-assets.mjs)
+/public/zxing

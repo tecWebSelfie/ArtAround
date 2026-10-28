@@ -13,7 +13,7 @@
     "generate:navmesh-schema": "typescript-json-schema tsconfig.json NavMesh --include src/lib/schemas/navmesh.ts --required --skipLibCheck --refs false --out src/lib/schemas/navmesh.schema.json",
     "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
-    "postinstall": "node scripts/copy-vad-assets.mjs",
+    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.config.ts",

@@ -8,13 +8,12 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Vector3, type Group } from 'three'
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
 
-/** The male asset is authored at roughly human size (~1.7 m), so it needs no rescaling. */
-const AVATAR_SCALE = 1
-/** Source asset is approximately 1.7 m tall; the route sits at face height. */
-export const AVATAR_FACE_HEIGHT = 1.7 * AVATAR_SCALE * 0.8
+/**
+ * The male asset is authored at human size (~1.7 m, unscaled) and faces +Z
+ * (three.js's rotation.y = 0). The route line sits at face height.
+ */
+export const AVATAR_FACE_HEIGHT = 1.7 * 0.8
 
-/** The model's front faces +Z, which is three.js's rotation.y = 0. */
-const AVATAR_FORWARD_OFFSET = 0
 /** Seconds the yaw spring takes to roughly catch up with the camera. */
 const TURN_SMOOTH_TIME = 0.35
 /**
@@ -49,7 +48,6 @@ export const Avatar = memo(function Avatar() {
 
   const yaw = useRef<Group>(null)
   const [turning, setTurning] = useState(false)
-  const turningRef = useRef(false)
 
   // Cross-fade between Idle and Walk whenever the turning state flips.
   useEffect(() => {
@@ -68,24 +66,23 @@ export const Avatar = memo(function Avatar() {
     // atan2(dx, dz) is the yaw that points the model's +Z towards the camera,
     // measured from the avatar's world position (its parent sits at the route start).
     group.getWorldPosition(worldPosition)
-    const target =
-      Math.atan2(camera.position.x - worldPosition.x, camera.position.z - worldPosition.z) +
-      AVATAR_FORWARD_OFFSET
+    const target = Math.atan2(
+      camera.position.x - worldPosition.x,
+      camera.position.z - worldPosition.z,
+    )
     // dampAngle takes the shortest way round, so crossing ±180° never spins the long way.
     easing.dampAngle(group.rotation, 'y', target, TURN_SMOOTH_TIME, delta)
 
     const remaining = Math.abs(deltaAngle(group.rotation.y, target))
-    const next = turningRef.current ? remaining > STOP_TURN : remaining > START_TURN
-    if (next !== turningRef.current) {
-      // Only flips cross the React boundary; per-frame yaw stays in refs.
-      turningRef.current = next
-      setTurning(next)
-    }
+    // useFrame always runs the latest callback, so `turning` is current here.
+    // Only flips cross the React boundary; the per-frame yaw stays on the group.
+    const next = turning ? remaining > STOP_TURN : remaining > START_TURN
+    if (next !== turning) setTurning(next)
   })
 
   return (
     <group ref={yaw}>
-      <primitive object={model} scale={AVATAR_SCALE} dispose={null} />
+      <primitive object={model} dispose={null} />
     </group>
   )
 })

@@ -108,7 +108,9 @@ export function groupLocation(pathname: string, search: URLSearchParams) {
 export function isTourLocation(location: string, tourId: string) {
   const path = location.split('?')[0]
   if (path.startsWith(`/tour/${tourId}/`)) return true
-  // `/museum/{museumId}/navigation/tour/{tourId}[/...]`
+  // `/museum/{museumId}/navigation/tour/{tourId}[/...]`. Parsed here rather
+  // than with parseNavigationPathname: tour-navigation pulls in the Pascal
+  // core, which the server-side group APIs importing this file must not load.
   const [, museum, , navigation, tour, id] = path.split('/')
   return museum === 'museum' && navigation === 'navigation' && tour === 'tour' && id === tourId
 }

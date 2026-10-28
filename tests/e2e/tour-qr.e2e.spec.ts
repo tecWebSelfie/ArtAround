@@ -35,7 +35,13 @@ for (const target of ['object', 'content'] as const) {
         const image = new Image()
         image.src = imageURL
         await image.decode()
-        canvas.getContext('2d')!.drawImage(image, 0, 0)
+        const context = canvas.getContext('2d')!
+        // `captureStream` only emits a frame when the canvas changes: drawn
+        // once, the stream can stay empty and the scanner never sees the code.
+        // Redrawing keeps frames flowing, like a real camera.
+        const draw = () => context.drawImage(image, 0, 0)
+        draw()
+        setInterval(draw, 100)
         return canvas.captureStream(10)
       }
     }, qr)

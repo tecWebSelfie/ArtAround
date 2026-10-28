@@ -8,6 +8,7 @@ import { getPayload, type Where } from 'payload'
 import { cache } from 'react'
 import { enqueueTranslation, normalizeLocale, resolveLocalized } from './localized'
 import { tourQuizQuestionIds } from './quiz-ownership'
+import { tourMuseumId } from './tour-navigation'
 import {
   CORRECT_ANSWER,
   gradeQuiz,
@@ -109,7 +110,7 @@ export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<To
   return {
     tour: {
       id: tour.id,
-      museumId: typeof tour.museum === 'string' ? tour.museum : tour.museum.id,
+      museumId: tourMuseumId(tour),
       title: tour.title,
       stopCount: tour.contents?.length ?? 0,
       contentIds: (tour.contents ?? []).map((c) => (typeof c === 'string' ? c : c.id)),

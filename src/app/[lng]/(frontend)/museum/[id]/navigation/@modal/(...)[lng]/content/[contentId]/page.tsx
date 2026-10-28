@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { museumNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { navigationDetailPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { navigationModalTarget } from '../../../../intercept'
 
 /**
@@ -21,6 +21,9 @@ export default async function ContentModal({
   const search = await searchParams
   redirect(
     (await navigationModalTarget('content', contentId, search)) ??
-      withNavigationPosition(`${museumNavigationPath(lng, id)}/content/${contentId}`, search),
+      withNavigationPosition(
+        navigationDetailPath(lng, { kind: 'free', museumId: id }, 'content', contentId),
+        search,
+      ),
   )
 }

@@ -1,7 +1,7 @@
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import type { NextRequest } from 'next/server'
-import { tourStartPath } from '@/lib/tour-navigation'
+import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 
 /**
  * Permanent redirect of the pre-phase-2 tour navigation URLs
@@ -22,7 +22,7 @@ async function redirectToMuseumNavigation(
   const tour = await payload
     .findByID({ collection: 'tours', id, depth: 0, select: { museum: true } })
     .catch(() => null)
-  const museumId = typeof tour?.museum === 'object' ? tour.museum?.id : tour?.museum
+  const museumId = tour && tourMuseumId(tour)
   if (!museumId) return new Response('Not found', { status: 404 })
   const suffix = rest.map((segment) => `/${encodeURIComponent(segment)}`).join('')
   // A relative Location keeps the visitor on the host they came from.

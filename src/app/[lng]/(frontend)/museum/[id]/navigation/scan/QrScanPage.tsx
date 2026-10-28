@@ -7,7 +7,7 @@ import type { Route } from 'next'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { inLanguage } from '@/lib/app-url'
-import { navigationContentPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { navigationDetailPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { useNavigationScope } from '../TourNavigationShell'
 
 /**
@@ -45,12 +45,16 @@ export function QrScanPage() {
         // museum navigation `@modal`), but the museum details page's
         // `@object` interceptor matches the same URLs from below
         // `/museum/[id]` and can win that race, remounting the map.
-        const canonical = navigation ? CANONICAL_DETAIL.exec(pathname) : null
-        const target = canonical
-          ? canonical[2] === 'content'
-            ? navigationContentPath(currentLng, navigation!.scope, canonical[3])
-            : `${navigation!.base}/object/${canonical[3]}`
-          : pathname
+        const canonical = CANONICAL_DETAIL.exec(pathname)
+        const target =
+          navigation && canonical
+            ? navigationDetailPath(
+                currentLng,
+                navigation.scope,
+                canonical[2] as 'content' | 'object',
+                canonical[3],
+              )
+            : pathname
         // A group's QR code opens its join page as is; museum links keep the position.
         router.replace(
           (GROUP_ROOM.test(pathname)

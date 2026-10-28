@@ -104,9 +104,10 @@ async function loadContentDetails(
     payload.find({
       collection: 'tours',
       // Museum mode: only the locked museum's tours that include this content.
-      where: lockedMuseum
-        ? { and: [{ contents: { contains: id } }, { museum: { equals: lockedMuseum } }] }
-        : { contents: { contains: id } },
+      where: {
+        contents: { contains: id },
+        ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
+      },
       select: { title: true, thumbnail: true, museum: true },
       populate: {
         toursThumbnails: { url: true, thumbnailURL: true, alt: true },
