@@ -80,7 +80,9 @@ export function ArtAroundGlobalSearch({
   const combobox = useCombobox()
 
   return (
-    <Combobox {...props} store={combobox} offset={0}>
+    // The results float over the page (on the navigator, over the start
+    // cards): a medium shadow lifts the list off what lies beneath it.
+    <Combobox shadow="md" {...props} store={combobox} offset={0}>
       <ComboboxTarget>
         <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
           <TextInput
@@ -117,7 +119,9 @@ export function ArtAroundGlobalSearch({
           />
         </BorderAnimate>
       </ComboboxTarget>
-      <ComboboxDropdown>
+      {/* A darker border than Mantine's default gray-2, so the list edge reads
+          clearly against white cards in light mode and the dark page in dark. */}
+      <ComboboxDropdown bd="1px solid light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3))">
         <ComboboxOptions>
           {filteredOptions.map((item) => {
             if (item.kind === 'tour') {

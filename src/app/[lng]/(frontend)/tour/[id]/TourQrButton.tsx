@@ -1,7 +1,7 @@
 'use client'
 
 import { QRCode } from '@gfazioli/mantine-qr-code'
-import { ActionIcon, Center, Modal, Stack, Text, Tooltip } from '@mantine/core'
+import { ActionIcon, Center, Modal, rem, Stack, Text, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { QrCode } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -24,7 +24,17 @@ export function TourQrButton({ tourId, title }: { tourId: string; title: string 
           <QrCode size={18} />
         </ActionIcon>
       </Tooltip>
-      <Modal opened={opened} onClose={modal.close} title={t('Scan to open this tour')} centered>
+      {/* Title centred on the header: it grows to fill it, and an inline
+          start padding as wide as the default close button (md, 28px) balances the X on the right. */}
+      <Modal
+        opened={opened}
+        onClose={modal.close}
+        title={t('Scan to open this tour')}
+        centered
+        styles={{
+          title: { flex: 1, textAlign: 'center', paddingInlineStart: rem(28) },
+        }}
+      >
         <Stack align="center" gap="sm">
           <Center>
             {/* Built on open: `window` only exists in the browser. */}

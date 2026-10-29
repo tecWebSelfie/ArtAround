@@ -70,7 +70,9 @@ export default function NavigatorHomePage({
       />
       {/* Two twin cards either side of the divider: same border, shadow and
           size. `w="min-content"` lets the square visual set each card's width,
-          so the caption wraps under it instead of stretching the card. */}
+          so the caption wraps under it instead of stretching the card. Captions
+          use the body text colour, not blue: the visuals already carry the
+          accent and blue text read too low-contrast on the white card. */}
       <Flex align="stretch" justify="center" gap={{ base: 'xs', sm: 'md' }} wrap="nowrap">
         <Center flex="1 1 0" miw={0}>
           {/* Opens the camera scanner (/scan). The QR drawn here is only an
@@ -85,7 +87,7 @@ export default function NavigatorHomePage({
                 errorCorrectionLevel="H"
                 size={rem(START_VISUAL_SIZE)}
               />
-              <Text c="blue.8" ta="center" textWrap="balance" fz={{ base: 'xs', sm: 'sm' }}>
+              <Text c="var(--mantine-color-text)" ta="center" textWrap="balance" fz={{ base: 'xs', sm: 'sm' }}>
                 {t('Scan a tour QR code to start')}
               </Text>
             </Stack>
@@ -107,7 +109,7 @@ export default function NavigatorHomePage({
               >
                 <RouteIcon size="60%" aria-hidden />
               </ThemeIcon>
-              <Text c="blue.8" ta="center" textWrap="balance" fz={{ base: 'xs', sm: 'sm' }}>
+              <Text c="var(--mantine-color-text)" ta="center" textWrap="balance" fz={{ base: 'xs', sm: 'sm' }}>
                 {t('Or plan a visit around your time and interests')}
               </Text>
             </Stack>

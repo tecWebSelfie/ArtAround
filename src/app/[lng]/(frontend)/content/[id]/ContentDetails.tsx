@@ -201,42 +201,50 @@ export async function ContentDetails({
 
       {object && (
         <Section title={t('About the object')}>
+          {/* Two rows: the object's identity (picture, name, artist and date)
+              side by side, then its description across the full card width
+              with the way out to the museum and the object's page beneath it,
+              so the card holds everything about the object, CTA included. */}
           <Card withBorder radius="md" padding="sm">
-            <Group align="flex-start" gap="md" wrap="nowrap">
-              <Link
-                href={`/${lng}/object/${object.id}` as Route}
-                className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
-                tabIndex={-1}
-                aria-hidden
-              >
-                <Image
-                  src={objectImage?.thumbnailURL ?? objectImage?.url ?? PLACEHOLDER_IMAGE}
-                  alt=""
-                  w={{ base: 88, sm: 120 }}
-                  h={{ base: 88, sm: 120 }}
-                  radius="md"
-                  fit="cover"
-                />
-              </Link>
-              <Stack gap={6} miw={0} className="flex-1">
+            <Stack gap="sm">
+              <Group align="center" gap="md" wrap="nowrap">
                 <Link
                   href={`/${lng}/object/${object.id}` as Route}
-                  className="text-inherit no-underline hover:underline"
+                  className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
+                  tabIndex={-1}
+                  aria-hidden
                 >
-                  <Title order={3} size="h4" lineClamp={2}>
-                    {object.name}
-                  </Title>
+                  <Image
+                    src={objectImage?.thumbnailURL ?? objectImage?.url ?? PLACEHOLDER_IMAGE}
+                    alt=""
+                    w={{ base: 72, sm: 96 }}
+                    h={{ base: 72, sm: 96 }}
+                    radius="md"
+                    fit="cover"
+                  />
                 </Link>
-                {(object.artist || object.dating) && (
-                  <Text size="sm" c="dimmed">
-                    {[object.artist, object.dating].filter(Boolean).join(' · ')}
-                  </Text>
-                )}
-                {object.description && (
-                  <Text size="sm" lineClamp={3}>
-                    {object.description}
-                  </Text>
-                )}
+                <Stack gap={6} miw={0} className="flex-1">
+                  <Link
+                    href={`/${lng}/object/${object.id}` as Route}
+                    className="text-inherit no-underline hover:underline"
+                  >
+                    <Title order={3} size="h4" lineClamp={2}>
+                      {object.name}
+                    </Title>
+                  </Link>
+                  {(object.artist || object.dating) && (
+                    <Text size="sm" c="dimmed">
+                      {[object.artist, object.dating].filter(Boolean).join(' · ')}
+                    </Text>
+                  )}
+                </Stack>
+              </Group>
+              {object.description && (
+                <Text size="sm" lineClamp={3}>
+                  {object.description}
+                </Text>
+              )}
+              <Group gap="xs">
                 {museum && (
                   <Link
                     href={`/${lng}/museum/${museum.id}` as Route}
@@ -246,16 +254,17 @@ export async function ContentDetails({
                     {museum.name}
                   </Link>
                 )}
-              </Stack>
-            </Group>
+                {/* `ms-auto` keeps the CTA at the right edge, with or without a museum. */}
+                <Link
+                  href={`/${lng}/object/${object.id}` as Route}
+                  className="ms-auto inline-flex w-fit items-center gap-1 text-sm font-semibold text-(--mantine-color-anchor) hover:underline"
+                >
+                  {t('View the object')}
+                  <ChevronRight size={14} aria-hidden />
+                </Link>
+              </Group>
+            </Stack>
           </Card>
-          <Link
-            href={`/${lng}/object/${object.id}` as Route}
-            className="inline-flex w-fit items-center gap-1 text-sm text-(--mantine-color-anchor) hover:underline"
-          >
-            {t('View the object')}
-            <ChevronRight size={14} aria-hidden />
-          </Link>
         </Section>
       )}
 
