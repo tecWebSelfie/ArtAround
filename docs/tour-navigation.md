@@ -34,6 +34,16 @@ and cached build artifacts are not reliable handoff state.
   which also replaces the prefix of older `/it/…` codes). Contextual tour modals
   must remain reloadable and shareable. Do not add a separate QR identifier system.
 
+Desktop (≥ Mantine `md`, 62em; `[stepId]/navigation-desktop.module.css`): the same
+routes and close/guest rules, recomposed. Contextual content, object and step modals
+(`NavigationModal`) dock as a right-side panel between the header (its height is
+published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
+with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
+draggable; `SkippedStopModal` stays centered. The floating controls cluster
+bottom-left, the directions strip is capped at 40rem, the header column at 75rem with
+the stepper centered. The Spotlight opens with mod+K or `/` (tooltip with a `Kbd` on
+the search icon). Below `md` nothing changes.
+
 ## URL and route contract
 
 Base: `/[lng]/tour/[id]/navigation/[stepId]`.

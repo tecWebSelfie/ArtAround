@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-20T10:27:07.000Z",
+  "generatedAt": "2026-10-29T12:00:00.000Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -424,7 +424,12 @@
       {
         "name": "mantine-sm",
         "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(0.625rem * var(--mantine-scale)) calc(0.9375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.4375rem * var(--mantine-scale)) calc(0.4375rem * var(--mantine-scale)) calc(-0.3125rem * var(--mantine-scale))",
-        "purpose": "Plain Card surfaces such as search results and the QR paper"
+        "purpose": "Plain Card surfaces such as search results and the QR paper, the GPS pad, and the scanner's desktop camera frame"
+      },
+      {
+        "name": "mantine-md",
+        "value": "var(--mantine-shadow-md)",
+        "purpose": "Hover lift of a card that is one whole link (linked search-result card, phone QR card); menus"
       },
       {
         "name": "mantine-lg",
@@ -472,6 +477,11 @@
         "name": "paragraph-settle",
         "value": "420ms cubic-bezier(0.16, 1, 0.3, 1); opacity 0→1, translateY 4px→0",
         "purpose": "Each added \"Tell me more\" or version paragraph settling in once; off under reduced motion"
+      },
+      {
+        "name": "panel-slide-left",
+        "value": "200ms slide-left",
+        "purpose": "Docked map-navigation panel entering from the right edge (md and up)"
       }
     ],
     "breakpoints": [
@@ -485,7 +495,8 @@
       },
       {
         "name": "md",
-        "value": "62em"
+        "value": "62em",
+        "purpose": "Desktop threshold: site header replaces the bottom bar, detail pages go two-pane, map content docks as a side panel. Nothing below it changes for desktop."
       },
       {
         "name": "lg",
@@ -538,9 +549,9 @@
       "name": "Search-result card",
       "kind": "card",
       "refersTo": "card-result",
-      "description": "The recurring calm container, implemented once as SearchResultCard (src/components/mantine/SearchResultCard.tsx): bordered card, md radius, sm shadow, 160px cover image, one-line title, two-line dimmed description, optional details below. SearchResultsGrid lays out tours, objects and contents results; variant=\"content\" adds the 2px teal outline. No hover lift.",
-      "html": "<article class=\"ds-result-card\"><div class=\"ds-result-img\" role=\"img\" aria-label=\"Cover image\"></div><div class=\"ds-result-title\">Still Life with Fruit</div><div class=\"ds-result-meta\">Room 4 · Oil on canvas</div></article>",
-      "css": ".ds-result-card{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-sm,0 4px 12px rgba(0,0,0,.06));overflow:hidden}.ds-result-img{height:160px;margin:-12px -12px 10px;background:var(--mantine-color-gray-2,#e9ecef)}.ds-result-title{font-size:15px;font-weight:600;color:var(--mantine-color-text,#212529)}.ds-result-meta{margin-top:4px;font-size:13px;color:var(--mantine-color-dimmed,#868e96)}"
+      "description": "The recurring calm container, implemented once as SearchResultCard (src/components/mantine/SearchResultCard.tsx): bordered card, md radius, sm shadow, 160px cover image, one-line title, two-line dimmed description, optional details below. SearchResultsGrid lays out tours, objects and contents results; variant=\"content\" adds the 2px teal outline. With an optional href the title becomes a stretched link over the whole card and the shadow lifts to md on hover and focus-visible; tour and content results link to their page except while picking a tour stop.",
+      "html": "<article class=\"ds-result-card\"><div class=\"ds-result-img\" role=\"img\" aria-label=\"Cover image\"></div><a class=\"ds-result-title\" href=\"#\">Still Life with Fruit</a><div class=\"ds-result-meta\">Room 4 · Oil on canvas</div></article>",
+      "css": ".ds-result-card{position:relative;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;max-width:280px;padding:12px;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);background:var(--mantine-color-body,#fff);box-shadow:var(--mantine-shadow-sm,0 4px 12px rgba(0,0,0,.06));overflow:hidden;transition:box-shadow .15s ease}.ds-result-card:hover,.ds-result-card:has(a:focus-visible){box-shadow:var(--mantine-shadow-md,0 8px 20px rgba(0,0,0,.1))}.ds-result-img{height:160px;margin:-12px -12px 10px;background:var(--mantine-color-gray-2,#e9ecef)}.ds-result-title{display:block;font-size:15px;font-weight:500;color:var(--mantine-color-text,#212529);text-decoration:none}.ds-result-title::after{content:'';position:absolute;inset:0}.ds-result-title:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-result-meta{margin-top:4px;font-size:13px;color:var(--mantine-color-dimmed,#868e96)}"
     },
     {
       "name": "Tour card frame",
@@ -590,10 +601,18 @@
       "css": ".ds-services-bar{display:inline-flex;flex-direction:column;gap:6px;padding:6px;background:var(--mantine-color-body,#fff);border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-md,8px);box-shadow:var(--mantine-shadow-xs,0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.1))}.ds-svc{width:44px;height:44px;font:700 13px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;border:1px solid var(--mantine-color-default-border,#dee2e6);border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-default,#fff);color:var(--c);cursor:pointer}.ds-svc:hover{background:var(--mantine-color-default-hover,#f8f9fa)}.ds-svc[aria-pressed=true]{border-color:transparent;background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-svc:focus-visible{outline:2px solid var(--c);outline-offset:2px}"
     },
     {
+      "name": "Site header",
+      "kind": "nav",
+      "refersTo": "site-header",
+      "description": "Desktop (md and up) sticky 56px top bar on browsing pages, hidden on map navigation, scanner and map editor: bold wordmark, tab entries as light/subtle colored buttons, then language, museum switch and account at the trailing edge. Flat: body color and a 1px default-border hairline; publishes --site-header-height.",
+      "html": "<header class=\"ds-site-header\"><div class=\"ds-sh-start\"><a class=\"ds-sh-mark\" href=\"#\">ArtAround</a><nav aria-label=\"Main navigation\" class=\"ds-sh-nav\"><a href=\"#\" style=\"--c:#2f9e44\" aria-current=\"page\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z\"/></svg>Navigator</a><a href=\"#\" style=\"--c:#e03131\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M3 9l1-5h16l1 5\"/><path d=\"M4 9v11h16V9\"/></svg>Marketplace</a></nav></div><div class=\"ds-sh-end\"><span class=\"ds-sh-pill\">All museums</span><a class=\"ds-sh-signin\" href=\"#\">Sign in</a></div></header>",
+      "css": ".ds-site-header{display:flex;align-items:center;justify-content:space-between;gap:32px;height:56px;padding:0 32px;background:var(--mantine-color-body,#fff);border-bottom:1px solid var(--mantine-color-default-border,#dee2e6);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-sh-start,.ds-sh-end{display:flex;align-items:center;gap:20px}.ds-sh-end{gap:10px}.ds-sh-mark{font-size:18px;font-weight:700;color:var(--mantine-color-text,#000);text-decoration:none}.ds-sh-nav{display:flex;gap:4px}.ds-sh-nav a{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 18px;border-radius:var(--mantine-radius-sm,4px);font-size:14px;font-weight:600;color:var(--c);text-decoration:none;transition:background .15s}.ds-sh-nav a:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}.ds-sh-nav a[aria-current=page]{background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-sh-nav a:focus-visible,.ds-sh-signin:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-sh-pill{height:26px;padding:0 12px;display:inline-flex;align-items:center;border-radius:32px;background:#e7f5ff;color:#1c7ed6;font-size:13px;font-weight:600}.ds-sh-signin{height:36px;padding:0 18px;display:inline-flex;align-items:center;border:1px solid #dee2e6;border-radius:4px;color:#000;font-size:14px;font-weight:600;text-decoration:none}.ds-sh-signin:hover{background:#f8f9fa}"
+    },
+    {
       "name": "Bottom navigation",
       "kind": "navigation",
       "refersTo": "tab-active",
-      "description": "Grow-distributed icon-over-label entries: green Navigator, red Marketplace, blue Account, grape My museums; light when active (aria-current), subtle otherwise.",
+      "description": "Phones and tablets only (hidden from md, where the site header takes over). Grow-distributed icon-over-label entries: green Navigator, red Marketplace, blue Account, grape My museums; light when active (aria-current), subtle otherwise.",
       "html": "<nav class=\"ds-bottom-nav\"><a href=\"#\" style=\"--c:#2f9e44\" aria-current=\"page\">Navigator</a><a href=\"#\" style=\"--c:#e03131\">Marketplace</a><a href=\"#\" style=\"--c:#1c7ed6\">Account</a><a href=\"#\" style=\"--c:#ae3ec9\">My museums</a></nav>",
       "css": ".ds-bottom-nav{display:flex;gap:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-bottom-nav a{flex:1;text-align:center;padding:12px 8px;font-size:12px;line-height:1;text-decoration:none;color:var(--c);border-radius:var(--mantine-radius-sm,4px)}.ds-bottom-nav a::before{content:\"\";display:block;width:20px;height:20px;margin:0 auto 4px;border:2px solid currentColor;border-radius:50%}.ds-bottom-nav a:hover{background:color-mix(in srgb,var(--c) 8%,transparent)}.ds-bottom-nav a[aria-current=page]{background:color-mix(in srgb,var(--c) 12%,transparent)}.ds-bottom-nav a:focus-visible{outline:2px solid var(--c);outline-offset:2px}"
     },
@@ -601,7 +620,7 @@
       "name": "Directions strip",
       "kind": "nav",
       "refersTo": "directions-strip",
-      "description": "Current route step in the navigation bar; tapping the sentence opens the full directions.",
+      "description": "Current route step in the navigation bar; tapping the sentence opens the full directions. From md its width is capped at flex 0 1 40rem.",
       "html": "<div class=\"ds-dir\"><button class=\"ds-dir-chev\" aria-label=\"Previous step\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m15 18-6-6 6-6\"/></svg></button><button class=\"ds-dir-body\" aria-label=\"Show all directions\"><span class=\"ds-dir-meta\">Step 2 of 4 · about 6 m</span><span class=\"ds-dir-text\">Go through the door ahead into the East hall</span></button><button class=\"ds-dir-chev\" aria-label=\"Next step\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m9 18 6-6-6-6\"/></svg></button><span class=\"ds-orb\" aria-hidden=\"true\"></span></div>",
       "css": ".ds-dir{display:flex;align-items:center;gap:4px;min-height:48px;padding:0 10px;background:#fff;border-radius:6px 6px 0 0;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;max-width:420px}.ds-dir-chev{display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:4px;background:transparent;color:#868e96;cursor:pointer}.ds-dir-chev:hover{background:#f1f3f5}.ds-dir-chev:focus-visible,.ds-dir-body:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-dir-body{flex:4;min-width:0;display:flex;flex-direction:column;text-align:left;border:0;background:transparent;border-radius:8px;padding:2px 4px;cursor:pointer}.ds-dir-body:hover{background:#f8f9fa}.ds-dir-meta{font-size:12px;color:#868e96}.ds-dir-text{font-size:14px;font-weight:600;color:#212529;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.ds-orb{flex:none;width:44px;height:44px;margin-left:auto;border-radius:50%;background:radial-gradient(circle at 45% 40%,#ffd3a8 0,#ff8a2a 35%,rgba(255,138,42,.15) 70%,transparent 72%)}"
     },
@@ -664,7 +683,7 @@
       "name": "Footer primary action",
       "kind": "button",
       "refersTo": "footer-action",
-      "description": "The single forward step of a focused task page, full-width in the fixed 64px footer (The Thumb-Reach Rule).",
+      "description": "The single forward step of a focused task page, full-width in the fixed 64px footer below md (The Thumb-Reach Rule). From md, outcome pages and the tour page put the same action inline; the quiz, its results and the group quiz board keep the footer at every width.",
       "html": "<div class=\"ds-footer\"><button class=\"ds-footer__action\">Next question<svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12h14M12 5l7 7-7 7\"/></svg></button></div>",
       "css": ".ds-footer{height:64px;display:flex;align-items:center;padding:0 16px;border-top:1px solid var(--mantine-color-gray-3,#dee2e6);background:#fff;max-width:572px}.ds-footer__action{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:16px;font-weight:600;width:100%;height:42px;display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:var(--mantine-radius-sm,4px);background:var(--mantine-color-blue-6,#228be6);color:#fff;cursor:pointer;transition:background .15s ease}.ds-footer__action:hover{background:var(--mantine-color-blue-7,#1c7ed6)}.ds-footer__action:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-footer__action:disabled{opacity:.5;cursor:not-allowed}"
     },
@@ -702,9 +721,17 @@
     {
       "name": "Account menu entry",
       "kind": "nav",
-      "description": "Signed-in bottom-navigation entry: 20px avatar (photo or initials, Mantine default gray) over the one-line clamped name, which is also its accessible name; opens an upward menu with Profile and a red Sign out.",
+      "description": "Signed-in bottom-navigation entry: 20px avatar (photo or initials, Mantine default gray) over the one-line clamped name, which is also its accessible name; opens an upward menu with Profile and a red Sign out. In the desktop site header the same entry is a subtle button with a 24px avatar, the name truncated at 16ch and a chevron, and its menu opens downward.",
       "html": "<div class=\"ds-acct\"><ul class=\"ds-acct-menu\" role=\"menu\"><li role=\"menuitem\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M20 21a8 8 0 0 0-16 0\"/></svg>Profile</li><li role=\"menuitem\" class=\"ds-acct-out\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\"/><path d=\"m16 17 5-5-5-5\"/><path d=\"M21 12H9\"/></svg>Sign out</li></ul><button class=\"ds-acct-btn\"><span class=\"ds-acct-avatar\" aria-hidden=\"true\">CM</span><span class=\"ds-acct-name\">Chiara Moretti</span></button></div>",
       "css": ".ds-acct { font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif; display: inline-flex; flex-direction: column; align-items: center; gap: 6px; } .ds-acct-menu { list-style: none; margin: 0; padding: 4px; width: 200px; background: #fff; border: 1px solid #dee2e6; border-radius: .25rem; box-shadow: 0 1px 3px rgba(0,0,0,.05), 0 10px 15px -5px rgba(0,0,0,.05); } .ds-acct-menu li { display: flex; align-items: center; gap: 10px; padding: 8px 12px; font-size: .875rem; border-radius: .25rem; cursor: pointer; } .ds-acct-menu li:hover { background: #f1f3f5; } .ds-acct-out { color: #fa5252; } .ds-acct-btn { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 160px; padding: 10px 0; border: 0; border-radius: .25rem; background: transparent; color: #228be6; cursor: pointer; font: inherit; } .ds-acct-btn:hover { background: rgba(34,139,230,.1); } .ds-acct-btn:focus-visible { outline: 2px solid #228be6; outline-offset: 2px; } .ds-acct-avatar { width: 20px; height: 20px; border-radius: 50%; background: #f1f3f5; color: #868e96; font-size: 8px; font-weight: 700; display: grid; place-items: center; } .ds-acct-name { font-size: .75rem; line-height: 1; max-width: 10ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }"
+    },
+    {
+      "name": "Docked navigation panel",
+      "kind": "custom",
+      "refersTo": "navigation-panel",
+      "description": "From md, contextual content/object/step modals in map navigation dock on the right between header and navigation bar: no dimming, no scroll lock, slide-left 200ms; the map stays draggable beside it. Centered modal over a dimmed map below md.",
+      "html": "<div class=\"ds-dock\"><div class=\"ds-dock-map\" aria-hidden=\"true\"></div><section class=\"ds-dock-panel\" role=\"dialog\" aria-label=\"Museum content\"><header><span>Museum content</span><button aria-label=\"Close\">×</button></header><h2>The Night Watch</h2><p>A militia company steps out of the shadows.</p></section></div>",
+      "css": ".ds-dock{position:relative;height:280px;background:#dcdcdc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;overflow:hidden}.ds-dock-panel{position:absolute;top:16px;right:16px;bottom:16px;width:clamp(260px,40%,30rem);padding:16px;background:var(--mantine-color-body,#fff);border-radius:var(--mantine-radius-sm,4px);box-shadow:var(--mantine-shadow-xl,0 12px 32px rgba(0,0,0,.15));animation:ds-slide .2s ease}.ds-dock-panel header{display:flex;justify-content:space-between;align-items:center;font-size:16px}.ds-dock-panel button{width:28px;height:28px;border:0;border-radius:4px;background:transparent;font-size:18px;cursor:pointer}.ds-dock-panel button:hover{background:#f1f3f5}.ds-dock-panel button:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-dock-panel h2{margin:12px 0 8px;font-size:22px;font-weight:700}.ds-dock-panel p{margin:0;font-size:16px;line-height:1.55}@keyframes ds-slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}@media (prefers-reduced-motion:reduce){.ds-dock-panel{animation:none}}"
     }
   ],
   "narrative": {
@@ -751,8 +778,13 @@
         "section": "typography"
       },
       {
+        "name": "The Below-md-Unchanged Rule",
+        "body": "A desktop adaptation is additive from `md` (62em). Gate it with Mantine's responsive props or an `md` media query; never change the phone layout for a desktop reason.",
+        "section": "layout"
+      },
+      {
         "name": "The Thumb-Reach Rule",
-        "body": "On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not.",
+        "body": "Below `md`, on a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not. From `md` there is no thumb to reach for: the tour page's action pair and the checkout outcomes' way back move inline, right under what they act on. Step flows (the quiz, its results, the group quiz board) keep the footer at every width.",
         "section": "layout"
       },
       {
@@ -812,39 +844,44 @@
       }
     ],
     "dos": [
-      "**Do** use Mantine as the main visual foundation for visitor and staff task controls.",
-      "**Do** preserve an approachable feel for casual museum visitors.",
-      "**Do** keep the four namespaces distinct, and use semantic Mantine variables (`--mantine-color-*`) rather than hardcoding light surfaces.",
-      "**Do** confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
-      "**Do** keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
-      "**Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
-      "**Do** source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).",
-      "**Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",
-      "**Do** give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.",
-      "**Do** show route states inside the directions strip, and transient guidance as top-center notifications.",
-      "**Do** offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.",
-      "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
-      "**Do** put a focused task's single forward action full-width in the 64px footer, with the content inside `AppShellMain` (see The Thumb-Reach Rule).",
-      "**Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
-      "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",
-      "**Do** build sign-in, sign-up and checkout outcomes from the existing planner column and focused-task patterns rather than new chrome.",
-      "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began."
+      "Do use Mantine as the main visual foundation for visitor and staff task controls.",
+      "Do preserve an approachable feel for casual museum visitors.",
+      "Do keep the four namespaces distinct, and use semantic Mantine variables (`--mantine-color-*`) rather than hardcoding light surfaces.",
+      "Do confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
+      "Do keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
+      "Do preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
+      "Do source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).",
+      "Do pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",
+      "Do give every assistant capability a non-voice path: a command pill, an overlay control, or the directions modal.",
+      "Do show route states inside the directions strip, and transient guidance as top-center notifications.",
+      "Do offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.",
+      "Do improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
+      "Do put a focused task's single forward action full-width in the 64px footer below `md`, with the content inside `AppShellMain`; from `md` put outcome and summary actions inline, and keep the footer only for step flows (see The Thumb-Reach Rule).",
+      "Do gate every desktop change at `md` and leave the phone layout as it is (see The Below-md-Unchanged Rule).",
+      "Do offset sticky panes and in-page sticky headers by `var(--site-header-height, 0px)`, so they sit under the site header on desktop and at the top on phones.",
+      "Do build desktop detail pages as two Mantine `Grid` panes in the 1140px width, with the media or summary pane sticky where the other one scrolls.",
+      "Do grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
+      "Do state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",
+      "Do build sign-in, sign-up and checkout outcomes from the existing planner column and focused-task patterns rather than new chrome.",
+      "Do show a checkout failure as text under the control that started it, and return the buyer to where the purchase began."
     ],
     "donts": [
-      "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
-      "**Don't** turn ordinary forms and navigation into continuously animated showcases.",
-      "**Don't** confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
-      "**Don't** promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.",
-      "**Don't** draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.",
-      "**Don't** give group guests a disabled step or destination control; hide it (see The Follow-the-Host Rule).",
-      "**Don't** label generated text or tours as AI, add sparkles, chat bubbles or a typing effect, or open a free prompt box (see The Same-Voice Rule).",
-      "**Don't** present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
-      "**Don't** treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
-      "**Don't** show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).",
-      "**Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.",
-      "**Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.",
-      "**Don't** treat the `stripe-test` sandbox shop as a product pattern, or say a purchase is unlocked before the purchases collection confirms it.",
-      "**Don't** add another bottom-navigation entry until the 390px row stops truncating its labels."
+      "Don't treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
+      "Don't turn ordinary forms and navigation into continuously animated showcases.",
+      "Don't confuse Mantine tokens with the separate Pascal/editor CSS-token layer.",
+      "Don't promote the orb's ember or the voice aura into a global motif, background, accent color, or loading treatment.",
+      "Don't draw the GPS estimate like the confirmed position, or add a compass: the map is always north-up.",
+      "Don't give group guests a disabled step or destination control; hide it (see The Follow-the-Host Rule).",
+      "Don't label generated text or tours as AI, add sparkles, chat bubbles or a typing effect, or open a free prompt box (see The Same-Voice Rule).",
+      "Don't present planned product capabilities or unverified accessibility compliance as implemented design evidence.",
+      "Don't treat the unused `shine-border`/`orbiting-circles` primitives, or the hardcoded search copy, as settled design.",
+      "Don't show disabled edit or delete controls to viewers who lack permission; omit them (see The Edit-In-Place Rule).",
+      "Don't wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.",
+      "Don't add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.",
+      "Don't treat the `stripe-test` sandbox shop as a product pattern, or say a purchase is unlocked before the purchases collection confirms it.",
+      "Don't add another bottom-navigation entry until the 390px row stops truncating its labels.",
+      "Don't show the site header on immersive surfaces (map navigation, scanner, map editor), or a second copy of the tabs' top row or bottom bar from `md`.",
+      "Don't dim or scroll-lock the map behind a contextual panel on desktop; dock it beside the map."
     ]
   }
 }
