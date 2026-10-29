@@ -41,42 +41,52 @@ export const UserPage = async ({
   const populatedContents = filterPopulated(user.authoredContents?.docs)
 
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
-      <Group align="center" gap="xs">
-        <Indicator
-          color="transparent"
-          offset={6}
-          position="bottom-end"
-          disabled={!user.highestStatus || user.highestStatus === 'none'}
-          label={
-            <ThemeIcon size="1.3em" radius="xl" color="blue" variant="filled">
-              {user.highestStatus === 'verified' ? (
-                <Verified size="80%" />
-              ) : user.highestStatus === 'director' ? (
-                <Landmark size="80%" />
-              ) : user.highestStatus === 'curator' ? (
-                <Palette size="80%" />
-              ) : null}
-            </ThemeIcon>
-          }
-        >
-          <Avatar
-            className="border-blue-400 border-3"
-            name={user.name.fullName}
-            color="initials"
-            size="lg"
-            src={isPopulated(user.avatar) ? (user.avatar.url ?? undefined) : undefined}
-            alt={user.name.fullName}
-          />
-        </Indicator>
-        <Stack justify="start" gap={0}>
-          <Title order={2}>{user.name.fullName}</Title>
-          <Text size="sm" c="dimmed">
-            @{user.username}
-          </Text>
-        </Stack>
-      </Group>
-      <UserBadges user={user} curatedMuseums={curatedMuseums} />
+    // Rhythm: tight inside the identity block (avatar, name, @handle,
+    // badges), generous between it, the bio and the tabs, so the bio reads as
+    // its own section rather than a caption of the name.
+    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm" gap="xl">
+      <Stack gap="sm">
+        {/* Identity on the left; account actions (sign out) at the top-right
+            corner, where account utilities live, out of the profile's flow. */}
+        <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+          <Group align="center" gap="xs" wrap="nowrap" miw={0}>
+            <Indicator
+              color="transparent"
+              offset={6}
+              position="bottom-end"
+              disabled={!user.highestStatus || user.highestStatus === 'none'}
+              label={
+                <ThemeIcon size="1.3em" radius="xl" color="blue" variant="filled">
+                  {user.highestStatus === 'verified' ? (
+                    <Verified size="80%" />
+                  ) : user.highestStatus === 'director' ? (
+                    <Landmark size="80%" />
+                  ) : user.highestStatus === 'curator' ? (
+                    <Palette size="80%" />
+                  ) : null}
+                </ThemeIcon>
+              }
+            >
+              <Avatar
+                className="border-blue-400 border-3"
+                name={user.name.fullName}
+                color="initials"
+                size="lg"
+                src={isPopulated(user.avatar) ? (user.avatar.url ?? undefined) : undefined}
+                alt={user.name.fullName}
+              />
+            </Indicator>
+            <Stack justify="start" gap={0} miw={0}>
+              <Title order={2}>{user.name.fullName}</Title>
+              <Text size="sm" c="dimmed">
+                @{user.username}
+              </Text>
+            </Stack>
+          </Group>
+          {accountActions}
+        </Group>
+        <UserBadges user={user} curatedMuseums={curatedMuseums} />
+      </Stack>
       <EditableSection
         title={te('About me')}
         canEdit={isSelf}
@@ -84,7 +94,6 @@ export const UserPage = async ({
       >
         <Text>{user.bio}</Text>
       </EditableSection>
-      {accountActions}
       <ArtaroundTabs
         tabs={[
           {

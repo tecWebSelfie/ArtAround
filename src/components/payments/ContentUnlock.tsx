@@ -19,11 +19,14 @@ export async function ContentUnlock({
   content,
   lng,
   next,
+  fullWidth = false,
 }: {
   content: Pick<Content, 'id' | 'price' | 'body'>
   lng: string
   /** Where sign-in returns to (the page or modal showing the content). */
   next: string
+  /** Full width at every size, as in a page's fixed footer (else full width on phones only). */
+  fullWidth?: boolean
 }) {
   if (!isLocked(content)) return null
   const { user } = await getSession()
@@ -33,6 +36,7 @@ export async function ContentUnlock({
     <UnlockContentButton
       contentId={String(content.id)}
       label={t('Unlock for {{price}}', { price })}
+      fullWidth={fullWidth}
     />
   ) : (
     <LinkButton
@@ -40,7 +44,7 @@ export async function ContentUnlock({
       color="orange"
       autoContrast
       leftSection={<LogIn size={16} aria-hidden />}
-      w={{ base: '100%', sm: 'auto' }}
+      w={fullWidth ? '100%' : { base: '100%', sm: 'auto' }}
     >
       {t('Sign in to buy')}
     </LinkButton>

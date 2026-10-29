@@ -3,16 +3,18 @@ import { EditableSection } from '@/components/editing/EditableSection'
 import { ContentMetadataForm } from '@/components/editing/forms/ContentMetadataForm'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
+import { DetailCover } from '@/components/mantine/DetailCover'
 import { getT } from '@/i18n.server'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { normalizeLocale, resolveLocalized } from '@/lib/localized'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
+import { isPopulated } from '@/lib/isPopulated'
 import { isLocked } from '@/lib/price'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import type { Content } from '@/payload-types'
-import { Container, Divider, Group } from '@mantine/core'
+import { AppShellFooter, AppShellMain, Container, Divider, Group, Stack } from '@mantine/core'
 import { Compass, FileText } from 'lucide-react'
 import type { Route } from 'next'
 import { ContentDetails, type ContentDetailsProps } from './ContentDetails'
@@ -186,59 +188,80 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const { t } = await getT('editing')
   const { t: tn } = await getT('tour-navigation')
 
+  // The cover: the content's own first picture, else its object's thumbnail
+  // (the piece the text is about); with neither, the content teal stands in.
+  const coverImage = details.images?.find((image) => image.url)
+  const objectThumbnail = isPopulated(details.object?.thumbnail) ? details.object.thumbnail : null
+  const cover = coverImage ?? objectThumbnail
+
   return (
-    <Container size="md" py="md">
-      <EditableSection
-        title={t('Content')}
-        canEdit={canEdit}
-        form={source && <ContentMetadataForm content={{ ...source, id }} />}
-      >
-        <ContentDetailsModalContent
-          content={content}
-          lockedLabel={t('This content is paid. Unlock it to read the full text.')}
-        />
-      </EditableSection>
-      {locked && (
-        <Group mt="md">
-          <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} />
-        </Group>
-      )}
-      {navigationHref && (
-        // Readable contents only: a locked one offers the purchase instead.
-        <LinkButton
-          href={navigationHref}
-          mt="md"
-          color="blue.8"
-          autoContrast
-          leftSection={<Compass size={18} aria-hidden />}
-          w={{ base: '100%', sm: 'auto' }}
-        >
-          {tn('Find it on the map')}
-        </LinkButton>
-      )}
-      {(canEdit || canDelete) && (
-        <Group mt="md" gap="xs">
-          {canEdit && (
-            <LinkButton
-              href={`/${lng}/content/${id}/edit` as Route}
-              variant="light"
-              leftSection={<FileText size={16} />}
-            >
-              {t('Edit text')}
-            </LinkButton>
+    // AppShellMain reserves room for the fixed footer below (64px, layout.tsx).
+    <AppShellMain>
+      <Container size="md" py="md">
+        <Stack gap="md">
+          <DetailCover src={cover?.url} alt={cover?.alt} fallback="content" />
+          {/* Owner actions sit above the text, not after it: a long body
+              would otherwise push them out of sight on landing. */}
+          {(canEdit || canDelete) && (
+            <Group gap="xs">
+              {canEdit && (
+                <LinkButton
+                  href={`/${lng}/content/${id}/edit` as Route}
+                  variant="light"
+                  leftSection={<FileText size={16} />}
+                >
+                  {t('Edit text')}
+                </LinkButton>
+              )}
+              {canDelete && (
+                <DeleteDocumentButton
+                  collection="contents"
+                  id={id}
+                  name={content.title}
+                  redirectTo={`/${lng}/navigator` as Route}
+                />
+              )}
+            </Group>
           )}
-          {canDelete && (
-            <DeleteDocumentButton
-              collection="contents"
-              id={id}
-              name={content.title}
-              redirectTo={`/${lng}/navigator` as Route}
+          <EditableSection
+            title={t('Content')}
+            canEdit={canEdit}
+            form={source && <ContentMetadataForm content={{ ...source, id }} />}
+          >
+            <ContentDetailsModalContent
+              content={content}
+              lockedLabel={t('This content is paid. Unlock it to read the full text.')}
             />
-          )}
-        </Group>
+          </EditableSection>
+        </Stack>
+        <Divider my="xl" />
+        <ContentDetails content={content} {...details} />
+      </Container>
+      {/* The Thumb-Reach Rule, as on the tour page: the way forward is always
+          in view, whatever the length of the text. A locked content offers
+          the purchase first; a readable one, the way to it on the map. */}
+      {(locked || navigationHref) && (
+        <AppShellFooter p="xs">
+          <Container size="sm" px="md">
+            {/* Mutually exclusive: there is no map entry while locked. */}
+            {locked && (
+              <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} fullWidth />
+            )}
+            {navigationHref && (
+              <LinkButton
+                href={navigationHref}
+                size="md"
+                fullWidth
+                color="blue.8"
+                autoContrast
+                leftSection={<Compass size={18} aria-hidden />}
+              >
+                {tn('Find it on the map')}
+              </LinkButton>
+            )}
+          </Container>
+        </AppShellFooter>
       )}
-      <Divider my="xl" />
-      <ContentDetails content={content} {...details} />
-    </Container>
+    </AppShellMain>
   )
 }

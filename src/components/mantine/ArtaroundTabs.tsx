@@ -108,7 +108,11 @@ export function ArtaroundTabs({
 
       {panels.map((tab) => (
         <TabsPanel key={tab.value} value={tab.value}>
-          <Box p="sm">{tab.panel}</Box>
+          {/* More room above than at the sides: the first panel item (a tour
+              card, a list) must not stick to the tab bar's indicator. */}
+          <Box px="sm" pt="lg" pb="sm">
+            {tab.panel}
+          </Box>
         </TabsPanel>
       ))}
     </MantineTabs>

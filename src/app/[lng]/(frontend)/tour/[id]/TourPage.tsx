@@ -1,6 +1,7 @@
 'use client'
 
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
+import { DetailCover } from '@/components/mantine/DetailCover'
 import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
@@ -14,7 +15,6 @@ import {
   Anchor,
   AppShellFooter,
   AppShellMain,
-  AspectRatio,
   Badge,
   Button,
   Container,
@@ -111,11 +111,9 @@ export default function TourPage({
       <AppShellMain>
         <Container size="sm" px="md" py="md">
           <Stack gap="lg">
-            {cover && (
-              <AspectRatio ratio={16 / 9}>
-                <Image radius="lg" src={cover.url} alt={cover.alt ?? ''} />
-              </AspectRatio>
-            )}
+            {/* Always a cover, height-capped: the tour gradient stands in when
+                there is no picture, and the title and badges stay in view. */}
+            <DetailCover src={cover?.url} alt={cover?.alt} fallback="tour" />
 
             <Stack gap="xs">
               <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">

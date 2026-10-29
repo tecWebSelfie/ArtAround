@@ -32,10 +32,13 @@ export function SignOutButton({ label }: { label: string }) {
   }
 
   return (
+    // Light red: reads as "leave" at a glance from the profile's top-right
+    // corner, without the weight of a filled call to action.
     <Button
-      variant="default"
+      variant="light"
+      color="red"
       size="xs"
-      leftSection={<LogOut size={14} />}
+      rightSection={<LogOut size={14} />}
       loading={pending}
       onClick={() => void handleClick()}
     >
