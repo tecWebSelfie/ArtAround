@@ -1,5 +1,5 @@
 import { LinkButton } from '@/components/editing/LinkButton'
-import { AppShellFooter, AppShellMain, Container, Stack, Text, Title } from '@mantine/core'
+import { AppShellFooter, AppShellMain, Box, Container, Stack, Text, Title } from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -8,6 +8,8 @@ import type { Route } from 'next'
  * task pages (DESIGN.md → Layout): one `Container size="xs"` reading column in
  * `AppShellMain`, and the single way forward full-width in the 64px footer
  * (The Thumb-Reach Rule), so a buyer back from Stripe knows where to go next.
+ * From md there is no thumb to reach for: the same action sits right under
+ * the message instead of ~600px below it, and the footer is hidden.
  */
 export function CheckoutOutcome({
   title,
@@ -21,6 +23,11 @@ export function CheckoutOutcome({
   detail?: string
   action: { label: string; href: Route }
 }) {
+  const forward = (
+    <LinkButton href={action.href} fullWidth size="md" rightSection={<ArrowRight size={18} />}>
+      {action.label}
+    </LinkButton>
+  )
   return (
     <>
       <AppShellMain>
@@ -34,18 +41,14 @@ export function CheckoutOutcome({
               </Text>
             )}
           </Stack>
+          <Box visibleFrom="md" mt="xl">
+            {forward}
+          </Box>
         </Container>
       </AppShellMain>
-      <AppShellFooter p="xs">
+      <AppShellFooter p="xs" hiddenFrom="md">
         <Container size="xs" px="md">
-          <LinkButton
-            href={action.href}
-            fullWidth
-            size="md"
-            rightSection={<ArrowRight size={18} />}
-          >
-            {action.label}
-          </LinkButton>
+          {forward}
         </Container>
       </AppShellFooter>
     </>

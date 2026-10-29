@@ -82,6 +82,8 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
           <EditableSection
             title={t('Content')}
             canEdit={canEdit}
+            // Visitors on desktop: no label above the h1 (it read as an eyebrow).
+            hideTitleFrom="md"
             form={source && <ContentMetadataForm content={{ ...source, id }} />}
           >
             <ContentDetailsModalContent

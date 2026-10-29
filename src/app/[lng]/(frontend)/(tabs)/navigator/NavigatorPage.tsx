@@ -80,7 +80,10 @@ export default function NavigatorHomePage({
             shadow="sm"
             maw="100%"
             miw={0}
-            className="transition-shadow hover:shadow-md"
+            // Desktop: the three ways in share one treatment (an illustration
+            // over a caption, divided by rules), so the QR loses its card frame
+            // there; the card stays on phones.
+            className="transition-shadow hover:shadow-md min-[62em]:border-transparent min-[62em]:shadow-none min-[62em]:hover:shadow-none"
           >
             <QRCode
               aria-hidden
@@ -125,7 +128,14 @@ export default function NavigatorHomePage({
               fz={{ base: 'xs', sm: 'sm' }}
               maw="100%"
             >
-              {t('Or plan a visit around your time and interests')}
+              {/* "Or" only where the two ways stack under the "Or" rule
+                  (phones); in the desktop row it would repeat the divider. */}
+              <Text span inherit hiddenFrom="md">
+                {t('Or plan a visit around your time and interests')}
+              </Text>
+              <Text span inherit visibleFrom="md">
+                {t('Plan a visit around your time and interests')}
+              </Text>
             </Text>
           </Stack>
         </Center>

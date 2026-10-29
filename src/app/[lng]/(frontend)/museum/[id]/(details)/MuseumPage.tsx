@@ -93,7 +93,7 @@ export default async function MuseumPage({
   return (
     // One stacked column on phones. From `md` the page is a centered
     // container (1140px of content inside `xl` padding) and the hero splits
-    // into cover | identity, so neither the cover (≈ 340px tall at 16:9) nor
+    // into cover | identity, so neither the cover (≈ 250px tall at 16:9) nor
     // the tour deck outgrows the viewport.
     <Stack
       mx={{ base: 'md', sm: 'xl', md: 'auto' }}
@@ -105,7 +105,10 @@ export default async function MuseumPage({
       {/* Hero. Mantine's Grid lays out with `gap`, so below md (both columns
           full width, `md` gap) it stacks exactly like the page's Stack. */}
       <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start" pb={{ md: 'md' }}>
-        <GridCol span={{ base: 12, md: 7 }}>
+        {/* 5/12 keeps the 16:9 cover ≈ 250px tall at 1280, so the tabs and
+            the tour deck still reach the first viewport (a missing photo is a
+            placeholder that must not take half the screen). */}
+        <GridCol span={{ base: 12, md: 5 }}>
           <MuseumGallery
             photos={(museum.thumbnails ?? []).filter(
               (thumbnail): thumbnail is MuseumThumbnail => typeof thumbnail !== 'string',
@@ -113,7 +116,7 @@ export default async function MuseumPage({
           />
         </GridCol>
         {/* Identity and actions: the right pane on desktop. */}
-        <GridCol span={{ base: 12, md: 5 }}>
+        <GridCol span={{ base: 12, md: 7 }}>
           <Stack>
             <Stack gap={4}>
               <Title order={1} size="h2">

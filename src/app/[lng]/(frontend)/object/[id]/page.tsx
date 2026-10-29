@@ -63,6 +63,8 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           <EditableSection
             title={t('Object')}
             canEdit={canEdit}
+            // Visitors on desktop: no label above the h1 (it read as an eyebrow).
+            hideTitleFrom="md"
             form={source && <ObjectMetadataForm object={{ ...source, id }} />}
           >
             {/* The inline picture is the media pane's job from md. */}
