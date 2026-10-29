@@ -1,4 +1,5 @@
 import { Box, Image } from '@mantine/core'
+import { pictureSrc, type Picture } from '@/lib/picture'
 import { KIND_FALLBACK } from './kind-fallback'
 
 /**
@@ -14,12 +15,11 @@ import { KIND_FALLBACK } from './kind-fallback'
 const COVER_HEIGHT = 'clamp(160px, 32dvh, 360px)'
 
 export function DetailCover({
-  src,
-  alt,
+  image,
   fallback,
 }: {
-  src?: string | null
-  alt?: string | null
+  /** Select `sizes` with it: the 1280px `cover` variant, else the original. */
+  image?: Picture | null
   /**
    * What to show without a picture: the kind's gradient and mark
    * (`KIND_FALLBACK`, as on marketplace cards), so the page still opens on its
@@ -27,8 +27,11 @@ export function DetailCover({
    */
   fallback: 'tour' | 'content'
 }) {
+  const src = pictureSrc(image, 'cover')
   if (src) {
-    return <Image src={src} alt={alt ?? ''} h={COVER_HEIGHT} w="100%" fit="cover" radius="lg" />
+    return (
+      <Image src={src} alt={image?.alt ?? ''} h={COVER_HEIGHT} w="100%" fit="cover" radius="lg" />
+    )
   }
   const { background, Icon } = KIND_FALLBACK[fallback]
   return (

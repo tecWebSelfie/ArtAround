@@ -1,3 +1,4 @@
+import { PICTURE_SELECT } from '@/lib/picture'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { EditableSection } from '@/components/editing/EditableSection'
@@ -8,7 +9,6 @@ import { DetailCover } from '@/components/mantine/DetailCover'
 import { getT } from '@/i18n.server'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { normalizeLocale, resolveLocalized } from '@/lib/localized'
-import { lexicalToHTML } from '@/lib/richtext'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { isPopulated } from '@/lib/isPopulated'
 import { isLocked } from '@/lib/price'
@@ -64,7 +64,7 @@ async function loadContentDetails(
             locale,
             select: { thumbnail: true, museums: true },
             populate: {
-              objectsThumbnails: { url: true, thumbnailURL: true, alt: true },
+              objectsThumbnails: PICTURE_SELECT,
               museums: { name: true, shortDescription: true },
             },
             ...viewer,
@@ -78,7 +78,8 @@ async function loadContentDetails(
             id: authorId,
             depth: 1,
             select: { name: true, avatar: true, bio: true },
-            populate: { usersPropics: { url: true, thumbnailURL: true, alt: true } },
+            // `url` is computed from `filename`.
+            populate: { usersPropics: { url: true, filename: true, alt: true } },
             ...viewer,
           })
           .catch(() => null)
@@ -98,7 +99,7 @@ async function loadContentDetails(
       ? payload.find({
           collection: 'contentImages',
           where: { id: { in: imageIds } },
-          select: { url: true, thumbnailURL: true, alt: true },
+          select: PICTURE_SELECT,
           locale,
           depth: 0,
           pagination: false,
@@ -114,7 +115,7 @@ async function loadContentDetails(
       },
       select: { title: true, thumbnail: true, museum: true },
       populate: {
-        toursThumbnails: { url: true, thumbnailURL: true, alt: true },
+        toursThumbnails: PICTURE_SELECT,
         museums: { name: true },
       },
       locale,
@@ -138,7 +139,7 @@ async function loadContentDetails(
         collection: 'contents',
         where: { id: { in: relatedIds } },
         select: { title: true, difficulty: true, readingTimeMins: true, images: true },
-        populate: { contentImages: { url: true, thumbnailURL: true, alt: true } },
+        populate: { contentImages: PICTURE_SELECT },
         locale,
         depth: 1,
         limit: 6,
@@ -169,33 +170,16 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
   const locked = isLocked(content)
-  const { payload } = await getSession()
-  const canEditPromise = can('contents', id, 'update')
-  const [canEdit, source, canDelete, navigationHref, details, { t }, { t: tn }] = await Promise.all(
-    [
-      canEditPromise,
-      // The editor's source-locale values (body included), for the author
-      // only; chained on the permission so it runs alongside the other reads.
-      canEditPromise.then((allowed) =>
-        allowed
-          ? payload.findByID({
-              collection: 'contents',
-              id,
-              locale: 'en',
-              depth: 0,
-              select: { title: true, difficulty: true, copyright: true, price: true, body: true },
-            })
-          : null,
-      ),
-      can('contents', id, 'delete'),
-      // The museum map with this content open and its object as destination;
-      // not offered while the content is locked (buying it comes first).
-      locked ? null : contentNavigationEntry(lng, id),
-      loadContentDetails(content, id, lng),
-      getT('editing'),
-      getT('tour-navigation'),
-    ],
-  )
+  const [canEdit, canDelete, navigationHref, details, { t }, { t: tn }] = await Promise.all([
+    can('contents', id, 'update'),
+    can('contents', id, 'delete'),
+    // The museum map with this content open and its object as destination;
+    // not offered while the content is locked (buying it comes first).
+    locked ? null : contentNavigationEntry(lng, id),
+    loadContentDetails(content, id, lng),
+    getT('editing'),
+    getT('tour-navigation'),
+  ])
 
   // The cover: the content's own first picture, else its object's thumbnail
   // (the piece the text is about); with neither, the content teal stands in.
@@ -208,7 +192,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
     <AppShellMain>
       <Container size="md" py="md">
         <Stack gap="md">
-          <DetailCover src={cover?.url} alt={cover?.alt} fallback="content" />
+          <DetailCover image={cover} fallback="content" />
           <EditableSection
             title={t('Content')}
             canEdit={canEdit}
@@ -224,14 +208,8 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
                 />
               )
             }
-            form={
-              source && (
-                <ContentEditForm
-                  content={{ ...source, id }}
-                  bodyHTML={lexicalToHTML(source.body)}
-                />
-              )
-            }
+            // The editor fetches its source text itself, when opened.
+            form={canEdit && <ContentEditForm id={id} />}
           >
             <ContentDetailsModalContent
               content={content}

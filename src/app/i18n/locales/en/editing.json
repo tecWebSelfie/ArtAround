@@ -99,5 +99,11 @@
   "Write a content about this object": "Write a content about this object",
   "Write a new content": "Write a new content",
   "You will be the director of this museum and can invite curators afterwards.": "You will be the director of this museum and can invite curators afterwards.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Your location is not available — allow it, or type the coordinates from a map app"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Your location is not available — allow it, or type the coordinates from a map app",
+  "Could not load the text": "Could not load the text",
+  "Cover image": "Cover image",
+  "No image": "No image",
+  "Choose an image": "Choose an image",
+  "Change image": "Change image",
+  "Remove image": "Remove image"
 }

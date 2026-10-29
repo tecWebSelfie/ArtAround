@@ -36,6 +36,7 @@ import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json
 import { museumObjectId } from '@/lib/tour-navigation'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
+import { imageUpload } from '../fields/imageUpload'
 
 /**
  * Museums are run by one director and their curators (per-museum roles in
@@ -412,7 +413,8 @@ export const Museums: CollectionConfig = {
 
 export const MuseumThumbnails: CollectionConfig = {
   slug: 'museumThumbnails',
-  upload: true,
+  // Card and cover widths derived on upload (src/fields/imageUpload.ts).
+  upload: imageUpload,
   access: {
     read: anyone,
     create: authenticated,

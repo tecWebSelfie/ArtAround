@@ -102,5 +102,11 @@
   "Write a content about this object": "Schrijf een content over dit object",
   "Write a new content": "Nieuwe inhoud schrijven",
   "You will be the director of this museum and can invite curators afterwards.": "Je wordt directeur van dit museum en kunt daarna curatoren uitnodigen.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Je locatie is niet beschikbaar — sta deze toe of typ de coördinaten uit een kaartapp"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Je locatie is niet beschikbaar — sta deze toe of typ de coördinaten uit een kaartapp",
+  "Could not load the text": "De tekst kon niet worden geladen",
+  "Cover image": "Omslagafbeelding",
+  "No image": "Geen afbeelding",
+  "Choose an image": "Afbeelding kiezen",
+  "Change image": "Afbeelding wijzigen",
+  "Remove image": "Afbeelding verwijderen"
 }

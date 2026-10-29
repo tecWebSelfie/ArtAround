@@ -3,6 +3,8 @@ import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataFor
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import { getT } from '@/i18n.server'
+import { isPopulated } from '@/lib/isPopulated'
+import { pictureSrc } from '@/lib/picture'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { can, getSession } from '@/lib/session'
 import { Container, Group } from '@mantine/core'
@@ -16,26 +18,36 @@ import type { Route } from 'next'
  */
 export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>) {
   const { lng, id } = await params
-  const object = await getLocalizedPageDocument('objects', id, lng)
   const { payload, user } = await getSession()
-  const canEdit = await can('objects', id, 'update')
-  const source = canEdit
-    ? await payload.findByID({
-        collection: 'objects',
-        id,
-        locale: 'en',
-        depth: 0,
-        select: { name: true, description: true },
-      })
-    : null
-  const { t } = await getT('editing')
+  const canEditPromise = can('objects', id, 'update')
+  const [object, canEdit, source, { t }] = await Promise.all([
+    // Photo included (populated by getLocalizedPageDocument).
+    getLocalizedPageDocument('objects', id, lng),
+    canEditPromise,
+    // The owner's source-locale text for the inline form, alongside the rest.
+    canEditPromise.then((allowed) =>
+      allowed
+        ? payload.findByID({
+            collection: 'objects',
+            id,
+            locale: 'en',
+            depth: 0,
+            select: { name: true, description: true },
+          })
+        : null,
+    ),
+    getT('editing'),
+  ])
+  // The form's preview reuses the populated photo.
+  const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
+  const thumbnail = photo && { id: photo.id, url: pictureSrc(photo, 'card') }
 
   return (
     <Container size="md" py="md">
       <EditableSection
         title={t('Object')}
         canEdit={canEdit}
-        form={source && <ObjectMetadataForm object={{ ...source, id }} />}
+        form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
       >
         <ObjectDetailsContent object={object} />
       </EditableSection>

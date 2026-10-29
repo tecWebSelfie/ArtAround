@@ -1,4 +1,5 @@
 import { TourForm } from '@/components/editing/forms/TourForm'
+import { coverImage } from '@/lib/cover-image'
 import { asViewer, can, getSession, requireUser } from '@/lib/session'
 import { Container } from '@mantine/core'
 import type { Route } from 'next'
@@ -17,10 +18,10 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
     typeof content === 'string' ? content : content.id,
   )
   // Stops no longer visitable stay in the editor, flagged (not dropped on save).
-  const { museum, candidates } = await getTourEditorData(
-    typeof tour.museum === 'string' ? tour.museum : tour.museum.id,
-    stopIds,
-  )
+  const [{ museum, candidates }, thumbnail] = await Promise.all([
+    getTourEditorData(typeof tour.museum === 'string' ? tour.museum : tour.museum.id, stopIds),
+    coverImage(payload, 'toursThumbnails', tour.thumbnail),
+  ])
 
   return (
     <Container size="md" py="md">
@@ -28,6 +29,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         tourId={tour.id}
         museum={museum}
         candidates={candidates}
+        thumbnail={thumbnail}
         initial={{
           title: tour.title,
           description: tour.description ?? '',

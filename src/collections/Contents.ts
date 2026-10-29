@@ -32,6 +32,7 @@ import {
   type Where,
 } from 'payload'
 import { readingTime } from 'reading-time-estimator'
+import { imageUpload } from '../fields/imageUpload'
 
 /**
  * Contents are user-generated: any logged-in user writes them, the author is
@@ -328,7 +329,8 @@ export const Contents: CollectionConfig = {
 
 export const ContentImages: CollectionConfig = {
   slug: 'contentImages',
-  upload: true,
+  // Card and cover widths derived on upload (src/fields/imageUpload.ts).
+  upload: imageUpload,
   access: {
     read: anyone,
     create: authenticated,

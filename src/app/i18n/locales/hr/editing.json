@@ -105,5 +105,11 @@
   "Write a content about this object": "Napiši sadržaj o ovom objektu",
   "Write a new content": "Napiši novi sadržaj",
   "You will be the director of this museum and can invite curators afterwards.": "Bit ćeš ravnatelj ovog muzeja i kasnije možeš pozvati kustose.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja lokacija nije dostupna — dopusti je ili upiši koordinate iz aplikacije s kartama"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoja lokacija nije dostupna — dopusti je ili upiši koordinate iz aplikacije s kartama",
+  "Could not load the text": "Tekst nije moguće učitati",
+  "Cover image": "Naslovna slika",
+  "No image": "Nema slike",
+  "Choose an image": "Odaberi sliku",
+  "Change image": "Promijeni sliku",
+  "Remove image": "Ukloni sliku"
 }

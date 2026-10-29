@@ -105,5 +105,11 @@
   "Write a content about this object": "Scrie un conținut despre acest obiect",
   "Write a new content": "Scrie un conținut nou",
   "You will be the director of this museum and can invite curators afterwards.": "Vei fi directorul acestui muzeu și poți invita curatori ulterior.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Locația ta nu este disponibilă — permite-o sau scrie coordonatele dintr-o aplicație de hărți"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Locația ta nu este disponibilă — permite-o sau scrie coordonatele dintr-o aplicație de hărți",
+  "Could not load the text": "Textul nu a putut fi încărcat",
+  "Cover image": "Imagine de copertă",
+  "No image": "Fără imagine",
+  "Choose an image": "Alege o imagine",
+  "Change image": "Schimbă imaginea",
+  "Remove image": "Elimină imaginea"
 }

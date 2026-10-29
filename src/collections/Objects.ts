@@ -12,6 +12,7 @@ import { Object } from '@/payload-types'
 import type { Access, RelationshipFieldValidation } from 'payload'
 import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
+import { imageUpload } from '../fields/imageUpload'
 
 /**
  * Objects live in the app catalog independently of any museum: a museum
@@ -217,7 +218,8 @@ const uploadAccess = {
 
 export const ObjectsThumbnails: CollectionConfig = {
   slug: 'objectsThumbnails',
-  upload: true,
+  // Card and cover widths derived on upload (src/fields/imageUpload.ts).
+  upload: imageUpload,
   access: uploadAccess,
   fields: [
     {

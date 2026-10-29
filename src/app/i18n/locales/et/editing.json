@@ -102,5 +102,11 @@
   "Write a content about this object": "Kirjuta sellest objektist sisu",
   "Write a new content": "Kirjuta uus sisu",
   "You will be the director of this museum and can invite curators afterwards.": "Sinust saab selle muuseumi direktor ja hiljem saad kutsuda kuraatoreid.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Sinu asukoht pole saadaval — luba see või sisesta koordinaadid kaardirakendusest"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Sinu asukoht pole saadaval — luba see või sisesta koordinaadid kaardirakendusest",
+  "Could not load the text": "Teksti ei õnnestunud laadida",
+  "Cover image": "Kaanepilt",
+  "No image": "Pilti pole",
+  "Choose an image": "Vali pilt",
+  "Change image": "Muuda pilti",
+  "Remove image": "Eemalda pilt"
 }

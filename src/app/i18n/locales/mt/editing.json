@@ -111,5 +111,11 @@
   "Write a content about this object": "Ikteb kontenut dwar dan l-oġġett",
   "Write a new content": "Ikteb kontenut ġdid",
   "You will be the director of this museum and can invite curators afterwards.": "Int se tkun id-direttur ta' dan il-mużew u tista' tistieden kuraturi wara.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Il-post tiegħek mhux disponibbli — ħallih, jew ikteb il-koordinati minn app tal-mapep"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Il-post tiegħek mhux disponibbli — ħallih, jew ikteb il-koordinati minn app tal-mapep",
+  "Could not load the text": "Ma setax jitgħabba t-test",
+  "Cover image": "Stampa tal-qoxra",
+  "No image": "L-ebda stampa",
+  "Choose an image": "Agħżel stampa",
+  "Change image": "Ibdel l-istampa",
+  "Remove image": "Neħħi l-istampa"
 }

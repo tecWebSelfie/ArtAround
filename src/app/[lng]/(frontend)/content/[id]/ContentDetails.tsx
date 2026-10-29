@@ -86,7 +86,7 @@ export type ContentDetailsProps = {
   museum?: ContentDetailsMuseum | null
   author?: ContentDetailsAuthor | null
   categories?: Pick<MuseumCategory, 'id' | 'name'>[]
-  images?: Pick<ContentImage, 'id' | 'url' | 'thumbnailURL' | 'alt'>[]
+  images?: Pick<ContentImage, 'id' | 'url' | 'thumbnailURL' | 'alt' | 'sizes'>[]
   tours?: ContentDetailsTour[]
   /** Other contents about the same object, without this one. */
   related?: ContentDetailsRelated[]

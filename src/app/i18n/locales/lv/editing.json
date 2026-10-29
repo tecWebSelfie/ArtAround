@@ -105,5 +105,11 @@
   "Write a content about this object": "Uzraksti saturu par šo objektu",
   "Write a new content": "Rakstīt jaunu saturu",
   "You will be the director of this museum and can invite curators afterwards.": "Tu būsi šī muzeja direktors un vēlāk varēsi uzaicināt kuratorus.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tava atrašanās vieta nav pieejama — atļauj to vai ievadi koordinātas no karšu lietotnes"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tava atrašanās vieta nav pieejama — atļauj to vai ievadi koordinātas no karšu lietotnes",
+  "Could not load the text": "Neizdevās ielādēt tekstu",
+  "Cover image": "Vāka attēls",
+  "No image": "Nav attēla",
+  "Choose an image": "Izvēlēties attēlu",
+  "Change image": "Mainīt attēlu",
+  "Remove image": "Noņemt attēlu"
 }

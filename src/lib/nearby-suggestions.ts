@@ -32,16 +32,18 @@ export function nearbySuggestions({
   const room = point ? roomAt(map.rooms, point) : null
   if (!room) return { room: null, suggestions: [] }
   const objectIdsInRoom = new Set(
-    map.objects
-      .filter((object) => roomAt([room], object.point))
-      .map((object) => object.objectId),
+    map.objects.filter((object) => roomAt([room], object.point)).map((object) => object.objectId),
   )
   const suggestions = catalog
     .filter((object) => objectIdsInRoom.has(object.id))
     .flatMap((object) =>
       object.contents
         .filter((content) => !tourContentIds.has(content.id) && !alreadySuggested.has(content.id))
-        .map((content) => ({ content, object: { id: object.id, name: object.name }, room: room.name })),
+        .map((content) => ({
+          content,
+          object: { id: object.id, name: object.name },
+          room: room.name,
+        })),
     )
   return { room: room.name, suggestions }
 }

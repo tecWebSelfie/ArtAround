@@ -108,5 +108,11 @@
   "Write a content about this object": "Napiš obsah o tomto objektu",
   "Write a new content": "Napsat nový obsah",
   "You will be the director of this museum and can invite curators afterwards.": "Staneš se ředitelem tohoto muzea a později můžeš pozvat kurátory.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoje poloha není dostupná — povol ji, nebo zadej souřadnice z mapové aplikace"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tvoje poloha není dostupná — povol ji, nebo zadej souřadnice z mapové aplikace",
+  "Could not load the text": "Text se nepodařilo načíst",
+  "Cover image": "Titulní obrázek",
+  "No image": "Bez obrázku",
+  "Choose an image": "Vybrat obrázek",
+  "Change image": "Změnit obrázek",
+  "Remove image": "Odebrat obrázek"
 }

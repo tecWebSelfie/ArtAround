@@ -102,5 +102,11 @@
   "Write a content about this object": "Γράψε ένα περιεχόμενο για αυτό το αντικείμενο",
   "Write a new content": "Γράψε νέο περιεχόμενο",
   "You will be the director of this museum and can invite curators afterwards.": "Θα είσαι ο διευθυντής αυτού του μουσείου και μετά μπορείς να προσκαλέσεις επιμελητές.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Η τοποθεσία σου δεν είναι διαθέσιμη — επίτρεψέ την ή γράψε τις συντεταγμένες από μια εφαρμογή χαρτών"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Η τοποθεσία σου δεν είναι διαθέσιμη — επίτρεψέ την ή γράψε τις συντεταγμένες από μια εφαρμογή χαρτών",
+  "Could not load the text": "Δεν ήταν δυνατή η φόρτωση του κειμένου",
+  "Cover image": "Εικόνα εξωφύλλου",
+  "No image": "Χωρίς εικόνα",
+  "Choose an image": "Επιλογή εικόνας",
+  "Change image": "Αλλαγή εικόνας",
+  "Remove image": "Αφαίρεση εικόνας"
 }

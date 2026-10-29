@@ -105,5 +105,11 @@
   "Write a content about this object": "Escribe un contenido sobre este objeto",
   "Write a new content": "Escribir un contenido nuevo",
   "You will be the director of this museum and can invite curators afterwards.": "Serás el director de este museo y podrás invitar a curadores después.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tu ubicación no está disponible — permítela o escribe las coordenadas de una app de mapas"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tu ubicación no está disponible — permítela o escribe las coordenadas de una app de mapas",
+  "Could not load the text": "No se pudo cargar el texto",
+  "Cover image": "Imagen de portada",
+  "No image": "Sin imagen",
+  "Choose an image": "Elegir una imagen",
+  "Change image": "Cambiar imagen",
+  "Remove image": "Quitar imagen"
 }

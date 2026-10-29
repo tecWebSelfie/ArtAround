@@ -1,3 +1,4 @@
+import { PICTURE_SELECT } from '@/lib/picture'
 import { filterPopulated } from '@/lib/isPopulated'
 import { normalizeLocale } from '@/lib/localized'
 import { isLocked, lockedTotal } from '@/lib/price'
@@ -32,12 +33,13 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
         images: true,
         objects: true,
       },
-      contentImages: { url: true, thumbnailURL: true, alt: true },
+      contentImages: PICTURE_SELECT,
       objects: { name: true, thumbnail: true },
-      objectsThumbnails: { url: true, thumbnailURL: true, alt: true },
+      objectsThumbnails: PICTURE_SELECT,
       museums: { name: true, location: true },
       users: { name: true },
-      toursThumbnails: { url: true, alt: true },
+      // Every picture with its URLs (src/lib/picture.ts).
+      toursThumbnails: PICTURE_SELECT,
       // Only counted ("Ends with a quiz"). The select keeps prompts and answers
       // out of the client payload: TourPage is a client component.
       quizQuestions: { createdAt: true },

@@ -114,7 +114,7 @@ export default function TourPage({
           <Stack gap="lg">
             {/* Always a cover, height-capped: the tour gradient stands in when
                 there is no picture, and the title and badges stay in view. */}
-            <DetailCover src={cover?.url} alt={cover?.alt} fallback="tour" />
+            <DetailCover image={cover} fallback="tour" />
 
             <Stack gap="xs">
               <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">

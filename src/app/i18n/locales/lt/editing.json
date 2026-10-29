@@ -108,5 +108,11 @@
   "Write a content about this object": "Parašyk turinį apie šį objektą",
   "Write a new content": "Rašyti naują turinį",
   "You will be the director of this museum and can invite curators afterwards.": "Būsi šio muziejaus direktorius ir vėliau galėsi pakviesti kuratorių.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Tavo vieta nepasiekiama — leisk ją arba įvesk koordinates iš žemėlapių programėlės"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Tavo vieta nepasiekiama — leisk ją arba įvesk koordinates iš žemėlapių programėlės",
+  "Could not load the text": "Nepavyko įkelti teksto",
+  "Cover image": "Viršelio paveikslėlis",
+  "No image": "Nėra paveikslėlio",
+  "Choose an image": "Pasirinkti paveikslėlį",
+  "Change image": "Keisti paveikslėlį",
+  "Remove image": "Pašalinti paveikslėlį"
 }

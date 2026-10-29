@@ -102,5 +102,11 @@
   "Write a content about this object": "Skriv ett innehåll om det här föremålet",
   "Write a new content": "Skriv nytt innehåll",
   "You will be the director of this museum and can invite curators afterwards.": "Du blir chef för museet och kan sedan bjuda in intendenter.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Din plats är inte tillgänglig — tillåt den eller skriv in koordinaterna från en kartapp"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Din plats är inte tillgänglig — tillåt den eller skriv in koordinaterna från en kartapp",
+  "Could not load the text": "Texten kunde inte läsas in",
+  "Cover image": "Omslagsbild",
+  "No image": "Ingen bild",
+  "Choose an image": "Välj en bild",
+  "Change image": "Byt bild",
+  "Remove image": "Ta bort bild"
 }

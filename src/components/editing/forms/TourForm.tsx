@@ -34,9 +34,10 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
+import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 
 /** Content a tour may include (see `getTourEditorData`). */
 export type TourCandidate = {
@@ -164,12 +165,18 @@ export function TourForm({
   museum,
   candidates,
   initial,
+  thumbnail,
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
   museum: { id: string; name: string }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
+  /**
+   * The stored cover: the tour's own when editing, the original's when
+   * customizing a copy (the copy keeps it unless the author changes it).
+   */
+  thumbnail?: CurrentImage | null
 }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
@@ -242,13 +249,17 @@ export function TourForm({
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
 
+  // Not in the form values: a picked file can't go into the sessionStorage draft.
+  const [cover, setCover] = useState<CoverChange>(null)
   const save = useSave(
-    (values: TourValues) => {
+    async (values: TourValues) => {
+      const title = values.title.trim()
       const data = {
-        title: values.title.trim(),
+        title,
         description: values.description.trim() || null,
         contents: values.contents,
         museum: museum.id,
+        thumbnail: await saveCover(cover, thumbnail, 'toursThumbnails', title),
       }
       return tourId
         ? payloadSdk.update({ collection: 'tours', id: tourId, data })
@@ -280,6 +291,7 @@ export function TourForm({
           maxLength={70}
           {...form.getInputProps('description')}
         />
+        <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
 
         <Stack gap="xs">
           <Text fw={600}>{t('Stops, in visiting order')}</Text>

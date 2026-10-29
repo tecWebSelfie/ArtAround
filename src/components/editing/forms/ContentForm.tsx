@@ -6,8 +6,10 @@ import { useForm } from '@mantine/form'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
 import type { RequiredDataFromCollectionSlug } from 'payload'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { backToTourHref } from '@/lib/tour-picker'
+import { saveCover, type CoverChange } from '../CoverImageInput'
 import { ObjectPicker } from '../ObjectPicker'
 import { SOURCE_LOCALE, useSave } from '../saving'
 import { ContentFields, contentFieldValidators, type ContentFormValues } from './ContentFields'
@@ -50,19 +52,24 @@ export function ContentForm({
     },
   })
 
+  const [cover, setCover] = useState<CoverChange>(null)
   const save = useSave(
-    ({ object, ...values }: ContentFormValues) =>
-      payloadSdk.create({
+    async ({ object, ...values }: ContentFormValues) => {
+      const title = values.title.trim()
+      const coverId = await saveCover(cover, null, 'contentImages', title)
+      return payloadSdk.create({
         collection: 'contents',
         locale: SOURCE_LOCALE,
         // `body` is required by the generated type but is produced on the
         // server from `bodyHTML` (see src/fields/richTextHtml.ts).
         data: {
           ...values,
-          title: values.title.trim(),
+          title,
+          images: coverId ? [coverId] : [],
           attachToObject: object,
         } as RequiredDataFromCollectionSlug<'contents'>,
-      }),
+      })
+    },
     // A new tour stop goes straight back into the tour being edited.
     (saved) =>
       router.push(
@@ -81,7 +88,7 @@ export function ContentForm({
           onChange={(id) => form.setFieldValue('object', id)}
           error={form.errors.object as string | undefined}
         />
-        <ContentFields form={form} />
+        <ContentFields form={form} cover={{ change: cover, onChange: setCover }} />
         <Group justify="end">
           <Button variant="default" onClick={() => router.back()} disabled={save.isPending}>
             {t('Cancel')}

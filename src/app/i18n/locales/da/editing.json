@@ -102,5 +102,11 @@
   "Write a content about this object": "Skriv et indhold om denne genstand",
   "Write a new content": "Skriv nyt indhold",
   "You will be the director of this museum and can invite curators afterwards.": "Du bliver direktør for museet og kan bagefter invitere kuratorer.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Din placering er ikke tilgængelig — tillad den, eller skriv koordinaterne fra en kortapp"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Din placering er ikke tilgængelig — tillad den, eller skriv koordinaterne fra en kortapp",
+  "Could not load the text": "Teksten kunne ikke indlæses",
+  "Cover image": "Forsidebillede",
+  "No image": "Intet billede",
+  "Choose an image": "Vælg et billede",
+  "Change image": "Skift billede",
+  "Remove image": "Fjern billede"
 }

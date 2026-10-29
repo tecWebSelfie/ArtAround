@@ -5,7 +5,9 @@ import type { Difficulty } from '@/payload-types'
 import { Group, Select, Skeleton, TextInput } from '@mantine/core'
 import type { UseFormReturnType } from '@mantine/form'
 import dynamic from 'next/dynamic'
+import type { ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
+import { CoverImageInput } from '../CoverImageInput'
 import { PriceInput } from '../PriceInput'
 
 /**
@@ -45,11 +47,24 @@ const RichTextInput = dynamic(() => import('../RichTextInput').then((m) => m.Ric
   loading: () => <Skeleton h={240} radius="sm" />,
 })
 
-export function ContentFields({ form }: { form: UseFormReturnType<ContentFormValues> }) {
+/**
+ * The cover picture (the content's first image) is not a form value: it is a
+ * file until saved, so each form keeps it in its own state and passes it here.
+ */
+export type ContentCover = ComponentProps<typeof CoverImageInput>
+
+export function ContentFields({
+  form,
+  cover,
+}: {
+  form: UseFormReturnType<ContentFormValues>
+  cover: ContentCover
+}) {
   const { t } = useTranslation('editing')
   return (
     <>
       <TextInput label={t('Title')} required {...form.getInputProps('title')} />
+      <CoverImageInput {...cover} />
       <Group grow align="start">
         <Select
           label={t('Difficulty')}

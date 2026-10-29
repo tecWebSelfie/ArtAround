@@ -111,5 +111,11 @@
   "Write a content about this object": "Scríobh ábhar faoin réad seo",
   "Write a new content": "Scríobh ábhar nua",
   "You will be the director of this museum and can invite curators afterwards.": "Is tusa a bheidh mar stiúrthóir ar an músaem seo agus is féidir leat coimeádaithe a thabhairt isteach ina dhiaidh sin.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Níl do shuíomh ar fáil — ceadaigh é, nó clóscríobh na comhordanáidí ó aip léarscáileanna"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Níl do shuíomh ar fáil — ceadaigh é, nó clóscríobh na comhordanáidí ó aip léarscáileanna",
+  "Could not load the text": "Níorbh fhéidir an téacs a lódáil",
+  "Cover image": "Íomhá chlúdaigh",
+  "No image": "Gan íomhá",
+  "Choose an image": "Roghnaigh íomhá",
+  "Change image": "Athraigh an íomhá",
+  "Remove image": "Bain an íomhá"
 }

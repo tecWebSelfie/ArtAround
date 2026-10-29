@@ -16,6 +16,7 @@ import {
 } from '@/lib/quiz-ownership'
 
 import { editorial } from '@/fields/editorial'
+import { imageUpload } from '../fields/imageUpload'
 
 export const TOURS_COLLECTION_SLUG = 'tours'
 
@@ -204,7 +205,8 @@ export const Tour: CollectionConfig = {
 
 export const ToursThumbnails: CollectionConfig = {
   slug: 'toursThumbnails',
-  upload: true,
+  // Card and cover widths derived on upload (src/fields/imageUpload.ts).
+  upload: imageUpload,
   access: {
     read: anyone,
     create: authenticated,

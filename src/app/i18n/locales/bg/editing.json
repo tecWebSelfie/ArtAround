@@ -102,5 +102,11 @@
   "Write a content about this object": "Напиши съдържание за този обект",
   "Write a new content": "Напиши ново съдържание",
   "You will be the director of this museum and can invite curators afterwards.": "Ще бъдеш директор на този музей и после можеш да поканиш куратори.",
-  "Your location is not available — allow it, or type the coordinates from a map app": "Местоположението ти не е достъпно — разреши го или въведи координатите от приложение с карти"
+  "Your location is not available — allow it, or type the coordinates from a map app": "Местоположението ти не е достъпно — разреши го или въведи координатите от приложение с карти",
+  "Could not load the text": "Текстът не може да бъде зареден",
+  "Cover image": "Корица",
+  "No image": "Няма изображение",
+  "Choose an image": "Изберете изображение",
+  "Change image": "Смяна на изображението",
+  "Remove image": "Премахване на изображението"
 }
