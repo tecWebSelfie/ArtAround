@@ -8,6 +8,13 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { NavigationCommand } from './navigation-commands'
 
+/**
+ * Keyboard shortcuts that open the search: Mantine's default mod+K plus "/",
+ * the usual map/search key on desktop (both ignored while typing in a field).
+ * The search control's tooltip shows "/".
+ */
+const NAVIGATION_SEARCH_SHORTCUTS = ['mod + K', '/']
+
 /** Results shown at once; the list stays scannable on a phone. */
 const RESULT_LIMIT = 8
 
@@ -80,7 +87,11 @@ export function NavigationSpotlight({
     )
 
   return (
-    <Spotlight.Root query={query} onQueryChange={setQuery}>
+    <Spotlight.Root
+      shortcut={NAVIGATION_SEARCH_SHORTCUTS}
+      query={query}
+      onQueryChange={setQuery}
+    >
       <Spotlight.Search
         placeholder={
           tours.length > 0
@@ -89,6 +100,14 @@ export function NavigationSpotlight({
         }
         aria-label={t('Search')}
         leftSection={<Search size={18} />}
+        // On desktop the search can open over a docked content panel, and every
+        // Mantine modal closes on a window-level Escape. Mantine's opt-out
+        // attribute keeps this key press from closing the panel too; the
+        // search closes itself here instead.
+        data-mantine-stop-propagation
+        onKeyDown={(event) => {
+          if (event.key === 'Escape') spotlight.close()
+        }}
       />
       <Spotlight.ActionsList>
         {text ? (

@@ -1,0 +1,66 @@
+/*
+ * Desktop (≥ md, 62em) composition of map navigation, shared by the tour and
+ * free navigation (`TourNavigation.tsx`) and by the contextual modals
+ * (`NavigationModal.tsx`). Every rule sits inside the md media query, so the
+ * phone layout (the incumbent) renders exactly as before.
+ *
+ * On a wide screen the map stays the loudest thing: the floating controls
+ * gather in one bottom-left cluster instead of spreading across the width,
+ * the directions strip keeps a bounded reading width, and contextual content
+ * docks as a panel on the right between the header and the navigation bar,
+ * leaving the map visible and draggable beside it.
+ */
+
+@media (min-width: $mantine-breakpoint-md) {
+  /*
+   * Stepper track (Mantine Scroller content, an inline-flex row): at least as
+   * wide as the header column, centring a short tour's stops instead of
+   * stranding them on the left. A long tour grows past 100% and scrolls as on
+   * the phone; auto margins in a flex row never push content out of reach.
+   */
+  .stepperTrack {
+    min-width: 100%;
+    justify-content: center;
+  }
+
+  /*
+   * Floating control rows (next-stop pair and the control cluster). Group
+   * writes its `justify` as an inline custom property, so the doubled class
+   * outranks Mantine's own rule to start the rows at the left edge.
+   */
+  .controlRow.controlRow {
+    justify-content: flex-start;
+  }
+
+  /* Directions strip: a readable line length instead of 4/5 of the bar. */
+  .directions.directions {
+    flex: 0 1 40rem;
+  }
+
+  /*
+   * Contextual modal as a docked side panel. The overlay is not rendered
+   * visibly: nothing dims the map, which keeps receiving pointer events
+   * because Mantine's `inner` wrapper is already `pointer-events: none` and
+   * only the panel opts back in (Overlay Opt-In Rule).
+   */
+  .panelOverlay.panelOverlay {
+    display: none;
+  }
+
+  /* Doubled class: outranks Mantine's own `inner` rules whatever the order. */
+  .panelInner.panelInner {
+    /* Clear the navigation header (measured in TourNavigation) and the 64px
+       navigation bar, so the stepper and the orb stay usable while reading. */
+    top: calc(var(--navigation-header-height, 7rem) + var(--mantine-spacing-md));
+    bottom: calc(var(--app-shell-footer-height, 4rem) + var(--mantine-spacing-md));
+    justify-content: flex-end;
+    --modal-inner-align: stretch;
+    --modal-inner-y-offset: 0;
+    --modal-inner-x-offset: var(--mantine-spacing-md);
+    /* ≈ 420–480px: a comfortable reading measure that leaves the map most of
+       the screen from 992px up. */
+    --modal-content-flex: 0 0 clamp(26.25rem, 34vw, 30rem);
+    --modal-content-max-height: 100%;
+    --modal-content-height: 100%;
+  }
+}

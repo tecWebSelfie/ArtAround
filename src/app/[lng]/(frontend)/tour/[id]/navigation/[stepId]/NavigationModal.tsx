@@ -2,12 +2,13 @@
 
 import { useGroupSettings, useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useGroupExit } from '@/components/group/use-group-exit'
-import { Button, Divider, Group, Modal, Text } from '@mantine/core'
+import { Button, Divider, Group, Modal, Text, useMatches } from '@mantine/core'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { withNavigationPosition } from '@/lib/tour-navigation'
 import { useNavigationScope } from '../TourNavigationShell'
 import { useTranslation } from 'react-i18next'
+import classes from './navigation-desktop.module.css'
 
 /**
  * Shared modal shell so closing a detail returns to the current map URL and
@@ -17,6 +18,12 @@ import { useTranslation } from 'react-i18next'
  * it and closes when the host closes it (GroupProvider follows the host's
  * URL), so the guest gets no close button, Escape or outside click. Reading
  * stays free (Tell me more, reading options); "Leave the group" is the way out.
+ *
+ * Below md it is the centered modal over a dimmed map. From md up the same
+ * dialog (same routes, close and guest rules) docks as a right-side panel
+ * between the header and the navigation bar (`navigation-desktop.module.css`):
+ * no dimming and no scroll lock, so the map stays visible and draggable beside
+ * the text and a click on another object simply swaps the panel's content.
  */
 export function NavigationModal({ children }: { children: ReactNode }) {
   const router = useRouter()
@@ -24,6 +31,10 @@ export function NavigationModal({ children }: { children: ReactNode }) {
   const search = useSearchParams()
   const { t } = useTranslation('tour-navigation')
   const guest = useIsGroupGuest()
+  // Behaviour only (the look is pure CSS, so there is no hydration flash):
+  // the docked panel slides in from its own edge and leaves page scrolling
+  // (the map's wheel zoom) alone.
+  const docked = useMatches({ base: false, md: true })
 
   return (
     <Modal
@@ -33,6 +44,9 @@ export function NavigationModal({ children }: { children: ReactNode }) {
       withCloseButton={!guest}
       closeOnEscape={!guest}
       closeOnClickOutside={!guest}
+      classNames={{ overlay: classes.panelOverlay, inner: classes.panelInner }}
+      lockScroll={!docked}
+      transitionProps={docked ? { transition: 'slide-left', duration: 200 } : undefined}
       onClose={() => {
         if (guest || !navigation) return
         router.replace(withNavigationPosition(navigation.base, search.toString()))
