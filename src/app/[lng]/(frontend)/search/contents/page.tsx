@@ -143,6 +143,9 @@ export default async function SearchContentsPage(props: {
         >
           <ContentsSearchResults
             contents={result.docs}
+            // Cards open the content's page, except while picking a stop for
+            // the tour editor: there a stray click would leave the round trip.
+            lng={picker ? undefined : lng}
             picker={picker}
             lockedPrices={lockedPrices}
           />

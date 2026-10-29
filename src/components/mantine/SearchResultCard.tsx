@@ -11,7 +11,9 @@
  * can render it directly.
  */
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { Card, CardSection, Grid, GridCol, Image, Stack, Text } from '@mantine/core'
+import { Box, Card, CardSection, Grid, GridCol, Image, Stack, Text } from '@mantine/core'
+import type { Route } from 'next'
+import Link from 'next/link'
 import type { Key, ReactNode } from 'react'
 
 export function SearchResultsGrid<T>({
@@ -53,6 +55,7 @@ export function SearchResultCard({
   title,
   description,
   variant = 'default',
+  href,
   children,
 }: {
   /** Falls back to the shared placeholder when the document has no image. */
@@ -62,29 +65,54 @@ export function SearchResultCard({
   description?: string | null
   /** `content` adds the 2px teal outline that marks contents across the app. */
   variant?: 'default' | 'content'
+  /**
+   * The result's own page. The whole card becomes its click target through a
+   * stretched link on the title (one link, named by the title, so screen
+   * readers don't hear the card twice); `children` actions stay above it and
+   * keep their own targets. The shadow lifts on hover, as on the navigator's QR card.
+   */
+  href?: Route
   children?: ReactNode
 }) {
+  const titleText = (
+    <Text fw={500} lineClamp={1}>
+      {title}
+    </Text>
+  )
   return (
     <Card
       shadow="sm"
       padding="sm"
       radius="md"
       withBorder
-      className={variant === 'content' ? 'border-2 border-solid border-teal-600' : undefined}
+      pos={href ? 'relative' : undefined}
+      className={
+        [
+          variant === 'content' ? 'border-2 border-solid border-teal-600' : '',
+          href ? 'transition-shadow hover:shadow-md has-[a:focus-visible]:shadow-md' : '',
+        ]
+          .join(' ')
+          .trim() || undefined
+      }
     >
       <CardSection>
         <Image h={160} fit="cover" src={imageUrl || PLACEHOLDER_IMAGE} alt={imageAlt} />
       </CardSection>
       <Stack gap={4} mt="xs">
-        <Text fw={500} lineClamp={1}>
-          {title}
-        </Text>
+        {href ? (
+          <Link href={href} className="text-inherit no-underline after:absolute after:inset-0">
+            {titleText}
+          </Link>
+        ) : (
+          titleText
+        )}
         {description && (
           <Text size="sm" c="dimmed" lineClamp={2}>
             {description}
           </Text>
         )}
-        {children}
+        {/* Above the stretched link, so actions (Add to tour…) stay clickable. */}
+        {children && (href ? <Box className="relative z-[1]">{children}</Box> : children)}
       </Stack>
     </Card>
   )

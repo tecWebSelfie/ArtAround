@@ -70,7 +70,7 @@ export default async function SearchToursPage(props: {
           storageKeyPrefix="search-tours"
           placeholder={t('Filter visits...')}
         >
-          <ToursSearchResults tours={result.docs} />
+          <ToursSearchResults tours={result.docs} lng={lng} />
         </SearchShell>
       </Stack>
     </Container>

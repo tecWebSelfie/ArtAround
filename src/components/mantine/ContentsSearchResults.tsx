@@ -20,9 +20,12 @@ import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
  */
 export const ContentsSearchResults = async ({
   contents,
+  lng,
   picker,
   lockedPrices,
 }: {
+  /** Links each card to its page (`/{lng}/content/{id}`); omitted, cards are static. */
+  lng?: string
   contents: readonly (string | Content | null | undefined)[] | null | undefined
   picker?: TourPicker | null
   /** Content id → price (cents) for contents locked to this visitor. */
@@ -45,6 +48,7 @@ export const ContentsSearchResults = async ({
             imageUrl={thumbnail?.url}
             imageAlt={thumbnail?.alt ?? content.title}
             title={content.title}
+            href={lng ? (`/${lng}/content/${content.id}` as Route) : undefined}
           >
             <Group gap="xs">
               <DifficultyBadge difficulty={content.difficulty}>
