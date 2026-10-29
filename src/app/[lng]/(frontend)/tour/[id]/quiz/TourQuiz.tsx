@@ -229,7 +229,10 @@ export function TourQuiz({
             <Box
               component="header"
               pos="sticky"
-              top={0}
+              // Sticks under the desktop top bar (≥ md, set by the frontend
+              // layout); the variable is 0px on phones, so the header still
+              // sticks to the very top there.
+              top="var(--site-header-height, 0px)"
               py="xs"
               bg="var(--mantine-color-body)"
               style={{ zIndex: 1 }}

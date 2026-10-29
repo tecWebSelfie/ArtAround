@@ -1,0 +1,31 @@
+/*
+ * Desktop frame for the navigator's QR scanner (`/scan`).
+ *
+ * The scanner (`QrScanPage`) fills the viewport with `position: fixed; inset: 0`,
+ * which is right on a phone but stretches a landscape webcam across 1920px on
+ * a desktop. At ≥ md this wrapper centres a bounded 4:3 camera window instead:
+ * `contain: layout paint` makes the frame the containing block of the
+ * scanner's fixed container, so the video, the finder and the close button all
+ * live inside the frame without touching the shared scanner. Below md no rule
+ * applies and the scanner stays full-screen, exactly as before.
+ */
+@media (min-width: $mantine-breakpoint-md) {
+  .stage {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: var(--mantine-spacing-xl);
+  }
+
+  .frame {
+    position: relative;
+    /* 4:3 window: never wider than 960px nor taller than the viewport allows. */
+    width: min(960px, 100%, calc((100dvh - 2 * var(--mantine-spacing-xl)) * 4 / 3));
+    aspect-ratio: 4 / 3;
+    border-radius: var(--mantine-radius-lg);
+    overflow: hidden;
+    contain: layout paint;
+    box-shadow: var(--mantine-shadow-sm);
+  }
+}

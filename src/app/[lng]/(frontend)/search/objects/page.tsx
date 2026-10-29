@@ -3,7 +3,7 @@ import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
 import { SearchShell } from '@/components/mantine/SearchShell'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
-import { Stack, Title } from '@mantine/core'
+import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
@@ -87,48 +87,53 @@ export default async function SearchObjectsPage(props: {
   })
 
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
-      {picker && museum ? (
-        <Stack gap="xs">
-          <Title order={2}>{t('Add an object')}</Title>
-          <Text c="dimmed" size="sm">
-            {t('Pick an object from the catalog to place it on the map of {{museum}}', {
-              museum: museum.name,
-            })}
-          </Text>
-          <Group gap="xs">
-            <LinkButton
-              href={picker.returnTo as Route}
-              variant="default"
-              leftSection={<ArrowLeft size={16} aria-hidden />}
-            >
-              {t('Back to the map')}
-            </LinkButton>
-            {/* Not in the catalog yet: create it (and its 3D model) in the editor. */}
-            <LinkButton
-              href={createObjectHref(picker) as Route}
-              variant="light"
-              leftSection={<Sparkles size={16} aria-hidden />}
-            >
-              {t('Create a new object')}
-            </LinkButton>
-          </Group>
-        </Stack>
-      ) : (
-        <Title order={2}>{t('Search objects')}</Title>
-      )}
-      <SearchShell
-        definitions={definitions}
-        initialFilters={initialFilters}
-        page={result.page ?? page}
-        totalPages={result.totalPages ?? 1}
-        basePath={`/${lng}/search/objects`}
-        storageKeyPrefix="search-objects"
-        placeholder={t('Filter objects...')}
-        keepParams={picker ? museumPickerParams(picker) : undefined}
-      >
-        <ObjectsSearchResults objects={result.docs} lng={lng} picker={picker} onShow={onShow} />
-      </SearchShell>
-    </Stack>
+    // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
+    // centered) so title, filter and the 3-column grid stop stretching across
+    // wide screens. Below md the padding equals the old side margins: no change.
+    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+      <Stack>
+        {picker && museum ? (
+          <Stack gap="xs">
+            <Title order={2}>{t('Add an object')}</Title>
+            <Text c="dimmed" size="sm">
+              {t('Pick an object from the catalog to place it on the map of {{museum}}', {
+                museum: museum.name,
+              })}
+            </Text>
+            <Group gap="xs">
+              <LinkButton
+                href={picker.returnTo as Route}
+                variant="default"
+                leftSection={<ArrowLeft size={16} aria-hidden />}
+              >
+                {t('Back to the map')}
+              </LinkButton>
+              {/* Not in the catalog yet: create it (and its 3D model) in the editor. */}
+              <LinkButton
+                href={createObjectHref(picker) as Route}
+                variant="light"
+                leftSection={<Sparkles size={16} aria-hidden />}
+              >
+                {t('Create a new object')}
+              </LinkButton>
+            </Group>
+          </Stack>
+        ) : (
+          <Title order={2}>{t('Search objects')}</Title>
+        )}
+        <SearchShell
+          definitions={definitions}
+          initialFilters={initialFilters}
+          page={result.page ?? page}
+          totalPages={result.totalPages ?? 1}
+          basePath={`/${lng}/search/objects`}
+          storageKeyPrefix="search-objects"
+          placeholder={t('Filter objects...')}
+          keepParams={picker ? museumPickerParams(picker) : undefined}
+        >
+          <ObjectsSearchResults objects={result.docs} lng={lng} picker={picker} onShow={onShow} />
+        </SearchShell>
+      </Stack>
+    </Container>
   )
 }
