@@ -1,17 +1,5 @@
 import { Box, Image } from '@mantine/core'
-import { BookOpen, Map } from 'lucide-react'
-
-/** Each kind's identity colour and mark (DESIGN.md → Colors): tour gradient, content teal. */
-const FALLBACK = {
-  tour: {
-    Icon: Map,
-    className: 'from-(--mantine-color-grape-6) to-(--mantine-color-orange-4)',
-  },
-  content: {
-    Icon: BookOpen,
-    className: 'from-(--mantine-color-teal-5) to-(--mantine-color-teal-8)',
-  },
-} as const
+import { KIND_FALLBACK } from './kind-fallback'
 
 /**
  * The picture that opens a detail page (tour, content): it leads the page but
@@ -33,22 +21,25 @@ export function DetailCover({
   src?: string | null
   alt?: string | null
   /**
-   * What to show without a picture: the kind's identity colour with its mark
-   * (the tour one as on the tour start page), so the page still opens on its
+   * What to show without a picture: the kind's gradient and mark
+   * (`KIND_FALLBACK`, as on marketplace cards), so the page still opens on its
    * cover rather than a grey "no image" frame.
    */
-  fallback: keyof typeof FALLBACK
+  fallback: 'tour' | 'content'
 }) {
   if (src) {
     return <Image src={src} alt={alt ?? ''} h={COVER_HEIGHT} w="100%" fit="cover" radius="lg" />
   }
-  const { Icon, className } = FALLBACK[fallback]
+  const { background, Icon } = KIND_FALLBACK[fallback]
   return (
     // Decorative: the title right below names the tour or content.
     <Box
       h={COVER_HEIGHT}
       aria-hidden
-      className={`flex items-center justify-center rounded-(--mantine-radius-lg) bg-linear-135 text-white ${className}`}
+      bdrs="lg"
+      c="white"
+      style={{ background }}
+      className="flex items-center justify-center"
     >
       <Icon size="30%" strokeWidth={1.5} />
     </Box>

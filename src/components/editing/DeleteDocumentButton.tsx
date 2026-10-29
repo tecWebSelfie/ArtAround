@@ -1,7 +1,7 @@
 'use client'
 
 import { payloadSdk } from '@/payload-sdk'
-import { Button, Text } from '@mantine/core'
+import { Button, Text, type ButtonProps } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { Trash2 } from 'lucide-react'
@@ -20,11 +20,14 @@ export function DeleteDocumentButton({
   id,
   name,
   redirectTo,
+  size,
 }: {
   collection: 'contents' | 'tours'
   id: string
   name: string
   redirectTo: Route
+  /** `xs` beside an `EditableSection`'s Edit button, so the owner row matches. */
+  size?: ButtonProps['size']
 }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
@@ -53,7 +56,14 @@ export function DeleteDocumentButton({
     })
 
   return (
-    <Button variant="subtle" color="red" leftSection={<Trash2 size={16} />} onClick={confirm}>
+    <Button
+      variant="subtle"
+      color="red"
+      size={size}
+      // Icon after the word, like Edit and Sign out.
+      rightSection={<Trash2 size={size === 'xs' ? 14 : 16} />}
+      onClick={confirm}
+    >
       {t('Delete')}
     </Button>
   )

@@ -114,6 +114,8 @@ export async function ContentDetails({
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
   const sources = content.sources ?? []
   const authorAvatar = isPopulated(author?.avatar) ? author.avatar : null
+  // Only read inside the `object &&` section below.
+  const objectHref = `/${lng}/object/${object?.id}` as Route
 
   return (
     <Stack gap="xl">
@@ -209,7 +211,7 @@ export async function ContentDetails({
             <Stack gap="sm">
               <Group align="center" gap="md" wrap="nowrap">
                 <Link
-                  href={`/${lng}/object/${object.id}` as Route}
+                  href={objectHref}
                   className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
                   tabIndex={-1}
                   aria-hidden
@@ -224,10 +226,7 @@ export async function ContentDetails({
                   />
                 </Link>
                 <Stack gap={6} miw={0} className="flex-1">
-                  <Link
-                    href={`/${lng}/object/${object.id}` as Route}
-                    className="text-inherit no-underline hover:underline"
-                  >
+                  <Link href={objectHref} className="text-inherit no-underline hover:underline">
                     <Title order={3} size="h4" lineClamp={2}>
                       {object.name}
                     </Title>
@@ -256,7 +255,7 @@ export async function ContentDetails({
                 )}
                 {/* `ms-auto` keeps the CTA at the right edge, with or without a museum. */}
                 <Link
-                  href={`/${lng}/object/${object.id}` as Route}
+                  href={objectHref}
                   className="ms-auto inline-flex w-fit items-center gap-1 text-sm font-semibold text-(--mantine-color-anchor) hover:underline"
                 >
                   {t('View the object')}

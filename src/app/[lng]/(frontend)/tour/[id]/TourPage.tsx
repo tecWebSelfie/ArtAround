@@ -1,5 +1,7 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
@@ -13,7 +15,6 @@ import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
-  AppShellFooter,
   AppShellMain,
   Badge,
   Button,
@@ -283,57 +284,55 @@ export default function TourPage({
       </AppShellMain>
 
       {/* The Thumb-Reach Rule: the way forward lives in the 64px footer. */}
-      <AppShellFooter p="xs">
-        <Container size="sm" px="md">
-          {/* Two equal halves of a 390px phone leave ~170px per button: tighter
-              padding and sm text keep "Customize tour" / "Unlock for €4.99"
-              (and their longer translations) whole instead of "Customize to…". */}
-          <Group grow gap="xs" wrap="nowrap">
-            {price > 0 ? (
-              <Button
-                size="md"
-                px="xs"
-                fz="sm"
-                color="orange"
-                autoContrast
-                rightSection={<ShoppingBag size={16} />}
-                onClick={() => setPurchaseOpen(true)}
-              >
-                {t('Unlock for {{price}}', { price: formatPrice(price, lng) })}
-              </Button>
-            ) : (
-              <Button
-                size="md"
-                px="xs"
-                fz="sm"
-                component={Link}
-                href={editHref}
-                color="orange"
-                variant="light"
-                leftSection={<Pencil size={16} />}
-              >
-                {canEdit ? t('Edit tour') : t('Customize tour')}
-              </Button>
-            )}
-            {/* Always available: locked contents simply stay locked while navigating. */}
+      <ActionFooter size="sm">
+        {/* Two equal halves of a 390px phone leave ~170px per button: tighter
+            padding and sm text keep "Customize tour" / "Unlock for €4.99"
+            (and their longer translations) whole instead of "Customize to…". */}
+        <Group grow gap="xs" wrap="nowrap">
+          {price > 0 ? (
+            <Button
+              size="md"
+              px="xs"
+              fz="sm"
+              color="orange"
+              autoContrast
+              rightSection={<ShoppingBag size={16} />}
+              onClick={() => setPurchaseOpen(true)}
+            >
+              {t('Unlock for {{price}}', { price: formatPrice(price, lng) })}
+            </Button>
+          ) : (
             <Button
               size="md"
               px="xs"
               fz="sm"
               component={Link}
-              // The tour's start page, inside its museum's navigation.
-              href={tourStartPath(lng, tourMuseumId(tour), tour.id)}
-              // The tour gradient: starting a tour is the app's main way in
-              // (DESIGN.md → Colors, tour identity); moving freely stays blue.
-              variant="gradient"
-              gradient={{ from: 'grape', to: 'orange' }}
-              rightSection={<Play size={16} />}
+              href={editHref}
+              color="orange"
+              variant="light"
+              leftSection={<Pencil size={16} />}
             >
-              {t('Start tour')}
+              {canEdit ? t('Edit tour') : t('Customize tour')}
             </Button>
-          </Group>
-        </Container>
-      </AppShellFooter>
+          )}
+          {/* Always available: locked contents simply stay locked while navigating. */}
+          <Button
+            size="md"
+            px="xs"
+            fz="sm"
+            component={Link}
+            // The tour's start page, inside its museum's navigation.
+            href={tourStartPath(lng, tourMuseumId(tour), tour.id)}
+            // The tour gradient: starting a tour is the app's main way in
+            // (DESIGN.md → Colors, tour identity); moving freely stays blue.
+            variant="gradient"
+            gradient={TOUR_GRADIENT}
+            rightSection={<Play size={16} />}
+          >
+            {t('Start tour')}
+          </Button>
+        </Group>
+      </ActionFooter>
 
       <PurchaseModal
         opened={purchaseOpen}

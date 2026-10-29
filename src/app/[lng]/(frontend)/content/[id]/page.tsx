@@ -1,12 +1,14 @@
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { EditableSection } from '@/components/editing/EditableSection'
-import { ContentMetadataForm } from '@/components/editing/forms/ContentMetadataForm'
+import { ContentEditForm } from '@/components/editing/forms/ContentEditForm'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import { getT } from '@/i18n.server'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { normalizeLocale, resolveLocalized } from '@/lib/localized'
+import { lexicalToHTML } from '@/lib/richtext'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { isPopulated } from '@/lib/isPopulated'
 import { isLocked } from '@/lib/price'
@@ -14,8 +16,8 @@ import { lockedMuseumId } from '@/lib/museum-mode'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import type { Content } from '@/payload-types'
-import { AppShellFooter, AppShellMain, Container, Divider, Group, Stack } from '@mantine/core'
-import { Compass, FileText } from 'lucide-react'
+import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
+import { Compass } from 'lucide-react'
 import type { Route } from 'next'
 import { ContentDetails, type ContentDetailsProps } from './ContentDetails'
 
@@ -157,9 +159,9 @@ async function loadContentDetails(
 }
 
 /**
- * Canonical content page. The author edits metadata in place and the text on
- * `/content/:id/edit`; the author or museum staff above the author's rank may
- * delete it (`can(…, 'delete')` mirrors the moderation rule). Below the text,
+ * Canonical content page. The author edits metadata and text in place (the
+ * section's Edit button opens `ContentEditForm`); the author or museum staff
+ * above the author's rank may delete it (`can(…, 'delete')` mirrors the moderation rule). Below the text,
  * `ContentDetails` puts it in context: the object and museum it is about, its
  * author, sources, pictures and the tours that include it.
  */
@@ -167,26 +169,33 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
   const locked = isLocked(content)
-  const [canEdit, canDelete, navigationHref, details] = await Promise.all([
-    can('contents', id, 'update'),
-    can('contents', id, 'delete'),
-    // The museum map with this content open and its object as destination;
-    // not offered while the content is locked (buying it comes first).
-    locked ? null : contentNavigationEntry(lng, id),
-    loadContentDetails(content, id, lng),
-  ])
   const { payload } = await getSession()
-  const source = canEdit
-    ? await payload.findByID({
-        collection: 'contents',
-        id,
-        locale: 'en',
-        depth: 0,
-        select: { title: true, difficulty: true, copyright: true, price: true },
-      })
-    : null
-  const { t } = await getT('editing')
-  const { t: tn } = await getT('tour-navigation')
+  const canEditPromise = can('contents', id, 'update')
+  const [canEdit, source, canDelete, navigationHref, details, { t }, { t: tn }] = await Promise.all(
+    [
+      canEditPromise,
+      // The editor's source-locale values (body included), for the author
+      // only; chained on the permission so it runs alongside the other reads.
+      canEditPromise.then((allowed) =>
+        allowed
+          ? payload.findByID({
+              collection: 'contents',
+              id,
+              locale: 'en',
+              depth: 0,
+              select: { title: true, difficulty: true, copyright: true, price: true, body: true },
+            })
+          : null,
+      ),
+      can('contents', id, 'delete'),
+      // The museum map with this content open and its object as destination;
+      // not offered while the content is locked (buying it comes first).
+      locked ? null : contentNavigationEntry(lng, id),
+      loadContentDetails(content, id, lng),
+      getT('editing'),
+      getT('tour-navigation'),
+    ],
+  )
 
   // The cover: the content's own first picture, else its object's thumbnail
   // (the piece the text is about); with neither, the content teal stands in.
@@ -200,33 +209,29 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
       <Container size="md" py="md">
         <Stack gap="md">
           <DetailCover src={cover?.url} alt={cover?.alt} fallback="content" />
-          {/* Owner actions sit above the text, not after it: a long body
-              would otherwise push them out of sight on landing. */}
-          {(canEdit || canDelete) && (
-            <Group gap="xs">
-              {canEdit && (
-                <LinkButton
-                  href={`/${lng}/content/${id}/edit` as Route}
-                  variant="light"
-                  leftSection={<FileText size={16} />}
-                >
-                  {t('Edit text')}
-                </LinkButton>
-              )}
-              {canDelete && (
+          <EditableSection
+            title={t('Content')}
+            canEdit={canEdit}
+            // Owner actions together at the section header: Delete beside Edit.
+            actions={
+              canDelete && (
                 <DeleteDocumentButton
                   collection="contents"
                   id={id}
                   name={content.title}
                   redirectTo={`/${lng}/navigator` as Route}
+                  size="xs"
                 />
-              )}
-            </Group>
-          )}
-          <EditableSection
-            title={t('Content')}
-            canEdit={canEdit}
-            form={source && <ContentMetadataForm content={{ ...source, id }} />}
+              )
+            }
+            form={
+              source && (
+                <ContentEditForm
+                  content={{ ...source, id }}
+                  bodyHTML={lexicalToHTML(source.body)}
+                />
+              )
+            }
           >
             <ContentDetailsModalContent
               content={content}
@@ -241,26 +246,24 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
           in view, whatever the length of the text. A locked content offers
           the purchase first; a readable one, the way to it on the map. */}
       {(locked || navigationHref) && (
-        <AppShellFooter p="xs">
-          <Container size="sm" px="md">
-            {/* Mutually exclusive: there is no map entry while locked. */}
-            {locked && (
-              <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} fullWidth />
-            )}
-            {navigationHref && (
-              <LinkButton
-                href={navigationHref}
-                size="md"
-                fullWidth
-                color="blue.8"
-                autoContrast
-                leftSection={<Compass size={18} aria-hidden />}
-              >
-                {tn('Find it on the map')}
-              </LinkButton>
-            )}
-          </Container>
-        </AppShellFooter>
+        <ActionFooter size="sm">
+          {/* Mutually exclusive: there is no map entry while locked. */}
+          {locked && (
+            <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} fullWidth />
+          )}
+          {navigationHref && (
+            <LinkButton
+              href={navigationHref}
+              size="md"
+              fullWidth
+              color="blue.8"
+              autoContrast
+              leftSection={<Compass size={18} aria-hidden />}
+            >
+              {tn('Find it on the map')}
+            </LinkButton>
+          )}
+        </ActionFooter>
       )}
     </AppShellMain>
   )

@@ -1,5 +1,6 @@
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { LinkButton } from '@/components/editing/LinkButton'
-import { AppShellFooter, AppShellMain, Container, Stack, Text, Title } from '@mantine/core'
+import { AppShellMain, Container, Stack, Text, Title } from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -36,18 +37,11 @@ export function CheckoutOutcome({
           </Stack>
         </Container>
       </AppShellMain>
-      <AppShellFooter p="xs">
-        <Container size="xs" px="md">
-          <LinkButton
-            href={action.href}
-            fullWidth
-            size="md"
-            rightSection={<ArrowRight size={18} />}
-          >
-            {action.label}
-          </LinkButton>
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="xs">
+        <LinkButton href={action.href} fullWidth size="md" rightSection={<ArrowRight size={18} />}>
+          {action.label}
+        </LinkButton>
+      </ActionFooter>
     </>
   )
 }

@@ -265,6 +265,8 @@ These are inherited Mantine values, not a new custom scale. The prototype does n
 
 ### Named Rules
 
+**The tour gradient** is one token, `TOUR_GRADIENT` in `src/theme.ts` (`grape` → `orange`), passed to every Mantine `variant="gradient"` tour mark; don't re-declare the pair inline.
+
 **The Gradient-Span Rule.** A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.
 
 ## Layout
@@ -289,7 +291,7 @@ Detail pages for museums, objects, contents and tours stack read-only sections. 
 
 **Tour page** (`/[lng]/tour/[id]`) is a `Container size="sm"` column in `AppShellMain`: the `lg`-radius cover (`DetailCover`, see below), the `h1`-sized title with the QR (and owner delete) icons at its trailing edge, a blue.8 `Landmark` link to the museum and a dimmed "By {author}", the dimmed description, then **at-a-glance badges** (`lg`, `light`, each icon + words: blue `Clock` "About 35 min", gray `MapPin` "N stops", gray `Footprints` distance, blue `Accessibility` "Step-free route", grape `ListChecks` "Ends with a quiz", yellow `Star` rating with its count). "The stops" (`h4`-sized) carries the total reading time on its trailing edge and the reading profile beneath it: one `light` difficulty badge per level present, "2 · Easy". The stops are a `Timeline` with numbered 28px bullets; each stop is one link row (56px `md`-radius picture: the content's image, else its object's thumbnail, else a light teal `BookOpen` tile) with the title over `xs` difficulty, duration and locked-price badges. A tour with a quiz ends on a `ListChecks` item. Unit figures go through `Intl.NumberFormat` (`unit: minute | meter`), and every figure comes from `summarizeTour` (`src/lib/tour-summary.ts`): a figure the data can't support is left out, never estimated. The footer holds the evenly split pair: paid-orange acquisition ("Unlock for €…", filled) or a `light` orange "Edit/Customize tour", and the gradient "Start tour".
 
-**Detail covers** (`DetailCover`, `src/components/mantine/DetailCover.tsx`) open the tour and content pages: the picture full column width at `clamp(160px, 32dvh, 360px)`, `lg` radius, `cover` fit. Capped so that on a phone the title, the at-a-glance facts and the start of the text still land above the fold. Without a picture the kind's identity stands in, decorative: the tour gradient with a `Map` mark, or a teal gradient with a `BookOpen` mark for a content (its own first image, else its object's thumbnail, comes first). The **content page** follows the tour page's Thumb-Reach footer: "Find it on the map" (blue.8, full width) or, while locked, the paid-orange unlock, so its main action never sits below a long text; owner actions (Edit text, Delete) sit between the cover and the title.
+**Detail covers** (`DetailCover`, `src/components/mantine/DetailCover.tsx`) open the tour and content pages: the picture full column width at `clamp(160px, 32dvh, 360px)`, `lg` radius, `cover` fit. Capped so that on a phone the title, the at-a-glance facts and the start of the text still land above the fold. Without a picture the kind's identity stands in, decorative: `KIND_FALLBACK` (`src/components/mantine/kind-fallback.ts`, shared with marketplace cards and the tour start page), the tour gradient with a `Map` mark, or teal into cyan with a `BookOpen` mark for a content (its own first image, else its object's thumbnail, comes first). The **content page** follows the tour page's Thumb-Reach footer: "Find it on the map" (blue.8, full width) or, while locked, the paid-orange unlock, so its main action never sits below a long text; the section's Edit opens one inline form for metadata and the rich-text body (TipTap, loaded on demand), with Delete after it in the section header.
 
 **Detail pages cap their width.** The museum page's column stops at 960px from `md`; past that the cover and the tour deck outgrow the viewport.
 
@@ -303,7 +305,7 @@ At 390px the bottom navigation holds up to four entries (Navigator, Marketplace,
 
 ### Named Rules
 
-**The Thumb-Reach Rule.** On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not.
+**The Thumb-Reach Rule.** On a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not. Build it with `ActionFooter` (`src/components/mantine/ActionFooter.tsx`): the 64px `AppShellFooter` with a `Container` matching the page column (`xs` for task pages, `sm` for the tour and content pages).
 
 **The Overlay Opt-In Rule.** Floating controls over a map or canvas sit in a transparent, non-interactive overlay container; each control re-enables pointer events on itself. Never give the container pointer events back.
 
@@ -414,7 +416,7 @@ The quiz's one bespoke control: calm, large, and honest about the result.
 
 ### Inline editing (`src/components/editing/`)
 
-Editing for allowed viewers happens on the visitor's own pages instead of a separate admin skin. An `EditableSection` puts an `h4`-sized title on the left and a `subtle` pencil `ActionIcon` on the right. The pencil turns into an `X` with `aria-pressed` while editing, and the section's read view is swapped in place for its form. Simple metadata is edited this way; larger structures (new contents, tours, staff) get dedicated pages built from the same Mantine fields. The server decides who sees the controls, so the UI doesn't show disabled affordances to viewers who can't use them.
+Editing for allowed viewers happens on the visitor's own pages instead of a separate admin skin. An `EditableSection` puts an `h4`-sized title on the left and, on the right, an `xs` `light` "Edit" button with a trailing `Pencil` (a word, not a bare icon, so it reads as an action). While editing it turns into a gray "Cancel" with an `X` and `aria-pressed`, and the section's read view is swapped in place for its form. Other owner actions on the same document (`actions`, e.g. a `subtle` red `xs` Delete with a trailing `Trash2`) follow Edit in that header, the destructive one in the corner, and hide while the form is open, so nothing destructive stands next to Save. The profile keeps the bare `subtle` pencil `ActionIcon` (`iconOnly`) on "About me": its "Sign out" already sits at the name's height. Simple metadata is edited this way; larger structures (new contents, tours, staff) get dedicated pages built from the same Mantine fields. The server decides who sees the controls, so the UI doesn't show disabled affordances to viewers who can't use them.
 
 **The Edit-In-Place Rule.** Editing reuses the visitor's typography, spacing and Mantine controls. Don't introduce the neutral shadcn/editor layer or a dashboard look to visitor-facing pages because a form appeared on them.
 

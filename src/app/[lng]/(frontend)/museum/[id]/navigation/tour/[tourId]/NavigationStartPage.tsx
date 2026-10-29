@@ -3,7 +3,7 @@ import { Tour } from '@/payload-types'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
 import { AspectRatio, Divider, Group, Image, Stack, StackProps, Title } from '@mantine/core'
-import { Map } from 'lucide-react'
+import { KIND_FALLBACK } from '@/components/mantine/kind-fallback'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { StartTourButton } from './StartTourButton'
 
@@ -30,13 +30,14 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
               alt={tourThumbnail.alt ?? ''}
             />
           ) : (
-            // No cover yet: the tour's own brand gradient (as on marketplace
-            // cards) instead of a grey "no thumbnail" image. Decorative.
+            // No cover yet: the tour's own brand gradient (`KIND_FALLBACK`, as
+            // on marketplace cards) instead of a grey "no thumbnail" image.
             <div
-              className="flex items-center justify-center rounded-full bg-linear-135 from-(--mantine-color-grape-6) to-(--mantine-color-orange-4) text-white"
+              className="flex items-center justify-center rounded-full text-white"
+              style={{ background: KIND_FALLBACK.tour.background }}
               aria-hidden
             >
-              <Map size="35%" strokeWidth={1.5} />
+              <KIND_FALLBACK.tour.Icon size="35%" strokeWidth={1.5} />
             </div>
           )}
         </AspectRatio>

@@ -1,5 +1,6 @@
 'use client'
 
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { useGroup, useGroupSettings } from '@/components/group/GroupProvider'
 import { GroupRoom } from '@/components/group/GroupRoom'
 import { isQuizHandedIn } from '@/lib/group'
@@ -9,7 +10,6 @@ import { tourQuizResultPath } from '@/lib/tour-navigation'
 import { useRemoteParticipants } from '@livekit/components-react'
 import {
   Anchor,
-  AppShellFooter,
   AppShellMain,
   Avatar,
   Button,
@@ -180,19 +180,17 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
           </Stack>
         </Container>
       </AppShellMain>
-      <AppShellFooter p="xs">
-        <Container size="xs" px="md">
-          {ended ? (
-            <Button fullWidth size="md" variant="light" color="red" onClick={confirmEnd}>
-              {t('End the group tour')}
-            </Button>
-          ) : (
-            <Button fullWidth size="md" onClick={endQuiz}>
-              {t('End the quiz')}
-            </Button>
-          )}
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="xs">
+        {ended ? (
+          <Button fullWidth size="md" variant="light" color="red" onClick={confirmEnd}>
+            {t('End the group tour')}
+          </Button>
+        ) : (
+          <Button fullWidth size="md" onClick={endQuiz}>
+            {t('End the quiz')}
+          </Button>
+        )}
+      </ActionFooter>
     </>
   )
 }

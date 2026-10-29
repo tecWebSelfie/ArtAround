@@ -139,12 +139,15 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
    - museum (Info tab): name, short description, description (rich text),
      email, address — director (`can('museums', id, 'update', 'name')`);
    - object: name, description — owner;
-   - content: title, difficulty, copyright, price — author;
+   - content: title, difficulty, copyright, price and the body (rich text,
+     TipTap loaded on demand) — author (`ContentEditForm`, fields shared with
+     `ContentForm` through `ContentFields`);
    - own profile: first/last name, bio (+ sign out).
 2. **Dedicated pages** (complex relations):
    - `/[lng]/content/new?object=<id>` — full content form; sends
      `attachToObject`. The query param is just a shareable prefill.
-   - `/[lng]/content/[id]/edit` — text (body) editing.
+   - `/[lng]/content/[id]/edit` — redirects to the content page (the body
+     is edited inline there now).
    - `/[lng]/tour/new?museum=<id>` | `?from=<tourId>` (customize a copy) and
      `/[lng]/tour/[id]/edit` — `TourForm`: vertical timeline of stops,
      reordered by drag (grip handle, `@dnd-kit/react`, auto-scroll + keyboard)

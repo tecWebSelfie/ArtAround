@@ -1,5 +1,6 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
 import type { Difficulty } from '@/payload-types'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import {
@@ -148,7 +149,7 @@ export function ArtAroundGlobalSearch({
 
 /** Leading mark per kind: the tour gradient, content teal, a plain museum. */
 const KIND_ICON = {
-  tour: { Icon: RouteIcon, variant: 'gradient', gradient: { from: 'grape', to: 'orange' } },
+  tour: { Icon: RouteIcon, variant: 'gradient', gradient: TOUR_GRADIENT },
   content: { Icon: BookOpen, variant: 'light', color: 'teal' },
   museum: { Icon: Landmark, variant: 'light', color: 'blue' },
   object: { Icon: Shapes, variant: 'light', color: 'gray' },

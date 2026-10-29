@@ -1,17 +1,10 @@
 import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import type { Difficulty } from '@/payload-types'
 import { Badge, Box, Card, CardSection, Group, Image, Stack, Text, Title } from '@mantine/core'
-import { ArrowUpRight, AtSign, BookOpen, Clock, Map, UserRound } from 'lucide-react'
+import { ArrowUpRight, AtSign, Clock } from 'lucide-react'
+import { KIND_FALLBACK } from './kind-fallback'
 import type { Route } from 'next'
 import Link from 'next/link'
-
-/** Branded fallback: a kind-coloured gradient instead of a grey placeholder
- *  image, so documents without artwork still look intentional in the grid. */
-const FALLBACK_BACKGROUND = {
-  tour: 'linear-gradient(135deg, var(--mantine-color-grape-6), var(--mantine-color-orange-4))',
-  content: 'linear-gradient(135deg, var(--mantine-color-teal-6), var(--mantine-color-cyan-4))',
-  user: 'linear-gradient(135deg, var(--mantine-color-blue-6), var(--mantine-color-violet-4))',
-} as const
 
 type MarketplaceBaseItem = {
   key: string
@@ -99,6 +92,7 @@ export function MarketplaceCard({
 
   const kindLabel = isTour ? labels.tour : isContent ? labels.content : labels.user
   const kindColor = isTour ? 'grape' : isContent ? 'teal' : 'blue'
+  const FallbackIcon = KIND_FALLBACK[item.kind].Icon
 
   // `Link` wraps the card instead of being passed as Mantine's `component`:
   // a server component cannot hand the Link function to a client component.
@@ -120,22 +114,17 @@ export function MarketplaceCard({
             {item.imageUrl ? (
               <Image h={168} fit="cover" src={item.imageUrl} alt={item.imageAlt || item.title} />
             ) : (
+              // Branded fallback (`KIND_FALLBACK`): the kind's gradient and mark.
               <Box
                 h={168}
                 style={{
-                  background: FALLBACK_BACKGROUND[item.kind],
+                  background: KIND_FALLBACK[item.kind].background,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                {isTour ? (
-                  <Map size={40} color="white" opacity={0.9} aria-hidden />
-                ) : isContent ? (
-                  <BookOpen size={40} color="white" opacity={0.9} aria-hidden />
-                ) : (
-                  <UserRound size={40} color="white" opacity={0.9} aria-hidden />
-                )}
+                <FallbackIcon size={40} color="white" opacity={0.9} aria-hidden />
               </Box>
             )}
             <Badge

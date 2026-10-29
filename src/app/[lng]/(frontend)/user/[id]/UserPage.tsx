@@ -90,6 +90,9 @@ export const UserPage = async ({
       <EditableSection
         title={te('About me')}
         canEdit={isSelf}
+        // The profile keeps the bare pencil: "Sign out" already sits at the
+        // name's height, and a second labelled button here felt heavy.
+        iconOnly
         form={isSelf && <ProfileForm user={{ id: user.id, name: user.name, bio: user.bio }} />}
       >
         <Text>{user.bio}</Text>

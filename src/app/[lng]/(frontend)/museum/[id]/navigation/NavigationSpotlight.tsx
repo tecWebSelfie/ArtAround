@@ -1,5 +1,6 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
 import { ClearSearchButton } from '@/components/mantine/ClearSearchButton'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { PaidMark } from '@/components/mantine/PaidMark'
@@ -63,7 +64,7 @@ export function NavigationSpotlight({
               {...(accent
                 ? {
                     variant: 'gradient',
-                    gradient: { from: 'grape', to: 'orange' },
+                    gradient: TOUR_GRADIENT,
                     leftSection: <RouteIcon size={14} aria-hidden />,
                   }
                 : { variant: 'light' })}
