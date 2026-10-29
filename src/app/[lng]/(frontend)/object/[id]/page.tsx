@@ -5,7 +5,9 @@ import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import { getT } from '@/i18n.server'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { can, getSession } from '@/lib/session'
-import { Container, Group } from '@mantine/core'
+import { isPopulated } from '@/lib/isPopulated'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
+import { Container, Grid, GridCol, Group, Image } from '@mantine/core'
 import { FilePlus } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -13,6 +15,11 @@ import type { Route } from 'next'
  * Canonical object page. Shows the visitor's language; its owner edits the
  * source-locale name and description in place. Anyone signed in can write a
  * content about it (dedicated page, object preselected).
+ *
+ * Phones read one column (picture inside the details). From `md` the page is
+ * two panes in a 1140px container: the picture alone on the left, sticky
+ * under the site header and never taller than the viewport, and the details,
+ * their inline editing and the actions on the right.
  */
 export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>) {
   const { lng, id } = await params
@@ -29,27 +36,51 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
       })
     : null
   const { t } = await getT('editing')
+  const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
 
   return (
-    <Container size="md" py="md">
-      <EditableSection
-        title={t('Object')}
-        canEdit={canEdit}
-        form={source && <ObjectMetadataForm object={{ ...source, id }} />}
-      >
-        <ObjectDetailsContent object={object} />
-      </EditableSection>
-      {user && (
-        <Group mt="md">
-          <LinkButton
-            href={`/${lng}/content/new?object=${id}` as Route}
-            variant="light"
-            leftSection={<FilePlus size={16} />}
+    // `maw` widens Mantine's `md` container (960px) to 1140px from md only.
+    <Container size="md" py="md" maw={{ md: 1140 }}>
+      <Grid gap={{ base: 0, md: 48 }} align="flex-start">
+        {/* Desktop media pane: natural aspect ratio, capped to the viewport
+            height so a portrait or a placeholder never dominates. */}
+        <GridCol
+          span={{ md: 5 }}
+          visibleFrom="md"
+          pos="sticky"
+          top="calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))"
+        >
+          <Image
+            radius="md"
+            w="auto"
+            maw="100%"
+            mah="calc(100dvh - var(--site-header-height, 0px) - 2 * var(--mantine-spacing-md))"
+            src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
+            alt={thumbnail?.alt ?? object.name}
+          />
+        </GridCol>
+        <GridCol span={{ base: 12, md: 7 }}>
+          <EditableSection
+            title={t('Object')}
+            canEdit={canEdit}
+            form={source && <ObjectMetadataForm object={{ ...source, id }} />}
           >
-            {t('Write a content about this object')}
-          </LinkButton>
-        </Group>
-      )}
+            {/* The inline picture is the media pane's job from md. */}
+            <ObjectDetailsContent object={object} imageHiddenFrom="md" />
+          </EditableSection>
+          {user && (
+            <Group mt="md">
+              <LinkButton
+                href={`/${lng}/content/new?object=${id}` as Route}
+                variant="light"
+                leftSection={<FilePlus size={16} />}
+              >
+                {t('Write a content about this object')}
+              </LinkButton>
+            </Group>
+          )}
+        </GridCol>
+      </Grid>
     </Container>
   )
 }

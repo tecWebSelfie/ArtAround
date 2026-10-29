@@ -1,7 +1,16 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Object } from '@/payload-types'
-import { AspectRatio, Image, List, ListItem, Stack, Text, Title } from '@mantine/core'
+import {
+  AspectRatio,
+  Image,
+  List,
+  ListItem,
+  Stack,
+  Text,
+  Title,
+  type MantineBreakpoint,
+} from '@mantine/core'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 
 // Server Component: renders the modal body. Wrap it in the `ObjectModal` shell
@@ -11,9 +20,16 @@ import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 export async function ObjectDetailsContent({
   object,
   hideContents = false,
+  imageHiddenFrom,
 }: {
   object: Object
   hideContents?: boolean
+  /**
+   * Hides the inline 16:9 picture from this breakpoint up. The object page
+   * sets `md`: on desktop it shows the picture in its own sticky pane beside
+   * these details. Modals leave it unset (picture always inline).
+   */
+  imageHiddenFrom?: MantineBreakpoint
 }) {
   const { t } = await getT('object-details')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
@@ -21,7 +37,7 @@ export async function ObjectDetailsContent({
 
   return (
     <Stack gap="sm">
-      <AspectRatio ratio={16 / 9}>
+      <AspectRatio ratio={16 / 9} hiddenFrom={imageHiddenFrom}>
         <Image
           radius="md"
           src={thumbnail?.url ?? PLACEHOLDER_IMAGE}

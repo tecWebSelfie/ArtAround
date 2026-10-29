@@ -15,8 +15,11 @@ import {
   AppShellMain,
   AspectRatio,
   Badge,
+  Box,
   Button,
   Container,
+  Grid,
+  GridCol,
   Group,
   Image,
   Modal,
@@ -73,9 +76,14 @@ function formatUnit(value: number, unit: 'minute' | 'meter', lng: string) {
  * museum, author, description), what it asks of the visitor (time, stops,
  * walking, access, reading difficulty, quiz) and the stops in their authored
  * order. Every figure comes from `summarizeTour`, so nothing shown here is
- * estimated by the page itself. The two exits sit in the footer, in thumb
- * reach: start navigating right away, or deal with the locked contents (buy
- * them, or swap them for others in the tour editor).
+ * estimated by the page itself. The two exits (`TourActions`): start
+ * navigating right away, or deal with the locked contents (buy them, or swap
+ * them for others in the tour editor).
+ *
+ * Phones: one column, the exits in the footer within thumb reach. From `md`:
+ * two panes in a 1140px container, a sticky summary on the left (cover,
+ * identity, badges and the exits inline, the footer hidden) and "The stops"
+ * timeline on the right.
  */
 export default function TourPage({
   tour,
@@ -108,230 +116,222 @@ export default function TourPage({
   return (
     <>
       <AppShellMain>
-        <Container size="sm" px="md" py="md">
-          <Stack gap="lg">
-            {cover && (
-              <AspectRatio ratio={16 / 9}>
-                <Image radius="lg" src={cover.url} alt={cover.alt ?? ''} />
-              </AspectRatio>
-            )}
+        {/* `maw` widens the `sm` container (720px) to 1140px from md only. */}
+        <Container size="sm" px="md" py="md" maw={{ md: 1140 }}>
+          {/* Grid lays out with `gap`: below md (full-width columns, `lg`
+              gap) it stacks exactly like the former single Stack. */}
+          <Grid gap={{ base: 'lg', md: 48 }} align="flex-start">
+            {/* Summary pane: sticky from md, scrolling on its own when a long
+                description makes it taller than the viewport. */}
+            <GridCol
+              span={{ base: 12, md: 5 }}
+              pos={{ md: 'sticky' }}
+              top={{ md: 'calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))' }}
+              mah={{
+                md: 'calc(100dvh - var(--site-header-height, 0px) - 2 * var(--mantine-spacing-md))',
+              }}
+              className="min-[62em]:overflow-y-auto"
+            >
+              <Stack gap="lg">
+                {cover && (
+                  <AspectRatio ratio={16 / 9}>
+                    <Image radius="lg" src={cover.url} alt={cover.alt ?? ''} />
+                  </AspectRatio>
+                )}
 
-            <Stack gap="xs">
-              <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
-                <Title order={1} size="h2" textWrap="balance">
-                  {tour.title}
-                </Title>
-                <Group gap="xs" wrap="nowrap">
-                  <TourQrButton tourId={tour.id} title={tour.title} />
-                  {canDelete && (
-                    <DeleteDocumentButton
-                      collection="tours"
-                      id={tour.id}
-                      name={tour.title}
-                      redirectTo={`/${lng}/navigator` as Route}
-                    />
+                <Stack gap="xs">
+                  <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+                    <Title order={1} size="h2" textWrap="balance">
+                      {tour.title}
+                    </Title>
+                    <Group gap="xs" wrap="nowrap">
+                      <TourQrButton tourId={tour.id} title={tour.title} />
+                      {canDelete && (
+                        <DeleteDocumentButton
+                          collection="tours"
+                          id={tour.id}
+                          name={tour.title}
+                          redirectTo={`/${lng}/navigator` as Route}
+                        />
+                      )}
+                    </Group>
+                  </Group>
+                  {(museum || author) && (
+                    <Group gap="xs" c="dimmed" fz="sm">
+                      {museum && (
+                        <Anchor
+                          component={Link}
+                          href={`/${lng}/museum/${museum.id}` as Route}
+                          size="sm"
+                          c="blue.8"
+                          className="inline-flex items-center gap-1"
+                        >
+                          <Landmark size={14} aria-hidden />
+                          {museum.name}
+                        </Anchor>
+                      )}
+                      {museum && author && <span aria-hidden>·</span>}
+                      {author && <Text size="sm">{t('By {{name}}', { name: author })}</Text>}
+                    </Group>
                   )}
-                </Group>
-              </Group>
-              {(museum || author) && (
-                <Group gap="xs" c="dimmed" fz="sm">
-                  {museum && (
-                    <Anchor
-                      component={Link}
-                      href={`/${lng}/museum/${museum.id}` as Route}
-                      size="sm"
-                      c="blue.8"
-                      className="inline-flex items-center gap-1"
-                    >
-                      <Landmark size={14} aria-hidden />
-                      {museum.name}
-                    </Anchor>
-                  )}
-                  {museum && author && <span aria-hidden>·</span>}
-                  {author && <Text size="sm">{t('By {{name}}', { name: author })}</Text>}
-                </Group>
-              )}
-              {tour.description && <Text c="dimmed">{tour.description}</Text>}
-            </Stack>
+                  {tour.description && <Text c="dimmed">{tour.description}</Text>}
+                </Stack>
 
-            {/* At a glance: what taking the tour asks of the visitor. Light
+                {/* At a glance: what taking the tour asks of the visitor. Light
                 badges, as in the Plan my visit preview; each one names its
                 figure in words beside the icon (never color alone). */}
-            <Group gap="xs">
-              {summary.visitMinutes != null && (
-                <Badge size="lg" variant="light" color="blue" leftSection={<Clock size={14} />}>
-                  {t('About {{duration}}', {
-                    duration: formatUnit(summary.visitMinutes, 'minute', lng),
-                  })}
-                </Badge>
-              )}
-              <Badge size="lg" variant="light" color="gray" leftSection={<MapPin size={14} />}>
-                {t('{{count}} stops', { count: summary.stops })}
-              </Badge>
-              {summary.distanceMeters != null && (
-                <Badge
-                  size="lg"
-                  variant="light"
-                  color="gray"
-                  leftSection={<Footprints size={14} />}
-                >
-                  {t('{{distance}} on foot', {
-                    distance: formatUnit(summary.distanceMeters, 'meter', lng),
-                  })}
-                </Badge>
-              )}
-              {summary.wheelchairAccessible && (
-                <Badge
-                  size="lg"
-                  variant="light"
-                  color="blue"
-                  leftSection={<Accessibility size={14} />}
-                >
-                  {t('Step-free route')}
-                </Badge>
-              )}
-              {summary.quizQuestions > 0 && (
-                <Badge
-                  size="lg"
-                  variant="light"
-                  color="grape"
-                  leftSection={<ListChecks size={14} />}
-                >
-                  {t('Ends with a quiz')}
-                </Badge>
-              )}
-              {summary.rating && (
-                <Badge
-                  size="lg"
-                  variant="light"
-                  color="yellow"
-                  leftSection={<Star size={14} fill="currentColor" />}
-                  aria-label={t('Rated {{rating}} out of 5', {
-                    rating: summary.rating.average.toFixed(1),
-                  })}
-                  className="tabular-nums"
-                >
-                  {`${summary.rating.average.toFixed(1)} (${summary.rating.count})`}
-                </Badge>
-              )}
-            </Group>
-
-            <Stack gap="sm">
-              <Group justify="space-between" align="baseline" gap="xs">
-                <Title order={2} size="h4">
-                  {t('The stops')}
-                </Title>
-                {summary.readingMinutes != null && (
-                  <Text size="sm" c="dimmed">
-                    {t('{{duration}} of reading', {
-                      duration: formatUnit(summary.readingMinutes, 'minute', lng),
-                    })}
-                  </Text>
-                )}
-              </Group>
-              {/* The reading profile: how many stops ask for an easy, medium
-                  or hard read, with the Triplet Rule's icon + label + color. */}
-              {summary.difficulties.length > 0 && (
-                <Group gap={6}>
-                  {summary.difficulties.map(({ difficulty, count }) => (
-                    <DifficultyBadge
-                      key={difficulty}
-                      difficulty={difficulty}
+                <Group gap="xs">
+                  {summary.visitMinutes != null && (
+                    <Badge size="lg" variant="light" color="blue" leftSection={<Clock size={14} />}>
+                      {t('About {{duration}}', {
+                        duration: formatUnit(summary.visitMinutes, 'minute', lng),
+                      })}
+                    </Badge>
+                  )}
+                  <Badge size="lg" variant="light" color="gray" leftSection={<MapPin size={14} />}>
+                    {t('{{count}} stops', { count: summary.stops })}
+                  </Badge>
+                  {summary.distanceMeters != null && (
+                    <Badge
+                      size="lg"
                       variant="light"
+                      color="gray"
+                      leftSection={<Footprints size={14} />}
+                    >
+                      {t('{{distance}} on foot', {
+                        distance: formatUnit(summary.distanceMeters, 'meter', lng),
+                      })}
+                    </Badge>
+                  )}
+                  {summary.wheelchairAccessible && (
+                    <Badge
+                      size="lg"
+                      variant="light"
+                      color="blue"
+                      leftSection={<Accessibility size={14} />}
+                    >
+                      {t('Step-free route')}
+                    </Badge>
+                  )}
+                  {summary.quizQuestions > 0 && (
+                    <Badge
+                      size="lg"
+                      variant="light"
+                      color="grape"
+                      leftSection={<ListChecks size={14} />}
+                    >
+                      {t('Ends with a quiz')}
+                    </Badge>
+                  )}
+                  {summary.rating && (
+                    <Badge
+                      size="lg"
+                      variant="light"
+                      color="yellow"
+                      leftSection={<Star size={14} fill="currentColor" />}
+                      aria-label={t('Rated {{rating}} out of 5', {
+                        rating: summary.rating.average.toFixed(1),
+                      })}
                       className="tabular-nums"
                     >
-                      {`${count} · ${difficultyLabel[difficulty]}`}
-                    </DifficultyBadge>
-                  ))}
+                      {`${summary.rating.average.toFixed(1)} (${summary.rating.count})`}
+                    </Badge>
+                  )}
                 </Group>
-              )}
 
-              <Timeline bulletSize={28} lineWidth={2} mt="xs">
-                {contents.map((content, index) => (
-                  // TimelineItem must stay a direct child of Timeline (it
-                  // injects layout props into direct children only).
-                  <TimelineItem
-                    key={content.id}
-                    bullet={
-                      <Text size="xs" fw={700} className="tabular-nums">
-                        {index + 1}
-                      </Text>
-                    }
-                  >
-                    <StopRow
-                      content={content}
-                      locked={locked.has(content.id)}
-                      difficultyLabel={difficultyLabel[content.difficulty]}
-                    />
-                  </TimelineItem>
-                ))}
-                {summary.quizQuestions > 0 && (
-                  <TimelineItem bullet={<ListChecks size={14} aria-hidden />}>
-                    <Stack gap={0} py={4}>
-                      <Text fw={600} size="sm">
-                        {t('Quiz')}
-                      </Text>
-                      <Text size="xs" c="dimmed">
-                        {t('Test what you remember after the last stop')}
-                      </Text>
-                    </Stack>
-                  </TimelineItem>
+                {/* Desktop: the exits move inline, right under the figures. */}
+                <Box visibleFrom="md">
+                  <TourActions
+                    price={price}
+                    editHref={editHref}
+                    canEdit={canEdit}
+                    tourId={tour.id}
+                    onUnlock={() => setPurchaseOpen(true)}
+                  />
+                </Box>
+              </Stack>
+            </GridCol>
+
+            <GridCol span={{ base: 12, md: 7 }}>
+              <Stack gap="sm">
+                <Group justify="space-between" align="baseline" gap="xs">
+                  <Title order={2} size="h4">
+                    {t('The stops')}
+                  </Title>
+                  {summary.readingMinutes != null && (
+                    <Text size="sm" c="dimmed">
+                      {t('{{duration}} of reading', {
+                        duration: formatUnit(summary.readingMinutes, 'minute', lng),
+                      })}
+                    </Text>
+                  )}
+                </Group>
+                {/* The reading profile: how many stops ask for an easy, medium
+                  or hard read, with the Triplet Rule's icon + label + color. */}
+                {summary.difficulties.length > 0 && (
+                  <Group gap={6}>
+                    {summary.difficulties.map(({ difficulty, count }) => (
+                      <DifficultyBadge
+                        key={difficulty}
+                        difficulty={difficulty}
+                        variant="light"
+                        className="tabular-nums"
+                      >
+                        {`${count} · ${difficultyLabel[difficulty]}`}
+                      </DifficultyBadge>
+                    ))}
+                  </Group>
                 )}
-              </Timeline>
-            </Stack>
-          </Stack>
+
+                <Timeline bulletSize={28} lineWidth={2} mt="xs">
+                  {contents.map((content, index) => (
+                    // TimelineItem must stay a direct child of Timeline (it
+                    // injects layout props into direct children only).
+                    <TimelineItem
+                      key={content.id}
+                      bullet={
+                        <Text size="xs" fw={700} className="tabular-nums">
+                          {index + 1}
+                        </Text>
+                      }
+                    >
+                      <StopRow
+                        content={content}
+                        locked={locked.has(content.id)}
+                        difficultyLabel={difficultyLabel[content.difficulty]}
+                      />
+                    </TimelineItem>
+                  ))}
+                  {summary.quizQuestions > 0 && (
+                    <TimelineItem bullet={<ListChecks size={14} aria-hidden />}>
+                      <Stack gap={0} py={4}>
+                        <Text fw={600} size="sm">
+                          {t('Quiz')}
+                        </Text>
+                        <Text size="xs" c="dimmed">
+                          {t('Test what you remember after the last stop')}
+                        </Text>
+                      </Stack>
+                    </TimelineItem>
+                  )}
+                </Timeline>
+              </Stack>
+            </GridCol>
+          </Grid>
         </Container>
       </AppShellMain>
 
-      {/* The Thumb-Reach Rule: the way forward lives in the 64px footer. */}
-      <AppShellFooter p="xs">
+      {/* The Thumb-Reach Rule: on phones the way forward lives in the 64px
+          footer. From md the same pair sits inline in the summary pane. */}
+      <AppShellFooter p="xs" hiddenFrom="md">
         <Container size="sm" px="md">
-          {/* Two equal halves of a 390px phone leave ~170px per button: tighter
-              padding and sm text keep "Customize tour" / "Unlock for €4.99"
-              (and their longer translations) whole instead of "Customize to…". */}
-          <Group grow gap="xs" wrap="nowrap">
-            {price > 0 ? (
-              <Button
-                size="md"
-                px="xs"
-                fz="sm"
-                color="orange"
-                autoContrast
-                rightSection={<ShoppingBag size={16} />}
-                onClick={() => setPurchaseOpen(true)}
-              >
-                {t('Unlock for {{price}}', { price: formatPrice(price, lng) })}
-              </Button>
-            ) : (
-              <Button
-                size="md"
-                px="xs"
-                fz="sm"
-                component={Link}
-                href={editHref}
-                color="orange"
-                variant="light"
-                leftSection={<Pencil size={16} />}
-              >
-                {canEdit ? t('Edit tour') : t('Customize tour')}
-              </Button>
-            )}
-            {/* Always available: locked contents simply stay locked while navigating. */}
-            <Button
-              size="md"
-              px="xs"
-              fz="sm"
-              component={Link}
-              href={`/${lng}/tour/${tour.id}/navigation` as Route}
-              // The tour gradient: starting a tour is the app's main way in
-              // (DESIGN.md → Colors, tour identity); moving freely stays blue.
-              variant="gradient"
-              gradient={{ from: 'grape', to: 'orange' }}
-              rightSection={<Play size={16} />}
-            >
-              {t('Start tour')}
-            </Button>
-          </Group>
+          <TourActions
+            price={price}
+            editHref={editHref}
+            canEdit={canEdit}
+            tourId={tour.id}
+            onUnlock={() => setPurchaseOpen(true)}
+          />
         </Container>
       </AppShellFooter>
 
@@ -346,6 +346,76 @@ export default function TourPage({
         tourId={tour.id}
       />
     </>
+  )
+}
+
+/**
+ * The tour's two exits, shared by the phone footer and the desktop summary
+ * pane: the paid-orange unlock (opens the purchase modal) or the light orange
+ * edit/customize link, and the tour-gradient "Start tour". Always both:
+ * locked contents simply stay locked while navigating.
+ */
+function TourActions({
+  price,
+  editHref,
+  canEdit,
+  tourId,
+  onUnlock,
+}: {
+  price: number
+  editHref: Route
+  canEdit: boolean
+  tourId: string
+  onUnlock: () => void
+}) {
+  const { t } = useTranslation('tour-page')
+  const { lng } = useParams<{ lng: string }>()
+  return (
+    // Two equal halves of a 390px phone leave ~170px per button: tighter
+    // padding and sm text keep "Customize tour" / "Unlock for €4.99" (and
+    // their longer translations) whole instead of "Customize to…".
+    <Group grow gap="xs" wrap="nowrap">
+      {price > 0 ? (
+        <Button
+          size="md"
+          px="xs"
+          fz="sm"
+          color="orange"
+          autoContrast
+          rightSection={<ShoppingBag size={16} />}
+          onClick={onUnlock}
+        >
+          {t('Unlock for {{price}}', { price: formatPrice(price, lng) })}
+        </Button>
+      ) : (
+        <Button
+          size="md"
+          px="xs"
+          fz="sm"
+          component={Link}
+          href={editHref}
+          color="orange"
+          variant="light"
+          leftSection={<Pencil size={16} />}
+        >
+          {canEdit ? t('Edit tour') : t('Customize tour')}
+        </Button>
+      )}
+      <Button
+        size="md"
+        px="xs"
+        fz="sm"
+        component={Link}
+        href={`/${lng}/tour/${tourId}/navigation` as Route}
+        // The tour gradient: starting a tour is the app's main way in
+        // (DESIGN.md → Colors, tour identity); moving freely stays blue.
+        variant="gradient"
+        gradient={{ from: 'grape', to: 'orange' }}
+        rightSection={<Play size={16} />}
+      >
+        {t('Start tour')}
+      </Button>
+    </Group>
   )
 }
 
