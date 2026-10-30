@@ -8,13 +8,12 @@ import { lazy, Suspense, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KIND_FALLBACK } from './kind-fallback'
 
-// three.js, R3F and drei load on the first press of "3D", and the lightbox on
-// the first tap of a picture, never before (each lazy chunk is only requested
-// when it first renders).
+import { PictureLightbox } from './PictureLightbox'
+
+// three.js, R3F and drei load on the first press of "3D", never before (the
+// lazy chunk is only requested when the viewer first renders). The lightbox
+// loads its own code on first open.
 const ModelViewer = lazy(() => import('./ModelViewer').then((m) => ({ default: m.ModelViewer })))
-const PictureLightbox = lazy(() =>
-  import('./PictureLightbox').then((m) => ({ default: m.PictureLightbox })),
-)
 
 /**
  * The media card that opens a detail page (object, content, tour, museum):
@@ -67,8 +66,7 @@ export function DetailCover({
   const shown = usablePictures(pictures)
   const cover = shown[0]
   const modelUrl = model?.url
-  const canBrowse = lightbox && shown.length > 0
-  const showPhotosButton = canBrowse && shown.length > 1 && !show3d
+  const showPhotosButton = lightbox && shown.length > 1 && !show3d
   const openLightbox = () => setLightboxIndex(0)
 
   return (
@@ -85,12 +83,19 @@ export function DetailCover({
         <UnstyledButton
           w="100%"
           h="100%"
-          disabled={!canBrowse}
-          aria-label={canBrowse ? t('Open photos') : undefined}
+          disabled={!lightbox}
+          aria-label={lightbox ? t('Open photos') : undefined}
           onClick={openLightbox}
-          className={canBrowse ? 'cursor-zoom-in' : undefined}
+          className={lightbox ? 'cursor-zoom-in' : undefined}
         >
-          <Image src={pictureSrc(cover, 'cover')} alt={cover.alt ?? ''} h="100%" fit="cover" />
+          {/* The page's largest paint: fetch it first. */}
+          <Image
+            src={pictureSrc(cover, 'cover')}
+            alt={cover.alt ?? ''}
+            h="100%"
+            fit="cover"
+            fetchPriority="high"
+          />
         </UnstyledButton>
       ) : (
         <CoverFallback kind={fallback} />
@@ -130,13 +135,8 @@ export function DetailCover({
         </Overlay>
       )}
 
-      {/* Mounted only while open, so a closed lightbox costs neither the
-          chunk nor a render. */}
-      {canBrowse && lightboxIndex !== null && (
-        <Suspense fallback={null}>
-          <PictureLightbox pictures={shown} index={lightboxIndex} onChange={setLightboxIndex} />
-        </Suspense>
-      )}
+      {/* Only the picture and "Photos" open it, both shown only with `lightbox`. */}
+      <PictureLightbox pictures={shown} index={lightboxIndex} onChange={setLightboxIndex} />
     </Paper>
   )
 }

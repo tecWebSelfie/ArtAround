@@ -24,7 +24,7 @@ export async function ObjectDetailsContent({
 
   return (
     <Stack gap="sm">
-      {/* Photo (lightbox on tap) and, when the object has one, its 3D model. */}
+      {/* Photo and, when the object has one, its 3D model; the lightbox only on the object page. */}
       <DetailCover
         pictures={[thumbnail]}
         model={isPopulated(object.model) ? object.model : null}

@@ -40,14 +40,14 @@ export function ModelViewer({
   /** Shown when the device can't draw WebGL or the model fails to load. */
   unavailable: ReactNode
 }) {
-  // The canvas is a separate React renderer without the app's providers, so
-  // Mantine UI (the spinner) stays outside it, over the canvas.
   const [loaded, setLoaded] = useState(false)
   // Probed once per viewer, not on every render (each probe is a context).
   const [webgl] = useState(hasWebGL)
   if (!webgl) return <Unavailable>{unavailable}</Unavailable>
   return (
     <ModelErrorBoundary fallback={<Unavailable>{unavailable}</Unavailable>}>
+      {/* The canvas is a separate React renderer without the app's providers,
+          so Mantine UI (the spinner) stays outside it, over the canvas. */}
       {!loaded && (
         <MantineCenter pos="absolute" inset={0} className="pointer-events-none">
           <Loader size="sm" />

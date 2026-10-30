@@ -2,13 +2,9 @@
 
 import { pictureSrc, type Picture } from '@/lib/picture'
 import { Image, SimpleGrid, UnstyledButton } from '@mantine/core'
-import { lazy, Suspense, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-// The lightbox chunk loads on the first tap, not with the page.
-const PictureLightbox = lazy(() =>
-  import('./PictureLightbox').then((m) => ({ default: m.PictureLightbox })),
-)
+import { PictureLightbox } from './PictureLightbox'
 
 /**
  * A grid of a document's pictures at card size; tapping one opens it, with
@@ -38,11 +34,7 @@ export function PictureGrid({ pictures }: { pictures: Picture[] }) {
           </UnstyledButton>
         ))}
       </SimpleGrid>
-      {index !== null && (
-        <Suspense fallback={null}>
-          <PictureLightbox pictures={pictures} index={index} onChange={setIndex} />
-        </Suspense>
-      )}
+      <PictureLightbox pictures={pictures} index={index} onChange={setIndex} />
     </>
   )
 }

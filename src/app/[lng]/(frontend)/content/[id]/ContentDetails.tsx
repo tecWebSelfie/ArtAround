@@ -4,7 +4,7 @@ import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PictureGrid } from '@/components/mantine/PictureGrid'
-import { usablePictures } from '@/lib/picture'
+import { pictureSrc, usablePictures } from '@/lib/picture'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { isLocked, isPaid } from '@/lib/price'
 import type {
@@ -313,16 +313,12 @@ export async function ContentDetails({
           <Stack gap="xs">
             {related.map((item) => {
               // Its own picture, else the object's: they all show the same piece.
-              const image = filterPopulated<ContentImage>(item.images).find((i) => i.url)
+              const image = filterPopulated<ContentImage>(item.images).find((i) => i.url) ?? objectImage
               return (
                 <LinkRow
                   key={item.id}
                   href={`/${lng}/content/${item.id}` as Route}
-                  image={
-                    image
-                      ? (image.thumbnailURL ?? image.url)
-                      : (objectImage?.thumbnailURL ?? objectImage?.url)
-                  }
+                  image={pictureSrc(image, 'card')}
                   fallbackIcon={<BookOpen size={22} aria-hidden />}
                   fallbackColor="teal"
                   title={item.title}
