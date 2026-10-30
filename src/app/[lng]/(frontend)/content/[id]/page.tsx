@@ -1,4 +1,4 @@
-import { PICTURE_SELECT } from '@/lib/picture'
+import { PICTURE_SELECT, usablePictures } from '@/lib/picture'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { EditableSection } from '@/components/editing/EditableSection'
@@ -181,18 +181,18 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
     getT('tour-navigation'),
   ])
 
-  // The cover: the content's own first picture, else its object's thumbnail
-  // (the piece the text is about); with neither, the content teal stands in.
-  const coverImage = details.images?.find((image) => image.url)
+  // The cover pictures: the content's own, else its object's photo (the piece
+  // the text is about); with neither, the content teal stands in.
+  const ownPictures = usablePictures(details.images)
   const objectThumbnail = isPopulated(details.object?.thumbnail) ? details.object.thumbnail : null
-  const cover = coverImage ?? objectThumbnail
+  const pictures = ownPictures.length ? ownPictures : [objectThumbnail]
 
   return (
     // AppShellMain reserves room for the fixed footer below (64px, layout.tsx).
     <AppShellMain>
       <Container size="md" py="md">
         <Stack gap="md">
-          <DetailCover image={cover} fallback="content" />
+          <DetailCover pictures={pictures} fallback="content" title={content.title} />
           <EditableSection
             title={t('Content')}
             canEdit={canEdit}

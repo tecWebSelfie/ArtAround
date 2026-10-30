@@ -53,5 +53,21 @@
   "or": "või",
   "Search a museum": "Otsi muuseumi",
   "This file is not a museum export.": "See fail ei ole muuseumi eksport.",
-  "This museum was not found here.": "Seda muuseumi siit ei leitud."
+  "This museum was not found here.": "Seda muuseumi siit ei leitud.",
+  "Photos": "Fotod",
+  "Photo": "Foto",
+  "Open photos": "Ava fotod",
+  "Open photo {{current}}": "Ava foto {{current}}",
+  "Photo {{current}} of {{total}}": "Foto {{current}}/{{total}}",
+  "Go to photo {{current}}": "Mine fotole {{current}}",
+  "Previous photo": "Eelmine foto",
+  "Next photo": "Järgmine foto",
+  "Full screen": "Täisekraan",
+  "Exit full screen": "Välju täisekraanist",
+  "Show thumbnails": "Näita pisipilte",
+  "Hide thumbnails": "Peida pisipildid",
+  "Download": "Laadi alla",
+  "Close": "Sulge",
+  "3D model of {{title}}": "3D-mudel: {{title}}",
+  "The 3D view is not available on this device.": "3D-vaade pole selles seadmes saadaval."
 }

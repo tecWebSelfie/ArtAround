@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-28T23:23:16.940Z",
+  "generatedAt": "2026-10-29T20:37:44.404926+00:00",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -718,6 +718,14 @@
       "description": "The navigator home's \"Or\" row: two twin link cards (Paper withBorder, shadow sm, p xs, min-content width, full row height), the QR scan on the left and Plan my visit on the right. Each holds a square visual of the same size, clamp(72px, 50vw - 56px, 200px) (capped smaller here for the panel), over a blue.8 caption that wraps to that width.",
       "html": "<div class=\"ds-start\"><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-qr\" aria-hidden=\"true\"></span><span class=\"ds-start-cap\">Scan a tour QR code to start</span></a><span class=\"ds-start-or\">Or</span><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-plan\" aria-hidden=\"true\"><svg width=\"60\" height=\"60\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/></svg></span><span class=\"ds-start-cap\">Or plan a visit around your time and interests</span></a></div>",
       "css": ".ds-start{display:flex;align-items:stretch;justify-content:center;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-or{align-self:center;font-size:12px;color:#495057}.ds-start-card{--v:clamp(72px,calc(50vw - 56px),140px);width:min-content;display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border:1px solid #dee2e6;border-radius:4px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);text-decoration:none;transition:box-shadow .15s ease}.ds-start-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-card:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-start-qr{width:var(--v);height:var(--v);background:repeating-conic-gradient(#212529 0 25%,#fff 0 50%) 0 0/20% 20%}.ds-start-plan{display:grid;place-items:center;width:var(--v);height:var(--v);border-radius:50%;background:#228be6;color:#fff}.ds-start-cap{font-size:14px;text-align:center;text-wrap:balance;color:#1971c2}"
+    },
+    {
+      "name": "Media card",
+      "kind": "card",
+      "refersTo": "DetailCover",
+      "description": "The cover that opens every detail page: the first picture (tap for the lightbox) with small white controls bottom-right, \"Photos · N\" and the 3D toggle.",
+      "html": "<div class=\"ds-media-card\"><div class=\"ds-media-photo\" role=\"img\" aria-label=\"Cover picture\"></div><div class=\"ds-media-controls\"><button class=\"ds-media-btn\">Photos · <span class=\"ds-num\">3</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M18 22H4a2 2 0 0 1-2-2V6\"/><rect x=\"6\" y=\"2\" width=\"16\" height=\"16\" rx=\"2\"/><circle cx=\"12\" cy=\"8\" r=\"2\"/><path d=\"m22 13-1.3-1.3a2 2 0 0 0-2.8 0L10 20\"/></svg></button><button class=\"ds-media-btn\" aria-pressed=\"false\">3D<svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" aria-hidden=\"true\"><path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\"/><path d=\"m3.3 7 8.7 5 8.7-5\"/><path d=\"M12 22V12\"/></svg></button></div></div>",
+      "css": ".ds-media-card{position:relative;height:clamp(160px,32dvh,360px);border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 35%,#f8f9fa,#dee2e6)}.ds-media-photo{position:absolute;inset:0;cursor:zoom-in;background:linear-gradient(135deg,#ced4da,#adb5bd)}.ds-media-controls{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;gap:8px;padding:12px;pointer-events:none}.ds-media-btn{pointer-events:auto;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 10px;border:0;border-radius:4px;background:#fff;color:#212529;font:600 14px/1 system-ui,sans-serif;cursor:pointer;transition:background .15s}.ds-media-btn:hover{background:#f1f3f5}.ds-media-btn:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-media-btn[aria-pressed=\"true\"]{background:#e7f5ff}.ds-num{font-variant-numeric:tabular-nums}"
     }
   ],
   "narrative": {
@@ -822,6 +830,11 @@
         "name": "The Follow-the-Host Rule",
         "body": "In a group, guests never get a control that would move them away from the host (steps, destinations, \"go to\" commands, scanner, position); they keep every control that only changes how they read or move (language, reading options, Tell me more, wheelchair route). Hide such controls; don't disable them. This covers the stepper (read-only progress), the step modal's \"Go to next step\", the object actions, the directions strip's \"Take the quiz\", and the quiz's \"Back to the map\".",
         "section": "components"
+      },
+      {
+        "name": "The Generated Size Rule",
+        "body": "Upload collections generate a `card` (480px) and a `cover` (1280px) size, never enlarged (`src/fields/imageUpload.ts`). Read pictures with `PICTURE_SELECT` and draw them with `pictureSrc(picture, 'card' | 'cover')` (`src/lib/picture.ts`), which falls back to the original. Only the lightbox draws the original.",
+        "section": "components"
       }
     ],
     "dos": [
@@ -841,7 +854,8 @@
       "**Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
       "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",
       "**Do** build sign-in, sign-up and checkout outcomes from the existing planner column and focused-task patterns rather than new chrome.",
-      "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began."
+      "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began.",
+      "**Do** open a detail page with its `DetailCover`, and let it carry the pictures (lightbox) and the 3D model; draw pictures at a generated size (see The Generated Size Rule)."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
@@ -857,7 +871,8 @@
       "**Don't** wrap quiz review items or result sections in cards; use spacing, compact headings and dividers.",
       "**Don't** add axes, grids or tooltips to small visitor-facing charts unless the reader needs to look up exact values.",
       "**Don't** treat the `stripe-test` sandbox shop as a product pattern, or say a purchase is unlocked before the purchases collection confirms it.",
-      "**Don't** add another bottom-navigation entry until the 390px row stops truncating its labels."
+      "**Don't** add another bottom-navigation entry until the 390px row stops truncating its labels.",
+      "**Don't** open the picture lightbox from inside a modal, or build a separate gallery beside the cover."
     ]
   }
 }

@@ -7,6 +7,8 @@
 @import '@gfazioli/mantine-border-animate/styles.layer.css';
 @import '@gfazioli/mantine-reflection/styles.layer.css';
 @import '@mantine/carousel/styles.layer.css';
+/* Picture viewer (src/components/mantine/PictureLightbox.tsx). */
+@import '@mantine/lightbox/styles.layer.css';
 @import '@gfazioli/mantine-depth-select/styles.layer.css';
 @import '@mantine/notifications/styles.layer.css';
 @import '@mantine/dates/styles.layer.css';

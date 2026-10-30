@@ -53,5 +53,21 @@
   "or": "ali",
   "Search a museum": "Poišči muzej",
   "This file is not a museum export.": "Ta datoteka ni izvoz muzeja.",
-  "This museum was not found here.": "Tega muzeja tukaj ni bilo mogoče najti."
+  "This museum was not found here.": "Tega muzeja tukaj ni bilo mogoče najti.",
+  "Photos": "Fotografije",
+  "Photo": "Fotografija",
+  "Open photos": "Odpri fotografije",
+  "Open photo {{current}}": "Odpri fotografijo {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografija {{current}} od {{total}}",
+  "Go to photo {{current}}": "Pojdi na fotografijo {{current}}",
+  "Previous photo": "Prejšnja fotografija",
+  "Next photo": "Naslednja fotografija",
+  "Full screen": "Celoten zaslon",
+  "Exit full screen": "Zapri celoten zaslon",
+  "Show thumbnails": "Pokaži sličice",
+  "Hide thumbnails": "Skrij sličice",
+  "Download": "Prenesi",
+  "Close": "Zapri",
+  "3D model of {{title}}": "3D-model: {{title}}",
+  "The 3D view is not available on this device.": "3D-pogled na tej napravi ni na voljo."
 }

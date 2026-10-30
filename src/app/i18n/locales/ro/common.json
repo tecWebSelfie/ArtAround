@@ -53,5 +53,21 @@
   "or": "sau",
   "Search a museum": "Caută un muzeu",
   "This file is not a museum export.": "Acest fișier nu este un export de muzeu.",
-  "This museum was not found here.": "Acest muzeu nu a fost găsit aici."
+  "This museum was not found here.": "Acest muzeu nu a fost găsit aici.",
+  "Photos": "Fotografii",
+  "Photo": "Fotografie",
+  "Open photos": "Deschide fotografiile",
+  "Open photo {{current}}": "Deschide fotografia {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografia {{current}} din {{total}}",
+  "Go to photo {{current}}": "Mergi la fotografia {{current}}",
+  "Previous photo": "Fotografia anterioară",
+  "Next photo": "Fotografia următoare",
+  "Full screen": "Ecran complet",
+  "Exit full screen": "Ieși din ecran complet",
+  "Show thumbnails": "Afișează miniaturile",
+  "Hide thumbnails": "Ascunde miniaturile",
+  "Download": "Descarcă",
+  "Close": "Închide",
+  "3D model of {{title}}": "Model 3D: {{title}}",
+  "The 3D view is not available on this device.": "Vizualizarea 3D nu este disponibilă pe acest dispozitiv."
 }

@@ -53,5 +53,21 @@
   "or": "или",
   "Search a museum": "Търси музей",
   "This file is not a museum export.": "Този файл не е експорт на музей.",
-  "This museum was not found here.": "Този музей не е намерен тук."
+  "This museum was not found here.": "Този музей не е намерен тук.",
+  "Photos": "Снимки",
+  "Photo": "Снимка",
+  "Open photos": "Отваряне на снимките",
+  "Open photo {{current}}": "Отваряне на снимка {{current}}",
+  "Photo {{current}} of {{total}}": "Снимка {{current}} от {{total}}",
+  "Go to photo {{current}}": "Към снимка {{current}}",
+  "Previous photo": "Предишна снимка",
+  "Next photo": "Следваща снимка",
+  "Full screen": "Цял екран",
+  "Exit full screen": "Изход от цял екран",
+  "Show thumbnails": "Показване на миниатюри",
+  "Hide thumbnails": "Скриване на миниатюри",
+  "Download": "Изтегляне",
+  "Close": "Затваряне",
+  "3D model of {{title}}": "3D модел на {{title}}",
+  "The 3D view is not available on this device.": "3D изгледът не е наличен на това устройство."
 }

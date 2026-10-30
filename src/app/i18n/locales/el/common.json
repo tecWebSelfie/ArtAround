@@ -53,5 +53,21 @@
   "or": "ή",
   "Search a museum": "Αναζήτηση μουσείου",
   "This file is not a museum export.": "Αυτό το αρχείο δεν είναι εξαγωγή μουσείου.",
-  "This museum was not found here.": "Αυτό το μουσείο δεν βρέθηκε εδώ."
+  "This museum was not found here.": "Αυτό το μουσείο δεν βρέθηκε εδώ.",
+  "Photos": "Φωτογραφίες",
+  "Photo": "Φωτογραφία",
+  "Open photos": "Άνοιγμα φωτογραφιών",
+  "Open photo {{current}}": "Άνοιγμα φωτογραφίας {{current}}",
+  "Photo {{current}} of {{total}}": "Φωτογραφία {{current}} από {{total}}",
+  "Go to photo {{current}}": "Μετάβαση στη φωτογραφία {{current}}",
+  "Previous photo": "Προηγούμενη φωτογραφία",
+  "Next photo": "Επόμενη φωτογραφία",
+  "Full screen": "Πλήρης οθόνη",
+  "Exit full screen": "Έξοδος από πλήρη οθόνη",
+  "Show thumbnails": "Εμφάνιση μικρογραφιών",
+  "Hide thumbnails": "Απόκρυψη μικρογραφιών",
+  "Download": "Λήψη",
+  "Close": "Κλείσιμο",
+  "3D model of {{title}}": "Τρισδιάστατο μοντέλο: {{title}}",
+  "The 3D view is not available on this device.": "Η τρισδιάστατη προβολή δεν είναι διαθέσιμη σε αυτή τη συσκευή."
 }

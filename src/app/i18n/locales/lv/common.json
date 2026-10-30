@@ -53,5 +53,21 @@
   "or": "vai",
   "Search a museum": "Meklēt muzeju",
   "This file is not a museum export.": "Šis fails nav muzeja eksports.",
-  "This museum was not found here.": "Šis muzejs šeit netika atrasts."
+  "This museum was not found here.": "Šis muzejs šeit netika atrasts.",
+  "Photos": "Fotoattēli",
+  "Photo": "Fotoattēls",
+  "Open photos": "Atvērt fotoattēlus",
+  "Open photo {{current}}": "Atvērt {{current}}. fotoattēlu",
+  "Photo {{current}} of {{total}}": "Fotoattēls {{current}} no {{total}}",
+  "Go to photo {{current}}": "Pāriet uz {{current}}. fotoattēlu",
+  "Previous photo": "Iepriekšējais fotoattēls",
+  "Next photo": "Nākamais fotoattēls",
+  "Full screen": "Pilnekrāns",
+  "Exit full screen": "Iziet no pilnekrāna",
+  "Show thumbnails": "Rādīt sīktēlus",
+  "Hide thumbnails": "Slēpt sīktēlus",
+  "Download": "Lejupielādēt",
+  "Close": "Aizvērt",
+  "3D model of {{title}}": "3D modelis: {{title}}",
+  "The 3D view is not available on this device.": "3D skats šajā ierīcē nav pieejams."
 }

@@ -24,6 +24,17 @@ export function pictureSrc(picture: Picture | null | undefined, size: 'card' | '
 }
 
 /**
+ * The pictures that can be drawn: populated and with a URL. Detail covers and
+ * picture grids take a document's pictures through this one filter, so
+ * callers pass raw relation values (`[cover]`, `images`).
+ */
+export function usablePictures<T extends Picture>(
+  pictures: readonly (T | null | undefined)[] | null | undefined,
+): T[] {
+  return (pictures ?? []).filter((picture): picture is T => Boolean(picture?.url))
+}
+
+/**
  * What to select (or `populate`) for a picture. Payload computes `url` and
  * `thumbnailURL` from the stored `filename` (per size too), so selecting the
  * URLs without it returns `null`.

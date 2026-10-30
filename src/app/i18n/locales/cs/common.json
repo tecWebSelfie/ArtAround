@@ -53,5 +53,21 @@
   "or": "nebo",
   "Search a museum": "Hledat muzeum",
   "This file is not a museum export.": "Tento soubor není export muzea.",
-  "This museum was not found here.": "Toto muzeum tu nebylo nalezeno."
+  "This museum was not found here.": "Toto muzeum tu nebylo nalezeno.",
+  "Photos": "Fotografie",
+  "Photo": "Fotografie",
+  "Open photos": "Otevřít fotografie",
+  "Open photo {{current}}": "Otevřít fotografii {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografie {{current}} z {{total}}",
+  "Go to photo {{current}}": "Přejít na fotografii {{current}}",
+  "Previous photo": "Předchozí fotografie",
+  "Next photo": "Další fotografie",
+  "Full screen": "Celá obrazovka",
+  "Exit full screen": "Ukončit celou obrazovku",
+  "Show thumbnails": "Zobrazit náhledy",
+  "Hide thumbnails": "Skrýt náhledy",
+  "Download": "Stáhnout",
+  "Close": "Zavřít",
+  "3D model of {{title}}": "3D model: {{title}}",
+  "The 3D view is not available on this device.": "3D zobrazení není na tomto zařízení k dispozici."
 }

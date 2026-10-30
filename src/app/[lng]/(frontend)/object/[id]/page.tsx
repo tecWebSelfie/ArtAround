@@ -49,7 +49,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
         canEdit={canEdit}
         form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
       >
-        <ObjectDetailsContent object={object} />
+        <ObjectDetailsContent object={object} lightbox />
       </EditableSection>
       {user && (
         <Group mt="md">

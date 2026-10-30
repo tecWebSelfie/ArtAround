@@ -53,5 +53,21 @@
   "or": "ou",
   "Search a museum": "Pesquisar um museu",
   "This file is not a museum export.": "Este ficheiro não é uma exportação de museu.",
-  "This museum was not found here.": "Este museu não foi encontrado aqui."
+  "This museum was not found here.": "Este museu não foi encontrado aqui.",
+  "Photos": "Fotos",
+  "Photo": "Foto",
+  "Open photos": "Abrir fotos",
+  "Open photo {{current}}": "Abrir foto {{current}}",
+  "Photo {{current}} of {{total}}": "Foto {{current}} de {{total}}",
+  "Go to photo {{current}}": "Ir para a foto {{current}}",
+  "Previous photo": "Foto anterior",
+  "Next photo": "Próxima foto",
+  "Full screen": "Ecrã inteiro",
+  "Exit full screen": "Sair do ecrã inteiro",
+  "Show thumbnails": "Mostrar miniaturas",
+  "Hide thumbnails": "Ocultar miniaturas",
+  "Download": "Transferir",
+  "Close": "Fechar",
+  "3D model of {{title}}": "Modelo 3D de {{title}}",
+  "The 3D view is not available on this device.": "A vista 3D não está disponível neste dispositivo."
 }

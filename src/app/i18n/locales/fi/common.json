@@ -53,5 +53,21 @@
   "or": "tai",
   "Search a museum": "Hae museota",
   "This file is not a museum export.": "Tämä tiedosto ei ole museon vientitiedosto.",
-  "This museum was not found here.": "Museota ei löytynyt täältä."
+  "This museum was not found here.": "Museota ei löytynyt täältä.",
+  "Photos": "Kuvat",
+  "Photo": "Kuva",
+  "Open photos": "Avaa kuvat",
+  "Open photo {{current}}": "Avaa kuva {{current}}",
+  "Photo {{current}} of {{total}}": "Kuva {{current}}/{{total}}",
+  "Go to photo {{current}}": "Siirry kuvaan {{current}}",
+  "Previous photo": "Edellinen kuva",
+  "Next photo": "Seuraava kuva",
+  "Full screen": "Koko näyttö",
+  "Exit full screen": "Poistu koko näytöstä",
+  "Show thumbnails": "Näytä pikkukuvat",
+  "Hide thumbnails": "Piilota pikkukuvat",
+  "Download": "Lataa",
+  "Close": "Sulje",
+  "3D model of {{title}}": "3D-malli: {{title}}",
+  "The 3D view is not available on this device.": "3D-näkymä ei ole käytettävissä tällä laitteella."
 }

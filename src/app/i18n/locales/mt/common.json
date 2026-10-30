@@ -53,5 +53,21 @@
   "or": "jew",
   "Search a museum": "Fittex mużew",
   "This file is not a museum export.": "Dan il-fajl mhuwiex esportazzjoni ta’ mużew.",
-  "This museum was not found here.": "Dan il-mużew ma nstabx hawn."
+  "This museum was not found here.": "Dan il-mużew ma nstabx hawn.",
+  "Photos": "Ritratti",
+  "Photo": "Ritratt",
+  "Open photos": "Iftaħ ir-ritratti",
+  "Open photo {{current}}": "Iftaħ ir-ritratt {{current}}",
+  "Photo {{current}} of {{total}}": "Ritratt {{current}} minn {{total}}",
+  "Go to photo {{current}}": "Mur għar-ritratt {{current}}",
+  "Previous photo": "Ritratt ta’ qabel",
+  "Next photo": "Ritratt li jmiss",
+  "Full screen": "Skrin sħiħ",
+  "Exit full screen": "Oħroġ mill-iskrin sħiħ",
+  "Show thumbnails": "Uri l-minjaturi",
+  "Hide thumbnails": "Aħbi l-minjaturi",
+  "Download": "Niżżel",
+  "Close": "Agħlaq",
+  "3D model of {{title}}": "Mudell 3D ta’ {{title}}",
+  "The 3D view is not available on this device.": "Il-veduta 3D mhix disponibbli fuq dan it-tagħmir."
 }

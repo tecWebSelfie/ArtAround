@@ -53,5 +53,21 @@
   "or": "of",
   "Search a museum": "Zoek een museum",
   "This file is not a museum export.": "Dit bestand is geen museumexport.",
-  "This museum was not found here.": "Dit museum is hier niet gevonden."
+  "This museum was not found here.": "Dit museum is hier niet gevonden.",
+  "Photos": "Foto’s",
+  "Photo": "Foto",
+  "Open photos": "Foto’s openen",
+  "Open photo {{current}}": "Foto {{current}} openen",
+  "Photo {{current}} of {{total}}": "Foto {{current}} van {{total}}",
+  "Go to photo {{current}}": "Naar foto {{current}}",
+  "Previous photo": "Vorige foto",
+  "Next photo": "Volgende foto",
+  "Full screen": "Volledig scherm",
+  "Exit full screen": "Volledig scherm sluiten",
+  "Show thumbnails": "Miniaturen tonen",
+  "Hide thumbnails": "Miniaturen verbergen",
+  "Download": "Downloaden",
+  "Close": "Sluiten",
+  "3D model of {{title}}": "3D-model van {{title}}",
+  "The 3D view is not available on this device.": "De 3D-weergave is niet beschikbaar op dit apparaat."
 }

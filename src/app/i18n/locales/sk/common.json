@@ -53,5 +53,21 @@
   "or": "alebo",
   "Search a museum": "Hľadať múzeum",
   "This file is not a museum export.": "Tento súbor nie je export múzea.",
-  "This museum was not found here.": "Toto múzeum sa tu nenašlo."
+  "This museum was not found here.": "Toto múzeum sa tu nenašlo.",
+  "Photos": "Fotografie",
+  "Photo": "Fotografia",
+  "Open photos": "Otvoriť fotografie",
+  "Open photo {{current}}": "Otvoriť fotografiu {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografia {{current}} z {{total}}",
+  "Go to photo {{current}}": "Prejsť na fotografiu {{current}}",
+  "Previous photo": "Predchádzajúca fotografia",
+  "Next photo": "Nasledujúca fotografia",
+  "Full screen": "Celá obrazovka",
+  "Exit full screen": "Ukončiť celú obrazovku",
+  "Show thumbnails": "Zobraziť miniatúry",
+  "Hide thumbnails": "Skryť miniatúry",
+  "Download": "Stiahnuť",
+  "Close": "Zavrieť",
+  "3D model of {{title}}": "3D model: {{title}}",
+  "The 3D view is not available on this device.": "3D zobrazenie nie je na tomto zariadení k dispozícii."
 }

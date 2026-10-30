@@ -3,7 +3,7 @@ import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataFor
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
-import { MuseumGallery } from '@/components/mantine/MuseumGallery'
+import { DetailCover } from '@/components/mantine/DetailCover'
 import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
@@ -90,10 +90,10 @@ export default async function MuseumPage({
     // Capped at Mantine's `md` container: past ~960px the cover and the tour
     // deck grow taller than the viewport and push the contents below the fold.
     <Stack mx={{ base: 'md', sm: 'xl', md: 'auto' }} maw={{ md: 960 }} mt="sm" pb="xl">
-      <MuseumGallery
-        photos={(museum.thumbnails ?? []).filter(
-          (thumbnail): thumbnail is MuseumThumbnail => typeof thumbnail !== 'string',
-        )}
+      {/* The museum's photos: the first as cover, all of them in the lightbox. */}
+      <DetailCover
+        pictures={filterPopulated<MuseumThumbnail>(museum.thumbnails)}
+        title={museum.name}
       />
       <Stack gap={4}>
         <Title order={1} size="h2">

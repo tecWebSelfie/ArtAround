@@ -53,5 +53,21 @@
   "or": "vagy",
   "Search a museum": "Múzeum keresése",
   "This file is not a museum export.": "Ez a fájl nem múzeumexport.",
-  "This museum was not found here.": "Ez a múzeum nem található itt."
+  "This museum was not found here.": "Ez a múzeum nem található itt.",
+  "Photos": "Fotók",
+  "Photo": "Fotó",
+  "Open photos": "Fotók megnyitása",
+  "Open photo {{current}}": "{{current}}. fotó megnyitása",
+  "Photo {{current}} of {{total}}": "{{current}}/{{total}}. fotó",
+  "Go to photo {{current}}": "Ugrás a(z) {{current}}. fotóra",
+  "Previous photo": "Előző fotó",
+  "Next photo": "Következő fotó",
+  "Full screen": "Teljes képernyő",
+  "Exit full screen": "Kilépés a teljes képernyőből",
+  "Show thumbnails": "Bélyegképek megjelenítése",
+  "Hide thumbnails": "Bélyegképek elrejtése",
+  "Download": "Letöltés",
+  "Close": "Bezárás",
+  "3D model of {{title}}": "3D-modell: {{title}}",
+  "The 3D view is not available on this device.": "A 3D nézet ezen az eszközön nem érhető el."
 }

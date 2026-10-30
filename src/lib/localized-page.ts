@@ -10,9 +10,9 @@ import { getSession } from './session'
  * Reads as the signed-in visitor, so a paid content's body is present only
  * for people entitled to it.
  *
- * The localized read is depth 0, so an object's photo would arrive as a bare
- * id. For objects the photo is populated here, alongside, so every object view
- * (page and navigation modals) shows it rather than the placeholder.
+ * The localized read is depth 0, so an object's photo and 3D model would
+ * arrive as bare ids. For objects both are populated here, alongside, so every
+ * object view (page and modals) shows the photo and can offer the 3D view.
  */
 export const getLocalizedPageDocument = cache(
   async <T extends 'objects' | 'contents'>(collection: T, id: string, lng: string) => {
@@ -30,13 +30,19 @@ export const getLocalizedPageDocument = cache(
               collection: 'objects',
               id,
               depth: 1,
-              select: { thumbnail: true },
-              populate: { objectsThumbnails: PICTURE_SELECT },
+              select: { thumbnail: true, model: true },
+              // The GLB's `url` is computed from `filename` too.
+              populate: {
+                objectsThumbnails: PICTURE_SELECT,
+                objectsModels: { url: true, filename: true },
+              },
             })
             .catch(() => null)
         : null,
     ])
     if (result.kind === 'not-found') notFound()
-    return media?.thumbnail ? { ...result.doc, thumbnail: media.thumbnail } : result.doc
+    return media
+      ? { ...result.doc, thumbnail: media.thumbnail ?? null, model: media.model ?? null }
+      : result.doc
   },
 )

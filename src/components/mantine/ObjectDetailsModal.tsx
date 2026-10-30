@@ -1,9 +1,8 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Object } from '@/payload-types'
-import { AspectRatio, Image, List, ListItem, Stack, Text, Title } from '@mantine/core'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { pictureSrc } from '@/lib/picture'
+import { List, ListItem, Stack, Text, Title } from '@mantine/core'
+import { DetailCover } from './DetailCover'
 
 // Server Component: renders the modal body. Wrap it in the `ObjectModal` shell
 // from `./Modal` (client) to get open/close behaviour — never import this file
@@ -12,9 +11,12 @@ import { pictureSrc } from '@/lib/picture'
 export async function ObjectDetailsContent({
   object,
   hideContents = false,
+  lightbox = false,
 }: {
   object: Object
   hideContents?: boolean
+  /** Only the object page: in modals no full-screen viewer stacks over the modal. */
+  lightbox?: boolean
 }) {
   const { t } = await getT('object-details')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
@@ -22,13 +24,13 @@ export async function ObjectDetailsContent({
 
   return (
     <Stack gap="sm">
-      <AspectRatio ratio={16 / 9}>
-        <Image
-          radius="md"
-          src={pictureSrc(thumbnail, 'cover') ?? PLACEHOLDER_IMAGE}
-          alt={thumbnail?.alt ?? object.name}
-        />
-      </AspectRatio>
+      {/* Photo (lightbox on tap) and, when the object has one, its 3D model. */}
+      <DetailCover
+        pictures={[thumbnail]}
+        model={isPopulated(object.model) ? object.model : null}
+        title={object.name}
+        lightbox={lightbox}
+      />
       <Title order={3}>{object.name}</Title>
       {object.description && <Text size="sm">{object.description}</Text>}
       {!hideContents && contents.length > 0 && (

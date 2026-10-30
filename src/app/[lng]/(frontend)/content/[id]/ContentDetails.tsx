@@ -3,6 +3,8 @@ import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
+import { PictureGrid } from '@/components/mantine/PictureGrid'
+import { usablePictures } from '@/lib/picture'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { isLocked, isPaid } from '@/lib/price'
 import type {
@@ -23,7 +25,6 @@ import {
   Image,
   List,
   ListItem,
-  SimpleGrid,
   Stack,
   Text,
   ThemeIcon,
@@ -109,6 +110,7 @@ export async function ContentDetails({
     medium: t('Medium'),
     hard: t('Hard'),
   }
+  const pictures = usablePictures(images)
   const ratingsCount = content.lfrs?.ratingsCount ?? 0
   const ratingsAverage = content.lfrs?.ratingsAverage
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
@@ -157,22 +159,10 @@ export async function ContentDetails({
         ))}
       </Group>
 
-      {images.some((image) => image.url) && (
+      {pictures.length > 0 && (
         <Section title={t('Pictures')}>
-          <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="sm">
-            {images
-              .filter((image) => image.url)
-              .map((image) => (
-                <Image
-                  key={image.id}
-                  src={image.thumbnailURL ?? image.url}
-                  alt={image.alt ?? ''}
-                  radius="md"
-                  h={160}
-                  fit="cover"
-                />
-              ))}
-          </SimpleGrid>
+          {/* Tapping a picture opens them all full screen (PictureLightbox). */}
+          <PictureGrid pictures={pictures} />
         </Section>
       )}
 

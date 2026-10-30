@@ -95,7 +95,7 @@ export default function TourPage({
   const summary = summarizeTour(tour)
   const museum = isPopulated(tour.museum) ? tour.museum : null
   const author = isPopulated(tour.author) ? tour.author.name?.fullName : null
-  const cover = isPopulated(tour.thumbnail) && tour.thumbnail.url ? tour.thumbnail : null
+  const cover = isPopulated(tour.thumbnail) ? tour.thumbnail : null
   // Literal keys so i18next-cli keeps them (DIFFICULTY_LABEL_KEY is dynamic).
   const difficultyLabel: Record<Difficulty, string> = {
     easy: t('Easy'),
@@ -114,7 +114,7 @@ export default function TourPage({
           <Stack gap="lg">
             {/* Always a cover, height-capped: the tour gradient stands in when
                 there is no picture, and the title and badges stay in view. */}
-            <DetailCover image={cover} fallback="tour" />
+            <DetailCover pictures={[cover]} fallback="tour" title={tour.title} />
 
             <Stack gap="xs">
               <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">

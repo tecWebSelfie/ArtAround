@@ -53,5 +53,21 @@
   "or": "eller",
   "Search a museum": "Sök efter ett museum",
   "This file is not a museum export.": "Den här filen är inte en museiexport.",
-  "This museum was not found here.": "Det här museet hittades inte här."
+  "This museum was not found here.": "Det här museet hittades inte här.",
+  "Photos": "Foton",
+  "Photo": "Foto",
+  "Open photos": "Öppna foton",
+  "Open photo {{current}}": "Öppna foto {{current}}",
+  "Photo {{current}} of {{total}}": "Foto {{current}} av {{total}}",
+  "Go to photo {{current}}": "Gå till foto {{current}}",
+  "Previous photo": "Föregående foto",
+  "Next photo": "Nästa foto",
+  "Full screen": "Helskärm",
+  "Exit full screen": "Avsluta helskärm",
+  "Show thumbnails": "Visa miniatyrer",
+  "Hide thumbnails": "Dölj miniatyrer",
+  "Download": "Ladda ner",
+  "Close": "Stäng",
+  "3D model of {{title}}": "3D-modell av {{title}}",
+  "The 3D view is not available on this device.": "3D-vyn är inte tillgänglig på den här enheten."
 }

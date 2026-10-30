@@ -53,5 +53,21 @@
   "or": "eller",
   "Search a museum": "Søg efter et museum",
   "This file is not a museum export.": "Denne fil er ikke en museumseksport.",
-  "This museum was not found here.": "Museet blev ikke fundet her."
+  "This museum was not found here.": "Museet blev ikke fundet her.",
+  "Photos": "Fotos",
+  "Photo": "Foto",
+  "Open photos": "Åbn fotos",
+  "Open photo {{current}}": "Åbn foto {{current}}",
+  "Photo {{current}} of {{total}}": "Foto {{current}} af {{total}}",
+  "Go to photo {{current}}": "Gå til foto {{current}}",
+  "Previous photo": "Forrige foto",
+  "Next photo": "Næste foto",
+  "Full screen": "Fuld skærm",
+  "Exit full screen": "Afslut fuld skærm",
+  "Show thumbnails": "Vis miniaturer",
+  "Hide thumbnails": "Skjul miniaturer",
+  "Download": "Hent",
+  "Close": "Luk",
+  "3D model of {{title}}": "3D-model af {{title}}",
+  "The 3D view is not available on this device.": "3D-visningen er ikke tilgængelig på denne enhed."
 }

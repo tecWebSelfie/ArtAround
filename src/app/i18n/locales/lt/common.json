@@ -53,5 +53,21 @@
   "or": "arba",
   "Search a museum": "Ieškoti muziejaus",
   "This file is not a museum export.": "Šis failas nėra muziejaus eksportas.",
-  "This museum was not found here.": "Šis muziejus čia nerastas."
+  "This museum was not found here.": "Šis muziejus čia nerastas.",
+  "Photos": "Nuotraukos",
+  "Photo": "Nuotrauka",
+  "Open photos": "Atidaryti nuotraukas",
+  "Open photo {{current}}": "Atidaryti {{current}} nuotrauką",
+  "Photo {{current}} of {{total}}": "Nuotrauka {{current}} iš {{total}}",
+  "Go to photo {{current}}": "Eiti į {{current}} nuotrauką",
+  "Previous photo": "Ankstesnė nuotrauka",
+  "Next photo": "Kita nuotrauka",
+  "Full screen": "Visas ekranas",
+  "Exit full screen": "Išeiti iš viso ekrano",
+  "Show thumbnails": "Rodyti miniatiūras",
+  "Hide thumbnails": "Slėpti miniatiūras",
+  "Download": "Atsisiųsti",
+  "Close": "Uždaryti",
+  "3D model of {{title}}": "3D modelis: {{title}}",
+  "The 3D view is not available on this device.": "3D vaizdas šiame įrenginyje nepasiekiamas."
 }
