@@ -1,6 +1,6 @@
 import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { LinkButton } from '@/components/editing/LinkButton'
-import { AppShellMain, Box, Container, Stack, Text, Title } from '@mantine/core'
+import { AppShellMain, Container, Stack, Text, Title } from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -24,11 +24,6 @@ export function CheckoutOutcome({
   detail?: string
   action: { label: string; href: Route }
 }) {
-  const forward = (
-    <LinkButton href={action.href} fullWidth size="md" rightSection={<ArrowRight size={18} />}>
-      {action.label}
-    </LinkButton>
-  )
   return (
     <>
       <AppShellMain>
@@ -42,14 +37,19 @@ export function CheckoutOutcome({
               </Text>
             )}
           </Stack>
-          <Box visibleFrom="md" mt="xl">
-            {forward}
-          </Box>
+          {/* Phones: the footer. From md: right under the message. */}
+          <ActionFooter size="xs" inlineFrom="md" inlineProps={{ mt: 'xl' }}>
+            <LinkButton
+              href={action.href}
+              fullWidth
+              size="md"
+              rightSection={<ArrowRight size={18} />}
+            >
+              {action.label}
+            </LinkButton>
+          </ActionFooter>
         </Container>
       </AppShellMain>
-      <ActionFooter size="xs" hiddenFrom="md">
-        {forward}
-      </ActionFooter>
     </>
   )
 }

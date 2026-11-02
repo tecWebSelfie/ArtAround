@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T00:00:00.000Z",
+  "generatedAt": "2026-11-02T16:07:53.000Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -805,7 +805,7 @@
       },
       {
         "name": "The Thumb-Reach Rule",
-        "body": "Below `md`, on a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not. From `md` there is no thumb to reach for: the tour page's action pair and the checkout outcomes' way back move inline, right under what they act on. Step flows (the quiz, its results, the group quiz board) keep the footer at every width.",
+        "body": "Below `md`, on a focused task page, the next step lives full-width in the footer, inside reach of a standing visitor's thumb, and nowhere else. Content scrolls; the forward action does not. Build it with `ActionFooter` (`src/components/mantine/ActionFooter.tsx`): the 64px `AppShellFooter` with a `Container` matching the page column (`xs` for task pages, `sm` for the tour and content pages). From `md` there is no thumb to reach for: detail and outcome pages (tour, content, checkout) pass `inlineFrom=\"md\"`: the footer steps aside and `ActionFooter` renders the same action inline where it is placed, right under what it acts on (`inlineProps` sizes and spaces it), so the action is written once. Step flows (the quiz, its results, the group quiz board) keep the footer at every width.",
         "section": "layout"
       },
       {
@@ -882,9 +882,9 @@
       "**Do** show route states inside the directions strip, and transient guidance as top-center notifications.",
       "**Do** offer generated help as named buttons, form fields and voice commands, and keep its state in the URL.",
       "**Do** improve prototype inconsistencies, accessibility, and responsive behavior while preserving the intended feel.",
-      "**Do** put a focused task's single forward action full-width in the 64px footer below `md` (`ActionFooter`), with the content inside `AppShellMain`; from `md` detail and outcome pages pass `hiddenFrom=\"md\"` and put the action inline, and only step flows keep the footer (see The Thumb-Reach Rule).",
+      "**Do** put a focused task's single forward action full-width in the 64px footer below `md` (`ActionFooter`), with the content inside `AppShellMain`; from `md` detail and outcome pages pass `inlineFrom=\"md\"`, which renders the same action inline where `ActionFooter` is placed, and only step flows keep the footer (see The Thumb-Reach Rule).",
       "**Do** gate every desktop change at `md` and leave the phone layout as it is (see The Below-md-Unchanged Rule).",
-      "**Do** offset sticky panes and in-page sticky headers by `var(--site-header-height, 0px)`, so they sit under the site header on desktop and at the top on phones.",
+      "**Do** stick panes at `var(--site-pane-top)` and bound them with `var(--site-pane-height)`, and offset in-page sticky headers by `var(--site-header-height, 0px)`, so they sit under the site header on desktop and at the top on phones. Don't rewrite the calc inline: a bare `2 *` in a Mantine style prop becomes rem and breaks it.",
       "**Do** build desktop detail pages as two Mantine `Grid` panes in the 1140px width, with the media or summary pane sticky where the other one scrolls; a page whose text is the point (content) keeps its reading column instead.",
       "**Do** grade answers with color + icon + word, and keep graded options readable rather than disabled-gray.",
       "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",

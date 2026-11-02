@@ -17,7 +17,6 @@ import {
   Anchor,
   AppShellMain,
   Badge,
-  Box,
   Button,
   Container,
   Grid,
@@ -240,8 +239,10 @@ export default function TourPage({
                   )}
                 </Group>
 
-                {/* Desktop: the exits move inline, right under the figures. */}
-                <Box visibleFrom="md">
+                {/* The Thumb-Reach Rule: on phones the way forward lives in the
+                    64px footer; from md the same pair sits inline here, right
+                    under the figures. */}
+                <ActionFooter size="sm" inlineFrom="md">
                   <TourActions
                     price={price}
                     editHref={editHref}
@@ -249,7 +250,7 @@ export default function TourPage({
                     startHref={startHref}
                     onUnlock={() => setPurchaseOpen(true)}
                   />
-                </Box>
+                </ActionFooter>
               </Stack>
             </GridCol>
 
@@ -321,18 +322,6 @@ export default function TourPage({
           </Grid>
         </Container>
       </AppShellMain>
-
-      {/* The Thumb-Reach Rule: on phones the way forward lives in the 64px
-          footer. From md the same pair sits inline in the summary pane. */}
-      <ActionFooter size="sm" hiddenFrom="md">
-        <TourActions
-          price={price}
-          editHref={editHref}
-          canEdit={canEdit}
-          startHref={startHref}
-          onUnlock={() => setPurchaseOpen(true)}
-        />
-      </ActionFooter>
 
       <PurchaseModal
         opened={purchaseOpen}

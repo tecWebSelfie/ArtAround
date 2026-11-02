@@ -16,7 +16,7 @@ import { lockedMuseumId } from '@/lib/museum-mode'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import type { Content } from '@/payload-types'
-import { AppShellMain, Box, Container, Divider, Stack } from '@mantine/core'
+import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
 import { Compass } from 'lucide-react'
 import type { Route } from 'next'
 import { ContentDetails, type ContentDetailsProps } from './ContentDetails'
@@ -192,7 +192,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const objectThumbnail = isPopulated(details.object?.thumbnail) ? details.object.thumbnail : null
   const pictures = ownPictures.length ? ownPictures : [objectThumbnail]
 
-  // The way forward, in the phone footer or inline on desktop. A locked
+  // The way forward (`ActionFooter`: phone footer, inline on desktop). A locked
   // content offers the purchase first; a readable one, the way to it on the
   // map. Mutually exclusive: there is no map entry while locked.
   const forward = locked ? (
@@ -241,24 +241,19 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
               lockedLabel={t('This content is paid. Unlock it to read the full text.')}
             />
           </EditableSection>
-          {/* Desktop: the footer's action, inline under the text, at a
-              button's width rather than the whole 960px column. */}
+          {/* The Thumb-Reach Rule on phones, as on the tour page: the way
+              forward is always in view, whatever the length of the text. From
+              md it sits inline under the text, at a button's width rather
+              than the whole 960px column. */}
           {forward && (
-            <Box visibleFrom="md" maw="22rem">
+            <ActionFooter size="sm" inlineFrom="md" inlineProps={{ maw: '22rem' }}>
               {forward}
-            </Box>
+            </ActionFooter>
           )}
         </Stack>
         <Divider my="xl" />
         <ContentDetails content={content} {...details} />
       </Container>
-      {/* The Thumb-Reach Rule on phones, as on the tour page: the way
-          forward is always in view, whatever the length of the text. */}
-      {forward && (
-        <ActionFooter size="sm" hiddenFrom="md">
-          {forward}
-        </ActionFooter>
-      )}
     </AppShellMain>
   )
 }
