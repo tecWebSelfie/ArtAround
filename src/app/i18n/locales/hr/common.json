@@ -36,8 +36,8 @@
     "username": "Korisničko ime",
     "usernameHint": "Ovako će te vidjeti drugi istraživači."
   },
-  "Back to all museums": "Natrag na sve muzeje",
   "Change museum": "Promijeni muzej",
+  "Clear search": "Očisti pretragu",
   "Import a config file": "Uvezi konfiguracijsku datoteku",
   "languageSwitcher": {
     "label": "Odaberi jezik"
@@ -48,13 +48,27 @@
     "Marketplace": "Tržnica",
     "My museums": "Moji muzeji",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Prijava",
-    "SignOut": "Odjava"
+    "SignIn": "Prijava"
   },
   "No museum matches “{{query}}”.": "Nijedan muzej ne odgovara upitu „{{query}}”.",
   "or": "ili",
   "Search a museum": "Pretraži muzeje",
   "This file is not a museum export.": "Ova datoteka nije izvoz muzeja.",
-  "This museum was not found here.": "Ovaj muzej ovdje nije pronađen."
+  "This museum was not found here.": "Ovaj muzej ovdje nije pronađen.",
+  "Photos": "Fotografije",
+  "Photo": "Fotografija",
+  "Open photos": "Otvori fotografije",
+  "Open photo {{current}}": "Otvori fotografiju {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografija {{current}} od {{total}}",
+  "Go to photo {{current}}": "Idi na fotografiju {{current}}",
+  "Previous photo": "Prethodna fotografija",
+  "Next photo": "Sljedeća fotografija",
+  "Full screen": "Cijeli zaslon",
+  "Exit full screen": "Izađi iz cijelog zaslona",
+  "Show thumbnails": "Prikaži sličice",
+  "Hide thumbnails": "Sakrij sličice",
+  "Download": "Preuzmi",
+  "Close": "Zatvori",
+  "3D model of {{title}}": "3D model: {{title}}",
+  "The 3D view is not available on this device.": "3D prikaz nije dostupan na ovom uređaju."
 }

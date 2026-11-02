@@ -36,8 +36,8 @@
     "username": "Ainm úsáideora",
     "usernameHint": "Seo mar a fheicfidh taiscéalaithe eile thú."
   },
-  "Back to all museums": "Ar ais chuig gach músaem",
   "Change museum": "Athraigh músaem",
+  "Clear search": "Glan an cuardach",
   "Import a config file": "Iompórtáil comhad cumraíochta",
   "languageSwitcher": {
     "label": "Roghnaigh teanga"
@@ -48,13 +48,27 @@
     "Marketplace": "Margadh",
     "My museums": "Mo mhúsaeim",
     "Navigator": "Nascleanaí",
-    "Profile": "Próifíl",
-    "SignIn": "Logáil isteach",
-    "SignOut": "Logáil amach"
+    "SignIn": "Logáil isteach"
   },
   "No museum matches “{{query}}”.": "Níl aon mhúsaem ag teacht le “{{query}}”.",
   "or": "nó",
   "Search a museum": "Cuardaigh músaem",
   "This file is not a museum export.": "Ní easpórtáil músaeim é an comhad seo.",
-  "This museum was not found here.": "Níor aimsíodh an músaem seo anseo."
+  "This museum was not found here.": "Níor aimsíodh an músaem seo anseo.",
+  "Photos": "Grianghraif",
+  "Photo": "Grianghraf",
+  "Open photos": "Oscail na grianghraif",
+  "Open photo {{current}}": "Oscail grianghraf {{current}}",
+  "Photo {{current}} of {{total}}": "Grianghraf {{current}} as {{total}}",
+  "Go to photo {{current}}": "Téigh go grianghraf {{current}}",
+  "Previous photo": "An grianghraf roimhe seo",
+  "Next photo": "An chéad ghrianghraf eile",
+  "Full screen": "Lánscáileán",
+  "Exit full screen": "Fág an lánscáileán",
+  "Show thumbnails": "Taispeáin mionsamhlacha",
+  "Hide thumbnails": "Folaigh mionsamhlacha",
+  "Download": "Íoslódáil",
+  "Close": "Dún",
+  "3D model of {{title}}": "Samhail 3D de {{title}}",
+  "The 3D view is not available on this device.": "Níl an t-amharc 3D ar fáil ar an ngléas seo."
 }

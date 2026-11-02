@@ -36,8 +36,8 @@
     "username": "Nome utente",
     "usernameHint": "È così che gli altri esploratori ti vedranno."
   },
-  "Back to all museums": "Torna a tutti i musei",
   "Change museum": "Cambia museo",
+  "Clear search": "Cancella la ricerca",
   "Import a config file": "Importa un file di configurazione",
   "languageSwitcher": {
     "label": "Seleziona lingua"
@@ -48,13 +48,27 @@
     "Marketplace": "Marketplace",
     "My museums": "I miei musei",
     "Navigator": "Navigator",
-    "Profile": "Profilo",
-    "SignIn": "Accedi",
-    "SignOut": "Esci"
+    "SignIn": "Accedi"
   },
   "No museum matches “{{query}}”.": "Nessun museo corrisponde a “{{query}}”.",
   "or": "oppure",
   "Search a museum": "Cerca un museo",
   "This file is not a museum export.": "Questo file non è un'esportazione di un museo.",
-  "This museum was not found here.": "Questo museo non è stato trovato qui."
+  "This museum was not found here.": "Questo museo non è stato trovato qui.",
+  "Photos": "Foto",
+  "Photo": "Foto",
+  "Open photos": "Apri le foto",
+  "Open photo {{current}}": "Apri la foto {{current}}",
+  "Photo {{current}} of {{total}}": "Foto {{current}} di {{total}}",
+  "Go to photo {{current}}": "Vai alla foto {{current}}",
+  "Previous photo": "Foto precedente",
+  "Next photo": "Foto successiva",
+  "Full screen": "Schermo intero",
+  "Exit full screen": "Esci da schermo intero",
+  "Show thumbnails": "Mostra miniature",
+  "Hide thumbnails": "Nascondi miniature",
+  "Download": "Scarica",
+  "Close": "Chiudi",
+  "3D model of {{title}}": "Modello 3D di {{title}}",
+  "The 3D view is not available on this device.": "La vista 3D non è disponibile su questo dispositivo."
 }

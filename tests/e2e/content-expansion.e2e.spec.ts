@@ -70,7 +70,7 @@ test('"Plan my visit" turns the form into a tour preview', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Start the visit' })).toBeVisible()
   if (shots) await page.screenshot({ path: `${shots}/plan-preview.png`, fullPage: true })
   await page.getByRole('button', { name: 'Start the visit' }).click()
-  await expect(page).toHaveURL(/\/tour\/[a-f0-9]+\/navigation\/0/)
+  await expect(page).toHaveURL(/\/navigation\/tour\/[a-f0-9]+\/0/)
 })
 
 test('importing a museum config file locks the app to that museum', async ({ page }) => {

@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} sadržaj u ovoj turi se plaća. Kupnjom ture otključavaš ga.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} sadržaja u ovoj turi se plaćaju. Kupnjom ture otključavaš ih sve.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} sadržaja u ovoj turi se plaća. Kupnjom ture otključavaš ih sve.",

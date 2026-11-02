@@ -6,6 +6,7 @@
   "Add an interval": "Dodaj interval",
   "Add object to the map": "Dodaj objekt na kartu",
   "Approve and create model": "Odobri i izradi model",
+  "Browse the catalog": "Pregledaj katalog",
   "Cancel": "Odustani",
   "Checking generation status…": "Provjera statusa generiranja…",
   "Choose a floorplan file": "Odaberi datoteku tlocrta",
@@ -86,6 +87,5 @@
   "Wednesday": "Srijeda",
   "What would you like to change?": "Što želiš promijeniti?",
   "You can close this window. Processing will continue.": "Možeš zatvoriti ovaj prozor. Obrada će se nastaviti.",
-  "Your object is ready to position on the map.": "Tvoj objekt je spreman za postavljanje na kartu.",
-  "Browse the catalog": "Pregledaj katalog"
+  "Your object is ready to position on the map.": "Tvoj objekt je spreman za postavljanje na kartu."
 }

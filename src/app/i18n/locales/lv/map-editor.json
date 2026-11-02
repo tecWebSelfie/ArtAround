@@ -6,6 +6,7 @@
   "Add an interval": "Pievienot intervālu",
   "Add object to the map": "Pievienot objektu kartei",
   "Approve and create model": "Apstiprināt un izveidot modeli",
+  "Browse the catalog": "Pārlūkot katalogu",
   "Cancel": "Atcelt",
   "Checking generation status…": "Pārbauda ģenerēšanas statusu…",
   "Choose a floorplan file": "Izvēlies stāva plāna failu",
@@ -86,6 +87,5 @@
   "Wednesday": "Trešdiena",
   "What would you like to change?": "Ko tu vēlētos mainīt?",
   "You can close this window. Processing will continue.": "Vari aizvērt šo logu. Apstrāde turpināsies.",
-  "Your object is ready to position on the map.": "Tavs objekts ir gatavs izvietošanai kartē.",
-  "Browse the catalog": "Pārlūkot katalogu"
+  "Your object is ready to position on the map.": "Tavs objekts ir gatavs izvietošanai kartē."
 }

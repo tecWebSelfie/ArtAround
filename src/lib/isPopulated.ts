@@ -4,9 +4,7 @@ type UnpopulatedId = string | number
  * Narrows a Payload relationship / upload value (`string | Doc`) to the
  * populated document. Unpopulated IDs, `null` and `undefined` return `false`.
  */
-export function isPopulated<T>(
-  value: UnpopulatedId | T | null | undefined,
-): value is T {
+export function isPopulated<T>(value: UnpopulatedId | T | null | undefined): value is T {
   return typeof value === 'object' && value !== null
 }
 

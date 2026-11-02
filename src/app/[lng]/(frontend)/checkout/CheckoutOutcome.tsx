@@ -1,5 +1,6 @@
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { LinkButton } from '@/components/editing/LinkButton'
-import { AppShellFooter, AppShellMain, Box, Container, Stack, Text, Title } from '@mantine/core'
+import { AppShellMain, Box, Container, Stack, Text, Title } from '@mantine/core'
 import { ArrowRight } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -46,11 +47,9 @@ export function CheckoutOutcome({
           </Box>
         </Container>
       </AppShellMain>
-      <AppShellFooter p="xs" hiddenFrom="md">
-        <Container size="xs" px="md">
-          {forward}
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="xs" hiddenFrom="md">
+        {forward}
+      </ActionFooter>
     </>
   )
 }

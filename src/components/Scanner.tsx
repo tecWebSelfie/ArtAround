@@ -9,9 +9,22 @@ import { parseAppUrl } from '@/lib/app-url'
 
 export { parseAppUrl } from '@/lib/app-url'
 
-export const Scanner = dynamic(() => import('@yudiel/react-qr-scanner').then((m) => m.Scanner), {
-  ssr: false,
-})
+export const Scanner = dynamic(
+  () =>
+    import('@yudiel/react-qr-scanner').then((m) => {
+      // Without a native BarcodeDetector (Chrome on Windows/Linux) the scanner
+      // decodes with ZXing's WebAssembly reader, by default fetched from a public
+      // CDN on first use. Serve it from our origin instead (public/zxing, copied
+      // on postinstall by scripts/copy-zxing-assets.mjs). Set before the first
+      // scan, since the module is prepared once.
+      m.setZXingModuleOverrides({
+        locateFile: (path: string, prefix: string) =>
+          path.endsWith('.wasm') ? `/zxing/${path}` : prefix + path,
+      })
+      return m.Scanner
+    }),
+  { ssr: false },
+)
 
 /** Client-only scanner that accepts app URLs and turns them into safe URL objects. */
 export function QrScanner({

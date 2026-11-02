@@ -36,8 +36,8 @@
     "username": "Nume de utilizator",
     "usernameHint": "Așa te vor vedea ceilalți exploratori."
   },
-  "Back to all museums": "Înapoi la toate muzeele",
   "Change museum": "Schimbă muzeul",
+  "Clear search": "Șterge căutarea",
   "Import a config file": "Importă un fișier de configurare",
   "languageSwitcher": {
     "label": "Alege limba"
@@ -48,13 +48,27 @@
     "Marketplace": "Marketplace",
     "My museums": "Muzeele mele",
     "Navigator": "Navigator",
-    "Profile": "Profil",
-    "SignIn": "Conectare",
-    "SignOut": "Deconectare"
+    "SignIn": "Conectare"
   },
   "No museum matches “{{query}}”.": "Niciun muzeu nu corespunde cu „{{query}}”.",
   "or": "sau",
   "Search a museum": "Caută un muzeu",
   "This file is not a museum export.": "Acest fișier nu este un export de muzeu.",
-  "This museum was not found here.": "Acest muzeu nu a fost găsit aici."
+  "This museum was not found here.": "Acest muzeu nu a fost găsit aici.",
+  "Photos": "Fotografii",
+  "Photo": "Fotografie",
+  "Open photos": "Deschide fotografiile",
+  "Open photo {{current}}": "Deschide fotografia {{current}}",
+  "Photo {{current}} of {{total}}": "Fotografia {{current}} din {{total}}",
+  "Go to photo {{current}}": "Mergi la fotografia {{current}}",
+  "Previous photo": "Fotografia anterioară",
+  "Next photo": "Fotografia următoare",
+  "Full screen": "Ecran complet",
+  "Exit full screen": "Ieși din ecran complet",
+  "Show thumbnails": "Afișează miniaturile",
+  "Hide thumbnails": "Ascunde miniaturile",
+  "Download": "Descarcă",
+  "Close": "Închide",
+  "3D model of {{title}}": "Model 3D: {{title}}",
+  "The 3D view is not available on this device.": "Vizualizarea 3D nu este disponibilă pe acest dispozitiv."
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Select } from '@mantine/core'
+import { Badge, Group, Select, Text } from '@mantine/core'
 import IsoCodes from 'iso-639-1'
 import { Languages } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -45,6 +45,16 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
       data={supportedLngs
         .map((lng) => ({ value: lng, label: languageName(lng) }))
         .sort((a, b) => a.label.localeCompare(b.label))}
+      // Each option leads with its code tag (EN, FR, …), as visitors often
+      // know a language by its tag better than by its own name.
+      renderOption={({ option }) => (
+        <Group gap="xs" wrap="nowrap">
+          <Badge size="sm" radius="sm" variant="light" color="gray" w={36} className="shrink-0">
+            {option.value.toUpperCase()}
+          </Badge>
+          <Text size="sm">{option.label}</Text>
+        </Group>
+      )}
       value={i18n.language}
       searchable
       allowDeselect={false}

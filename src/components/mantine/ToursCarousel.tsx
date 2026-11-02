@@ -1,5 +1,6 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
 import { isPopulated } from '@/lib/isPopulated'
 import { summarizeTour } from '@/lib/tour-summary'
 import { Tour } from '@/payload-types'
@@ -86,7 +87,7 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
                 <Text
                   className="font-semibold"
                   variant="gradient"
-                  gradient={{ from: 'grape', to: 'orange' }}
+                  gradient={TOUR_GRADIENT}
                 >
                   {t('Tours')}
                 </Text>

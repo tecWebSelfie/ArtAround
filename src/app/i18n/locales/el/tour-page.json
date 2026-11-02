@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} περιεχόμενο αυτής της ξενάγησης είναι επί πληρωμή. Αν αγοράσεις την ξενάγηση, ξεκλειδώνεται.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} περιεχόμενα αυτής της ξενάγησης είναι επί πληρωμή. Αν αγοράσεις την ξενάγηση, ξεκλειδώνονται όλα.",
   "{{count}} stops_one": "{{count}} στάση",

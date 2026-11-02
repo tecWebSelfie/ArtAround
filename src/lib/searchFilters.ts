@@ -40,11 +40,7 @@ export function parseFilterSearchParams(
   const rangeEnds = new Map<string, string>()
   let index = 0
 
-  const push = (
-    def: FilterDefinition,
-    operator: FilterOperator,
-    value: string | string[],
-  ) => {
+  const push = (def: FilterDefinition, operator: FilterOperator, value: string | string[]) => {
     const displayValue = Array.isArray(value) ? value.join(', ') : value
     filters.push({
       id: `initial-${index++}`,

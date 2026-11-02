@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} sisältö tällä kierroksella on maksullinen. Kierroksen ostaminen avaa sen.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "{{count}} sisältöä tällä kierroksella on maksullisia. Kierroksen ostaminen avaa ne kaikki.",
   "{{count}} stops_one": "{{count}} kohde",

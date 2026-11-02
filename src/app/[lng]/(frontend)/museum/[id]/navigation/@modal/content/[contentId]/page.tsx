@@ -3,9 +3,9 @@ import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { contentObjectId, museumNavigationPath } from '@/lib/tour-navigation'
-import { getNavigationDocument } from '@/app/[lng]/(frontend)/tour/[id]/navigation/data'
-import { NavigationObjectActions } from '@/app/[lng]/(frontend)/tour/[id]/navigation/NavigationObjectActions'
-import { NavigationModal } from '@/app/[lng]/(frontend)/tour/[id]/navigation/[stepId]/NavigationModal'
+import { getNavigationDocument } from '../../../data'
+import { NavigationObjectActions } from '../../../NavigationObjectActions'
+import { NavigationModal } from '../../../NavigationModal'
 
 /**
  * A content over the free map (also the target of the detail pages' "Find it

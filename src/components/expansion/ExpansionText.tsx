@@ -11,11 +11,16 @@ import {
   type ExpansionRequest,
 } from '@/lib/expansion'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { tourNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import {
+  museumNavigationPath,
+  parseNavigationPathname,
+  tourNavigationPath,
+  withNavigationPosition,
+} from '@/lib/tour-navigation'
 import { Anchor, Group, Image, Skeleton, Stack, Text, UnstyledButton } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import type { Route } from 'next'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import classes from './ContentExpansion.module.css'
@@ -138,15 +143,23 @@ export function ExpansionText({
   const { t } = useTranslation('tour-navigation')
   const router = useRouter()
   const search = useSearchParams()
-  const params = useParams<{ lng: string; id?: string; stepId?: string }>()
+  const { lng } = useParams<{ lng: string }>()
+  // The museum navigation the text is read in, if any: free map or a tour step.
+  const here = parseNavigationPathname(usePathname())
   const expansion = useExpansion(target, id, request)
   const paragraphs = finishedParagraphs(expansion.text, expansion.done)
   useReadAloud(paragraphs, JSON.stringify(request))
 
-  // Links open the linked entity's modal inside the tour, keeping the position.
+  // Links open the linked entity's modal over the current map (tour step or
+  // free navigation), keeping the position; elsewhere its canonical page.
+  // Contextual URLs, not canonical ones: from below `/museum/[id]` the museum
+  // details page's `@object` interceptor could catch a canonical object link.
   const hrefFor = (kind: 'object' | 'content', linkId: string) => {
-    if (!params.id || !params.stepId) return `/${params.lng}/${kind}/${linkId}` as Route
-    const base = tourNavigationPath(params.lng, params.id, Number(params.stepId))
+    if (!here) return `/${lng}/${kind}/${linkId}` as Route
+    const base =
+      here.tourId && here.step !== null
+        ? tourNavigationPath(here.lng, here.museumId, here.tourId, Number(here.step))
+        : museumNavigationPath(here.lng, here.museumId)
     return withNavigationPosition(`${base}/${kind}/${linkId}`, search.toString()) as Route
   }
   const known = new Set(expansion.links.map((link) => link.id))

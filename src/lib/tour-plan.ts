@@ -46,6 +46,8 @@ export function planRequestKey(museumId: string, request: PlanRequest) {
 /** What `/api/plan-tour` returns for the preview. */
 export type PlannedTour = {
   id: string
+  /** The planned tour's museum: its map is `/museum/{museumId}/navigation/tour/{id}/…`. */
+  museumId: string
   title: string
   description: string
   totalMinutes: number

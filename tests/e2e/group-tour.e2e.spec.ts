@@ -17,7 +17,11 @@ import { resolve } from 'node:path'
 const expect = baseExpect.configure({ timeout: 60_000 })
 const fixturePath = resolve('.e2e-fixtures/tour-navigation-fixture.json')
 const fixture = existsSync(fixturePath)
-  ? (JSON.parse(readFileSync(fixturePath, 'utf8')) as { url: string; tourId: string })
+  ? (JSON.parse(readFileSync(fixturePath, 'utf8')) as {
+      url: string
+      tourId: string
+      museumId: string
+    })
   : null
 const shots = process.env.E2E_SCREENSHOTS
 const at = (path: string) => `${new URL(fixture!.url).origin}${path}`
@@ -35,7 +39,9 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
   const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
 
   // Host: "Start with a group" on the tour's start page.
-  await host.goto(at(`/en/tour/${fixture!.tourId}/navigation`), { waitUntil: 'domcontentloaded' })
+  await host.goto(at(`/en/museum/${fixture!.museumId}/navigation/tour/${fixture!.tourId}`), {
+    waitUntil: 'domcontentloaded',
+  })
   // A click before hydration does nothing: click until the name field appears.
   const hostName = host.getByRole('textbox', { name: 'Your name' })
   await expect(async () => {
@@ -75,8 +81,8 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
 
   // Start: the guest is moved into the tour.
   await host.getByRole('button', { name: 'Start the tour' }).click()
-  await expect(host).toHaveURL(/\/navigation\/0/)
-  await expect(guest).toHaveURL(/\/navigation\/0/)
+  await expect(host).toHaveURL(/\/navigation\/tour\/[^/]+\/0/)
+  await expect(guest).toHaveURL(/\/navigation\/tour\/[^/]+\/0/)
   await expect(guest.getByRole('button', { name: 'Your group, 2 people' })).toBeVisible()
 
   // The host opens the next stop; the guest's modal opens and can't be closed.
@@ -126,7 +132,9 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
 
 /** "Start with a group" on the tour's start page; returns the room code. */
 async function openGroup(page: Page, name: string, { showResults = false } = {}) {
-  await page.goto(at(`/en/tour/${fixture!.tourId}/navigation`), { waitUntil: 'domcontentloaded' })
+  await page.goto(at(`/en/museum/${fixture!.museumId}/navigation/tour/${fixture!.tourId}`), {
+    waitUntil: 'domcontentloaded',
+  })
   const nameField = page.getByRole('textbox', { name: 'Your name' })
   await expect(async () => {
     await page.getByRole('button', { name: 'Start with a group' }).click()
@@ -194,7 +202,7 @@ test('private results, a late guest in Italian, and the host reloading', async (
     name: 'Il tuo nome',
     join: 'Entra nel gruppo',
   })
-  await expect(guest).toHaveURL(/\/it\/tour\/[^/]+\/navigation\/0\//)
+  await expect(guest).toHaveURL(/\/it\/museum\/[^/]+\/navigation\/tour\/[^/]+\/0\//)
   await expect(guest.getByRole('dialog')).toBeVisible()
   await expect(guest.getByText('Anna proseguirà quando sarà pronto')).toBeVisible()
 
@@ -206,11 +214,13 @@ test('private results, a late guest in Italian, and the host reloading', async (
   await expect(guest.getByRole('dialog')).toBeVisible()
   await host.getByRole('dialog').getByRole('button', { name: 'Close' }).click()
   await expect(guest.getByRole('dialog')).toBeHidden()
-  await expect(guest).toHaveURL(/\/it\/tour\/[^/]+\/navigation\/0\?.*mobility=wheelchair/)
+  await expect(guest).toHaveURL(
+    /\/it\/museum\/[^/]+\/navigation\/tour\/[^/]+\/0\?.*mobility=wheelchair/,
+  )
 
   // The host's device reloads: guests stay put, then follow again.
   await host.reload({ waitUntil: 'domcontentloaded' })
-  await expect(guest).toHaveURL(/\/navigation\/0\?/)
+  await expect(guest).toHaveURL(/\/navigation\/tour\/[^/]+\/0\?/)
   // Clicks before hydration are lost: click until the host's modal opens.
   await expect(async () => {
     if (!(await host.getByRole('dialog').isVisible())) {
@@ -267,7 +277,7 @@ test('leaving, switching groups, ending from each place, ended codes', async ({ 
   await joinGroup(guest, `/en/room/${first}`, 'Marco')
   await expect(anna.getByText('2 in the group')).toBeVisible()
   await anna.getByRole('button', { name: 'Start the tour' }).click()
-  await expect(guest).toHaveURL(/\/navigation\/0/)
+  await expect(guest).toHaveURL(/\/navigation\/tour\/[^/]+\/0/)
 
   // Leaving mid-tour: the panel's "Leave the group", then the guest is on their own.
   await guest.getByRole('button', { name: 'Your group, 2 people' }).click()

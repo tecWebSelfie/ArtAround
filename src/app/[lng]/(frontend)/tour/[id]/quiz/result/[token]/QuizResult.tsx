@@ -1,9 +1,9 @@
 'use client'
 
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { tourQuizPath } from '@/lib/tour-navigation'
 import { BarChart } from '@mantine/charts'
 import {
-  AppShellFooter,
   AppShellMain,
   Box,
   Button,
@@ -211,19 +211,17 @@ export function QuizResult({
         </Container>
       </AppShellMain>
 
-      <AppShellFooter p="xs">
-        <Container size="xs" px="md">
-          <Button
-            fullWidth
-            size="md"
-            component={Link}
-            href={`/${lng}/navigator` as Route}
-            rightSection={<ArrowRight size={18} />}
-          >
-            {t('Back to the navigator')}
-          </Button>
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="xs">
+        <Button
+          fullWidth
+          size="md"
+          component={Link}
+          href={`/${lng}/navigator` as Route}
+          rightSection={<ArrowRight size={18} />}
+        >
+          {t('Back to the navigator')}
+        </Button>
+      </ActionFooter>
 
       <QuizContentDrawer
         contentId={drawerContent}

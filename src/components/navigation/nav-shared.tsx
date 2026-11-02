@@ -3,11 +3,11 @@
 import { useAuth } from '@/components/auth/AuthProvider'
 import type { MuseumRole } from '@/fields/MuseumFunction'
 import { Menu, Stack, Text } from '@mantine/core'
-import { BadgeCheck, Compass, Landmark, LogOut, Palette, Store, User as UserIcon } from 'lucide-react'
+import { BadgeCheck, Compass, Landmark, Palette, Store } from 'lucide-react'
 import type { Route } from 'next'
 import { useT } from 'next-i18next/client'
 import Link from 'next/link'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 
 /**
  * What the two navigation bars share: the phone's bottom bar (`NavBar`, tabs
@@ -44,13 +44,14 @@ const ROLE_META: Record<MuseumRole, { Icon: typeof Landmark; label: string }> = 
  *   the real visitor at once instead of a spinner or a placeholder name.
  * - `isActive` localizes the href (/it/navigator) so the check matches the
  *   actual pathname, with no redirect hop.
+ * - No sign out here: in both bars the account entry links to the profile,
+ *   which carries `SignOutButton`.
  */
 export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
   const pathname = usePathname()
   const { lng } = useParams<{ lng: string }>()
-  const router = useRouter()
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
-  const { logout, status, user } = useAuth()
+  const { status, user } = useAuth()
 
   const signedIn: NavAccount | null =
     status === 'loading'
@@ -69,17 +70,6 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
     return pathname === localized || pathname.startsWith(`${localized}/`)
   }
 
-  const handleLogout = async () => {
-    try {
-      await logout()
-    } catch {
-      // The provider already cleared local state; still leave the account menu.
-    }
-    router.push(`/${lng}/navigator` as Route)
-    // Server components (layouts, viewer-scoped pages) re-read the session.
-    router.refresh()
-  }
-
   return {
     t,
     lng,
@@ -90,35 +80,7 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
     signInHref: `/${lng}/login?next=${encodeURIComponent(pathname)}` as Route,
     localize,
     isActive,
-    handleLogout,
   }
-}
-
-/** The account menu's items: the profile, then a red "Sign out". */
-export function AccountMenuItems({
-  lng,
-  accountId,
-  onLogout,
-}: {
-  lng: string
-  accountId: string
-  onLogout: () => void
-}) {
-  const { t } = useT(undefined, { keyPrefix: 'navbar' })
-  return (
-    <>
-      <Menu.Item
-        component={Link}
-        href={`/${lng}/user/${accountId}` as Route}
-        leftSection={<UserIcon size={16} />}
-      >
-        {t('Profile')}
-      </Menu.Item>
-      <Menu.Item color="red" leftSection={<LogOut size={16} />} onClick={onLogout}>
-        {t('SignOut')}
-      </Menu.Item>
-    </>
-  )
 }
 
 /** One row per museum where the visitor holds a role: name over its dimmed role label. */

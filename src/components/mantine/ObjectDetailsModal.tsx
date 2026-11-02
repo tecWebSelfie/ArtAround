@@ -1,17 +1,8 @@
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Object } from '@/payload-types'
-import {
-  AspectRatio,
-  Image,
-  List,
-  ListItem,
-  Stack,
-  Text,
-  Title,
-  type MantineBreakpoint,
-} from '@mantine/core'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
+import { Box, List, ListItem, Stack, Text, Title, type MantineBreakpoint } from '@mantine/core'
+import { DetailCover } from './DetailCover'
 
 // Server Component: renders the modal body. Wrap it in the `ObjectModal` shell
 // from `./Modal` (client) to get open/close behaviour — never import this file
@@ -20,16 +11,19 @@ import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 export async function ObjectDetailsContent({
   object,
   hideContents = false,
-  imageHiddenFrom,
+  lightbox = false,
+  coverHiddenFrom,
 }: {
   object: Object
   hideContents?: boolean
+  /** Only the object page: in modals no full-screen viewer stacks over the modal. */
+  lightbox?: boolean
   /**
-   * Hides the inline 16:9 picture from this breakpoint up. The object page
-   * sets `md`: on desktop it shows the picture in its own sticky pane beside
-   * these details. Modals leave it unset (picture always inline).
+   * Hides the inline cover from this breakpoint up. The object page sets
+   * `md`: on desktop it shows the cover in its own sticky pane beside these
+   * details. Modals leave it unset (cover always inline).
    */
-  imageHiddenFrom?: MantineBreakpoint
+  coverHiddenFrom?: MantineBreakpoint
 }) {
   const { t } = await getT('object-details')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
@@ -37,13 +31,15 @@ export async function ObjectDetailsContent({
 
   return (
     <Stack gap="sm">
-      <AspectRatio ratio={16 / 9} hiddenFrom={imageHiddenFrom}>
-        <Image
-          radius="md"
-          src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
-          alt={thumbnail?.alt ?? object.name}
+      {/* Photo and, when the object has one, its 3D model; the lightbox only on the object page. */}
+      <Box hiddenFrom={coverHiddenFrom}>
+        <DetailCover
+          pictures={[thumbnail]}
+          model={isPopulated(object.model) ? object.model : null}
+          title={object.name}
+          lightbox={lightbox}
         />
-      </AspectRatio>
+      </Box>
       <Title order={3}>{object.name}</Title>
       {object.description && <Text size="sm">{object.description}</Text>}
       {!hideContents && contents.length > 0 && (

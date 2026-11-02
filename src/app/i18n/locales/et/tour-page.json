@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Selles tuuris on {{count}} tasuline sisu. Tuuri ostes avaneb see.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "Selles tuuris on {{count}} tasulist sisu. Tuuri ostes avanevad need kõik.",
   "{{count}} stops_one": "{{count}} peatus",

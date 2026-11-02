@@ -1,5 +1,6 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
 import type { Difficulty } from '@/payload-types'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import {
@@ -20,6 +21,8 @@ import {
 import { useUncontrolled } from '@mantine/hooks'
 import { BookOpen, Landmark, Route as RouteIcon, Search, Shapes, UserRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { ClearSearchButton } from './ClearSearchButton'
+import { PaidMark } from './PaidMark'
 import { DifficultyBadge } from './DifficultyBadge'
 import { DurationBadge } from './DurationBadge'
 import { LockedPriceBadge } from './LockedPriceBadge'
@@ -78,11 +81,26 @@ export function ArtAroundGlobalSearch({
   const combobox = useCombobox()
 
   return (
-    <Combobox {...props} store={combobox} offset={0}>
+    // The results float over the page (on the navigator, over the start
+    // cards): a medium shadow lifts the list off what lies beneath it.
+    <Combobox shadow="md" {...props} store={combobox} offset={0}>
       <ComboboxTarget>
         <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
           <TextInput
             leftSection={<Search size={16} />}
+            rightSection={
+              _value ? (
+                <ClearSearchButton
+                  onClear={() => {
+                    // Through `handleChange`, so the owner's query resets too
+                    // and the default results come back.
+                    handleChange('')
+                    combobox.openDropdown()
+                  }}
+                />
+              ) : null
+            }
+            rightSectionPointerEvents="all"
             bd="1px solid purple"
             bdrs="xl"
             size="lg"
@@ -102,7 +120,9 @@ export function ArtAroundGlobalSearch({
           />
         </BorderAnimate>
       </ComboboxTarget>
-      <ComboboxDropdown>
+      {/* A darker border than Mantine's default gray-2, so the list edge reads
+          clearly against white cards in light mode and the dark page in dark. */}
+      <ComboboxDropdown bd="1px solid light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3))">
         <ComboboxOptions>
           {filteredOptions.map((item) => {
             if (item.kind === 'tour') {
@@ -129,7 +149,7 @@ export function ArtAroundGlobalSearch({
 
 /** Leading mark per kind: the tour gradient, content teal, a plain museum. */
 const KIND_ICON = {
-  tour: { Icon: RouteIcon, variant: 'gradient', gradient: { from: 'grape', to: 'orange' } },
+  tour: { Icon: RouteIcon, variant: 'gradient', gradient: TOUR_GRADIENT },
   content: { Icon: BookOpen, variant: 'light', color: 'teal' },
   museum: { Icon: Landmark, variant: 'light', color: 'blue' },
   object: { Icon: Shapes, variant: 'light', color: 'gray' },
@@ -163,9 +183,13 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
         <Icon size={14} aria-hidden />
       </ThemeIcon>
       <Stack gap={4} miw={0}>
-        <Text fw={600} lh={1.3}>
-          {item.title}
-        </Text>
+        <Group gap={6} wrap="nowrap" align="flex-start">
+          <Text fw={600} lh={1.3}>
+            {item.title}
+          </Text>
+          {/* Paid at a glance, beside the title; the price badge below says how much. */}
+          {item.priceCents !== undefined && <PaidMark />}
+        </Group>
         {item.subtitle ? (
           <Text size="xs" c="dimmed" lineClamp={1}>
             {item.subtitle}

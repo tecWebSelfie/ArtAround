@@ -1,8 +1,8 @@
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
-import { getNavigationDocument } from '@/app/[lng]/(frontend)/tour/[id]/navigation/data'
-import { NavigationObjectActions } from '@/app/[lng]/(frontend)/tour/[id]/navigation/NavigationObjectActions'
-import { NavigationModal } from '@/app/[lng]/(frontend)/tour/[id]/navigation/[stepId]/NavigationModal'
+import { getNavigationDocument } from '../../../data'
+import { NavigationObjectActions } from '../../../NavigationObjectActions'
+import { NavigationModal } from '../../../NavigationModal'
 
 /** Object details over the free map; reloads keep the map shell. */
 export default async function Page({

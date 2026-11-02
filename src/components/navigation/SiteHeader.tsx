@@ -8,7 +8,6 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  AccountMenuItems,
   MyMuseumsMenuItems,
   NAV_ITEMS,
   useNavState,
@@ -20,18 +19,22 @@ import classes from './SiteHeader.module.css'
 /**
  * Immersive surfaces own the whole viewport and their own chrome (map
  * navigation header and directions bar, camera scanner, map editor), so the
- * desktop top bar steps aside there. Everything else is a browsing page.
+ * desktop top bar steps aside there. Everything else is a browsing page,
+ * including a tour's start page (`…/navigation/tour/[tourId]`, no step yet):
+ * the navigation shell shows no map there, only the start actions. The old
+ * `/tour/[id]/navigation/…` URLs only redirect (308), so they need no entry.
  */
 const IMMERSIVE =
-  /^\/[^/]+\/(?:tour\/[^/]+\/navigation\/[^/]+|museum\/[^/]+\/navigation|museum\/[^/]+\/edit\/mapeditor|scan)(?:\/|$)/
+  /^\/[^/]+\/(?:museum\/[^/]+\/navigation(?!\/tour\/[^/]+\/?$)|museum\/[^/]+\/edit\/mapeditor|scan)(?:\/|$)/
 
 /**
  * Desktop top bar (≥ md). On a laptop the visitor browses, plans and reads
  * rather than walking with a phone, so the phone's bottom tab bar gives way
  * to one persistent bar on every browsing page: the wordmark, the tab entries
  * as horizontal links (same colors as the bottom bar), and at the trailing
- * edge the context controls (language, museum scope) and the account, whose
- * menus open downward. Below md it renders nothing visible (`visibleFrom`);
+ * edge the context controls (language, museum scope) and the account. Menus
+ * open downward; the account entry, as in the bottom bar, links straight to
+ * the profile, where the visitor signs out. Below md it renders nothing visible (`visibleFrom`);
  * the phone keeps the tabs layout's top row and bottom bar.
  *
  * It is sticky and exposes its height as `--site-header-height` (globals.css,
@@ -52,8 +55,10 @@ export function SiteHeader({
   supportedLngs: string[]
 }) {
   const pathname = usePathname()
-  const { t, lng, signedIn, displayName, inMyMuseum, signInHref, localize, isActive, handleLogout } =
-    useNavState(account, myMuseums)
+  const { t, lng, signedIn, displayName, inMyMuseum, signInHref, localize, isActive } = useNavState(
+    account,
+    myMuseums,
+  )
 
   if (IMMERSIVE.test(pathname)) return null
 
@@ -115,30 +120,21 @@ export function SiteHeader({
             <MuseumSwitch current={currentMuseum} museums={museums} />
           </Box>
           {signedIn ? (
-            <Menu position="bottom-end" width={200} shadow="md">
-              <Menu.Target>
-                {/* The visible name is the accessible name (WCAG 2.5.3); the
-                    avatar's initials are hidden from it. */}
-                <Button
-                  variant="subtle"
-                  leftSection={
-                    <Avatar size={24} src={signedIn.avatarUrl} name={displayName} aria-hidden />
-                  }
-                  rightSection={<ChevronDown size={14} aria-hidden />}
-                >
-                  <Text span inherit truncate maw="16ch">
-                    {displayName}
-                  </Text>
-                </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <AccountMenuItems
-                  lng={lng}
-                  accountId={signedIn.id}
-                  onLogout={() => void handleLogout()}
-                />
-              </Menu.Dropdown>
-            </Menu>
+            // Straight to the profile, like the bottom bar: signing out lives
+            // there (`SignOutButton`). The visible name is the accessible name
+            // (WCAG 2.5.3); the avatar's initials are hidden from it.
+            <Button
+              component={Link}
+              href={`/${lng}/user/${signedIn.id}` as Route}
+              variant="subtle"
+              leftSection={
+                <Avatar size={24} src={signedIn.avatarUrl} name={displayName} aria-hidden />
+              }
+            >
+              <Text span inherit truncate maw="16ch">
+                {displayName}
+              </Text>
+            </Button>
           ) : (
             <Button
               component={Link}

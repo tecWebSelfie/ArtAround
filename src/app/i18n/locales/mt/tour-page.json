@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "{{count}} kontenut f'dan it-tour huwa bi ħlas. Jekk tixtri t-tour, tiftħu.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._two": "{{count}} kontenuti f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "{{count}} kontenuti f'dan it-tour huma bi ħlas. Jekk tixtri t-tour, tiftaħhom kollha.",

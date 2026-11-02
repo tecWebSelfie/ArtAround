@@ -1,4 +1,5 @@
 import { ContentForm } from '@/components/editing/forms/ContentForm'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { getSession, requireUser } from '@/lib/session'
 import { safeTourReturnTo } from '@/lib/tour-picker'
 import { Container } from '@mantine/core'
@@ -30,22 +31,27 @@ export default async function NewContentPage({
   await requireUser(lng, `/${lng}/content/new${ownQuery.size ? `?${ownQuery}` : ''}`)
 
   const { payload } = await getSession()
-  const museum =
-    museumId && returnTo
-      ? await payload
+  // The object picker offers one museum's objects: the tour's in the tour
+  // flow, else the locked one in museum mode (like every list in the app).
+  const tourFlow = Boolean(museumId && returnTo)
+  const pickerMuseumId = tourFlow ? museumId : await lockedMuseumId()
+  const [museum, object] = await Promise.all([
+    pickerMuseumId
+      ? payload
           .findByID({
             collection: 'museums',
-            id: museumId,
+            id: pickerMuseumId,
             depth: 0,
             select: { name: true, objects: true },
           })
           .catch(() => null)
-      : null
-  const object = objectId
-    ? await payload
-        .findByID({ collection: 'objects', id: objectId, depth: 0, select: { name: true } })
-        .catch(() => null)
-    : null
+      : null,
+    objectId
+      ? payload
+          .findByID({ collection: 'objects', id: objectId, depth: 0, select: { name: true } })
+          .catch(() => null)
+      : null,
+  ])
 
   return (
     <Container size="md" py="md">
@@ -59,7 +65,8 @@ export default async function NewContentPage({
               }
             : null
         }
-        returnTo={museum ? returnTo : null}
+        // Back to the tour only in the tour flow, not in plain museum mode.
+        returnTo={tourFlow && museum ? returnTo : null}
       />
     </Container>
   )

@@ -1,5 +1,6 @@
 'use client'
 
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import type { QuizQuestionView } from '@/lib/quiz-core'
 import {
   tourNavigationPath,
@@ -9,7 +10,6 @@ import {
 import {
   ActionIcon,
   Alert,
-  AppShellFooter,
   AppShellMain,
   AspectRatio,
   Box,
@@ -39,7 +39,8 @@ import { QuizContentDrawer } from './QuizContentDrawer'
 import { emptyQuizSession, type QuizSession, saveQuizSession, useQuizSession } from './quiz-session'
 import { useGroupQuizGuest } from './group-quiz'
 
-export type QuizTourSummary = { id: string; title: string; stopCount: number }
+/** `museumId` builds "back to the map" (the tour's map lives in its museum's navigation). */
+export type QuizTourSummary = { id: string; museumId: string; title: string; stopCount: number }
 
 /**
  * The visitor quiz: an intro screen (`/quiz`), then one question per screen
@@ -112,7 +113,7 @@ export function TourQuiz({
   }, [restored, index, requested])
 
   const mapHref = withNavigationPosition(
-    tourNavigationPath(lng, tour.id, from),
+    tourNavigationPath(lng, tour.museumId, tour.id, from),
     search.toString(),
   ) as Route
 
@@ -346,32 +347,30 @@ export function TourQuiz({
         </Container>
       </AppShellMain>
 
-      <AppShellFooter p="xs">
-        <Container size="xs" px="md">
-          {isLast ? (
-            <Button
-              fullWidth
-              size="md"
-              disabled={!feedback}
-              loading={submitting}
-              rightSection={<ArrowRight size={18} />}
-              onClick={submit}
-            >
-              {t('See your results')}
-            </Button>
-          ) : (
-            <Button
-              fullWidth
-              size="md"
-              disabled={!feedback}
-              rightSection={<ArrowRight size={18} />}
-              onClick={() => goTo(index + 2)}
-            >
-              {t('Next question')}
-            </Button>
-          )}
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="xs">
+        {isLast ? (
+          <Button
+            fullWidth
+            size="md"
+            disabled={!feedback}
+            loading={submitting}
+            rightSection={<ArrowRight size={18} />}
+            onClick={submit}
+          >
+            {t('See your results')}
+          </Button>
+        ) : (
+          <Button
+            fullWidth
+            size="md"
+            disabled={!feedback}
+            rightSection={<ArrowRight size={18} />}
+            onClick={() => goTo(index + 2)}
+          >
+            {t('Next question')}
+          </Button>
+        )}
+      </ActionFooter>
 
       <QuizContentDrawer
         contentId={drawerContent}

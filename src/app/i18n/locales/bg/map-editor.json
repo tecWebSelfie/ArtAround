@@ -6,6 +6,7 @@
   "Add an interval": "Добави интервал",
   "Add object to the map": "Добави обект на картата",
   "Approve and create model": "Одобри и създай модела",
+  "Browse the catalog": "Разгледай каталога",
   "Cancel": "Отказ",
   "Checking generation status…": "Проверка на състоянието на генерирането…",
   "Choose a floorplan file": "Избери файл с план на етажа",
@@ -86,6 +87,5 @@
   "Wednesday": "Сряда",
   "What would you like to change?": "Какво искаш да промениш?",
   "You can close this window. Processing will continue.": "Можеш да затвориш този прозорец. Обработката ще продължи.",
-  "Your object is ready to position on the map.": "Обектът ти е готов за позициониране на картата.",
-  "Browse the catalog": "Разгледай каталога"
+  "Your object is ready to position on the map.": "Обектът ти е готов за позициониране на картата."
 }

@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Šiame ture {{count}} turinys yra mokamas. Nusipirkus turą, jis atrakinamas.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "Šiame ture {{count}} turiniai yra mokami. Nusipirkus turą, atrakinami visi.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._many": "Šiame ture {{count}} turinio yra mokama. Nusipirkus turą, atrakinamas visas.",

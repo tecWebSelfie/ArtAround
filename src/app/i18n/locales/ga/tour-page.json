@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais é.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._two": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._few": "Tá {{count}} ábhar íoctha sa turas seo. Díghlasálann ceannach an turais iad go léir.",

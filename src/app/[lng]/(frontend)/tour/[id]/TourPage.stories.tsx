@@ -2,6 +2,7 @@ import { mockContentsList } from '@/mocks/content.mock'
 import { mockMuseumFull } from '@/mocks/museum.mock'
 import { mockObjectAmphora } from '@/mocks/object.mock'
 import { mockTourWithContents } from '@/mocks/tour.mock'
+import { tourMuseumId } from '@/lib/tour-navigation'
 import type { Tour } from '@/payload-types'
 import { AppShell } from '@mantine/core'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
@@ -66,7 +67,7 @@ export const Default: Story = {
     const page = within(canvasElement.ownerDocument.body)
     await expect(page.findByRole('link', { name: /Start tour/ })).resolves.toHaveAttribute(
       'href',
-      `/en/tour/${mockTourWithContents.id}/navigation`,
+      `/en/museum/${tourMuseumId(mockTourWithContents)}/navigation/tour/${mockTourWithContents.id}`,
     )
     await expect(page.findByRole('link', { name: /Customize tour/ })).resolves.toBeTruthy()
   },

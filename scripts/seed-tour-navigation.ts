@@ -290,12 +290,15 @@ await writeFile(
       tourId,
       // Object 1 is in the West hall; Objects 2 and 3 are in the East hall.
       objectIds: fixtureObjects.docs.map(({ id }) => id),
-      url: `http://localhost:3000/en/tour/${tourId}/navigation/0`,
+      // Tours open inside their museum's navigation (tourNavigationPath).
+      url: `http://localhost:3000/en/museum/${museum.id}/navigation/tour/${tourId}/0`,
     },
     null,
     2,
   ),
 )
-console.info(`Tour fixture: http://localhost:3000/en/tour/${tourId}/navigation/0`)
+console.info(
+  `Tour fixture: http://localhost:3000/en/museum/${museum.id}/navigation/tour/${tourId}/0`,
+)
 await payload.destroy()
 process.exit(0)

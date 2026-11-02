@@ -23,7 +23,12 @@ export default async function QuizPage({
 
   return (
     <QuizPageContent
-      tour={{ id: quiz.tour.id, title: quiz.tour.title, stopCount: quiz.tour.stopCount }}
+      tour={{
+        id: quiz.tour.id,
+        museumId: quiz.tour.museumId,
+        title: quiz.tour.title,
+        stopCount: quiz.tour.stopCount,
+      }}
       questions={quizQuestionViews(quiz)}
       from={step ?? quiz.tour.stopCount}
     />

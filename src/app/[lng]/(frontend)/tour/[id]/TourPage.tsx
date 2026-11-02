@@ -1,6 +1,9 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
+import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
+import { DetailCover } from '@/components/mantine/DetailCover'
 import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
@@ -8,12 +11,11 @@ import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { stopImage, summarizeTour } from '@/lib/tour-summary'
+import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
-  AppShellFooter,
   AppShellMain,
-  AspectRatio,
   Badge,
   Box,
   Button,
@@ -101,7 +103,7 @@ export default function TourPage({
   const summary = summarizeTour(tour)
   const museum = isPopulated(tour.museum) ? tour.museum : null
   const author = isPopulated(tour.author) ? tour.author.name?.fullName : null
-  const cover = isPopulated(tour.thumbnail) && tour.thumbnail.url ? tour.thumbnail : null
+  const cover = isPopulated(tour.thumbnail) ? tour.thumbnail : null
   // Literal keys so i18next-cli keeps them (DIFFICULTY_LABEL_KEY is dynamic).
   const difficultyLabel: Record<Difficulty, string> = {
     easy: t('Easy'),
@@ -112,6 +114,8 @@ export default function TourPage({
   const editHref = (
     canEdit ? `/${lng}/tour/${tour.id}/edit` : `/${lng}/tour/new?from=${tour.id}`
   ) as Route
+  // The tour's start page, inside its museum's navigation.
+  const startHref = tourStartPath(lng, tourMuseumId(tour), tour.id)
 
   return (
     <>
@@ -128,16 +132,16 @@ export default function TourPage({
               pos={{ md: 'sticky' }}
               top={{ md: 'calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))' }}
               mah={{
-                md: 'calc(100dvh - var(--site-header-height, 0px) - 2 * var(--mantine-spacing-md))',
+                // No bare numbers: Mantine style props turn them into rem.
+                md: 'calc(100dvh - var(--site-header-height, 0px) - var(--mantine-spacing-md) - var(--mantine-spacing-md))',
               }}
               className="min-[62em]:overflow-y-auto"
             >
               <Stack gap="lg">
-                {cover && (
-                  <AspectRatio ratio={16 / 9}>
-                    <Image radius="lg" src={cover.url} alt={cover.alt ?? ''} />
-                  </AspectRatio>
-                )}
+                {/* Always a cover, height-capped: the tour gradient stands in
+                    when there is no picture, and the title and badges stay in
+                    view. */}
+                <DetailCover pictures={[cover]} fallback="tour" title={tour.title} />
 
                 <Stack gap="xs">
                   <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
@@ -245,7 +249,7 @@ export default function TourPage({
                     price={price}
                     editHref={editHref}
                     canEdit={canEdit}
-                    tourId={tour.id}
+                    startHref={startHref}
                     onUnlock={() => setPurchaseOpen(true)}
                   />
                 </Box>
@@ -323,17 +327,15 @@ export default function TourPage({
 
       {/* The Thumb-Reach Rule: on phones the way forward lives in the 64px
           footer. From md the same pair sits inline in the summary pane. */}
-      <AppShellFooter p="xs" hiddenFrom="md">
-        <Container size="sm" px="md">
-          <TourActions
-            price={price}
-            editHref={editHref}
-            canEdit={canEdit}
-            tourId={tour.id}
-            onUnlock={() => setPurchaseOpen(true)}
-          />
-        </Container>
-      </AppShellFooter>
+      <ActionFooter size="sm" hiddenFrom="md">
+        <TourActions
+          price={price}
+          editHref={editHref}
+          canEdit={canEdit}
+          startHref={startHref}
+          onUnlock={() => setPurchaseOpen(true)}
+        />
+      </ActionFooter>
 
       <PurchaseModal
         opened={purchaseOpen}
@@ -359,13 +361,14 @@ function TourActions({
   price,
   editHref,
   canEdit,
-  tourId,
+  startHref,
   onUnlock,
 }: {
   price: number
   editHref: Route
   canEdit: boolean
-  tourId: string
+  /** `tourStartPath(…)`: the tour's start page inside its museum's navigation. */
+  startHref: Route
   onUnlock: () => void
 }) {
   const { t } = useTranslation('tour-page')
@@ -406,11 +409,11 @@ function TourActions({
         px="xs"
         fz="sm"
         component={Link}
-        href={`/${lng}/tour/${tourId}/navigation` as Route}
+        href={startHref}
         // The tour gradient: starting a tour is the app's main way in
         // (DESIGN.md → Colors, tour identity); moving freely stays blue.
         variant="gradient"
-        gradient={{ from: 'grape', to: 'orange' }}
+        gradient={TOUR_GRADIENT}
         rightSection={<Play size={16} />}
       >
         {t('Start tour')}

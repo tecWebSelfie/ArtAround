@@ -15,6 +15,7 @@ import {
   TextInput,
 } from '@mantine/core'
 import { Search, SlidersHorizontal } from 'lucide-react'
+import { ClearSearchButton } from './ClearSearchButton'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
 import { useState, type FormEvent } from 'react'
@@ -133,30 +134,42 @@ export function MarketplaceSearch({
             placeholder={labels.searchPlaceholder}
             aria-label={labels.searchPlaceholder}
             leftSection={<Search size={18} aria-hidden />}
-            rightSectionWidth={48}
+            rightSectionWidth={query ? 76 : 48}
             rightSectionPointerEvents="all"
             rightSection={
-              <Indicator
-                inline
-                label={activeFilterCount}
-                size={16}
-                color="red"
-                autoContrast
-                disabled={activeFilterCount === 0}
-              >
-                <ActionIcon
-                  type="button"
-                  variant={filtersOpen || activeFilterCount > 0 ? 'light' : 'subtle'}
+              <Group gap={4} wrap="nowrap">
+                {query && (
+                  <ClearSearchButton
+                    onClear={() => {
+                      setQuery('')
+                      // A submitted query is in the URL: drop it there too,
+                      // keeping the filters. An unsent draft just empties.
+                      if (initialQuery) navigate({ query: '', kind, price })
+                    }}
+                  />
+                )}
+                <Indicator
+                  inline
+                  label={activeFilterCount}
+                  size={16}
                   color="red"
-                  size="sm"
-                  aria-label={labels.filters}
-                  aria-expanded={filtersOpen}
-                  aria-controls={FILTERS_ID}
-                  onClick={() => setFiltersOpen((open) => !open)}
+                  autoContrast
+                  disabled={activeFilterCount === 0}
                 >
-                  <SlidersHorizontal size={16} aria-hidden />
-                </ActionIcon>
-              </Indicator>
+                  <ActionIcon
+                    type="button"
+                    variant={filtersOpen || activeFilterCount > 0 ? 'light' : 'subtle'}
+                    color="red"
+                    size="sm"
+                    aria-label={labels.filters}
+                    aria-expanded={filtersOpen}
+                    aria-controls={FILTERS_ID}
+                    onClick={() => setFiltersOpen((open) => !open)}
+                  >
+                    <SlidersHorizontal size={16} aria-hidden />
+                  </ActionIcon>
+                </Indicator>
+              </Group>
             }
           />
           <Button type="submit" size="md" color="red" px={{ base: 'md', sm: 'xl' }}>

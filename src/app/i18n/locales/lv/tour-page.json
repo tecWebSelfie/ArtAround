@@ -1,4 +1,7 @@
 {
+  "{{count}} contents in this tour are paid": {
+    " Buying the tour unlocks all of them": {}
+  },
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._zero": "Šajā tūrē {{count}} satura vienības ir maksas. Nopērkot tūri, tās visas tiek atbloķētas.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._one": "Šajā tūrē {{count}} satura vienība ir maksas. Nopērkot tūri, tā tiek atbloķēta.",
   "{{count}} contents in this tour are paid. Buying the tour unlocks all of them._other": "Šajā tūrē {{count}} satura vienības ir maksas. Nopērkot tūri, tās visas tiek atbloķētas.",

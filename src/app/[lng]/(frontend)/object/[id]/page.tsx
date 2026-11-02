@@ -3,11 +3,12 @@ import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataFor
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import { getT } from '@/i18n.server'
+import { isPopulated } from '@/lib/isPopulated'
+import { pictureSrc } from '@/lib/picture'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { can, getSession } from '@/lib/session'
-import { isPopulated } from '@/lib/isPopulated'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { Container, Grid, GridCol, Group, Image } from '@mantine/core'
+import { DetailCover } from '@/components/mantine/DetailCover'
+import { Container, Grid, GridCol, Group } from '@mantine/core'
 import { FilePlus } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -16,47 +17,59 @@ import type { Route } from 'next'
  * source-locale name and description in place. Anyone signed in can write a
  * content about it (dedicated page, object preselected).
  *
- * Phones read one column (picture inside the details). From `md` the page is
- * two panes in a 1140px container: the picture alone on the left, sticky
- * under the site header and never taller than the viewport, and the details,
- * their inline editing and the actions on the right.
+ * Phones read one column (cover inside the details). From `md` the page is
+ * two panes in a 1140px container: the cover alone on the left (photo,
+ * lightbox and 3D model, the same `DetailCover`), sticky under the site
+ * header and never taller than the viewport, and the details, their inline
+ * editing and the actions on the right.
  */
 export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>) {
   const { lng, id } = await params
-  const object = await getLocalizedPageDocument('objects', id, lng)
   const { payload, user } = await getSession()
-  const canEdit = await can('objects', id, 'update')
-  const source = canEdit
-    ? await payload.findByID({
-        collection: 'objects',
-        id,
-        locale: 'en',
-        depth: 0,
-        select: { name: true, description: true },
-      })
-    : null
-  const { t } = await getT('editing')
-  const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
+  const canEditPromise = can('objects', id, 'update')
+  const [object, canEdit, source, { t }] = await Promise.all([
+    // Photo included (populated by getLocalizedPageDocument).
+    getLocalizedPageDocument('objects', id, lng),
+    canEditPromise,
+    // The owner's source-locale text for the inline form, alongside the rest.
+    canEditPromise.then((allowed) =>
+      allowed
+        ? payload.findByID({
+            collection: 'objects',
+            id,
+            locale: 'en',
+            depth: 0,
+            select: { name: true, description: true },
+          })
+        : null,
+    ),
+    getT('editing'),
+  ])
+  // The form's preview reuses the populated photo.
+  const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
+  const thumbnail = photo && { id: photo.id, url: pictureSrc(photo, 'card') }
 
   return (
     // `maw` widens Mantine's `md` container (960px) to 1140px from md only.
     <Container size="md" py="md" maw={{ md: 1140 }}>
       <Grid gap={{ base: 0, md: 48 }} align="flex-start">
-        {/* Desktop media pane: natural aspect ratio, capped to the viewport
-            height so a portrait or a placeholder never dominates. */}
+        {/* Desktop media pane: the cover fills the viewport's height under the
+            site header (capped, so it stays a picture beside the text, not a
+            wall), with the same lightbox and 3D toggle as on phones. */}
         <GridCol
           span={{ md: 5 }}
           visibleFrom="md"
           pos="sticky"
           top="calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))"
         >
-          <Image
-            radius="md"
-            w="auto"
-            maw="100%"
-            mah="calc(100dvh - var(--site-header-height, 0px) - 2 * var(--mantine-spacing-md))"
-            src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
-            alt={thumbnail?.alt ?? object.name}
+          <DetailCover
+            pictures={[photo]}
+            model={isPopulated(object.model) ? object.model : null}
+            title={object.name}
+            // No bare numbers: Mantine style props turn them into rem, which
+            // breaks the calc. Two spacing terms stand for the pane's top and
+            // bottom margins.
+            height="min(calc(100dvh - var(--site-header-height, 0px) - var(--mantine-spacing-md) - var(--mantine-spacing-md)), 640px)"
           />
         </GridCol>
         <GridCol span={{ base: 12, md: 7 }}>
@@ -65,10 +78,10 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             canEdit={canEdit}
             // Visitors on desktop: no label above the h1 (it read as an eyebrow).
             hideTitleFrom="md"
-            form={source && <ObjectMetadataForm object={{ ...source, id }} />}
+            form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
           >
-            {/* The inline picture is the media pane's job from md. */}
-            <ObjectDetailsContent object={object} imageHiddenFrom="md" />
+            {/* The inline cover is the media pane's job from md. */}
+            <ObjectDetailsContent object={object} lightbox coverHiddenFrom="md" />
           </EditableSection>
           {user && (
             <Group mt="md">

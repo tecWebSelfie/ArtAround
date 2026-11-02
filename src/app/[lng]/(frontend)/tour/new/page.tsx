@@ -1,5 +1,7 @@
 import { TourForm } from '@/components/editing/forms/TourForm'
 import { getT } from '@/i18n.server'
+import { coverImage } from '@/lib/cover-image'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { Alert, Container } from '@mantine/core'
 import { getTourEditorData } from '../tour-editing'
@@ -25,11 +27,12 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         .findByID({ collection: 'tours', id: from, depth: 0, ...(await asViewer()) })
         .catch(() => null)
     : null
+  // Museum mode: with no museum in the URL, a new tour is for the locked museum.
   const museumId = source
     ? typeof source.museum === 'string'
       ? source.museum
       : source.museum.id
-    : museumParam
+    : (museumParam ?? (await lockedMuseumId()))
 
   if (!museumId) {
     const { t } = await getT('editing')
@@ -45,13 +48,18 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   const sourceStops = (source?.contents ?? []).map((content) =>
     typeof content === 'string' ? content : content.id,
   )
-  // A customized copy shows the original's unvisitable stops too, flagged.
-  const { museum, candidates } = await getTourEditorData(museumId, sourceStops)
+  // A customized copy shows the original's unvisitable stops too (flagged),
+  // and starts with the original's cover.
+  const [{ museum, candidates }, thumbnail] = await Promise.all([
+    getTourEditorData(museumId, sourceStops),
+    coverImage(payload, 'toursThumbnails', source?.thumbnail),
+  ])
   return (
     <Container size="md" py="md">
       <TourForm
         museum={museum}
         candidates={candidates}
+        thumbnail={thumbnail}
         initial={
           source
             ? {

@@ -1,44 +1,9 @@
 'use client'
 
-import {
-  followHref,
-  groupLocation,
-  HOST_IDENTITY,
-  isQuizLocation,
-  parseRoomMetadata,
-} from '@/lib/group'
-import {
-  RoomContext,
-  useConnectionState,
-  useEvents,
-  useLocalParticipant,
-  useParticipantAttributes,
-  useRemoteParticipant,
-  useRoomInfo,
-  useSequentialRoomConnectDisconnect,
-} from '@livekit/components-react'
 import { useLocalStorage } from '@mantine/hooks'
-import { notifications } from '@mantine/notifications'
-import {
-  ConnectionState,
-  DisconnectReason,
-  Room,
-  RoomEvent,
-  TokenSource,
-  type Participant,
-} from 'livekit-client'
-import type { Route } from 'next'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import {
-  createContext,
-  Suspense,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
-import { useTranslation } from 'react-i18next'
+import type { Room } from 'livekit-client'
+import dynamic from 'next/dynamic'
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 
 /**
  * Keeps this device's group tour connection (see `src/lib/group.ts`).
@@ -47,13 +12,16 @@ import { useTranslation } from 'react-i18next'
  * the quiz. Membership lives in localStorage: a reload or a reopened tab
  * reconnects, and the host key makes the host's device host again.
  *
- *   join/start → TokenSource.endpoint('/api/rooms/token') → connect
- *   → LiveKit's React hooks read members and their attributes from RoomContext
- *   → GroupSync: the host publishes where it is; guests follow it
+ *   join/start → membership saved → GroupConnection (lazy) connects the room
+ *   → it reports the room, the host's attributes and the room settings here
+ *   → hooks below share them; GroupRoom gives LiveKit's own hooks the room
  *
- * The room is provided through LiveKit's own `RoomContext`, so any component
- * can use `@livekit/components-react` hooks (`useParticipants`, …) directly.
+ * This file imports nothing from LiveKit at runtime: it's in every frontend
+ * page's bundle, and most visitors tour alone. `livekit-client` arrives with
+ * GroupConnection, only once this device is in a group.
  */
+
+const GroupConnection = dynamic(() => import('./GroupConnection'), { ssr: false })
 
 export type GroupMembership = {
   code: string
@@ -72,7 +40,10 @@ export type GroupMembership = {
   attributes?: Record<string, string>
 }
 
-type GroupContextValue = {
+/** From the room metadata the server wrote when the host opened the room. */
+export type GroupSettings = { hostName: string; showResults: boolean }
+
+export type GroupContextValue = {
   membership: GroupMembership
   /** The host's last known attributes (`path`, `quiz`), kept while its device is away. */
   host: Record<string, string>
@@ -88,9 +59,17 @@ type GroupContextValue = {
 type GroupControls = {
   join: (membership: GroupMembership) => void
   group: GroupContextValue | null
+  /** Null until GroupConnection has loaded, and while touring alone. */
+  room: Room | null
+  settings: GroupSettings | null
 }
 
-const GroupContext = createContext<GroupControls>({ join: () => {}, group: null })
+const GroupContext = createContext<GroupControls>({
+  join: () => {},
+  group: null,
+  room: null,
+  settings: null,
+})
 
 /** The current group, or null when this device is touring alone. */
 export const useGroup = () => useContext(GroupContext).group
@@ -98,201 +77,64 @@ export const useGroup = () => useContext(GroupContext).group
 export const useJoinGroup = () => useContext(GroupContext).join
 /** True for a guest: the host decides where the group goes. */
 export const useIsGroupGuest = () => useGroup()?.membership.role === 'guest'
+/** The group's LiveKit room, for GroupRoom. */
+export const useGroupRoom = () => useContext(GroupContext).room
 
-/**
- * The group's settings, from the room metadata the server wrote when the host
- * opened it: the host's name, and whether the host sees everyone's quiz score.
- */
-export function useGroupSettings() {
-  const room = parseRoomMetadata(useRoomInfo().metadata)
-  return { hostName: room?.hostName ?? '', showResults: room?.showResults ?? false }
-}
-
-/** A stable random id per device: a reload rejoins as the same guest. */
-function deviceGuestId() {
-  try {
-    const saved = window.localStorage.getItem('aa-guest-id')
-    if (saved) return saved
-    const id = crypto.randomUUID()
-    window.localStorage.setItem('aa-guest-id', id)
-    return id
-  } catch {
-    return crypto.randomUUID()
-  }
+/** The host's name, and whether the host sees everyone's quiz score. */
+export function useGroupSettings(): GroupSettings {
+  const settings = useContext(GroupContext).settings
+  return settings ?? { hostName: '', showResults: false }
 }
 
 export function GroupProvider({ children }: { children: ReactNode }) {
-  const { t } = useTranslation('group')
   const [membership, setMembership] = useLocalStorage<GroupMembership | null>({
     key: 'aa-group',
     defaultValue: null,
   })
-  const [room] = useState(() => new Room())
-  const { connect, disconnect } = useSequentialRoomConnectDisconnect(room)
   const [host, setHost] = useState<Record<string, string>>({})
+  const [room, setRoom] = useState<Room | null>(null)
+  const [settings, setSettings] = useState<GroupSettings | null>(null)
 
-  const code = membership?.code
-  const name = membership?.name
-  const hostKey = membership?.hostKey
-
-  // LiveKit's standard token endpoint; the headers say whether this device is the host.
-  const tokenSource = useMemo(
-    () =>
-      TokenSource.endpoint('/api/rooms/token', {
-        headers: { 'X-Guest-Id': deviceGuestId(), ...(hostKey ? { 'X-Host-Key': hostKey } : {}) },
-      }),
-    [hostKey],
-  )
-
-  useEffect(() => {
-    if (!code || !name) return
-    let cancelled = false
-    void (async () => {
-      try {
-        const { serverUrl, participantToken } = await tokenSource.fetch({
-          roomName: code,
-          participantName: name,
-        })
-        if (!cancelled) await connect(serverUrl, participantToken)
-      } catch {
-        // The host may have ended the group while this device was away.
-        const open = await fetch(`/api/rooms/${code}`).then(
-          (response) => response.ok,
-          () => true,
-        )
-        if (!open && !cancelled) {
-          setMembership(null)
-          notifications.show({ title: t('This group has ended'), message: '' })
-        }
-      }
-    })()
-    return () => {
-      cancelled = true
-      void disconnect()
-      setHost({})
-    }
-  }, [code, name, tokenSource, connect, disconnect, setMembership, t])
-
-  // "End the group tour" deletes the room: every device leaves the group.
-  useEvents(
-    room,
-    RoomEvent.Disconnected,
-    (reason?: DisconnectReason) => {
-      if (reason !== DisconnectReason.ROOM_DELETED) return
-      setMembership(null)
-      notifications.show({ title: t('The group tour has ended'), message: '' })
-    },
-    [setMembership, t],
-  )
-
-  const value = useMemo<GroupControls>(() => {
-    const join = (next: GroupMembership) => setMembership(next)
-    if (!membership) return { join, group: null }
+  const group = useMemo<GroupContextValue | null>(() => {
+    if (!membership) return null
     return {
-      join,
-      group: {
-        membership,
-        host,
-        publish: (attributes) =>
-          setMembership({
-            ...membership,
-            attributes: { ...membership.attributes, ...attributes },
-          }),
-        start: () => setMembership({ ...membership, started: true }),
-        leave: () => setMembership(null),
-        end: async () => {
-          await fetch(`/api/rooms/${membership.code}`, {
-            method: 'DELETE',
-            headers: { 'X-Host-Key': membership.hostKey ?? '' },
-          }).catch(() => {})
-          setMembership(null)
-        },
+      membership,
+      host,
+      publish: (attributes) =>
+        setMembership({
+          ...membership,
+          attributes: { ...membership.attributes, ...attributes },
+        }),
+      start: () => setMembership({ ...membership, started: true }),
+      leave: () => setMembership(null),
+      end: async () => {
+        await fetch(`/api/rooms/${membership.code}`, {
+          method: 'DELETE',
+          headers: { 'X-Host-Key': membership.hostKey ?? '' },
+        }).catch(() => {})
+        setMembership(null)
       },
     }
   }, [membership, host, setMembership])
 
-  return (
-    <RoomContext.Provider value={room}>
-      <GroupContext.Provider value={value}>
-        {children}
-        {value.group && (
-          <>
-            <HostWatcher onChange={setHost} />
-            {/* Reads the URL; its own Suspense keeps static pages static. */}
-            <Suspense fallback={null}>
-              <GroupSync group={value.group} />
-            </Suspense>
-          </>
-        )}
-      </GroupContext.Provider>
-    </RoomContext.Provider>
+  const value = useMemo<GroupControls>(
+    () => ({ join: (next) => setMembership(next), group, room, settings }),
+    [group, room, settings, setMembership],
   )
-}
 
-/**
- * Remembers the host's attributes, so guests stay put while the host's device
- * is away. Two components because `useParticipantAttributes` needs a
- * participant, and the host may not be connected.
- */
-function HostWatcher({ onChange }: { onChange: (attributes: Record<string, string>) => void }) {
-  const host = useRemoteParticipant(HOST_IDENTITY)
-  return host ? <HostAttributes participant={host} onChange={onChange} /> : null
-}
-
-function HostAttributes({
-  participant,
-  onChange,
-}: {
-  participant: Participant
-  onChange: (attributes: Record<string, string>) => void
-}) {
-  const { attributes } = useParticipantAttributes({ participant })
-  useEffect(() => {
-    if (attributes) onChange({ ...attributes })
-  }, [attributes, onChange])
-  return null
-}
-
-/**
- * The host publishes where it is in the tour; each guest goes there.
- * Guests keep their own language, wheelchair route and reading choices
- * (`followHref`). Inside the group quiz, guests move freely between its
- * questions and their results.
- */
-function GroupSync({ group }: { group: GroupContextValue }) {
-  const pathname = usePathname()
-  const search = useSearchParams()
-  const router = useRouter()
-  const { lng } = useParams<{ lng: string }>()
-  const { localParticipant } = useLocalParticipant()
-  const { membership, host } = group
-  const location = groupLocation(pathname, search)
-  const inTour = location.startsWith(`/tour/${membership.tourId}/`)
-  const connected = useConnectionState() === ConnectionState.Connected
-
-  useEffect(() => {
-    if (membership.role !== 'host' || !membership.started || !connected || !inTour) return
-    // Other pages (marketplace, account) don't move the group.
-    void localParticipant.setAttributes({ path: location }).catch(() => {})
-  }, [membership.role, membership.started, connected, inTour, location, localParticipant])
-
-  // Saved attributes (`publish`) go out on every (re)connect and every change.
-  const saved = membership.attributes
-  useEffect(() => {
-    if (connected && saved) void localParticipant.setAttributes(saved).catch(() => {})
-  }, [connected, saved, localParticipant])
-
-  const hostPath = host.path
-  useEffect(() => {
-    if (membership.role !== 'guest' || !hostPath || location === hostPath) return
-    if (
-      isQuizLocation(hostPath, membership.tourId) &&
-      isQuizLocation(location, membership.tourId)
-    ) {
-      return
-    }
-    router.replace(followHref(hostPath, lng, pathname, search) as Route, { scroll: false })
-  }, [membership.role, membership.tourId, hostPath, location, lng, pathname, search, router])
-
-  return null
+  return (
+    <GroupContext.Provider value={value}>
+      {children}
+      {/* Beside the page, not around it: the page never remounts when LiveKit loads. */}
+      {group && (
+        <GroupConnection
+          group={group}
+          setMembership={setMembership}
+          onRoom={setRoom}
+          onHost={setHost}
+          onSettings={setSettings}
+        />
+      )}
+    </GroupContext.Provider>
+  )
 }
