@@ -70,5 +70,8 @@
   "Download": "Ladda ner",
   "Close": "Stäng",
   "3D model of {{title}}": "3D-modell av {{title}}",
-  "The 3D view is not available on this device.": "3D-vyn är inte tillgänglig på den här enheten."
+  "The 3D view is not available on this device.": "3D-vyn är inte tillgänglig på den här enheten.",
+  "Loading map…": "Läser in kartan…",
+  "The map could not load. Reload the page to try again.": "Kartan kunde inte läsas in. Läs in sidan igen för att försöka på nytt.",
+  "Skip to main content": "Hoppa till huvudinnehållet"
 }

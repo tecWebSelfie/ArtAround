@@ -70,5 +70,8 @@
   "Download": "Lejupielādēt",
   "Close": "Aizvērt",
   "3D model of {{title}}": "3D modelis: {{title}}",
-  "The 3D view is not available on this device.": "3D skats šajā ierīcē nav pieejams."
+  "The 3D view is not available on this device.": "3D skats šajā ierīcē nav pieejams.",
+  "Loading map…": "Ielādē karti…",
+  "The map could not load. Reload the page to try again.": "Karti neizdevās ielādēt. Pārlādējiet lapu, lai mēģinātu vēlreiz.",
+  "Skip to main content": "Pāriet uz galveno saturu"
 }

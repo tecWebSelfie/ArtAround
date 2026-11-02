@@ -187,3 +187,23 @@
     --site-header-height: 56px;
   }
 }
+
+/* Skip link (frontend layout): off screen until it takes keyboard focus, then
+   pinned top-left above the sticky header and fixed footers. */
+.skip-link {
+  position: fixed;
+  top: var(--mantine-spacing-xs);
+  left: var(--mantine-spacing-xs);
+  z-index: 1000;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  box-shadow: var(--mantine-shadow-md);
+  transform: translateY(calc(-100% - var(--mantine-spacing-xs) * 2));
+}
+.skip-link:focus-visible {
+  transform: none;
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
+}

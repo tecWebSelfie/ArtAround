@@ -70,5 +70,8 @@
   "Download": "Hent",
   "Close": "Luk",
   "3D model of {{title}}": "3D-model af {{title}}",
-  "The 3D view is not available on this device.": "3D-visningen er ikke tilgængelig på denne enhed."
+  "The 3D view is not available on this device.": "3D-visningen er ikke tilgængelig på denne enhed.",
+  "Loading map…": "Indlæser kortet…",
+  "The map could not load. Reload the page to try again.": "Kortet kunne ikke indlæses. Genindlæs siden for at prøve igen.",
+  "Skip to main content": "Gå til hovedindholdet"
 }

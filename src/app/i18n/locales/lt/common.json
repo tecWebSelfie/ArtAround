@@ -70,5 +70,8 @@
   "Download": "Atsisiųsti",
   "Close": "Uždaryti",
   "3D model of {{title}}": "3D modelis: {{title}}",
-  "The 3D view is not available on this device.": "3D vaizdas šiame įrenginyje nepasiekiamas."
+  "The 3D view is not available on this device.": "3D vaizdas šiame įrenginyje nepasiekiamas.",
+  "Loading map…": "Įkeliamas žemėlapis…",
+  "The map could not load. Reload the page to try again.": "Nepavyko įkelti žemėlapio. Įkelkite puslapį iš naujo ir bandykite dar kartą.",
+  "Skip to main content": "Pereiti prie pagrindinio turinio"
 }

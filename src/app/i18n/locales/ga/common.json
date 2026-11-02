@@ -70,5 +70,8 @@
   "Download": "Íoslódáil",
   "Close": "Dún",
   "3D model of {{title}}": "Samhail 3D de {{title}}",
-  "The 3D view is not available on this device.": "Níl an t-amharc 3D ar fáil ar an ngléas seo."
+  "The 3D view is not available on this device.": "Níl an t-amharc 3D ar fáil ar an ngléas seo.",
+  "Loading map…": "An léarscáil á lódáil…",
+  "The map could not load. Reload the page to try again.": "Níorbh fhéidir an léarscáil a lódáil. Athlódáil an leathanach chun triail eile a bhaint as.",
+  "Skip to main content": "Léim go dtí an príomhábhar"
 }

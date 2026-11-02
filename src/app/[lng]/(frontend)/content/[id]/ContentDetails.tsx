@@ -2,6 +2,7 @@ import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { getT } from '@/i18n.server'
+import { formatRating } from '@/lib/rating'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PictureGrid } from '@/components/mantine/PictureGrid'
 import { pictureSrc, usablePictures } from '@/lib/picture'
@@ -137,10 +138,12 @@ export async function ContentDetails({
             variant="light"
             color="yellow"
             leftSection={<Star size={14} fill="currentColor" />}
-            aria-label={t('Rated {{rating}} out of 5', { rating: ratingsAverage.toFixed(1) })}
+            aria-label={t('Rated {{rating}} out of 5', {
+              rating: formatRating(ratingsAverage, lng),
+            })}
             className="tabular-nums"
           >
-            {`${ratingsAverage.toFixed(1)} (${ratingsCount})`}
+            {`${formatRating(ratingsAverage, lng)} (${ratingsCount})`}
           </Badge>
         )}
         {/* A paid content shows its price while locked; once readable (bought,
@@ -313,7 +316,8 @@ export async function ContentDetails({
           <Stack gap="xs">
             {related.map((item) => {
               // Its own picture, else the object's: they all show the same piece.
-              const image = filterPopulated<ContentImage>(item.images).find((i) => i.url) ?? objectImage
+              const image =
+                filterPopulated<ContentImage>(item.images).find((i) => i.url) ?? objectImage
               return (
                 <LinkRow
                   key={item.id}

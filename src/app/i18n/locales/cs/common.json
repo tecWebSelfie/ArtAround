@@ -70,5 +70,8 @@
   "Download": "Stáhnout",
   "Close": "Zavřít",
   "3D model of {{title}}": "3D model: {{title}}",
-  "The 3D view is not available on this device.": "3D zobrazení není na tomto zařízení k dispozici."
+  "The 3D view is not available on this device.": "3D zobrazení není na tomto zařízení k dispozici.",
+  "Loading map…": "Načítání mapy…",
+  "The map could not load. Reload the page to try again.": "Mapu se nepodařilo načíst. Zkuste to znovu obnovením stránky.",
+  "Skip to main content": "Přejít na hlavní obsah"
 }

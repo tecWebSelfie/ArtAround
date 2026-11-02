@@ -70,5 +70,8 @@
   "Download": "Lataa",
   "Close": "Sulje",
   "3D model of {{title}}": "3D-malli: {{title}}",
-  "The 3D view is not available on this device.": "3D-näkymä ei ole käytettävissä tällä laitteella."
+  "The 3D view is not available on this device.": "3D-näkymä ei ole käytettävissä tällä laitteella.",
+  "Loading map…": "Ladataan karttaa…",
+  "The map could not load. Reload the page to try again.": "Karttaa ei voitu ladata. Yritä uudelleen lataamalla sivu uudelleen.",
+  "Skip to main content": "Siirry pääsisältöön"
 }

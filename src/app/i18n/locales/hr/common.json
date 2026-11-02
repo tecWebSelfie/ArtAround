@@ -70,5 +70,8 @@
   "Download": "Preuzmi",
   "Close": "Zatvori",
   "3D model of {{title}}": "3D model: {{title}}",
-  "The 3D view is not available on this device.": "3D prikaz nije dostupan na ovom uređaju."
+  "The 3D view is not available on this device.": "3D prikaz nije dostupan na ovom uređaju.",
+  "Loading map…": "Učitavanje karte…",
+  "The map could not load. Reload the page to try again.": "Karta se nije mogla učitati. Ponovno učitajte stranicu i pokušajte opet.",
+  "Skip to main content": "Prijeđi na glavni sadržaj"
 }

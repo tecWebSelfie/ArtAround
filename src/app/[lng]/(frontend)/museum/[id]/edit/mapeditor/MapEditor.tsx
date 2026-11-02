@@ -45,6 +45,8 @@ export function MapEditor({
   canManageStructure: boolean
 }) {
   const { t } = useTranslation('map-editor')
+  // Map loading/error states are shared with `MapViewer` (common namespace).
+  const { t: tCommon } = useTranslation()
   const sceneReady = useRef<{ promise?: Promise<void>; resolve?: () => void }>({})
   // True once the stored scene is on screen: the moment an object from the
   // objects search (`?place=`) can be put in hand.
@@ -148,8 +150,11 @@ export function MapEditor({
     }
   }, [sceneLoaded, searchParams, pathname, openGeneration])
 
-  if (!ready || isLoading) return <div>Loading...</div>
-  if (isError || !museum) return <div>Error loading map</div>
+  if (!ready || isLoading) return <div role="status">{tCommon('Loading map…')}</div>
+  if (isError || !museum)
+    return (
+      <div role="alert">{tCommon('The map could not load. Reload the page to try again.')}</div>
+    )
 
   return (
     <EditorMuseumContext.Provider value={museumId}>

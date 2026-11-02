@@ -10,6 +10,7 @@ import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
+import { formatRating } from '@/lib/rating'
 import { stopImage, summarizeTour } from '@/lib/tour-summary'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import type { Content, Difficulty, Tour } from '@/payload-types'
@@ -230,11 +231,11 @@ export default function TourPage({
                       color="yellow"
                       leftSection={<Star size={14} fill="currentColor" />}
                       aria-label={t('Rated {{rating}} out of 5', {
-                        rating: summary.rating.average.toFixed(1),
+                        rating: formatRating(summary.rating.average, lng),
                       })}
                       className="tabular-nums"
                     >
-                      {`${summary.rating.average.toFixed(1)} (${summary.rating.count})`}
+                      {`${formatRating(summary.rating.average, lng)} (${summary.rating.count})`}
                     </Badge>
                   )}
                 </Group>

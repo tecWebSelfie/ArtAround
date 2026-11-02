@@ -13,6 +13,7 @@ import { GroupProvider } from '@/components/group/GroupProvider'
 import { SiteHeader } from '@/components/navigation/SiteHeader'
 import { getSiteChrome } from '@/lib/site-chrome'
 import i18nConfig from '@/../i18n.config'
+import { getT } from '@/i18n.server'
 
 export const metadata = {
   title: 'Artaround',
@@ -28,6 +29,7 @@ export default async function Layout(props: { children: React.ReactNode }) {
   // The desktop top bar's account, museums and museum scope (shared, cached
   // with the tabs layout's bottom bar for the same request).
   const chrome = await getSiteChrome()
+  const { t } = await getT()
 
   return (
     <MswProvider>
@@ -50,8 +52,17 @@ export default async function Layout(props: { children: React.ReactNode }) {
                 {/* Desktop only (≥ md), and not on immersive map/scan/editor
                     surfaces: see SiteHeader. In the flow (sticky), so pages
                     start below it without an AppShell header offset. */}
+                {/* Skip link: the first stop for keyboard users, hidden until
+                    focused (globals.css → .skip-link). It jumps past the header
+                    to the page itself; every page renders inside #main-content. */}
+                <a href="#main-content" className="skip-link">
+                  {t('Skip to main content')}
+                </a>
                 <SiteHeader {...chrome} supportedLngs={i18nConfig.supportedLngs} />
-                {children}
+                {/* tabIndex -1: the skip link moves focus here, not only the scroll. */}
+                <div id="main-content" tabIndex={-1} className="outline-none">
+                  {children}
+                </div>
               </AppShell>
             </ModalsProvider>
           </GroupProvider>

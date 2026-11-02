@@ -70,5 +70,8 @@
   "Download": "Télécharger",
   "Close": "Fermer",
   "3D model of {{title}}": "Modèle 3D de {{title}}",
-  "The 3D view is not available on this device.": "La vue 3D n’est pas disponible sur cet appareil."
+  "The 3D view is not available on this device.": "La vue 3D n’est pas disponible sur cet appareil.",
+  "Loading map…": "Chargement de la carte…",
+  "The map could not load. Reload the page to try again.": "La carte n’a pas pu se charger. Rechargez la page pour réessayer.",
+  "Skip to main content": "Aller au contenu principal"
 }

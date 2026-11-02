@@ -70,5 +70,8 @@
   "Download": "Изтегляне",
   "Close": "Затваряне",
   "3D model of {{title}}": "3D модел на {{title}}",
-  "The 3D view is not available on this device.": "3D изгледът не е наличен на това устройство."
+  "The 3D view is not available on this device.": "3D изгледът не е наличен на това устройство.",
+  "Loading map…": "Картата се зарежда…",
+  "The map could not load. Reload the page to try again.": "Картата не можа да се зареди. Презаредете страницата, за да опитате отново.",
+  "Skip to main content": "Към основното съдържание"
 }

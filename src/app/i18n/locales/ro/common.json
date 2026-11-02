@@ -70,5 +70,8 @@
   "Download": "Descarcă",
   "Close": "Închide",
   "3D model of {{title}}": "Model 3D: {{title}}",
-  "The 3D view is not available on this device.": "Vizualizarea 3D nu este disponibilă pe acest dispozitiv."
+  "The 3D view is not available on this device.": "Vizualizarea 3D nu este disponibilă pe acest dispozitiv.",
+  "Loading map…": "Se încarcă harta…",
+  "The map could not load. Reload the page to try again.": "Harta nu s-a putut încărca. Reîncărcați pagina pentru a încerca din nou.",
+  "Skip to main content": "Salt la conținutul principal"
 }

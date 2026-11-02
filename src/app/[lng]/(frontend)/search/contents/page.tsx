@@ -138,7 +138,7 @@ export default async function SearchContentsPage(props: {
           totalPages={result.totalPages ?? 1}
           basePath={`/${lng}/search/contents`}
           storageKeyPrefix="search-contents"
-          placeholder={t('Filter contents...')}
+          placeholder={t('Filter contents…')}
           keepParams={picker ? tourPickerParams(picker) : undefined}
         >
           <ContentsSearchResults

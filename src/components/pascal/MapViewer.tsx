@@ -15,6 +15,7 @@ import { museumPlugin } from '@/lib/pascal/museum-plugin'
 import { Viewer } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Box3, Sphere } from 'three'
 
 /** Hosts the shared Pascal museum scene used by both editing and visitor flows. */
@@ -32,10 +33,13 @@ export function MapViewer({
   onSceneReadyChange?: (ready: boolean) => void
   selectionManager?: 'default' | 'custom'
 } & BoxProps) {
+  const { t } = useTranslation()
   const setScene = useScene((state) => state.setScene)
   const controls = useRef<CameraControlsImpl>(null)
   const [loadedMap, setLoadedMap] = useState<ParsedBuildJson | null>(null)
-  const [loadError, setLoadError] = useState<string | null>(null)
+  // The map whose load failed: an error for an earlier map clears itself
+  // when `map` changes, with no reset inside the effect.
+  const [failedMap, setFailedMap] = useState<ParsedBuildJson | null>(null)
   const handleSceneReadyChange = useCallback(
     (ready: boolean) => {
       onSceneReadyChange?.(ready)
@@ -59,7 +63,6 @@ export function MapViewer({
 
   useEffect(() => {
     let cancelled = false
-    setLoadError(null)
 
     void loadPlugin(builtinPlugin)
       .then(() => loadPlugin(museumPlugin))
@@ -83,9 +86,9 @@ export function MapViewer({
         setLoadedMap(map)
       })
       .catch((error: unknown) => {
-        if (!cancelled) {
-          setLoadError(error instanceof Error ? error.message : 'Unable to load the map')
-        }
+        if (cancelled) return
+        console.error('MapViewer: the map could not load', error)
+        setFailedMap(map)
       })
 
     return () => {
@@ -93,8 +96,9 @@ export function MapViewer({
     }
   }, [map, setScene])
 
-  if (loadError) return <div role="alert">{loadError}</div>
-  if (loadedMap !== map) return <div>Loading...</div>
+  if (failedMap === map)
+    return <div role="alert">{t('The map could not load. Reload the page to try again.')}</div>
+  if (loadedMap !== map) return <div role="status">{t('Loading map…')}</div>
 
   return (
     <Box {...props}>

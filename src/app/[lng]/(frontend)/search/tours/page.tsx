@@ -68,7 +68,7 @@ export default async function SearchToursPage(props: {
           totalPages={result.totalPages ?? 1}
           basePath={`/${lng}/search/tours`}
           storageKeyPrefix="search-tours"
-          placeholder={t('Filter visits...')}
+          placeholder={t('Filter visits…')}
         >
           <ToursSearchResults tours={result.docs} lng={lng} />
         </SearchShell>

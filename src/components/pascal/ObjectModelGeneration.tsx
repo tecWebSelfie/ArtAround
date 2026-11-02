@@ -204,7 +204,11 @@ export function ObjectModelGeneration({
 
       {asset && (!pending || finished) ? (
         <div className={styles.preview}>
-          {asset.thumbnail ? <img alt={asset.name} src={asset.thumbnail} /> : null}
+          {/* Square box sized up front (`.preview img`), so the text and the
+              button below don't jump when the picture arrives. */}
+          {asset.thumbnail ? (
+            <img alt={asset.name} src={asset.thumbnail} width={512} height={512} />
+          ) : null}
           <p>{t('Your object is ready to position on the map.')}</p>
           <Button onClick={() => onPosition(asset)} type="button">
             {t('Position')}
@@ -215,7 +219,7 @@ export function ObjectModelGeneration({
       {previewReady ? (
         <section className={styles.preview} aria-label={t('Model preview')}>
           {previewImage ? (
-            <img alt={t('Generated object preview')} src={previewImage} />
+            <img alt={t('Generated object preview')} src={previewImage} width={512} height={512} />
           ) : (
             <p role="status">
               {operation.isError

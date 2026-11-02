@@ -70,5 +70,8 @@
   "Download": "Downloaden",
   "Close": "Sluiten",
   "3D model of {{title}}": "3D-model van {{title}}",
-  "The 3D view is not available on this device.": "De 3D-weergave is niet beschikbaar op dit apparaat."
+  "The 3D view is not available on this device.": "De 3D-weergave is niet beschikbaar op dit apparaat.",
+  "Loading map…": "Kaart laden…",
+  "The map could not load. Reload the page to try again.": "De kaart kon niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
+  "Skip to main content": "Naar de hoofdinhoud"
 }

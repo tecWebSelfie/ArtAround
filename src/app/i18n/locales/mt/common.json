@@ -70,5 +70,8 @@
   "Download": "Niżżel",
   "Close": "Agħlaq",
   "3D model of {{title}}": "Mudell 3D ta’ {{title}}",
-  "The 3D view is not available on this device.": "Il-veduta 3D mhix disponibbli fuq dan it-tagħmir."
+  "The 3D view is not available on this device.": "Il-veduta 3D mhix disponibbli fuq dan it-tagħmir.",
+  "Loading map…": "Il-mappa qed titgħabba…",
+  "The map could not load. Reload the page to try again.": "Il-mappa ma setgħetx titgħabba. Erġa’ għabbi l-paġna biex terġa’ tipprova.",
+  "Skip to main content": "Aqbeż għall-kontenut ewlieni"
 }

@@ -77,6 +77,7 @@ import {
   type NavigationDestination,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
+import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
@@ -402,7 +403,8 @@ export const TourNavigationPage = ({
                 tour && complete && hasQuiz(tour) && !guest ? (
                   <Button
                     size="compact-sm"
-                    onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}
+                    component={Link}
+                    href={tourQuizPath(lng, tour.id, step, search.toString())}
                   >
                     {t('Take the quiz')}
                   </Button>
@@ -646,7 +648,8 @@ function ServiceIcon({
 }: { icon: LucideIcon } & ActionIconProps & ComponentPropsWithoutRef<'button'>) {
   return (
     <ActionIcon variant="light" className="border-(--mantine-color-default-border)" {...props}>
-      <Icon size={16} />
+      {/* The button carries the label (`aria-label`); the glyph is decoration. */}
+      <Icon size={16} aria-hidden />
     </ActionIcon>
   )
 }

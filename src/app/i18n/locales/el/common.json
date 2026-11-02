@@ -70,5 +70,8 @@
   "Download": "Λήψη",
   "Close": "Κλείσιμο",
   "3D model of {{title}}": "Τρισδιάστατο μοντέλο: {{title}}",
-  "The 3D view is not available on this device.": "Η τρισδιάστατη προβολή δεν είναι διαθέσιμη σε αυτή τη συσκευή."
+  "The 3D view is not available on this device.": "Η τρισδιάστατη προβολή δεν είναι διαθέσιμη σε αυτή τη συσκευή.",
+  "Loading map…": "Φόρτωση χάρτη…",
+  "The map could not load. Reload the page to try again.": "Δεν ήταν δυνατή η φόρτωση του χάρτη. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.",
+  "Skip to main content": "Μετάβαση στο κύριο περιεχόμενο"
 }

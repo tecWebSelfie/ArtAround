@@ -70,5 +70,8 @@
   "Download": "Letöltés",
   "Close": "Bezárás",
   "3D model of {{title}}": "3D-modell: {{title}}",
-  "The 3D view is not available on this device.": "A 3D nézet ezen az eszközön nem érhető el."
+  "The 3D view is not available on this device.": "A 3D nézet ezen az eszközön nem érhető el.",
+  "Loading map…": "Térkép betöltése…",
+  "The map could not load. Reload the page to try again.": "A térképet nem sikerült betölteni. Töltsd újra az oldalt, és próbáld újra.",
+  "Skip to main content": "Ugrás a fő tartalomhoz"
 }

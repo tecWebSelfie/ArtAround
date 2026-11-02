@@ -73,8 +73,12 @@
   display: grid;
   gap: 1rem;
 }
+/* A fixed square box (from the img's width/height) reserves the space before
+   the picture loads; `contain` letterboxes renders that aren't square. */
 .preview img {
   width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   max-height: 22rem;
   object-fit: contain;
   border-radius: var(--mantine-radius-default);

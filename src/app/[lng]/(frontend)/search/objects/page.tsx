@@ -128,7 +128,7 @@ export default async function SearchObjectsPage(props: {
           totalPages={result.totalPages ?? 1}
           basePath={`/${lng}/search/objects`}
           storageKeyPrefix="search-objects"
-          placeholder={t('Filter objects...')}
+          placeholder={t('Filter objects…')}
           keepParams={picker ? museumPickerParams(picker) : undefined}
         >
           <ObjectsSearchResults objects={result.docs} lng={lng} picker={picker} onShow={onShow} />
