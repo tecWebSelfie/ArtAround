@@ -1,6 +1,7 @@
 'use client'
 
 import { useAuth } from '@/components/auth/AuthProvider'
+import { type NavAccount, toNavAccount } from '@/components/navigation/nav-account'
 import type { MuseumRole } from '@/fields/MuseumFunction'
 import { Menu, Stack, Text } from '@mantine/core'
 import { BadgeCheck, Compass, Landmark, Palette, Store } from 'lucide-react'
@@ -23,8 +24,7 @@ export const NAV_ITEMS = [
   { Icon: Store, color: 'red', label: 'Marketplace', href: '/marketplace' },
 ] as const
 
-/** The signed-in visitor as the server session sees it (`getSiteChrome`). */
-export type NavAccount = { id: string; name?: string | null; avatarUrl?: string | null }
+export type { NavAccount }
 
 /** A museum where the signed-in visitor holds a per-museum role. */
 export type MyMuseum = { id: string; name: string; role: MuseumRole }
@@ -54,15 +54,7 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
   const { status, user } = useAuth()
 
   const signedIn: NavAccount | null =
-    status === 'loading'
-      ? account
-      : user
-        ? {
-            id: String(user.id),
-            name: user.name?.fullName || user.username,
-            avatarUrl: typeof user.avatar === 'object' ? user.avatar?.url : null,
-          }
-        : null
+    status === 'loading' ? account : user ? toNavAccount(user) : null
 
   const localize = (href: string) => `/${lng}${href}` as Route
   const isActive = (href: string) => {
@@ -75,6 +67,8 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
     lng,
     pathname,
     signedIn,
+    // Both bars link the account entry to the profile (it carries sign out).
+    profileHref: signedIn ? (`/${lng}/user/${signedIn.id}` as Route) : null,
     displayName: signedIn?.name || t('Account'),
     inMyMuseum: myMuseums.some((museum) => pathname.startsWith(`/${lng}/museum/${museum.id}`)),
     signInHref: `/${lng}/login?next=${encodeURIComponent(pathname)}` as Route,

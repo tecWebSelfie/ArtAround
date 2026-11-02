@@ -171,13 +171,18 @@
 }
 
 /* Desktop top bar (src/components/navigation/SiteHeader.tsx). Its height is
-   published only while the bar is actually on the page: from md (62em), and
+   published only while the bar is actually on the page: from md, and
    not on immersive surfaces (map navigation, scanner, map editor), where the
    component renders nothing. Sticky panes and in-page headers offset by it. */
 :root {
   --site-header-height: 0px;
+  /* Where a sticky pane sits under the header, and the height left for it with
+     a margin above and below. Derived here once: written inline in a Mantine
+     style prop, a bare `2 *` becomes rem and breaks the calc. */
+  --site-pane-top: calc(var(--site-header-height) + var(--mantine-spacing-md));
+  --site-pane-height: calc(100dvh - var(--site-pane-top) - var(--mantine-spacing-md));
 }
-@media (min-width: 62em) {
+@media (min-width: $mantine-breakpoint-md) {
   :root:has(#site-header) {
     --site-header-height: 56px;
   }

@@ -130,11 +130,8 @@ export default function TourPage({
             <GridCol
               span={{ base: 12, md: 5 }}
               pos={{ md: 'sticky' }}
-              top={{ md: 'calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))' }}
-              mah={{
-                // No bare numbers: Mantine style props turn them into rem.
-                md: 'calc(100dvh - var(--site-header-height, 0px) - var(--mantine-spacing-md) - var(--mantine-spacing-md))',
-              }}
+              top={{ md: 'var(--site-pane-top)' }}
+              mah={{ md: 'var(--site-pane-height)' }}
               className="min-[62em]:overflow-y-auto"
             >
               <Stack gap="lg">

@@ -4,9 +4,7 @@ import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import { MuseumSwitch, type MuseumOption } from '@/components/mantine/MuseumSwitch'
 import { Anchor, Avatar, Box, Button, Group, Menu, Text } from '@mantine/core'
 import { ChevronDown, Landmark, LogIn } from 'lucide-react'
-import type { Route } from 'next'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import {
   MyMuseumsMenuItems,
   NAV_ITEMS,
@@ -28,18 +26,15 @@ const IMMERSIVE =
   /^\/[^/]+\/(?:museum\/[^/]+\/navigation(?!\/tour\/[^/]+\/?$)|museum\/[^/]+\/edit\/mapeditor|scan)(?:\/|$)/
 
 /**
- * Desktop top bar (≥ md). On a laptop the visitor browses, plans and reads
- * rather than walking with a phone, so the phone's bottom tab bar gives way
- * to one persistent bar on every browsing page: the wordmark, the tab entries
- * as horizontal links (same colors as the bottom bar), and at the trailing
- * edge the context controls (language, museum scope) and the account. Menus
- * open downward; the account entry, as in the bottom bar, links straight to
- * the profile, where the visitor signs out. Below md it renders nothing visible (`visibleFrom`);
- * the phone keeps the tabs layout's top row and bottom bar.
+ * Desktop top bar (≥ md): on a laptop it replaces the phone's bottom tab bar
+ * on every browsing page, with the wordmark, the tab entries (same colors as
+ * the bottom bar) and, at the trailing edge, language, museum scope and the
+ * account. As in the bottom bar the account links straight to the profile,
+ * where the visitor signs out. Below md it is hidden (`visibleFrom`); the
+ * phone keeps the tabs layout's top row and bottom bar.
  *
- * It is sticky and exposes its height as `--site-header-height` (globals.css,
- * through `:has(#site-header)`), so sticky panes and in-page headers can sit
- * under it instead of behind it.
+ * It is sticky and publishes its height as `--site-header-height` (globals.css,
+ * through `:has(#site-header)`), so sticky panes sit under it, not behind it.
  */
 export function SiteHeader({
   account,
@@ -54,11 +49,18 @@ export function SiteHeader({
   museums: MuseumOption[]
   supportedLngs: string[]
 }) {
-  const pathname = usePathname()
-  const { t, lng, signedIn, displayName, inMyMuseum, signInHref, localize, isActive } = useNavState(
-    account,
-    myMuseums,
-  )
+  const {
+    t,
+    lng,
+    pathname,
+    signedIn,
+    profileHref,
+    displayName,
+    inMyMuseum,
+    signInHref,
+    localize,
+    isActive,
+  } = useNavState(account, myMuseums)
 
   if (IMMERSIVE.test(pathname)) return null
 
@@ -119,13 +121,13 @@ export function SiteHeader({
           <Box maw={220} miw={0}>
             <MuseumSwitch current={currentMuseum} museums={museums} />
           </Box>
-          {signedIn ? (
+          {signedIn && profileHref ? (
             // Straight to the profile, like the bottom bar: signing out lives
             // there (`SignOutButton`). The visible name is the accessible name
             // (WCAG 2.5.3); the avatar's initials are hidden from it.
             <Button
               component={Link}
-              href={`/${lng}/user/${signedIn.id}` as Route}
+              href={profileHref}
               variant="subtle"
               leftSection={
                 <Avatar size={24} src={signedIn.avatarUrl} name={displayName} aria-hidden />
@@ -138,7 +140,7 @@ export function SiteHeader({
           ) : (
             <Button
               component={Link}
-              href={signInHref as Route}
+              href={signInHref}
               variant="default"
               leftSection={<LogIn size={16} aria-hidden />}
             >

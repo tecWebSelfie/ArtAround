@@ -56,20 +56,12 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
         {/* Desktop media pane: the cover fills the viewport's height under the
             site header (capped, so it stays a picture beside the text, not a
             wall), with the same lightbox and 3D toggle as on phones. */}
-        <GridCol
-          span={{ md: 5 }}
-          visibleFrom="md"
-          pos="sticky"
-          top="calc(var(--site-header-height, 0px) + var(--mantine-spacing-md))"
-        >
+        <GridCol span={{ md: 5 }} visibleFrom="md" pos="sticky" top="var(--site-pane-top)">
           <DetailCover
             pictures={[photo]}
             model={isPopulated(object.model) ? object.model : null}
             title={object.name}
-            // No bare numbers: Mantine style props turn them into rem, which
-            // breaks the calc. Two spacing terms stand for the pane's top and
-            // bottom margins.
-            height="min(calc(100dvh - var(--site-header-height, 0px) - var(--mantine-spacing-md) - var(--mantine-spacing-md)), 640px)"
+            height="min(var(--site-pane-height), 640px)"
           />
         </GridCol>
         <GridCol span={{ base: 12, md: 7 }}>

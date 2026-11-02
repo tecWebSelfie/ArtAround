@@ -9,10 +9,7 @@ import {
 } from '@/components/navigation/nav-shared'
 import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
 import { Compass, Landmark, LogIn } from 'lucide-react'
-import type { Route } from 'next'
 import Link from 'next/link'
-
-export type { MyMuseum, NavAccount }
 
 function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
   return (
@@ -42,10 +39,8 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
   account,
   myMuseums,
 }) {
-  const { t, lng, signedIn, displayName, inMyMuseum, signInHref, localize, isActive } = useNavState(
-    account,
-    myMuseums,
-  )
+  const { t, lng, signedIn, profileHref, displayName, inMyMuseum, signInHref, localize, isActive } =
+    useNavState(account, myMuseums)
 
   // Tight horizontal padding (px={4}) on every entry: with four entries a
   // phone leaves ~90px each, enough for "Marketplace" only without the
@@ -71,14 +66,14 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
           </Button>
         )
       })}
-      {signedIn ? (
+      {signedIn && profileHref ? (
         // Straight to the profile: signing out lives there (`SignOutButton`,
         // shown on the viewer's own profile), so no menu stands in between.
         // No aria-label: the visible name is the accessible name (WCAG 2.5.3);
         // the avatar's initials are hidden from it.
         <Button
           component={Link}
-          href={`/${lng}/user/${signedIn.id}` as Route}
+          href={profileHref}
           // Never "active": profiles live outside the tabs, so this bar is
           // never shown on the account's own page.
           variant="subtle"

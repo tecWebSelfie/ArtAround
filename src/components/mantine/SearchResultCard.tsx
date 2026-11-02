@@ -10,6 +10,7 @@
  * Hook-free on purpose so the async Server Components that fetch search results
  * can render it directly.
  */
+import { cn } from 'cn'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { Box, Card, CardSection, Grid, GridCol, Image, Stack, Text } from '@mantine/core'
 import type { Route } from 'next'
@@ -86,14 +87,10 @@ export function SearchResultCard({
       radius="md"
       withBorder
       pos={href ? 'relative' : undefined}
-      className={
-        [
-          variant === 'content' ? 'border-2 border-solid border-teal-600' : '',
-          href ? 'transition-shadow hover:shadow-md has-[a:focus-visible]:shadow-md' : '',
-        ]
-          .join(' ')
-          .trim() || undefined
-      }
+      className={cn(
+        variant === 'content' && 'border-2 border-solid border-teal-600',
+        href && 'transition-shadow hover:shadow-md has-[a:focus-visible]:shadow-md',
+      )}
     >
       <CardSection>
         <Image h={160} fit="cover" src={imageUrl || PLACEHOLDER_IMAGE} alt={imageAlt} />

@@ -9,6 +9,10 @@
  * the directions strip keeps a bounded reading width, and contextual content
  * docks as a panel on the right between the header and the navigation bar,
  * leaving the map visible and draggable beside it.
+ *
+ * Mantine's styles are imported as a cascade layer (`styles.layer.css`) and
+ * Tailwind's utilities live in one too, so these unlayered rules win over
+ * both without specificity tricks.
  */
 
 @media (min-width: $mantine-breakpoint-md) {
@@ -23,30 +27,14 @@
     justify-content: center;
   }
 
-  /*
-   * Floating next-stop row. Group writes its `justify` as an inline custom
-   * property, so the doubled class outranks Mantine's own rule to start the
-   * row at the left edge, above the control cluster.
-   */
-  .controlRow.controlRow {
+  /* Floating next-stop row: starts at the left edge, above the control cluster
+     (Group's `justify` prop is not responsive). */
+  .controlRow {
     justify-content: flex-start;
   }
 
-  /*
-   * Control cluster columns (TourNavigation's Grid). On phones `span="auto"`
-   * columns grow to centre Scan across the width; here they keep their
-   * content's width, so the grid's left-aligned row reads as one cluster.
-   * Doubled class: outranks Mantine's `col` rule, which reads the span's
-   * variables.
-   */
-  .controlCol.controlCol {
-    flex-grow: 0;
-    flex-basis: auto;
-    max-width: none;
-  }
-
   /* Directions strip: a readable line length instead of 4/5 of the bar. */
-  .directions.directions {
+  .directions {
     flex: 0 1 40rem;
   }
 
@@ -56,12 +44,11 @@
    * because Mantine's `inner` wrapper is already `pointer-events: none` and
    * only the panel opts back in (Overlay Opt-In Rule).
    */
-  .panelOverlay.panelOverlay {
+  .panelOverlay {
     display: none;
   }
 
-  /* Doubled class: outranks Mantine's own `inner` rules whatever the order. */
-  .panelInner.panelInner {
+  .panelInner {
     /* Clear the navigation header (measured in TourNavigation) and the 64px
        navigation bar, so the stepper and the orb stay usable while reading. */
     top: calc(var(--navigation-header-height, 7rem) + var(--mantine-spacing-md));

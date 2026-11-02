@@ -43,7 +43,8 @@ modals (`NavigationModal`) dock as a right-side panel between the header (its he
 published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
 with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
 draggable; `SkippedStopModal` stays centered. The control grid, which centres Scan on
-phones, stops growing its columns (`controlCol`), so the controls cluster bottom-left;
+phones, switches its outer columns from `auto` to `content` at md (`SIDE_SPAN`), so the
+controls cluster bottom-left;
 the directions strip is capped at 40rem, the header column at 75rem with the stepper
 centered. The Spotlight opens with mod+K or `/` (tooltip with a `Kbd` on the search
 icon). The site header hides on the navigation shell's map URLs but stays on a tour's

@@ -83,6 +83,9 @@ import { useTranslation } from 'react-i18next'
 /** Header measured with its padding (stable object: the hook re-observes on change). */
 const HEADER_BOX: ResizeObserverOptions = { box: 'border-box' }
 
+/** Outer control columns: growing around Scan on phones, content-wide from md. */
+const SIDE_SPAN = { base: 'auto', md: 'content' } as const
+
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
   { kind: 'tour'; tour: Tour; step: number } | { kind: 'free'; museumId: string }
@@ -529,18 +532,14 @@ function NavigationControls({
             )}
           </Group>
         )}
-        {/* Phone: two `auto` columns grow equally around the `content` one,
-            so Scan stays centred whichever service, wheelchair or settings
-            buttons a museum shows on either side. Desktop: the columns stop
-            growing (`controlCol`), so the same controls gather in one compact
-            bottom-left cluster; the right side is where content panels dock. */}
-        <Grid
-          gap="xs"
-          align="flex-end"
-          classNames={{ col: classes.controlCol }}
-          style={{ pointerEvents: 'auto' }}
-        >
-          <GridCol span="auto">
+        {/* Phone: the two outer columns (`auto`) grow equally around the
+            `content` one, so Scan stays centred whichever service, wheelchair
+            or settings buttons a museum shows on either side. Desktop: every
+            column keeps its content's width (`SIDE_SPAN`), so the same controls
+            gather in one compact bottom-left cluster; the right side is where
+            content panels dock. */}
+        <Grid gap="xs" align="flex-end" style={{ pointerEvents: 'auto' }}>
+          <GridCol span={SIDE_SPAN}>
             <Group gap="xs" wrap="nowrap" align="end">
               {(serviceTypes.length > 0 || placedExits.length > 0) && (
                 <ActionIconGroup orientation="vertical">
@@ -603,7 +602,7 @@ function NavigationControls({
               {t('Scan')}
             </Button>
           </GridCol>
-          <GridCol span="auto">
+          <GridCol span={SIDE_SPAN}>
             <Group gap="xs" wrap="nowrap" align="end" justify="end">
               {/* Desktop hint for the keyboard shortcut ("/" or mod+K); no
                   tooltip on phones, where a tap would only flash it. */}
