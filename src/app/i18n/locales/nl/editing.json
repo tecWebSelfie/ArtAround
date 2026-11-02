@@ -108,5 +108,21 @@
   "No image": "Geen afbeelding",
   "Choose an image": "Afbeelding kiezen",
   "Change image": "Afbeelding wijzigen",
-  "Remove image": "Afbeelding verwijderen"
+  "Remove image": "Afbeelding verwijderen",
+  "Museum color": "Museumkleur",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Knoppen, links en accenten gebruiken die zolang bezoekers in dit museum zijn. Laat leeg voor het standaardblauw.",
+  "Enter a color like #1b2a4a.": "Voer een kleur in zoals #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Rood markeert acties die iets verwijderen en kan dus niet de museumkleur zijn.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Oranje markeert betaalde inhoud en kan dus niet de museumkleur zijn.",
+  "Use {{color}} instead": "Gebruik {{color}} in plaats daarvan",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Deze kleur lijkt op een kleur die de app gebruikt voor tours, inhoud of de Navigator, dus sommige accenten kunnen op elkaar lijken.",
+  "We darkened this color so text and buttons stay readable.": "We hebben deze kleur donkerder gemaakt zodat tekst en knoppen leesbaar blijven.",
+  "Your color": "Jouw kleur",
+  "Used for buttons and links": "Gebruikt voor knoppen en links",
+  "Preview": "Voorbeeld",
+  "The app will use its default blue in this museum.": "In dit museum gebruikt de app het standaardblauw.",
+  "Reset to default": "Standaard herstellen",
+  "Button": "Knop",
+  "Tag": "Label",
+  "Default blue": "Standaardblauw"
 }

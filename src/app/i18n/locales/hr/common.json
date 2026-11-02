@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D prikaz nije dostupan na ovom uređaju.",
   "Loading map…": "Učitavanje karte…",
   "The map could not load. Reload the page to try again.": "Karta se nije mogla učitati. Ponovno učitajte stranicu i pokušajte opet.",
-  "Skip to main content": "Prijeđi na glavni sadržaj"
+  "Skip to main content": "Prijeđi na glavni sadržaj",
+  "Show QR code": "Prikaži QR kod",
+  "Scan to open this tour": "Skeniraj za otvaranje ove ture",
+  "Scan to open this object": "Skenirajte za otvaranje ovog predmeta",
+  "Scan to open this content": "Skenirajte za otvaranje ovog sadržaja",
+  "Download as SVG": "Preuzmi kao SVG",
+  "Download as PNG": "Preuzmi kao PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Za ispis: preuzeti kod otvara aplikaciju u ovom muzeju.",
+  "Are you at {{museum}}?": "Jeste li u {{museum}}?",
+  "Not now": "Ne sada",
+  "Use the museum's app": "Koristi aplikaciju muzeja",
+  "Scan with your phone camera to open it in ArtAround.": "Skenirajte kamerom telefona da ga otvorite u ArtAroundu.",
+  "Download printable PDF": "Preuzmi PDF za ispis",
+  "Print the QR codes of all objects": "Ispiši QR kodove svih predmeta"
 }

@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "De 3D-weergave is niet beschikbaar op dit apparaat.",
   "Loading map…": "Kaart laden…",
   "The map could not load. Reload the page to try again.": "De kaart kon niet worden geladen. Laad de pagina opnieuw om het nog eens te proberen.",
-  "Skip to main content": "Naar de hoofdinhoud"
+  "Skip to main content": "Naar de hoofdinhoud",
+  "Show QR code": "QR-code tonen",
+  "Scan to open this tour": "Scan om deze tour te openen",
+  "Scan to open this object": "Scan om dit object te openen",
+  "Scan to open this content": "Scan om deze inhoud te openen",
+  "Download as SVG": "Downloaden als SVG",
+  "Download as PNG": "Downloaden als PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Om af te drukken: de gedownloade code opent de app in dit museum.",
+  "Are you at {{museum}}?": "Ben je in {{museum}}?",
+  "Not now": "Niet nu",
+  "Use the museum's app": "De app van het museum gebruiken",
+  "Scan with your phone camera to open it in ArtAround.": "Scan met de camera van je telefoon om het in ArtAround te openen.",
+  "Download printable PDF": "Afdrukbare pdf downloaden",
+  "Print the QR codes of all objects": "QR-codes van alle objecten afdrukken"
 }

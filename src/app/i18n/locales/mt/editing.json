@@ -117,5 +117,21 @@
   "No image": "L-ebda stampa",
   "Choose an image": "Agħżel stampa",
   "Change image": "Ibdel l-istampa",
-  "Remove image": "Neħħi l-istampa"
+  "Remove image": "Neħħi l-istampa",
+  "Museum color": "Il-kulur tal-mużew",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Il-buttuni, ir-rabtiet u l-enfasi jużawh waqt li l-viżitaturi jkunu f’dan il-mużew. Ħallih vojt għall-blu awtomatiku.",
+  "Enter a color like #1b2a4a.": "Daħħal kulur bħal #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "L-aħmar jindika azzjonijiet li jħassru xi ħaġa, għalhekk ma jistax ikun il-kulur tal-mużew.",
+  "Orange marks paid contents, so it cannot be the museum color.": "L-oranġjo jindika kontenut bi ħlas, għalhekk ma jistax ikun il-kulur tal-mużew.",
+  "Use {{color}} instead": "Uża {{color}} minflok",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Dan il-kulur huwa qrib wieħed li l-app tuża għat-tours, għall-kontenut jew għan-Navigator, għalhekk xi enfasi jistgħu jidhru bħal xulxin.",
+  "We darkened this color so text and buttons stay readable.": "Għamilna dan il-kulur aktar skur biex it-test u l-buttuni jibqgħu jinqraw.",
+  "Your color": "Il-kulur tiegħek",
+  "Used for buttons and links": "Użat għall-buttuni u r-rabtiet",
+  "Preview": "Dehra minn qabel",
+  "The app will use its default blue in this museum.": "F’dan il-mużew l-app se tuża l-blu awtomatiku tagħha.",
+  "Reset to default": "Irrisettja għall-awtomatiku",
+  "Button": "Buttuna",
+  "Tag": "Tikketta",
+  "Default blue": "Blu awtomatiku"
 }

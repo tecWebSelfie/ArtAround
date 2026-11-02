@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "A 3D nézet ezen az eszközön nem érhető el.",
   "Loading map…": "Térkép betöltése…",
   "The map could not load. Reload the page to try again.": "A térképet nem sikerült betölteni. Töltsd újra az oldalt, és próbáld újra.",
-  "Skip to main content": "Ugrás a fő tartalomhoz"
+  "Skip to main content": "Ugrás a fő tartalomhoz",
+  "Show QR code": "QR-kód megjelenítése",
+  "Scan to open this tour": "Olvasd be a túra megnyitásához",
+  "Scan to open this object": "Olvasd be a tárgy megnyitásához",
+  "Scan to open this content": "Olvasd be a tartalom megnyitásához",
+  "Download as SVG": "Letöltés SVG-ként",
+  "Download as PNG": "Letöltés PNG-ként",
+  "For printing: the downloaded code opens the app in this museum.": "Nyomtatáshoz: a letöltött kód ebben a múzeumban nyitja meg az appot.",
+  "Are you at {{museum}}?": "A(z) {{museum}} múzeumban vagy?",
+  "Not now": "Most nem",
+  "Use the museum's app": "A múzeum appjának használata",
+  "Scan with your phone camera to open it in ArtAround.": "Olvasd be a telefon kamerájával, hogy megnyisd az ArtAroundban.",
+  "Download printable PDF": "Nyomtatható PDF letöltése",
+  "Print the QR codes of all objects": "Az összes tárgy QR-kódjának nyomtatása"
 }

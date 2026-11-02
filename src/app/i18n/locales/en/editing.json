@@ -105,5 +105,21 @@
   "No image": "No image",
   "Choose an image": "Choose an image",
   "Change image": "Change image",
-  "Remove image": "Remove image"
+  "Remove image": "Remove image",
+  "Museum color": "Museum color",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.",
+  "Enter a color like #1b2a4a.": "Enter a color like #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Red marks the actions that delete something, so it cannot be the museum color.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Orange marks paid contents, so it cannot be the museum color.",
+  "Use {{color}} instead": "Use {{color}} instead",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.",
+  "We darkened this color so text and buttons stay readable.": "We darkened this color so text and buttons stay readable.",
+  "Your color": "Your color",
+  "Used for buttons and links": "Used for buttons and links",
+  "Preview": "Preview",
+  "The app will use its default blue in this museum.": "The app will use its default blue in this museum.",
+  "Reset to default": "Reset to default",
+  "Button": "Button",
+  "Tag": "Tag",
+  "Default blue": "Default blue"
 }

@@ -108,5 +108,21 @@
   "No image": "Ei kuvaa",
   "Choose an image": "Valitse kuva",
   "Change image": "Vaihda kuva",
-  "Remove image": "Poista kuva"
+  "Remove image": "Poista kuva",
+  "Museum color": "Museon väri",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Painikkeet, linkit ja korostukset käyttävät sitä, kun kävijät ovat tässä museossa. Jätä tyhjäksi käyttääksesi oletussinistä.",
+  "Enter a color like #1b2a4a.": "Anna väri, esimerkiksi #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Punainen merkitsee toimintoja, jotka poistavat jotain, joten se ei voi olla museon väri.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Oranssi merkitsee maksullista sisältöä, joten se ei voi olla museon väri.",
+  "Use {{color}} instead": "Käytä sen sijaan {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Tämä väri muistuttaa väriä, jota sovellus käyttää kierroksille, sisällölle tai Navigatorille, joten jotkin korostukset voivat näyttää samanlaisilta.",
+  "We darkened this color so text and buttons stay readable.": "Tummensimme väriä, jotta teksti ja painikkeet pysyvät luettavina.",
+  "Your color": "Sinun värisi",
+  "Used for buttons and links": "Käytössä painikkeissa ja linkeissä",
+  "Preview": "Esikatselu",
+  "The app will use its default blue in this museum.": "Tässä museossa sovellus käyttää oletussinistä.",
+  "Reset to default": "Palauta oletus",
+  "Button": "Painike",
+  "Tag": "Tunniste",
+  "Default blue": "Oletussininen"
 }

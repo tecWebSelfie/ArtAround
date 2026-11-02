@@ -27,7 +27,14 @@ const nextConfig: NextConfig = {
     '@payloadcms/db-mongodb',
     '@payloadcms/graphql',
     '@payloadcms/plugin-redirects',
+    // Printable QR sheets (src/app/api/qr-sheet): react-pdf runs in Node.
+    '@react-pdf/renderer',
   ],
+  // The PDF font (Latin Extended, Greek, Cyrillic: every app language) is read
+  // from disk by the QR sheet route; standalone output must ship it.
+  outputFileTracingIncludes: {
+    '/api/qr-sheet': ['./public/fonts/**'],
+  },
   // Dev only: lets a phone on the same Wi-Fi load `/_next/*` and HMR from the
   // PC's LAN address (Next blocks non-localhost origins otherwise).
   allowedDevOrigins: ['192.168.1.*'],

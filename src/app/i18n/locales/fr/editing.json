@@ -111,5 +111,21 @@
   "No image": "Aucune image",
   "Choose an image": "Choisir une image",
   "Change image": "Changer l'image",
-  "Remove image": "Retirer l'image"
+  "Remove image": "Retirer l'image",
+  "Museum color": "Couleur du musée",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Les boutons, liens et surlignages l’utilisent tant que les visiteurs sont dans ce musée. Laissez vide pour le bleu par défaut.",
+  "Enter a color like #1b2a4a.": "Saisissez une couleur comme #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Le rouge signale les actions qui suppriment quelque chose, il ne peut donc pas être la couleur du musée.",
+  "Orange marks paid contents, so it cannot be the museum color.": "L’orange signale les contenus payants, il ne peut donc pas être la couleur du musée.",
+  "Use {{color}} instead": "Utiliser {{color}} à la place",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Cette couleur est proche de l’une de celles que l’appli utilise pour les visites, les contenus ou le Navigator ; certains surlignages pourraient se ressembler.",
+  "We darkened this color so text and buttons stay readable.": "Nous avons assombri cette couleur pour que le texte et les boutons restent lisibles.",
+  "Your color": "Votre couleur",
+  "Used for buttons and links": "Utilisée pour les boutons et les liens",
+  "Preview": "Aperçu",
+  "The app will use its default blue in this museum.": "Dans ce musée, l’appli utilisera son bleu par défaut.",
+  "Reset to default": "Rétablir par défaut",
+  "Button": "Bouton",
+  "Tag": "Étiquette",
+  "Default blue": "Bleu par défaut"
 }

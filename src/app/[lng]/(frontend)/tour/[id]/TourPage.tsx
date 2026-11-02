@@ -1,6 +1,6 @@
 'use client'
 
-import { TOUR_GRADIENT } from '@/theme'
+import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
@@ -13,6 +13,8 @@ import { formatPrice } from '@/lib/price'
 import { formatRating } from '@/lib/rating'
 import { stopImage, summarizeTour } from '@/lib/tour-summary'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
+import { QrCodeButton } from '@/components/QrCodeButton'
+import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
@@ -54,7 +56,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { TourQrButton } from './TourQrButton'
 
 type TourPageProps = {
   tour: Tour
@@ -66,6 +67,10 @@ type TourPageProps = {
   canEdit: boolean
   /** `tours.delete`: the author, or the director of the tour's museum. */
   canDelete?: boolean
+  /** The tour's museum, for its staff: enables the printable QR download (`QrCodeButton`). */
+  printMuseumId?: string | null
+  /** Opened from outside the app on another museum's tour: offer that museum's app. */
+  museumOffer?: { id: string; name: string } | null
 }
 
 /** Localized measurements ("25 min", "320 m"): units follow the visitor's language. */
@@ -94,6 +99,8 @@ export default function TourPage({
   isSignedIn,
   canEdit,
   canDelete = false,
+  printMuseumId = null,
+  museumOffer = null,
 }: TourPageProps) {
   const { t } = useTranslation('tour-page')
   const { lng } = useParams<{ lng: string }>()
@@ -135,6 +142,7 @@ export default function TourPage({
               className="min-[62em]:overflow-y-auto"
             >
               <Stack gap="lg">
+                {museumOffer && <MuseumModeOffer museum={museumOffer} />}
                 {/* Always a cover, height-capped: the tour gradient stands in
                     when there is no picture, and the title and badges stay in
                     view. */}
@@ -146,7 +154,12 @@ export default function TourPage({
                       {tour.title}
                     </Title>
                     <Group gap="xs" wrap="nowrap">
-                      <TourQrButton tourId={tour.id} title={tour.title} />
+                      <QrCodeButton
+                        kind="tour"
+                        id={tour.id}
+                        title={tour.title}
+                        printMuseumId={printMuseumId}
+                      />
                       {canDelete && (
                         <DeleteDocumentButton
                           collection="tours"
@@ -164,7 +177,7 @@ export default function TourPage({
                           component={Link}
                           href={`/${lng}/museum/${museum.id}` as Route}
                           size="sm"
-                          c="blue.8"
+                          c="museum.8"
                           className="inline-flex items-center gap-1"
                         >
                           <Landmark size={14} aria-hidden />
@@ -183,7 +196,7 @@ export default function TourPage({
                 figure in words beside the icon (never color alone). */}
                 <Group gap="xs">
                   {summary.visitMinutes != null && (
-                    <Badge size="lg" variant="light" color="blue" leftSection={<Clock size={14} />}>
+                    <Badge size="lg" variant="light" leftSection={<Clock size={14} />}>
                       {t('About {{duration}}', {
                         duration: formatUnit(summary.visitMinutes, 'minute', lng),
                       })}
@@ -208,7 +221,7 @@ export default function TourPage({
                     <Badge
                       size="lg"
                       variant="light"
-                      color="blue"
+                      color={ACCESSIBILITY_COLOR}
                       leftSection={<Accessibility size={14} />}
                     >
                       {t('Step-free route')}

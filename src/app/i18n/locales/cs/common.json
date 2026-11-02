@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D zobrazení není na tomto zařízení k dispozici.",
   "Loading map…": "Načítání mapy…",
   "The map could not load. Reload the page to try again.": "Mapu se nepodařilo načíst. Zkuste to znovu obnovením stránky.",
-  "Skip to main content": "Přejít na hlavní obsah"
+  "Skip to main content": "Přejít na hlavní obsah",
+  "Show QR code": "Zobrazit QR kód",
+  "Scan to open this tour": "Naskenuj a otevři tuto prohlídku",
+  "Scan to open this object": "Naskenujte a otevřete tento předmět",
+  "Scan to open this content": "Naskenujte a otevřete tento obsah",
+  "Download as SVG": "Stáhnout jako SVG",
+  "Download as PNG": "Stáhnout jako PNG",
+  "For printing: the downloaded code opens the app in this museum.": "K tisku: stažený kód otevře aplikaci v tomto muzeu.",
+  "Are you at {{museum}}?": "Jste v {{museum}}?",
+  "Not now": "Teď ne",
+  "Use the museum's app": "Použít aplikaci muzea",
+  "Scan with your phone camera to open it in ArtAround.": "Naskenujte fotoaparátem telefonu a otevřete v ArtAround.",
+  "Download printable PDF": "Stáhnout PDF k tisku",
+  "Print the QR codes of all objects": "Vytisknout QR kódy všech předmětů"
 }

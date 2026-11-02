@@ -85,7 +85,7 @@ export function ArtaroundTabs({
     <MantineTabs variant={variant} value={active} onChange={handleChange} {...rest}>
       <TabsList ref={setRootRef} grow justify="center" pos="relative">
         <FloatingIndicator
-          className="border-b-2 border-b-(--mantine-color-blue-6)"
+          className="border-b-2 border-b-(--mantine-primary-color-filled)"
           parent={rootRef}
           target={active ? (controlsRefs[active] ?? null) : null}
         />

@@ -114,5 +114,21 @@
   "No image": "Bez obrázku",
   "Choose an image": "Vybrat obrázek",
   "Change image": "Změnit obrázek",
-  "Remove image": "Odebrat obrázek"
+  "Remove image": "Odebrat obrázek",
+  "Museum color": "Barva muzea",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Tlačítka, odkazy a zvýraznění ji používají, dokud jsou návštěvníci v tomto muzeu. Nechte prázdné pro výchozí modrou.",
+  "Enter a color like #1b2a4a.": "Zadejte barvu, například #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Červená označuje akce, které něco mažou, proto nemůže být barvou muzea.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Oranžová označuje placený obsah, proto nemůže být barvou muzea.",
+  "Use {{color}} instead": "Použít místo toho {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Tato barva se podobá jedné z barev, které aplikace používá pro prohlídky, obsah nebo Navigator, takže některá zvýraznění mohou vypadat podobně.",
+  "We darkened this color so text and buttons stay readable.": "Tuto barvu jsme ztmavili, aby text a tlačítka zůstaly čitelné.",
+  "Your color": "Vaše barva",
+  "Used for buttons and links": "Používá se pro tlačítka a odkazy",
+  "Preview": "Náhled",
+  "The app will use its default blue in this museum.": "V tomto muzeu bude aplikace používat výchozí modrou.",
+  "Reset to default": "Obnovit výchozí",
+  "Button": "Tlačítko",
+  "Tag": "Štítek",
+  "Default blue": "Výchozí modrá"
 }

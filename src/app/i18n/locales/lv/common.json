@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D skats šajā ierīcē nav pieejams.",
   "Loading map…": "Ielādē karti…",
   "The map could not load. Reload the page to try again.": "Karti neizdevās ielādēt. Pārlādējiet lapu, lai mēģinātu vēlreiz.",
-  "Skip to main content": "Pāriet uz galveno saturu"
+  "Skip to main content": "Pāriet uz galveno saturu",
+  "Show QR code": "Rādīt QR kodu",
+  "Scan to open this tour": "Skenē, lai atvērtu šo tūri",
+  "Scan to open this object": "Skenējiet, lai atvērtu šo priekšmetu",
+  "Scan to open this content": "Skenējiet, lai atvērtu šo saturu",
+  "Download as SVG": "Lejupielādēt kā SVG",
+  "Download as PNG": "Lejupielādēt kā PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Drukāšanai: lejupielādētais kods atver lietotni šajā muzejā.",
+  "Are you at {{museum}}?": "Vai esat muzejā {{museum}}?",
+  "Not now": "Ne tagad",
+  "Use the museum's app": "Izmantot muzeja lietotni",
+  "Scan with your phone camera to open it in ArtAround.": "Skenējiet ar tālruņa kameru, lai atvērtu to ArtAround.",
+  "Download printable PDF": "Lejupielādēt drukājamu PDF",
+  "Print the QR codes of all objects": "Drukāt visu priekšmetu QR kodus"
 }

@@ -70,7 +70,7 @@ export const UserPage = async ({
                     position="bottom-end"
                     disabled={!user.highestStatus || user.highestStatus === 'none'}
                     label={
-                      <ThemeIcon size="1.3em" radius="xl" color="blue" variant="filled">
+                      <ThemeIcon size="1.3em" radius="xl" variant="filled">
                         {user.highestStatus === 'verified' ? (
                           <Verified size="80%" />
                         ) : user.highestStatus === 'director' ? (
@@ -82,7 +82,7 @@ export const UserPage = async ({
                     }
                   >
                     <Avatar
-                      className="border-blue-400 border-3"
+                      className="border-(--mantine-primary-color-4) border-3"
                       name={user.name.fullName}
                       color="initials"
                       size="lg"
@@ -205,7 +205,7 @@ export async function UserBadges({
     <Group gap="xs">
       {verifiedMuseums.length > 0 && (
         <Tooltip label={t('Verified creator tooltip')} withArrow>
-          <Badge color="blue" size="sm" leftSection={<BadgeCheck size={14} />}>
+          <Badge size="sm" leftSection={<BadgeCheck size={14} />}>
             {t('Verified creator')}
           </Badge>
         </Tooltip>

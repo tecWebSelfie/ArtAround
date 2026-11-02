@@ -6,7 +6,10 @@ import { getT } from '@/i18n.server'
 import { isPopulated } from '@/lib/isPopulated'
 import { pictureSrc } from '@/lib/picture'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
+import { museumAffordances } from '@/lib/qr-museum'
+import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import { can, getSession } from '@/lib/session'
+import { QrCodeButton } from '@/components/QrCodeButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import { Container, Grid, GridCol, Group } from '@mantine/core'
 import { FilePlus } from 'lucide-react'
@@ -27,7 +30,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
   const { lng, id } = await params
   const { payload, user } = await getSession()
   const canEditPromise = can('objects', id, 'update')
-  const [object, canEdit, source, { t }] = await Promise.all([
+  const [object, canEdit, source, { t }, { printMuseumId, offer }] = await Promise.all([
     // Photo included (populated by getLocalizedPageDocument).
     getLocalizedPageDocument('objects', id, lng),
     canEditPromise,
@@ -44,6 +47,9 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
         : null,
     ),
     getT('editing'),
+    // Its museum's staff print its QR code; opened from outside the app, the
+    // museum's own app is offered.
+    museumAffordances('object', id),
   ])
   // The form's preview reuses the populated photo.
   const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
@@ -65,11 +71,23 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           />
         </GridCol>
         <GridCol span={{ base: 12, md: 7 }}>
+          {offer && <MuseumModeOffer museum={offer} />}
           <EditableSection
             title={t('Object')}
             canEdit={canEdit}
             // Visitors on desktop: no label above the h1 (it read as an eyebrow).
             hideTitleFrom="md"
+            actions={
+              printMuseumId && (
+                <QrCodeButton
+                  kind="object"
+                  id={id}
+                  title={object.name}
+                  printMuseumId={printMuseumId}
+                  size="xs"
+                />
+              )
+            }
             form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
           >
             {/* The inline cover is the media pane's job from md. */}

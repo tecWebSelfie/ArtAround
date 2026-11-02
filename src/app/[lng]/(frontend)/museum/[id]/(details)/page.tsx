@@ -51,6 +51,7 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
           shortDescription: museum.shortDescription,
           email: museum.email,
           location: museum.location,
+          brandColor: museum.brandColor,
           descriptionHTML: lexicalToHTML(museum.description),
         },
       }}

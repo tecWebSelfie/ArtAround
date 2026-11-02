@@ -2,6 +2,7 @@ import { PICTURE_SELECT } from '@/lib/picture'
 import { filterPopulated } from '@/lib/isPopulated'
 import { normalizeLocale } from '@/lib/localized'
 import { isLocked, lockedTotal } from '@/lib/price'
+import { museumAffordances } from '@/lib/qr-museum'
 import { asViewer, can, getSession } from '@/lib/session'
 import TourPage from './TourPage'
 
@@ -47,6 +48,12 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
     ...(await asViewer()),
   })
   const contents = filterPopulated(tour.contents)
+  // Independent once the tour is read: run them together.
+  const [canEdit, canDelete, { printMuseumId, offer }] = await Promise.all([
+    can('tours', id, 'update'),
+    can('tours', id, 'delete'),
+    museumAffordances('tour', id),
+  ])
 
   return (
     <TourPage
@@ -54,8 +61,10 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
       price={lockedTotal(contents)}
       lockedContentIds={contents.filter(isLocked).map((content) => content.id)}
       isSignedIn={Boolean(user)}
-      canEdit={await can('tours', id, 'update')}
-      canDelete={await can('tours', id, 'delete')}
+      canEdit={canEdit}
+      canDelete={canDelete}
+      printMuseumId={printMuseumId}
+      museumOffer={offer}
     />
   )
 }

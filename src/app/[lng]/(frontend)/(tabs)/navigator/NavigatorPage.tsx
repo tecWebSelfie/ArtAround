@@ -91,7 +91,7 @@ export default function NavigatorHomePage({
             <Stack gap="xs" align="center">
               <QRCode
                 aria-hidden
-                color="blue"
+                color="museum"
                 value="dw"
                 image="/compass.svg"
                 errorCorrectionLevel="H"

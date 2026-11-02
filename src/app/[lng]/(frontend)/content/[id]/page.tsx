@@ -14,7 +14,10 @@ import { isPopulated } from '@/lib/isPopulated'
 import { isLocked } from '@/lib/price'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { contentNavigationEntry } from '@/lib/navigation-entry'
+import { museumAffordances } from '@/lib/qr-museum'
+import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import { asViewer, can, getSession } from '@/lib/session'
+import { QrCodeButton } from '@/components/QrCodeButton'
 import type { Content } from '@/payload-types'
 import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
 import { Compass } from 'lucide-react'
@@ -175,16 +178,20 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
   const locked = isLocked(content)
-  const [canEdit, canDelete, navigationHref, details, { t }, { t: tn }] = await Promise.all([
-    can('contents', id, 'update'),
-    can('contents', id, 'delete'),
-    // The museum map with this content open and its object as destination;
-    // not offered while the content is locked (buying it comes first).
-    locked ? null : contentNavigationEntry(lng, id),
-    loadContentDetails(content, id, lng),
-    getT('editing'),
-    getT('tour-navigation'),
-  ])
+  const [canEdit, canDelete, navigationHref, details, { t }, { t: tn }, { printMuseumId, offer }] =
+    await Promise.all([
+      can('contents', id, 'update'),
+      can('contents', id, 'delete'),
+      // The museum map with this content open and its object as destination;
+      // not offered while the content is locked (buying it comes first).
+      locked ? null : contentNavigationEntry(lng, id),
+      loadContentDetails(content, id, lng),
+      getT('editing'),
+      getT('tour-navigation'),
+      // Its museum's staff print its QR code; opened from outside the app, the
+      // museum's own app is offered.
+      museumAffordances('content', id),
+    ])
 
   // The cover pictures: the content's own, else its object's photo (the piece
   // the text is about); with neither, the content teal stands in.
@@ -202,7 +209,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
       href={navigationHref}
       size="md"
       fullWidth
-      color="blue.8"
+      color="museum.8"
       autoContrast
       leftSection={<Compass size={18} aria-hidden />}
     >
@@ -215,6 +222,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
     <AppShellMain>
       <Container size="md" py="md">
         <Stack gap="md">
+          {offer && <MuseumModeOffer museum={offer} />}
           <DetailCover pictures={pictures} fallback="content" title={content.title} />
           <EditableSection
             title={t('Content')}
@@ -223,14 +231,27 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
             hideTitleFrom="md"
             // Owner actions together at the section header: Delete beside Edit.
             actions={
-              canDelete && (
-                <DeleteDocumentButton
-                  collection="contents"
-                  id={id}
-                  name={content.title}
-                  redirectTo={`/${lng}/navigator` as Route}
-                  size="xs"
-                />
+              (printMuseumId || canDelete) && (
+                <>
+                  {printMuseumId && (
+                    <QrCodeButton
+                      kind="content"
+                      id={id}
+                      title={content.title}
+                      printMuseumId={printMuseumId}
+                      size="xs"
+                    />
+                  )}
+                  {canDelete && (
+                    <DeleteDocumentButton
+                      collection="contents"
+                      id={id}
+                      name={content.title}
+                      redirectTo={`/${lng}/navigator` as Route}
+                      size="xs"
+                    />
+                  )}
+                </>
               )
             }
             // The editor fetches its source text itself, when opened.

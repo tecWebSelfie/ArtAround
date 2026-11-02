@@ -27,6 +27,7 @@ import {
   useMatches,
 } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
+import { ACCESSIBILITY_COLOR } from '@/theme'
 import { validateBuildJson } from '@pascal-app/core'
 import { FlagBannerFoldIcon } from '@phosphor-icons/react'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
@@ -582,7 +583,7 @@ function NavigationControls({
                   title={t('Wheelchair route')}
                   size="lg"
                   variant={wheelchairRoute ? 'filled' : 'white'}
-                  color="blue"
+                  color={ACCESSIBILITY_COLOR}
                   radius="xl"
                   aria-pressed={wheelchairRoute}
                   onClick={() => runId('wheelchair')}

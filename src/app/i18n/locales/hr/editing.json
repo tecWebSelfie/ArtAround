@@ -111,5 +111,21 @@
   "No image": "Nema slike",
   "Choose an image": "Odaberi sliku",
   "Change image": "Promijeni sliku",
-  "Remove image": "Ukloni sliku"
+  "Remove image": "Ukloni sliku",
+  "Museum color": "Boja muzeja",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Gumbi, poveznice i istaknuti elementi koriste je dok su posjetitelji u ovom muzeju. Ostavite prazno za zadanu plavu.",
+  "Enter a color like #1b2a4a.": "Unesite boju poput #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Crvena označava radnje koje nešto brišu pa ne može biti boja muzeja.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Narančasta označava plaćeni sadržaj pa ne može biti boja muzeja.",
+  "Use {{color}} instead": "Umjesto toga upotrijebi {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Ova je boja bliska jednoj od boja koje aplikacija koristi za ture, sadržaj ili Navigator pa neki istaknuti elementi mogu izgledati slično.",
+  "We darkened this color so text and buttons stay readable.": "Zatamnili smo ovu boju kako bi tekst i gumbi ostali čitljivi.",
+  "Your color": "Vaša boja",
+  "Used for buttons and links": "Koristi se za gumbe i poveznice",
+  "Preview": "Pregled",
+  "The app will use its default blue in this museum.": "U ovom muzeju aplikacija će koristiti zadanu plavu.",
+  "Reset to default": "Vrati zadano",
+  "Button": "Gumb",
+  "Tag": "Oznaka",
+  "Default blue": "Zadana plava"
 }

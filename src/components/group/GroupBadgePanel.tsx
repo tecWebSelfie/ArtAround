@@ -53,7 +53,8 @@ function GroupBadgeButton() {
         size="compact-sm"
         radius="xl"
         variant="light"
-        color={warn ? 'orange' : 'blue'}
+        // Orange warns; otherwise the primary color (the museum's, if locked to one).
+        color={warn ? 'orange' : undefined}
         leftSection={connected ? <UsersRound size={14} /> : <Loader size={12} />}
         onClick={panel.open}
         aria-label={t('Your group, {{count}} people', { count: participants.length })}

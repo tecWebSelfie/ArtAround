@@ -114,5 +114,21 @@
   "No image": "Nėra paveikslėlio",
   "Choose an image": "Pasirinkti paveikslėlį",
   "Change image": "Keisti paveikslėlį",
-  "Remove image": "Pašalinti paveikslėlį"
+  "Remove image": "Pašalinti paveikslėlį",
+  "Museum color": "Muziejaus spalva",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Mygtukai, nuorodos ir paryškinimai ją naudoja, kol lankytojai yra šiame muziejuje. Palikite tuščią, kad būtų numatytoji mėlyna.",
+  "Enter a color like #1b2a4a.": "Įveskite spalvą, pvz., #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Raudona žymi veiksmus, kurie ką nors ištrina, todėl negali būti muziejaus spalva.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Oranžinė žymi mokamą turinį, todėl negali būti muziejaus spalva.",
+  "Use {{color}} instead": "Vietoj to naudoti {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Ši spalva panaši į vieną iš tų, kurias programa naudoja turams, turiniui ar Navigator, todėl kai kurie paryškinimai gali atrodyti panašiai.",
+  "We darkened this color so text and buttons stay readable.": "Šią spalvą patamsinome, kad tekstas ir mygtukai liktų įskaitomi.",
+  "Your color": "Jūsų spalva",
+  "Used for buttons and links": "Naudojama mygtukams ir nuorodoms",
+  "Preview": "Peržiūra",
+  "The app will use its default blue in this museum.": "Šiame muziejuje programa naudos numatytąją mėlyną spalvą.",
+  "Reset to default": "Atkurti numatytąją",
+  "Button": "Mygtukas",
+  "Tag": "Žymė",
+  "Default blue": "Numatytoji mėlyna"
 }

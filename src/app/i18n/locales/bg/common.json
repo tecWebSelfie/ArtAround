@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D изгледът не е наличен на това устройство.",
   "Loading map…": "Картата се зарежда…",
   "The map could not load. Reload the page to try again.": "Картата не можа да се зареди. Презаредете страницата, за да опитате отново.",
-  "Skip to main content": "Към основното съдържание"
+  "Skip to main content": "Към основното съдържание",
+  "Show QR code": "Покажи QR кода",
+  "Scan to open this tour": "Сканирай, за да отвориш тази обиколка",
+  "Scan to open this object": "Сканирайте, за да отворите този предмет",
+  "Scan to open this content": "Сканирайте, за да отворите това съдържание",
+  "Download as SVG": "Изтегляне като SVG",
+  "Download as PNG": "Изтегляне като PNG",
+  "For printing: the downloaded code opens the app in this museum.": "За печат: изтегленият код отваря приложението в този музей.",
+  "Are you at {{museum}}?": "В {{museum}} ли сте?",
+  "Not now": "Не сега",
+  "Use the museum's app": "Използвай приложението на музея",
+  "Scan with your phone camera to open it in ArtAround.": "Сканирайте с камерата на телефона, за да го отворите в ArtAround.",
+  "Download printable PDF": "Изтегли PDF за печат",
+  "Print the QR codes of all objects": "Отпечатай QR кодовете на всички предмети"
 }

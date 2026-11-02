@@ -21,6 +21,7 @@ import { Check, FileUp, Globe, Landmark, RefreshCw, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { setMuseumMode } from '@/lib/museum-cookie'
 import { ClearSearchButton } from './ClearSearchButton'
 
 /**
@@ -38,7 +39,13 @@ import { ClearSearchButton } from './ClearSearchButton'
  * developer path) sits below a divider, out of the visitor's way.
  */
 
-export type MuseumOption = { id: string; name: string; city?: string | null }
+export type MuseumOption = {
+  id: string
+  name: string
+  city?: string | null
+  /** The museum's primary color (shade 6 of its palette), if its director set one. */
+  color?: string | null
+}
 
 export function MuseumSwitch({
   current,
@@ -59,21 +66,14 @@ export function MuseumSwitch({
   const lockTo = async (museum: { id: string | null; name: string | null } | null, row: string) => {
     setPending(row)
     setError(null)
-    try {
-      const response = await fetch('/api/museum-mode', {
-        method: museum ? 'POST' : 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: museum ? JSON.stringify(museum) : undefined,
-      })
-      if (!response.ok) throw new Error(String(response.status))
+    if (await setMuseumMode(museum)) {
       close()
       setQuery('')
       router.refresh()
-    } catch {
+    } else {
       setError(t('This museum was not found here.'))
-    } finally {
-      setPending(null)
     }
+    setPending(null)
   }
 
   const importFile = async (file: File | null) => {
@@ -90,7 +90,7 @@ export function MuseumSwitch({
       )
     : museums
   // One list: "All museums" leads it (not while searching), then the museums.
-  const rows: { id: string | null; name: string; city?: string | null }[] = [
+  const rows: (Omit<MuseumOption, 'id'> & { id: string | null })[] = [
     ...(words ? [] : [{ id: null, name: t('All museums') }]),
     ...matches,
   ]
@@ -143,7 +143,15 @@ export function MuseumSwitch({
                     label={row.name}
                     description={row.city}
                     leftSection={
-                      <ThemeIcon variant="light" color={row.id ? 'blue' : 'gray'} radius="xl">
+                      // Each museum shows its own color, so the switch previews
+                      // what the app will look like once it is picked.
+                      <ThemeIcon
+                        variant="light"
+                        // Not the primary: in museum mode that is the locked museum's color.
+                        // A museum without one shows the default blue it would get.
+                        color={row.id ? (row.color ?? 'blue') : 'gray'}
+                        radius="xl"
+                      >
                         {row.id ? (
                           <Landmark size={16} aria-hidden />
                         ) : (

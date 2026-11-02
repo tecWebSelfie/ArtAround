@@ -36,6 +36,14 @@ and cached build artifacts are not reliable handoff state.
   in-app scanner in the app's language (`inLanguage` in `src/lib/app-url.ts`,
   which also replaces the prefix of older `/it/…` codes). Contextual tour modals
   must remain reloadable and shareable. Do not add a separate QR identifier system.
+- Printed codes: museum staff (curator or director, `staffMuseumId` in
+  `src/lib/qr-museum.ts`) get downloads in `QrCodeButton` (SVG, PNG) and a
+  printable PDF (`/api/qr-sheet`: one A5 page, or every object of a museum as
+  A4 labels; react-pdf, Noto Sans for all 24 languages, error correction Q).
+  Those codes end with `?museum=<id>`: `src/proxy.ts` sets the museum-mode
+  cookie and redirects to the plain URL, so whoever scans one on site gets the
+  app in that museum. Codes shown on screen stay plain; opened from outside the
+  app, a page of another museum only offers the switch (`MuseumModeOffer`).
 
 Desktop (≥ Mantine `md`, 62em; `museum/[id]/navigation/navigation-desktop.module.css`):
 the same routes and close/guest rules, recomposed. Contextual content, object and step

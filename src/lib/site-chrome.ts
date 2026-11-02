@@ -5,6 +5,7 @@ import type { MyMuseum } from '@/components/navigation/nav-shared'
 import type { MuseumOption } from '@/components/mantine/MuseumSwitch'
 import { isPopulated } from '@/lib/isPopulated'
 import { museumScope } from '@/lib/museum-mode'
+import { PRIMARY_SHADE } from '@/lib/museum-color'
 import { getSession } from '@/lib/session'
 import { cache } from 'react'
 
@@ -38,7 +39,7 @@ export const getSiteChrome = cache(async () => {
       limit: 200,
       depth: 0,
       sort: 'name',
-      select: { name: true, location: true },
+      select: { name: true, location: true, palette: true },
     }),
   ])
   const myMuseums: MyMuseum[] = (memberships?.docs ?? []).flatMap((membership) =>
@@ -50,11 +51,13 @@ export const getSiteChrome = cache(async () => {
   return {
     account: user ? toNavAccount(user) : null,
     myMuseums,
-    currentMuseum: scope ? { id: scope.museumId, name: scope.name } : null,
+    currentMuseum: scope ? { id: scope.museumId, name: scope.name, palette: scope.palette } : null,
     museums: museums.docs.map((museum): MuseumOption => ({
       id: museum.id,
       name: museum.name,
       city: museum.location?.city,
+      // Shade 6 of the museum's palette: its swatch in the museum switch.
+      color: museum.palette?.[PRIMARY_SHADE] ?? null,
     })),
   }
 })

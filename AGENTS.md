@@ -64,6 +64,14 @@ explain the file's role; at the relevant code, explain important decisions and
 invariants. Keep comments useful at a glance, and update or remove them when
 behavior changes; don't narrate obvious syntax line by line.
 
+## Museum theme (`src/lib/museum-palette.ts`)
+
+Each museum's color becomes the primary color in museum mode (DESIGN.md → The
+Museum Primary Rule). `@adobe/leonardo-contrast-colors` is pinned to **exactly
+`1.0.1`** (no caret): 1.1.0 ships an ambient `declare module 'chroma-js'` stub
+that replaces `@types/chroma-js` in the whole project, so `chroma.contrast` and
+`chroma(...).oklch()` stop typechecking. Upgrade only once Leonardo drops it.
+
 ## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
 When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`).

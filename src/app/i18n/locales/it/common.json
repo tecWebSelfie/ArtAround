@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "La vista 3D non è disponibile su questo dispositivo.",
   "Loading map…": "Caricamento della mappa…",
   "The map could not load. Reload the page to try again.": "Non è stato possibile caricare la mappa. Ricarica la pagina per riprovare.",
-  "Skip to main content": "Vai al contenuto principale"
+  "Skip to main content": "Vai al contenuto principale",
+  "Show QR code": "Mostra il codice QR",
+  "Scan to open this tour": "Inquadra per aprire questo tour",
+  "Scan to open this object": "Inquadra per aprire questo oggetto",
+  "Scan to open this content": "Inquadra per aprire questo contenuto",
+  "Download as SVG": "Scarica come SVG",
+  "Download as PNG": "Scarica come PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Per la stampa: il codice scaricato apre l’app in questo museo.",
+  "Are you at {{museum}}?": "Sei al {{museum}}?",
+  "Not now": "Non ora",
+  "Use the museum's app": "Usa l’app del museo",
+  "Scan with your phone camera to open it in ArtAround.": "Inquadra con la fotocamera del telefono per aprirlo in ArtAround.",
+  "Download printable PDF": "Scarica PDF da stampare",
+  "Print the QR codes of all objects": "Stampa i QR di tutti gli oggetti"
 }

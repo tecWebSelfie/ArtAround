@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D-visningen er ikke tilgængelig på denne enhed.",
   "Loading map…": "Indlæser kortet…",
   "The map could not load. Reload the page to try again.": "Kortet kunne ikke indlæses. Genindlæs siden for at prøve igen.",
-  "Skip to main content": "Gå til hovedindholdet"
+  "Skip to main content": "Gå til hovedindholdet",
+  "Show QR code": "Vis QR-kode",
+  "Scan to open this tour": "Scan for at åbne turen",
+  "Scan to open this object": "Scan for at åbne denne genstand",
+  "Scan to open this content": "Scan for at åbne dette indhold",
+  "Download as SVG": "Download som SVG",
+  "Download as PNG": "Download som PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Til print: den downloadede kode åbner appen i dette museum.",
+  "Are you at {{museum}}?": "Er du på {{museum}}?",
+  "Not now": "Ikke nu",
+  "Use the museum's app": "Brug museets app",
+  "Scan with your phone camera to open it in ArtAround.": "Scan med telefonens kamera for at åbne det i ArtAround.",
+  "Download printable PDF": "Download PDF til udskrivning",
+  "Print the QR codes of all objects": "Udskriv QR-koder for alle genstande"
 }

@@ -1,4 +1,5 @@
 import { EditableSection } from '@/components/editing/EditableSection'
+import { MuseumAppearanceForm } from '@/components/editing/forms/MuseumAppearanceForm'
 import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataForm'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
@@ -13,10 +14,13 @@ import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/marke
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
+import { ACCESSIBILITY_COLOR } from '@/theme'
 import {
   Avatar,
   AvatarGroup,
   Box,
+  Button,
+  ColorSwatch,
   Grid,
   GridCol,
   Group,
@@ -40,6 +44,7 @@ import {
   FilePlus,
   Map as MapIcon,
   MapPin,
+  QrCode,
   Route as Route_,
   Users,
 } from 'lucide-react'
@@ -58,7 +63,7 @@ export type MuseumEditing = {
   /** Any signed-in visitor: tours and contents are user-generated. */
   isSignedIn: boolean
   /** Source-locale (`en`) values for the metadata form. */
-  source: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location'> & {
+  source: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location' | 'brandColor'> & {
     descriptionHTML: string
   }
 }
@@ -75,6 +80,7 @@ export default async function MuseumPage({
 }) {
   const { t } = await getT('museum-page')
   const { t: te } = await getT('editing')
+  const { t: tc } = await getT('common')
 
   const descriptionHTML = lexicalToHTML(museum.description) || null
   // Only the facilities the museum confirmed; unknown ones are left unsaid.
@@ -131,11 +137,11 @@ export default async function MuseumPage({
             </Stack>
             <MuseumBadges museum={museum} accessibleLabel={t('Accessible')} />
             {navigationHref && (
-              // Navigation blue + compass: moving inside the museum (DESIGN.md →
+              // Primary color (museum blue by default) + compass: moving inside the museum (DESIGN.md →
               // Buttons). The tour gradient is kept for what starts a tour.
               <LinkButton
                 href={navigationHref}
-                color="blue.8"
+                color="museum.8"
                 autoContrast
                 leftSection={<Compass size={18} aria-hidden />}
                 w={{ base: '100%', sm: 'auto' }}
@@ -185,6 +191,21 @@ export default async function MuseumPage({
                   >
                     {te('Staff')}
                   </LinkButton>
+                )}
+                {editing.canManageMap && (
+                  // A sheet of labels, one QR per object on the map, in the
+                  // page's language (`/api/qr-sheet`). Scanned on site, each
+                  // opens the app in this museum. A plain download link.
+                  <Button
+                    component="a"
+                    href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${editing.lng}`}
+                    download
+                    variant="subtle"
+                    size="xs"
+                    leftSection={<QrCode size={14} aria-hidden />}
+                  >
+                    {tc('Print the QR codes of all objects')}
+                  </Button>
                 )}
               </Group>
             )}
@@ -252,7 +273,12 @@ export default async function MuseumPage({
                                 spacing={4}
                                 size="sm"
                                 icon={
-                                  <ThemeIcon size={18} radius="xl" variant="light" color="blue">
+                                  <ThemeIcon
+                                    size={18}
+                                    radius="xl"
+                                    variant="light"
+                                    color={ACCESSIBILITY_COLOR}
+                                  >
                                     <Check size={12} aria-hidden />
                                   </ThemeIcon>
                                 }
@@ -267,6 +293,26 @@ export default async function MuseumPage({
                     }}
                   />
                 </EditableSection>
+                {/* The museum's color: only for the people who can change it
+                    (director); visitors just see the app wearing it. */}
+                {editing?.canEditDetails && (
+                  <Box mt="xl">
+                    <EditableSection
+                      title={te('Museum color')}
+                      canEdit
+                      form={<MuseumAppearanceForm museum={editing.source} />}
+                    >
+                      <Group gap="xs">
+                        {museum.brandColor && (
+                          <ColorSwatch color={museum.brandColor} size={20} aria-hidden />
+                        )}
+                        <Text size="sm">
+                          {museum.brandColor ? museum.brandColor : te('Default blue')}
+                        </Text>
+                      </Group>
+                    </EditableSection>
+                  </Box>
+                )}
               </Box>
             ),
           },
@@ -307,7 +353,7 @@ export async function MuseumBadges(props: { museum: Museum; accessibleLabel: str
               radius="xl"
               size="lg"
               variant="filled"
-              color="blue"
+              color={ACCESSIBILITY_COLOR}
               autoContrast
               role="img"
               aria-label={accessibleLabel}

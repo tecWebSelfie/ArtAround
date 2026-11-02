@@ -108,5 +108,21 @@
   "No image": "Няма изображение",
   "Choose an image": "Изберете изображение",
   "Change image": "Смяна на изображението",
-  "Remove image": "Премахване на изображението"
+  "Remove image": "Премахване на изображението",
+  "Museum color": "Цвят на музея",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Бутоните, връзките и откроенията го използват, докато посетителите са в този музей. Оставете празно за синьото по подразбиране.",
+  "Enter a color like #1b2a4a.": "Въведете цвят, например #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Червеното означава действия, които изтриват нещо, затова не може да е цветът на музея.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Оранжевото означава платено съдържание, затова не може да е цветът на музея.",
+  "Use {{color}} instead": "Използвай вместо това {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Този цвят е близък до един от цветовете, които приложението използва за обиколки, съдържание или Navigator, затова някои очертания може да изглеждат сходно.",
+  "We darkened this color so text and buttons stay readable.": "Затъмнихме този цвят, за да останат текстът и бутоните четими.",
+  "Your color": "Вашият цвят",
+  "Used for buttons and links": "Използва се за бутони и връзки",
+  "Preview": "Преглед",
+  "The app will use its default blue in this museum.": "В този музей приложението ще използва синьото по подразбиране.",
+  "Reset to default": "Възстанови по подразбиране",
+  "Button": "Бутон",
+  "Tag": "Етикет",
+  "Default blue": "Синьо по подразбиране"
 }

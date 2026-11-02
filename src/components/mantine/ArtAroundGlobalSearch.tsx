@@ -151,7 +151,7 @@ export function ArtAroundGlobalSearch({
 const KIND_ICON = {
   tour: { Icon: RouteIcon, variant: 'gradient', gradient: TOUR_GRADIENT },
   content: { Icon: BookOpen, variant: 'light', color: 'teal' },
-  museum: { Icon: Landmark, variant: 'light', color: 'blue' },
+  museum: { Icon: Landmark, variant: 'light', color: 'museum' },
   object: { Icon: Shapes, variant: 'light', color: 'gray' },
   user: { Icon: UserRound, variant: 'light', color: 'gray' },
 } as const

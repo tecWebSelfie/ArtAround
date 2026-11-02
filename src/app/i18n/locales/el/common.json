@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "Η τρισδιάστατη προβολή δεν είναι διαθέσιμη σε αυτή τη συσκευή.",
   "Loading map…": "Φόρτωση χάρτη…",
   "The map could not load. Reload the page to try again.": "Δεν ήταν δυνατή η φόρτωση του χάρτη. Ανανεώστε τη σελίδα για να δοκιμάσετε ξανά.",
-  "Skip to main content": "Μετάβαση στο κύριο περιεχόμενο"
+  "Skip to main content": "Μετάβαση στο κύριο περιεχόμενο",
+  "Show QR code": "Εμφάνιση κωδικού QR",
+  "Scan to open this tour": "Σάρωσε για να ανοίξεις αυτήν την ξενάγηση",
+  "Scan to open this object": "Σαρώστε για να ανοίξετε αυτό το αντικείμενο",
+  "Scan to open this content": "Σαρώστε για να ανοίξετε αυτό το περιεχόμενο",
+  "Download as SVG": "Λήψη ως SVG",
+  "Download as PNG": "Λήψη ως PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Για εκτύπωση: ο κωδικός που κατεβάζετε ανοίγει την εφαρμογή σε αυτό το μουσείο.",
+  "Are you at {{museum}}?": "Βρίσκεστε στο {{museum}};",
+  "Not now": "Όχι τώρα",
+  "Use the museum's app": "Χρήση της εφαρμογής του μουσείου",
+  "Scan with your phone camera to open it in ArtAround.": "Σαρώστε με την κάμερα του κινητού για να το ανοίξετε στο ArtAround.",
+  "Download printable PDF": "Λήψη PDF για εκτύπωση",
+  "Print the QR codes of all objects": "Εκτύπωση των κωδικών QR όλων των αντικειμένων"
 }

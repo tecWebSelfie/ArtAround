@@ -1,12 +1,12 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-02T16:07:53.000Z",
+  "generatedAt": "2026-11-02T19:23:56Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
       "navigation-blue": {
         "role": "primary",
-        "displayName": "Navigation blue",
+        "displayName": "Navigation blue (museum primary)",
         "tonalRamp": [
           "#e7f5ff",
           "#d0ebff",
@@ -395,6 +395,20 @@
           "#868e96",
           "#495057"
         ]
+      },
+      "accessibility-blue": {
+        "role": "semantic",
+        "displayName": "Accessibility blue",
+        "tonalRamp": [
+          "#e7f5ff",
+          "#d0ebff",
+          "#a5d8ff",
+          "#74c0fc",
+          "#4dabf7",
+          "#339af0",
+          "#228be6",
+          "#1c7ed6"
+        ]
       }
     },
     "typographyMeta": {
@@ -673,7 +687,7 @@
       "name": "Museum switch",
       "kind": "button",
       "refersTo": "museum-switch",
-      "description": "Light round compact trigger: leading Landmark, the label (\"All museums\" or the locked museum, truncated), trailing 12px RefreshCw. Opens \"Change museum\": a search field (with the shared clear X) over one always-visible NavLink list in a 360px scroll area, \"All museums\" first (gray Globe, hidden while searching), then each museum (blue Landmark, city as description); the current row is active with a trailing Check. Below an \"or\" divider, a subtle gray \"Import a config file\".",
+      "description": "Light round compact trigger: leading Landmark, the label (\"All museums\" or the locked museum, truncated), trailing 12px RefreshCw. Opens \"Change museum\": a search field (with the shared clear X) over one always-visible NavLink list in a 360px scroll area, \"All museums\" first (gray Globe, hidden while searching), then each museum (Landmark, city as description); the current row is active with a trailing Check. Below an \"or\" divider, a subtle gray \"Import a config file\". Each museum row's icon wears that museum's own color (blue when it has none), previewing the theme it switches to.",
       "html": "<div class=\"ds-ms\"><button class=\"ds-ms-btn\" aria-label=\"Change museum\" title=\"Change museum\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg><span class=\"ds-ms-label\">Galleria Borghese</span><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg></button><div class=\"ds-ms-modal\" role=\"dialog\" aria-label=\"Change museum\"><label class=\"ds-ms-in\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input placeholder=\"Search a museum\" aria-label=\"Search a museum\" /></label><div class=\"ds-ms-list\"><button class=\"ds-ms-row\"><span class=\"ds-ms-ic is-gray\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20\"/></svg></span><span class=\"ds-ms-name\">All museums</span></button><button class=\"ds-ms-row is-active\" aria-current=\"true\"><span class=\"ds-ms-ic\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg></span><span class=\"ds-ms-name\">Galleria Borghese<small>Rome</small></span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></button><button class=\"ds-ms-row\"><span class=\"ds-ms-ic\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg></span><span class=\"ds-ms-name\">Uffizi<small>Florence</small></span></button></div><div class=\"ds-ms-or\"><span>or</span></div><button class=\"ds-ms-file\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4M12 12v6M15 15l-3-3-3 3\"/></svg>Import a config file</button></div></div>",
       "css": ".ds-ms{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:360px}.ds-ms-btn{display:inline-flex;align-items:center;gap:6px;height:26px;max-width:100%;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;cursor:pointer;transition:background .15s ease}.ds-ms-btn:hover{background:rgba(34,139,230,.16)}.ds-ms-btn svg{flex:none}.ds-ms-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-ms-modal{align-self:stretch;display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-ms-in{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid #ced4da;border-radius:4px;color:#868e96}.ds-ms-in:focus-within{border-color:#228be6}.ds-ms-in input{flex:1;min-width:0;border:0;outline:none;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#212529;background:transparent}.ds-ms-list{display:flex;flex-direction:column;gap:2px;max-height:360px;overflow:auto}.ds-ms-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border:0;border-radius:8px;background:transparent;color:#212529;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;text-align:left;cursor:pointer}.ds-ms-row:hover{background:#f8f9fa}.ds-ms-row.is-active{background:rgba(34,139,230,.1);color:#1c7ed6}.ds-ms-name{flex:1;display:flex;flex-direction:column}.ds-ms-name small{font-size:12px;color:#868e96}.ds-ms-ic{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(34,139,230,.1);color:#1c7ed6}.ds-ms-ic.is-gray{background:#f1f3f5;color:#495057}.ds-ms-or{display:flex;align-items:center;gap:8px;font-size:12px;color:#868e96}.ds-ms-or::before,.ds-ms-or::after{content:\"\";flex:1;border-top:1px solid #dee2e6}.ds-ms-file{align-self:center;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:#495057;font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;cursor:pointer}.ds-ms-file:hover{background:#f1f3f5}.ds-ms button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     },
@@ -789,6 +803,11 @@
         "section": "colors"
       },
       {
+        "name": "The Museum Primary Rule",
+        "body": "In museum mode (the museum switch, or a printed QR with `?museum=`) the navigation blue becomes the museum's color, and only it: buttons, links, active tab, selection, focus ring, the museum switch. Tour gradient, content teal, paid orange, difficulty, quiz feedback, markers, the destructive red and the accessibility blue (`accessibility-blue`, `ACCESSIBILITY_COLOR` in `src/theme.ts`: the museum's accessibility badge and feature checks, the tour's step-free badge, the map's wheelchair-route toggle) never change. The director picks one `brandColor`; `src/lib/museum-palette.ts` derives the 10 shades with Leonardo: a brand color with ≥ 4.5:1 on white is used as is for shade 6, a lighter one is darkened within its family until it reaches it; shade 9 stays ≥ 4.5:1 on shades 1–2. Saturated red and orange are refused (they already mean \"delete\" and \"paid\"); tour grape, content teal and Navigator green only warn. The scale is computed once per save and rendered on the server (`museumTheme` → `MantineProvider`), so there is no flash of blue. QR codes stay black on white.",
+        "section": "colors"
+      },
+      {
         "name": "The Triplet Rule",
         "body": "Difficulty and status are never carried by color alone. The incumbent renders label + icon + color together (`Leaf`/green, `Gauge`/yellow, `Flame`/red.9). Keep all three when restyling.",
         "section": "colors"
@@ -834,6 +853,11 @@
         "section": "components"
       },
       {
+        "name": "The Black-Code Rule",
+        "body": "QR codes are black on white with a 4-module quiet zone, error correction Q when printed, and never wear the museum color or a gradient: cameras read contrast, and a code must still scan in a dim room.",
+        "section": "components"
+      },
+      {
         "name": "The One Strip Rule",
         "body": "Route status and the current direction share one slot in the navigation bar. A new route state becomes a state of the strip, never another banner in the footer.",
         "section": "components"
@@ -875,6 +899,8 @@
       "**Do** keep the four namespaces distinct, and use semantic Mantine variables (`--mantine-color-*`) rather than hardcoding light surfaces.",
       "**Do** confine playfulness to small named components where it helps discovery or feedback (see The Scoped Playfulness Rule).",
       "**Do** keep content meaning available through labels and icons as well as color (see The Triplet Rule).",
+      "**Do** use the `museum` color (or no color) for the common action, so museum mode re-skins it; use `ACCESSIBILITY_COLOR` for anything that says \"accessible\", and plain `blue` only for markers (see The Museum Primary Rule).",
+      "**Do** keep QR codes black on white and build printed ones only through `/api/qr-sheet` (see The Black-Code Rule).",
       "**Do** preserve explicit position confirmation, shareable modal URLs, and the Overlay Opt-In pattern when touching navigation.",
       "**Do** source every museum-marker color and icon from `markers.ts` (see The Single Marker Table Rule).",
       "**Do** pair paid orange with a `Lock`/`ShoppingBag` icon and a price or label, and keep navigation available beside any unlock action.",

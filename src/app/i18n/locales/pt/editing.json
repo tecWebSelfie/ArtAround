@@ -111,5 +111,21 @@
   "No image": "Sem imagem",
   "Choose an image": "Escolher uma imagem",
   "Change image": "Alterar imagem",
-  "Remove image": "Remover imagem"
+  "Remove image": "Remover imagem",
+  "Museum color": "Cor do museu",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Os botões, links e destaques usam-na enquanto os visitantes estão neste museu. Deixe vazio para o azul predefinido.",
+  "Enter a color like #1b2a4a.": "Introduza uma cor como #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "O vermelho indica as ações que eliminam algo, por isso não pode ser a cor do museu.",
+  "Orange marks paid contents, so it cannot be the museum color.": "O laranja indica os conteúdos pagos, por isso não pode ser a cor do museu.",
+  "Use {{color}} instead": "Usar {{color}} em vez disso",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Esta cor é próxima de uma que a app usa para visitas, conteúdos ou o Navigator, por isso alguns destaques podem parecer semelhantes.",
+  "We darkened this color so text and buttons stay readable.": "Escurecemos esta cor para que o texto e os botões continuem legíveis.",
+  "Your color": "A sua cor",
+  "Used for buttons and links": "Usada em botões e links",
+  "Preview": "Pré-visualização",
+  "The app will use its default blue in this museum.": "Neste museu, a app usará o seu azul predefinido.",
+  "Reset to default": "Repor predefinição",
+  "Button": "Botão",
+  "Tag": "Etiqueta",
+  "Default blue": "Azul predefinido"
 }

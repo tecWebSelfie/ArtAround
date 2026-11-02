@@ -108,5 +108,21 @@
   "No image": "Intet billede",
   "Choose an image": "Vælg et billede",
   "Change image": "Skift billede",
-  "Remove image": "Fjern billede"
+  "Remove image": "Fjern billede",
+  "Museum color": "Museets farve",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Knapper, links og fremhævninger bruger den, mens gæster er i dette museum. Lad feltet stå tomt for standardblåt.",
+  "Enter a color like #1b2a4a.": "Angiv en farve som #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Rød markerer handlinger, der sletter noget, og kan derfor ikke være museets farve.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Orange markerer betalt indhold og kan derfor ikke være museets farve.",
+  "Use {{color}} instead": "Brug {{color}} i stedet",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Denne farve ligner en, appen bruger til ture, indhold eller Navigator, så nogle fremhævninger kan ligne hinanden.",
+  "We darkened this color so text and buttons stay readable.": "Vi har gjort farven mørkere, så tekst og knapper forbliver læselige.",
+  "Your color": "Din farve",
+  "Used for buttons and links": "Bruges til knapper og links",
+  "Preview": "Forhåndsvisning",
+  "The app will use its default blue in this museum.": "I dette museum bruger appen standardblåt.",
+  "Reset to default": "Nulstil til standard",
+  "Button": "Knap",
+  "Tag": "Mærkat",
+  "Default blue": "Standardblåt"
 }

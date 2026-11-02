@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "Vizualizarea 3D nu este disponibilă pe acest dispozitiv.",
   "Loading map…": "Se încarcă harta…",
   "The map could not load. Reload the page to try again.": "Harta nu s-a putut încărca. Reîncărcați pagina pentru a încerca din nou.",
-  "Skip to main content": "Salt la conținutul principal"
+  "Skip to main content": "Salt la conținutul principal",
+  "Show QR code": "Arată codul QR",
+  "Scan to open this tour": "Scanează ca să deschizi acest tur",
+  "Scan to open this object": "Scanează pentru a deschide acest obiect",
+  "Scan to open this content": "Scanează pentru a deschide acest conținut",
+  "Download as SVG": "Descarcă ca SVG",
+  "Download as PNG": "Descarcă ca PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Pentru tipărire: codul descărcat deschide aplicația în acest muzeu.",
+  "Are you at {{museum}}?": "Ești la {{museum}}?",
+  "Not now": "Nu acum",
+  "Use the museum's app": "Folosește aplicația muzeului",
+  "Scan with your phone camera to open it in ArtAround.": "Scanează cu camera telefonului pentru a-l deschide în ArtAround.",
+  "Download printable PDF": "Descarcă PDF pentru tipărire",
+  "Print the QR codes of all objects": "Tipărește codurile QR ale tuturor obiectelor"
 }

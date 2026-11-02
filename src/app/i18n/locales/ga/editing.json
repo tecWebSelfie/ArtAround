@@ -117,5 +117,21 @@
   "No image": "Gan íomhá",
   "Choose an image": "Roghnaigh íomhá",
   "Change image": "Athraigh an íomhá",
-  "Remove image": "Bain an íomhá"
+  "Remove image": "Bain an íomhá",
+  "Museum color": "Dath an mhúsaeim",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Úsáideann cnaipí, naisc agus aibhsithe é cé go bhfuil cuairteoirí sa mhúsaem seo. Fág folamh don ghorm réamhshocraithe.",
+  "Enter a color like #1b2a4a.": "Cuir isteach dath ar nós #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Léiríonn dearg gníomhartha a scriosann rud éigin, mar sin ní féidir leis a bheith ina dhath an mhúsaeim.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Léiríonn oráiste ábhar íoctha, mar sin ní féidir leis a bheith ina dhath an mhúsaeim.",
+  "Use {{color}} instead": "Úsáid {{color}} ina ionad",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Tá an dath seo gar do cheann a úsáideann an aip do thurais, d’ábhar nó don Navigator, mar sin d’fhéadfadh roinnt aibhsithe breathnú cosúil lena chéile.",
+  "We darkened this color so text and buttons stay readable.": "Rinneamar an dath seo níos dorcha ionas go bhfanfaidh téacs agus cnaipí inléite.",
+  "Your color": "Do dhath",
+  "Used for buttons and links": "Úsáidte le haghaidh cnaipí agus naisc",
+  "Preview": "Réamhamharc",
+  "The app will use its default blue in this museum.": "Sa mhúsaem seo úsáidfidh an aip a gorm réamhshocraithe.",
+  "Reset to default": "Athshocraigh go réamhshocrú",
+  "Button": "Cnaipe",
+  "Tag": "Clib",
+  "Default blue": "Gorm réamhshocraithe"
 }

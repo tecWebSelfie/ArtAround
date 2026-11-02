@@ -111,5 +111,21 @@
   "No image": "Nav attēla",
   "Choose an image": "Izvēlēties attēlu",
   "Change image": "Mainīt attēlu",
-  "Remove image": "Noņemt attēlu"
+  "Remove image": "Noņemt attēlu",
+  "Museum color": "Muzeja krāsa",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "Pogas, saites un izcēlumos to izmanto, kamēr apmeklētāji ir šajā muzejā. Atstājiet tukšu, lai izmantotu noklusējuma zilo.",
+  "Enter a color like #1b2a4a.": "Ievadiet krāsu, piemēram, #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "Sarkanā krāsa apzīmē darbības, kas kaut ko dzēš, tāpēc tā nevar būt muzeja krāsa.",
+  "Orange marks paid contents, so it cannot be the museum color.": "Oranžā krāsa apzīmē maksas saturu, tāpēc tā nevar būt muzeja krāsa.",
+  "Use {{color}} instead": "Izmantot {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Šī krāsa ir līdzīga vienai no krāsām, ko lietotne izmanto ekskursijām, saturam vai Navigator, tāpēc daži izcēlumi var izskatīties līdzīgi.",
+  "We darkened this color so text and buttons stay readable.": "Mēs padarījām krāsu tumšāku, lai teksts un pogas paliktu salasāmi.",
+  "Your color": "Jūsu krāsa",
+  "Used for buttons and links": "Izmanto pogām un saitēm",
+  "Preview": "Priekšskatījums",
+  "The app will use its default blue in this museum.": "Šajā muzejā lietotne izmantos noklusējuma zilo.",
+  "Reset to default": "Atiestatīt noklusējumu",
+  "Button": "Poga",
+  "Tag": "Birka",
+  "Default blue": "Noklusējuma zilā"
 }

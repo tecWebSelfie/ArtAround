@@ -220,7 +220,7 @@ export function placedObjectIds(map: { nodes: Record<string, unknown> } | null |
   return ids
 }
 
-export function contentObjectId(content: Content): string | null {
+export function contentObjectId(content: Pick<Content, 'objects'>): string | null {
   const object = content.objects?.docs?.[0]
   return typeof object === 'string' ? object : (object?.id ?? null)
 }

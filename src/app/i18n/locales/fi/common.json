@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D-näkymä ei ole käytettävissä tällä laitteella.",
   "Loading map…": "Ladataan karttaa…",
   "The map could not load. Reload the page to try again.": "Karttaa ei voitu ladata. Yritä uudelleen lataamalla sivu uudelleen.",
-  "Skip to main content": "Siirry pääsisältöön"
+  "Skip to main content": "Siirry pääsisältöön",
+  "Show QR code": "Näytä QR-koodi",
+  "Scan to open this tour": "Avaa tämä kierros skannaamalla",
+  "Scan to open this object": "Skannaa avataksesi tämän esineen",
+  "Scan to open this content": "Skannaa avataksesi tämän sisällön",
+  "Download as SVG": "Lataa SVG-muodossa",
+  "Download as PNG": "Lataa PNG-muodossa",
+  "For printing: the downloaded code opens the app in this museum.": "Tulostettavaksi: ladattu koodi avaa sovelluksen tässä museossa.",
+  "Are you at {{museum}}?": "Oletko kohteessa {{museum}}?",
+  "Not now": "Ei nyt",
+  "Use the museum's app": "Käytä museon sovellusta",
+  "Scan with your phone camera to open it in ArtAround.": "Skannaa puhelimen kameralla avataksesi sen ArtAroundissa.",
+  "Download printable PDF": "Lataa tulostettava PDF",
+  "Print the QR codes of all objects": "Tulosta kaikkien esineiden QR-koodit"
 }

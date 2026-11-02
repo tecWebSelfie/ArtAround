@@ -184,7 +184,7 @@ export function MarketplaceCard({
         <CardSection inheritPadding withBorder py="xs" mt="sm">
           <Group justify="space-between" wrap="nowrap">
             {isUser ? (
-              <Text fw={700} c="blue.8">
+              <Text fw={700} c="museum.8">
                 {labels.viewProfile}
               </Text>
             ) : (

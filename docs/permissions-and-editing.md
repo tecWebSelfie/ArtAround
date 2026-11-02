@@ -138,6 +138,10 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
 1. **Inline metadata editing** (`EditableSection` on detail pages):
    - museum (Info tab): name, short description, description (rich text),
      email, address — director (`can('museums', id, 'update', 'name')`);
+   - museum color (Info tab, `MuseumAppearanceForm`): `brandColor`, director
+     only (field access like the other metadata). The hook `syncMuseumPalette`
+     derives the read-only `palette` on save and the field `validate` refuses
+     saturated red and orange (DESIGN.md → The Museum Primary Rule);
    - object: name, description — owner;
    - content: title, difficulty, copyright, price and the body (rich text,
      TipTap loaded on demand) — author (`ContentEditForm`, fields shared with

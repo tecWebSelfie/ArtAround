@@ -1,5 +1,5 @@
 import config from '@/payload.config'
-import { MUSEUM_MODE_COOKIE } from '@/lib/museum-mode'
+import { MUSEUM_COOKIE_OPTIONS, MUSEUM_MODE_COOKIE } from '@/lib/museum-cookie'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { z } from 'zod'
@@ -46,11 +46,7 @@ export async function POST(request: Request) {
   if (!museum) return NextResponse.json({ error: 'Museum not found' }, { status: 404 })
 
   const response = NextResponse.json({ id: museum.id, name: museum.name })
-  response.cookies.set(MUSEUM_MODE_COOKIE, museum.id, {
-    path: '/',
-    sameSite: 'lax',
-    maxAge: 60 * 60 * 24 * 365,
-  })
+  response.cookies.set(MUSEUM_MODE_COOKIE, museum.id, MUSEUM_COOKIE_OPTIONS)
   return response
 }
 

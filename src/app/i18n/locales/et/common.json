@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "3D-vaade pole selles seadmes saadaval.",
   "Loading map…": "Kaardi laadimine…",
   "The map could not load. Reload the page to try again.": "Kaarti ei õnnestunud laadida. Proovi uuesti, laadides lehe uuesti.",
-  "Skip to main content": "Liigu põhisisu juurde"
+  "Skip to main content": "Liigu põhisisu juurde",
+  "Show QR code": "Näita QR-koodi",
+  "Scan to open this tour": "Skanni, et see tuur avada",
+  "Scan to open this object": "Skanni, et avada see ese",
+  "Scan to open this content": "Skanni, et avada see sisu",
+  "Download as SVG": "Laadi alla SVG-na",
+  "Download as PNG": "Laadi alla PNG-na",
+  "For printing: the downloaded code opens the app in this museum.": "Printimiseks: allalaaditud kood avab rakenduse selles muuseumis.",
+  "Are you at {{museum}}?": "Kas oled muuseumis {{museum}}?",
+  "Not now": "Mitte praegu",
+  "Use the museum's app": "Kasuta muuseumi rakendust",
+  "Scan with your phone camera to open it in ArtAround.": "Skanni telefoni kaameraga, et avada see ArtAroundis.",
+  "Download printable PDF": "Laadi alla prinditav PDF",
+  "Print the QR codes of all objects": "Prindi kõigi esemete QR-koodid"
 }

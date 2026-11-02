@@ -73,5 +73,18 @@
   "The 3D view is not available on this device.": "Il-veduta 3D mhix disponibbli fuq dan it-tagħmir.",
   "Loading map…": "Il-mappa qed titgħabba…",
   "The map could not load. Reload the page to try again.": "Il-mappa ma setgħetx titgħabba. Erġa’ għabbi l-paġna biex terġa’ tipprova.",
-  "Skip to main content": "Aqbeż għall-kontenut ewlieni"
+  "Skip to main content": "Aqbeż għall-kontenut ewlieni",
+  "Show QR code": "Uri l-kodiċi QR",
+  "Scan to open this tour": "Skennja biex tiftaħ dan it-tour",
+  "Scan to open this object": "Skennja biex tiftaħ dan l-oġġett",
+  "Scan to open this content": "Skennja biex tiftaħ dan il-kontenut",
+  "Download as SVG": "Niżżel bħala SVG",
+  "Download as PNG": "Niżżel bħala PNG",
+  "For printing: the downloaded code opens the app in this museum.": "Għall-istampar: il-kodiċi mniżżel jiftaħ l-app f’dan il-mużew.",
+  "Are you at {{museum}}?": "Qiegħed f’{{museum}}?",
+  "Not now": "Mhux issa",
+  "Use the museum's app": "Uża l-app tal-mużew",
+  "Scan with your phone camera to open it in ArtAround.": "Skennja bil-kamera tat-telefon biex tiftħu f’ArtAround.",
+  "Download printable PDF": "Niżżel PDF għall-istampar",
+  "Print the QR codes of all objects": "Stampa l-kodiċijiet QR tal-oġġetti kollha"
 }

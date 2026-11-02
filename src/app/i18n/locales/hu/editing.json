@@ -108,5 +108,21 @@
   "No image": "Nincs kép",
   "Choose an image": "Kép kiválasztása",
   "Change image": "Kép módosítása",
-  "Remove image": "Kép eltávolítása"
+  "Remove image": "Kép eltávolítása",
+  "Museum color": "A múzeum színe",
+  "Buttons, links and highlights use it while visitors are in this museum. Leave empty for the default blue.": "A gombok, hivatkozások és kiemelések ezt használják, amíg a látogatók ebben a múzeumban vannak. Hagyd üresen az alapértelmezett kékhez.",
+  "Enter a color like #1b2a4a.": "Adj meg egy színt, például #1b2a4a.",
+  "Red marks the actions that delete something, so it cannot be the museum color.": "A piros a valamit törlő műveleteket jelöli, ezért nem lehet a múzeum színe.",
+  "Orange marks paid contents, so it cannot be the museum color.": "A narancssárga a fizetős tartalmakat jelöli, ezért nem lehet a múzeum színe.",
+  "Use {{color}} instead": "Használd inkább ezt: {{color}}",
+  "This color is close to one the app uses for tours, contents or the Navigator, so some highlights may look alike.": "Ez a szín hasonlít az egyikre, amelyet az app a túrákhoz, tartalmakhoz vagy a Navigatorhoz használ, ezért néhány kiemelés hasonlónak tűnhet.",
+  "We darkened this color so text and buttons stay readable.": "Sötétebbre vettük ezt a színt, hogy a szöveg és a gombok olvashatók maradjanak.",
+  "Your color": "A te színed",
+  "Used for buttons and links": "Gombokhoz és hivatkozásokhoz használjuk",
+  "Preview": "Előnézet",
+  "The app will use its default blue in this museum.": "Ebben a múzeumban az app az alapértelmezett kéket használja.",
+  "Reset to default": "Visszaállítás alapértelmezettre",
+  "Button": "Gomb",
+  "Tag": "Címke",
+  "Default blue": "Alapértelmezett kék"
 }
