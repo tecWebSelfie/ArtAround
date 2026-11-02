@@ -1,6 +1,5 @@
 import { expect as baseExpect, test, type Page } from '@playwright/test'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 /**
  * Group tours with two real browsers, a host and a guest, on the real Next
@@ -15,14 +14,8 @@ import { resolve } from 'node:path'
  * quiz) and a dev server. Set `E2E_SCREENSHOTS=<dir>` to keep screenshots.
  */
 const expect = baseExpect.configure({ timeout: 60_000 })
-const fixturePath = resolve('.e2e-fixtures/tour-navigation-fixture.json')
-const fixture = existsSync(fixturePath)
-  ? (JSON.parse(readFileSync(fixturePath, 'utf8')) as {
-      url: string
-      tourId: string
-      museumId: string
-    })
-  : null
+// Seeded by scripts/seed-tour-navigation.ts (see tests/helpers/tour-fixture.ts).
+const fixture = tourFixture
 const shots = process.env.E2E_SCREENSHOTS
 const at = (path: string) => `${new URL(fixture!.url).origin}${path}`
 const shot = async (page: Page, name: string) => {
@@ -30,7 +23,7 @@ const shot = async (page: Page, name: string) => {
 }
 
 test.beforeEach(() => {
-  test.skip(!fixture?.tourId, 'Run scripts/seed-tour-navigation.ts first.')
+  requireTourFixture()
   test.setTimeout(400_000)
 })
 

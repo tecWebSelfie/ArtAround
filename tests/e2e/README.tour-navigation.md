@@ -4,17 +4,21 @@ Seed a separate development museum with two ordered tour contents, one extra con
 three placed objects and a saved navmesh:
 
 ```powershell
-pnpm exec tsx scripts/seed-tour-navigation.ts
+pnpm seed:e2e
 ```
 
-The seed reuses its `[DEV] Tour navigation` records on subsequent runs. It does not
-queue model generation. It prints the tour URL and saves it in
-`.e2e-fixtures/tour-navigation-fixture.json`.
+`seed:e2e` runs the base seed first (`payload seed`: the `dev`/`test` super admin
+the login specs use, roles, demo users) and then `scripts/seed-tour-navigation.ts`.
+Both reuse their records on later runs; the tour seed does not queue model
+generation. It prints the tour URL and saves it in
+`.e2e-fixtures/tour-navigation-fixture.json`, which every fixture spec reads through
+`tests/helpers/tour-fixture.ts` (`TOUR_NAVIGATION_URL` only overrides the URL).
+Without the file the specs skip locally, with the command to run; with `CI` set
+they fail instead, so a suite can't go green without testing anything.
 
 With Next.js already running, run only this feature's browser checks:
 
 ```powershell
-$env:TOUR_NAVIGATION_URL = (Get-Content .e2e-fixtures/tour-navigation-fixture.json | ConvertFrom-Json).url
 $env:PLAYWRIGHT_USE_RUNNING_SERVER = 'true'
 $env:PLAYWRIGHT_CHANNEL = 'chrome' # Use installed Chrome; omit for Playwright Chromium.
 node node_modules/@playwright/test/cli.js test tests/e2e/tour-navigation.e2e.spec.ts tests/e2e/tour-qr.e2e.spec.ts --workers 1
@@ -24,7 +28,7 @@ Use `@playwright/test`'s own CLI as above: `pnpm exec playwright` resolves the
 newer `playwright` package (installed for Vitest browser mode), and a version
 mismatch with the specs' `@playwright/test` makes every spec fail to load.
 
-Route guidance and the voice assistant (they read the fixture file directly):
+Route guidance and the voice assistant:
 
 ```powershell
 node node_modules/@playwright/test/cli.js test tests/e2e/tour-guidance.e2e.spec.ts tests/e2e/voice-assistant.e2e.spec.ts --workers 1

@@ -1,0 +1,3 @@
+# Type errors are the slow check (~3.5 min), so they run once per push rather
+# than per commit. Skip on purpose with `git push --no-verify` or `HUSKY=0`.
+pnpm typecheck

@@ -130,6 +130,27 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
 
 ## Storybook MCP (`storybook` in `opencode.json`)
 
+## Checks
+
+- `pnpm typecheck`: regenerates Next's route types (`next typegen`; stale ones
+  break `tsc` after a route move) and runs `tsc --noEmit` with the memory it needs
+  (plain `tsc` aborts out of memory). It takes a few minutes: run it once, at the end.
+- `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
+  `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
+  `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
+  they skip locally without it and fail when `CI` is set. A skipped spec is not a pass.
+- Git hooks (husky, installed by `pnpm install` through the `prepare` script):
+  `pre-commit` runs lint-staged (`eslint --fix` + `prettier --write` on staged files
+  only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
+  hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
+  tests stay out of the hooks: they need the database and take too long.
+- Before opening a PR, run `/simplify` (reuse, simplification, efficiency) and
+  `/code-review` (correctness) by hand on the diff. They are deliberately not
+  wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
+  the working tree after staging, and a commit hook could loop on them.
+- MCP servers: the stdio ones in `.mcp.json` start through `scripts/mcp-npx.mjs`, so
+  the same file works on Windows and in Linux/macOS (cloud) sessions.
+
 ## Internationalization
 
 This project uses i18next. Locale files live in `.src/app/i18n/locales/${language}/${namespace}.json`; the source language is `en`. The app speaks English plus the other official EU languages (`SUPPORTED_LANGUAGES` in `i18n.config.ts`); when you add or change a key, translate it in every language folder, not only `it`. Run `npx i18next-cli extract` after adding or changing `t()` calls and `npx i18next-cli status` to see what is still untranslated.

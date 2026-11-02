@@ -17,20 +17,20 @@
     },
     "mantine-ui": {
       "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@mantine/mcp-server"],
+      "command": "node",
+      "args": ["scripts/mcp-npx.mjs", "-y", "@mantine/mcp-server"],
       "env": {}
     },
     "nextjs": {
       "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "next-devtools-mcp@latest"],
+      "command": "node",
+      "args": ["scripts/mcp-npx.mjs", "-y", "next-devtools-mcp@latest"],
       "env": {}
     },
     "shadcn": {
       "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "shadcn@latest", "mcp"],
+      "command": "node",
+      "args": ["scripts/mcp-npx.mjs", "shadcn@latest", "mcp"],
       "env": {}
     },
     "storybook": {
@@ -47,14 +47,14 @@
     },
     "chrome-devtools": {
       "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "chrome-devtools-mcp@latest"],
+      "command": "node",
+      "args": ["scripts/mcp-npx.mjs", "-y", "chrome-devtools-mcp@latest"],
       "env": {}
     },
     "playwright": {
       "type": "stdio",
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "@playwright/mcp@latest"],
+      "command": "node",
+      "args": ["scripts/mcp-npx.mjs", "-y", "@playwright/mcp@latest"],
       "env": {}
     }
   }
