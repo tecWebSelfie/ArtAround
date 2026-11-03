@@ -15,7 +15,9 @@
  * (`pnpm test:visual`), so ordinary story tests and the Storybook test panel
  * are unaffected and new stories don't fail for missing references.
  * `pnpm test:visual:update` (re)writes the references in `__screenshots__/`
- * (path set in vitest.config.mts).
+ * (path set in vitest.config.mts). Both run in the official Playwright Docker
+ * image (scripts/test-visual-docker.mjs), so a Windows PC and Linux cloud
+ * sessions capture with the same fonts and share one Linux reference set.
  *
  * A story opts out with `parameters: { visual: { disable: true } }` when it
  * renders content that never settles, such as the live WebGL map, the camera,
@@ -58,15 +60,14 @@ afterEach(async (context) => {
     await page.viewport(viewport.width, viewport.height)
     // A zero-height canvas means everything visible is portalled to <body>.
     const target = canvas.getBoundingClientRect().height > 0 ? canvas : canvas.ownerDocument.body
-    await expect.element(page.elementLocator(target)).toMatchScreenshot(
-      `${story.id}-${viewport.name}`,
-      {
+    await expect
+      .element(page.elementLocator(target))
+      .toMatchScreenshot(`${story.id}-${viewport.name}`, {
         screenshotOptions: { animations: 'disabled', caret: 'hide' },
         // The matcher retakes shots until two in a row match. With every file
         // running in parallel, its 5s default ran out even on static stories
         // that capture in ~1s on their own.
         timeout: 30_000,
-      },
-    )
+      })
   }
 }, 120_000) // two viewports, each with up to 30s to settle

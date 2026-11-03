@@ -58,7 +58,9 @@ export default defineConfig({
             toMatchScreenshot: {
               // One flat folder keyed by story id instead of a __screenshots__
               // folder beside every story file. Browser and platform stay in the
-              // name because font rendering differs between OSes.
+              // name because font rendering differs between OSes; the
+              // references are Linux ones, captured in the Playwright Docker
+              // image on every host (scripts/test-visual-docker.mjs).
               resolveScreenshotPath: ({ arg, browserName, platform, ext, root }) =>
                 `${root}/__screenshots__/${arg}-${browserName}-${platform}${ext}`
             }
