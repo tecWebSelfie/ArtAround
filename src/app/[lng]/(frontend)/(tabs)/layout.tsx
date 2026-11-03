@@ -14,8 +14,11 @@ import { NavBar } from './NavBar'
 export default async function TabsLayout({ children }: { children: React.ReactNode }) {
   const { account, myMuseums, currentMuseum, museums } = await getSiteChrome()
 
+  // Phones and tablets: a column at least one screen tall, so a tab page can
+  // fill the height between the top controls and the tab bar (the navigator
+  // home fits one screen this way). From md the pages simply flow.
   return (
-    <>
+    <Stack gap={0} mih={{ base: '100dvh', md: 'auto' }}>
       {/* Context controls (language, museum scope) live up here so the bottom
           bar keeps only the tabs and account entries. */}
       <Group
@@ -37,6 +40,7 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
           sizes the footer) plus a gap: the last row stays reachable. */}
       <Stack
         key={currentMuseum?.id ?? 'all'}
+        flex={1}
         pb={{
           base: 'calc(var(--app-shell-footer-offset, 0rem) + env(safe-area-inset-bottom) + var(--mantine-spacing-md))',
           md: 0,
@@ -47,6 +51,6 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
       <AppShellFooter component="nav" hiddenFrom="md">
         <NavBar account={account} myMuseums={myMuseums} />
       </AppShellFooter>
-    </>
+    </Stack>
   )
 }
