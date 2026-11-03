@@ -1,3 +1,4 @@
+import { SELF_ORIGIN } from '@/lib/localized'
 import { mintServerClient } from '@/lib/mint/mint-server-client'
 import {
   INTERACTIVE_MODEL_QUEUE,
@@ -36,8 +37,9 @@ async function objectThumbnailReference(
       req,
     })
     if (!thumbnail.url || !REFERENCE_TYPES.includes(thumbnail.mimeType ?? '')) return undefined
-    // Through Payload's own file route, so any storage adapter works.
-    const file = await fetch(new URL(thumbnail.url, req.url))
+    // Through Payload's own file route, so any storage adapter works; on the
+    // server's own origin (`SELF_ORIGIN`), not the request's public one.
+    const file = await fetch(new URL(thumbnail.url, SELF_ORIGIN))
     if (!file.ok) return undefined
     const bytes = Buffer.from(await file.arrayBuffer())
     if (bytes.byteLength > REFERENCE_MAX_BYTES) return undefined

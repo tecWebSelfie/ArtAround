@@ -18,7 +18,7 @@ export const getLocalizedPageDocument = cache(
   async <T extends 'objects' | 'contents'>(collection: T, id: string, lng: string) => {
     const { payload, user } = await getSession()
     const [result, media] = await Promise.all([
-      resolveLocalized(payload, process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000', {
+      resolveLocalized(payload, {
         collection,
         id,
         locale: normalizeLocale(lng) ?? 'en',

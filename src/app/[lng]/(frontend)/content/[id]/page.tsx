@@ -51,11 +51,15 @@ async function loadContentDetails(
   const authorId = typeof content.author === 'string' ? content.author : content.author?.id
   const categoryIds = (content.categories ?? []).map((c) => (typeof c === 'string' ? c : c.id))
   const imageIds = (content.images ?? []).map((i) => (typeof i === 'string' ? i : i.id))
-  const origin = process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000'
 
   const [objectText, objectMedia, author, categories, images, tours] = await Promise.all([
     objectId
-      ? resolveLocalized(payload, origin, { collection: 'objects', id: objectId, locale, user })
+      ? resolveLocalized(payload, {
+          collection: 'objects',
+          id: objectId,
+          locale,
+          user,
+        })
       : null,
     // Thumbnail and museum: relations the depth-0 localized read leaves as ids.
     objectId

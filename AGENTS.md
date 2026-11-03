@@ -9,7 +9,7 @@ for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-
 `.agents/skills/` is the source of truth for skills. Claude Code only reads
 `.claude/skills/`, and symlinks don't materialize on this Windows checkout
 (`core.symlinks=false`), so `payload`, `pascal-plugin-authoring`, `shadcn`,
-`i18next-localization`, `vercel-react-best-practices` and
+`i18next-localization`, `vercel-react-best-practices`, `cloud-preview` and
 `web-design-guidelines` are **copied** there (`impeccable` has its own copy).
 After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/`.
 
@@ -63,6 +63,14 @@ the wider feature flow. For a new or materially changed nontrivial file, briefly
 explain the file's role; at the relevant code, explain important decisions and
 invariants. Keep comments useful at a glance, and update or remove them when
 behavior changes; don't narrate obvious syntax line by line.
+
+## Cloud preview (`scripts/cloud-preview.sh`)
+
+In a Claude Code cloud session, the user tries the app from their own devices
+over Tailscale with HTTPS: use the `cloud-preview` skill (`pnpm preview:cloud`,
+then `pnpm dev`). [Cloud preview](docs/cloud-preview.md) covers why Tailscale,
+the one-time tailnet setup (tag, access rules, `TS_AUTHKEY`) and the limits.
+On a PC none of it applies.
 
 ## Museum theme (`src/lib/museum-palette.ts`)
 

@@ -8,6 +8,7 @@
     "build": "cross-env NODE_OPTIONS=\"--no-deprecation --max-old-space-size=8000\" next build",
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
+    "preview:cloud": "bash scripts/cloud-preview.sh",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:navmesh-schema": "typescript-json-schema tsconfig.json NavMesh --include src/lib/schemas/navmesh.ts --required --skipLibCheck --refs false --out src/lib/schemas/navmesh.schema.json",

@@ -36,8 +36,9 @@ const nextConfig: NextConfig = {
     '/api/qr-sheet': ['./public/fonts/**'],
   },
   // Dev only: lets a phone on the same Wi-Fi load `/_next/*` and HMR from the
-  // PC's LAN address (Next blocks non-localhost origins otherwise).
-  allowedDevOrigins: ['192.168.1.*'],
+  // PC's LAN address (Next blocks non-localhost origins otherwise), and a
+  // Tailscale name (`*.<tailnet>.ts.net`, the cloud preview: docs/cloud-preview.md).
+  allowedDevOrigins: ['192.168.1.*', '**.ts.net'],
   redirects() {
     return [
       {
