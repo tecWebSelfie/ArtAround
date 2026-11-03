@@ -64,10 +64,12 @@ if [ ! -x "$TOOLS/tailscale/tailscaled" ]; then
 fi
 if ! tailscaled_running; then
   # Userspace networking (no root network setup) and in-memory state: every
-  # container is a new, ephemeral machine. tailscaled reaches Tailscale
+  # container is a new, ephemeral machine. `--statedir` is still required:
+  # `tailscale serve` stores its HTTPS certificate there, and without it the
+  # certificate fails ("no TailscaleVarRoot"). tailscaled reaches Tailscale
   # through the session's HTTPS proxy (HTTPS_PROXY).
   nohup "$TOOLS/tailscale/tailscaled" --tun=userspace-networking --state=mem: \
-    --socket="$TS_SOCK" >"$TOOLS/tailscaled.log" 2>&1 &
+    --statedir="$TOOLS/tailscale-state" --socket="$TS_SOCK" >"$TOOLS/tailscaled.log" 2>&1 &
   for _ in $(seq 20); do [ -S "$TS_SOCK" ] && break; sleep 0.5; done
 fi
 if [ "$(ts status --json | json BackendState)" != Running ]; then
