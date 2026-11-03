@@ -32,6 +32,15 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind variants on Mantine's breakpoints (Tailwind's own `md` is 48rem,
+   Mantine's 62em), for what Mantine props can't express:
+   - below-md: phones and tablets, where `hiddenFrom="md"` elements show;
+   - fit-screen: those screens held upright and at least Mantine's xs
+     breakpoint tall, where a page can be fitted to one screen (the
+     navigator home). */
+@custom-variant below-md (@media (width < 62em));
+@custom-variant fit-screen (@media (width < 62em) and (orientation: portrait) and (height >= 36em));
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);

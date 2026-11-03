@@ -64,6 +64,21 @@ explain the file's role; at the relevant code, explain important decisions and
 invariants. Keep comments useful at a glance, and update or remove them when
 behavior changes; don't narrate obvious syntax line by line.
 
+## Responsive layout
+
+Layouts must stay responsive at every size: no pixel-precision tuning. Don't
+calibrate values to one screen (`100dvh - 565px`, offsets measured on one
+phone); let the layout adapt with flex/grid, fluid units, container queries,
+`clamp()` between design limits and Mantine breakpoints and spacing tokens.
+
+Style with the Mantine UI API first (components, style props, responsive
+props); add Tailwind utilities where Mantine has no API (container queries,
+grid templates, orientation or height media). Mantine breakpoints differ from
+Tailwind's: use the `below-md` / `fit-screen` variants in
+`src/app/[lng]/(frontend)/globals.css`, not Tailwind's `md:`. Mantine style
+props are inline styles, so a property a Tailwind variant overrides must be
+set with Tailwind too. Avoid CSS modules unless neither fits.
+
 ## Cloud preview (`scripts/cloud-preview.sh`)
 
 In a Claude Code cloud session, the user tries the app from their own devices
