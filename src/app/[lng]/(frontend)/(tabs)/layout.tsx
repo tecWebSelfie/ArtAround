@@ -18,7 +18,7 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
   // fill the height between the top controls and the tab bar (the navigator
   // home fits one screen this way). From md the pages simply flow.
   return (
-    <Stack gap={0} mih={{ base: '100dvh', md: 'auto' }}>
+    <Stack gap={0} className="below-md:min-h-dvh">
       {/* Context controls (language, museum scope) live up here so the bottom
           bar keeps only the tabs and account entries. */}
       <Group
@@ -26,7 +26,7 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
         justify="flex-end"
         gap="xs"
         wrap="nowrap"
-        px={{ base: 'md', sm: 'xl' }}
+        className="px-(--mantine-spacing-md) from-sm:px-(--mantine-spacing-xl)"
         pt="sm"
       >
         <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />

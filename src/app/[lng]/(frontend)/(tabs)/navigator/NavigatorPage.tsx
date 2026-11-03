@@ -16,7 +16,6 @@ const START_CARD = {
   // Phones: the card fills its half of the row, so a visual shrunk by a short
   // screen leaves the caption its width. From md the visual sets the width
   // (see the row below).
-  w: { base: '100%', md: 'min-content' },
   maw: '100%',
   // Both cards take the row's height, so captions of different lengths
   // don't leave one card shorter than the other.
@@ -24,31 +23,29 @@ const START_CARD = {
   // Below md each card is a width container (`@container`) for its visual's
   // size (StartVisual). In fit mode a card squeezed past its content clips
   // rather than spill onto the group form.
-  className: 'transition-shadow hover:shadow-md below-md:@container fit-screen:overflow-hidden',
+  className:
+    'w-full from-md:w-min transition-shadow hover:shadow-md below-md:@container fit-screen:overflow-hidden',
 } as const
 
 /**
- * The card body below md: a grid whose first row is the visual, at most a
- * square as wide as the card (capped at 12.5rem), the caption row under it.
- * With room the visual takes that maximum; squeezed (fit mode) it gives way
- * first and the caption keeps its lines. Spare height centres the two.
+ * Below md the card body is a grid: the visual's row is at most a square as
+ * wide as the card (`--start-visual`, the page's 12.5rem cap), the caption
+ * row under it. With room the visual takes that maximum; squeezed (fit mode)
+ * it gives way first and the caption keeps its lines. Spare height centres
+ * the two; the column spans the card (not the caption's width).
  */
 const CARD_BODY_CLASS =
-  'below-md:grid below-md:grid-rows-[minmax(0,min(100cqw,12.5rem))_auto] below-md:justify-items-center below-md:content-center'
+  'below-md:grid below-md:grid-rows-[minmax(0,min(100cqw,var(--start-visual)))_auto] below-md:content-center below-md:justify-stretch'
 
 /**
- * Holds a card's visual, sized by `--start-visual`. From md a plain centred
- * box (the visual is 12.5rem, set on the page). Below md it fills its grid
- * row and its inner box is a size container, out of flow: the visual is the
- * largest square that fits (`100cqmin`) whatever shape the row is squeezed
- * into, and the row's own height never depends on the visual.
+ * Holds a card's visual. Below md it fills its grid cell as a size container,
+ * so the cell's height never depends on the visual, and the visual is the
+ * largest square that fits (`100cqmin`). From md a plain centred box.
  */
 function StartVisual({ children }: { children: React.ReactNode }) {
   return (
-    <Center className="below-md:relative below-md:size-full">
-      <Box className="contents below-md:absolute below-md:inset-0 below-md:flex below-md:items-center below-md:justify-center below-md:[--start-visual:100cqmin] below-md:[container-type:size]">
-        {children}
-      </Box>
+    <Center className="below-md:size-full below-md:[--start-visual:100cqmin] below-md:[container-type:size]">
+      {children}
     </Center>
   )
 }
@@ -60,12 +57,9 @@ function StartVisual({ children }: { children: React.ReactNode }) {
  * the page keep client-side navigation and stories intercept it.
  *
  * Phones stack the group form under the QR/plan pair. Held upright (the
- * `fit-screen` variant, globals.css) the home fits one screen with no
- * per-screen tuning: it takes exactly the height between the top controls
- * and the tab bar (size containment), the QR/Plan row shrinks from its
- * natural size when that is short (its visuals give way) and never grows,
- * and the space above the title takes up to 10dvh. Other screens scroll
- * normally. From md the page sits
+ * `fit-screen` variant, globals.css) the home takes exactly the height
+ * between the top controls and the tab bar (size containment) and the
+ * QR/Plan row shrinks to fit it; other screens scroll. From md the page sits
  * in a bounded centered column and the three ways become one row of equal
  * columns divided by rules, so a wide screen reads them as peers instead of
  * a phone column stranded in white space.
@@ -84,29 +78,24 @@ export default function NavigatorHomePage({
     <Stack
       // `--start-visual`: side of the QR, the Plan circle and the desktop
       // group icon (smaller below md, see StartVisual).
-      className="[--start-visual:12.5rem] fit-screen:[contain:size]"
+      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] fit-screen:[contain:size]"
       flex={1}
+      // Explicit: the spacer below cancels this gap (`--stack-gap`).
       gap="md"
-      mx={{ base: 'md', sm: 'xl', md: 'auto' }}
-      maw={{ md: 1120 }}
-      w={{ md: '100%' }}
-      px={{ md: 'xl' }}
     >
-      {/* Breathing room above the title: 10dvh, or in fit mode whatever is
-          free up to that. It stands in for a top margin, so it cancels the
-          Stack gap after it. Tailwind throughout: Mantine's `h` would be an
-          inline style the variants can't override. */}
+      {/* Space above the title: 10dvh; in fit mode free height up to that.
+          A top margin that can flex, hence cancelling the gap after it. */}
       <Box
         aria-hidden
-        className="-mb-(--stack-gap) h-[10dvh] fit-screen:h-auto fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+        className="-mb-(--stack-gap) h-[10dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
       />
       {/* The search keeps a search-sized measure on wide screens. */}
-      <Stack gap="xl" w="100%" maw={{ md: 720 }} mx={{ md: 'auto' }}>
+      <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
         <NavigationHomeTitle />
         <NavigatorSearch lng={lng} onNavigate={onNavigate} />
       </Stack>
       <Divider
-        my={{ base: 'xs', md: 'md' }}
+        className="my-(--mantine-spacing-xs) from-md:my-(--mantine-spacing-md)"
         label={t('Or')}
         styles={{ label: { color: 'var(--mantine-color-gray-7)' } }}
       />
@@ -114,9 +103,7 @@ export default function NavigatorHomePage({
           form); from md one row of three peers divided by rules, the pair
           taking two thirds. */}
       <Flex
-        direction={{ base: 'column', md: 'row' }}
-        align="stretch"
-        gap={{ base: 'md', md: 'lg' }}
+        className="flex-col gap-(--mantine-spacing-md) from-md:flex-row from-md:gap-(--mantine-spacing-lg)"
         // May shrink below its content in fit mode (the cards row inside
         // gives way).
         mih={0}
@@ -128,14 +115,11 @@ export default function NavigatorHomePage({
             not blue: the visuals already carry the accent and blue text read
             too low-contrast on the white card. */}
         <Flex
+          className="gap-(--mantine-spacing-xs) from-sm:gap-(--mantine-spacing-md) from-md:flex-[2_1_0] from-md:gap-(--mantine-spacing-lg)"
+          miw={0}
           // A block's automatic minimum height is its whole content: 0 lets
           // the row shrink in fit mode (it never grows: flex 0 1 auto).
-          className="fit-screen:min-h-0"
-          align="stretch"
-          justify="center"
-          columnGap={{ base: 'xs', sm: 'md', md: 'lg' }}
-          flex={{ md: '2 1 0' }}
-          miw={0}
+          mih={0}
         >
           <Center flex="1 1 0" miw={0}>
             {/* Opens the camera scanner (/scan). The QR drawn here is only an
@@ -204,7 +188,7 @@ export default function NavigatorHomePage({
         </Flex>
         <Divider orientation="vertical" visibleFrom="md" />
         {/* Group tours: the code a friend or teacher gives out (JoinGroupForm → /room/{code}). */}
-        <Center flex={{ md: '1 1 0' }} miw={0}>
+        <Center miw={0} className="from-md:flex-[1_1_0]">
           <Stack align="center" gap="md">
             {/* Desktop only: gives the third way in the same visual weight as
                 the QR and the plan circle beside it (same size). Light, not
