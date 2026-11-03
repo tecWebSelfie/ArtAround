@@ -52,6 +52,12 @@ every Storybook story through the Vitest browser project and take several minute
 for that specific run**; propose the command and wait. Setup and opt-out
 (`parameters.visual.disable`) are documented in `.storybook/vitest.visual.ts`;
 references live in `__screenshots__/`, diffs in `.vitest-attachments/`.
+They run in the official Playwright Docker image on every host
+(`scripts/test-visual-docker.mjs`; Docker Desktop on Windows), so the Windows
+PC and Linux cloud sessions share one Linux reference set. Pass vitest filters
+after the command to run only some stories, e.g.
+`pnpm test:visual:update "src/app/[lng]/(frontend)/(tabs)/navigator/NavigatorPage.stories.tsx"`.
+`pnpm test:visual:run` is the bare run the container executes.
 
 Stories of async Server Components spread `serverComponentStory(Component)`
 (`src/mocks/server-component.tsx`) into their meta instead of calling
@@ -71,13 +77,21 @@ calibrate values to one screen (`100dvh - 565px`, offsets measured on one
 phone); let the layout adapt with flex/grid, fluid units, container queries,
 `clamp()` between design limits and Mantine breakpoints and spacing tokens.
 
-Style with the Mantine UI API first (components, style props, responsive
-props); add Tailwind utilities where Mantine has no API (container queries,
-grid templates, orientation or height media). Mantine breakpoints differ from
-Tailwind's: use the `below-md` / `fit-screen` variants in
-`src/app/[lng]/(frontend)/globals.css`, not Tailwind's `md:`. Mantine style
-props are inline styles, so a property a Tailwind variant overrides must be
-set with Tailwind too. Avoid CSS modules unless neither fits.
+Style with the Mantine UI API first (components, their props, static style
+props, `hiddenFrom`/`visibleFrom`). For anything responsive and for what
+Mantine has no API for (container queries, grid templates, orientation or
+height media), prefer Tailwind utilities: Mantine responsive props
+(`mx={{ base, md }}`) inject a `<style>` tag per instance, Tailwind classes
+cost nothing at runtime. Keep the Mantine prop instead when the Tailwind
+equivalent would work against Mantine's design system without meaning to
+(e.g. `Text`'s `fz`, which Mantine pairs with its own line height) or would
+be convoluted (long arbitrary `calc()` classes). Mantine breakpoints differ from Tailwind's: use the
+`from-sm` / `from-md` / `below-md` / `fit-screen` variants in
+`src/app/[lng]/(frontend)/globals.css`, not Tailwind's `sm:`/`md:`, and
+Mantine's tokens through their CSS variables (`gap-(--mantine-spacing-md)`).
+Mantine static style props are inline styles, so a property a Tailwind
+variant overrides must be set with Tailwind too. Avoid CSS modules unless
+neither fits.
 
 ## Cloud preview (`scripts/cloud-preview.sh`)
 
@@ -179,6 +193,12 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
   `/code-review` (correctness) by hand on the diff. They are deliberately not
   wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
   the working tree after staging, and a commit hook could loop on them.
+- Before pushing, run `/simplify` on the unpushed changes. When they touch the
+  UI, also run, if needed, `/impeccable extract` (move new reusable tokens and
+  components into the design system) and `/impeccable document` (bring
+  DESIGN.md in line with the shipped UI). Skip them when the push changes no
+  design: the step is a judgement call, not a ritual. Same reasons as above
+  for keeping them out of the `pre-push` hook.
 - MCP servers: the stdio ones in `.mcp.json` start through `scripts/mcp-npx.mjs`, so
   the same file works on Windows and in Linux/macOS (cloud) sessions.
 
