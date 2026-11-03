@@ -31,8 +31,19 @@ export default async function TabsLayout({ children }: { children: React.ReactNo
       </Group>
       {/* Keyed by the locked museum: switching museum remounts the tab, so
           client components that fetch on their own (the navigator search)
-          start over and fetch again within the new scope. */}
-      <Stack key={currentMuseum?.id ?? 'all'}>{children}</Stack>
+          start over and fetch again within the new scope.
+          Below md the tab bar is fixed over the page and these pages aren't in
+          `AppShellMain`, so reserve its height (offset + safe area, as Mantine
+          sizes the footer) plus a gap: the last row stays reachable. */}
+      <Stack
+        key={currentMuseum?.id ?? 'all'}
+        pb={{
+          base: 'calc(var(--app-shell-footer-offset, 0rem) + env(safe-area-inset-bottom) + var(--mantine-spacing-md))',
+          md: 0,
+        }}
+      >
+        {children}
+      </Stack>
       <AppShellFooter component="nav" hiddenFrom="md">
         <NavBar account={account} myMuseums={myMuseums} />
       </AppShellFooter>
