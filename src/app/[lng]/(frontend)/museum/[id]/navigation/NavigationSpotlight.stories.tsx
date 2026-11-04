@@ -80,3 +80,27 @@ export const NothingFound: Story = {
     await expect(await body.findByText('No results found')).toBeVisible()
   },
 }
+
+/**
+ * The on-screen equivalents of the controlled voice commands
+ * (`src/lib/voice-vocabulary.ts`): each phrase's command is a pill too.
+ */
+const voiceCommands = [
+  command('previous-stop', 'Previous stop', 'quick', { description: 'Tour' }),
+  command('what-is-this', 'What is this?', 'quick', { description: 'Position' }),
+  command('author', 'Who is the author?', 'quick', { description: 'Raphael' }),
+  command('style', 'What style is it?', 'quick', { description: 'High Renaissance' }),
+]
+
+export const VoiceCommandPills: Story = {
+  args: { commands: voiceCommands, nearby: [] },
+  play: async ({ canvasElement, args }) => {
+    spotlight.open()
+    const body = within(canvasElement.ownerDocument.body)
+    for (const { label } of voiceCommands) {
+      await expect(await body.findByRole('button', { name: label })).toBeVisible()
+    }
+    await userEvent.click(body.getByRole('button', { name: 'Who is the author?' }))
+    await expect(args.onRun).toHaveBeenCalledWith(voiceCommands[2])
+  },
+}

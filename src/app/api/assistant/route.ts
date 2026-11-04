@@ -1,4 +1,5 @@
 import { allowRequest } from '@/lib/rate-limit'
+import { matchControlledCommand } from '@/lib/voice-vocabulary'
 import { createGroq } from '@ai-sdk/groq'
 import { generateText, Output, transcribe } from 'ai'
 import { NextResponse } from 'next/server'
@@ -13,6 +14,10 @@ import { z } from 'zod'
  * The browser sends the commands it can run right now (the same list as the
  * navigation search). The model only *chooses* one of their ids; the browser
  * runs it, so there are no tool round-trips between servers.
+ *
+ * The controlled vocabulary comes first (`src/lib/voice-vocabulary.ts`): a
+ * transcript that is one of its fixed phrases ("avanti", "chi è l'autore?")
+ * runs its command without asking the model.
  */
 export const runtime = 'nodejs'
 
@@ -46,6 +51,8 @@ export async function POST(request: Request) {
     if (!transcript.trim()) return NextResponse.json({ transcript, reply: '', commandId: null })
 
     const ids = commands.data.map((command) => command.id)
+    const controlled = matchControlledCommand(transcript, ids)
+    if (controlled) return NextResponse.json({ transcript, reply: '', commandId: controlled })
     const { output } = await generateText({
       model: groq('openai/gpt-oss-120b'),
       // The schema is the whole contract: a short spoken reply, plus either
@@ -65,7 +72,9 @@ export async function POST(request: Request) {
         `Reply in the language with code "${language}".`,
         `Context: ${context}`,
         'Available commands (id: label, kind):',
-        ...commands.data.map((command) => `${command.id}: ${command.label}, ${command.description}`),
+        ...commands.data.map(
+          (command) => `${command.id}: ${command.label}, ${command.description}`,
+        ),
       ].join('\n'),
       prompt: transcript,
     })

@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import { validateBuildJson } from '@pascal-app/core'
 import { normalizeLocale } from '@/lib/localized'
 import { placedObjectIds, type NavigationCatalogObject } from '@/lib/tour-navigation'
-import type { Museum, Tour } from '@/payload-types'
+import type { Subject, Museum, Tour } from '@/payload-types'
 import { isLocked } from '@/lib/price'
 import { asViewer } from '@/lib/session'
 import type { NavigationTourSummary } from './TourNavigationShell'
@@ -113,19 +113,29 @@ export async function getNavigationCatalog(
   const objects = await payload.find({
     collection: 'objects',
     where: { id: { in: [...ids] } },
-    select: { name: true, contents: true },
+    select: { name: true, contents: true, creators: true, movements: true },
     // `price` + `body` let the server tell paid-and-locked contents apart.
     // Read as the visitor: field access withholds `body` exactly when they
     // aren't entitled to it, so `isLocked` needs no rules of its own.
-    populate: { contents: { title: true, price: true, body: true } },
+    populate: {
+      contents: { title: true, price: true, body: true },
+      subjects: { name: true },
+    },
     locale: normalizeLocale(lng) ?? 'en',
     depth: 1,
     pagination: false,
     ...(await asViewer()),
   })
+  // Populated subjects only, as `{ id, name }` (what the commands need).
+  const named = (list: (string | Subject)[] | null | undefined) =>
+    (list ?? []).flatMap((subject) =>
+      typeof subject === 'object' ? [{ id: String(subject.id), name: subject.name }] : [],
+    )
   return objects.docs.map((object) => ({
     id: object.id,
     name: object.name,
+    creators: named(object.creators),
+    movements: named(object.movements),
     // Only the summary crosses into the client: the body stays on the server.
     contents: (object.contents ?? []).flatMap((content) =>
       typeof content === 'string'

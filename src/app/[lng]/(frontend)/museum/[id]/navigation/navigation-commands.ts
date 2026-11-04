@@ -92,6 +92,9 @@ export function useNavigationCommands({
     const next = tour?.contents[scope.kind === 'tour' ? scope.step : 0]
     const nextId = typeof next === 'string' ? next : next?.id
     const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
+    const previous =
+      tour && scope.kind === 'tour' && scope.step > 0 ? tour.contents[scope.step - 1] : null
+    const previousId = typeof previous === 'string' ? previous : previous?.id
     const wheelchairAvailable = Boolean(museum.navMeshWheelchair)
     const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
 
@@ -104,6 +107,33 @@ export function useNavigationCommands({
               description: t('Tour'),
               group: 'quick' as const,
               href: href(navigationContentPath(lng, scope, nextId)),
+              replace: false,
+            },
+          ]
+        : []),
+      // "Indietro": the previous stop's content again (group guests can't,
+      // see the filter at the end: the host leads).
+      ...(previousId
+        ? [
+            {
+              id: 'previous-stop',
+              label: t('Previous stop'),
+              description: t('Tour'),
+              group: 'quick' as const,
+              href: href(navigationContentPath(lng, scope, previousId)),
+              replace: false,
+            },
+          ]
+        : []),
+      // "Cos'è questo?": the work at the visitor's confirmed position.
+      ...(search.get('at') && catalog.some((object) => object.id === search.get('at'))
+        ? [
+            {
+              id: 'what-is-this',
+              label: t('What is this?'),
+              description: t('Position'),
+              group: 'quick' as const,
+              href: href(`${here}/object/${search.get('at')}`),
               replace: false,
             },
           ]
@@ -263,6 +293,32 @@ export function useNavigationCommands({
     // On a content, the reading options are commands too ("non ho capito" →
     // Simpler). Voice picks fixed values: easiest wording, one-minute read.
     const contentOpen = /\/content\/[^/]+$|\/open$/.test(pathname)
+    // The work being looked at: the open object or content's object, the
+    // stop modal's, else the visitor's position. Its author and movement
+    // (Wikidata subjects) answer "who's the author?" and "what style is it?".
+    const openContentId =
+      /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
+    const work =
+      catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
+      catalog.find((object) => object.contents.some((content) => content.id === openContentId)) ??
+      catalog.find((object) => object.id === search.get('at'))
+    const about = (id: string, label: string, subject: { id: string; name: string } | undefined) =>
+      subject
+        ? [
+            {
+              id,
+              label,
+              description: subject.name,
+              group: 'quick' as const,
+              href: `/${lng}/subject/${subject.id}` as Route,
+              replace: false,
+            },
+          ]
+        : []
+    const subjects: NavigationCommand[] = [
+      ...about('author', t('Who is the author?'), work?.creators?.[0]),
+      ...about('style', t('What style is it?'), work?.movements?.[0]),
+    ]
     const version = (label: string, id: string, set: Record<string, string | null>) => {
       const params = new URLSearchParams(search)
       for (const [key, value] of Object.entries(set)) {
@@ -283,6 +339,8 @@ export function useNavigationCommands({
     const versions: NavigationCommand[] = contentOpen
       ? [
           version(t('Simpler'), 'version:simpler', { level: 'easy' }),
+          // "Troppo semplice": the most detailed wording.
+          version(t('More in depth'), 'version:harder', { level: 'hard' }),
           // A short version: half a minute, whatever the original's length.
           version(t('Shorter'), 'version:shorter', { seconds: '30' }),
           version(t('For children'), 'version:children', { audience: 'children' }),
@@ -293,7 +351,7 @@ export function useNavigationCommands({
           }),
         ]
       : []
-    const all = [...expansion, ...versions, ...quick, ...searchable]
+    const all = [...expansion, ...versions, ...subjects, ...quick, ...searchable]
     // In a group the host decides where everyone goes: a guest keeps only
     // what changes their own reading and route (Tell me more, reading
     // options, wheelchair), never a step, destination or another modal.

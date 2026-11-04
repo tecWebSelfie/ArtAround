@@ -3,7 +3,7 @@
 import type { Audience } from '@/lib/expansion'
 import type { Content, Difficulty } from '@/payload-types'
 import { Button, Group, Stack } from '@mantine/core'
-import { Baby, Clock, Feather, RotateCcw } from 'lucide-react'
+import { Baby, Clock, Feather, GraduationCap, RotateCcw } from 'lucide-react'
 import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
@@ -21,6 +21,8 @@ import { ExpansionText } from './ExpansionText'
  */
 
 const EASIER: Record<Difficulty, Difficulty | null> = { hard: 'medium', medium: 'easy', easy: null }
+// "Too simple": one level more detailed (the voice command asks for the hardest).
+const HARDER: Record<Difficulty, Difficulty | null> = { easy: 'medium', medium: 'hard', hard: null }
 const VERSION_KEYS = ['level', 'seconds', 'audience'] as const
 
 export function ContentVersion({
@@ -39,6 +41,7 @@ export function ContentVersion({
 
   const originalSeconds = content.durationSeconds || 60
   const simpler = EASIER[content.difficulty]
+  const deeper = HARDER[content.difficulty]
   // "Shorter" halves the length, down to a caption of a few seconds.
   const shorter = originalSeconds >= 10 ? Math.ceil(originalSeconds / 2) : null
   const level = (['easy', 'medium', 'hard'] as const).find((value) => value === search.get('level'))
@@ -67,13 +70,24 @@ export function ContentVersion({
         <Button
           size="compact-sm"
           radius="xl"
-          variant={level ? 'filled' : 'default'}
+          variant={level && level === simpler ? 'filled' : 'default'}
           leftSection={<Feather size={14} aria-hidden />}
-          disabled={!simpler && !level}
-          aria-pressed={Boolean(level)}
+          disabled={!simpler}
+          aria-pressed={Boolean(level && level === simpler)}
           onClick={() => toggle('level', simpler)}
         >
           {t('Simpler')}
+        </Button>
+        <Button
+          size="compact-sm"
+          radius="xl"
+          variant={level && level === deeper ? 'filled' : 'default'}
+          leftSection={<GraduationCap size={14} aria-hidden />}
+          disabled={!deeper}
+          aria-pressed={Boolean(level && level === deeper)}
+          onClick={() => toggle('level', deeper)}
+        >
+          {t('More in depth')}
         </Button>
         <Button
           size="compact-sm"

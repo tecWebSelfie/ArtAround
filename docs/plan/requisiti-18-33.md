@@ -122,12 +122,20 @@ Già decise:
     di un passo; Wikidata letta per Q-id (`externalSources(…, wikidataId)`).
     "Dimmi di meno" = "Più breve" (versione in secondi, punto 3). Test:
     `tests/int/expansion.int.spec.ts`; storie NavigationSpotlight e StepModal.
-- [ ] **7. Comandi a vocabolario controllato mancanti**
+- [x] **7. Comandi a vocabolario controllato mancanti**
   - Precedente, dimmi di meno, chi è l'autore, qual è lo stile, ci sono
     ostacoli, non ho capito.
   - Ognuno con il pulsante equivalente; autore e stile seguono i collegamenti
     del punto 5.
   - Prova: test sulla lista dei comandi; storie aggiornate.
+  - Fatto: vocabolario controllato in `src/lib/voice-vocabulary.ts` (frasi
+    italiane e inglesi, provate prima della LLM in `/api/assistant`); comandi
+    nuovi `previous-stop`, `what-is-this`, `author`, `style`, `version:harder`
+    con i loro pulsanti (pillole dello Spotlight, "Più approfondito" tra le
+    opzioni di lettura); "ci sono ostacoli" attiva il percorso senza barriere e
+    l'accessibilità del museo entra nel contesto dell'assistente. Test:
+    `tests/int/voice-vocabulary.int.spec.ts`; storie NavigationSpotlight
+    (Voice Command Pills), TourNavigation, StepModal.
 - [ ] **8. Contenuti privati e pubblici**
   - Campo `visibility` su contenuti e tour; accesso "pubblico, oppure autore,
     oppure tour del cookie di gruppo".

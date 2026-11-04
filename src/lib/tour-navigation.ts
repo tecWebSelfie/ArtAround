@@ -5,6 +5,13 @@ import type { Route } from 'next'
 /** URL and Payload/Pascal adapters shared across the tour navigation route tree. */
 export type NavigationCatalogObject = Pick<MuseumObject, 'id' | 'name'> & {
   contents: NavigationCatalogContent[]
+  /**
+   * The work's author and movement (`subjects`, from Wikidata), for the
+   * "who's the author?" and "what style is it?" commands. Optional: catalogs
+   * built before them, and stories, have none.
+   */
+  creators?: { id: string; name: string }[]
+  movements?: { id: string; name: string }[]
 }
 
 /**

@@ -426,6 +426,8 @@ export const TourNavigationPage = ({
                   : `Museum: ${museum.name}. Free visit, no tour.`,
                 destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
                 currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
+                // "Are there obstacles?": what the museum declares about access.
+                accessibilityContext(museum),
               ].join(' ')}
               language={lng}
               speech={speech}
@@ -439,6 +441,23 @@ export const TourNavigationPage = ({
       </AppShellFooter>
     </>
   )
+}
+
+/** The museum's declared accessibility, in words the assistant can repeat. */
+function accessibilityContext(museum: Museum) {
+  const access = museum.accessibility
+  if (!access) return ''
+  const features = [
+    access.stepFreeEntrance && 'step-free entrance',
+    access.elevator && 'elevator',
+    access.accessibleBathrooms && 'accessible toilets',
+    access.tactilePaths && 'tactile paths',
+  ].filter(Boolean)
+  return [
+    features.length ? `Accessibility: ${features.join(', ')}.` : 'Accessibility: nothing declared.',
+    museum.navMeshWheelchair ? 'A step-free route is available ("wheelchair" command).' : '',
+    access.notes ? `Accessibility notes: ${access.notes}` : '',
+  ].join(' ')
 }
 
 /** Human name of the current destination, for directions and their title. */
