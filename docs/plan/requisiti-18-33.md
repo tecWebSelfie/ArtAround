@@ -110,12 +110,18 @@ Già decise:
     (16 autori/movimenti con nomi nelle lingue di Wikidata) e due contenuti su
     Raffaello e Reni. Test: `tests/int/wikidata-subjects.int.spec.ts`, storia
     `ObjectDetailsModal` → With Subjects.
-- [ ] **6. "Dimmi di più" progressivo e "dimmi di meno"**
+- [x] **6. "Dimmi di più" progressivo e "dimmi di meno"**
   - Il modello riceve anche gli approfondimenti già letti; ogni passo è salvato
     a sé.
   - Wikidata letta per Q-id quando c'è.
   - "Dimmi di meno" = versione più breve dello stesso contenuto.
   - Prova: test sul prompt e sulla chiave della variante salvata.
+  - Fatto: `?step=` e pulsante "Dimmi ancora di più" (`ContentExpansion`); il
+    prompt riceve i passi precedenti (`alreadyRead`); `contentVariants.step` e
+    chiavi in `src/lib/expansion-variants.ts`; il comando vocale ripetuto avanza
+    di un passo; Wikidata letta per Q-id (`externalSources(…, wikidataId)`).
+    "Dimmi di meno" = "Più breve" (versione in secondi, punto 3). Test:
+    `tests/int/expansion.int.spec.ts`; storie NavigationSpotlight e StepModal.
 - [ ] **7. Comandi a vocabolario controllato mancanti**
   - Precedente, dimmi di meno, chi è l'autore, qual è lo stile, ci sono
     ostacoli, non ho capito.

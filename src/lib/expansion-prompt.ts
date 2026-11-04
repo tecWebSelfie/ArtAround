@@ -43,6 +43,7 @@ export function expansionPrompt({
   language,
   subject,
   text,
+  alreadyRead = [],
   links,
   sources,
 }: {
@@ -51,6 +52,11 @@ export function expansionPrompt({
   language: string
   subject: string
   text: string
+  /**
+   * Earlier "Tell me more" additions on the same angle, in order: the visitor
+   * has read them, so this one continues instead of starting over.
+   */
+  alreadyRead?: string[]
   links: ExpansionLink[]
   sources: { title: string; text: string }[]
 }) {
@@ -75,6 +81,15 @@ export function expansionPrompt({
       `Task: ${task(request)}`,
       `Subject: ${subject}`,
       `Original text:\n${text.slice(0, 6_000)}`,
+      alreadyRead.length
+        ? [
+            'The visitor has already read the original text and these additions, in this order.',
+            'Continue from where they stop: add only new information, never repeat or rephrase them.',
+            ...alreadyRead.map(
+              (addition, index) => `Addition ${index + 1}:\n${addition.slice(0, 3_000)}`,
+            ),
+          ].join('\n')
+        : '',
       links.length
         ? `Museum entities you may link:\n${links.map((link) => `/${link.kind}/${link.id}: ${linkLabel(link.title)}`).join('\n')}`
         : '',

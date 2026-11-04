@@ -13,7 +13,7 @@ import {
   type NavigationScope,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
-import { EXPANSION_ANGLES } from '@/lib/expansion'
+import { EXPANSION_ANGLES, MAX_EXPANSION_STEPS } from '@/lib/expansion'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import type { Route } from 'next'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -234,7 +234,8 @@ export function useNavigationCommands({
     ]
     // While a content, step or object modal is open, its "Tell me more" pills
     // are commands too, so the voice assistant can open them ("tell me
-    // something curious about it"). They only set `?more=` on the modal URL.
+    // something curious about it"). They only set `?more=` on the modal URL;
+    // asking again for the angle already open goes one step further (`?step=`).
     const modalOpen = /\/(content|object)\/[^/]+$|\/open$/.test(pathname)
     const moreLabels = {
       more: t('Tell me more'),
@@ -244,6 +245,10 @@ export function useNavigationCommands({
     const expansion: NavigationCommand[] = modalOpen
       ? EXPANSION_ANGLES.map((angle) => {
           const params = new URLSearchParams(search)
+          const step = Number(search.get('step')) || 1
+          if (search.get('more') === angle && step < MAX_EXPANSION_STEPS) {
+            params.set('step', String(step + 1))
+          } else if (search.get('more') !== angle) params.delete('step')
           params.set('more', angle)
           return {
             id: `more:${angle}`,
@@ -265,6 +270,7 @@ export function useNavigationCommands({
         else params.set(key, value)
       }
       params.delete('more')
+      params.delete('step')
       return {
         id,
         label,

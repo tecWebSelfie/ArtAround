@@ -296,6 +296,13 @@ ones only in their metadata (`generation` groups).
   appears one paragraph at a time and is read aloud when the assistant is on
   (one shared speech player, `speech-context.tsx`). Links are
   `[name](/object/ID)` to entities of the same museum only (`expansion.ts`).
+  "Tell me even more" continues the same angle (`?step=2`, up to
+  `MAX_EXPANSION_STEPS`): the model gets the earlier steps as text the
+  visitor has already read and adds only new information; each step is its
+  own `contentVariants` document (`step`, lookup keys in
+  `src/lib/expansion-variants.ts`). Asking the voice assistant again for the
+  open angle goes one step further. A work with a `wikidataId` has its
+  Wikidata statements read directly, without a name search.
 - **Listen** (`ContentAudioButton`, beside the length in every content view):
   the base text read aloud in the page's language. `contentAudio` keeps one
   MP3 per content and locale with a `textHash` of the text it reads

@@ -4,10 +4,12 @@ import {
   EXPANSION_ANGLES,
   keepKnownLinks,
   LINKS_HEADER,
+  MAX_EXPANSION_STEPS,
+  type ExpansionAngle,
   type ExpansionLink,
-  type ExpansionRequest,
 } from '@/lib/expansion'
 import { expansionPrompt } from '@/lib/expansion-prompt'
+import { previousStepsWhere, variantWhere } from '@/lib/expansion-variants'
 import { externalSources, type ExternalSource } from '@/lib/expansion-sources'
 import { normalizeLocale } from '@/lib/localized'
 import { lockedMuseumId } from '@/lib/museum-mode'
@@ -25,7 +27,7 @@ import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintex
 import { streamText } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
-import { getPayload, type Where } from 'payload'
+import { getPayload } from 'payload'
 import { z } from 'zod'
 
 /**
@@ -53,7 +55,11 @@ const Body = z.object({
   id: z.string().min(1).max(64),
   lng: z.string().min(2).max(10),
   request: z.discriminatedUnion('kind', [
-    z.object({ kind: z.literal('more'), angle: z.enum(EXPANSION_ANGLES) }),
+    z.object({
+      kind: z.literal('more'),
+      angle: z.enum(EXPANSION_ANGLES),
+      step: z.number().int().min(1).max(MAX_EXPANSION_STEPS).optional(),
+    }),
     z.object({
       kind: z.literal('version'),
       difficulty: z.enum(['easy', 'medium', 'hard']),
@@ -64,23 +70,29 @@ const Body = z.object({
   ]),
 })
 
-/** Where to look for a saved variant answering the same request. */
-function variantWhere(
+/**
+ * The additions on the same angle before `step`, in order, as the visitor
+ * read them (plain text). The client asks for steps in order, so they are
+ * normally all saved; a missing one is simply left out.
+ */
+async function previousAdditions(
+  payload: Awaited<ReturnType<typeof getPayload>>,
   target: 'contents' | 'objects',
   id: string,
-  request: ExpansionRequest,
-): Where {
-  const owner: Where =
-    target === 'contents' ? { content: { equals: id } } : { object: { equals: id } }
-  const keys: Where[] =
-    request.kind === 'more'
-      ? [{ angle: { equals: request.angle } }]
-      : [
-          { difficulty: { equals: request.difficulty } },
-          { durationSeconds: { equals: request.seconds } },
-          { audience: { equals: request.audience } },
-        ]
-  return { and: [{ kind: { equals: request.kind } }, owner, ...keys] }
+  angle: ExpansionAngle,
+  step: number,
+  locale: NonNullable<ReturnType<typeof normalizeLocale>>,
+): Promise<string[]> {
+  const { docs } = await payload.find({
+    collection: 'contentVariants',
+    where: previousStepsWhere(target, id, angle, step),
+    locale,
+    fallbackLocale: false,
+    sort: 'step',
+    depth: 0,
+    pagination: false,
+  })
+  return docs.flatMap((doc) => (doc.body ? [convertLexicalToPlaintext({ data: doc.body })] : []))
 }
 
 function thumbnailUrl(object: Pick<MuseumObject, 'thumbnail'>) {
@@ -224,9 +236,17 @@ export async function POST(request: Request) {
   }
 
   // 4. Write it now: external facts first, then one streamed model call.
+  // A further "Tell me more" continues the previous additions on the same
+  // angle: the model gets them too, as text the visitor has already read.
+  const alreadyRead =
+    ask.kind === 'more' && (ask.step ?? 1) > 1
+      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale)
+      : []
   const sources: ExternalSource[] = await externalSources(
     subject.object?.name ?? subject.name,
     locale,
+    // The work's own Wikidata item when it has one: no search, no namesake.
+    subject.object?.wikidataId ?? undefined,
   ).catch(() => [])
   const result = streamText({
     model: groq(MODEL),
@@ -235,6 +255,7 @@ export async function POST(request: Request) {
       language: IsoCodes.getName(locale) || 'English',
       subject: subject.name,
       text: subject.text,
+      alreadyRead,
       links,
       sources,
     }),
@@ -261,7 +282,7 @@ export async function POST(request: Request) {
               kind: ask.kind,
               ...(target === 'contents' ? { content: id } : { object: id }),
               ...(ask.kind === 'more'
-                ? { angle: ask.angle }
+                ? { angle: ask.angle, step: ask.step ?? 1 }
                 : {
                     difficulty: ask.difficulty,
                     audience: ask.audience,

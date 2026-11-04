@@ -52,6 +52,7 @@ export function ContentVersion({
     else query.set(key, value)
     // A new version comes with its own text: any "Tell me more" closes.
     query.delete('more')
+    query.delete('step')
     router.replace(`${pathname}?${query}` as Route, { scroll: false })
   }
   const original = () => {

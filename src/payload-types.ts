@@ -2431,6 +2431,7 @@ export interface ContentVariant {
   content?: (string | null) | Content
   object?: (string | null) | Object
   angle?: ('more' | 'curiosities' | 'story') | null
+  step?: number | null
   difficulty?: ('easy' | 'medium' | 'hard') | null
   audience?: ('everyone' | 'children') | null
   durationSeconds?: number | null
@@ -4480,6 +4481,7 @@ export interface ContentVariantsSelect<T extends boolean = true> {
   content?: T
   object?: T
   angle?: T
+  step?: T
   difficulty?: T
   audience?: T
   durationSeconds?: T

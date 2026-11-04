@@ -42,16 +42,29 @@ function withTimeout<T>(promise: Promise<T>): Promise<T> {
   ])
 }
 
-async function wikidataFacts(query: string, lang: string): Promise<ExternalSource | null> {
+/**
+ * Facts about the work from Wikidata. With the work's own Q-id
+ * (`objects.wikidataId`) its statements are read directly; without one, the
+ * first search result for the name is used, which may be a namesake.
+ */
+async function wikidataFacts(
+  query: string,
+  lang: string,
+  wikidataId?: string,
+): Promise<ExternalSource | null> {
   const client = await createMCPClient({ transport: { type: 'http', url: WIKIDATA_MCP_URL } })
   try {
     const tools = await client.tools()
     const call = { toolCallId: 'expand', messages: [], context: {} }
-    // Lines look like "Q867403: Madonna with the Long Neck — painting by Parmigianino".
-    const found = toolText(await tools.search_items.execute({ query, lang }, call))
-    const first = /^(Q\d+): (.+)$/m.exec(found)
-    if (!first) return null
-    const [, qid, label] = first
+    let qid = wikidataId
+    let label = query
+    if (!qid) {
+      // Lines look like "Q867403: Madonna with the Long Neck — painting by Parmigianino".
+      const found = toolText(await tools.search_items.execute({ query, lang }, call))
+      const first = /^(Q\d+): (.+)$/m.exec(found)
+      if (!first) return null
+      ;[, qid, label] = first as unknown as [string, string, string]
+    }
     const facts = toolText(await tools.get_statements.execute({ entity_id: qid, lang }, call))
     return {
       title: `Wikidata: ${label}`,
@@ -91,9 +104,13 @@ async function wikipediaSummary(query: string, lang: string): Promise<ExternalSo
 }
 
 /** Both lookups in parallel; whatever answers in time is used. */
-export async function externalSources(query: string, lang: string): Promise<ExternalSource[]> {
+export async function externalSources(
+  query: string,
+  lang: string,
+  wikidataId?: string,
+): Promise<ExternalSource[]> {
   const results = await Promise.allSettled([
-    withTimeout(wikidataFacts(query, lang)),
+    withTimeout(wikidataFacts(query, lang, wikidataId)),
     withTimeout(wikipediaSummary(query, lang)),
   ])
   return results.flatMap((result) =>
