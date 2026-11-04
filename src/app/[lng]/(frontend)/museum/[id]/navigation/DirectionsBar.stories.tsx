@@ -98,18 +98,12 @@ export const AllStepsModal: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Show all directions' }))
     const body = within(canvasElement.ownerDocument.body)
     const dialog = await body.findByRole('dialog', { name: 'Directions to Attic amphora' })
-    // Mantine's modal fades in; wait for it rather than asserting mid-transition.
-    await waitFor(
-      () =>
-        expect(
-          within(dialog).getByText('Turn left through Ingresso archeologia into Archeologia'),
-        ).toBeVisible(),
-      { timeout: 5_000 },
-    )
+    await expect(
+      within(dialog).getByText('Turn left through Ingresso archeologia into Archeologia'),
+    ).toBeVisible()
     // Choosing a step in the list jumps the bar to it and closes the modal.
     await userEvent.click(within(dialog).getByText('Attic amphora is on your left'))
-    // …and fades out.
-    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull(), { timeout: 5_000 })
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
     await expect(canvas.getByText('Attic amphora is on your left')).toBeVisible()
   },
 }

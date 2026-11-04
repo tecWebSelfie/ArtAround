@@ -22,10 +22,7 @@ let lastBody: unknown
 
 /** The modal renders in a portal, so it is found on the page rather than the canvas. */
 async function fillAndOpen(name: string, { showResults = false } = {}) {
-  // Mantine's modal fades in; under the visual run's load that can outlast
-  // findBy's 1s default, so give it the same 5s the other modal stories use.
-  const field = await screen.findByRole('textbox', { name: 'Your name' }, { timeout: 5_000 })
-  await userEvent.type(field, name)
+  await userEvent.type(await screen.findByRole('textbox', { name: 'Your name' }), name)
   if (showResults) {
     await userEvent.click(screen.getByRole('checkbox', { name: 'See everyone’s quiz results' }))
   }

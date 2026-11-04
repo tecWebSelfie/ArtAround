@@ -12,8 +12,8 @@ const meta = {
   },
   parameters: {
     layout: 'fullscreen',
-    // The hero word keeps cycling (TypeWriterText) and the search border keeps
-    // animating, so no two screenshots match.
+    // The hero word keeps cycling (TypeWriterText ignores reduced motion), so
+    // no two screenshots match.
     visual: { disable: true },
   },
   tags: ['autodocs'],

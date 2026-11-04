@@ -43,14 +43,21 @@ export default defineConfig({
         browser: {
           enabled: true,
           headless: true,
-          // Visual runs resize the story iframe to 390×844 and 1280×800 (see
-          // .storybook/vitest.visual.ts). The test UI scales the iframe down to
-          // fit the browser window, so give it room for both at 1:1 pixels.
-          provider: playwright(
-            process.env.VISUAL_REGRESSION === '1'
-              ? { contextOptions: { viewport: { width: 1600, height: 1100 } } }
-              : {},
-          ),
+          provider: playwright({
+            contextOptions: {
+              // The browser asks for reduced motion, and the theme honours it
+              // (`respectReducedMotion`): Mantine's modal, Spotlight and other
+              // transitions finish at once, so play functions never wait on a
+              // fade (see .storybook/vitest.visual.ts).
+              reducedMotion: 'reduce',
+              // Visual runs resize the story iframe to 390×844 and 1280×800 (see
+              // .storybook/vitest.visual.ts). The test UI scales the iframe down
+              // to fit the browser window, so give it room for both at 1:1 pixels.
+              ...(process.env.VISUAL_REGRESSION === '1'
+                ? { viewport: { width: 1600, height: 1100 } }
+                : {}),
+            },
+          }),
           instances: [{
             browser: 'chromium'
           }],

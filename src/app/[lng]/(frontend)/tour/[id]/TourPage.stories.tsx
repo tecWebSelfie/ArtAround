@@ -80,9 +80,8 @@ export const WithLockedContents: Story = {
     // The purchase modal portals to <body>.
     const body = canvasElement.ownerDocument.body
     await userEvent.click(await within(body).findByRole('button', { name: /Unlock for/ }))
-    // The modal opens with a transition, slower than findBy's 1s default under load.
     await expect(
-      within(body).findByRole('link', { name: /Replace the paid contents/ }, { timeout: 15_000 }),
+      within(body).findByRole('link', { name: /Replace the paid contents/ }),
     ).resolves.toHaveAttribute('href', `/en/tour/new?from=${mockTourWithContents.id}`)
   },
 }

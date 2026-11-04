@@ -19,9 +19,14 @@
  * image (scripts/test-visual-docker.mjs), so a Windows PC and Linux cloud
  * sessions capture with the same fonts and share one Linux reference set.
  *
+ * Every story test (visual or not) runs in a browser that asks for reduced
+ * motion (vitest.config.mts), and the theme honours it: Mantine transitions
+ * (modals, Spotlight) are instant and BorderAnimate rings are off, so play
+ * functions need no waits for a fade.
+ *
  * A story opts out with `parameters: { visual: { disable: true } }` when it
- * renders content that never settles, such as the live WebGL map, the camera,
- * or the cycling hero word.
+ * renders content that never settles even so, such as the live WebGL map, the
+ * camera, or the cycling hero word.
  */
 import { afterEach, expect, inject } from 'vitest'
 import { page } from 'vitest/browser'
