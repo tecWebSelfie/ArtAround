@@ -138,5 +138,9 @@
   "Walk west": "Eik į vakarus",
   "Wheelchair route": "Maršrutas vežimėliu",
   "your destination": "tavo tikslas",
-  "Your guide will move on to the next stop": "Tavo gidas pereis prie kitos stotelės"
+  "Your guide will move on to the next stop": "Tavo gidas pereis prie kitos stotelės",
+  "Listen": "Klausyti",
+  "Pause": "Pristabdyti",
+  "Preparing the audio": "Ruošiamas garsas",
+  "Audio not available": "Garsas nepasiekiamas"
 }

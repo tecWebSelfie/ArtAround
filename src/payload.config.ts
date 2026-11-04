@@ -48,6 +48,9 @@ import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext
 import { persistMintModelAssets } from './tasks/persistMintModelAssets'
 import { pollMintModelOperation } from './tasks/pollMintModelOperation'
 import { startMintModelGeneration } from './tasks/startMintModelGeneration'
+import { generateContentAudioTask } from './tasks/generateContentAudio'
+import { ContentAudio } from './collections/ContentAudio'
+import { AUDIO_QUEUE } from './lib/content-audio'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { ContentVariants } from './collections/ContentVariants'
@@ -135,6 +138,8 @@ export default buildConfig({
     ContentImages,
     // Generated or hand-written additions and versions of contents (/api/expand).
     ContentVariants,
+    // Read-aloud MP3 of each content's text, per locale (src/lib/content-audio.ts).
+    ContentAudio,
     Tour,
     ToursThumbnails,
     QuizQuestions,
@@ -412,12 +417,15 @@ export default buildConfig({
     deleteJobOnComplete: false,
     autoRun: [
       { cron: '*/5 * * * * *', queue: 'interactive-models', disableScheduling: true },
+      // Content audio: a visitor waits for it after pressing "Listen".
+      { cron: '*/5 * * * * *', queue: AUDIO_QUEUE, disableScheduling: true },
       {
         cron: '*/5 * * * *', // Check every 5 minutes
         queue: 'default',
       },
     ],
     tasks: [
+      generateContentAudioTask, // reads a content aloud (src/lib/content-audio.ts)
       loadObjectGenerationContext, //this prepares the prompt and checks for model generation
       startMintModelGeneration, //this starts the model generation on Mint and returns the operation ID
       pollMintModelOperation, //this polls the Mint operation until it is completed or failed

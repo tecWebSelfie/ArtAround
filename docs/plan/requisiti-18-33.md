@@ -75,7 +75,7 @@ Già decise:
     (`?seconds=`); tour e planner convertono in minuti. Test:
     `tests/int/duration.int.spec.ts`; storie ContentsCarousel e
     ContentsSearchResults aggiornate al nuovo formato.
-- [ ] **4. Sintesi vocale del contenuto base**
+- [x] **4. Sintesi vocale del contenuto base**
   - Collection upload `contentAudio`: `content`, `locale`, `variant`?,
     `textHash`, `durationSec`, `model`, `voice`; indice univoco.
   - L'hook `afterChange` mette in coda un job sulla coda `speech` (intervallo
@@ -86,6 +86,14 @@ Già decise:
     "Ascolta" nel modale del contenuto.
   - La durata reale dell'audio aggiorna `durationSeconds`.
   - Prova: test su job, `textHash` e accesso; storia del pulsante.
+  - Fatto: collection `contentAudio` (`src/collections/ContentAudio.ts`), task
+    `generateContentAudio` (coda `speech`, ogni 5 s), hook `queueContentAudio`,
+    route `/api/content-audio/[id]` (legge il testo come il visitatore, supporta
+    Range), pulsante `ContentAudioButton` in tutte le viste del contenuto.
+    Variante per le versioni (bambini, semplice) non fatta: legge il testo base.
+    Test: `tests/int/content-audio.int.spec.ts` (Fish Audio simulato), storia
+    `ContentAudioButton`. Limite: la chiamata reale a Fish Audio non è
+    verificata qui, perché nell'ambiente cloud manca `FISH_API_KEY`.
 - [ ] **5. Soggetti e Wikidata**
   - Collection `subjects` (persona, movimento, evento) con `wikidataId`;
     `wikidataId` e `inventoryNumber` sulle opere.

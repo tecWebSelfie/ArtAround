@@ -107,6 +107,7 @@ export interface Config {
     contents: Content
     contentImages: ContentImage
     contentVariants: ContentVariant
+    contentAudio: ContentAudio
     tours: Tour
     toursThumbnails: ToursThumbnail
     quizQuestions: QuizQuestion
@@ -179,6 +180,7 @@ export interface Config {
     contents: ContentsSelect<false> | ContentsSelect<true>
     contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>
     contentVariants: ContentVariantsSelect<false> | ContentVariantsSelect<true>
+    contentAudio: ContentAudioSelect<false> | ContentAudioSelect<true>
     tours: ToursSelect<false> | ToursSelect<true>
     toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>
     quizQuestions: QuizQuestionsSelect<false> | QuizQuestionsSelect<true>
@@ -782,6 +784,7 @@ export interface Config {
   user: User | PayloadMcpApiKey
   jobs: {
     tasks: {
+      generateContentAudio: TaskGenerateContentAudio
       loadObjectGenerationContext: TaskLoadObjectGenerationContext
       startMintModelGeneration: TaskStartMintModelGeneration
       pollMintModelOperation: TaskPollMintModelOperation
@@ -2488,6 +2491,30 @@ export interface MuseumMap {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentAudio".
+ */
+export interface ContentAudio {
+  id: string
+  content: string | Content
+  locale: string
+  textHash: string
+  durationSeconds?: number | null
+  model?: string | null
+  voice?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "quizAttempts".
  */
 export interface QuizAttempt {
@@ -3641,6 +3668,7 @@ export interface PayloadJob {
         completedAt: string
         taskSlug:
           | 'inline'
+          | 'generateContentAudio'
           | 'loadObjectGenerationContext'
           | 'startMintModelGeneration'
           | 'pollMintModelOperation'
@@ -3691,6 +3719,7 @@ export interface PayloadJob {
   taskSlug?:
     | (
         | 'inline'
+        | 'generateContentAudio'
         | 'loadObjectGenerationContext'
         | 'startMintModelGeneration'
         | 'pollMintModelOperation'
@@ -3768,6 +3797,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contentVariants'
         value: string | ContentVariant
+      } | null)
+    | ({
+        relationTo: 'contentAudio'
+        value: string | ContentAudio
       } | null)
     | ({
         relationTo: 'tours'
@@ -4390,6 +4423,29 @@ export interface ContentVariantsSelect<T extends boolean = true> {
       }
   updatedAt?: T
   createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentAudio_select".
+ */
+export interface ContentAudioSelect<T extends boolean = true> {
+  content?: T
+  locale?: T
+  textHash?: T
+  durationSeconds?: T
+  model?: T
+  voice?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5268,6 +5324,20 @@ export interface CollectionsWidget {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskGenerateContentAudio".
+ */
+export interface TaskGenerateContentAudio {
+  input: {
+    contentId: string
+    locale: string
+  }
+  output: {
+    status: string
+    seconds?: number | null
+  }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskLoadObjectGenerationContext".
  */
 export interface TaskLoadObjectGenerationContext {
@@ -5500,6 +5570,7 @@ export interface TaskCreateCollectionExport {
       | 'contents'
       | 'contentImages'
       | 'contentVariants'
+      | 'contentAudio'
       | 'tours'
       | 'toursThumbnails'
       | 'quizQuestions'

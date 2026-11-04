@@ -132,5 +132,9 @@
   "Walk west": "Gå mod vest",
   "Wheelchair route": "Kørestolsrute",
   "your destination": "din destination",
-  "Your guide will move on to the next stop": "Din guide går videre til næste stop"
+  "Your guide will move on to the next stop": "Din guide går videre til næste stop",
+  "Listen": "Lyt",
+  "Pause": "Pause",
+  "Preparing the audio": "Lyden forberedes",
+  "Audio not available": "Lyd ikke tilgængelig"
 }

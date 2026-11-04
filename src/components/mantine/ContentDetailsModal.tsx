@@ -1,4 +1,5 @@
 import { Content } from '@/payload-types'
+import { ContentAudioButton } from '@/components/mantine/ContentAudioButton'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { Alert, Group, Modal, ModalProps, Stack, Title, Typography } from '@mantine/core'
 import { RichText } from '@payloadcms/richtext-lexical/react'
@@ -22,7 +23,8 @@ export const ContentDetailsModal = ({
  *
  * Hook-free (server pages render it too). The title is a real Mantine
  * heading (a bare `<h2>` is reset to body text by Tailwind's preflight), the
- * reading time sits under it, and the rich text gets Mantine's typography
+ * length and the "Listen" button (the text read aloud, a client island) sit
+ * under it, and the rich text gets Mantine's typography
  * at a ~68ch measure so long texts stay comfortable to read.
  */
 export function ContentDetailsModalContent({
@@ -37,9 +39,12 @@ export function ContentDetailsModalContent({
       <Title order={2} className="text-balance">
         {content.title}
       </Title>
-      {content.durationSeconds ? (
+      {content.durationSeconds || content.body ? (
         <Group gap="xs">
-          <DurationBadge seconds={content.durationSeconds} variant="light" color="gray" />
+          {content.durationSeconds ? (
+            <DurationBadge seconds={content.durationSeconds} variant="light" color="gray" />
+          ) : null}
+          {content.body ? <ContentAudioButton contentId={String(content.id)} /> : null}
         </Group>
       ) : null}
       {content.body ? (

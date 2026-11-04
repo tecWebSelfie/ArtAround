@@ -141,5 +141,9 @@
   "Walk west": "Imxi lejn il-punent",
   "Wheelchair route": "Rotta għas-siġġu tar-roti",
   "your destination": "id-destinazzjoni tiegħek",
-  "Your guide will move on to the next stop": "Il-gwida tiegħek se tgħaddi għall-waqfa li jmiss"
+  "Your guide will move on to the next stop": "Il-gwida tiegħek se tgħaddi għall-waqfa li jmiss",
+  "Listen": "Isma’",
+  "Pause": "Pawża",
+  "Preparing the audio": "Qed jitħejja l-awdjo",
+  "Audio not available": "L-awdjo mhux disponibbli"
 }

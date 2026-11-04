@@ -32,6 +32,7 @@ import {
   type PayloadRequest,
   type Where,
 } from 'payload'
+import { AUDIO_QUEUE } from '@/lib/content-audio'
 import { estimateSeconds } from '@/lib/duration'
 import { imageUpload } from '../fields/imageUpload'
 
@@ -244,6 +245,42 @@ const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, prev
   return doc
 }
 
+/**
+ * Read-aloud audio of the base text (`src/lib/content-audio.ts`): when the
+ * English source (the language contents are written in) is created or its
+ * title or text changes, a `generateContentAudio` job refreshes its MP3.
+ * Other languages are generated on demand by `/api/content-audio/[id]`, when
+ * someone first listens to a translation. Without a speech API key nothing is
+ * queued, so seeds and local setups don't pile up failing jobs.
+ */
+const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
+  doc,
+  previousDoc,
+  req,
+  operation,
+  context,
+}) => {
+  if (context.skipContentAudio || !process.env.FISH_API_KEY) return doc
+  if ((req.locale ?? 'en') !== 'en') return doc
+  const changed =
+    operation === 'create' ||
+    doc.title !== previousDoc?.title ||
+    JSON.stringify(doc.body) !== JSON.stringify(previousDoc?.body)
+  if (!changed || !doc.body) return doc
+  try {
+    await req.payload.jobs.queue({
+      task: 'generateContentAudio',
+      input: { contentId: String(doc.id), locale: 'en' },
+      queue: AUDIO_QUEUE,
+      req,
+    })
+  } catch (error) {
+    // Audio is derived data: never fail the content save over it.
+    req.payload.logger.error({ err: error, msg: `Could not queue the audio of ${doc.id}` })
+  }
+  return doc
+}
+
 export const Contents: CollectionConfig = {
   slug: 'contents',
   access: {
@@ -255,7 +292,7 @@ export const Contents: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, guardRights, storeDuration],
-    afterChange: [attachToObject, refreshTourPrices],
+    afterChange: [attachToObject, refreshTourPrices, queueContentAudio],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
   },

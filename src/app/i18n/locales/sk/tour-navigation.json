@@ -138,5 +138,9 @@
   "Walk west": "Choď na západ",
   "Wheelchair route": "Bezbariérová trasa",
   "your destination": "tvoj cieľ",
-  "Your guide will move on to the next stop": "Tvoj sprievodca prejde na ďalšiu zastávku"
+  "Your guide will move on to the next stop": "Tvoj sprievodca prejde na ďalšiu zastávku",
+  "Listen": "Vypočuť",
+  "Pause": "Pozastaviť",
+  "Preparing the audio": "Pripravujem zvuk",
+  "Audio not available": "Zvuk nie je k dispozícii"
 }

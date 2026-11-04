@@ -296,6 +296,18 @@ ones only in their metadata (`generation` groups).
   appears one paragraph at a time and is read aloud when the assistant is on
   (one shared speech player, `speech-context.tsx`). Links are
   `[name](/object/ID)` to entities of the same museum only (`expansion.ts`).
+- **Listen** (`ContentAudioButton`, beside the length in every content view):
+  the base text read aloud in the page's language. `contentAudio` keeps one
+  MP3 per content and locale with a `textHash` of the text it reads
+  (`src/lib/content-audio.ts`). The `contents` hook `queueContentAudio`
+  regenerates the English one when the title or text changes; other
+  languages are generated on first listen, once the translation exists
+  (`/api/content-audio/[id]`, statuses `ready`, `pending`, `translating`,
+  `locked`, `unavailable`). Task `generateContentAudio` on queue `speech`
+  (Fish Audio through AI SDK `generateSpeech`, long texts split by paragraph
+  and joined); the source audio's real length replaces the estimated
+  `durationSeconds`. The route reads the body as the visitor, so a locked paid
+  content has no audio either. Needs `FISH_API_KEY`.
 - **Simpler / Shorter / For children** (`ContentVersion`): `?level=`,
   `?seconds=` (half the original's length; the Spotlight command asks for 30),
   `?audience=children` replace the body with a saved or newly

@@ -135,5 +135,9 @@
   "Walk west": "Hodaj prema zapadu",
   "Wheelchair route": "Ruta za invalidska kolica",
   "your destination": "tvoje odredište",
-  "Your guide will move on to the next stop": "Tvoj vodič prijeći će na sljedeću postaju"
+  "Your guide will move on to the next stop": "Tvoj vodič prijeći će na sljedeću postaju",
+  "Listen": "Poslušaj",
+  "Pause": "Pauza",
+  "Preparing the audio": "Priprema zvuka",
+  "Audio not available": "Zvuk nije dostupan"
 }

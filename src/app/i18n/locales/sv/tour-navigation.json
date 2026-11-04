@@ -132,5 +132,9 @@
   "Walk west": "Gå västerut",
   "Wheelchair route": "Rullstolsrutt",
   "your destination": "din destination",
-  "Your guide will move on to the next stop": "Din guide går vidare till nästa stopp"
+  "Your guide will move on to the next stop": "Din guide går vidare till nästa stopp",
+  "Listen": "Lyssna",
+  "Pause": "Pausa",
+  "Preparing the audio": "Ljudet förbereds",
+  "Audio not available": "Ljud inte tillgängligt"
 }

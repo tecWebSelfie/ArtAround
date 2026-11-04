@@ -135,5 +135,9 @@
   "Walk west": "Marche vers l’ouest",
   "Wheelchair route": "Itinéraire en fauteuil roulant",
   "your destination": "ta destination",
-  "Your guide will move on to the next stop": "Votre guide passera à l'étape suivante"
+  "Your guide will move on to the next stop": "Votre guide passera à l'étape suivante",
+  "Listen": "Écouter",
+  "Pause": "Pause",
+  "Preparing the audio": "Préparation de l’audio",
+  "Audio not available": "Audio indisponible"
 }

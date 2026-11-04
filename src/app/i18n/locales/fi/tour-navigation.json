@@ -132,5 +132,9 @@
   "Walk west": "Kävele länteen",
   "Wheelchair route": "Pyörätuolireitti",
   "your destination": "määränpääsi",
-  "Your guide will move on to the next stop": "Oppaasi siirtyy seuraavaan kohteeseen"
+  "Your guide will move on to the next stop": "Oppaasi siirtyy seuraavaan kohteeseen",
+  "Listen": "Kuuntele",
+  "Pause": "Tauko",
+  "Preparing the audio": "Ääntä valmistellaan",
+  "Audio not available": "Ääntä ei ole saatavilla"
 }

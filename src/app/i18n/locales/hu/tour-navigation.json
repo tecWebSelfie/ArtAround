@@ -132,5 +132,9 @@
   "Walk west": "Menj nyugat felé",
   "Wheelchair route": "Kerekesszékes útvonal",
   "your destination": "az úti célod",
-  "Your guide will move on to the next stop": "A vezetőd továbblép a következő megállóhoz"
+  "Your guide will move on to the next stop": "A vezetőd továbblép a következő megállóhoz",
+  "Listen": "Meghallgatás",
+  "Pause": "Szünet",
+  "Preparing the audio": "A hang előkészítése",
+  "Audio not available": "A hang nem érhető el"
 }

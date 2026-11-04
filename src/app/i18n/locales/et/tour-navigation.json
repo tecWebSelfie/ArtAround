@@ -132,5 +132,9 @@
   "Walk west": "Kõnni lääne poole",
   "Wheelchair route": "Ratastoolimarsruut",
   "your destination": "sinu sihtkoht",
-  "Your guide will move on to the next stop": "Sinu giid liigub järgmise peatuse juurde"
+  "Your guide will move on to the next stop": "Sinu giid liigub järgmise peatuse juurde",
+  "Listen": "Kuula",
+  "Pause": "Paus",
+  "Preparing the audio": "Heli valmistamine",
+  "Audio not available": "Heli pole saadaval"
 }
