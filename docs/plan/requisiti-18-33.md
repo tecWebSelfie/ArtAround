@@ -177,7 +177,8 @@ Già decise:
     "generated", "LLM" sui contenuti; `contentVariants.generation` e
     `contentAudio.model/voice` restano solo metadati. Le sole menzioni sono
     nell'editor della mappa ("Generated object preview"), uno strumento dello
-    staff per il modello 3D, non per gli item.
+    staff per il modello 3D, non per gli item. Test: `tests/int/no-ai-labels.int.spec.ts`
+    (nessun testo inglese rivolto ai visitatori nomina AI, generazione o LLM).
 
 ## Rimandati
 
