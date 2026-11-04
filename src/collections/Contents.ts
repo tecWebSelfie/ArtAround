@@ -307,7 +307,9 @@ export const Contents: CollectionConfig = {
       // reserved" (`guardRights`). The credit line shows it next to the holder.
       name: 'license',
       type: 'select',
-      required: true,
+      // Not `required`: `guardRights` always sets it, so creates (seeds,
+      // jobs) needn't pass it and older contents read without one.
+      required: false,
       defaultValue: 'cc-by',
       options: LICENSES.map((value) => ({ label: LICENSE_NAME[value], value })),
     },

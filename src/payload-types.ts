@@ -993,7 +993,8 @@ export interface Content {
    * Euro cents. Empty or 0 = free.
    */
   price?: number | null
-  license: 'cc0' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'cc-by-nc-sa' | 'all-rights-reserved'
+  license?:
+    ('cc0' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'cc-by-nc-sa' | 'all-rights-reserved') | null
   rightsMuseum?: (string | null) | Museum
   rightsDeclaredAt?: string | null
   /**

@@ -2,6 +2,7 @@
 
 import type { CurrentImage } from '@/components/editing/CoverImageInput'
 import type { ContentFormValues } from '@/components/editing/forms/ContentFields'
+import { effectiveLicense } from '@/lib/content-rights'
 import { coverImage } from '@/lib/cover-image'
 import { lexicalToHTML } from '@/lib/richtext'
 import { can, getSession } from '@/lib/session'
@@ -55,7 +56,8 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     otherImages: cover || !first ? otherImages : [first, ...otherImages],
     title: content.title,
     difficulty: content.difficulty,
-    license: content.license,
+    // Contents saved before licences existed start from the stored default.
+    license: effectiveLicense(content.price, content.license),
     rightsMuseum: content.rightsMuseum ? extractID(content.rightsMuseum) : null,
     price: content.price ?? null,
     bodyHTML: lexicalToHTML(content.body),
