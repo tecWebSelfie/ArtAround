@@ -16,6 +16,7 @@ import dynamic from 'next/dynamic'
 import type { ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
 import { CoverImageInput } from '../CoverImageInput'
+import { VisibilityInput } from '../VisibilityInput'
 import { PriceInput } from '../PriceInput'
 import { loadRightsMuseums } from './rights-actions'
 
@@ -36,6 +37,8 @@ export type ContentFormValues = {
   difficulty: Difficulty
   license: License
   rightsMuseum: string | null
+  /** Private: only the author and group-visit guests (src/lib/visibility.ts). */
+  visibility: 'public' | 'private'
   price: number | null
   bodyHTML: string
   object: string | null
@@ -44,6 +47,7 @@ export type ContentFormValues = {
 
 /** Starting values of the rights fields for a new content. */
 export const NEW_CONTENT_RIGHTS = {
+  visibility: 'public',
   license: DEFAULT_LICENSE,
   rightsMuseum: null,
   rightsDeclared: false,
@@ -110,6 +114,11 @@ export function ContentFields({
       <PriceInput
         cents={form.values.price}
         onChange={(cents) => form.setFieldValue('price', cents)}
+      />
+      <VisibilityInput
+        kind="content"
+        value={form.values.visibility}
+        onChange={(value) => form.setFieldValue('visibility', value)}
       />
       <Group grow align="start">
         <Select

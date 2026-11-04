@@ -51,6 +51,7 @@ function LoadedForm({ id, source }: { id: string; source: ContentSource }) {
     initialValues: {
       title: source.title,
       difficulty: source.difficulty,
+      visibility: source.visibility,
       license: source.license,
       rightsMuseum: source.rightsMuseum,
       price: source.price,

@@ -138,5 +138,11 @@
   "Open {{id}} on Wikidata": "Apri {{id}} su Wikidata",
   "Search the work by name, or type its Q-id": "Cerca l'opera per nome, o scrivi il suo Q-id",
   "Choose an item from the list": "Scegli un elemento dall'elenco",
-  "Inventory number": "Numero d'inventario"
+  "Inventory number": "Numero d'inventario",
+  "Visibility": "Visibilità",
+  "Public": "Pubblico",
+  "Private": "Privato",
+  "Only you and the guests of your group visits can see this tour": "Solo tu e gli ospiti delle tue visite di gruppo potete vedere questo tour",
+  "Only you and the guests of your group visits can read this content": "Solo tu e gli ospiti delle tue visite di gruppo potete leggere questo contenuto",
+  "Everyone can find it in the marketplace and in search": "Chiunque può trovarlo nel marketplace e nella ricerca"
 }

@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "{{id}} openen op Wikidata",
   "Search the work by name, or type its Q-id": "Zoek het werk op naam of typ de Q-id",
   "Choose an item from the list": "Kies een item uit de lijst",
-  "Inventory number": "Inventarisnummer"
+  "Inventory number": "Inventarisnummer",
+  "Visibility": "Zichtbaarheid",
+  "Public": "Openbaar",
+  "Private": "Privé",
+  "Only you and the guests of your group visits can see this tour": "Alleen jij en de gasten van je groepsbezoeken zien deze rondleiding",
+  "Only you and the guests of your group visits can read this content": "Alleen jij en de gasten van je groepsbezoeken kunnen deze inhoud lezen",
+  "Everyone can find it in the marketplace and in search": "Iedereen vindt het in de marktplaats en bij het zoeken"
 }

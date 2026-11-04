@@ -141,5 +141,11 @@
   "Open {{id}} on Wikidata": "Otevřít {{id}} na Wikidatech",
   "Search the work by name, or type its Q-id": "Vyhledejte dílo podle názvu nebo zadejte jeho Q-id",
   "Choose an item from the list": "Vyberte položku ze seznamu",
-  "Inventory number": "Inventární číslo"
+  "Inventory number": "Inventární číslo",
+  "Visibility": "Viditelnost",
+  "Public": "Veřejné",
+  "Private": "Soukromé",
+  "Only you and the guests of your group visits can see this tour": "Tuto prohlídku vidíte jen vy a hosté vašich skupinových návštěv",
+  "Only you and the guests of your group visits can read this content": "Tento obsah můžete číst jen vy a hosté vašich skupinových návštěv",
+  "Everyone can find it in the marketplace and in search": "Kdokoli ho najde na tržišti a ve vyhledávání"
 }

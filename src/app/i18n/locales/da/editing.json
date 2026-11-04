@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "Åbn {{id}} på Wikidata",
   "Search the work by name, or type its Q-id": "Søg efter værket ved navn, eller skriv dets Q-id",
   "Choose an item from the list": "Vælg et element på listen",
-  "Inventory number": "Inventarnummer"
+  "Inventory number": "Inventarnummer",
+  "Visibility": "Synlighed",
+  "Public": "Offentlig",
+  "Private": "Privat",
+  "Only you and the guests of your group visits can see this tour": "Kun du og gæsterne på dine gruppebesøg kan se denne rundvisning",
+  "Only you and the guests of your group visits can read this content": "Kun du og gæsterne på dine gruppebesøg kan læse dette indhold",
+  "Everyone can find it in the marketplace and in search": "Alle kan finde det på markedspladsen og i søgningen"
 }

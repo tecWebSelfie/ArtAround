@@ -33,6 +33,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         initial={{
           title: tour.title,
           description: tour.description ?? '',
+          visibility: tour.visibility ?? 'public',
           contents: stopIds,
         }}
       />

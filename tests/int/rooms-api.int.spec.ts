@@ -1,3 +1,5 @@
+// @vitest-environment node
+// Server code only: `jose` must load its Node build, as in the app's routes.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // The group room API (src/app/api/rooms): who gets a host token, who a guest

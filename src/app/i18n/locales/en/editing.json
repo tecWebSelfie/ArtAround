@@ -132,5 +132,11 @@
   "Open {{id}} on Wikidata": "Open {{id}} on Wikidata",
   "Search the work by name, or type its Q-id": "Search the work by name, or type its Q-id",
   "Choose an item from the list": "Choose an item from the list",
-  "Inventory number": "Inventory number"
+  "Inventory number": "Inventory number",
+  "Visibility": "Visibility",
+  "Public": "Public",
+  "Private": "Private",
+  "Only you and the guests of your group visits can see this tour": "Only you and the guests of your group visits can see this tour",
+  "Only you and the guests of your group visits can read this content": "Only you and the guests of your group visits can read this content",
+  "Everyone can find it in the marketplace and in search": "Everyone can find it in the marketplace and in search"
 }

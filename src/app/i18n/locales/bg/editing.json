@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "Отвори {{id}} в Wikidata",
   "Search the work by name, or type its Q-id": "Потърсете творбата по име или въведете нейния Q-id",
   "Choose an item from the list": "Изберете елемент от списъка",
-  "Inventory number": "Инвентарен номер"
+  "Inventory number": "Инвентарен номер",
+  "Visibility": "Видимост",
+  "Public": "Публично",
+  "Private": "Лично",
+  "Only you and the guests of your group visits can see this tour": "Само вие и гостите на груповите ви посещения виждате тази обиколка",
+  "Only you and the guests of your group visits can read this content": "Само вие и гостите на груповите ви посещения можете да четете това съдържание",
+  "Everyone can find it in the marketplace and in search": "Всеки може да го намери в пазара и в търсенето"
 }

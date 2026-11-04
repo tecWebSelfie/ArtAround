@@ -138,5 +138,11 @@
   "Open {{id}} on Wikidata": "Atvērt {{id}} Vikidatos",
   "Search the work by name, or type its Q-id": "Meklējiet darbu pēc nosaukuma vai ierakstiet tā Q-id",
   "Choose an item from the list": "Izvēlieties vienumu no saraksta",
-  "Inventory number": "Inventāra numurs"
+  "Inventory number": "Inventāra numurs",
+  "Visibility": "Redzamība",
+  "Public": "Publisks",
+  "Private": "Privāts",
+  "Only you and the guests of your group visits can see this tour": "Šo ekskursiju redzat tikai jūs un jūsu grupu apmeklējumu viesi",
+  "Only you and the guests of your group visits can read this content": "Šo saturu var lasīt tikai jūs un jūsu grupu apmeklējumu viesi",
+  "Everyone can find it in the marketplace and in search": "Ikviens to var atrast tirgū un meklēšanā"
 }

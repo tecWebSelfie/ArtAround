@@ -38,6 +38,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
+import { VisibilityInput } from '../VisibilityInput'
 
 /** Content a tour may include (see `getTourEditorData`). */
 export type TourCandidate = {
@@ -50,7 +51,13 @@ export type TourCandidate = {
   unavailable?: boolean
 }
 
-type TourValues = { title: string; description: string; contents: string[] }
+type TourValues = {
+  title: string
+  description: string
+  contents: string[]
+  /** Private: a class visit (src/lib/visibility.ts). */
+  visibility: 'public' | 'private'
+}
 
 /**
  * One draggable stop of the tour timeline. Mantine's Timeline passes its
@@ -195,6 +202,7 @@ export function TourForm({
     initialValues: {
       title: initial?.title ?? '',
       description: initial?.description ?? '',
+      visibility: initial?.visibility ?? 'public',
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
       // so they stay listed instead of disappearing on save.
       contents: initial?.contents ?? [],
@@ -257,6 +265,7 @@ export function TourForm({
       const data = {
         title,
         description: values.description.trim() || null,
+        visibility: values.visibility,
         contents: values.contents,
         museum: museum.id,
         thumbnail: await saveCover(cover, thumbnail, 'toursThumbnails', title),
@@ -292,6 +301,11 @@ export function TourForm({
           {...form.getInputProps('description')}
         />
         <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
+        <VisibilityInput
+          kind="tour"
+          value={form.values.visibility}
+          onChange={(value) => form.setFieldValue('visibility', value)}
+        />
 
         <Stack gap="xs">
           <Text fw={600}>{t('Stops, in visiting order')}</Text>

@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "Avaa {{id}} Wikidatassa",
   "Search the work by name, or type its Q-id": "Hae teosta nimellä tai kirjoita sen Q-tunnus",
   "Choose an item from the list": "Valitse kohde luettelosta",
-  "Inventory number": "Inventaarionumero"
+  "Inventory number": "Inventaarionumero",
+  "Visibility": "Näkyvyys",
+  "Public": "Julkinen",
+  "Private": "Yksityinen",
+  "Only you and the guests of your group visits can see this tour": "Vain sinä ja ryhmäkäyntiesi vieraat näette tämän kierroksen",
+  "Only you and the guests of your group visits can read this content": "Vain sinä ja ryhmäkäyntiesi vieraat voitte lukea tämän sisällön",
+  "Everyone can find it in the marketplace and in search": "Kaikki löytävät sen kauppapaikasta ja hausta"
 }

@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "Άνοιγμα του {{id}} στα Wikidata",
   "Search the work by name, or type its Q-id": "Αναζητήστε το έργο με το όνομα ή πληκτρολογήστε το Q-id του",
   "Choose an item from the list": "Επιλέξτε ένα στοιχείο από τη λίστα",
-  "Inventory number": "Αριθμός ευρετηρίου"
+  "Inventory number": "Αριθμός ευρετηρίου",
+  "Visibility": "Ορατότητα",
+  "Public": "Δημόσιο",
+  "Private": "Ιδιωτικό",
+  "Only you and the guests of your group visits can see this tour": "Μόνο εσείς και οι επισκέπτες των ομαδικών σας επισκέψεων βλέπετε αυτή την ξενάγηση",
+  "Only you and the guests of your group visits can read this content": "Μόνο εσείς και οι επισκέπτες των ομαδικών σας επισκέψεων μπορείτε να διαβάσετε αυτό το περιεχόμενο",
+  "Everyone can find it in the marketplace and in search": "Όλοι μπορούν να το βρουν στην αγορά και στην αναζήτηση"
 }

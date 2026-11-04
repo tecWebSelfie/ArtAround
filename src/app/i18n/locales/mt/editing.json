@@ -144,5 +144,11 @@
   "Open {{id}} on Wikidata": "Iftaħ {{id}} fuq Wikidata",
   "Search the work by name, or type its Q-id": "Fittex ix-xogħol bl-isem, jew ikteb il-Q-id tiegħu",
   "Choose an item from the list": "Agħżel oġġett mil-lista",
-  "Inventory number": "Numru tal-inventarju"
+  "Inventory number": "Numru tal-inventarju",
+  "Visibility": "Viżibbiltà",
+  "Public": "Pubbliku",
+  "Private": "Privat",
+  "Only you and the guests of your group visits can see this tour": "Int biss u l-mistednin taż-żjarat fi grupp tiegħek tistgħu taraw dan it-tour",
+  "Only you and the guests of your group visits can read this content": "Int biss u l-mistednin taż-żjarat fi grupp tiegħek tistgħu taqraw dan il-kontenut",
+  "Everyone can find it in the marketplace and in search": "Kulħadd jista’ jsibu fis-suq u fit-tfittxija"
 }

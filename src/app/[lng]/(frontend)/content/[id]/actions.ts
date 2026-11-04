@@ -41,6 +41,7 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     select: {
       title: true,
       difficulty: true,
+      visibility: true,
       license: true,
       rightsMuseum: true,
       price: true,
@@ -57,6 +58,7 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     title: content.title,
     difficulty: content.difficulty,
     // Contents saved before licences existed start from the stored default.
+    visibility: content.visibility ?? 'public',
     license: effectiveLicense(content.price, content.license),
     rightsMuseum: content.rightsMuseum ? extractID(content.rightsMuseum) : null,
     price: content.price ?? null,

@@ -339,7 +339,23 @@ export async function refreshSearchDocs({
     if (relation?.value) bySourceId.set(String(relation.value), searchDoc)
   }
 
+  // Private tours stay out of the index (src/lib/visibility.ts).
+  const hidden = new Set<string>()
+  if (collection === 'tours') {
+    const { docs } = await payload.find({
+      collection: 'tours',
+      where: { and: [{ id: { in: uniqueIds } }, { visibility: { equals: 'private' } }] },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    for (const doc of docs) hidden.add(String(doc.id))
+  }
+
   for (const id of uniqueIds) {
+    if (hidden.has(id)) continue
     try {
       const data = await buildSearchDoc({ payload, collection, id, req })
       const current = bySourceId.get(id)

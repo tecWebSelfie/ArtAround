@@ -138,5 +138,11 @@
   "Open {{id}} on Wikidata": "Deschide {{id}} pe Wikidata",
   "Search the work by name, or type its Q-id": "Caută lucrarea după nume sau scrie Q-id-ul ei",
   "Choose an item from the list": "Alege un element din listă",
-  "Inventory number": "Număr de inventar"
+  "Inventory number": "Număr de inventar",
+  "Visibility": "Vizibilitate",
+  "Public": "Public",
+  "Private": "Privat",
+  "Only you and the guests of your group visits can see this tour": "Doar tu și invitații vizitelor tale de grup vedeți acest tur",
+  "Only you and the guests of your group visits can read this content": "Doar tu și invitații vizitelor tale de grup puteți citi acest conținut",
+  "Everyone can find it in the marketplace and in search": "Oricine îl poate găsi în marketplace și în căutare"
 }

@@ -135,5 +135,11 @@
   "Open {{id}} on Wikidata": "{{id}} megnyitása a Wikidatán",
   "Search the work by name, or type its Q-id": "Keresd a művet név szerint, vagy írd be a Q-azonosítóját",
   "Choose an item from the list": "Válassz egy elemet a listából",
-  "Inventory number": "Leltári szám"
+  "Inventory number": "Leltári szám",
+  "Visibility": "Láthatóság",
+  "Public": "Nyilvános",
+  "Private": "Privát",
+  "Only you and the guests of your group visits can see this tour": "Ezt a túrát csak te és a csoportos látogatásaid vendégei látjátok",
+  "Only you and the guests of your group visits can read this content": "Ezt a tartalmat csak te és a csoportos látogatásaid vendégei olvashatjátok",
+  "Everyone can find it in the marketplace and in search": "Bárki megtalálhatja a piactéren és a keresésben"
 }

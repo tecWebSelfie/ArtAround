@@ -327,6 +327,9 @@ export default buildConfig({
       // Cards are hydrated in the visitor's locale from the original document.
       localize: false,
       defaultPriorities: { ...SEARCH_PRIORITIES },
+      // Private contents and tours are never indexed (src/lib/visibility.ts);
+      // their `hideFromSearch` hooks remove rows saved while they were public.
+      skipSync: async ({ doc }) => (doc as { visibility?: string }).visibility === 'private',
       beforeSync: async ({ collectionSlug, originalDoc, payload, req, searchDoc }) => {
         if (!SEARCH_PLUGIN_COLLECTIONS.includes(collectionSlug as SearchPluginCollection)) {
           return searchDoc

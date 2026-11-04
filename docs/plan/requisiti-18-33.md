@@ -136,7 +136,7 @@ Già decise:
     l'accessibilità del museo entra nel contesto dell'assistente. Test:
     `tests/int/voice-vocabulary.int.spec.ts`; storie NavigationSpotlight
     (Voice Command Pills), TourNavigation, StepModal.
-- [ ] **8. Contenuti privati e pubblici**
+- [x] **8. Contenuti privati e pubblici**
   - Campo `visibility` su contenuti e tour; accesso "pubblico, oppure autore,
     oppure tour del cookie di gruppo".
   - Privati esclusi da ricerca, marketplace, liste degli oggetti, "Plan my
@@ -145,6 +145,17 @@ Già decise:
     niente ritorno a privato se comprato o adottato.
   - Cookie di gruppo con `tourId`, firmato con il segreto LiveKit, durata breve.
   - Prova: test di accesso (anonimo, autore, ospite con cookie, cookie scaduto).
+  - Fatto: `src/lib/visibility.ts` (accesso `readContents`/`readTours`, cookie
+    `aa-group-tour` firmato con `jose` e il segreto LiveKit, impostato da
+    `/api/rooms/token`), campi `visibility`, hook `guardVisibility`,
+    `guardPrivateContents`, `hideFromSearch`, `skipSync` della ricerca,
+    `VisibilityInput` nei form e badge "Privato". Più severo del piano: un tour
+    pubblico non può contenere nessun contenuto privato, nemmeno dell'autore
+    stesso, perché i suoi visitatori non lo leggerebbero. Corretto anche
+    `/api/rooms`: ora legge il tour come l'host, quindi nessuno apre una stanza
+    (e ottiene il cookie) per un tour privato altrui. Test:
+    `tests/int/visibility.int.spec.ts`; storie VisibilityInput e
+    ContentDetails → Private.
 - [ ] **9. "Chi ha chiesto cosa"**
   - Ogni ospite pubblica un attributo `requests` (tappa, tipo, ora).
   - Il docente vede un contatore per partecipante e un pannello "Richieste" per

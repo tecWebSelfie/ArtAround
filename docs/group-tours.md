@@ -17,6 +17,13 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   then follows the host, in their own language), and the live list of who has arrived. The host presses
   "Start the tour" whenever ready; people can still join afterwards and land where the
   group is.
+- **Private class visits:** a tour and its contents can be private
+  (`visibility`, `src/lib/visibility.ts`): only the author can read them. Joining a
+  room (`/api/rooms/token`) also sets the httpOnly `aa-group-tour` cookie, a JWT
+  signed with `LIVEKIT_API_SECRET` naming the room's tour, valid 4 hours: the
+  `tours`/`contents` read access lets its holder read that tour and its contents
+  (guests have no account). Only someone who can read a tour can open a room for
+  it (`/api/rooms` reads the tour as the host).
 - **During the tour, guests follow the host.** Shared: the step, position (`at`),
   destination (`to`/`service`/`exit`) and the open modal. Personal: language,
   wheelchair route, reading options (`level`, `minutes`, `audience`), "Tell me more"

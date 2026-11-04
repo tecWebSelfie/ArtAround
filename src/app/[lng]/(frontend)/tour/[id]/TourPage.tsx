@@ -38,6 +38,7 @@ import {
 import {
   Accessibility,
   BookOpen,
+  EyeOff,
   ChevronRight,
   Clock,
   Footprints,
@@ -225,6 +226,17 @@ export default function TourPage({
                       leftSection={<Accessibility size={14} />}
                     >
                       {t('Step-free route')}
+                    </Badge>
+                  )}
+                  {/* Private: a class visit only its author and group guests see. */}
+                  {tour.visibility === 'private' && (
+                    <Badge
+                      size="lg"
+                      variant="light"
+                      color="gray"
+                      leftSection={<EyeOff size={14} />}
+                    >
+                      {t('Private')}
                     </Badge>
                   )}
                   {summary.quizQuestions > 0 && (

@@ -144,5 +144,11 @@
   "Open {{id}} on Wikidata": "Oscail {{id}} ar Wikidata",
   "Search the work by name, or type its Q-id": "Cuardaigh an saothar de réir ainm, nó clóscríobh a Q-id",
   "Choose an item from the list": "Roghnaigh mír ón liosta",
-  "Inventory number": "Uimhir fardail"
+  "Inventory number": "Uimhir fardail",
+  "Visibility": "Infheictheacht",
+  "Public": "Poiblí",
+  "Private": "Príobháideach",
+  "Only you and the guests of your group visits can see this tour": "Ní fheiceann ach tusa agus aíonna do chuairteanna grúpa an turas seo",
+  "Only you and the guests of your group visits can read this content": "Ní féidir ach leatsa agus le haíonna do chuairteanna grúpa an t-ábhar seo a léamh",
+  "Everyone can find it in the marketplace and in search": "Is féidir le gach duine é a aimsiú sa mhargadh agus sa chuardach"
 }

@@ -971,6 +971,7 @@ export interface Content {
   id: string
   createdBy?: string | null
   difficulty: Difficulty
+  visibility?: ('public' | 'private') | null
   audience?: ('everyone' | 'children') | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
@@ -2232,6 +2233,7 @@ export interface Tour {
    * Editorial copy — auto-translated on demand into any locale.
    */
   title: string
+  visibility?: ('public' | 'private') | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
@@ -4396,6 +4398,7 @@ export interface ObjectsThumbnailsSelect<T extends boolean = true> {
 export interface ContentsSelect<T extends boolean = true> {
   createdBy?: T
   difficulty?: T
+  visibility?: T
   audience?: T
   title?: T
   body?: T
@@ -4532,6 +4535,7 @@ export interface ContentAudioSelect<T extends boolean = true> {
 export interface ToursSelect<T extends boolean = true> {
   createdBy?: T
   title?: T
+  visibility?: T
   body?: T
   description?: T
   contents?: T

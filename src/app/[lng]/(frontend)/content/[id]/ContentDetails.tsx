@@ -35,6 +35,7 @@ import {
 } from '@mantine/core'
 import {
   Baby,
+  EyeOff,
   BookOpen,
   ChevronRight,
   Landmark,
@@ -83,6 +84,7 @@ export type ContentDetailsProps = {
     | 'lfrs'
     | 'sources'
     | 'license'
+    | 'visibility'
     | 'createdAt'
     | 'updatedAt'
   >
@@ -137,6 +139,12 @@ export async function ContentDetails({
         <DifficultyBadge difficulty={content.difficulty} size="lg" variant="light">
           {difficultyLabel[content.difficulty]}
         </DifficultyBadge>
+        {/* Private: only its author and group-visit guests can read it. */}
+        {content.visibility === 'private' && (
+          <Badge size="lg" variant="light" color="gray" leftSection={<EyeOff size={14} />}>
+            {t('Private')}
+          </Badge>
+        )}
         {content.audience === 'children' && (
           <Badge size="lg" variant="light" color="pink" leftSection={<Baby size={14} />}>
             {t('For children')}

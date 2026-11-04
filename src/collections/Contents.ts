@@ -16,6 +16,7 @@ import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_VERIFIED } from '@/fields/MuseumFunction'
 import { effectiveLicense, isLicense, LICENSE_NAME, LICENSES } from '@/lib/content-rights'
+import { readContents, removeFromSearch, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { refreshSearchDocs } from '@/lib/search-index'
@@ -281,23 +282,75 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
   return doc
 }
 
+/**
+ * Private contents (`src/lib/visibility.ts`) can't be sold, and a content
+ * someone bought or put in their own tour can't be made private afterwards:
+ * it would disappear from under them.
+ */
+const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req, originalDoc }) => {
+  const visibility = data.visibility ?? originalDoc?.visibility
+  const price = data.price !== undefined ? data.price : originalDoc?.price
+  if (visibility !== 'private') return data
+  if (price && price > 0) throw new APIError('A private content cannot be sold.', 400)
+  if (!originalDoc || originalDoc.visibility === 'private') return data
+  const id = String(originalDoc.id)
+  const author = asId(originalDoc.author)
+  const [bought, adopted] = await Promise.all([
+    req.payload.count({
+      collection: 'purchases',
+      where: { unlockedContents: { contains: id } },
+      overrideAccess: true,
+      req,
+    }),
+    req.payload.count({
+      collection: 'tours',
+      where: { and: [{ contents: { contains: id } }, { author: { not_equals: author } }] },
+      overrideAccess: true,
+      req,
+    }),
+  ])
+  if (bought.totalDocs || adopted.totalDocs) {
+    throw new APIError(
+      'This content was bought or is used in other authors’ tours: it cannot become private.',
+      400,
+    )
+  }
+  return data
+}
+
+/** A content that is (or became) private leaves the search index. */
+const hideFromSearch: CollectionAfterChangeHook<Content> = async ({ doc, req }) => {
+  if (doc.visibility === 'private') await removeFromSearch(req, 'contents', String(doc.id))
+  return doc
+}
+
 export const Contents: CollectionConfig = {
   slug: 'contents',
   access: {
-    read: anyone,
+    // Private contents only for their author and group guests of their tour.
+    read: readContents,
     create: authenticated,
     update: authorOrSuperAdmin,
     delete: deleteContents,
   },
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
-    beforeChange: [assignAuthor, guardPaidContent, guardRights, storeDuration],
-    afterChange: [attachToObject, refreshTourPrices, queueContentAudio],
+    beforeChange: [assignAuthor, guardPaidContent, guardRights, guardVisibility, storeDuration],
+    afterChange: [attachToObject, refreshTourPrices, queueContentAudio, hideFromSearch],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
   },
   fields: [
     DifficultyField,
+    {
+      // Private: only the author (and the guests of a group visit of a tour
+      // that includes it) can read it; never sold, never in search.
+      name: 'visibility',
+      type: 'select',
+      defaultValue: 'public',
+      index: true,
+      options: [...VISIBILITY_OPTIONS],
+    },
     {
       // Who the text is written for. Personalised tours for families pick
       // `children` contents first; any content can also be read in a

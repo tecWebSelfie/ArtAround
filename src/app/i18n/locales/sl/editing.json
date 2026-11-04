@@ -141,5 +141,11 @@
   "Open {{id}} on Wikidata": "Odpri {{id}} v Wikipodatkih",
   "Search the work by name, or type its Q-id": "Poiščite delo po imenu ali vpišite njegov Q-id",
   "Choose an item from the list": "Izberite element s seznama",
-  "Inventory number": "Inventarna številka"
+  "Inventory number": "Inventarna številka",
+  "Visibility": "Vidnost",
+  "Public": "Javno",
+  "Private": "Zasebno",
+  "Only you and the guests of your group visits can see this tour": "To turo vidite samo vi in gostje vaših skupinskih obiskov",
+  "Only you and the guests of your group visits can read this content": "To vsebino lahko berete samo vi in gostje vaših skupinskih obiskov",
+  "Everyone can find it in the marketplace and in search": "Vsakdo ga lahko najde na tržnici in v iskanju"
 }

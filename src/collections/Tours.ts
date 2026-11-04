@@ -10,11 +10,13 @@ import type { Tour as TourType } from '@/payload-types'
 import {
   APIError,
   type Access,
+  type CollectionAfterChangeHook,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
   type Where,
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
+import { readTours, removeFromSearch, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -94,18 +96,57 @@ const guardNonCommercialContents: CollectionBeforeChangeHook<TourType> = async (
   return data
 }
 
+/**
+ * A public tour can't include private contents: its visitors couldn't read
+ * them (`src/lib/visibility.ts`). Private tours (a class visit) may mix both.
+ */
+const guardPrivateContents: CollectionBeforeChangeHook<TourType> = async ({
+  data,
+  req,
+  originalDoc,
+}) => {
+  const visibility = data.visibility ?? originalDoc?.visibility
+  const contents = data.contents ?? originalDoc?.contents
+  if (visibility === 'private' || !contents?.length) return data
+  const { docs } = await req.payload.find({
+    collection: 'contents',
+    where: {
+      and: [{ id: { in: contents.map(asId) } }, { visibility: { equals: 'private' } }],
+    },
+    select: { title: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  if (docs.length) {
+    throw new APIError(
+      `A public tour can't include private contents: ${docs.map(({ title }) => `"${title}"`).join(', ')}. Make the tour private or the contents public.`,
+      400,
+    )
+  }
+  return data
+}
+
+/** A tour that is (or became) private leaves the search index. */
+const hideFromSearch: CollectionAfterChangeHook<TourType> = async ({ doc, req }) => {
+  if (doc.visibility === 'private') await removeFromSearch(req, 'tours', String(doc.id))
+  return doc
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
   access: {
-    read: anyone,
+    // Private tours only for their author and the guests of their group visits.
+    read: readTours,
     create: authenticated,
     update: authorOrSuperAdmin,
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, guardNonCommercialContents],
+    beforeChange: [assignAuthor, guardNonCommercialContents, guardPrivateContents],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
-    afterChange: [deleteQuestionsRemovedFromQuiz],
+    afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch],
     afterDelete: [deleteQuestionsOfDeletedTour],
   },
   fields: [
@@ -118,6 +159,15 @@ export const Tour: CollectionConfig = {
           fields: [
             // Localized (and machine-translated, `autoTranslatePlugin`) like contents.
             editorial({ name: 'title', type: 'text', required: true }),
+            {
+              // Private: a class visit only its author and the group's guests see
+              // (`src/lib/visibility.ts`); never in search or the marketplace.
+              name: 'visibility',
+              type: 'select',
+              defaultValue: 'public',
+              index: true,
+              options: [...VISIBILITY_OPTIONS],
+            },
             editorial({ name: 'body', type: 'richText', required: false }),
             {
               name: 'description',

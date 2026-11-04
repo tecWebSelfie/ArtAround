@@ -96,3 +96,14 @@ export const Locked: Story = {
     museum: mockMuseumMinimal,
   },
 }
+
+/** A private content (src/lib/visibility.ts): its author sees the badge. */
+export const Private: Story = {
+  args: {
+    content: createContent({ visibility: 'private' }),
+    object: mockObjectNoMedia,
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByText('Private')).resolves.toBeTruthy()
+  },
+}

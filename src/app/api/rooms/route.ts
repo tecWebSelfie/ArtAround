@@ -1,6 +1,7 @@
 import config from '@/payload.config'
 import { GroupName } from '@/lib/group'
 import { createGroupRoom } from '@/lib/group-room'
+import { asViewer } from '@/lib/session'
 import { allowRequest } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -25,8 +26,17 @@ export async function POST(request: Request) {
   if (!body.success) return NextResponse.json({ error: 'invalid' }, { status: 400 })
 
   const payload = await getPayload({ config })
+  // Read as the host: only someone who can read the tour (its author, for a
+  // private one) can open a room for it, since the room's guests get the
+  // group cookie that unlocks it (src/lib/visibility.ts).
   const tour = await payload
-    .findByID({ collection: 'tours', id: body.data.tourId, depth: 0, select: { title: true } })
+    .findByID({
+      collection: 'tours',
+      id: body.data.tourId,
+      depth: 0,
+      select: { title: true },
+      ...(await asViewer()),
+    })
     .catch(() => null)
   if (!tour) return NextResponse.json({ error: 'tour' }, { status: 404 })
 

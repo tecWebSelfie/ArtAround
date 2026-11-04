@@ -141,5 +141,11 @@
   "Open {{id}} on Wikidata": "Atverti {{id}} Vikiduomenyse",
   "Search the work by name, or type its Q-id": "Ieškokite kūrinio pagal pavadinimą arba įveskite jo Q-id",
   "Choose an item from the list": "Pasirinkite elementą iš sąrašo",
-  "Inventory number": "Inventoriaus numeris"
+  "Inventory number": "Inventoriaus numeris",
+  "Visibility": "Matomumas",
+  "Public": "Viešas",
+  "Private": "Privatus",
+  "Only you and the guests of your group visits can see this tour": "Šį turą matote tik jūs ir jūsų grupinių apsilankymų svečiai",
+  "Only you and the guests of your group visits can read this content": "Šį turinį gali skaityti tik jūs ir jūsų grupinių apsilankymų svečiai",
+  "Everyone can find it in the marketplace and in search": "Visi gali jį rasti prekyvietėje ir paieškoje"
 }
