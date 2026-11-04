@@ -47,18 +47,14 @@ export const Default: Story = {
   play: async () => {
     const body = within(document.body)
     // The object name renders twice: modal header title + content Title
-    await expect(
-      body.findAllByText('Anfora a figure rosse'),
-    ).resolves.toHaveLength(2)
+    await expect(body.findAllByText('Anfora a figure rosse')).resolves.toHaveLength(2)
     await expect(
       body.findByText(
         'Anfora attica a figure rosse con scena di banchetto, databile al V secolo a.C.',
       ),
     ).resolves.toBeTruthy()
     await expect(body.findByText('Related contents')).resolves.toBeTruthy()
-    await expect(
-      body.findByText('Storia della ceramica attica'),
-    ).resolves.toBeTruthy()
+    await expect(body.findByText('Storia della ceramica attica')).resolves.toBeTruthy()
     await expect(body.findByText('Il restauro del bronzo')).resolves.toBeTruthy()
   },
 }
@@ -70,8 +66,9 @@ export const WithoutThumbnail: Story = {
   play: async () => {
     const body = within(document.body)
     await expect(body.findAllByText('Mosaico pavimentale')).resolves.toHaveLength(2)
-    // Null thumbnail falls back to the placeholder image, labelled with the object name
-    await expect(body.findByAltText('Mosaico pavimentale')).resolves.toBeTruthy()
+    // A null thumbnail falls back to the placeholder picture (DetailCover). It is
+    // decorative (empty alt, so role "presentation"): the name is the title.
+    await expect(body.getByRole('presentation')).toBeInTheDocument()
   },
 }
 
@@ -81,9 +78,7 @@ export const WithoutDescription: Story = {
   },
   play: async () => {
     const body = within(document.body)
-    await expect(
-      body.findAllByText('Anfora a figure rosse'),
-    ).resolves.toHaveLength(2)
+    await expect(body.findAllByText('Anfora a figure rosse')).resolves.toHaveLength(2)
   },
 }
 
@@ -93,9 +88,7 @@ export const WithoutRelatedContents: Story = {
   },
   play: async () => {
     const body = within(document.body)
-    await expect(
-      body.findAllByText('Anfora a figure rosse'),
-    ).resolves.toHaveLength(2)
+    await expect(body.findAllByText('Anfora a figure rosse')).resolves.toHaveLength(2)
     await expect(body.queryByText('Related contents')).not.toBeInTheDocument()
   },
 }

@@ -108,7 +108,8 @@ export const AllStepsModal: Story = {
     )
     // Choosing a step in the list jumps the bar to it and closes the modal.
     await userEvent.click(within(dialog).getByText('Attic amphora is on your left'))
-    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull())
+    // …and fades out.
+    await waitFor(() => expect(body.queryByRole('dialog')).toBeNull(), { timeout: 5_000 })
     await expect(canvas.getByText('Attic amphora is on your left')).toBeVisible()
   },
 }

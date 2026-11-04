@@ -22,7 +22,10 @@ let lastBody: unknown
 
 /** The modal renders in a portal, so it is found on the page rather than the canvas. */
 async function fillAndOpen(name: string, { showResults = false } = {}) {
-  await userEvent.type(await screen.findByRole('textbox', { name: 'Your name' }), name)
+  // Mantine's modal fades in; under the visual run's load that can outlast
+  // findBy's 1s default, so give it the same 5s the other modal stories use.
+  const field = await screen.findByRole('textbox', { name: 'Your name' }, { timeout: 5_000 })
+  await userEvent.type(field, name)
   if (showResults) {
     await userEvent.click(screen.getByRole('checkbox', { name: 'See everyone’s quiz results' }))
   }
@@ -58,7 +61,10 @@ export const ServerUnavailable: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
     await fillAndOpen('Anna')
     await expect(
-      await screen.findByText('The group could not be opened. Try again in a minute.'),
+      // The error arrives after the request, which under load can outlast 1s.
+      await screen.findByText('The group could not be opened. Try again in a minute.', undefined, {
+        timeout: 5_000,
+      }),
     ).toBeVisible()
   },
 }

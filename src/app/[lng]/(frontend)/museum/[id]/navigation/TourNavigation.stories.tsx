@@ -258,7 +258,9 @@ export const FreeNavigation: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
-    await expect(canvas.getByText('Choose where to go from search')).toBeVisible()
+    // Directions ask for a start before an end: with no position yet, the bar
+    // asks for it first (DirectionsBar's "no-position" state).
+    await expect(canvas.getByText('Open an object and set it as your position')).toBeVisible()
   },
 }
 
