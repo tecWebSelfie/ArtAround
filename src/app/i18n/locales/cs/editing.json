@@ -27,7 +27,6 @@
   "Choose the object": "Vyber objekt",
   "City": "Město",
   "Content": "Obsah",
-  "Copyright": "Autorská práva",
   "Could not delete": "Nepodařilo se smazat",
   "Could not save": "Nepodařilo se uložit",
   "Create museum": "Vytvořit muzeum",
@@ -130,5 +129,12 @@
   "Reset to default": "Obnovit výchozí",
   "Button": "Tlačítko",
   "Tag": "Štítek",
-  "Default blue": "Výchozí modrá"
+  "Default blue": "Výchozí modrá",
+  "All rights reserved": "Všechna práva vyhrazena",
+  "Declare that the text is yours to publish it": "Pro zveřejnění potvrďte, že text je váš",
+  "I am the author of this text, or I hold its rights": "Jsem autorem tohoto textu nebo k němu vlastním práva",
+  "License": "Licence",
+  "Paid contents are always all rights reserved": "Placený obsah má vždy všechna práva vyhrazena",
+  "Rights holder": "Držitel práv",
+  "You, the author": "Vy, autor"
 }

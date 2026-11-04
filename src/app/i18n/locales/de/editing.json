@@ -25,7 +25,6 @@
   "Choose the object": "Objekt auswählen",
   "City": "Stadt",
   "Content": "Inhalt",
-  "Copyright": "Copyright",
   "Could not delete": "Löschen fehlgeschlagen",
   "Could not save": "Speichern fehlgeschlagen",
   "Create museum": "Museum erstellen",
@@ -124,5 +123,12 @@
   "Reset to default": "Auf Standard zurücksetzen",
   "Button": "Schaltfläche",
   "Tag": "Label",
-  "Default blue": "Standardblau"
+  "Default blue": "Standardblau",
+  "All rights reserved": "Alle Rechte vorbehalten",
+  "Declare that the text is yours to publish it": "Bestätige, dass der Text von dir ist, um ihn zu veröffentlichen",
+  "I am the author of this text, or I hold its rights": "Ich bin der Autor dieses Textes oder besitze die Rechte daran",
+  "License": "Lizenz",
+  "Paid contents are always all rights reserved": "Bezahlte Inhalte sind immer „Alle Rechte vorbehalten“",
+  "Rights holder": "Rechteinhaber",
+  "You, the author": "Du, der Autor"
 }

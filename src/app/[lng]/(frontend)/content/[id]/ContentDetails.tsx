@@ -8,6 +8,7 @@ import { PictureGrid } from '@/components/mantine/PictureGrid'
 import { pictureSrc, usablePictures } from '@/lib/picture'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { isLocked, isPaid } from '@/lib/price'
+import { creditLine, LICENSE_NAME, LICENSE_URL } from '@/lib/content-rights'
 import type {
   Content,
   ContentImage,
@@ -19,6 +20,7 @@ import type {
   User,
 } from '@/payload-types'
 import {
+  Anchor,
   Avatar,
   Badge,
   Card,
@@ -71,7 +73,7 @@ export type ContentDetailsRelated = Pick<
 >
 
 export type ContentDetailsProps = {
-  /** The page's localized content (depth 0): badges, sources, copyright, dates. */
+  /** The page's localized content (depth 0): badges, sources, credits, dates. */
   content: Pick<
     Content,
     | 'difficulty'
@@ -80,13 +82,15 @@ export type ContentDetailsProps = {
     | 'body'
     | 'lfrs'
     | 'sources'
-    | 'copyright'
+    | 'license'
     | 'createdAt'
     | 'updatedAt'
   >
   object?: ContentDetailsObject | null
   museum?: ContentDetailsMuseum | null
   author?: ContentDetailsAuthor | null
+  /** Who holds the rights: the museum named in `rightsMuseum`, else the author. */
+  rightsHolder?: string | null
   categories?: Pick<MuseumCategory, 'id' | 'name'>[]
   images?: Pick<ContentImage, 'id' | 'url' | 'thumbnailURL' | 'alt' | 'sizes'>[]
   tours?: ContentDetailsTour[]
@@ -99,6 +103,7 @@ export async function ContentDetails({
   object,
   museum,
   author,
+  rightsHolder,
   categories = [],
   images = [],
   tours = [],
@@ -112,6 +117,11 @@ export async function ContentDetails({
     hard: t('Hard'),
   }
   const pictures = usablePictures(images)
+  const credit = creditLine({
+    holder: rightsHolder,
+    createdAt: content.createdAt,
+    license: content.license,
+  })
   const ratingsCount = content.lfrs?.ratingsCount ?? 0
   const ratingsAverage = content.lfrs?.ratingsAverage
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
@@ -347,11 +357,27 @@ export async function ContentDetails({
         </Section>
       )}
 
-      {/* Credits: the required copyright line and when the text last changed. */}
+      {/* Credits: rights holder, licence (linked to its deed) and when the
+          text last changed. Built from the author or museum and the licence
+          field (src/lib/content-rights.ts), never typed by hand. */}
       <Stack gap={2}>
-        {content.copyright && (
+        {(credit.copyright || credit.license) && (
           <Text size="xs" c="dimmed">
-            {content.copyright}
+            {credit.copyright}
+            {credit.copyright && credit.license && ' · '}
+            {credit.license &&
+              (LICENSE_URL[credit.license] ? (
+                <Anchor
+                  href={LICENSE_URL[credit.license]}
+                  target="_blank"
+                  rel="license noopener"
+                  inherit
+                >
+                  {LICENSE_NAME[credit.license]}
+                </Anchor>
+              ) : (
+                t('All rights reserved')
+              ))}
           </Text>
         )}
         <Text size="xs" c="dimmed">

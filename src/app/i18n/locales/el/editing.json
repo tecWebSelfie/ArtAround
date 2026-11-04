@@ -25,7 +25,6 @@
   "Choose the object": "Διάλεξε το αντικείμενο",
   "City": "Πόλη",
   "Content": "Περιεχόμενο",
-  "Copyright": "Πνευματικά δικαιώματα",
   "Could not delete": "Η διαγραφή απέτυχε",
   "Could not save": "Η αποθήκευση απέτυχε",
   "Create museum": "Δημιουργία μουσείου",
@@ -124,5 +123,12 @@
   "Reset to default": "Επαναφορά προεπιλογής",
   "Button": "Κουμπί",
   "Tag": "Ετικέτα",
-  "Default blue": "Προεπιλεγμένο μπλε"
+  "Default blue": "Προεπιλεγμένο μπλε",
+  "All rights reserved": "Με την επιφύλαξη παντός δικαιώματος",
+  "Declare that the text is yours to publish it": "Δηλώστε ότι το κείμενο είναι δικό σας για να το δημοσιεύσετε",
+  "I am the author of this text, or I hold its rights": "Είμαι ο συγγραφέας αυτού του κειμένου ή κατέχω τα δικαιώματά του",
+  "License": "Άδεια χρήσης",
+  "Paid contents are always all rights reserved": "Το επί πληρωμή περιεχόμενο έχει πάντα επιφύλαξη παντός δικαιώματος",
+  "Rights holder": "Κάτοχος δικαιωμάτων",
+  "You, the author": "Εσείς, ο συγγραφέας"
 }

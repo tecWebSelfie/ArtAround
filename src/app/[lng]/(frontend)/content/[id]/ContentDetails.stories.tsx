@@ -72,10 +72,17 @@ export const Full: Story = {
 /** A free content whose object has no picture and nothing else around it. */
 export const Minimal: Story = {
   args: {
-    content: createContent({ copyright: '© Museo Civico di Esempio' }),
+    content: createContent({ license: 'cc-by-sa' }),
+    rightsHolder: 'Giulia Fontana',
     object: mockObjectNoMedia,
   },
   play: async ({ canvas }) => {
+    // Credit line: the holder and the licence linked to its Creative Commons deed.
+    await expect(canvas.findByText(/© Giulia Fontana/)).resolves.toBeTruthy()
+    const license = await canvas.findByRole('link', { name: 'CC BY-SA 4.0' })
+    await expect(license.getAttribute('href')).toBe(
+      'https://creativecommons.org/licenses/by-sa/4.0/',
+    )
     await expect(canvas.findByText('About the object')).resolves.toBeTruthy()
     await expect(canvas.queryByText('In these tours')).toBeNull()
   },

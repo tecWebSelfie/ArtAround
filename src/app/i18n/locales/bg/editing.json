@@ -25,7 +25,6 @@
   "Choose the object": "Избери обекта",
   "City": "Град",
   "Content": "Съдържание",
-  "Copyright": "Авторски права",
   "Could not delete": "Изтриването не бе успешно",
   "Could not save": "Запазването не бе успешно",
   "Create museum": "Създай музей",
@@ -124,5 +123,12 @@
   "Reset to default": "Възстанови по подразбиране",
   "Button": "Бутон",
   "Tag": "Етикет",
-  "Default blue": "Синьо по подразбиране"
+  "Default blue": "Синьо по подразбиране",
+  "All rights reserved": "Всички права запазени",
+  "Declare that the text is yours to publish it": "Декларирайте, че текстът е ваш, за да го публикувате",
+  "I am the author of this text, or I hold its rights": "Аз съм автор на този текст или притежавам правата върху него",
+  "License": "Лиценз",
+  "Paid contents are always all rights reserved": "Платените съдържания винаги са с всички запазени права",
+  "Rights holder": "Притежател на правата",
+  "You, the author": "Вие, авторът"
 }

@@ -44,7 +44,7 @@ Già decise:
     `src/seed-accounts.ts`, creati anche dal seed base. Foglio QR (`/api/qr-sheet`)
     e teletrasporto ("imposta come tua posizione" da ogni opera) esistevano già.
     Test: `tests/int/demo-museum-seed.int.spec.ts`.
-- [ ] **2. Licenza e titolare dei diritti**
+- [x] **2. Licenza e titolare dei diritti**
   - Campo `license`: CC0, CC BY, CC BY-SA, CC BY-NC, CC BY-NC-SA, tutti i diritti
     riservati (niente ND).
   - Campo `rightsMuseum`, scelto da un `Select`; il server rifiuta se l'utente
@@ -58,6 +58,11 @@ Già decise:
     entra in un tour a pagamento.
   - Prova: test sugli hook (titolare non autorizzato, dichiarazione mancante,
     contenuto a pagamento, NC in tour a pagamento).
+  - Fatto: regole in `src/lib/content-rights.ts`; hook `guardRights` (contents) e
+    `guardNonCommercialContents` (tours); form con "Titolare dei diritti",
+    "Licenza" e casella di dichiarazione; riga crediti calcolata nella pagina del
+    contenuto. Test: `tests/int/content-rights.int.spec.ts`, storia
+    `ContentDetails` (Minimal).
 - [ ] **3. Durata in secondi**
   - `durationSeconds` al posto di `readingTimeMins`, stimata dal testo; mostrata
     come "15 s" o "1 min 30 s".

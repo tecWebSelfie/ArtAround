@@ -993,7 +993,9 @@ export interface Content {
    * Euro cents. Empty or 0 = free.
    */
   price?: number | null
-  copyright: string
+  license: 'cc0' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'cc-by-nc-sa' | 'all-rights-reserved'
+  rightsMuseum?: (string | null) | Museum
+  rightsDeclaredAt?: string | null
   /**
    * Shared museum taxonomy, used by search filters.
    */
@@ -1026,50 +1028,6 @@ export interface Content {
     ratingsCount?: number | null
     ratingsAverage?: number | null
     sharesCount?: number | null
-  }
-  updatedAt: string
-  createdAt: string
-}
-/**
- * Taxonomy used to group and filter museums.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "museumCategories".
- */
-export interface MuseumCategory {
-  id: string
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  name: string
-  /**
-   * Stable machine name used in URLs and filters. Auto-generated from the name.
-   */
-  slug: string
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  description?: string | null
-  /**
-   * Optional broader category. Leave empty for a top-level category.
-   */
-  parent?: (string | null) | MuseumCategory
-  /**
-   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
-   */
-  icon?: string | null
-  /**
-   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
-   */
-  color?: string | null
-  /**
-   * Surface this category in the home/catalog shortcuts.
-   */
-  featured?: boolean | null
-  museums?: {
-    docs?: (string | Museum)[]
-    hasNextPage?: boolean
-    totalDocs?: number
   }
   updatedAt: string
   createdAt: string
@@ -2044,6 +2002,50 @@ export interface MuseumThumbnail {
       filename?: string | null
     }
   }
+}
+/**
+ * Taxonomy used to group and filter museums.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumCategories".
+ */
+export interface MuseumCategory {
+  id: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string
+  /**
+   * Stable machine name used in URLs and filters. Auto-generated from the name.
+   */
+  slug: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null
+  /**
+   * Optional broader category. Leave empty for a top-level category.
+   */
+  parent?: (string | null) | MuseumCategory
+  /**
+   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
+   */
+  icon?: string | null
+  /**
+   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
+   */
+  color?: string | null
+  /**
+   * Surface this category in the home/catalog shortcuts.
+   */
+  featured?: boolean | null
+  museums?: {
+    docs?: (string | Museum)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -4290,7 +4292,9 @@ export interface ContentsSelect<T extends boolean = true> {
   bodyHTML?: T
   readingTimeMins?: T
   price?: T
-  copyright?: T
+  license?: T
+  rightsMuseum?: T
+  rightsDeclaredAt?: T
   categories?: T
   sources?:
     | T

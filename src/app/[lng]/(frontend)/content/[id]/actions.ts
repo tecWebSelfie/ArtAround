@@ -15,7 +15,7 @@ import { z } from 'zod'
 
 const contentId = z.string().min(1).max(64)
 
-export type ContentSource = Omit<ContentFormValues, 'object'> & {
+export type ContentSource = Omit<ContentFormValues, 'object' | 'rightsDeclared'> & {
   /** The first picture (the cover) and the ids of the others, in order. */
   cover: CurrentImage | null
   otherImages: string[]
@@ -40,7 +40,8 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     select: {
       title: true,
       difficulty: true,
-      copyright: true,
+      license: true,
+      rightsMuseum: true,
       price: true,
       body: true,
       images: true,
@@ -54,7 +55,8 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     otherImages: cover || !first ? otherImages : [first, ...otherImages],
     title: content.title,
     difficulty: content.difficulty,
-    copyright: content.copyright,
+    license: content.license,
+    rightsMuseum: content.rightsMuseum ? extractID(content.rightsMuseum) : null,
     price: content.price ?? null,
     bodyHTML: lexicalToHTML(content.body),
   }

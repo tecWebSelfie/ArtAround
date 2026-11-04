@@ -143,9 +143,17 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      derives the read-only `palette` on save and the field `validate` refuses
      saturated red and orange (DESIGN.md → The Museum Primary Rule);
    - object: name, description — owner;
-   - content: title, difficulty, copyright, price and the body (rich text,
-     TipTap loaded on demand) — author (`ContentEditForm`, fields shared with
-     `ContentForm` through `ContentFields`);
+   - content: title, difficulty, price, rights holder, licence and the body
+     (rich text, TipTap loaded on demand) — author (`ContentEditForm`, fields
+     shared with `ContentForm` through `ContentFields`). Rights
+     (`src/lib/content-rights.ts`, hooks `guardRights` on contents and
+     `guardNonCommercialContents` on tours): the holder is the author or a
+     museum where the author is curator or director (`rightsMuseum`); a new
+     content needs the author's declaration that the text is theirs
+     (`rightsDeclaredAt`, stamped by the server); a paid content is always
+     "all rights reserved"; a tour that sells contents can't include another
+     author's NC content. The credit line ("© holder year · licence") is
+     computed, never typed;
    - own profile: first/last name, bio (+ sign out).
 2. **Dedicated pages** (complex relations):
    - `/[lng]/content/new?object=<id>` — full content form; sends

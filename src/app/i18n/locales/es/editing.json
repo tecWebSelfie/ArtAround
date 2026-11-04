@@ -26,7 +26,6 @@
   "Choose the object": "Elige el objeto",
   "City": "Ciudad",
   "Content": "Contenido",
-  "Copyright": "Copyright",
   "Could not delete": "No se ha podido eliminar",
   "Could not save": "No se ha podido guardar",
   "Create museum": "Crear museo",
@@ -127,5 +126,12 @@
   "Reset to default": "Restablecer valor predeterminado",
   "Button": "Botón",
   "Tag": "Etiqueta",
-  "Default blue": "Azul predeterminado"
+  "Default blue": "Azul predeterminado",
+  "All rights reserved": "Todos los derechos reservados",
+  "Declare that the text is yours to publish it": "Declara que el texto es tuyo para publicarlo",
+  "I am the author of this text, or I hold its rights": "Soy el autor de este texto o tengo sus derechos",
+  "License": "Licencia",
+  "Paid contents are always all rights reserved": "Los contenidos de pago siempre tienen todos los derechos reservados",
+  "Rights holder": "Titular de los derechos",
+  "You, the author": "Tú, el autor"
 }

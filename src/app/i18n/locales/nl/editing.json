@@ -25,7 +25,6 @@
   "Choose the object": "Kies het object",
   "City": "Stad",
   "Content": "Content",
-  "Copyright": "Copyright",
   "Could not delete": "Kon niet verwijderen",
   "Could not save": "Kon niet opslaan",
   "Create museum": "Museum aanmaken",
@@ -124,5 +123,12 @@
   "Reset to default": "Standaard herstellen",
   "Button": "Knop",
   "Tag": "Label",
-  "Default blue": "Standaardblauw"
+  "Default blue": "Standaardblauw",
+  "All rights reserved": "Alle rechten voorbehouden",
+  "Declare that the text is yours to publish it": "Verklaar dat de tekst van jou is om hem te publiceren",
+  "I am the author of this text, or I hold its rights": "Ik ben de auteur van deze tekst of heb de rechten erop",
+  "License": "Licentie",
+  "Paid contents are always all rights reserved": "Betaalde inhoud valt altijd onder alle rechten voorbehouden",
+  "Rights holder": "Rechthebbende",
+  "You, the author": "Jij, de auteur"
 }

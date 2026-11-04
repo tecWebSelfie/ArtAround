@@ -22,7 +22,6 @@
   "Choose the object": "Choose the object",
   "City": "City",
   "Content": "Content",
-  "Copyright": "Copyright",
   "Could not delete": "Could not delete",
   "Could not save": "Could not save",
   "Create museum": "Create museum",
@@ -121,5 +120,12 @@
   "Reset to default": "Reset to default",
   "Button": "Button",
   "Tag": "Tag",
-  "Default blue": "Default blue"
+  "Default blue": "Default blue",
+  "All rights reserved": "All rights reserved",
+  "Declare that the text is yours to publish it": "Declare that the text is yours to publish it",
+  "I am the author of this text, or I hold its rights": "I am the author of this text, or I hold its rights",
+  "License": "License",
+  "Paid contents are always all rights reserved": "Paid contents are always all rights reserved",
+  "Rights holder": "Rights holder",
+  "You, the author": "You, the author"
 }

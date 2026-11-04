@@ -211,7 +211,6 @@ for (const object of OBJECTS) {
       audience: content.audience ?? 'everyone',
       price: content.price ?? null,
       sources: content.sources ?? [],
-      copyright: `© ${PROJECT_ACCOUNTS.find((a) => a.username === content.author)!.name.fullName}`,
       categories: categoryIds(object.categories),
       author: authorId(content.author),
       objects: {},

@@ -28,7 +28,6 @@
   "Choose the object": "Roghnaigh an réad",
   "City": "Cathair",
   "Content": "Ábhar",
-  "Copyright": "Cóipcheart",
   "Could not delete": "Níorbh fhéidir scriosadh",
   "Could not save": "Níorbh fhéidir sábháil",
   "Create museum": "Cruthaigh músaem",
@@ -133,5 +132,12 @@
   "Reset to default": "Athshocraigh go réamhshocrú",
   "Button": "Cnaipe",
   "Tag": "Clib",
-  "Default blue": "Gorm réamhshocraithe"
+  "Default blue": "Gorm réamhshocraithe",
+  "All rights reserved": "Gach ceart ar cosaint",
+  "Declare that the text is yours to publish it": "Dearbhaigh gur leatsa an téacs chun é a fhoilsiú",
+  "I am the author of this text, or I hold its rights": "Is mise údar an téacs seo, nó tá a chearta agam",
+  "License": "Ceadúnas",
+  "Paid contents are always all rights reserved": "Bíonn gach ceart ar cosaint i gcónaí ar ábhar íoctha",
+  "Rights holder": "Sealbhóir na gceart",
+  "You, the author": "Tusa, an t-údar"
 }

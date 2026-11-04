@@ -51,35 +51,46 @@ function LoadedForm({ id, source }: { id: string; source: ContentSource }) {
     initialValues: {
       title: source.title,
       difficulty: source.difficulty,
-      copyright: source.copyright,
+      license: source.license,
+      rightsMuseum: source.rightsMuseum,
       price: source.price,
       bodyHTML: source.bodyHTML,
       object: null,
+      // Declared when the content was created; not asked again on edits.
+      rightsDeclared: true,
     },
     validate: contentFieldValidators(t),
   })
   const [cover, setCover] = useState<CoverChange>(null)
-  const save = useSave(async ({ bodyHTML, object: _object, ...values }: ContentFormValues) => {
-    const title = values.title.trim()
-    const coverId = cover && (await saveCover(cover, source.cover, 'contentImages', title))
-    return payloadSdk.update({
-      collection: 'contents',
-      id,
-      locale: SOURCE_LOCALE,
-      data: {
-        ...values,
-        title,
-        // Only a changed body goes back through the HTML → Lexical
-        // conversion, so a metadata-only save never rewrites the text.
-        ...(bodyHTML !== source.bodyHTML && { bodyHTML }),
-        // The cover is the first picture: a new one takes its place, a removed
-        // one leaves the others, which are kept as they are.
-        ...(cover && {
-          images: coverId ? [coverId, ...source.otherImages] : source.otherImages,
-        }),
-      },
-    })
-  }, close)
+  const save = useSave(
+    async ({
+      bodyHTML,
+      object: _object,
+      rightsDeclared: _declared,
+      ...values
+    }: ContentFormValues) => {
+      const title = values.title.trim()
+      const coverId = cover && (await saveCover(cover, source.cover, 'contentImages', title))
+      return payloadSdk.update({
+        collection: 'contents',
+        id,
+        locale: SOURCE_LOCALE,
+        data: {
+          ...values,
+          title,
+          // Only a changed body goes back through the HTML → Lexical
+          // conversion, so a metadata-only save never rewrites the text.
+          ...(bodyHTML !== source.bodyHTML && { bodyHTML }),
+          // The cover is the first picture: a new one takes its place, a removed
+          // one leaves the others, which are kept as they are.
+          ...(cover && {
+            images: coverId ? [coverId, ...source.otherImages] : source.otherImages,
+          }),
+        },
+      })
+    },
+    close,
+  )
 
   return (
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>

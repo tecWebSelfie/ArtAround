@@ -27,7 +27,6 @@
   "Choose the object": "Izberi predmet",
   "City": "Mesto",
   "Content": "Vsebina",
-  "Copyright": "Avtorske pravice",
   "Could not delete": "Brisanje ni uspelo",
   "Could not save": "Shranjevanje ni uspelo",
   "Create museum": "Ustvari muzej",
@@ -130,5 +129,12 @@
   "Reset to default": "Ponastavi na privzeto",
   "Button": "Gumb",
   "Tag": "Oznaka",
-  "Default blue": "Privzeta modra"
+  "Default blue": "Privzeta modra",
+  "All rights reserved": "Vse pravice pridržane",
+  "Declare that the text is yours to publish it": "Za objavo izjavite, da je besedilo vaše",
+  "I am the author of this text, or I hold its rights": "Sem avtor tega besedila ali imam pravice nanj",
+  "License": "Licenca",
+  "Paid contents are always all rights reserved": "Plačljive vsebine imajo vedno pridržane vse pravice",
+  "Rights holder": "Imetnik pravic",
+  "You, the author": "Vi, avtor"
 }

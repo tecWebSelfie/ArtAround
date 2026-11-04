@@ -28,7 +28,6 @@
   "Choose the object": "Agħżel l-oġġett",
   "City": "Belt",
   "Content": "Kontenut",
-  "Copyright": "Drittijiet tal-awtur",
   "Could not delete": "Ma setax jitħassar",
   "Could not save": "Ma setax jiġi ssejvjat",
   "Create museum": "Oħloq mużew",
@@ -133,5 +132,12 @@
   "Reset to default": "Irrisettja għall-awtomatiku",
   "Button": "Buttuna",
   "Tag": "Tikketta",
-  "Default blue": "Blu awtomatiku"
+  "Default blue": "Blu awtomatiku",
+  "All rights reserved": "Id-drittijiet kollha riżervati",
+  "Declare that the text is yours to publish it": "Iddikjara li t-test huwa tiegħek biex tippubblikah",
+  "I am the author of this text, or I hold its rights": "Jien l-awtur ta’ dan it-test, jew għandi d-drittijiet tiegħu",
+  "License": "Liċenzja",
+  "Paid contents are always all rights reserved": "Il-kontenut bi ħlas dejjem ikollu d-drittijiet kollha riżervati",
+  "Rights holder": "Detentur tad-drittijiet",
+  "You, the author": "Int, l-awtur"
 }

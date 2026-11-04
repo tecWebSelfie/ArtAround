@@ -15,6 +15,7 @@ import {
 import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_VERIFIED } from '@/fields/MuseumFunction'
+import { effectiveLicense, isLicense, LICENSE_NAME, LICENSES } from '@/lib/content-rights'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { refreshSearchDocs } from '@/lib/search-index'
@@ -135,6 +136,46 @@ const guardPaidContent: CollectionBeforeChangeHook<Content> = async ({
   return data
 }
 
+/**
+ * Rights of the content (`src/lib/content-rights.ts`):
+ * - the licence follows the price: a paid content is always "all rights
+ *   reserved";
+ * - only curators and directors of a museum may make it the rights holder;
+ * - a new content needs the author's declaration that the text is theirs.
+ *   The client only says it was given; the server stamps the time.
+ * Trusted Local API calls without a user (seed, jobs) and super admins skip
+ * the last two checks, as they do for the author.
+ */
+const guardRights: CollectionBeforeChangeHook<Content> = async ({
+  data,
+  req,
+  operation,
+  originalDoc,
+}) => {
+  const price = data.price !== undefined ? data.price : originalDoc?.price
+  const license = isLicense(data.license) ? data.license : originalDoc?.license
+  data.license = effectiveLicense(price, license)
+  if (!req.user || isSuperAdmin(req)) return data
+
+  const museum = data.rightsMuseum ? asId(data.rightsMuseum) : null
+  if (museum && museum !== asId(originalDoc?.rightsMuseum)) {
+    const roles = await getMuseumRoles(req)
+    if (!hasRank(roles.get(museum), MUSEUM_FUNCTION_CURATOR)) {
+      throw new APIError(
+        'Only curators and directors of a museum can make it the rights holder.',
+        403,
+      )
+    }
+  }
+  if (operation === 'create') {
+    if (!data.rightsDeclaredAt) {
+      throw new APIError('Declare that you are the author of the text or hold its rights.', 400)
+    }
+    data.rightsDeclaredAt = new Date().toISOString()
+  }
+  return data
+}
+
 const storeReadingTime: CollectionBeforeChangeHook<Content> = ({ data }) => {
   // Stored (not only computed on read) so cards keep it when a paid body is hidden.
   if (data.body) data.readingTimeMins = readingMinutes(data.body)
@@ -214,7 +255,7 @@ export const Contents: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
-    beforeChange: [assignAuthor, guardPaidContent, storeReadingTime],
+    beforeChange: [assignAuthor, guardPaidContent, guardRights, storeReadingTime],
     afterChange: [attachToObject, refreshTourPrices],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
@@ -262,9 +303,30 @@ export const Contents: CollectionConfig = {
       admin: { description: 'Euro cents. Empty or 0 = free.', step: 1 },
     },
     {
-      name: 'copyright',
-      type: 'text',
+      // Licence others may use the text under; a price forces "all rights
+      // reserved" (`guardRights`). The credit line shows it next to the holder.
+      name: 'license',
+      type: 'select',
       required: true,
+      defaultValue: 'cc-by',
+      options: LICENSES.map((value) => ({ label: LICENSE_NAME[value], value })),
+    },
+    {
+      // Rights holder when it isn't the author: a museum where the author is
+      // curator or director (`guardRights`). Empty = the author holds them.
+      name: 'rightsMuseum',
+      type: 'relationship',
+      relationTo: 'museums',
+      required: false,
+    },
+    {
+      // When the author declared that the text is theirs (or that they hold
+      // its rights); stamped by the server on create, never edited after.
+      name: 'rightsDeclaredAt',
+      type: 'date',
+      required: false,
+      access: { update: ({ req }) => isSuperAdmin(req) },
+      admin: { readOnly: true },
     },
     {
       name: 'categories',

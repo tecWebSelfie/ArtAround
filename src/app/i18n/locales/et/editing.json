@@ -25,7 +25,6 @@
   "Choose the object": "Vali objekt",
   "City": "Linn",
   "Content": "Sisu",
-  "Copyright": "Autoriõigus",
   "Could not delete": "Kustutamine ebaõnnestus",
   "Could not save": "Salvestamine ebaõnnestus",
   "Create museum": "Loo muuseum",
@@ -124,5 +123,12 @@
   "Reset to default": "Lähtesta vaikeväärtusele",
   "Button": "Nupp",
   "Tag": "Silt",
-  "Default blue": "Vaikesinine"
+  "Default blue": "Vaikesinine",
+  "All rights reserved": "Kõik õigused kaitstud",
+  "Declare that the text is yours to publish it": "Avaldamiseks kinnita, et tekst on sinu oma",
+  "I am the author of this text, or I hold its rights": "Olen selle teksti autor või mul on selle õigused",
+  "License": "Litsents",
+  "Paid contents are always all rights reserved": "Tasulise sisu kõik õigused on alati kaitstud",
+  "Rights holder": "Õiguste omaja",
+  "You, the author": "Sina, autor"
 }

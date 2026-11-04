@@ -26,7 +26,6 @@
   "Choose the object": "Alege obiectul",
   "City": "Oraș",
   "Content": "Conținut",
-  "Copyright": "Drepturi de autor",
   "Could not delete": "Nu s-a putut șterge",
   "Could not save": "Nu s-a putut salva",
   "Create museum": "Creează muzeu",
@@ -127,5 +126,12 @@
   "Reset to default": "Revino la implicit",
   "Button": "Buton",
   "Tag": "Etichetă",
-  "Default blue": "Albastru implicit"
+  "Default blue": "Albastru implicit",
+  "All rights reserved": "Toate drepturile rezervate",
+  "Declare that the text is yours to publish it": "Declară că textul îți aparține pentru a-l publica",
+  "I am the author of this text, or I hold its rights": "Sunt autorul acestui text sau dețin drepturile asupra lui",
+  "License": "Licență",
+  "Paid contents are always all rights reserved": "Conținutul plătit are întotdeauna toate drepturile rezervate",
+  "Rights holder": "Deținătorul drepturilor",
+  "You, the author": "Tu, autorul"
 }

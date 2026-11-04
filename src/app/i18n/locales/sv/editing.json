@@ -25,7 +25,6 @@
   "Choose the object": "Välj föremålet",
   "City": "Stad",
   "Content": "Innehåll",
-  "Copyright": "Upphovsrätt",
   "Could not delete": "Kunde inte ta bort",
   "Could not save": "Kunde inte spara",
   "Create museum": "Skapa museum",
@@ -124,5 +123,12 @@
   "Reset to default": "Återställ till standard",
   "Button": "Knapp",
   "Tag": "Etikett",
-  "Default blue": "Standardblått"
+  "Default blue": "Standardblått",
+  "All rights reserved": "Alla rättigheter förbehållna",
+  "Declare that the text is yours to publish it": "Intyga att texten är din för att publicera den",
+  "I am the author of this text, or I hold its rights": "Jag är författare till den här texten eller innehar rättigheterna till den",
+  "License": "Licens",
+  "Paid contents are always all rights reserved": "Betalt innehåll har alltid alla rättigheter förbehållna",
+  "Rights holder": "Rättighetsinnehavare",
+  "You, the author": "Du, författaren"
 }

@@ -25,7 +25,6 @@
   "Choose the object": "Válaszd ki a tárgyat",
   "City": "Város",
   "Content": "Tartalom",
-  "Copyright": "Szerzői jog",
   "Could not delete": "Nem sikerült törölni",
   "Could not save": "Nem sikerült menteni",
   "Create museum": "Múzeum létrehozása",
@@ -124,5 +123,12 @@
   "Reset to default": "Visszaállítás alapértelmezettre",
   "Button": "Gomb",
   "Tag": "Címke",
-  "Default blue": "Alapértelmezett kék"
+  "Default blue": "Alapértelmezett kék",
+  "All rights reserved": "Minden jog fenntartva",
+  "Declare that the text is yours to publish it": "A közzétételhez nyilatkozz, hogy a szöveg a tiéd",
+  "I am the author of this text, or I hold its rights": "Én vagyok a szöveg szerzője, vagy enyémek a jogai",
+  "License": "Licenc",
+  "Paid contents are always all rights reserved": "A fizetős tartalmaknál mindig minden jog fenntartva",
+  "Rights holder": "Jogtulajdonos",
+  "You, the author": "Te, a szerző"
 }

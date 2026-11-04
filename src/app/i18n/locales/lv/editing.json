@@ -26,7 +26,6 @@
   "Choose the object": "Izvēlies objektu",
   "City": "Pilsēta",
   "Content": "Saturs",
-  "Copyright": "Autortiesības",
   "Could not delete": "Neizdevās izdzēst",
   "Could not save": "Neizdevās saglabāt",
   "Create museum": "Izveidot muzeju",
@@ -127,5 +126,12 @@
   "Reset to default": "Atiestatīt noklusējumu",
   "Button": "Poga",
   "Tag": "Birka",
-  "Default blue": "Noklusējuma zilā"
+  "Default blue": "Noklusējuma zilā",
+  "All rights reserved": "Visas tiesības aizsargātas",
+  "Declare that the text is yours to publish it": "Lai publicētu, apliecini, ka teksts ir tavs",
+  "I am the author of this text, or I hold its rights": "Esmu šī teksta autors vai man pieder tā tiesības",
+  "License": "Licence",
+  "Paid contents are always all rights reserved": "Maksas saturam vienmēr visas tiesības ir aizsargātas",
+  "Rights holder": "Tiesību turētājs",
+  "You, the author": "Tu, autors"
 }

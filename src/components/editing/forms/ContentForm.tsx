@@ -12,7 +12,12 @@ import { backToTourHref } from '@/lib/tour-picker'
 import { saveCover, type CoverChange } from '../CoverImageInput'
 import { ObjectPicker } from '../ObjectPicker'
 import { SOURCE_LOCALE, useSave } from '../saving'
-import { ContentFields, contentFieldValidators, type ContentFormValues } from './ContentFields'
+import {
+  ContentFields,
+  contentFieldValidators,
+  NEW_CONTENT_RIGHTS,
+  type ContentFormValues,
+} from './ContentFields'
 
 /**
  * New content editor (`/content/new`). Existing contents are edited inline on
@@ -41,7 +46,7 @@ export function ContentForm({
     initialValues: {
       title: '',
       difficulty: 'easy',
-      copyright: '',
+      ...NEW_CONTENT_RIGHTS,
       price: null,
       bodyHTML: '',
       object: initialObject?.id ?? null,
@@ -49,12 +54,14 @@ export function ContentForm({
     validate: {
       ...contentFieldValidators(t),
       object: (value) => (value ? null : t('Choose the object')),
+      // Third-party texts aren't accepted: the author declares the text is theirs.
+      rightsDeclared: (value) => (value ? null : t('Declare that the text is yours to publish it')),
     },
   })
 
   const [cover, setCover] = useState<CoverChange>(null)
   const save = useSave(
-    async ({ object, ...values }: ContentFormValues) => {
+    async ({ object, rightsDeclared, ...values }: ContentFormValues) => {
       const title = values.title.trim()
       const coverId = await saveCover(cover, null, 'contentImages', title)
       return payloadSdk.create({
@@ -67,6 +74,8 @@ export function ContentForm({
           title,
           images: coverId ? [coverId] : [],
           attachToObject: object,
+          // The server stamps its own time; this only says the box was ticked.
+          rightsDeclaredAt: rightsDeclared ? new Date().toISOString() : null,
         } as RequiredDataFromCollectionSlug<'contents'>,
       })
     },
@@ -88,7 +97,7 @@ export function ContentForm({
           onChange={(id) => form.setFieldValue('object', id)}
           error={form.errors.object as string | undefined}
         />
-        <ContentFields form={form} cover={{ change: cover, onChange: setCover }} />
+        <ContentFields form={form} cover={{ change: cover, onChange: setCover }} isNew />
         <Group justify="end">
           <Button variant="default" onClick={() => router.back()} disabled={save.isPending}>
             {t('Cancel')}

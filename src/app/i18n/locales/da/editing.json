@@ -25,7 +25,6 @@
   "Choose the object": "Vælg genstanden",
   "City": "By",
   "Content": "Indhold",
-  "Copyright": "Ophavsret",
   "Could not delete": "Kunne ikke slette",
   "Could not save": "Kunne ikke gemme",
   "Create museum": "Opret museum",
@@ -124,5 +123,12 @@
   "Reset to default": "Nulstil til standard",
   "Button": "Knap",
   "Tag": "Mærkat",
-  "Default blue": "Standardblåt"
+  "Default blue": "Standardblåt",
+  "All rights reserved": "Alle rettigheder forbeholdes",
+  "Declare that the text is yours to publish it": "Erklær, at teksten er din, for at udgive den",
+  "I am the author of this text, or I hold its rights": "Jeg er forfatter til denne tekst eller har rettighederne til den",
+  "License": "Licens",
+  "Paid contents are always all rights reserved": "Betalt indhold har altid alle rettigheder forbeholdt",
+  "Rights holder": "Rettighedshaver",
+  "You, the author": "Dig, forfatteren"
 }

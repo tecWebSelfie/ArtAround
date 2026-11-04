@@ -26,7 +26,6 @@
   "Choose the object": "Odaberi objekt",
   "City": "Grad",
   "Content": "Sadržaj",
-  "Copyright": "Autorska prava",
   "Could not delete": "Brisanje nije uspjelo",
   "Could not save": "Spremanje nije uspjelo",
   "Create museum": "Izradi muzej",
@@ -127,5 +126,12 @@
   "Reset to default": "Vrati zadano",
   "Button": "Gumb",
   "Tag": "Oznaka",
-  "Default blue": "Zadana plava"
+  "Default blue": "Zadana plava",
+  "All rights reserved": "Sva prava pridržana",
+  "Declare that the text is yours to publish it": "Izjavite da je tekst vaš kako biste ga objavili",
+  "I am the author of this text, or I hold its rights": "Ja sam autor ovog teksta ili posjedujem prava na njega",
+  "License": "Licencija",
+  "Paid contents are always all rights reserved": "Plaćeni sadržaji uvijek imaju sva prava pridržana",
+  "Rights holder": "Nositelj prava",
+  "You, the author": "Vi, autor"
 }

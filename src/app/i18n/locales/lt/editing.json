@@ -27,7 +27,6 @@
   "Choose the object": "Pasirink objektą",
   "City": "Miestas",
   "Content": "Turinys",
-  "Copyright": "Autorių teisės",
   "Could not delete": "Nepavyko ištrinti",
   "Could not save": "Nepavyko išsaugoti",
   "Create museum": "Sukurti muziejų",
@@ -130,5 +129,12 @@
   "Reset to default": "Atkurti numatytąją",
   "Button": "Mygtukas",
   "Tag": "Žymė",
-  "Default blue": "Numatytoji mėlyna"
+  "Default blue": "Numatytoji mėlyna",
+  "All rights reserved": "Visos teisės saugomos",
+  "Declare that the text is yours to publish it": "Norėdami paskelbti, patvirtinkite, kad tekstas yra jūsų",
+  "I am the author of this text, or I hold its rights": "Esu šio teksto autorius arba turiu jo teises",
+  "License": "Licencija",
+  "Paid contents are always all rights reserved": "Mokamo turinio visos teisės visada saugomos",
+  "Rights holder": "Teisių turėtojas",
+  "You, the author": "Jūs, autorius"
 }

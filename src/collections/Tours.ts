@@ -7,7 +7,14 @@ import {
 } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
 import type { Tour as TourType } from '@/payload-types'
-import type { Access, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import {
+  APIError,
+  type Access,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type Where,
+} from 'payload'
+import { nonCommercialConflicts } from '@/lib/content-rights'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -47,6 +54,46 @@ const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operati
   return data
 }
 
+const asId = (value: unknown) =>
+  value && typeof value === 'object' && 'id' in value ? String(value.id) : String(value)
+
+/**
+ * A tour that sells contents is commercial use of everything in it, so it
+ * can't include an NC-licensed content of another author
+ * (`nonCommercialConflicts`, src/lib/content-rights.ts). Checked whenever the
+ * stops change; a later price change of a stop doesn't re-check its tours.
+ */
+const guardNonCommercialContents: CollectionBeforeChangeHook<TourType> = async ({
+  data,
+  req,
+  originalDoc,
+}) => {
+  if (!data.contents) return data
+  const author = data.author ?? originalDoc?.author
+  const { docs } = await req.payload.find({
+    collection: 'contents',
+    where: { id: { in: data.contents.map(asId) } },
+    select: { title: true, price: true, license: true, author: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  const conflicts = nonCommercialConflicts(
+    docs.map((doc) => ({ ...doc, author: doc.author ? asId(doc.author) : null })),
+    author ? asId(author) : null,
+  )
+  if (conflicts.length) {
+    throw new APIError(
+      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${conflicts
+        .map(({ title }) => `"${title}"`)
+        .join(', ')}.`,
+      400,
+    )
+  }
+  return data
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
   access: {
@@ -56,7 +103,7 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor],
+    beforeChange: [assignAuthor, guardNonCommercialContents],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
     afterChange: [deleteQuestionsRemovedFromQuiz],
     afterDelete: [deleteQuestionsOfDeletedTour],

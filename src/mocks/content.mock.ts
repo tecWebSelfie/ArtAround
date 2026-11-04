@@ -33,7 +33,7 @@ function baseContent(): Content {
     difficulty: 'easy',
     title: 'Storia della ceramica attica',
     body: mockBody('Introduzione alla ceramica attica a figure rosse e alle sue tecniche.'),
-    copyright: '© Museo Civico di Esempio',
+    license: 'cc-by-sa',
     images: null,
     objects: {
       docs: ['object-1'],
@@ -61,7 +61,7 @@ export const mockContentSecond: Content = createContent({
   difficulty: 'medium',
   title: 'Il restauro del bronzo',
   body: mockBody('Come si restaura una statua in bronzo: pulitura, consolidamento e integrazione.'),
-  copyright: '© Museo Civico di Esempio',
+  license: 'cc-by-sa',
   readingTimeMins: 5,
 })
 
@@ -70,7 +70,7 @@ export const mockContentThird: Content = createContent({
   difficulty: 'hard',
   title: 'Leggere un dipinto rinascimentale',
   body: mockBody('Iconografia, prospettiva e committenza nella pittura del Rinascimento.'),
-  copyright: '© Museo Civico di Esempio',
+  license: 'cc-by-sa',
   readingTimeMins: 8,
 })
 

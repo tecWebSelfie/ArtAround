@@ -25,7 +25,6 @@
   "Choose the object": "Valitse esine",
   "City": "Kaupunki",
   "Content": "Sisältö",
-  "Copyright": "Tekijänoikeus",
   "Could not delete": "Poistaminen epäonnistui",
   "Could not save": "Tallentaminen epäonnistui",
   "Create museum": "Luo museo",
@@ -124,5 +123,12 @@
   "Reset to default": "Palauta oletus",
   "Button": "Painike",
   "Tag": "Tunniste",
-  "Default blue": "Oletussininen"
+  "Default blue": "Oletussininen",
+  "All rights reserved": "Kaikki oikeudet pidätetään",
+  "Declare that the text is yours to publish it": "Vahvista, että teksti on sinun, jotta voit julkaista sen",
+  "I am the author of this text, or I hold its rights": "Olen tämän tekstin kirjoittaja tai minulla on sen oikeudet",
+  "License": "Lisenssi",
+  "Paid contents are always all rights reserved": "Maksullisen sisällön kaikki oikeudet pidätetään aina",
+  "Rights holder": "Oikeuksien haltija",
+  "You, the author": "Sinä, kirjoittaja"
 }

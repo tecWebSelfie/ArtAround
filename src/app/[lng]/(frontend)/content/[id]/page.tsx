@@ -51,87 +51,101 @@ async function loadContentDetails(
   const authorId = typeof content.author === 'string' ? content.author : content.author?.id
   const categoryIds = (content.categories ?? []).map((c) => (typeof c === 'string' ? c : c.id))
   const imageIds = (content.images ?? []).map((i) => (typeof i === 'string' ? i : i.id))
+  const rightsMuseumId =
+    typeof content.rightsMuseum === 'string' ? content.rightsMuseum : content.rightsMuseum?.id
 
-  const [objectText, objectMedia, author, categories, images, tours] = await Promise.all([
-    objectId
-      ? resolveLocalized(payload, {
-          collection: 'objects',
-          id: objectId,
-          locale,
-          user,
-        })
-      : null,
-    // Thumbnail and museum: relations the depth-0 localized read leaves as ids.
-    objectId
-      ? payload
-          .findByID({
+  const [objectText, objectMedia, author, categories, images, tours, rightsMuseum] =
+    await Promise.all([
+      objectId
+        ? resolveLocalized(payload, {
             collection: 'objects',
             id: objectId,
-            depth: 1,
             locale,
-            select: { thumbnail: true, museums: true },
-            populate: {
-              objectsThumbnails: PICTURE_SELECT,
-              museums: { name: true, shortDescription: true },
-            },
+            user,
+          })
+        : null,
+      // Thumbnail and museum: relations the depth-0 localized read leaves as ids.
+      objectId
+        ? payload
+            .findByID({
+              collection: 'objects',
+              id: objectId,
+              depth: 1,
+              locale,
+              select: { thumbnail: true, museums: true },
+              populate: {
+                objectsThumbnails: PICTURE_SELECT,
+                museums: { name: true, shortDescription: true },
+              },
+              ...viewer,
+            })
+            .catch(() => null)
+        : null,
+      authorId
+        ? payload
+            .findByID({
+              collection: 'users',
+              id: authorId,
+              depth: 1,
+              select: { name: true, avatar: true, bio: true },
+              // `url` is computed from `filename`.
+              populate: { usersPropics: { url: true, filename: true, alt: true } },
+              ...viewer,
+            })
+            .catch(() => null)
+        : null,
+      categoryIds.length
+        ? payload.find({
+            collection: 'museumCategories',
+            where: { id: { in: categoryIds } },
+            select: { name: true },
+            locale,
+            depth: 0,
+            pagination: false,
             ...viewer,
           })
-          .catch(() => null)
-      : null,
-    authorId
-      ? payload
-          .findByID({
-            collection: 'users',
-            id: authorId,
-            depth: 1,
-            select: { name: true, avatar: true, bio: true },
-            // `url` is computed from `filename`.
-            populate: { usersPropics: { url: true, filename: true, alt: true } },
+        : null,
+      imageIds.length
+        ? payload.find({
+            collection: 'contentImages',
+            where: { id: { in: imageIds } },
+            select: PICTURE_SELECT,
+            locale,
+            depth: 0,
+            pagination: false,
             ...viewer,
           })
-          .catch(() => null)
-      : null,
-    categoryIds.length
-      ? payload.find({
-          collection: 'museumCategories',
-          where: { id: { in: categoryIds } },
-          select: { name: true },
-          locale,
-          depth: 0,
-          pagination: false,
-          ...viewer,
-        })
-      : null,
-    imageIds.length
-      ? payload.find({
-          collection: 'contentImages',
-          where: { id: { in: imageIds } },
-          select: PICTURE_SELECT,
-          locale,
-          depth: 0,
-          pagination: false,
-          ...viewer,
-        })
-      : null,
-    payload.find({
-      collection: 'tours',
-      // Museum mode: only the locked museum's tours that include this content.
-      where: {
-        contents: { contains: id },
-        ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
-      },
-      select: { title: true, thumbnail: true, museum: true },
-      populate: {
-        toursThumbnails: PICTURE_SELECT,
-        museums: { name: true },
-      },
-      locale,
-      depth: 1,
-      limit: 6,
-      sort: '-updatedAt',
-      ...viewer,
-    }),
-  ])
+        : null,
+      payload.find({
+        collection: 'tours',
+        // Museum mode: only the locked museum's tours that include this content.
+        where: {
+          contents: { contains: id },
+          ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
+        },
+        select: { title: true, thumbnail: true, museum: true },
+        populate: {
+          toursThumbnails: PICTURE_SELECT,
+          museums: { name: true },
+        },
+        locale,
+        depth: 1,
+        limit: 6,
+        sort: '-updatedAt',
+        ...viewer,
+      }),
+      // The credit line's holder when it isn't the author (src/lib/content-rights.ts).
+      rightsMuseumId
+        ? payload
+            .findByID({
+              collection: 'museums',
+              id: rightsMuseumId,
+              depth: 0,
+              select: { name: true },
+            })
+            .catch(() => null)
+        : null,
+    ])
 
   const object = objectText && objectText.kind !== 'not-found' ? objectText.doc : null
   const museum = objectMedia?.museums?.docs?.find(
@@ -158,6 +172,12 @@ async function loadContentDetails(
     object: object && { ...object, thumbnail: objectMedia?.thumbnail ?? null },
     museum: museum ?? null,
     author,
+    rightsHolder:
+      rightsMuseum?.name ??
+      (author &&
+        (author.name?.fullName ||
+          [author.name?.firstName, author.name?.lastName].filter(Boolean).join(' '))) ??
+      null,
     // `in` queries don't keep the authored order: restore it.
     categories: categoryIds.flatMap((cid) => categories?.docs.filter((c) => c.id === cid) ?? []),
     images: imageIds.flatMap((iid) => images?.docs.filter((i) => i.id === iid) ?? []),
