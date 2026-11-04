@@ -136,5 +136,10 @@
   "License": "Licencia",
   "Paid contents are always all rights reserved": "Platený obsah má vždy všetky práva vyhradené",
   "Rights holder": "Držiteľ práv",
-  "You, the author": "Vy, autor"
+  "You, the author": "Vy, autor",
+  "Wikidata": "Wikidáta",
+  "Open {{id}} on Wikidata": "Otvoriť {{id}} na Wikidátach",
+  "Search the work by name, or type its Q-id": "Vyhľadajte dielo podľa názvu alebo zadajte jeho Q-id",
+  "Choose an item from the list": "Vyberte položku zo zoznamu",
+  "Inventory number": "Inventárne číslo"
 }

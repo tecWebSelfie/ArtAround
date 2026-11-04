@@ -133,5 +133,10 @@
   "License": "Licence",
   "Paid contents are always all rights reserved": "Maksas saturam vienmēr visas tiesības ir aizsargātas",
   "Rights holder": "Tiesību turētājs",
-  "You, the author": "Tu, autors"
+  "You, the author": "Tu, autors",
+  "Wikidata": "Vikidati",
+  "Open {{id}} on Wikidata": "Atvērt {{id}} Vikidatos",
+  "Search the work by name, or type its Q-id": "Meklējiet darbu pēc nosaukuma vai ierakstiet tā Q-id",
+  "Choose an item from the list": "Izvēlieties vienumu no saraksta",
+  "Inventory number": "Inventāra numurs"
 }

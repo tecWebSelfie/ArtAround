@@ -664,6 +664,40 @@ immediate, almost like a moment caught in a real church.</p>`,
   },
 ]
 
+/**
+ * Contents about a subject rather than a work, attached once the Wikidata
+ * import has created the subject (matched by its Q-id).
+ */
+export const SUBJECT_CONTENTS: (DemoContent & { wikidataId: string })[] = [
+  {
+    wikidataId: 'Q5597',
+    title: 'Raphael and Bologna',
+    difficulty: 'medium',
+    author: 'autore1',
+    bodyHTML: `
+<p>Raphael never worked in Bologna, yet one of his most admired altarpieces
+has been here for five centuries. He painted the Saint Cecilia in Rome and
+sent it north, and Bolognese painters studied it for generations.</p>
+<p>Guido Reni in particular took from Raphael the idea that beauty is a matter
+of balance and grace. Look for Raphael's calm faces and clear groups in the
+seventeenth-century rooms.</p>`,
+    sources: [wikipedia('Raffaello_Sanzio')],
+  },
+  {
+    wikidataId: 'Q109061',
+    title: 'Who was Guido Reni?',
+    difficulty: 'easy',
+    author: 'autore2',
+    bodyHTML: `
+<p>Guido Reni was born in 1575 near Bologna and trained in the academy of the
+Carracci. He became one of the most famous painters in Europe, working for
+popes in Rome and for the great families of Bologna.</p>
+<p>The gallery has several of his works: the Massacre of the Innocents, the
+banner painted during the plague of 1630 and the portrait of his mother.</p>`,
+    sources: [wikipedia('Guido_Reni')],
+  },
+]
+
 /** Content titles in visiting order; the tour's museum is the seeded one. */
 export const TOURS = [
   {

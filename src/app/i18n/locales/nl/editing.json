@@ -130,5 +130,10 @@
   "License": "Licentie",
   "Paid contents are always all rights reserved": "Betaalde inhoud valt altijd onder alle rechten voorbehouden",
   "Rights holder": "Rechthebbende",
-  "You, the author": "Jij, de auteur"
+  "You, the author": "Jij, de auteur",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "{{id}} openen op Wikidata",
+  "Search the work by name, or type its Q-id": "Zoek het werk op naam of typ de Q-id",
+  "Choose an item from the list": "Kies een item uit de lijst",
+  "Inventory number": "Inventarisnummer"
 }

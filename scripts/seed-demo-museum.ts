@@ -22,7 +22,7 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { getPayload, type Payload } from 'payload'
+import { createLocalReq, getPayload, type Payload } from 'payload'
 import {
   BlockNode,
   DoorNode,
@@ -40,7 +40,8 @@ import { museumNavMeshOptions, wheelchairNavMeshOptions } from '../src/lib/pasca
 import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
 import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
-import { MUSEUM, OBJECTS, TOURS, type DemoAuthor } from './demo-museum-data'
+import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
+import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 loadEnv({ path: ['.env.local', '.env'] })
 
@@ -129,8 +130,9 @@ async function upsert<T extends { id: string | number }>(
     depth: 0,
     limit: 1,
   })
-  // Demo objects have no 3D model: never queue Mint generation for them.
-  const context = { skipMintModelGeneration: true }
+  // Demo objects have no 3D model: never queue Mint generation for them. The
+  // Wikidata import runs below, right away, instead of as a queued job.
+  const context = { skipMintModelGeneration: true, skipWikidataImport: true }
   const options = { collection, locale: 'en' as const, depth: 0, context, data: data as never }
   return (found.docs[0]
     ? await payload.update({ ...options, id: found.docs[0].id })
@@ -221,6 +223,8 @@ for (const object of OBJECTS) {
   }
   const doc = await upsert<{ id: string }>(payload, 'objects', 'name', object.name, {
     name: object.name,
+    wikidataId: object.wikidataId,
+    inventoryNumber: object.inventoryNumber ?? null,
     artist: object.artist,
     dating: object.dating,
     description: object.description,
@@ -235,6 +239,48 @@ for (const object of OBJECTS) {
   objectIdByKey.set(object.key, String(doc.id))
 }
 console.info(`${OBJECTS.length} objects and ${contentIdByTitle.size} contents ready.`)
+
+// Authors, movements and events from each work's Wikidata item (best effort:
+// without network the works keep only their own data).
+const localReq = await createLocalReq({}, payload)
+let linkedSubjects = 0
+for (const [key, id] of objectIdByKey) {
+  try {
+    linkedSubjects += (await importWikidataSubjects(localReq, id)).subjects
+  } catch (error) {
+    console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
+  }
+}
+console.info(`${linkedSubjects} subject links from Wikidata.`)
+
+// Contents about a subject rather than a work (an item about an artist).
+for (const subjectContent of SUBJECT_CONTENTS) {
+  const subject = (
+    await payload.find({
+      collection: 'subjects',
+      where: { wikidataId: { equals: subjectContent.wikidataId } },
+      depth: 0,
+      limit: 1,
+    })
+  ).docs[0]
+  if (!subject) continue
+  const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
+    title: subjectContent.title,
+    bodyHTML: subjectContent.bodyHTML,
+    difficulty: subjectContent.difficulty,
+    audience: 'everyone',
+    sources: subjectContent.sources ?? [],
+    author: authorId(subjectContent.author),
+    objects: {},
+  })
+  const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
+  await payload.update({
+    collection: 'subjects',
+    id: subject.id,
+    depth: 0,
+    data: { contents: [...contents] },
+  })
+}
 
 // Place every object; `museums.objects` is derived from these items on save.
 const map = createRealisticMuseumMap(MAP_KEY)

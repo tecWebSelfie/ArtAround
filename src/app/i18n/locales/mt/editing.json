@@ -139,5 +139,10 @@
   "License": "Liċenzja",
   "Paid contents are always all rights reserved": "Il-kontenut bi ħlas dejjem ikollu d-drittijiet kollha riżervati",
   "Rights holder": "Detentur tad-drittijiet",
-  "You, the author": "Int, l-awtur"
+  "You, the author": "Int, l-awtur",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Iftaħ {{id}} fuq Wikidata",
+  "Search the work by name, or type its Q-id": "Fittex ix-xogħol bl-isem, jew ikteb il-Q-id tiegħu",
+  "Choose an item from the list": "Agħżel oġġett mil-lista",
+  "Inventory number": "Numru tal-inventarju"
 }

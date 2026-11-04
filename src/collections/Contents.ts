@@ -408,6 +408,14 @@ export const Contents: CollectionConfig = {
       required: true,
     },
     {
+      // Subjects (an artist, a style, an event) this content is about, read
+      // back from `subjects.contents` like `objects` above.
+      name: 'subjects',
+      type: 'join',
+      collection: 'subjects',
+      on: 'contents',
+    },
+    {
       // Additions and other versions of this content (`contentVariants`),
       // listed here so staff can review them from the content itself.
       name: 'variants',

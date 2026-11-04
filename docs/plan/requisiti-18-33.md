@@ -94,7 +94,7 @@ Già decise:
     Test: `tests/int/content-audio.int.spec.ts` (Fish Audio simulato), storia
     `ContentAudioButton`. Limite: la chiamata reale a Fish Audio non è
     verificata qui, perché nell'ambiente cloud manca `FISH_API_KEY`.
-- [ ] **5. Soggetti e Wikidata**
+- [x] **5. Soggetti e Wikidata**
   - Collection `subjects` (persona, movimento, evento) con `wikidataId`;
     `wikidataId` e `inventoryNumber` sulle opere.
   - Ricerca Wikidata nel form; job di import di autore (P170), movimento (P135)
@@ -103,6 +103,13 @@ Già decise:
     se il codice cercato era un rinvio.
   - Join dei contenuti verso `objects` e `subjects`.
   - Prova: test dell'import con risposte Wikidata registrate.
+  - Fatto: vedi `docs/subjects-and-wikidata.md`. Collection `subjects`, campi
+    `wikidataId`/`inventoryNumber`/`creators`/`movements`/`events` sulle opere, job
+    `importWikidataSubjects`, ricerca Wikidata nel form, pagina `/subject/[id]`,
+    autore e stile linkati nei dettagli dell'opera. Il seed importa 17 soggetti
+    (16 autori/movimenti con nomi nelle lingue di Wikidata) e due contenuti su
+    Raffaello e Reni. Test: `tests/int/wikidata-subjects.int.spec.ts`, storia
+    `ObjectDetailsModal` → With Subjects.
 - [ ] **6. "Dimmi di più" progressivo e "dimmi di meno"**
   - Il modello riceve anche gli approfondimenti già letti; ogni passo è salvato
     a sé.

@@ -133,5 +133,10 @@
   "License": "Licence",
   "Paid contents are always all rights reserved": "Les contenus payants sont toujours sous « tous droits réservés »",
   "Rights holder": "Titulaire des droits",
-  "You, the author": "Vous, l’auteur"
+  "You, the author": "Vous, l’auteur",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Ouvrir {{id}} sur Wikidata",
+  "Search the work by name, or type its Q-id": "Cherchez l’œuvre par son nom ou saisissez son identifiant Q",
+  "Choose an item from the list": "Choisissez un élément de la liste",
+  "Inventory number": "Numéro d’inventaire"
 }

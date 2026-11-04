@@ -127,5 +127,10 @@
   "License": "License",
   "Paid contents are always all rights reserved": "Paid contents are always all rights reserved",
   "Rights holder": "Rights holder",
-  "You, the author": "You, the author"
+  "You, the author": "You, the author",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Open {{id}} on Wikidata",
+  "Search the work by name, or type its Q-id": "Search the work by name, or type its Q-id",
+  "Choose an item from the list": "Choose an item from the list",
+  "Inventory number": "Inventory number"
 }

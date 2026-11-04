@@ -106,6 +106,7 @@ export async function generateContentAudio(
     await payload.update({
       collection: 'contents',
       id: contentId,
+      locale: SOURCE_LOCALE,
       data: { durationSeconds: seconds },
       depth: 0,
       overrideAccess: true,

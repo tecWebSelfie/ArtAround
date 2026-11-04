@@ -1,3 +1,4 @@
+import { subjectsOfWork } from '@/lib/subjects'
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import { getNavigationDocument } from '../../../data'
@@ -14,7 +15,11 @@ export default async function Page({
   const object = await getNavigationDocument('objects', objectId, lng)
   return (
     <NavigationModal>
-      <ObjectDetailsContent object={object} hideContents />
+      <ObjectDetailsContent
+        object={object}
+        subjects={await subjectsOfWork(object, lng)}
+        hideContents
+      />
       <ContentExpansion target="objects" id={object.id} />
       <NavigationObjectActions objectId={object.id} contents={object.contents} />
     </NavigationModal>

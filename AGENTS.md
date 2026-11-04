@@ -25,6 +25,8 @@ Use these guides as starting points for implementation and debugging:
   room, guests following the host, group quiz, local LiveKit setup.
 - [Interactive object models](docs/interactive-object-models.md): editor catalog,
   Mint preview/approval, and Payload jobs integration.
+- [Subjects and Wikidata](docs/subjects-and-wikidata.md): universal identifiers, authors,
+  movements and events of the works, the Wikidata import.
 - [Permissions and editing](docs/permissions-and-editing.md): per-museum roles,
   access rules, paid contents, viewer-scoped reads, and the frontend editing plan.
 

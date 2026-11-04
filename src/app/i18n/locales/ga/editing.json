@@ -139,5 +139,10 @@
   "License": "Ceadúnas",
   "Paid contents are always all rights reserved": "Bíonn gach ceart ar cosaint i gcónaí ar ábhar íoctha",
   "Rights holder": "Sealbhóir na gceart",
-  "You, the author": "Tusa, an t-údar"
+  "You, the author": "Tusa, an t-údar",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Oscail {{id}} ar Wikidata",
+  "Search the work by name, or type its Q-id": "Cuardaigh an saothar de réir ainm, nó clóscríobh a Q-id",
+  "Choose an item from the list": "Roghnaigh mír ón liosta",
+  "Inventory number": "Uimhir fardail"
 }

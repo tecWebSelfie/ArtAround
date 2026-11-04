@@ -136,5 +136,10 @@
   "License": "Licenca",
   "Paid contents are always all rights reserved": "Plačljive vsebine imajo vedno pridržane vse pravice",
   "Rights holder": "Imetnik pravic",
-  "You, the author": "Vi, avtor"
+  "You, the author": "Vi, avtor",
+  "Wikidata": "Wikipodatki",
+  "Open {{id}} on Wikidata": "Odpri {{id}} v Wikipodatkih",
+  "Search the work by name, or type its Q-id": "Poiščite delo po imenu ali vpišite njegov Q-id",
+  "Choose an item from the list": "Izberite element s seznama",
+  "Inventory number": "Inventarna številka"
 }

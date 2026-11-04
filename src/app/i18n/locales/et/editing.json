@@ -130,5 +130,10 @@
   "License": "Litsents",
   "Paid contents are always all rights reserved": "Tasulise sisu kõik õigused on alati kaitstud",
   "Rights holder": "Õiguste omaja",
-  "You, the author": "Sina, autor"
+  "You, the author": "Sina, autor",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Ava {{id}} Wikidatas",
+  "Search the work by name, or type its Q-id": "Otsi teost nime järgi või sisesta selle Q-id",
+  "Choose an item from the list": "Vali loendist üksus",
+  "Inventory number": "Inventarinumber"
 }

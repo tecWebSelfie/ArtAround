@@ -133,5 +133,10 @@
   "License": "Licență",
   "Paid contents are always all rights reserved": "Conținutul plătit are întotdeauna toate drepturile rezervate",
   "Rights holder": "Deținătorul drepturilor",
-  "You, the author": "Tu, autorul"
+  "You, the author": "Tu, autorul",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Deschide {{id}} pe Wikidata",
+  "Search the work by name, or type its Q-id": "Caută lucrarea după nume sau scrie Q-id-ul ei",
+  "Choose an item from the list": "Alege un element din listă",
+  "Inventory number": "Număr de inventar"
 }

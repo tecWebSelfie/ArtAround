@@ -11,6 +11,7 @@ import {
   mockObjectNoContents,
 } from '@/mocks/object.mock'
 
+import type { WorkSubjects } from '@/lib/subjects'
 import { ObjectDetailsContent } from './ObjectDetailsModal'
 import { serverComponentStory } from '@/mocks/server-component'
 
@@ -20,9 +21,15 @@ const mockObjectWithContents = createObject({
 
 // Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
 const ObjectDetailsModalStory = serverComponentStory(
-  async ({ object }: { object: typeof mockObjectWithContents }) => (
+  async ({
+    object,
+    subjects,
+  }: {
+    object: typeof mockObjectWithContents
+    subjects?: WorkSubjects
+  }) => (
     <Modal opened title={object.name} onClose={() => {}}>
-      <ObjectDetailsContent object={object} />
+      <ObjectDetailsContent object={object} subjects={subjects} />
     </Modal>
   ),
 )
@@ -90,5 +97,24 @@ export const WithoutRelatedContents: Story = {
     const body = within(document.body)
     await expect(body.findAllByText('Anfora a figure rosse')).resolves.toHaveLength(2)
     await expect(body.queryByText('Related contents')).not.toBeInTheDocument()
+  },
+}
+
+/** A work linked to its Wikidata subjects: author and style link to their pages. */
+export const WithSubjects: Story = {
+  args: {
+    object: createObject({ name: 'Ecstasy of Saint Cecilia', dating: 'c. 1514–1516' }),
+    subjects: {
+      creators: [{ id: 'subject-raphael', name: 'Raphael', kind: 'person' }],
+      movements: [{ id: 'subject-high-renaissance', name: 'High Renaissance', kind: 'movement' }],
+      events: [],
+    },
+  },
+  play: async () => {
+    const body = within(document.body)
+    const author = await body.findByRole('link', { name: 'Raphael' })
+    await expect(author.getAttribute('href')).toMatch(/\/subject\/subject-raphael$/)
+    await expect(body.findByRole('link', { name: 'High Renaissance' })).resolves.toBeTruthy()
+    await expect(body.findByText(/c\. 1514–1516/)).resolves.toBeTruthy()
   },
 }

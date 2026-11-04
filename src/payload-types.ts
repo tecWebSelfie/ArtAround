@@ -102,6 +102,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnail
     museumMaps: MuseumMap
     objects: Object
+    subjects: Subject
     objectsModels: ObjectsModel
     objectsThumbnails: ObjectsThumbnail
     contents: Content
@@ -159,6 +160,7 @@ export interface Config {
     }
     contents: {
       objects: 'objects'
+      subjects: 'subjects'
       variants: 'contentVariants'
     }
     'lfrs-reviews': {
@@ -175,6 +177,7 @@ export interface Config {
     museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>
     museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>
     objects: ObjectsSelect<false> | ObjectsSelect<true>
+    subjects: SubjectsSelect<false> | SubjectsSelect<true>
     objectsModels: ObjectsModelsSelect<false> | ObjectsModelsSelect<true>
     objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>
     contents: ContentsSelect<false> | ContentsSelect<true>
@@ -785,6 +788,7 @@ export interface Config {
   jobs: {
     tasks: {
       generateContentAudio: TaskGenerateContentAudio
+      importWikidataSubjects: TaskImportWikidataSubjects
       loadObjectGenerationContext: TaskLoadObjectGenerationContext
       startMintModelGeneration: TaskStartMintModelGeneration
       pollMintModelOperation: TaskPollMintModelOperation
@@ -1017,6 +1021,11 @@ export interface Content {
   images?: (string | ContentImage)[] | null
   objects: {
     docs?: (string | Object)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  subjects?: {
+    docs?: (string | Subject)[]
     hasNextPage?: boolean
     totalDocs?: number
   }
@@ -2076,6 +2085,23 @@ export interface Object {
    */
   artist?: string | null
   /**
+   * Wikidata item of the work, e.g. Q1103801. Fills author, movement and events.
+   */
+  wikidataId?: string | null
+  inventoryNumber?: string | null
+  /**
+   * Who made the work.
+   */
+  creators?: (string | Subject)[] | null
+  /**
+   * Movement or style the work belongs to.
+   */
+  movements?: (string | Subject)[] | null
+  /**
+   * Events the work took part in.
+   */
+  events?: (string | Subject)[] | null
+  /**
    * Free-form date or period, e.g. "c. 1510" or "16th century".
    */
   dating?: string | null
@@ -2109,6 +2135,30 @@ export interface Object {
     favouritesCount?: number | null
     sharesCount?: number | null
   }
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects".
+ */
+export interface Subject {
+  id: string
+  kind: 'person' | 'movement' | 'event'
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null
+  /**
+   * Wikidata item, e.g. Q5597 for Raphael.
+   */
+  wikidataId?: string | null
+  contents?: (string | Content)[] | null
+  importedFromWikidata?: boolean | null
   updatedAt: string
   createdAt: string
 }
@@ -3669,6 +3719,7 @@ export interface PayloadJob {
         taskSlug:
           | 'inline'
           | 'generateContentAudio'
+          | 'importWikidataSubjects'
           | 'loadObjectGenerationContext'
           | 'startMintModelGeneration'
           | 'pollMintModelOperation'
@@ -3720,6 +3771,7 @@ export interface PayloadJob {
     | (
         | 'inline'
         | 'generateContentAudio'
+        | 'importWikidataSubjects'
         | 'loadObjectGenerationContext'
         | 'startMintModelGeneration'
         | 'pollMintModelOperation'
@@ -3777,6 +3829,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'objects'
         value: string | Object
+      } | null)
+    | ({
+        relationTo: 'subjects'
+        value: string | Subject
       } | null)
     | ({
         relationTo: 'objectsModels'
@@ -4227,6 +4283,11 @@ export interface ObjectsSelect<T extends boolean = true> {
   description?: T
   museums?: T
   artist?: T
+  wikidataId?: T
+  inventoryNumber?: T
+  creators?: T
+  movements?: T
+  events?: T
   dating?: T
   provenance?: T
   condition?:
@@ -4247,6 +4308,20 @@ export interface ObjectsSelect<T extends boolean = true> {
         favouritesCount?: T
         sharesCount?: T
       }
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects_select".
+ */
+export interface SubjectsSelect<T extends boolean = true> {
+  kind?: T
+  name?: T
+  description?: T
+  wikidataId?: T
+  contents?: T
+  importedFromWikidata?: T
   updatedAt?: T
   createdAt?: T
 }
@@ -4339,6 +4414,7 @@ export interface ContentsSelect<T extends boolean = true> {
       }
   images?: T
   objects?: T
+  subjects?: T
   variants?: T
   author?: T
   attachToObject?: T
@@ -5338,6 +5414,19 @@ export interface TaskGenerateContentAudio {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskImportWikidataSubjects".
+ */
+export interface TaskImportWikidataSubjects {
+  input: {
+    objectId: string
+  }
+  output: {
+    status: string
+    subjects?: number | null
+  }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TaskLoadObjectGenerationContext".
  */
 export interface TaskLoadObjectGenerationContext {
@@ -5525,6 +5614,10 @@ export interface TaskTranslateDocument {
           value: string | Object
         } | null)
       | ({
+          relationTo: 'subjects'
+          value: string | Subject
+        } | null)
+      | ({
           relationTo: 'contents'
           value: string | Content
         } | null)
@@ -5565,6 +5658,7 @@ export interface TaskCreateCollectionExport {
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
+      | 'subjects'
       | 'objectsModels'
       | 'objectsThumbnails'
       | 'contents'
@@ -5700,6 +5794,10 @@ export interface WorkflowTranslateDocumentLocales {
       | ({
           relationTo: 'objects'
           value: string | Object
+        } | null)
+      | ({
+          relationTo: 'subjects'
+          value: string | Subject
         } | null)
       | ({
           relationTo: 'contents'

@@ -1,3 +1,4 @@
+import { subjectsOfWork } from '@/lib/subjects'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataForm'
 import { LinkButton } from '@/components/editing/LinkButton'
@@ -42,7 +43,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             id,
             locale: 'en',
             depth: 0,
-            select: { name: true, description: true },
+            select: { name: true, description: true, wikidataId: true, inventoryNumber: true },
           })
         : null,
     ),
@@ -91,7 +92,12 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
           >
             {/* The inline cover is the media pane's job from md. */}
-            <ObjectDetailsContent object={object} lightbox coverHiddenFrom="md" />
+            <ObjectDetailsContent
+              object={object}
+              subjects={await subjectsOfWork(object, lng)}
+              lightbox
+              coverHiddenFrom="md"
+            />
           </EditableSection>
           {user && (
             <Group mt="md">

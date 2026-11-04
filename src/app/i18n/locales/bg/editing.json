@@ -130,5 +130,10 @@
   "License": "Лиценз",
   "Paid contents are always all rights reserved": "Платените съдържания винаги са с всички запазени права",
   "Rights holder": "Притежател на правата",
-  "You, the author": "Вие, авторът"
+  "You, the author": "Вие, авторът",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Отвори {{id}} в Wikidata",
+  "Search the work by name, or type its Q-id": "Потърсете творбата по име или въведете нейния Q-id",
+  "Choose an item from the list": "Изберете елемент от списъка",
+  "Inventory number": "Инвентарен номер"
 }

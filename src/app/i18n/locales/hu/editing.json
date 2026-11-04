@@ -130,5 +130,10 @@
   "License": "Licenc",
   "Paid contents are always all rights reserved": "A fizetős tartalmaknál mindig minden jog fenntartva",
   "Rights holder": "Jogtulajdonos",
-  "You, the author": "Te, a szerző"
+  "You, the author": "Te, a szerző",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "{{id}} megnyitása a Wikidatán",
+  "Search the work by name, or type its Q-id": "Keresd a művet név szerint, vagy írd be a Q-azonosítóját",
+  "Choose an item from the list": "Válassz egy elemet a listából",
+  "Inventory number": "Leltári szám"
 }

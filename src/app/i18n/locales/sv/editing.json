@@ -130,5 +130,10 @@
   "License": "Licens",
   "Paid contents are always all rights reserved": "Betalt innehåll har alltid alla rättigheter förbehållna",
   "Rights holder": "Rättighetsinnehavare",
-  "You, the author": "Du, författaren"
+  "You, the author": "Du, författaren",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Öppna {{id}} på Wikidata",
+  "Search the work by name, or type its Q-id": "Sök verket efter namn eller skriv dess Q-id",
+  "Choose an item from the list": "Välj ett objekt i listan",
+  "Inventory number": "Inventarienummer"
 }

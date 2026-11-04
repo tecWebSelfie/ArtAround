@@ -130,5 +130,10 @@
   "License": "Άδεια χρήσης",
   "Paid contents are always all rights reserved": "Το επί πληρωμή περιεχόμενο έχει πάντα επιφύλαξη παντός δικαιώματος",
   "Rights holder": "Κάτοχος δικαιωμάτων",
-  "You, the author": "Εσείς, ο συγγραφέας"
+  "You, the author": "Εσείς, ο συγγραφέας",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Άνοιγμα του {{id}} στα Wikidata",
+  "Search the work by name, or type its Q-id": "Αναζητήστε το έργο με το όνομα ή πληκτρολογήστε το Q-id του",
+  "Choose an item from the list": "Επιλέξτε ένα στοιχείο από τη λίστα",
+  "Inventory number": "Αριθμός ευρετηρίου"
 }

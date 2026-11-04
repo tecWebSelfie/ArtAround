@@ -136,5 +136,10 @@
   "License": "Licencija",
   "Paid contents are always all rights reserved": "Mokamo turinio visos teisės visada saugomos",
   "Rights holder": "Teisių turėtojas",
-  "You, the author": "Jūs, autorius"
+  "You, the author": "Jūs, autorius",
+  "Wikidata": "Vikiduomenys",
+  "Open {{id}} on Wikidata": "Atverti {{id}} Vikiduomenyse",
+  "Search the work by name, or type its Q-id": "Ieškokite kūrinio pagal pavadinimą arba įveskite jo Q-id",
+  "Choose an item from the list": "Pasirinkite elementą iš sąrašo",
+  "Inventory number": "Inventoriaus numeris"
 }

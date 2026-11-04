@@ -51,6 +51,9 @@ import { startMintModelGeneration } from './tasks/startMintModelGeneration'
 import { generateContentAudioTask } from './tasks/generateContentAudio'
 import { ContentAudio } from './collections/ContentAudio'
 import { AUDIO_QUEUE } from './lib/content-audio'
+import { Subjects } from './collections/Subjects'
+import { importWikidataSubjectsTask } from './tasks/importWikidataSubjects'
+import { WIKIDATA_QUEUE } from './lib/wikidata'
 
 import { ContentImages, Contents } from './collections/Contents'
 import { ContentVariants } from './collections/ContentVariants'
@@ -132,6 +135,8 @@ export default buildConfig({
     MuseumThumbnails,
     MuseumMaps,
     Objects,
+    // Authors, movements and events of the works (src/lib/wikidata.ts).
+    Subjects,
     ObjectsModels,
     ObjectsThumbnails,
     Contents,
@@ -167,6 +172,8 @@ export default buildConfig({
         MuseumCategories,
         MuseumThumbnails,
         Objects,
+        // Wikidata fills the names it has; the translator covers the rest.
+        Subjects,
         Contents,
         ContentImages,
         Tour,
@@ -419,6 +426,8 @@ export default buildConfig({
       { cron: '*/5 * * * * *', queue: 'interactive-models', disableScheduling: true },
       // Content audio: a visitor waits for it after pressing "Listen".
       { cron: '*/5 * * * * *', queue: AUDIO_QUEUE, disableScheduling: true },
+      // Wikidata imports: a curator who sets a work's id sees its author soon.
+      { cron: '*/10 * * * * *', queue: WIKIDATA_QUEUE, disableScheduling: true },
       {
         cron: '*/5 * * * *', // Check every 5 minutes
         queue: 'default',
@@ -426,6 +435,7 @@ export default buildConfig({
     ],
     tasks: [
       generateContentAudioTask, // reads a content aloud (src/lib/content-audio.ts)
+      importWikidataSubjectsTask, // links a work to its author, movement, events
       loadObjectGenerationContext, //this prepares the prompt and checks for model generation
       startMintModelGeneration, //this starts the model generation on Mint and returns the operation ID
       pollMintModelOperation, //this polls the Mint operation until it is completed or failed

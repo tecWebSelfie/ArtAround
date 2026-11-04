@@ -130,5 +130,10 @@
   "License": "Lisenssi",
   "Paid contents are always all rights reserved": "Maksullisen sisällön kaikki oikeudet pidätetään aina",
   "Rights holder": "Oikeuksien haltija",
-  "You, the author": "Sinä, kirjoittaja"
+  "You, the author": "Sinä, kirjoittaja",
+  "Wikidata": "Wikidata",
+  "Open {{id}} on Wikidata": "Avaa {{id}} Wikidatassa",
+  "Search the work by name, or type its Q-id": "Hae teosta nimellä tai kirjoita sen Q-tunnus",
+  "Choose an item from the list": "Valitse kohde luettelosta",
+  "Inventory number": "Inventaarionumero"
 }
