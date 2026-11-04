@@ -41,7 +41,7 @@ export const getNavigationMuseum = cache(async (id: string, lng: string) => {
  * along (never its map/navmeshes again); the author only by name.
  */
 const NAVIGATION_TOUR_POPULATE = {
-  contents: { title: true, difficulty: true, readingTimeMins: true, objects: true },
+  contents: { title: true, difficulty: true, durationSeconds: true, objects: true },
   museums: { name: true },
   users: { name: true },
 } as const

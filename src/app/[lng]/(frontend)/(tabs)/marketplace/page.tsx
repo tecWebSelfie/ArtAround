@@ -117,7 +117,6 @@ export default async function Marketplace(props: {
                 user: t('user'),
                 viewProfile: t('viewProfile'),
                 min: t('min'),
-                minRead: t('minRead'),
                 difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
               }}
             />

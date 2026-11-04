@@ -130,7 +130,7 @@ export function TourProgress({
                   description: typeof content === 'object' && (
                     <Group gap={4}>
                       <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                      <DurationBadge time={content.readingTimeMins ?? 12} />
+                      <DurationBadge seconds={content.durationSeconds ?? 0} />
                     </Group>
                   ),
                 })}

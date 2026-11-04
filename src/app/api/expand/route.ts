@@ -57,7 +57,8 @@ const Body = z.object({
     z.object({
       kind: z.literal('version'),
       difficulty: z.enum(['easy', 'medium', 'hard']),
-      minutes: z.number().int().min(1).max(15),
+      // From a few seconds (a one-line caption) to a quarter of an hour.
+      seconds: z.number().int().min(3).max(900),
       audience: z.enum(AUDIENCES),
     }),
   ]),
@@ -76,7 +77,7 @@ function variantWhere(
       ? [{ angle: { equals: request.angle } }]
       : [
           { difficulty: { equals: request.difficulty } },
-          { readingTimeMins: { equals: request.minutes } },
+          { durationSeconds: { equals: request.seconds } },
           { audience: { equals: request.audience } },
         ]
   return { and: [{ kind: { equals: request.kind } }, owner, ...keys] }
@@ -265,7 +266,7 @@ export async function POST(request: Request) {
                     difficulty: ask.difficulty,
                     audience: ask.audience,
                     // The requested length is the lookup key; the real one is close to it.
-                    readingTimeMins: ask.minutes,
+                    durationSeconds: ask.seconds,
                   }),
               body,
               generation: {

@@ -35,7 +35,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Vyber predmet z katalógu a umiestni ho na mapu {{museum}}",
   "Place {{name}} on the map": "Umiestniť {{name}} na mapu",
   "Place on the map": "Umiestniť na mapu",
-  "Reading time": "Čas čítania",
   "Search contents": "Hľadať obsahy",
   "Search objects": "Hľadať objekty",
   "Search tours, contents and museums": "Hľadaj prehliadky, obsahy a múzeá",
@@ -44,5 +43,6 @@
   "Tour": "Prehliadka",
   "Tours made by": "Prehliadky od",
   "View details": "Zobraziť detaily",
-  "Write a new content": "Napísať nový obsah"
+  "Write a new content": "Napísať nový obsah",
+  "Length in seconds": "Dĺžka v sekundách"
 }

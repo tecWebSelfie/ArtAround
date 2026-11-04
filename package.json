@@ -141,7 +141,6 @@
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "react-i18next": "^17.0.15",
-    "reading-time-estimator": "^2.15.0",
     "recharts": "^3.10.1",
     "server-only": "^0.0.1",
     "sharp": "0.34.2",

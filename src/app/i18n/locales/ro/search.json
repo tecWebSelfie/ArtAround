@@ -34,7 +34,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Alege un obiect din catalog pentru a-l plasa pe harta {{museum}}",
   "Place {{name}} on the map": "Plasează {{name}} pe hartă",
   "Place on the map": "Plasează pe hartă",
-  "Reading time": "Timp de citire",
   "Search contents": "Caută conținuturi",
   "Search objects": "Caută obiecte",
   "Search tours, contents and museums": "Caută tururi, conținuturi și muzee",
@@ -43,5 +42,6 @@
   "Tour": "Tur",
   "Tours made by": "Tururi create de",
   "View details": "Vezi detalii",
-  "Write a new content": "Scrie un conținut nou"
+  "Write a new content": "Scrie un conținut nou",
+  "Length in seconds": "Durată în secunde"
 }

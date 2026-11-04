@@ -10,6 +10,7 @@ import type { Route } from 'next'
 import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 import { LockedPriceBadge } from './LockedPriceBadge'
 import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
+import { formatDuration } from '@/lib/duration'
 
 /**
  * Contents search results. With a `picker` (the tour editor's "add a stop"
@@ -54,12 +55,11 @@ export const ContentsSearchResults = async ({
               <DifficultyBadge difficulty={content.difficulty}>
                 {t(DIFFICULTY_LABEL_KEY[content.difficulty])}
               </DifficultyBadge>
-              {/* 0 is the estimator's "under a minute" on older documents. */}
-              {content.readingTimeMins ? (
+              {content.durationSeconds ? (
                 <Group gap={4}>
                   <Clock size={14} aria-hidden />
                   <Text size="xs" c="dimmed">
-                    {content.readingTimeMins} {t('min read')}
+                    {formatDuration(content.durationSeconds)}
                   </Text>
                 </Group>
               ) : null}

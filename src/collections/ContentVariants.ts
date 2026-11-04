@@ -26,7 +26,7 @@ export const ContentVariants: CollectionConfig = {
   slug: 'contentVariants',
   admin: {
     useAsTitle: 'kind',
-    defaultColumns: ['kind', 'angle', 'content', 'object', 'difficulty', 'readingTimeMins'],
+    defaultColumns: ['kind', 'angle', 'content', 'object', 'difficulty', 'durationSeconds'],
   },
   access: {
     read: superAdminOnly,
@@ -78,7 +78,8 @@ export const ContentVariants: CollectionConfig = {
       admin: { condition: (data) => data?.kind === 'version' },
     },
     {
-      name: 'readingTimeMins',
+      // Requested length of a version, in seconds (`src/lib/duration.ts`).
+      name: 'durationSeconds',
       type: 'number',
       admin: { condition: (data) => data?.kind === 'version' },
     },

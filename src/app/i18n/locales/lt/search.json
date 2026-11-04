@@ -35,7 +35,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Pasirink objektą iš katalogo, kad padėtum jį {{museum}} žemėlapyje",
   "Place {{name}} on the map": "Padėti {{name}} žemėlapyje",
   "Place on the map": "Padėti žemėlapyje",
-  "Reading time": "Skaitymo laikas",
   "Search contents": "Ieškoti turinio",
   "Search objects": "Ieškoti objektų",
   "Search tours, contents and museums": "Ieškok turų, turinio ir muziejų",
@@ -44,5 +43,6 @@
   "Tour": "Turas",
   "Tours made by": "Turų autorius",
   "View details": "Daugiau informacijos",
-  "Write a new content": "Rašyti naują turinį"
+  "Write a new content": "Rašyti naują turinį",
+  "Length in seconds": "Trukmė sekundėmis"
 }

@@ -1,3 +1,4 @@
+import { toMinutes } from '@/lib/duration'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 
@@ -9,7 +10,7 @@ import type { Content, Difficulty, Tour } from '@/payload-types'
  */
 export type TourSummary = {
   stops: number
-  /** Sum of the stops' `readingTimeMins`; null when no stop has one. */
+  /** Sum of the stops' lengths (`durationSeconds`) in minutes; null when no stop has one. */
   readingMinutes: number | null
   /** The planner's visit estimate when present, else the reading time. */
   visitMinutes: number | null
@@ -26,9 +27,9 @@ const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'medium', 'hard']
 
 export function summarizeTour(tour: Tour): TourSummary {
   const contents = filterPopulated<Content>(tour.contents)
-  const timed = contents.filter((content) => content.readingTimeMins != null)
+  const timed = contents.filter((content) => content.durationSeconds != null)
   const readingMinutes = timed.length
-    ? timed.reduce((sum, content) => sum + (content.readingTimeMins ?? 0), 0)
+    ? toMinutes(timed.reduce((sum, content) => sum + (content.durationSeconds ?? 0), 0))
     : null
   const ratingsCount = tour.lfrs?.ratingsCount ?? 0
 

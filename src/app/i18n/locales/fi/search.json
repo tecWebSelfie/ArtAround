@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Valitse luettelosta esine sijoitettavaksi kohteen {{museum}} kartalle",
   "Place {{name}} on the map": "Sijoita {{name}} kartalle",
   "Place on the map": "Sijoita kartalle",
-  "Reading time": "Lukuaika",
   "Search contents": "Hae sisältöjä",
   "Search objects": "Hae esineitä",
   "Search tours, contents and museums": "Hae kierroksia, sisältöjä ja museoita",
@@ -42,5 +41,6 @@
   "Tour": "Kierros",
   "Tours made by": "Kierrokset tekijältä",
   "View details": "Näytä tiedot",
-  "Write a new content": "Kirjoita uusi sisältö"
+  "Write a new content": "Kirjoita uusi sisältö",
+  "Length in seconds": "Kesto sekunteina"
 }

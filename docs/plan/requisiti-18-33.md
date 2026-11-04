@@ -63,11 +63,18 @@ Già decise:
     "Licenza" e casella di dichiarazione; riga crediti calcolata nella pagina del
     contenuto. Test: `tests/int/content-rights.int.spec.ts`, storia
     `ContentDetails` (Minimal).
-- [ ] **3. Durata in secondi**
+- [x] **3. Durata in secondi**
   - `durationSeconds` al posto di `readingTimeMins`, stimata dal testo; mostrata
     come "15 s" o "1 min 30 s".
   - Le versioni generate accettano durate in secondi.
   - Prova: test sulla stima e sulla formattazione.
+  - Fatto: `contents.durationSeconds` (e `contentVariants.durationSeconds`) al
+    posto di `readingTimeMins`, stimata a 150 parole al minuto (lettura ad alta
+    voce) in `src/lib/duration.ts`; etichetta compatta `15"`, `1'30"`, `12'` in
+    `DurationBadge` e nelle schede; le versioni generate si chiedono in secondi
+    (`?seconds=`); tour e planner convertono in minuti. Test:
+    `tests/int/duration.int.spec.ts`; storie ContentsCarousel e
+    ContentsSearchResults aggiornate al nuovo formato.
 - [ ] **4. Sintesi vocale del contenuto base**
   - Collection upload `contentAudio`: `content`, `locale`, `variant`?,
     `textHash`, `durationSec`, `model`, `voice`; indice univoco.

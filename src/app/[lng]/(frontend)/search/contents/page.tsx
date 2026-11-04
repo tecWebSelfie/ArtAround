@@ -55,8 +55,9 @@ export default async function SearchContentsPage(props: {
       ],
     },
     {
-      key: 'readingTimeMins',
-      label: t('Reading time'),
+      // Exact length in seconds (`src/lib/duration.ts`).
+      key: 'durationSeconds',
+      label: t('Length in seconds'),
       type: 'number',
       operators: ['=', '!=', '>', '<', '>=', '<='],
     },

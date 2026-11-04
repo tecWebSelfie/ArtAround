@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Διάλεξε ένα αντικείμενο από τον κατάλογο για να το τοποθετήσεις στον χάρτη του {{museum}}",
   "Place {{name}} on the map": "Τοποθέτηση του {{name}} στον χάρτη",
   "Place on the map": "Τοποθέτηση στον χάρτη",
-  "Reading time": "Χρόνος ανάγνωσης",
   "Search contents": "Αναζήτηση περιεχομένων",
   "Search objects": "Αναζήτηση αντικειμένων",
   "Search tours, contents and museums": "Αναζήτηση ξεναγήσεων, περιεχομένων και μουσείων",
@@ -42,5 +41,6 @@
   "Tour": "Ξενάγηση",
   "Tours made by": "Ξεναγήσεις από",
   "View details": "Λεπτομέρειες",
-  "Write a new content": "Γράψε νέο περιεχόμενο"
+  "Write a new content": "Γράψε νέο περιεχόμενο",
+  "Length in seconds": "Διάρκεια σε δευτερόλεπτα"
 }

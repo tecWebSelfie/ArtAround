@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Vælg en genstand fra kataloget for at placere den på kortet over {{museum}}",
   "Place {{name}} on the map": "Placér {{name}} på kortet",
   "Place on the map": "Placér på kortet",
-  "Reading time": "Læsetid",
   "Search contents": "Søg i indhold",
   "Search objects": "Søg efter genstande",
   "Search tours, contents and museums": "Søg efter ture, indhold og museer",
@@ -42,5 +41,6 @@
   "Tour": "Tur",
   "Tours made by": "Ture lavet af",
   "View details": "Se detaljer",
-  "Write a new content": "Skriv nyt indhold"
+  "Write a new content": "Skriv nyt indhold",
+  "Length in seconds": "Længde i sekunder"
 }

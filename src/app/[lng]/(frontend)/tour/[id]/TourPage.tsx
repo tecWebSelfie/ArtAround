@@ -462,9 +462,9 @@ function StopRow({
             <DifficultyBadge difficulty={content.difficulty} size="xs" variant="light">
               {difficultyLabel}
             </DifficultyBadge>
-            {content.readingTimeMins != null && (
+            {content.durationSeconds != null && (
               <DurationBadge
-                time={content.readingTimeMins}
+                seconds={content.durationSeconds}
                 size="xs"
                 variant="light"
                 color="gray"

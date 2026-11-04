@@ -68,8 +68,8 @@ Both scopes read the same `search` collection through
   - Museum mode (`museumScope()`): only the locked museum, its tours and the
     contents on its map (`restrictTo` in `querySearchIndex()`).
   - Rows are hydrated in the visitor's locale with what the dropdown shows:
-    minutes (a tour's `durationMinutes`, else its contents' reading time; at
-    least 1), difficulty (a tour's hardest content), stops, and a paid
+    length in seconds (a tour's `durationMinutes`, else the sum of its
+    contents' `durationSeconds`; `src/lib/duration.ts`), difficulty (a tour's hardest content), stops, and a paid
     content's price.
 
 ## Reindex

@@ -23,7 +23,8 @@ export type Audience = (typeof AUDIENCES)[number]
 
 export type ExpansionRequest =
   | { kind: 'more'; angle: ExpansionAngle }
-  | { kind: 'version'; difficulty: Difficulty; minutes: number; audience: Audience }
+  /** `seconds`: the version's target length (`src/lib/duration.ts`). */
+  | { kind: 'version'; difficulty: Difficulty; seconds: number; audience: Audience }
 
 /** A museum entity the text may link to, with its thumbnail for the preview row. */
 export type ExpansionLink = {
@@ -101,6 +102,3 @@ export function speakableText(paragraph: string) {
     .map((part) => part.text)
     .join('')
 }
-
-/** About 200 words a minute: the reading-time target given to the model. */
-export const WORDS_PER_MINUTE = 200

@@ -56,7 +56,7 @@ function mapContent(content: Content): MarketplaceItem {
     currency: PRICE_CURRENCY,
     createdAt: content.createdAt,
     difficulty: content.difficulty,
-    readingTimeMins: content.readingTimeMins,
+    durationSeconds: content.durationSeconds,
   }
 }
 

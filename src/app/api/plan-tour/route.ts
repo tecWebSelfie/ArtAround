@@ -1,3 +1,4 @@
+import { toMinutes } from '@/lib/duration'
 import config from '@/payload.config'
 import { museumRooms, roomAt } from '@/lib/museum-rooms'
 import { lockedMuseumId } from '@/lib/museum-mode'
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
           title: true,
           difficulty: true,
           audience: true,
-          readingTimeMins: true,
+          durationSeconds: true,
           price: true,
           body: true,
         },
@@ -138,7 +139,7 @@ export async function POST(request: Request) {
                 room,
                 difficulty: content.difficulty,
                 audience: content.audience ?? 'everyone',
-                minutes: Math.max(1, Math.round(content.readingTimeMins ?? 1)),
+                minutes: toMinutes(content.durationSeconds) || 1,
               },
             ]
           : [],

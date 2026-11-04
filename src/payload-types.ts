@@ -988,7 +988,7 @@ export interface Content {
     [k: string]: unknown
   }
   bodyHTML?: string | null
-  readingTimeMins?: number | null
+  durationSeconds?: number | null
   /**
    * Euro cents. Empty or 0 = free.
    */
@@ -2380,7 +2380,7 @@ export interface ContentVariant {
   angle?: ('more' | 'curiosities' | 'story') | null
   difficulty?: ('easy' | 'medium' | 'hard') | null
   audience?: ('everyone' | 'children') | null
-  readingTimeMins?: number | null
+  durationSeconds?: number | null
   body: {
     root: {
       type: string
@@ -4291,7 +4291,7 @@ export interface ContentsSelect<T extends boolean = true> {
   title?: T
   body?: T
   bodyHTML?: T
-  readingTimeMins?: T
+  durationSeconds?: T
   price?: T
   license?: T
   rightsMuseum?: T
@@ -4373,7 +4373,7 @@ export interface ContentVariantsSelect<T extends boolean = true> {
   angle?: T
   difficulty?: T
   audience?: T
-  readingTimeMins?: T
+  durationSeconds?: T
   body?: T
   generation?:
     | T

@@ -5,6 +5,7 @@ import { ArrowUpRight, AtSign, Clock } from 'lucide-react'
 import { KIND_FALLBACK } from './kind-fallback'
 import type { Route } from 'next'
 import Link from 'next/link'
+import { formatDuration } from '@/lib/duration'
 
 type MarketplaceBaseItem = {
   key: string
@@ -33,7 +34,7 @@ export type MarketplaceItem =
       priceCents: number
       currency: string
       difficulty?: Difficulty
-      readingTimeMins?: number | null
+      durationSeconds?: number | null
     })
   | (MarketplaceBaseItem & {
       kind: 'user'
@@ -47,7 +48,6 @@ export type MarketplaceCardLabels = {
   user: string
   viewProfile: string
   min: string
-  minRead: string
   /** Translated difficulty names (the badge's own labels are English keys). */
   difficulty: Record<Difficulty, string>
 }
@@ -162,11 +162,11 @@ export function MarketplaceCard({
                 {labels.difficulty[item.difficulty]}
               </DifficultyBadge>
             ) : null}
-            {isContent && item.readingTimeMins ? (
+            {isContent && item.durationSeconds ? (
               <Group gap={4}>
                 <Clock size={14} aria-hidden />
                 <Text size="xs" c="dimmed">
-                  {item.readingTimeMins} {labels.minRead}
+                  {formatDuration(item.durationSeconds)}
                 </Text>
               </Group>
             ) : null}

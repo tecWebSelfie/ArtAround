@@ -69,7 +69,7 @@ export type ContentDetailsAuthor = Pick<User, 'id' | 'name' | 'avatar' | 'bio'>
 export type ContentDetailsTour = Pick<Tour, 'id' | 'title' | 'thumbnail' | 'museum'>
 export type ContentDetailsRelated = Pick<
   Content,
-  'id' | 'title' | 'difficulty' | 'readingTimeMins' | 'images'
+  'id' | 'title' | 'difficulty' | 'durationSeconds' | 'images'
 >
 
 export type ContentDetailsProps = {
@@ -341,9 +341,9 @@ export async function ContentDetails({
                     <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">
                       {difficultyLabel[item.difficulty]}
                     </DifficultyBadge>
-                    {item.readingTimeMins ? (
+                    {item.durationSeconds ? (
                       <DurationBadge
-                        time={item.readingTimeMins}
+                        seconds={item.durationSeconds}
                         size="xs"
                         variant="light"
                         color="gray"

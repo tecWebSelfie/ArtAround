@@ -36,7 +36,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Agħżel oġġett mill-katalgu biex tqiegħdu fuq il-mappa ta' {{museum}}",
   "Place {{name}} on the map": "Poġġi {{name}} fuq il-mappa",
   "Place on the map": "Poġġi fuq il-mappa",
-  "Reading time": "Ħin tal-qari",
   "Search contents": "Fittex kontenuti",
   "Search objects": "Fittex oġġetti",
   "Search tours, contents and museums": "Fittex tours, kontenuti u mużewijiet",
@@ -45,5 +44,6 @@
   "Tour": "Tour",
   "Tours made by": "Tours magħmula minn",
   "View details": "Ara d-dettalji",
-  "Write a new content": "Ikteb kontenut ġdid"
+  "Write a new content": "Ikteb kontenut ġdid",
+  "Length in seconds": "Tul f’sekondi"
 }

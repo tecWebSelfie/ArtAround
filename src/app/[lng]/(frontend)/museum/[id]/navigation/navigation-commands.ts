@@ -277,11 +277,12 @@ export function useNavigationCommands({
     const versions: NavigationCommand[] = contentOpen
       ? [
           version(t('Simpler'), 'version:simpler', { level: 'easy' }),
-          version(t('Shorter'), 'version:shorter', { minutes: '1' }),
+          // A short version: half a minute, whatever the original's length.
+          version(t('Shorter'), 'version:shorter', { seconds: '30' }),
           version(t('For children'), 'version:children', { audience: 'children' }),
           version(t('Original'), 'version:original', {
             level: null,
-            minutes: null,
+            seconds: null,
             audience: null,
           }),
         ]

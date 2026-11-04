@@ -32,7 +32,7 @@ import {
   type PayloadRequest,
   type Where,
 } from 'payload'
-import { readingTime } from 'reading-time-estimator'
+import { estimateSeconds } from '@/lib/duration'
 import { imageUpload } from '../fields/imageUpload'
 
 /**
@@ -43,10 +43,9 @@ import { imageUpload } from '../fields/imageUpload'
  * field level so REST, the localized endpoint and server pages all agree.
  */
 
-// At least one minute for any written body: the estimator rounds a short
-// paragraph down to 0, which cards would show as "0 min read".
-const readingMinutes = (body: Content['body'] | undefined) =>
-  body ? Math.max(1, readingTime(convertLexicalToPlaintext({ data: body })).minutes) : undefined
+// Seconds to read the body aloud (`src/lib/duration.ts`); undefined without a body.
+const estimatedSeconds = (body: Content['body'] | undefined) =>
+  body ? estimateSeconds(convertLexicalToPlaintext({ data: body })) || undefined : undefined
 
 const canReadPaidBody: FieldAccess<Content> = async ({ req, doc }) => {
   if (!doc?.price) return true
@@ -176,9 +175,9 @@ const guardRights: CollectionBeforeChangeHook<Content> = async ({
   return data
 }
 
-const storeReadingTime: CollectionBeforeChangeHook<Content> = ({ data }) => {
+const storeDuration: CollectionBeforeChangeHook<Content> = ({ data }) => {
   // Stored (not only computed on read) so cards keep it when a paid body is hidden.
-  if (data.body) data.readingTimeMins = readingMinutes(data.body)
+  if (data.body) data.durationSeconds = estimatedSeconds(data.body)
   return data
 }
 
@@ -255,7 +254,7 @@ export const Contents: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
-    beforeChange: [assignAuthor, guardPaidContent, guardRights, storeReadingTime],
+    beforeChange: [assignAuthor, guardPaidContent, guardRights, storeDuration],
     afterChange: [attachToObject, refreshTourPrices],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
@@ -281,14 +280,21 @@ export const Contents: CollectionConfig = {
     },
     richTextHtmlInput('body'),
     {
-      name: 'readingTimeMins',
+      // Exact length in seconds (an item can last 15 seconds or 4 minutes),
+      // estimated from the body at a read-aloud pace (`src/lib/duration.ts`).
+      name: 'durationSeconds',
       type: 'number',
       required: false,
+      min: 0,
       hooks: {
-        // Older documents predate the stored value (or stored the estimator's
-        // 0 for short bodies): compute it when the body is readable.
+        // Contents saved before this field computed it on read when the body
+        // is readable; older ones stored minutes in `readingTimeMins`.
         afterRead: [
-          ({ value, siblingData }) => value || readingMinutes(siblingData.body),
+          ({ value, siblingData }) =>
+            value ||
+            estimatedSeconds(siblingData.body) ||
+            ((siblingData as { readingTimeMins?: number }).readingTimeMins ?? 0) * 60 ||
+            undefined,
         ] as FieldHook<Content, number | undefined, Content>[],
       },
     },

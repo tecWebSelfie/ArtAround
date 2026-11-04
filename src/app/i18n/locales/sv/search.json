@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Välj ett föremål ur katalogen för att placera det på kartan över {{museum}}",
   "Place {{name}} on the map": "Placera {{name}} på kartan",
   "Place on the map": "Placera på kartan",
-  "Reading time": "Lästid",
   "Search contents": "Sök innehåll",
   "Search objects": "Sök föremål",
   "Search tours, contents and museums": "Sök turer, innehåll och museer",
@@ -42,5 +41,6 @@
   "Tour": "Tur",
   "Tours made by": "Turer skapade av",
   "View details": "Visa detaljer",
-  "Write a new content": "Skriv nytt innehåll"
+  "Write a new content": "Skriv nytt innehåll",
+  "Length in seconds": "Längd i sekunder"
 }

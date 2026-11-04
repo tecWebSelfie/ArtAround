@@ -27,7 +27,7 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
       contents: {
         title: true,
         difficulty: true,
-        readingTimeMins: true,
+        durationSeconds: true,
         price: true,
         // Withheld by field access when locked: `isLocked` reads its absence.
         body: true,

@@ -34,7 +34,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Escolhe um objeto do catálogo para o colocar no mapa de {{museum}}",
   "Place {{name}} on the map": "Colocar {{name}} no mapa",
   "Place on the map": "Colocar no mapa",
-  "Reading time": "Tempo de leitura",
   "Search contents": "Pesquisar conteúdos",
   "Search objects": "Pesquisar objetos",
   "Search tours, contents and museums": "Pesquisar tours, conteúdos e museus",
@@ -43,5 +42,6 @@
   "Tour": "Tour",
   "Tours made by": "Tours criados por",
   "View details": "Ver detalhes",
-  "Write a new content": "Escrever um novo conteúdo"
+  "Write a new content": "Escrever um novo conteúdo",
+  "Length in seconds": "Duração em segundos"
 }

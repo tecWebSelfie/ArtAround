@@ -34,7 +34,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Odaberi predmet iz kataloga i postavi ga na kartu {{museum}}",
   "Place {{name}} on the map": "Postavi {{name}} na kartu",
   "Place on the map": "Postavi na kartu",
-  "Reading time": "Vrijeme čitanja",
   "Search contents": "Pretraži sadržaje",
   "Search objects": "Pretraži objekte",
   "Search tours, contents and museums": "Pretraži ture, sadržaje i muzeje",
@@ -43,5 +42,6 @@
   "Tour": "Tura",
   "Tours made by": "Ture koje je izradio",
   "View details": "Pogledaj detalje",
-  "Write a new content": "Napiši novi sadržaj"
+  "Write a new content": "Napiši novi sadržaj",
+  "Length in seconds": "Trajanje u sekundama"
 }

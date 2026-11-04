@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Избери обект от каталога, за да го поставиш на картата на {{museum}}",
   "Place {{name}} on the map": "Постави {{name}} на картата",
   "Place on the map": "Постави на картата",
-  "Reading time": "Време за четене",
   "Search contents": "Търси съдържания",
   "Search objects": "Търси обекти",
   "Search tours, contents and museums": "Търси обиколки, съдържания и музеи",
@@ -42,5 +41,6 @@
   "Tour": "Обиколка",
   "Tours made by": "Обиколки, създадени от",
   "View details": "Виж подробности",
-  "Write a new content": "Напиши ново съдържание"
+  "Write a new content": "Напиши ново съдържание",
+  "Length in seconds": "Продължителност в секунди"
 }

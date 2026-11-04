@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Vali kataloogist ese, et paigutada see muuseumi {{museum}} kaardile",
   "Place {{name}} on the map": "Paiguta {{name}} kaardile",
   "Place on the map": "Paiguta kaardile",
-  "Reading time": "Lugemisaeg",
   "Search contents": "Otsi sisu",
   "Search objects": "Otsi objekte",
   "Search tours, contents and museums": "Otsi tuure, sisu ja muuseume",
@@ -42,5 +41,6 @@
   "Tour": "Tuur",
   "Tours made by": "Tuurid, mille autor on",
   "View details": "Vaata lähemalt",
-  "Write a new content": "Kirjuta uus sisu"
+  "Write a new content": "Kirjuta uus sisu",
+  "Length in seconds": "Pikkus sekundites"
 }

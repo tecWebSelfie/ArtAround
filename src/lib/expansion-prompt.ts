@@ -1,4 +1,5 @@
-import { WORDS_PER_MINUTE, type ExpansionLink, type ExpansionRequest } from './expansion'
+import { formatDuration, wordsForSeconds } from './duration'
+import type { ExpansionLink, ExpansionRequest } from './expansion'
 
 /**
  * The instructions `/api/expand` gives the language model, kept apart from
@@ -26,7 +27,8 @@ function task(request: ExpansionRequest) {
   return [
     'Rewrite the original text as a new version of it. Keep every fact; do not add new ones.',
     `Use ${DIFFICULTY_STYLE[request.difficulty]}.`,
-    `It should take about ${request.minutes} minute(s) to read (about ${request.minutes * WORDS_PER_MINUTE} words).`,
+    // Same read-aloud pace as the stored lengths, so a 15-second version is a sentence or two.
+    `It should take about ${formatDuration(request.seconds)} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
     request.audience === 'children'
       ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
       : '',

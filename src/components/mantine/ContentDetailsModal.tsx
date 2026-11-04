@@ -37,9 +37,9 @@ export function ContentDetailsModalContent({
       <Title order={2} className="text-balance">
         {content.title}
       </Title>
-      {content.readingTimeMins ? (
+      {content.durationSeconds ? (
         <Group gap="xs">
-          <DurationBadge time={content.readingTimeMins} variant="light" color="gray" />
+          <DurationBadge seconds={content.durationSeconds} variant="light" color="gray" />
         </Group>
       ) : null}
       {content.body ? (

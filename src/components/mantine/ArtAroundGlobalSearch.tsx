@@ -43,8 +43,8 @@ export type AutoCompleteItem = {
   href: string
   subtitle?: string
   city?: string
-  /** Tour: visit length; content: reading time. In minutes. */
-  minutes?: number
+  /** Tour: visit length; content: its length. In seconds. */
+  seconds?: number
   difficulty?: Difficulty
   /** Tour: number of stops. */
   stops?: number
@@ -173,7 +173,7 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
   // Literal `t()` calls so `i18next-cli extract` sees the labels.
   const difficultyLabel = { easy: t('Easy'), medium: t('Medium'), hard: t('Hard') }
   const hasDetails =
-    item.minutes !== undefined ||
+    item.seconds !== undefined ||
     item.difficulty !== undefined ||
     item.stops !== undefined ||
     item.priceCents !== undefined
@@ -203,8 +203,8 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
         {hasDetails && (
           // The essentials for choosing: time and difficulty first.
           <Group gap={4}>
-            {item.minutes !== undefined && (
-              <DurationBadge time={item.minutes} size="xs" variant="light" color="gray" />
+            {item.seconds !== undefined && (
+              <DurationBadge seconds={item.seconds} size="xs" variant="light" color="gray" />
             )}
             {item.difficulty && (
               <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">

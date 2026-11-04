@@ -297,7 +297,8 @@ ones only in their metadata (`generation` groups).
   (one shared speech player, `speech-context.tsx`). Links are
   `[name](/object/ID)` to entities of the same museum only (`expansion.ts`).
 - **Simpler / Shorter / For children** (`ContentVersion`): `?level=`,
-  `?minutes=`, `?audience=children` replace the body with a saved or newly
+  `?seconds=` (half the original's length; the Spotlight command asks for 30),
+  `?audience=children` replace the body with a saved or newly
   written version (`contentVariants`, kind `version`). `audience=children` is
   a navigation key, so a family tour keeps it on every stop.
 - Both are also voice/Spotlight commands while a modal is open

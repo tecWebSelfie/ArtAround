@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Kies een object uit de catalogus om het op de kaart van {{museum}} te plaatsen",
   "Place {{name}} on the map": "{{name}} op de kaart plaatsen",
   "Place on the map": "Op de kaart plaatsen",
-  "Reading time": "Leestijd",
   "Search contents": "Content zoeken",
   "Search objects": "Objecten zoeken",
   "Search tours, contents and museums": "Zoek tours, content en musea",
@@ -42,5 +41,6 @@
   "Tour": "Tour",
   "Tours made by": "Tours gemaakt door",
   "View details": "Details bekijken",
-  "Write a new content": "Nieuwe inhoud schrijven"
+  "Write a new content": "Nieuwe inhoud schrijven",
+  "Length in seconds": "Lengte in seconden"
 }

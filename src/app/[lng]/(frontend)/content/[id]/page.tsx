@@ -159,7 +159,7 @@ async function loadContentDetails(
     ? await payload.find({
         collection: 'contents',
         where: { id: { in: relatedIds } },
-        select: { title: true, difficulty: true, readingTimeMins: true, images: true },
+        select: { title: true, difficulty: true, durationSeconds: true, images: true },
         populate: { contentImages: PICTURE_SELECT },
         locale,
         depth: 1,

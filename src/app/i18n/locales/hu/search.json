@@ -33,7 +33,6 @@
   "Pick an object from the catalog to place it on the map of {{museum}}": "Válassz egy tárgyat a katalógusból, hogy elhelyezd a(z) {{museum}} térképén",
   "Place {{name}} on the map": "{{name}} elhelyezése a térképen",
   "Place on the map": "Elhelyezés a térképen",
-  "Reading time": "Olvasási idő",
   "Search contents": "Tartalmak keresése",
   "Search objects": "Tárgyak keresése",
   "Search tours, contents and museums": "Túrák, tartalmak és múzeumok keresése",
@@ -42,5 +41,6 @@
   "Tour": "Túra",
   "Tours made by": "Túrák, készítette:",
   "View details": "Részletek",
-  "Write a new content": "Új tartalom írása"
+  "Write a new content": "Új tartalom írása",
+  "Length in seconds": "Hossz másodpercben"
 }
