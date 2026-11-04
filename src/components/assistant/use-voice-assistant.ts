@@ -1,7 +1,7 @@
 'use client'
 
 import { MicVAD, utils } from '@ricky0123/vad-web'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { AssistantState } from './AssistantOrb'
 import type { useSpeech } from './use-speech'
 
@@ -49,9 +49,12 @@ export function useVoiceAssistant({
   const micLevel = useRef(0)
   const detector = useRef<Promise<MicVAD> | null>(null)
 
-  // The detector outlives renders, so it calls the latest values through a ref.
+  // The detector outlives renders, so it calls the latest values through a
+  // ref, refreshed after each render (never written during render).
   const latest = useRef({ commands, context, language, speech, onTurn, onError })
-  latest.current = { commands, context, language, speech, onTurn, onError }
+  useLayoutEffect(() => {
+    latest.current = { commands, context, language, speech, onTurn, onError }
+  })
 
   const sendTurn = useCallback(async (audio: Float32Array) => {
     const { commands, context, language, speech, onTurn, onError } = latest.current

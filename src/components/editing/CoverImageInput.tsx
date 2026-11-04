@@ -4,7 +4,7 @@ import type { PictureCollection } from '@/lib/picture'
 import { payloadSdk } from '@/payload-sdk'
 import { Button, FileButton, Group, Image, Input, Paper, Text } from '@mantine/core'
 import { ImagePlus, Trash2 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -31,14 +31,13 @@ export function CoverImageInput({
   onChange: (change: CoverChange) => void
 }) {
   const { t } = useTranslation('editing')
-  // A blob URL for the picked file's preview, revoked when replaced.
-  const [pickedUrl, setPickedUrl] = useState<string | null>(null)
-  useEffect(() => {
-    if (!(change instanceof File)) return setPickedUrl(null)
-    const url = URL.createObjectURL(change)
-    setPickedUrl(url)
-    return () => URL.revokeObjectURL(url)
-  }, [change])
+  // A blob URL for the picked file's preview, derived from the file and
+  // revoked when replaced or unmounted.
+  const pickedUrl = useMemo(
+    () => (change instanceof File ? URL.createObjectURL(change) : null),
+    [change],
+  )
+  useEffect(() => () => void (pickedUrl && URL.revokeObjectURL(pickedUrl)), [pickedUrl])
 
   const previewUrl = pickedUrl ?? (change === 'remove' ? null : current?.url)
 

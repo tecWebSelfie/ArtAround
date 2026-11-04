@@ -1,15 +1,7 @@
 'use client'
 
 import { TimeInput } from '@mantine/dates'
-import {
-  ActionIcon,
-  Button,
-  Group,
-  Stack,
-  Text,
-  Textarea,
-  Tooltip,
-} from '@mantine/core'
+import { ActionIcon, Button, Group, Stack, Text, Textarea, Tooltip } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { Clock, Plus, Trash2 } from 'lucide-react'
 import { useState } from 'react'
@@ -128,18 +120,14 @@ function OpeningHoursForm({
                   aria-label={`${dayLabel[day]} ${t('opening')}`}
                   size="xs"
                   value={row.opening}
-                  onChange={(event) =>
-                    setRow(day, index, { opening: event.currentTarget.value })
-                  }
+                  onChange={(event) => setRow(day, index, { opening: event.currentTarget.value })}
                 />
                 <Text size="xs">–</Text>
                 <TimeInput
                   aria-label={`${dayLabel[day]} ${t('closing')}`}
                   size="xs"
                   value={row.closing}
-                  onChange={(event) =>
-                    setRow(day, index, { closing: event.currentTarget.value })
-                  }
+                  onChange={(event) => setRow(day, index, { closing: event.currentTarget.value })}
                 />
                 <ActionIcon
                   aria-label={t('Remove this interval')}
@@ -188,8 +176,8 @@ export function ServiceOpeningHoursField({
   const summary = summarise(node.openingHours)
 
   const openForm = () => {
-    let modalId: string | undefined
-    modalId = modals.open({
+    // The form's callbacks run after `open` returns, so they can close by id.
+    const modalId = modals.open({
       title: t('Opening hours'),
       size: 'lg',
       children: (

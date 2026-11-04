@@ -1,6 +1,6 @@
-import { Fragment, type ComponentProps, useMemo, useState } from 'react';
-import { type VariantProps, cva } from 'class-variance-authority';
-import { Track } from 'livekit-client';
+import { Fragment, type ComponentProps, useMemo, useState } from 'react'
+import { type VariantProps, cva } from 'class-variance-authority'
+import { Track } from 'livekit-client'
 import {
   MicIcon,
   MicOffIcon,
@@ -9,9 +9,9 @@ import {
   LoaderIcon,
   VideoIcon,
   VideoOffIcon,
-} from 'lucide-react';
-import { Toggle } from '@/components/ui/toggle';
-import { cn } from '@/lib/utils';
+} from 'lucide-react'
+import { Toggle } from '@/components/ui/toggle'
+import { cn } from '@/lib/utils'
 
 export const agentTrackToggleVariants = cva(['size-9'], {
   variants: {
@@ -41,22 +41,22 @@ export const agentTrackToggleVariants = cva(['size-9'], {
   defaultVariants: {
     variant: 'default',
   },
-});
+})
 
 function getSourceIcon(source: Track.Source, enabled: boolean, pending = false) {
   if (pending) {
-    return LoaderIcon;
+    return LoaderIcon
   }
 
   switch (source) {
     case Track.Source.Microphone:
-      return enabled ? MicIcon : MicOffIcon;
+      return enabled ? MicIcon : MicOffIcon
     case Track.Source.Camera:
-      return enabled ? VideoIcon : VideoOffIcon;
+      return enabled ? VideoIcon : VideoOffIcon
     case Track.Source.ScreenShare:
-      return enabled ? MonitorUpIcon : MonitorOffIcon;
+      return enabled ? MonitorUpIcon : MonitorOffIcon
     default:
-      return Fragment;
+      return Fragment
   }
 }
 
@@ -68,37 +68,37 @@ export type AgentTrackToggleProps = VariantProps<typeof agentTrackToggleVariants
     /**
      * The size of the toggle.
      */
-    size?: 'sm' | 'default' | 'lg';
+    size?: 'sm' | 'default' | 'lg'
     /**
      * The variant of the toggle.
      * @defaultValue 'default'
      */
-    variant?: 'default' | 'outline';
+    variant?: 'default' | 'outline'
     /**
      * The track source to toggle (Microphone, Camera, or ScreenShare).
      */
-    source: 'camera' | 'microphone' | 'screen_share';
+    source: 'camera' | 'microphone' | 'screen_share'
     /**
      * Whether the toggle is in a pending/loading state.
      * When true, displays a loading spinner icon.
      * @defaultValue false
      */
-    pending?: boolean;
+    pending?: boolean
     /**
      * Whether the toggle is currently pressed/enabled.
      * @defaultValue false
      */
-    pressed?: boolean;
+    pressed?: boolean
     /**
      * The default pressed state when uncontrolled.
      * @defaultValue false
      */
-    defaultPressed?: boolean;
+    defaultPressed?: boolean
     /**
      * Callback fired when the pressed state changes.
      */
-    onPressedChange?: (pressed: boolean) => void;
-  };
+    onPressedChange?: (pressed: boolean) => void
+  }
 
 /**
  * A toggle button for controlling track publishing state.
@@ -127,19 +127,19 @@ export function AgentTrackToggle({
   value,
   ...props
 }: AgentTrackToggleProps) {
-  const [uncontrolledPressed, setUncontrolledPressed] = useState(defaultPressed ?? false);
-  const isControlled = pressed !== undefined;
+  const [uncontrolledPressed, setUncontrolledPressed] = useState(defaultPressed ?? false)
+  const isControlled = pressed !== undefined
   const resolvedPressed = useMemo(
     () => (isControlled ? pressed : uncontrolledPressed) ?? false,
     [isControlled, pressed, uncontrolledPressed],
-  );
-  const IconComponent = getSourceIcon(source as Track.Source, resolvedPressed, pending);
+  )
+  const IconComponent = getSourceIcon(source as Track.Source, resolvedPressed, pending)
   const handlePressedChange = (nextPressed: boolean) => {
     if (!isControlled) {
-      setUncontrolledPressed(nextPressed);
+      setUncontrolledPressed(nextPressed)
     }
-    onPressedChange?.(nextPressed);
-  };
+    onPressedChange?.(nextPressed)
+  }
 
   return (
     <Toggle
@@ -160,8 +160,9 @@ export function AgentTrackToggle({
       // Base UI's Toggle takes a string value; HTML buttons also allow numbers.
       value={value === undefined ? undefined : String(value)}
     >
+      {/* eslint-disable-next-line react-hooks/static-components -- Vendored LiveKit agents-ui code, kept as published: getSourceIcon returns module-level icons, nothing is created during render. */}
       <IconComponent className={cn(pending && 'animate-spin')} />
       {props.children}
     </Toggle>
-  );
+  )
 }
