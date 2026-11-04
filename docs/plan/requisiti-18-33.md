@@ -156,12 +156,16 @@ Già decise:
     (e ottiene il cookie) per un tour privato altrui. Test:
     `tests/int/visibility.int.spec.ts`; storie VisibilityInput e
     ContentDetails → Private.
-- [ ] **9. "Chi ha chiesto cosa"**
+- [x] **9. "Chi ha chiesto cosa"**
   - Ogni ospite pubblica un attributo `requests` (tappa, tipo, ora).
   - Il docente vede un contatore per partecipante e un pannello "Richieste" per
     studente e per tappa.
   - L'ospite è avvisato che il docente vede le sue richieste.
   - Prova: test sul formato dell'attributo; storia del pannello.
+  - Fatto: `src/lib/group-requests.ts`; `GroupSync` pubblica le richieste
+    dell'ospite lette dall'URL della modale; `GroupRequests` nel pannello del
+    gruppo dell'host; avviso per gli ospiti. Test:
+    `tests/int/group-requests.int.spec.ts`; storia `GroupRequestList`.
 - [ ] **10. Verifiche**
   - L'ingresso al gruppo mostra il titolo del tour e il nome del docente.
   - Nessun badge "AI" visibile nell'interfaccia: i contenuti generati si

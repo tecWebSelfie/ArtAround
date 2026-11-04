@@ -66,5 +66,17 @@
   "Your group, {{count}} people_one": "Ton groupe, {{count}} personne",
   "Your group, {{count}} people_many": "Ton groupe, {{count}} personnes",
   "Your group, {{count}} people_other": "Ton groupe, {{count}} personnes",
-  "Your name": "Ton nom"
+  "Your name": "Ton nom",
+  "Tell me more": "Dis-m’en plus",
+  "Curiosities": "Curiosités",
+  "Its story": "Son histoire",
+  "Shorter": "Plus court",
+  "For children": "Pour les enfants",
+  "Easy wording": "Formulation simple",
+  "Medium wording": "Formulation intermédiaire",
+  "In-depth wording": "Formulation approfondie",
+  "Requests": "Demandes",
+  "Stop {{number}}": "Étape {{number}}",
+  "The host": "L’hôte",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} voit ce que vous demandez : plus sur une œuvre, ou une autre formulation"
 }

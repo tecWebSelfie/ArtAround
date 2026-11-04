@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Sinu grupp lahendab viktoriini",
   "Your group, {{count}} people_one": "Sinu grupp, {{count}} inimene",
   "Your group, {{count}} people_other": "Sinu grupp, {{count}} inimest",
-  "Your name": "Sinu nimi"
+  "Your name": "Sinu nimi",
+  "Tell me more": "Räägi veel",
+  "Curiosities": "Huvitavat",
+  "Its story": "Selle lugu",
+  "Shorter": "Lühem",
+  "For children": "Lastele",
+  "Easy wording": "Lihtne sõnastus",
+  "Medium wording": "Keskmine sõnastus",
+  "In-depth wording": "Põhjalik sõnastus",
+  "Requests": "Soovid",
+  "Stop {{number}}": "Peatus {{number}}",
+  "The host": "Juht",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} näeb, mida sa küsid: rohkem teose kohta või teistsugust sõnastust"
 }

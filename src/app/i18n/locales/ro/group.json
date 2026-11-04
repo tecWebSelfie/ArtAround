@@ -66,5 +66,17 @@
   "Your group, {{count}} people_one": "Grupul tău, {{count}} persoană",
   "Your group, {{count}} people_few": "Grupul tău, {{count}} persoane",
   "Your group, {{count}} people_other": "Grupul tău, {{count}} de persoane",
-  "Your name": "Numele tău"
+  "Your name": "Numele tău",
+  "Tell me more": "Spune-mi mai multe",
+  "Curiosities": "Curiozități",
+  "Its story": "Povestea sa",
+  "Shorter": "Mai scurt",
+  "For children": "Pentru copii",
+  "Easy wording": "Formulare simplă",
+  "Medium wording": "Formulare medie",
+  "In-depth wording": "Formulare aprofundată",
+  "Requests": "Cereri",
+  "Stop {{number}}": "Oprirea {{number}}",
+  "The host": "Gazda",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} vede ce ceri: mai multe despre o lucrare sau altă formulare"
 }

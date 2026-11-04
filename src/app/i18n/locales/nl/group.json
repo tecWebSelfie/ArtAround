@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Je groep doet de quiz",
   "Your group, {{count}} people_one": "Je groep, {{count}} persoon",
   "Your group, {{count}} people_other": "Je groep, {{count}} personen",
-  "Your name": "Je naam"
+  "Your name": "Je naam",
+  "Tell me more": "Vertel me meer",
+  "Curiosities": "Weetjes",
+  "Its story": "Het verhaal",
+  "Shorter": "Korter",
+  "For children": "Voor kinderen",
+  "Easy wording": "Eenvoudige taal",
+  "Medium wording": "Gemiddelde taal",
+  "In-depth wording": "Diepgaande taal",
+  "Requests": "Verzoeken",
+  "Stop {{number}}": "Stop {{number}}",
+  "The host": "De gastheer",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} ziet waar je om vraagt: meer over een werk of een andere taal"
 }

@@ -66,5 +66,17 @@
   "Your group, {{count}} people_zero": "Tava grupa, {{count}} cilvēki",
   "Your group, {{count}} people_one": "Tava grupa, {{count}} cilvēks",
   "Your group, {{count}} people_other": "Tava grupa, {{count}} cilvēki",
-  "Your name": "Tavs vārds"
+  "Your name": "Tavs vārds",
+  "Tell me more": "Pastāsti vairāk",
+  "Curiosities": "Interesanti fakti",
+  "Its story": "Tā stāsts",
+  "Shorter": "Īsāk",
+  "For children": "Bērniem",
+  "Easy wording": "Vienkārša valoda",
+  "Medium wording": "Vidēja valoda",
+  "In-depth wording": "Padziļināta valoda",
+  "Requests": "Pieprasījumi",
+  "Stop {{number}}": "Pietura {{number}}",
+  "The host": "Vadītājs",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} redz, ko jūs lūdzat: vairāk par darbu vai citu valodu"
 }

@@ -72,5 +72,17 @@
   "Your group, {{count}} people_few": "Do ghrúpa, {{count}} duine",
   "Your group, {{count}} people_many": "Do ghrúpa, {{count}} duine",
   "Your group, {{count}} people_other": "Do ghrúpa, {{count}} duine",
-  "Your name": "D'ainm"
+  "Your name": "D'ainm",
+  "Tell me more": "Inis tuilleadh dom",
+  "Curiosities": "Rudaí suimiúla",
+  "Its story": "A scéal",
+  "Shorter": "Níos giorra",
+  "For children": "Do pháistí",
+  "Easy wording": "Foclaíocht shimplí",
+  "Medium wording": "Foclaíocht mheánach",
+  "In-depth wording": "Foclaíocht dhomhain",
+  "Requests": "Iarratais",
+  "Stop {{number}}": "Stad {{number}}",
+  "The host": "An t-óstach",
+  "{{name}} sees what you ask for: more about a work, or another wording": "Feiceann {{name}} a n-iarrann tú: tuilleadh faoi shaothar, nó foclaíocht eile"
 }

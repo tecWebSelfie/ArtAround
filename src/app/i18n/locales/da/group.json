@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Din gruppe er i gang med quizzen",
   "Your group, {{count}} people_one": "Din gruppe, {{count}} person",
   "Your group, {{count}} people_other": "Din gruppe, {{count}} personer",
-  "Your name": "Dit navn"
+  "Your name": "Dit navn",
+  "Tell me more": "Fortæl mig mere",
+  "Curiosities": "Kuriositeter",
+  "Its story": "Dens historie",
+  "Shorter": "Kortere",
+  "For children": "For børn",
+  "Easy wording": "Let sprog",
+  "Medium wording": "Mellemsprog",
+  "In-depth wording": "Uddybende sprog",
+  "Requests": "Anmodninger",
+  "Stop {{number}}": "Stop {{number}}",
+  "The host": "Værten",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} kan se, hvad du beder om: mere om et værk eller et andet sprog"
 }

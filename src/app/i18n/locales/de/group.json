@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Deine Gruppe macht gerade das Quiz",
   "Your group, {{count}} people_one": "Deine Gruppe, {{count}} Person",
   "Your group, {{count}} people_other": "Deine Gruppe, {{count}} Personen",
-  "Your name": "Dein Name"
+  "Your name": "Dein Name",
+  "Tell me more": "Erzähl mir mehr",
+  "Curiosities": "Wissenswertes",
+  "Its story": "Seine Geschichte",
+  "Shorter": "Kürzer",
+  "For children": "Für Kinder",
+  "Easy wording": "Einfache Sprache",
+  "Medium wording": "Mittlere Sprache",
+  "In-depth wording": "Ausführliche Sprache",
+  "Requests": "Anfragen",
+  "Stop {{number}}": "Halt {{number}}",
+  "The host": "Die Leitung",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} sieht, worum du bittest: mehr über ein Werk oder eine andere Sprache"
 }

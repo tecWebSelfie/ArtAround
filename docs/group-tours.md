@@ -24,6 +24,12 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   `tours`/`contents` read access lets its holder read that tour and its contents
   (guests have no account). Only someone who can read a tour can open a room for
   it (`/api/rooms` reads the tour as the host).
+- **Who asked what:** a guest's reading requests at a stop ("Tell me more",
+  curiosities, story, another wording level, shorter, for children) are read from
+  their own modal URL by `GroupSync` and published in their `requests` attribute
+  (`src/lib/group-requests.ts`, once per kind and stop). The host's group panel
+  lists them per guest and stop (`GroupRequests`); guests read a note that the
+  host sees what they ask for.
 - **During the tour, guests follow the host.** Shared: the step, position (`at`),
   destination (`to`/`service`/`exit`) and the open modal. Personal: language,
   wheelchair route, reading options (`level`, `minutes`, `audience`), "Tell me more"

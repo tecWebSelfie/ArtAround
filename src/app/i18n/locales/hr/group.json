@@ -66,5 +66,17 @@
   "Your group, {{count}} people_one": "Tvoja grupa, {{count}} osoba",
   "Your group, {{count}} people_few": "Tvoja grupa, {{count}} osobe",
   "Your group, {{count}} people_other": "Tvoja grupa, {{count}} osoba",
-  "Your name": "Tvoje ime"
+  "Your name": "Tvoje ime",
+  "Tell me more": "Reci mi više",
+  "Curiosities": "Zanimljivosti",
+  "Its story": "Njegova priča",
+  "Shorter": "Kraće",
+  "For children": "Za djecu",
+  "Easy wording": "Jednostavan jezik",
+  "Medium wording": "Srednji jezik",
+  "In-depth wording": "Stručni jezik",
+  "Requests": "Zahtjevi",
+  "Stop {{number}}": "Postaja {{number}}",
+  "The host": "Domaćin",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} vidi što tražite: više o djelu ili drugačiji jezik"
 }

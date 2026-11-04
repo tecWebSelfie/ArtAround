@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "A csoportod kvízt tölt ki",
   "Your group, {{count}} people_one": "A csoportod, {{count}} fő",
   "Your group, {{count}} people_other": "A csoportod, {{count}} fő",
-  "Your name": "A neved"
+  "Your name": "A neved",
+  "Tell me more": "Mesélj még",
+  "Curiosities": "Érdekességek",
+  "Its story": "A története",
+  "Shorter": "Rövidebb",
+  "For children": "Gyerekeknek",
+  "Easy wording": "Egyszerű megfogalmazás",
+  "Medium wording": "Közepes megfogalmazás",
+  "In-depth wording": "Részletes megfogalmazás",
+  "Requests": "Kérések",
+  "Stop {{number}}": "{{number}}. állomás",
+  "The host": "A vezető",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} látja, mit kérsz: többet egy műről vagy más megfogalmazást"
 }

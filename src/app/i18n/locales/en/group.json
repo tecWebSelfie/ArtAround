@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Your group is taking the quiz",
   "Your group, {{count}} people_one": "Your group, {{count}} person",
   "Your group, {{count}} people_other": "Your group, {{count}} people",
-  "Your name": "Your name"
+  "Your name": "Your name",
+  "Tell me more": "Tell me more",
+  "Curiosities": "Curiosities",
+  "Its story": "Its story",
+  "Shorter": "Shorter",
+  "For children": "For children",
+  "Easy wording": "Easy wording",
+  "Medium wording": "Medium wording",
+  "In-depth wording": "In-depth wording",
+  "Requests": "Requests",
+  "Stop {{number}}": "Stop {{number}}",
+  "The host": "The host",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} sees what you ask for: more about a work, or another wording"
 }

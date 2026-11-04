@@ -72,5 +72,17 @@
   "Your group, {{count}} people_few": "Il-grupp tiegħek, {{count}} persuni",
   "Your group, {{count}} people_many": "Il-grupp tiegħek, {{count}} persuna",
   "Your group, {{count}} people_other": "Il-grupp tiegħek, {{count}} persuna",
-  "Your name": "Ismek"
+  "Your name": "Ismek",
+  "Tell me more": "Għidli aktar",
+  "Curiosities": "Kurżitajiet",
+  "Its story": "L-istorja tiegħu",
+  "Shorter": "Iqsar",
+  "For children": "Għat-tfal",
+  "Easy wording": "Kliem sempliċi",
+  "Medium wording": "Kliem medju",
+  "In-depth wording": "Kliem fil-fond",
+  "Requests": "Talbiet",
+  "Stop {{number}}": "Waqfa {{number}}",
+  "The host": "L-ospitant",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} jara x’titlob: aktar dwar xogħol, jew kliem ieħor"
 }

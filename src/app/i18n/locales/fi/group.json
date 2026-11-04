@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Ryhmäsi tekee tietovisaa",
   "Your group, {{count}} people_one": "Ryhmäsi, {{count}} henkilö",
   "Your group, {{count}} people_other": "Ryhmäsi, {{count}} henkilöä",
-  "Your name": "Nimesi"
+  "Your name": "Nimesi",
+  "Tell me more": "Kerro lisää",
+  "Curiosities": "Kuriositeetit",
+  "Its story": "Sen tarina",
+  "Shorter": "Lyhyempi",
+  "For children": "Lapsille",
+  "Easy wording": "Helppo kieli",
+  "Medium wording": "Keskitason kieli",
+  "In-depth wording": "Syventävä kieli",
+  "Requests": "Pyynnöt",
+  "Stop {{number}}": "Kohde {{number}}",
+  "The host": "Isäntä",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} näkee, mitä pyydät: lisää teoksesta tai toisenlaista kieltä"
 }

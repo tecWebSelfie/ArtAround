@@ -69,5 +69,17 @@
   "Your group, {{count}} people_few": "Tvoje skupina, {{count}} osoby",
   "Your group, {{count}} people_many": "Tvoje skupina, {{count}} osoby",
   "Your group, {{count}} people_other": "Tvoje skupina, {{count}} osob",
-  "Your name": "Tvoje jméno"
+  "Your name": "Tvoje jméno",
+  "Tell me more": "Řekni mi víc",
+  "Curiosities": "Zajímavosti",
+  "Its story": "Jeho příběh",
+  "Shorter": "Kratší",
+  "For children": "Pro děti",
+  "Easy wording": "Jednoduché podání",
+  "Medium wording": "Běžné podání",
+  "In-depth wording": "Odborné podání",
+  "Requests": "Žádosti",
+  "Stop {{number}}": "Zastávka {{number}}",
+  "The host": "Průvodce",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} vidí, o co žádáte: víc o díle nebo jiné podání"
 }

@@ -66,5 +66,17 @@
   "Your group, {{count}} people_one": "O teu grupo, {{count}} pessoa",
   "Your group, {{count}} people_many": "O teu grupo, {{count}} pessoas",
   "Your group, {{count}} people_other": "O teu grupo, {{count}} pessoas",
-  "Your name": "O teu nome"
+  "Your name": "O teu nome",
+  "Tell me more": "Conta-me mais",
+  "Curiosities": "Curiosidades",
+  "Its story": "A sua história",
+  "Shorter": "Mais curto",
+  "For children": "Para crianças",
+  "Easy wording": "Linguagem simples",
+  "Medium wording": "Linguagem intermédia",
+  "In-depth wording": "Linguagem aprofundada",
+  "Requests": "Pedidos",
+  "Stop {{number}}": "Paragem {{number}}",
+  "The host": "O anfitrião",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} vê o que pedes: mais sobre uma obra ou outra linguagem"
 }

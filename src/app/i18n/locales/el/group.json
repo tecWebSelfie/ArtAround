@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Η ομάδα σου κάνει το κουίζ",
   "Your group, {{count}} people_one": "Η ομάδα σου, {{count}} άτομο",
   "Your group, {{count}} people_other": "Η ομάδα σου, {{count}} άτομα",
-  "Your name": "Το όνομά σου"
+  "Your name": "Το όνομά σου",
+  "Tell me more": "Πες μου περισσότερα",
+  "Curiosities": "Περιέργειες",
+  "Its story": "Η ιστορία του",
+  "Shorter": "Πιο σύντομο",
+  "For children": "Για παιδιά",
+  "Easy wording": "Απλή διατύπωση",
+  "Medium wording": "Μέτρια διατύπωση",
+  "In-depth wording": "Εμβριθής διατύπωση",
+  "Requests": "Αιτήματα",
+  "Stop {{number}}": "Στάση {{number}}",
+  "The host": "Ο οικοδεσπότης",
+  "{{name}} sees what you ask for: more about a work, or another wording": "Ο/Η {{name}} βλέπει τι ζητάτε: περισσότερα για ένα έργο ή άλλη διατύπωση"
 }

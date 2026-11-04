@@ -63,5 +63,17 @@
   "Your group is taking the quiz": "Групата ти решава куиза",
   "Your group, {{count}} people_one": "Твоята група, {{count}} човек",
   "Your group, {{count}} people_other": "Твоята група, {{count}} души",
-  "Your name": "Твоето име"
+  "Your name": "Твоето име",
+  "Tell me more": "Разкажи ми още",
+  "Curiosities": "Любопитни факти",
+  "Its story": "Неговата история",
+  "Shorter": "По-кратко",
+  "For children": "За деца",
+  "Easy wording": "Лесен изказ",
+  "Medium wording": "Среден изказ",
+  "In-depth wording": "Задълбочен изказ",
+  "Requests": "Заявки",
+  "Stop {{number}}": "Спирка {{number}}",
+  "The host": "Водещият",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} вижда какво питате: повече за творба или друг изказ"
 }

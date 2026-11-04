@@ -66,5 +66,17 @@
   "Your group, {{count}} people_one": "Il tuo gruppo, {{count}} persona",
   "Your group, {{count}} people_many": "Il tuo gruppo, {{count}} persone",
   "Your group, {{count}} people_other": "Il tuo gruppo, {{count}} persone",
-  "Your name": "Il tuo nome"
+  "Your name": "Il tuo nome",
+  "Tell me more": "Dimmi di più",
+  "Curiosities": "Curiosità",
+  "Its story": "La sua storia",
+  "Shorter": "Più breve",
+  "For children": "Per bambini",
+  "Easy wording": "Linguaggio semplice",
+  "Medium wording": "Linguaggio medio",
+  "In-depth wording": "Linguaggio approfondito",
+  "Requests": "Richieste",
+  "Stop {{number}}": "Tappa {{number}}",
+  "The host": "Chi guida il gruppo",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} vede cosa chiedi: altro su un'opera o un linguaggio diverso"
 }

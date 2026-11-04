@@ -9,6 +9,13 @@ import {
   parseRoomMetadata,
 } from '@/lib/group'
 import {
+  addRequests,
+  parseRequests,
+  REQUESTS_ATTRIBUTE,
+  requestsInUrl,
+  stopOfLocation,
+} from '@/lib/group-requests'
+import {
   RoomContext,
   useConnectionState,
   useLocalParticipant,
@@ -207,6 +214,20 @@ function GroupSync({ group }: { group: GroupContextValue }) {
     // Other pages (marketplace, account) don't move the group.
     void localParticipant.setAttributes({ path: location }).catch(() => {})
   }, [membership.role, membership.started, connected, inTour, location, localParticipant])
+
+  // "Who asked what" (src/lib/group-requests.ts): a guest's reading requests
+  // at the current stop — read from their own URL state — join their
+  // `requests` attribute, which the host's group panel lists.
+  const requests = membership.attributes?.[REQUESTS_ATTRIBUTE]
+  const publish = group.publish
+  useEffect(() => {
+    if (membership.role !== 'guest' || !inTour) return
+    const stop = stopOfLocation(location)
+    const kinds = requestsInUrl(search)
+    if (stop === null || !kinds.length) return
+    const next = addRequests(parseRequests(requests), kinds, stop, Date.now())
+    if (next) publish({ [REQUESTS_ATTRIBUTE]: JSON.stringify(next) })
+  }, [membership.role, inTour, location, search, requests, publish])
 
   // Saved attributes (`publish`) go out on every (re)connect and every change.
   const saved = membership.attributes

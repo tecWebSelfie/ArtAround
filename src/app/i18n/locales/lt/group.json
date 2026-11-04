@@ -69,5 +69,17 @@
   "Your group, {{count}} people_few": "Tavo grupė, {{count}} žmonės",
   "Your group, {{count}} people_many": "Tavo grupė, {{count}} žmogaus",
   "Your group, {{count}} people_other": "Tavo grupė, {{count}} žmonių",
-  "Your name": "Tavo vardas"
+  "Your name": "Tavo vardas",
+  "Tell me more": "Papasakok daugiau",
+  "Curiosities": "Įdomybės",
+  "Its story": "Jo istorija",
+  "Shorter": "Trumpiau",
+  "For children": "Vaikams",
+  "Easy wording": "Paprasta kalba",
+  "Medium wording": "Vidutinio sudėtingumo kalba",
+  "In-depth wording": "Išsami kalba",
+  "Requests": "Prašymai",
+  "Stop {{number}}": "Stotelė {{number}}",
+  "The host": "Vedėjas",
+  "{{name}} sees what you ask for: more about a work, or another wording": "{{name}} mato, ko prašote: daugiau apie kūrinį ar kitokios kalbos"
 }
