@@ -1,12 +1,11 @@
 import {
+  anyMuseumStaff,
   anyone,
   authenticated,
   isSuperAdmin,
-  museumsWithRank,
   superAdminOnly,
 } from '@/access/museumRoles'
 import { editorial } from '@/fields/editorial'
-import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
 import { WIKIDATA_QUEUE } from '@/lib/wikidata'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
@@ -38,9 +37,6 @@ const ownerOrSuperAdmin: Access = ({ req }) => {
   if (isSuperAdmin(req)) return true
   return { createdBy: { equals: String(req.user.id) } }
 }
-
-const anyMuseumStaff: Access = async ({ req }) =>
-  isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
 
 /**
  * A content is about exactly one object: it may appear in the `contents` of at

@@ -41,6 +41,7 @@ import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
 import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
 import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
+import { WIKIMEDIA_USER_AGENT } from '../src/lib/wikidata'
 import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 loadEnv({ path: ['.env.local', '.env'] })
@@ -179,8 +180,7 @@ async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
   try {
     const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(object.image)}?width=640`
     const response = await fetch(url, {
-      // Wikimedia asks API clients to identify themselves.
-      headers: { 'User-Agent': 'ArtAround/1.0 (university museum guide project)' },
+      headers: { 'User-Agent': WIKIMEDIA_USER_AGENT },
       signal: AbortSignal.timeout(20_000),
     })
     if (!response.ok) throw new Error(`HTTP ${response.status}`)

@@ -1,8 +1,7 @@
-import { isSuperAdmin, museumsWithRank, superAdminOnly } from '@/access/museumRoles'
+import { anyMuseumStaff, superAdminOnly } from '@/access/museumRoles'
 import { editorial } from '@/fields/editorial'
-import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
-import type { Access, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
 /**
  * What a work is related to without being a thing on the map: the people who
@@ -17,9 +16,6 @@ import type { Access, CollectionConfig } from 'payload'
  * Subjects with a Wikidata id are usually created by the
  * `importWikidataSubjects` task when a work gets its own id.
  */
-
-const anyMuseumStaff: Access = async ({ req }) =>
-  isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
 
 export const Subjects: CollectionConfig = {
   slug: 'subjects',

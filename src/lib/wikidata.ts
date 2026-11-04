@@ -11,8 +11,8 @@
  */
 
 const API = 'https://www.wikidata.org/w/api.php'
-/** Wikimedia asks API clients to identify themselves. */
-const USER_AGENT = 'ArtAround/1.0 (university museum guide project)'
+/** Wikimedia asks API clients to identify themselves (Wikidata, Wikipedia, Commons). */
+export const WIKIMEDIA_USER_AGENT = 'ArtAround/1.0 (university museum guide project)'
 const TIMEOUT_MS = 10_000
 
 export const WIKIDATA_ID = /^Q[1-9]\d*$/
@@ -52,7 +52,7 @@ async function call(params: Record<string, string>, fetchImpl: Fetch) {
   url.search = new URLSearchParams({ format: 'json', ...params }).toString()
   for (let attempt = 0; ; attempt++) {
     const response = await fetchImpl(url, {
-      headers: { 'User-Agent': USER_AGENT },
+      headers: { 'User-Agent': WIKIMEDIA_USER_AGENT },
       signal: AbortSignal.timeout(TIMEOUT_MS),
     })
     if (response.ok) return response.json() as Promise<Record<string, unknown>>

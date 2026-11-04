@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createMCPClient } from '@ai-sdk/mcp'
+import { WIKIMEDIA_USER_AGENT } from './wikidata'
 
 /**
  * External facts for `/api/expand`, from two public, authoritative sources:
@@ -22,8 +23,6 @@ export type ExternalSource = { title: string; url: string; text: string }
 const WIKIDATA_MCP_URL = 'https://wd-mcp.wmcloud.org/mcp'
 // Wikidata needs about 9 s (MCP handshake, tool list, search, statements).
 const TIMEOUT_MS = 10_000
-/** Wikimedia asks API clients to identify themselves. */
-const USER_AGENT = 'ArtAround/1.0 (university museum guide project)'
 /** Keeps each source to roughly 500 tokens of the prompt. */
 const MAX_SOURCE_CHARS = 2_000
 
@@ -79,7 +78,7 @@ async function wikidataFacts(
 async function wikipediaSummary(query: string, lang: string): Promise<ExternalSource | null> {
   // The language only ever picks a Wikipedia subdomain, so it must be a plain code.
   const wiki = /^[a-z]{2,3}$/.test(lang) ? lang : 'en'
-  const headers = { 'User-Agent': USER_AGENT }
+  const headers = { 'User-Agent': WIKIMEDIA_USER_AGENT }
   const search = await fetch(
     `https://${wiki}.wikipedia.org/w/rest.php/v1/search/page?q=${encodeURIComponent(query)}&limit=1`,
     { headers },

@@ -1,5 +1,6 @@
 import {
   anyone,
+  asId,
   authenticated,
   isSuperAdmin,
   museumsWithRank,
@@ -56,9 +57,6 @@ const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operati
   return data
 }
 
-const asId = (value: unknown) =>
-  value && typeof value === 'object' && 'id' in value ? String(value.id) : String(value)
-
 /**
  * A tour that sells contents is commercial use of everything in it, so it
  * can't include an NC-licensed content of another author
@@ -74,7 +72,7 @@ const guardNonCommercialContents: CollectionBeforeChangeHook<TourType> = async (
   const author = data.author ?? originalDoc?.author
   const { docs } = await req.payload.find({
     collection: 'contents',
-    where: { id: { in: data.contents.map(asId) } },
+    where: { id: { in: data.contents.map(asId).filter(Boolean) } },
     select: { title: true, price: true, license: true, author: true },
     depth: 0,
     pagination: false,
@@ -111,7 +109,10 @@ const guardPrivateContents: CollectionBeforeChangeHook<TourType> = async ({
   const { docs } = await req.payload.find({
     collection: 'contents',
     where: {
-      and: [{ id: { in: contents.map(asId) } }, { visibility: { equals: 'private' } }],
+      and: [
+        { id: { in: contents.map(asId).filter(Boolean) } },
+        { visibility: { equals: 'private' } },
+      ],
     },
     select: { title: true },
     depth: 0,
