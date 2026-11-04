@@ -180,6 +180,20 @@ Già decise:
     staff per il modello 3D, non per gli item. Test: `tests/int/no-ai-labels.int.spec.ts`
     (nessun testo inglese rivolto ai visitatori nomina AI, generazione o LLM).
 
+## Fuori dal piano
+
+- [!] **Suite d'integrazione completa: 10 test rossi preesistenti**
+  - `tests/int/api.int.spec.ts`, `objectModelEndpoints.int.spec.ts`,
+    `objectsAccess.int.spec.ts` falliscono identici sul commit di partenza
+    `40f127f` (verificato in un worktree separato), quindi non dipendono da
+    questo lavoro.
+  - Cause: `api` gira nell'ambiente jsdom ("running in a browser-like
+    environment"); `objectsAccess` si aspetta il vecchio comportamento del
+    plugin RBAC (`true` dove ora l'accesso restituisce `{ createdBy: … }`);
+    `objectModelEndpoints` ha mock incompleti (`museumRoles`, `objects`).
+  - Bloccato: per sistemarli vanno cambiati i test esistenti, e il goal vieta
+    di modificarli solo per farli passare. Serve una decisione degli autori.
+
 ## Rimandati
 
 - Indicazioni logistiche della visita (ingresso, biglietti, orari, note per
