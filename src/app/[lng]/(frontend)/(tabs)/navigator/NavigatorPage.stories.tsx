@@ -12,9 +12,6 @@ const meta = {
   },
   parameters: {
     layout: 'fullscreen',
-    // The hero word keeps cycling (TypeWriterText ignores reduced motion), so
-    // no two screenshots match.
-    visual: { disable: true },
   },
   tags: ['autodocs'],
 } satisfies Meta<typeof NavigatorHomePage>
