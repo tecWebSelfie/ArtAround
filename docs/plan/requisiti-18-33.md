@@ -166,11 +166,18 @@ Già decise:
     dell'ospite lette dall'URL della modale; `GroupRequests` nel pannello del
     gruppo dell'host; avviso per gli ospiti. Test:
     `tests/int/group-requests.int.spec.ts`; storia `GroupRequestList`.
-- [ ] **10. Verifiche**
+- [x] **10. Verifiche**
   - L'ingresso al gruppo mostra il titolo del tour e il nome del docente.
   - Nessun badge "AI" visibile nell'interfaccia: i contenuti generati si
     riconoscono solo dai metadati.
   - Prova: ricerca nel codice e storie interessate.
+  - Fatto: la pagina `/room/[code]` mostra già titolo del tour e "{{name}} ti ha
+    invitato" prima del nome (nuova storia `GroupRoomPage` → Join Shows Tour And
+    Host). Ricerca nei testi inglesi dell'interfaccia: nessuna etichetta "AI",
+    "generated", "LLM" sui contenuti; `contentVariants.generation` e
+    `contentAudio.model/voice` restano solo metadati. Le sole menzioni sono
+    nell'editor della mappa ("Generated object preview"), uno strumento dello
+    staff per il modello 3D, non per gli item.
 
 ## Rimandati
 
