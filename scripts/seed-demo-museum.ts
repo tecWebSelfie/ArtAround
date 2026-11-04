@@ -1,10 +1,12 @@
 /**
- * Seeds a realistic demo museum for trying tour navigation by hand: the
- * 11-room map from `createRealisticMuseumMap` with 16 placed objects, their
- * contents (one paid, several for children), three tours (one with a quiz)
- * and both navmeshes. Data lives in `demo-museum-data.ts`.
+ * Seeds the project's demo museum, the real Pinacoteca Nazionale di Bologna
+ * the course specification asks for: the 11-room map from
+ * `createRealisticMuseumMap` with 16 placed works, their contents (one paid,
+ * some for children) written by the `autore1`/`autore2` accounts, three tours
+ * of at least ten works (one with a quiz) and both navmeshes. Data lives in
+ * `demo-museum-data.ts`; the required accounts in `src/seed-accounts.ts`.
  *
- *   pnpm exec tsx scripts/seed-demo-museum.ts
+ *   pnpm seed:demo
  *
  * Idempotent: records are matched by name/title and updated in place, so IDs
  * (and URLs) survive re-runs; the map and navmeshes are rebuilt every time.
@@ -37,11 +39,12 @@ import { createRealisticMuseumMap } from '../src/mocks/museum-map.mock'
 import { museumNavMeshOptions, wheelchairNavMeshOptions } from '../src/lib/pascal/navmesh-options'
 import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
-import { MUSEUM, OBJECTS, TOURS } from './demo-museum-data'
+import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
+import { MUSEUM, OBJECTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 loadEnv({ path: ['.env.local', '.env'] })
 
-const MAP_KEY = 'demo_villaforte'
+const MAP_KEY = 'demo_pinacoteca'
 /** Main entrance marker of the realistic map, where every route starts. */
 const ENTRANCE: Vec3 = [15, 0, 1]
 
@@ -141,13 +144,58 @@ const editorConfig = await editorConfigFactory.default({ config: payload.config 
 const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
 const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
 const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
-const admin = await payload.find({
-  collection: 'users',
-  where: { isSuperAdmin: { equals: true } },
-  depth: 0,
-  limit: 1,
-})
-const author = admin.docs[0]?.id
+
+// The specification's accounts (created by the base seed too): the demo
+// contents are theirs, so the examiners can log in as their authors.
+const userIdByUsername = new Map<string, string>()
+for (const account of PROJECT_ACCOUNTS) {
+  const found = await payload.find({
+    collection: 'users',
+    where: { username: { equals: account.username } },
+    depth: 0,
+    limit: 1,
+  })
+  const user = found.docs[0] ?? (await payload.create({ collection: 'users', data: account }))
+  userIdByUsername.set(account.username, String(user.id))
+}
+const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
+
+/**
+ * A 640 px photo of the work from Wikimedia Commons, uploaded once as the
+ * object's thumbnail. Best effort: without network (or when Commons rate
+ * limits us) the object simply keeps no thumbnail, as before.
+ */
+async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
+  const filename = `${object.key}.jpg`
+  const existing = await payload.find({
+    collection: 'objectsThumbnails',
+    where: { filename: { equals: filename } },
+    depth: 0,
+    limit: 1,
+  })
+  if (existing.docs[0]) return existing.docs[0].id
+  try {
+    const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(object.image)}?width=640`
+    const response = await fetch(url, {
+      // Wikimedia asks API clients to identify themselves.
+      headers: { 'User-Agent': 'ArtAround/1.0 (university museum guide project)' },
+      signal: AbortSignal.timeout(20_000),
+    })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = Buffer.from(await response.arrayBuffer())
+    const doc = await payload.create({
+      collection: 'objectsThumbnails',
+      locale: 'en',
+      depth: 0,
+      data: { alt: object.name },
+      file: { data, mimetype: 'image/jpeg', name: filename, size: data.length },
+    })
+    return doc.id
+  } catch (error) {
+    console.warn(`No Commons photo for "${object.name}": ${String(error)}`)
+    return undefined
+  }
+}
 
 // Contents first: an object needs at least one, and owns its contents.
 const contentIdByTitle = new Map<string, string>()
@@ -163,9 +211,9 @@ for (const object of OBJECTS) {
       audience: content.audience ?? 'everyone',
       price: content.price ?? null,
       sources: content.sources ?? [],
-      copyright: '© Museo Civico di Villaforte',
+      copyright: `© ${PROJECT_ACCOUNTS.find((a) => a.username === content.author)!.name.fullName}`,
       categories: categoryIds(object.categories),
-      author,
+      author: authorId(content.author),
       objects: {},
     })
     contentIds.push(String(doc.id))
@@ -183,6 +231,7 @@ for (const object of OBJECTS) {
     rights: object.rights,
     categories: categoryIds(object.categories),
     contents: contentIds,
+    thumbnail: await commonsThumbnail(object),
   })
   objectIdByKey.set(object.key, String(doc.id))
 }
@@ -247,7 +296,7 @@ const museum = await upsert<{ id: string }>(payload, 'museums', 'name', MUSEUM.n
     country: 'IT',
     latlng: MUSEUM.latlng,
   },
-  ticketInfo: { label: MUSEUM.ticketLabel },
+  ticketInfo: { label: MUSEUM.ticketLabel, url: MUSEUM.ticketUrl },
   news: MUSEUM.news,
   map,
   navMesh,
@@ -281,7 +330,8 @@ for (const tour of TOURS) {
       body: convertHTMLToLexical({ editorConfig, JSDOM, html: tour.bodyHTML }),
       contents: tour.stops.map((title) => contentIdByTitle.get(title)!),
       museum: museum.id,
-      author,
+      // Tours are curated by the first author account.
+      author: authorId('autore1'),
       durationMinutes: tour.durationMinutes,
       distanceMeters: walking.metres,
       wheelchairAccessible: tour.wheelchairAccessible,

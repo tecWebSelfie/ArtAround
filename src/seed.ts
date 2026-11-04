@@ -11,6 +11,7 @@ import { getPayload } from 'payload'
 import { ItemNode, LevelNode, type ParsedBuildJson, ZoneNode } from '@pascal-app/core'
 import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
+import { PROJECT_ACCOUNTS } from './seed-accounts'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -386,7 +387,9 @@ try {
     },
   ] satisfies RequiredDataFromCollectionSlug<'users'>[]
   const userIdByEmail: Record<string, string> = {}
-  for (const user of demoUsers) {
+  // The accounts the course specification names come first: every seeded
+  // database must let the examiners log in as authors and visitors.
+  for (const user of [...PROJECT_ACCOUNTS, ...demoUsers]) {
     const foundId = await findId('users', 'email', user.email)
     if (foundId) {
       userIdByEmail[user.email] = foundId
