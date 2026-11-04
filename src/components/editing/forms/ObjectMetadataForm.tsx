@@ -10,6 +10,7 @@ import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from 
 import { useEditableSection } from '../EditableSection'
 import { FormActions } from '../FormActions'
 import { WikidataInput } from '../WikidataInput'
+import { WIKIDATA_ID } from '@/lib/wikidata'
 import { SOURCE_LOCALE, useSave } from '../saving'
 
 /**
@@ -39,9 +40,7 @@ export function ObjectMetadataForm({
     validate: {
       name: (value) => (value.trim() ? null : t('Required')),
       wikidataId: (value) =>
-        !value.trim() || /^Q[1-9]\d*$/.test(value.trim())
-          ? null
-          : t('Choose an item from the list'),
+        !value.trim() || WIKIDATA_ID.test(value.trim()) ? null : t('Choose an item from the list'),
     },
   })
   const [cover, setCover] = useState<CoverChange>(null)

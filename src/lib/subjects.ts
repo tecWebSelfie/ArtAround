@@ -3,7 +3,7 @@ import 'server-only'
 import { normalizeLocale } from '@/lib/localized'
 import { getSession } from '@/lib/session'
 import type { Subject } from '@/payload-types'
-import { extractID } from 'payload/shared'
+import { asId } from '@/access/museumRoles'
 
 /**
  * The subjects (author, movement, events) linked to a work, in the visitor's
@@ -18,7 +18,7 @@ export async function subjectsOfWork(
   lng: string,
 ) {
   const ids = (list: unknown[] | null | undefined) =>
-    (list ?? []).map((value) => String(extractID(value as string)))
+    (list ?? []).map(asId).filter((id): id is string => Boolean(id))
   const all = [...ids(work.creators), ...ids(work.movements), ...ids(work.events)]
   if (!all.length) return { creators: [], movements: [], events: [] }
   const { payload } = await getSession()

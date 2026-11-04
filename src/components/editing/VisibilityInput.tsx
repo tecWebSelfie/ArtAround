@@ -1,5 +1,7 @@
 'use client'
 
+// Type only: `src/lib/visibility.ts` itself is server code (jose, node:crypto).
+import type { Visibility } from '@/lib/visibility'
 import { Input, SegmentedControl } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 
@@ -10,8 +12,6 @@ import { useTranslation } from 'react-i18next'
  * the rules (no private sales, no private contents in a public tour); this
  * only says what each choice means.
  */
-type Visibility = 'public' | 'private'
-
 export function VisibilityInput({
   value,
   onChange,

@@ -44,7 +44,7 @@ const hook = (hooks: CollectionBeforeChangeHook[] | undefined, name: string) => 
   return found
 }
 const guardRights = hook(Contents.hooks?.beforeChange, 'guardRights')
-const guardNonCommercial = hook(Tour.hooks?.beforeChange, 'guardNonCommercialContents')
+const guardNonCommercial = hook(Tour.hooks?.beforeChange, 'guardTourContents')
 
 const run = (
   fn: CollectionBeforeChangeHook,
@@ -122,7 +122,7 @@ describe('contents: guardRights', () => {
   })
 })
 
-describe('tours: guardNonCommercialContents', () => {
+describe('tours: guardTourContents (NC licences)', () => {
   it('refuses a paid tour that includes another author’s NC content', async () => {
     const contents = [
       { id: 'c1', title: 'Shared', license: 'cc-by-nc', author: 'other', price: 0 },

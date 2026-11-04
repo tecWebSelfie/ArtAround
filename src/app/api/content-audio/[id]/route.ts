@@ -1,9 +1,8 @@
-import { audioText, audioTextHash, AUDIO_QUEUE } from '@/lib/content-audio'
+import { audioTextHash, AUDIO_QUEUE, contentAudioText } from '@/lib/content-audio'
 import { normalizeLocale } from '@/lib/localized'
 import { allowRequest } from '@/lib/rate-limit'
 import { asViewer, getSession } from '@/lib/session'
-import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
-import { readFile } from 'node:fs/promises'
+import { open, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 
@@ -56,35 +55,44 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!source) return json('not-found', 404)
   if (!source.body) return json('locked', 403)
 
-  // 2. The text in the requested language, never the English fallback.
-  const content = await payload.findByID({
-    collection: 'contents',
-    id,
-    locale,
-    fallbackLocale: false,
-    depth: 0,
-    select: { title: true, body: true },
-    overrideAccess: true,
-  })
+  // 2. The text in the requested language (never the English fallback) and
+  //    the stored audio, read together: neither depends on the other.
+  const [content, { docs }] = await Promise.all([
+    payload.findByID({
+      collection: 'contents',
+      id,
+      locale,
+      fallbackLocale: false,
+      depth: 0,
+      select: { title: true, body: true },
+      overrideAccess: true,
+    }),
+    payload.find({
+      collection: 'contentAudio',
+      where: { and: [{ content: { equals: id } }, { locale: { equals: locale } }] },
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+    }),
+  ])
   if (!content.body) return json('translating', 202)
-  const textHash = audioTextHash(
-    audioText(content.title ?? '', convertLexicalToPlaintext({ data: content.body })),
-  )
+  const textHash = audioTextHash(contentAudioText(content))
 
   // 3. A current audio is served; a missing or stale one is generated.
-  const { docs } = await payload.find({
-    collection: 'contentAudio',
-    where: { and: [{ content: { equals: id } }, { locale: { equals: locale } }] },
-    depth: 0,
-    limit: 1,
-    overrideAccess: true,
-  })
   const audio = docs[0]
   if (audio?.filename && audio.textHash === textHash) {
     if (url.searchParams.has('check')) return json('ready', 200)
+    const etag = `"${textHash}"`
+    // The player revalidates by fingerprint: an unchanged audio costs no read.
+    if (request.headers.get('if-none-match') === etag) {
+      return new Response(null, { status: 304, headers: { ETag: etag } })
+    }
     const staticDir = payload.collections.contentAudio.config.upload.staticDir || 'contentAudio'
-    const file = await readFile(path.resolve(staticDir, audio.filename))
-    return audioResponse(file, request.headers.get('range'), textHash)
+    return audioResponse(
+      path.resolve(staticDir, audio.filename),
+      request.headers.get('range'),
+      etag,
+    )
   }
   if (!process.env.FISH_API_KEY) return json('unavailable', 503)
   const key = `${id}:${locale}`
@@ -102,36 +110,42 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 /**
  * The MP3, whole or the byte range the player asks for: Safari plays media
  * only from servers that honour `Range`, and seeking needs it everywhere.
+ * Only the requested bytes are read from disk.
  */
-function audioResponse(file: Buffer, range: string | null, etag: string) {
+async function audioResponse(filePath: string, range: string | null, etag: string) {
+  const { size } = await stat(filePath)
   const headers = {
     'Content-Type': 'audio/mpeg',
     'Accept-Ranges': 'bytes',
     // The URL stays the same when the text changes: revalidate by fingerprint.
     'Cache-Control': 'private, no-cache',
-    ETag: `"${etag}"`,
+    ETag: etag,
   }
   const match = range?.match(/^bytes=(\d*)-(\d*)$/)
   if (!match || (!match[1] && !match[2])) {
-    return new Response(new Uint8Array(file), {
-      headers: { ...headers, 'Content-Length': String(file.length) },
+    return new Response(new Uint8Array(await readFile(filePath)), {
+      headers: { ...headers, 'Content-Length': String(size) },
     })
   }
   // `bytes=-N` asks for the last N bytes.
-  const start = match[1] ? Number(match[1]) : Math.max(0, file.length - Number(match[2]))
-  const end = match[1] && match[2] ? Math.min(Number(match[2]), file.length - 1) : file.length - 1
-  if (start > end || start >= file.length) {
-    return new Response(null, {
-      status: 416,
-      headers: { 'Content-Range': `bytes */${file.length}` },
-    })
+  const start = match[1] ? Number(match[1]) : Math.max(0, size - Number(match[2]))
+  const end = match[1] && match[2] ? Math.min(Number(match[2]), size - 1) : size - 1
+  if (start > end || start >= size) {
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } })
   }
-  return new Response(new Uint8Array(file.subarray(start, end + 1)), {
+  const chunk = Buffer.alloc(end - start + 1)
+  const file = await open(filePath)
+  try {
+    await file.read(chunk, 0, chunk.length, start)
+  } finally {
+    await file.close()
+  }
+  return new Response(new Uint8Array(chunk), {
     status: 206,
     headers: {
       ...headers,
-      'Content-Length': String(end - start + 1),
-      'Content-Range': `bytes ${start}-${end}/${file.length}`,
+      'Content-Length': String(chunk.length),
+      'Content-Range': `bytes ${start}-${end}/${size}`,
     },
   })
 }

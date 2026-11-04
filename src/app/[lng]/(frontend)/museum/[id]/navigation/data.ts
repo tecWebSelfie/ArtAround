@@ -1,3 +1,4 @@
+import { filterPopulated } from '@/lib/isPopulated'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
@@ -128,9 +129,7 @@ export async function getNavigationCatalog(
   })
   // Populated subjects only, as `{ id, name }` (what the commands need).
   const named = (list: (string | Subject)[] | null | undefined) =>
-    (list ?? []).flatMap((subject) =>
-      typeof subject === 'object' ? [{ id: String(subject.id), name: subject.name }] : [],
-    )
+    filterPopulated<Subject>(list).map(({ id, name }) => ({ id: String(id), name }))
   return objects.docs.map((object) => ({
     id: object.id,
     name: object.name,

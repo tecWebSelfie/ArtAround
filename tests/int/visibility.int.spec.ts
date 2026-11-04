@@ -112,7 +112,7 @@ describe('who reads private documents', () => {
 
 describe('saving private documents', () => {
   const guardVisibility = hook(Contents.hooks?.beforeChange, 'guardVisibility')
-  const guardPrivateContents = hook(Tour.hooks?.beforeChange, 'guardPrivateContents')
+  const guardPrivateContents = hook(Tour.hooks?.beforeChange, 'guardTourContents')
 
   beforeEach(() => vi.useRealTimers())
 
@@ -135,7 +135,9 @@ describe('saving private documents', () => {
   })
 
   it('keeps private contents out of public tours', async () => {
-    const req = fakeRequest({ docs: [{ id: 'c-private', title: 'Notes for my class' }] })
+    const req = fakeRequest({
+      docs: [{ id: 'c-private', title: 'Notes for my class', visibility: 'private' }],
+    })
     await expect(run(guardPrivateContents, { contents: ['c-private'] }, req)).rejects.toThrow(
       /"Notes for my class"/,
     )

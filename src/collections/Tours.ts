@@ -11,13 +11,12 @@ import type { Tour as TourType } from '@/payload-types'
 import {
   APIError,
   type Access,
-  type CollectionAfterChangeHook,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
   type Where,
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
-import { readTours, removeFromSearch, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { hideFromSearch, readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -58,81 +57,52 @@ const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operati
 }
 
 /**
- * A tour that sells contents is commercial use of everything in it, so it
- * can't include an NC-licensed content of another author
- * (`nonCommercialConflicts`, src/lib/content-rights.ts). Checked whenever the
- * stops change; a later price change of a stop doesn't re-check its tours.
+ * What a tour may include, checked whenever its stops (or visibility) change,
+ * with one read of the stops (`src/lib/content-rights.ts`, `visibility.ts`):
+ * - a tour that sells contents is commercial use of everything in it, so it
+ *   can't include an NC-licensed content of another author;
+ * - a public tour can't include private contents: its visitors couldn't read
+ *   them. Private tours (a class visit) may mix both.
+ * A later price change of a stop doesn't re-check its tours.
  */
-const guardNonCommercialContents: CollectionBeforeChangeHook<TourType> = async ({
+const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
   data,
   req,
   originalDoc,
 }) => {
-  if (!data.contents) return data
+  if (!data.contents && !data.visibility) return data
+  const contents = data.contents ?? originalDoc?.contents
+  if (!contents?.length) return data
   const author = data.author ?? originalDoc?.author
+  const visibility = data.visibility ?? originalDoc?.visibility
   const { docs } = await req.payload.find({
     collection: 'contents',
-    where: { id: { in: data.contents.map(asId).filter(Boolean) } },
-    select: { title: true, price: true, license: true, author: true },
+    where: { id: { in: contents.map(asId).filter(Boolean) } },
+    select: { title: true, price: true, license: true, author: true, visibility: true },
     depth: 0,
     pagination: false,
     overrideAccess: true,
     req,
   })
+  const quote = (list: { title: string }[]) => list.map(({ title }) => `"${title}"`).join(', ')
   const conflicts = nonCommercialConflicts(
-    docs.map((doc) => ({ ...doc, author: doc.author ? asId(doc.author) : null })),
+    docs.map((doc) => ({ ...doc, author: asId(doc.author) })),
     author ? asId(author) : null,
   )
   if (conflicts.length) {
     throw new APIError(
-      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${conflicts
-        .map(({ title }) => `"${title}"`)
-        .join(', ')}.`,
+      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${quote(conflicts)}.`,
       400,
     )
   }
-  return data
-}
-
-/**
- * A public tour can't include private contents: its visitors couldn't read
- * them (`src/lib/visibility.ts`). Private tours (a class visit) may mix both.
- */
-const guardPrivateContents: CollectionBeforeChangeHook<TourType> = async ({
-  data,
-  req,
-  originalDoc,
-}) => {
-  const visibility = data.visibility ?? originalDoc?.visibility
-  const contents = data.contents ?? originalDoc?.contents
-  if (visibility === 'private' || !contents?.length) return data
-  const { docs } = await req.payload.find({
-    collection: 'contents',
-    where: {
-      and: [
-        { id: { in: contents.map(asId).filter(Boolean) } },
-        { visibility: { equals: 'private' } },
-      ],
-    },
-    select: { title: true },
-    depth: 0,
-    pagination: false,
-    overrideAccess: true,
-    req,
-  })
-  if (docs.length) {
+  const hidden = visibility === 'private' ? [] : docs.filter((doc) => doc.visibility === 'private')
+  if (hidden.length) {
     throw new APIError(
-      `A public tour can't include private contents: ${docs.map(({ title }) => `"${title}"`).join(', ')}. Make the tour private or the contents public.`,
+      `A public tour can't include private contents: ${quote(hidden)}. Make the tour private or the contents public.`,
       400,
     )
   }
   return data
-}
-
-/** A tour that is (or became) private leaves the search index. */
-const hideFromSearch: CollectionAfterChangeHook<TourType> = async ({ doc, req }) => {
-  if (doc.visibility === 'private') await removeFromSearch(req, 'tours', String(doc.id))
-  return doc
 }
 
 export const Tour: CollectionConfig = {
@@ -145,9 +115,9 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, guardNonCommercialContents, guardPrivateContents],
+    beforeChange: [assignAuthor, guardTourContents],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
-    afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch],
+    afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
     afterDelete: [deleteQuestionsOfDeletedTour],
   },
   fields: [

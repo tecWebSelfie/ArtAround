@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { useEffect, useMemo, useState } from 'react'
-import { type VariantProps, cva } from 'class-variance-authority'
+import { useEffect, useMemo, useState } from 'react';
+import { type VariantProps, cva } from 'class-variance-authority';
 import {
   type TrackReferenceOrPlaceholder,
   useMaybeRoomContext,
   useMediaDeviceSelect,
-} from '@livekit/components-react'
-import { AgentAudioVisualizerBar } from '@/components/agents-ui/agent-audio-visualizer-bar'
-import { AgentTrackToggle } from '@/components/agents-ui/agent-track-toggle'
+} from '@livekit/components-react';
+import { AgentAudioVisualizerBar } from '@/components/agents-ui/agent-audio-visualizer-bar';
+import { AgentTrackToggle } from '@/components/agents-ui/agent-track-toggle';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { type toggleVariants } from '@/components/ui/toggle'
-import { cn } from '@/lib/utils'
+} from '@/components/ui/select';
+import { type toggleVariants } from '@/components/ui/toggle';
+import { cn } from '@/lib/utils';
 
 const selectVariants = cva(
   [
@@ -66,7 +66,7 @@ const selectVariants = cva(
       size: 'default',
     },
   },
-)
+);
 
 /**
  * Props for the TrackDeviceSelect component. */
@@ -75,38 +75,38 @@ type TrackDeviceSelectProps = React.ComponentProps<typeof SelectTrigger> &
     /**
      * The type of media device (audioinput or videoinput).
      */
-    kind: MediaDeviceKind
+    kind: MediaDeviceKind;
     /**
      * Array of available devices
      */
-    devices: MediaDeviceInfo[]
+    devices: MediaDeviceInfo[];
     /**
      * Active device ID
      */
-    activeDeviceId?: string
+    activeDeviceId?: string;
     /**
      * The size of the select.
      * @defaultValue 'default'
      */
-    size?: 'default' | 'sm'
+    size?: 'default' | 'sm';
     /**
      * The variant of the select.
      * @defaultValue 'default'
      */
-    variant?: 'default' | 'outline' | null
+    variant?: 'default' | 'outline' | null;
     /**
      * Whether to request permissions for the media device.
      */
-    requestPermissions?: boolean
+    requestPermissions?: boolean;
     /**
      * Callback when the select is opened or closed.
      */
-    onOpen: (open: boolean) => void
+    onOpen: (open: boolean) => void;
     /**
      * Callback when the active device changes.
      */
-    onActiveDeviceChange?: (deviceId: string) => void
-  }
+    onActiveDeviceChange?: (deviceId: string) => void;
+  };
 
 /**
  * A select component for selecting a media device.
@@ -137,15 +137,15 @@ function TrackDeviceSelect({
   onActiveDeviceChange,
   ...props
 }: TrackDeviceSelectProps) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
   const handleOpenChange = (open: boolean) => {
-    setOpen(open)
-    onOpen(open)
-  }
+    setOpen(open);
+    onOpen(open);
+  };
 
   if (devices.length < 2) {
-    return null
+    return null;
   }
 
   return (
@@ -169,7 +169,7 @@ function TrackDeviceSelect({
         ))}
       </SelectContent>
     </Select>
-  )
+  );
 }
 
 /**
@@ -179,44 +179,44 @@ export type AgentTrackControlProps = VariantProps<typeof toggleVariants> & {
   /**
    * The type of media device (audioinput or videoinput).
    */
-  kind: MediaDeviceKind
+  kind: MediaDeviceKind;
   /**
    * The track source to control (Microphone, Camera, or ScreenShare).
    */
-  source: 'camera' | 'microphone' | 'screen_share'
+  source: 'camera' | 'microphone' | 'screen_share';
   /**
    * Whether the track is currently enabled/published.
    */
-  pressed?: boolean
+  pressed?: boolean;
   /**
    * Whether the control is in a pending/loading state.
    */
-  pending?: boolean
+  pending?: boolean;
   /**
    * Whether the control is disabled.
    */
-  disabled?: boolean
+  disabled?: boolean;
   /**
    * The audio track reference for visualization (only for microphone).
    */
-  audioTrack?: TrackReferenceOrPlaceholder
+  audioTrack?: TrackReferenceOrPlaceholder;
   /**
    * Additional CSS class names to apply to the container.
    */
-  className?: string
+  className?: string;
   /**
    * Callback when the pressed state changes.
    */
-  onPressedChange?: (pressed: boolean) => void
+  onPressedChange?: (pressed: boolean) => void;
   /**
    * Callback when a media device error occurs.
    */
-  onMediaDeviceError?: (error: Error) => void
+  onMediaDeviceError?: (error: Error) => void;
   /**
    * Callback when the active device changes.
    */
-  onActiveDeviceChange?: (deviceId: string) => void
-}
+  onActiveDeviceChange?: (deviceId: string) => void;
+};
 
 /**
  * A combined track toggle and device selector control.
@@ -248,14 +248,14 @@ export function AgentTrackControl({
   onMediaDeviceError,
   onActiveDeviceChange,
 }: AgentTrackControlProps) {
-  const room = useMaybeRoomContext()
-  const [requestPermissionsState, setRequestPermissionsState] = useState(false)
+  const room = useMaybeRoomContext();
+  const [requestPermissionsState, setRequestPermissionsState] = useState(false);
   const { devices, activeDeviceId, setActiveMediaDevice } = useMediaDeviceSelect({
     room,
     kind,
     requestPermissions: requestPermissionsState,
     onError: onMediaDeviceError,
-  })
+  });
 
   useEffect(() => {
     // A track was already acquired elsewhere (e.g. session.start()), so permission is already
@@ -264,29 +264,28 @@ export function AgentTrackControl({
     // re-fetches when `requestPermissions` changes value. Screen share has no `kind` and no
     // associated device list, so it should never trigger a mic/camera permission request.
     if (pressed && kind) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- Vendored LiveKit agents-ui code, kept as published: one-shot flag when a track already exists.
-      setRequestPermissionsState(true)
+      setRequestPermissionsState(true);
     }
-  }, [pressed, kind])
+  }, [pressed, kind]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
-      setRequestPermissionsState(true)
+      setRequestPermissionsState(true);
     }
-  }
+  };
 
   const handleActiveDeviceChange = (deviceId: string) => {
-    setActiveMediaDevice(deviceId)
-    onActiveDeviceChange?.(deviceId)
-  }
+    setActiveMediaDevice(deviceId);
+    onActiveDeviceChange?.(deviceId);
+  };
 
-  const filteredDevices = useMemo(() => devices.filter((d) => d.deviceId !== ''), [devices])
+  const filteredDevices = useMemo(() => devices.filter((d) => d.deviceId !== ''), [devices]);
   // Before permission is granted, the browser reports devices with blank ids, which get filtered
   // out here — that's an *unknown* device count, not a confirmed empty one. Only treat it as
   // "no devices" once a permission-gated check has actually run and still come up empty;
   // otherwise the toggle disables itself before the user ever gets a chance to grant permission.
-  const noDevices = Boolean(kind) && requestPermissionsState && filteredDevices.length === 0
-  const resolvedPressed = pressed && !noDevices
+  const noDevices = Boolean(kind) && requestPermissionsState && filteredDevices.length === 0;
+  const resolvedPressed = pressed && !noDevices;
 
   return (
     <div
@@ -340,5 +339,5 @@ export function AgentTrackControl({
         />
       )}
     </div>
-  )
+  );
 }

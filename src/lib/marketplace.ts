@@ -1,3 +1,4 @@
+import { displayName } from '@/lib/display-name'
 import type { MarketplaceItem } from '@/components/mantine/MarketplaceCard'
 import type { MarketplaceKind, MarketplacePrice } from '@/components/mantine/MarketplaceControls'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
@@ -62,10 +63,7 @@ function mapContent(content: Content): MarketplaceItem {
 
 function mapUser(user: User): MarketplaceItem {
   const avatar = isPopulated<UsersPropic>(user.avatar) ? user.avatar : null
-  const fullName =
-    user.name?.fullName ||
-    [user.name?.firstName, user.name?.lastName].filter(Boolean).join(' ').trim() ||
-    user.username
+  const fullName = displayName(user)
   return {
     key: `user:${user.id}`,
     kind: 'user',

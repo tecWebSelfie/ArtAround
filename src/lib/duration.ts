@@ -12,10 +12,10 @@
  */
 
 /** Calm read-aloud pace, the one museum audio guides use. */
-export const SPOKEN_WORDS_PER_MINUTE = 150
+const SPOKEN_WORDS_PER_MINUTE = 150
 
 /** Words in a plain text (any whitespace separates them). */
-export const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length
+const wordCount = (text: string) => text.split(/\s+/).filter(Boolean).length
 
 /** Estimated seconds to read the text aloud; at least 1 for any written text. */
 export function estimateSeconds(text: string): number {

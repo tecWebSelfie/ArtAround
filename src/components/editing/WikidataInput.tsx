@@ -5,6 +5,7 @@ import { useDebouncedValue } from '@mantine/hooks'
 import { useQuery } from '@tanstack/react-query'
 import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { WIKIDATA_ID, wikidataUrl } from '@/lib/wikidata'
 import { searchWikidataAction } from './forms/wikidata-actions'
 
 /**
@@ -24,9 +25,10 @@ export function WikidataInput({
 >) {
   const { t } = useTranslation('editing')
   const lng = useParams<{ lng?: string }>()?.lng ?? 'en'
-  const [query] = useDebouncedValue(value.trim(), 400)
+  const id = value.trim()
+  const [query] = useDebouncedValue(id, 400)
   // A Q-id is already an answer: only names are searched.
-  const searchable = query.length >= 2 && !/^Q\d+$/.test(query)
+  const searchable = query.length >= 2 && !WIKIDATA_ID.test(query)
   const results = useQuery({
     queryKey: ['wikidata-search', lng, query],
     queryFn: () => searchWikidataAction(query, lng),
@@ -37,9 +39,9 @@ export function WikidataInput({
     <Autocomplete
       label={t('Wikidata')}
       description={
-        /^Q\d+$/.test(value.trim()) ? (
-          <Anchor href={`https://www.wikidata.org/wiki/${value.trim()}`} target="_blank" inherit>
-            {t('Open {{id}} on Wikidata', { id: value.trim() })}
+        WIKIDATA_ID.test(id) ? (
+          <Anchor href={wikidataUrl(id)} target="_blank" inherit>
+            {t('Open {{id}} on Wikidata', { id })}
           </Anchor>
         ) : (
           t('Search the work by name, or type its Q-id')

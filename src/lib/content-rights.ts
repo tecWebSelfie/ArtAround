@@ -55,7 +55,7 @@ export const isLicense = (value: unknown): value is License =>
   typeof value === 'string' && (LICENSES as readonly string[]).includes(value)
 
 /** True for licences that forbid commercial use by others. */
-export const isNonCommercial = (license: License | null | undefined) =>
+const isNonCommercial = (license: License | null | undefined) =>
   license === 'cc-by-nc' || license === 'cc-by-nc-sa'
 
 /** The licence a content is saved with: a price forces "all rights reserved". */

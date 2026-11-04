@@ -15,8 +15,14 @@ import {
 import { DifficultyField } from '@/fields/DifficultyField'
 import { editorial } from '@/fields/editorial'
 import { MUSEUM_FUNCTION_CURATOR, MUSEUM_FUNCTION_VERIFIED } from '@/fields/MuseumFunction'
-import { effectiveLicense, isLicense, LICENSE_NAME, LICENSES } from '@/lib/content-rights'
-import { readContents, removeFromSearch, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import {
+  DEFAULT_LICENSE,
+  effectiveLicense,
+  isLicense,
+  LICENSE_NAME,
+  LICENSES,
+} from '@/lib/content-rights'
+import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { refreshSearchDocs } from '@/lib/search-index'
@@ -318,12 +324,6 @@ const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req,
   return data
 }
 
-/** A content that is (or became) private leaves the search index. */
-const hideFromSearch: CollectionAfterChangeHook<Content> = async ({ doc, req }) => {
-  if (doc.visibility === 'private') await removeFromSearch(req, 'contents', String(doc.id))
-  return doc
-}
-
 export const Contents: CollectionConfig = {
   slug: 'contents',
   access: {
@@ -336,7 +336,7 @@ export const Contents: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, guardRights, guardVisibility, storeDuration],
-    afterChange: [attachToObject, refreshTourPrices, queueContentAudio, hideFromSearch],
+    afterChange: [attachToObject, refreshTourPrices, queueContentAudio, hideFromSearch('contents')],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
   },
@@ -406,7 +406,7 @@ export const Contents: CollectionConfig = {
       // Not `required`: `guardRights` always sets it, so creates (seeds,
       // jobs) needn't pass it and older contents read without one.
       required: false,
-      defaultValue: 'cc-by',
+      defaultValue: DEFAULT_LICENSE,
       options: LICENSES.map((value) => ({ label: LICENSE_NAME[value], value })),
     },
     {

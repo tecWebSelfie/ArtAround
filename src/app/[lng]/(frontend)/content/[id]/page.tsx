@@ -1,3 +1,4 @@
+import { displayName } from '@/lib/display-name'
 import { PICTURE_SELECT, usablePictures } from '@/lib/picture'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
 import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
@@ -87,7 +88,7 @@ async function loadContentDetails(
               collection: 'users',
               id: authorId,
               depth: 1,
-              select: { name: true, avatar: true, bio: true },
+              select: { name: true, username: true, avatar: true, bio: true },
               // `url` is computed from `filename`.
               populate: { usersPropics: { url: true, filename: true, alt: true } },
               ...viewer,
@@ -172,12 +173,7 @@ async function loadContentDetails(
     object: object && { ...object, thumbnail: objectMedia?.thumbnail ?? null },
     museum: museum ?? null,
     author,
-    rightsHolder:
-      rightsMuseum?.name ??
-      (author &&
-        (author.name?.fullName ||
-          [author.name?.firstName, author.name?.lastName].filter(Boolean).join(' '))) ??
-      null,
+    rightsHolder: rightsMuseum?.name ?? (author ? displayName(author) : null),
     // `in` queries don't keep the authored order: restore it.
     categories: categoryIds.flatMap((cid) => categories?.docs.filter((c) => c.id === cid) ?? []),
     images: imageIds.flatMap((iid) => images?.docs.filter((i) => i.id === iid) ?? []),

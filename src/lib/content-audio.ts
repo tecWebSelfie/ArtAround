@@ -1,4 +1,6 @@
+import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { createHash } from 'node:crypto'
+import type { Content } from '@/payload-types'
 
 /**
  * Read-aloud audio of a content's base text (requirement 4 of
@@ -33,6 +35,14 @@ export const audioTextHash = (text: string) =>
 /** The title, then the body: what a visitor hears when they press "Listen". */
 export const audioText = (title: string, body: string) =>
   [title.trim(), body.trim()].filter(Boolean).join('.\n\n')
+
+/**
+ * What a content's audio reads, from its stored title and rich text. The
+ * task that writes the audio and the route that serves it both use this, so
+ * the fingerprints they compare are always built the same way.
+ */
+export const contentAudioText = (content: Pick<Content, 'title' | 'body'>) =>
+  audioText(content.title ?? '', convertLexicalToPlaintext({ data: content.body }))
 
 /** Splits the text into speech requests of at most `max` characters. */
 export function splitForSpeech(text: string, max = MAX_CHUNK_CHARS): string[] {

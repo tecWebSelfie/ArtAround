@@ -1,13 +1,12 @@
 import {
   AUDIO_MODEL,
   AUDIO_VOICE,
-  audioText,
   audioTextHash,
+  contentAudioText,
   mp3DurationSeconds,
   splitForSpeech,
 } from '@/lib/content-audio'
 import { createFishAudio } from '@ai-sdk/fish-audio'
-import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { generateSpeech } from 'ai'
 import type { PayloadRequest, TaskConfig } from 'payload'
 
@@ -40,7 +39,7 @@ export async function generateContentAudio(
     req,
   })
   if (!content.body) return { status: 'no-text' }
-  const text = audioText(content.title ?? '', convertLexicalToPlaintext({ data: content.body }))
+  const text = contentAudioText(content)
   const textHash = audioTextHash(text)
 
   const { docs } = await payload.find({

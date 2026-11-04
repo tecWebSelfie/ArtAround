@@ -28,6 +28,17 @@ const eslintConfig = [
   },
 
   {
+    // Vendored LiveKit agents-ui components, kept as published so they can be
+    // re-copied: these React Compiler rules flag intentional patterns there
+    // (state that follows the agent state, module-level icon components).
+    files: ['src/components/agents-ui/**', 'src/hooks/agents-ui/**'],
+    rules: {
+      'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/static-components': 'off',
+    },
+  },
+
+  {
     ignores: ['.next/**', 'src/payload-types.ts', 'src/payload-generated-schema.ts'],
   },
 

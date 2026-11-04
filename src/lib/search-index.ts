@@ -1,3 +1,4 @@
+import { displayName } from '@/lib/display-name'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 
@@ -248,10 +249,7 @@ export async function buildSearchDoc({
     }
     case 'users': {
       const user = doc as unknown as User
-      const name =
-        user.name?.fullName ||
-        [user.name?.firstName, user.name?.lastName].filter(Boolean).join(' ').trim() ||
-        user.username
+      const name = displayName(user)
       return {
         title: name,
         // Username stays searchable; description and bio are not indexed.

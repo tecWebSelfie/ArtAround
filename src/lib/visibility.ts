@@ -1,7 +1,8 @@
-import { isSuperAdmin } from '@/access/museumRoles'
+import { asId, isSuperAdmin } from '@/access/museumRoles'
 import { jwtVerify, SignJWT } from 'jose'
 import { createSecretKey } from 'node:crypto'
-import type { Access, PayloadRequest, Where } from 'payload'
+import type { Access, CollectionAfterChangeHook, PayloadRequest, Where } from 'payload'
+import { parseCookies } from 'payload/shared'
 
 /**
  * Public and private contents and tours (requirement 8 of
@@ -61,70 +62,84 @@ export async function verifyGroupTourToken(token: string | undefined | null) {
 }
 
 const COOKIE_CACHE = 'groupTourId'
+const CONTENTS_CACHE = 'groupTourContentIds'
 
 /** The tour of the request's group cookie, verified once per request. */
 export function groupTourOf(req: PayloadRequest): Promise<string | null> {
   const cached = req.context[COOKIE_CACHE] as Promise<string | null> | undefined
   if (cached) return cached
-  const cookie = req.headers?.get('cookie') ?? ''
-  const token = cookie
-    .split(';')
-    .map((part) => part.trim().split('='))
-    .find(([name]) => name === GROUP_TOUR_COOKIE)?.[1]
-  const pending = verifyGroupTourToken(token ? decodeURIComponent(token) : null)
+  const token = req.headers ? parseCookies(req.headers).get(GROUP_TOUR_COOKIE) : undefined
+  const pending = verifyGroupTourToken(token ?? null)
   req.context[COOKIE_CACHE] = pending
   return pending
 }
 
-const notPrivate: Where = { visibility: { not_equals: 'private' } }
+/**
+ * The contents of the group cookie's tour, read once per request: a page
+ * runs `contents.read` for every find, count and join it makes.
+ */
+function groupTourContentIds(req: PayloadRequest, tourId: string): Promise<string[]> {
+  const cached = req.context[CONTENTS_CACHE] as Promise<string[]> | undefined
+  if (cached) return cached
+  const pending = req.payload
+    .findByID({
+      collection: 'tours',
+      id: tourId,
+      depth: 0,
+      select: { contents: true },
+      overrideAccess: true,
+      req,
+    })
+    .then((tour) => (tour.contents ?? []).map(asId).filter((id): id is string => Boolean(id)))
+    .catch(() => [])
+  req.context[CONTENTS_CACHE] = pending
+  return pending
+}
+
+/**
+ * Read access for a collection with `visibility`: public documents, the
+ * caller's own, and what the group cookie unlocks (`groupWhere`).
+ */
+const readVisible =
+  (groupWhere: (req: PayloadRequest, tourId: string) => Promise<Where | null>): Access =>
+  async ({ req }) => {
+    if (isSuperAdmin(req)) return true
+    const or: Where[] = [{ visibility: { not_equals: 'private' } }]
+    if (req.user) or.push({ author: { equals: req.user.id } })
+    const tourId = await groupTourOf(req)
+    const group = tourId ? await groupWhere(req, tourId) : null
+    if (group) or.push(group)
+    return { or }
+  }
 
 /** `tours.read`: public tours, own tours, and the tour of the group cookie. */
-export const readTours: Access = async ({ req }) => {
-  if (isSuperAdmin(req)) return true
-  const or: Where[] = [notPrivate]
-  if (req.user) or.push({ author: { equals: req.user.id } })
-  const tourId = await groupTourOf(req)
-  if (tourId) or.push({ id: { equals: tourId } })
-  return { or }
-}
+export const readTours = readVisible(async (_req, tourId) => ({ id: { equals: tourId } }))
 
 /** `contents.read`: public contents, own contents, and the contents of the group cookie's tour. */
-export const readContents: Access = async ({ req }) => {
-  if (isSuperAdmin(req)) return true
-  const or: Where[] = [notPrivate]
-  if (req.user) or.push({ author: { equals: req.user.id } })
-  const tourId = await groupTourOf(req)
-  if (tourId) {
-    const tour = await req.payload
-      .findByID({
-        collection: 'tours',
-        id: tourId,
-        depth: 0,
-        select: { contents: true },
-        overrideAccess: true,
-        req,
-      })
-      .catch(() => null)
-    const ids = (tour?.contents ?? []).map((entry) =>
-      typeof entry === 'string' ? entry : String(entry.id),
-    )
-    if (ids.length) or.push({ id: { in: ids } })
-  }
-  return { or }
-}
+export const readContents = readVisible(async (req, tourId) => {
+  const ids = await groupTourContentIds(req, tourId)
+  return ids.length ? { id: { in: ids } } : null
+})
 
-/** Drops a document's search row: private documents are never indexed. */
-export async function removeFromSearch(
-  req: PayloadRequest,
-  collection: 'contents' | 'tours',
-  id: string,
-) {
-  await req.payload.delete({
-    collection: 'search',
-    where: {
-      and: [{ 'doc.relationTo': { equals: collection } }, { 'doc.value': { equals: id } }],
-    },
-    overrideAccess: true,
-    req,
-  })
-}
+/**
+ * `afterChange` hook: a document that is (or became) private leaves the
+ * search index. The search plugin's `skipSync` only skips indexing, it never
+ * removes a row saved while the document was public.
+ */
+export const hideFromSearch =
+  (collection: 'contents' | 'tours'): CollectionAfterChangeHook =>
+  async ({ doc, req }) => {
+    if (doc.visibility !== 'private') return doc
+    await req.payload.delete({
+      collection: 'search',
+      where: {
+        and: [
+          { 'doc.relationTo': { equals: collection } },
+          { 'doc.value': { equals: String(doc.id) } },
+        ],
+      },
+      overrideAccess: true,
+      req,
+    })
+    return doc
+  }
