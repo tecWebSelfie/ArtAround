@@ -161,7 +161,7 @@ that replaces `@types/chroma-js` in the whole project, so `chroma.contrast` and
 
 ## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
-When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`).
+When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`). In a cloud session a SessionStart hook (`scripts/storybook-autostart.sh`) starts it in the background (`STORYBOOK_AUTOSTART=0` turns it off); the MCP server may connect before Storybook is up, so reconnect it if needed.
 
 - **CRITICAL: Never hallucinate component properties!** Before using ANY property on a component from the design system (including common-sounding ones like `shadow`, etc.), you MUST use the MCP tools to check if the property is actually documented for that component.
 - Query `list-all-documentation` to get a list of documented components
