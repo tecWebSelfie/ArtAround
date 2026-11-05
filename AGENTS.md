@@ -111,12 +111,13 @@ neither fits.
 Use it for every UI change, asked or not: PRODUCT.md and DESIGN.md hold the
 design decisions, and UI written without them drifts from them.
 
-- **Context, once per session:** `.claude/skills/impeccable/scripts/impeccable
-context --target <file>` loads PRODUCT.md, DESIGN.md and the surface brief.
-  DESIGN.md is long: grep the section of the component you touch and its
+- **Load the skill before touching UI** (Skill `impeccable`, or
+  `/impeccable <command> <target>`). Nothing loads it automatically: the
+  session hook prints nothing. Its Setup then runs `impeccable context`
+  (PRODUCT.md, DESIGN.md, the surface brief) and has you read
+  `craft-floor.md`. One command, one narrow target.
+- DESIGN.md is long: grep the section of the component you touch and its
   **Named Rules** instead of reading it whole.
-- **Before editing UI:** read `reference/craft-floor.md`, plus
-  `reference/<command>.md` for a named command. One command, one narrow target.
 - **Reuse the incumbent pattern** for the same job before inventing one. For
   example, a labelled choice is an `Input.Wrapper` like `VisibilityInput`.
 - **Which command:**
