@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} jalgsi",
   "{{duration}} of reading": "{{duration}} lugemist",
   "About {{duration}}": "Umbes {{duration}}",
+  "Before you go": "Enne minekut",
   "Buy all for {{price}}": "Osta kõik hinnaga {{price}}",
   "By {{name}}": "Autor: {{name}}",
   "Customize tour": "Kohanda tuuri",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Lõpeb viktoriiniga",
   "Hard": "Raske",
   "Medium": "Keskmine",
+  "Private": "Privaatne",
   "Quiz": "Viktoriin",
   "Rated {{rating}} out of 5": "Hinnang {{rating}}/5",
   "Replace the paid contents": "Asenda tasuline sisu",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Pane pärast viimast peatust proovile, mida mäletad",
   "The stops": "Peatused",
   "Unlock for {{price}}": "Ava hinnaga {{price}}",
-  "Unlock this tour": "Ava see tuur",
-  "Private": "Privaatne"
+  "Unlock this tour": "Ava see tuur"
 }

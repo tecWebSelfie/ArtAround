@@ -51,6 +51,8 @@ import { useElementSize } from '@mantine/hooks'
 import { Suspense, useEffect, useMemo, useState, type ComponentPropsWithoutRef } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
+import { LogisticNotes } from './LogisticNotes'
+import { logisticNotes } from '@/lib/tour-logistics'
 import { SkippedStopModal } from './SkippedStopModal'
 import { DirectionsBar, useStepSentence, type DirectionsStatus } from './DirectionsBar'
 import { GroupBadge } from '@/components/group/GroupBadge'
@@ -160,6 +162,12 @@ export const TourNavigationPage = ({
       navigationDestination(search) ??
       (defaultDestination ? { kind: 'object', id: defaultDestination } : null),
     [search, defaultDestination],
+  )
+  // The author's directions for the stop ahead, while the route leads to it
+  // (a destination the visitor chose instead has nothing to do with them).
+  const notes = useMemo(
+    () => (tour && !navigationDestination(search) ? logisticNotes(tour, step) : []),
+    [tour, step, search],
   )
   const currentObjectId = search.get('at')
   // With a confirmed position the visitor's own start replaces the entrance step.
@@ -331,6 +339,7 @@ export const TourNavigationPage = ({
               entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
               hasQuiz={hasQuiz(tour)}
             />
+            <LogisticNotes notes={notes} />
           </Stack>
         ) : (
           // Free navigation: no progress to show, only where the visitor is.
@@ -426,6 +435,8 @@ export const TourNavigationPage = ({
                   : `Museum: ${museum.name}. Free visit, no tour.`,
                 destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
                 currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
+                // "How do I get there?", "Where is the cloakroom?": the author's notes.
+                notes.length ? `Tour directions: ${notes.join(' ')}` : '',
                 // "Are there obstacles?": what the museum declares about access.
                 accessibilityContext(museum),
               ].join(' ')}

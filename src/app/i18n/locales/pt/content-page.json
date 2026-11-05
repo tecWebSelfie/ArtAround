@@ -1,5 +1,6 @@
 {
   "About the object": "Sobre a obra",
+  "All rights reserved": "Todos os direitos reservados",
   "Easy": "Fácil",
   "For children": "Para crianças",
   "Hard": "Difícil",
@@ -8,11 +9,10 @@
   "Medium": "Médio",
   "More about this object": "Mais sobre esta obra",
   "Pictures": "Imagens",
+  "Private": "Privado",
   "Rated {{rating}} out of 5": "Avaliado com {{rating}} de 5",
   "Sources": "Fontes",
   "Unlocked": "Desbloqueado",
   "View the object": "Ver a obra",
-  "Written by": "Escrito por",
-  "All rights reserved": "Todos os direitos reservados",
-  "Private": "Privado"
+  "Written by": "Escrito por"
 }

@@ -5,6 +5,7 @@ import { MuseumSwitch, type MuseumOption } from '@/components/mantine/MuseumSwit
 import { Anchor, Avatar, Box, Button, Group, Menu, Text } from '@mantine/core'
 import { ChevronDown, Landmark, LogIn } from 'lucide-react'
 import Link from 'next/link'
+import { useT } from 'next-i18next/client'
 import {
   MyMuseumsMenuItems,
   NAV_ITEMS,
@@ -50,7 +51,6 @@ export function SiteHeader({
   supportedLngs: string[]
 }) {
   const {
-    t,
     lng,
     pathname,
     signedIn,
@@ -61,6 +61,8 @@ export function SiteHeader({
     localize,
     isActive,
   } = useNavState(account, myMuseums)
+  // Here, not from `useNavState`: `i18next-cli extract` reads the prefix only at the call.
+  const { t } = useT(undefined, { keyPrefix: 'navbar' })
 
   if (IMMERSIVE.test(pathname)) return null
 

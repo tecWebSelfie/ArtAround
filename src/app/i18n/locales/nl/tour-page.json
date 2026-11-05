@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} te voet",
   "{{duration}} of reading": "{{duration}} leestijd",
   "About {{duration}}": "Ongeveer {{duration}}",
+  "Before you go": "Voordat je gaat",
   "Buy all for {{price}}": "Alles kopen voor {{price}}",
   "By {{name}}": "Door {{name}}",
   "Customize tour": "Tour aanpassen",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Eindigt met een quiz",
   "Hard": "Moeilijk",
   "Medium": "Gemiddeld",
+  "Private": "Privé",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Beoordeeld met {{rating}} van 5",
   "Replace the paid contents": "Vervang de betaalde content",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Test na de laatste stop wat je nog weet",
   "The stops": "De stops",
   "Unlock for {{price}}": "Ontgrendelen voor {{price}}",
-  "Unlock this tour": "Ontgrendel deze tour",
-  "Private": "Privé"
+  "Unlock this tour": "Ontgrendel deze tour"
 }

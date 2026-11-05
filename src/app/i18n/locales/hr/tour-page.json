@@ -11,6 +11,7 @@
   "{{distance}} on foot": "{{distance}} pješice",
   "{{duration}} of reading": "{{duration}} čitanja",
   "About {{duration}}": "Oko {{duration}}",
+  "Before you go": "Prije polaska",
   "Buy all for {{price}}": "Kupi sve za {{price}}",
   "By {{name}}": "Autor: {{name}}",
   "Customize tour": "Prilagodi turu",
@@ -19,6 +20,7 @@
   "Ends with a quiz": "Završava kvizom",
   "Hard": "Teško",
   "Medium": "Srednje",
+  "Private": "Privatno",
   "Quiz": "Kviz",
   "Rated {{rating}} out of 5": "Ocjena {{rating}} od 5",
   "Replace the paid contents": "Zamijeni plaćene sadržaje",
@@ -29,6 +31,5 @@
   "Test what you remember after the last stop": "Nakon posljednje postaje provjeri što pamtiš",
   "The stops": "Postaje",
   "Unlock for {{price}}": "Otključaj za {{price}}",
-  "Unlock this tour": "Otključaj ovu turu",
-  "Private": "Privatno"
+  "Unlock this tour": "Otključaj ovu turu"
 }

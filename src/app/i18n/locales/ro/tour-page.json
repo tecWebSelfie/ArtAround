@@ -11,6 +11,7 @@
   "{{distance}} on foot": "{{distance}} pe jos",
   "{{duration}} of reading": "{{duration}} de lectură",
   "About {{duration}}": "Aproximativ {{duration}}",
+  "Before you go": "Înainte să pleci",
   "Buy all for {{price}}": "Cumpără tot cu {{price}}",
   "By {{name}}": "De {{name}}",
   "Customize tour": "Personalizează turul",
@@ -19,6 +20,7 @@
   "Ends with a quiz": "Se încheie cu un quiz",
   "Hard": "Dificil",
   "Medium": "Mediu",
+  "Private": "Privat",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Notat cu {{rating}} din 5",
   "Replace the paid contents": "Înlocuiește conținuturile plătite",
@@ -29,6 +31,5 @@
   "Test what you remember after the last stop": "Verifică ce îți amintești după ultima oprire",
   "The stops": "Opririle",
   "Unlock for {{price}}": "Deblochează cu {{price}}",
-  "Unlock this tour": "Deblochează acest tur",
-  "Private": "Privat"
+  "Unlock this tour": "Deblochează acest tur"
 }

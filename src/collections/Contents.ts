@@ -190,37 +190,39 @@ const storeDuration: CollectionBeforeChangeHook<Content> = ({ data }) => {
 }
 
 /**
- * `objects.contents` is the authored relation (tour navigation and object
- * pages read it), so a content created "about" an object is linked there.
- * Done with Local API privileges: writing about an object must not require
- * permission to edit the object itself.
+ * A new content written "about" a work or a subject is linked in that
+ * document's `contents`: the create call passes the virtual `attachToObject`
+ * or `attachToSubject`. `objects.contents` is the authored relation (tour
+ * navigation and object pages read it); `subjects.contents` is read back as
+ * this content's `subjects` join (an item about an artist, a movement, an
+ * event). Done with Local API privileges: writing about a work or a subject
+ * must not require permission to edit it (subjects are staff-only).
  */
-const attachToObject: CollectionAfterChangeHook<Content> = async ({
-  doc,
-  data,
-  req,
-  operation,
-}) => {
-  const objectId = data?.attachToObject
-  if (operation !== 'create' || typeof objectId !== 'string' || !objectId) return doc
-  const object = await req.payload.findByID({
-    collection: 'objects',
-    id: objectId,
-    depth: 0,
-    select: { contents: true },
-    req,
-  })
-  await req.payload.update({
-    collection: 'objects',
-    id: objectId,
-    data: { contents: [...(object.contents ?? []).map(asId), String(doc.id)] as string[] },
-    depth: 0,
-    // Linking a content must not regenerate the object's 3D model.
-    context: { skipMintModelGeneration: true },
-    req,
-  })
-  return doc
-}
+const attachTo = (
+  collection: 'objects' | 'subjects',
+  input: 'attachToObject' | 'attachToSubject',
+  context: Record<string, unknown> = {},
+): CollectionAfterChangeHook<Content> =>
+  async function attach({ doc, data, req, operation }) {
+    const id = data?.[input]
+    if (operation !== 'create' || typeof id !== 'string' || !id) return doc
+    const target = await req.payload.findByID({
+      collection,
+      id,
+      depth: 0,
+      select: { contents: true },
+      req,
+    })
+    await req.payload.update({
+      collection,
+      id,
+      data: { contents: [...(target.contents ?? []).map(asId), String(doc.id)] as string[] },
+      depth: 0,
+      context,
+      req,
+    })
+    return doc
+  }
 
 /**
  * A tour's search row carries its list price, the sum of its contents' prices
@@ -345,7 +347,14 @@ export const Contents: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, guardRights, guardVisibility, storeDuration],
-    afterChange: [attachToObject, refreshTourPrices, queueContentAudio, hideFromSearch('contents')],
+    afterChange: [
+      // Linking a content must not regenerate the object's 3D model.
+      attachTo('objects', 'attachToObject', { skipMintModelGeneration: true }),
+      attachTo('subjects', 'attachToSubject'),
+      refreshTourPrices,
+      queueContentAudio,
+      hideFromSearch('contents'),
+    ],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [detachDeletedContentFromQuestions],
   },
@@ -497,6 +506,14 @@ export const Contents: CollectionConfig = {
     {
       // Create-only input: the object this content is written about.
       name: 'attachToObject',
+      type: 'text',
+      virtual: true,
+      admin: { hidden: true },
+    },
+    {
+      // Create-only input: the subject this content is written about, when
+      // it is about an artist, a movement or an event instead of a work.
+      name: 'attachToSubject',
       type: 'text',
       virtual: true,
       admin: { hidden: true },

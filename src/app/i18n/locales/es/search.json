@@ -19,9 +19,9 @@
   "Filter visits…": "Filtrar visitas…",
   "Hard": "Difícil",
   "In the tour": "En el recorrido",
+  "Length in seconds": "Duración en segundos",
   "Look for the next tour": "Busca tu próximo tour",
   "Medium": "Media",
-  "min read": "min de lectura",
   "Museum": "Museo",
   "Name": "Nombre",
   "No contents found": "No se han encontrado contenidos",
@@ -42,6 +42,5 @@
   "Tour": "Tour",
   "Tours made by": "Tours creados por",
   "View details": "Ver detalles",
-  "Write a new content": "Escribir un contenido nuevo",
-  "Length in seconds": "Duración en segundos"
+  "Write a new content": "Escribir un contenido nuevo"
 }

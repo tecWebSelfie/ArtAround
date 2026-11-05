@@ -19,9 +19,9 @@
   "Filter visits…": "Filtrēt apmeklējumus…",
   "Hard": "Grūti",
   "In the tour": "Tūrē",
+  "Length in seconds": "Ilgums sekundēs",
   "Look for the next tour": "Meklē nākamo tūri",
   "Medium": "Vidēji",
-  "min read": "min lasīšanas",
   "Museum": "Muzejs",
   "Name": "Nosaukums",
   "No contents found": "Saturs netika atrasts",
@@ -42,6 +42,5 @@
   "Tour": "Tūre",
   "Tours made by": "Tūres, ko veidojis",
   "View details": "Skatīt sīkāk",
-  "Write a new content": "Rakstīt jaunu saturu",
-  "Length in seconds": "Ilgums sekundēs"
+  "Write a new content": "Rakstīt jaunu saturu"
 }

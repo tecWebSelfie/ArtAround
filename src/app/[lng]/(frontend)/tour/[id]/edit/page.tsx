@@ -4,6 +4,7 @@ import { asViewer, can, getSession, requireUser } from '@/lib/session'
 import { Container } from '@mantine/core'
 import type { Route } from 'next'
 import { redirect } from 'next/navigation'
+import { directionsByStop } from '@/lib/tour-logistics'
 import { getTourEditorData } from '../../tour-editing'
 
 /** Edit an own tour (author only); others customize a copy via `/tour/new?from=`. */
@@ -34,6 +35,8 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
           title: tour.title,
           description: tour.description ?? '',
           visibility: tour.visibility ?? 'public',
+          logistics: tour.logistics ?? '',
+          directions: directionsByStop(tour),
           contents: stopIds,
         }}
       />

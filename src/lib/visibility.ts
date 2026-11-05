@@ -3,6 +3,7 @@ import { jwtVerify, SignJWT } from 'jose'
 import { createSecretKey } from 'node:crypto'
 import type { Access, CollectionAfterChangeHook, PayloadRequest, Where } from 'payload'
 import { parseCookies } from 'payload/shared'
+import { cache } from 'react'
 
 /**
  * Public and private contents and tours (requirement 8 of
@@ -73,7 +74,8 @@ const CONTENTS_CACHE = 'groupTourContentIds'
  */
 async function groupCookie(req: PayloadRequest): Promise<string | null> {
   const fromHeaders = req.headers ? parseCookies(req.headers).get(GROUP_TOUR_COOKIE) : undefined
-  if (fromHeaders) return fromHeaders
+  // A REST or GraphQL request's own headers are the whole truth.
+  if (fromHeaders || req.payloadAPI !== 'local') return fromHeaders ?? null
   try {
     const { cookies } = await import('next/headers')
     return (await cookies()).get(GROUP_TOUR_COOKIE)?.value ?? null
@@ -85,11 +87,18 @@ async function groupCookie(req: PayloadRequest): Promise<string | null> {
   }
 }
 
+/**
+ * The token's signature checked once per page render: every Local API read of
+ * a page builds its own request, so `req.context` alone would verify it again
+ * for each one. Outside a React render `cache` simply doesn't memoize.
+ */
+const verifyOnce = cache(verifyGroupTourToken)
+
 /** The tour of the request's group cookie, verified once per request. */
 export function groupTourOf(req: PayloadRequest): Promise<string | null> {
   const cached = req.context[COOKIE_CACHE] as Promise<string | null> | undefined
   if (cached) return cached
-  const pending = groupCookie(req).then(verifyGroupTourToken)
+  const pending = groupCookie(req).then(verifyOnce)
   req.context[COOKIE_CACHE] = pending
   return pending
 }

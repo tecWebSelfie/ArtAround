@@ -18,9 +18,9 @@
   "Filter visits…": "Filtreeri külastusi…",
   "Hard": "Raske",
   "In the tour": "Tuuris",
+  "Length in seconds": "Pikkus sekundites",
   "Look for the next tour": "Leia järgmine tuur",
   "Medium": "Keskmine",
-  "min read": "min lugemist",
   "Museum": "Muuseum",
   "Name": "Nimi",
   "No contents found": "Sisu ei leitud",
@@ -41,6 +41,5 @@
   "Tour": "Tuur",
   "Tours made by": "Tuurid, mille autor on",
   "View details": "Vaata lähemalt",
-  "Write a new content": "Kirjuta uus sisu",
-  "Length in seconds": "Pikkus sekundites"
+  "Write a new content": "Kirjuta uus sisu"
 }

@@ -1,5 +1,6 @@
 {
   "About the object": "O predmetu",
+  "All rights reserved": "Vse pravice pridržane",
   "Easy": "Lahko",
   "For children": "Za otroke",
   "Hard": "Težko",
@@ -8,11 +9,10 @@
   "Medium": "Srednje",
   "More about this object": "Več o tem predmetu",
   "Pictures": "Slike",
+  "Private": "Zasebno",
   "Rated {{rating}} out of 5": "Ocena {{rating}} od 5",
   "Sources": "Viri",
   "Unlocked": "Odklenjeno",
   "View the object": "Oglej si predmet",
-  "Written by": "Avtor",
-  "All rights reserved": "Vse pravice pridržane",
-  "Private": "Zasebno"
+  "Written by": "Avtor"
 }

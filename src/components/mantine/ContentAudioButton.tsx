@@ -35,7 +35,7 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
 
   // Aborted on unmount: a press still waiting for the audio must not start
   // it once the visitor has left the modal.
-  const unmounted = useRef(new AbortController())
+  const unmounted = useRef<AbortController | null>(null)
 
   // Leaving the page or modal stops the voice, and any wait for it.
   useEffect(() => {
@@ -48,7 +48,8 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
   }, [])
 
   const prepare = async () => {
-    const { signal } = unmounted.current
+    const signal = unmounted.current?.signal
+    if (!signal) return
     setState('preparing')
     for (let poll = 0; poll < MAX_POLLS; poll++) {
       const response = await fetch(`${url}&check=1`, { cache: 'no-store', signal }).catch(

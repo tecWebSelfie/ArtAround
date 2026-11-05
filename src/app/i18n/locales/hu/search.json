@@ -18,9 +18,9 @@
   "Filter visits…": "Látogatások szűrése…",
   "Hard": "Nehéz",
   "In the tour": "A túrában",
+  "Length in seconds": "Hossz másodpercben",
   "Look for the next tour": "Keresd a következő túrát",
   "Medium": "Közepes",
-  "min read": "perc olvasás",
   "Museum": "Múzeum",
   "Name": "Név",
   "No contents found": "Nem található tartalom",
@@ -41,6 +41,5 @@
   "Tour": "Túra",
   "Tours made by": "Túrák, készítette:",
   "View details": "Részletek",
-  "Write a new content": "Új tartalom írása",
-  "Length in seconds": "Hossz másodpercben"
+  "Write a new content": "Új tartalom írása"
 }

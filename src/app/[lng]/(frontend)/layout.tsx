@@ -28,7 +28,11 @@ export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props
   // The desktop top bar's account, museums and museum scope (shared, cached
   // with the tabs layout's bottom bar for the same request).
-  const [chrome, { t }] = await Promise.all([getSiteChrome(), getT()])
+  const chromeRead = getSiteChrome()
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT()
+  const chrome = await chromeRead
 
   return (
     <MswProvider>

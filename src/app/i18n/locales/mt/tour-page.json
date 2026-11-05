@@ -15,6 +15,7 @@
   "{{distance}} on foot": "{{distance}} bil-mixi",
   "{{duration}} of reading": "{{duration}} qari",
   "About {{duration}}": "Madwar {{duration}}",
+  "Before you go": "Qabel ma tmur",
   "Buy all for {{price}}": "Ixtri kollox għal {{price}}",
   "By {{name}}": "Minn {{name}}",
   "Customize tour": "Personalizza t-tour",
@@ -23,6 +24,7 @@
   "Ends with a quiz": "Jispiċċa bi kwiż",
   "Hard": "Diffiċli",
   "Medium": "Medju",
+  "Private": "Privat",
   "Quiz": "Kwiż",
   "Rated {{rating}} out of 5": "Ikklassifikat {{rating}} minn 5",
   "Replace the paid contents": "Ibdel il-kontenuti bi ħlas",
@@ -33,6 +35,5 @@
   "Test what you remember after the last stop": "Ittestja dak li tiftakar wara l-aħħar waqfa",
   "The stops": "Il-waqfiet",
   "Unlock for {{price}}": "Iftaħ għal {{price}}",
-  "Unlock this tour": "Iftaħ dan it-tour",
-  "Private": "Privat"
+  "Unlock this tour": "Iftaħ dan it-tour"
 }

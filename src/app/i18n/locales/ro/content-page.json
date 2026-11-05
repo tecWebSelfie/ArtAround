@@ -1,5 +1,6 @@
 {
   "About the object": "Despre obiect",
+  "All rights reserved": "Toate drepturile rezervate",
   "Easy": "Ușor",
   "For children": "Pentru copii",
   "Hard": "Dificil",
@@ -8,11 +9,10 @@
   "Medium": "Mediu",
   "More about this object": "Mai multe despre acest obiect",
   "Pictures": "Imagini",
+  "Private": "Privat",
   "Rated {{rating}} out of 5": "Evaluat cu {{rating}} din 5",
   "Sources": "Surse",
   "Unlocked": "Deblocat",
   "View the object": "Vezi obiectul",
-  "Written by": "Scris de",
-  "All rights reserved": "Toate drepturile rezervate",
-  "Private": "Privat"
+  "Written by": "Scris de"
 }

@@ -7,7 +7,8 @@
  * (Wikidata, collection Q1103550, read on 2026-11-04).
  *
  * The data is dense enough to try every visitor feature: three tours of at
- * least ten works each (one with a quiz, for the synchronised class visit),
+ * least ten works each (one with a quiz, for the synchronised class visit)
+ * and a shorter family tour, each with logistic directions,
  * side contents for nearby suggestions, a paid content and children's texts.
  * Contents are written by the two author accounts the specification names
  * (`PROJECT_ACCOUNTS` in `src/seed-accounts.ts`).
@@ -138,6 +139,37 @@ Virgin sits on a throne that recedes into space, and the saints turn towards
 her as if they stood in the same room.</p>`,
         sources: [wikipedia('Polittico_di_Bologna')],
       },
+      {
+        title: 'How a polyptych was made',
+        difficulty: 'medium',
+        author: 'autore2',
+        bodyHTML: `
+<p>Each panel started as planks of poplar, glued together and covered with
+many thin layers of gesso, a white paste of chalk and glue, sanded until it
+was as smooth as ivory. The painter then drew the figures and scratched the
+outlines into the gesso.</p>
+<p>The gold is real gold leaf, beaten thinner than paper and laid on a red
+clay called bole, then polished with a stone until it shone. The figures are
+painted in tempera: powdered pigments mixed with egg yolk, applied in small
+strokes, because tempera dries in minutes and cannot be blended like oil.</p>`,
+        sources: [wikipedia('Tempera')],
+      },
+      {
+        title: 'A signature and a workshop',
+        difficulty: 'hard',
+        author: 'autore1',
+        bodyHTML: `
+<p>The signature does not settle who painted the polyptych. In the 1330s
+Giotto led one of the largest workshops in Italy, with commissions in
+Florence, Naples and northern Italy, and the uneven quality of the panels has
+led many scholars to see several hands at work: the master designing the
+whole and finishing the key figures, assistants painting much of the rest.</p>
+<p>The inscription is better read as a mark of the workshop than as a claim
+of autograph execution. What remains Giotto's is the conception: solid
+bodies, a coherent light and a throne built as a space, ideas his
+collaborators carried well beyond Florence.</p>`,
+        sources: [wikipedia('Polittico_di_Bologna'), wikipedia('Giotto')],
+      },
     ],
   },
   {
@@ -212,6 +244,22 @@ architecture of the throne is drawn with a ruler. This hard, metallic style is
 typical of the Ferrarese school.</p>`,
         sources: [wikipedia('Pala_dei_Mercanti')],
       },
+      {
+        title: 'From Schifanoia to Bologna',
+        difficulty: 'hard',
+        author: 'autore1',
+        bodyHTML: `
+<p>Before Bologna, Cossa painted the months of March, April and May in the
+Hall of the Months of Palazzo Schifanoia, the pleasure palace of Borso d'Este
+in Ferrara. In 1470 he wrote to the duke protesting that he had been paid by
+the square foot like the least of his colleagues; the answer did not satisfy
+him, and he moved to Bologna, where he worked until his death.</p>
+<p>The Merchants' Altarpiece shows his Ferrarese training at full strength:
+the measured space and the clear light that North Italian painters learnt
+from Piero della Francesca, combined with the crisp, almost sculpted forms
+that echo Mantegna.</p>`,
+        sources: [wikipedia('Francesco_del_Cossa'), wikipedia('Palazzo_Schifanoia')],
+      },
     ],
   },
   {
@@ -276,6 +324,22 @@ Raphael learnt it from him, then went further: compare it with the Saint
 Cecilia nearby.</p>`,
         sources: [wikipedia('Madonna_in_gloria_e_santi_(Perugino_Bologna)')],
       },
+      {
+        title: 'A formula that sold',
+        difficulty: 'hard',
+        author: 'autore2',
+        bodyHTML: `
+<p>Around 1500 Perugino was among the most sought-after painters in Italy,
+and he worked like an entrepreneur: his workshop reused drawings and
+cartoons, so the same saint, the same pose or the same landscape can return
+from one altarpiece to another. The two-tier scheme of this panel, a vision
+above and a row of saints below, is one of his standard solutions.</p>
+<p>The method made him rich but cost him his reputation in Florence: Vasari
+reports that his altarpiece for the Santissima Annunziata was mocked for
+reusing figures he had already painted. Raphael, trained in this system,
+kept its clarity and dropped its repetition.</p>`,
+        sources: [wikipedia('Perugino')],
+      },
     ],
   },
   {
@@ -325,6 +389,19 @@ to ignore the angels.</p>
 figure who looks up. The composition shows how far he had moved from
 Perugino's symmetry: the saints are no longer lined up, they form a living
 group around a single moment.</p>`,
+        sources: [wikipedia('Estasi_di_santa_Cecilia')],
+      },
+      {
+        title: 'A saint who hears the angels',
+        difficulty: 'easy',
+        author: 'autore2',
+        bodyHTML: `
+<p>Cecilia is the saint of music. In her hands she has a small organ, but she
+is not playing it any more: she is listening to the angels singing in the
+clouds above her.</p>
+<p>Look at the ground: there are other instruments, broken and forgotten.
+Next to the music of heaven, Raphael is saying, every music of the earth
+falls silent.</p>`,
         sources: [wikipedia('Estasi_di_santa_Cecilia')],
       },
     ],
@@ -660,6 +737,31 @@ of light and shadow and his warm, broken colour make the scene feel
 immediate, almost like a moment caught in a real church.</p>`,
         sources: [wikipedia('Guercino')],
       },
+      {
+        title: 'Spot the armour',
+        difficulty: 'easy',
+        audience: 'children',
+        author: 'autore2',
+        bodyHTML: `
+<p>This man was a duke and a soldier. Now he wants to become a monk. Can you
+find the shiny helmet and armour he has taken off and left on the floor?</p>
+<p>Someone is helping him put on new clothes: a long, plain dark habit. Which
+clothes would you choose to wear: the armour or the habit?</p>`,
+      },
+      {
+        title: 'Guercino before and after Reni',
+        difficulty: 'medium',
+        author: 'autore1',
+        bodyHTML: `
+<p>This canvas shows the young Guercino at his boldest: deep shadows, light
+falling hard from one side, colours broken into patches. He had learnt much
+from Ludovico Carracci, whose works he could study near his home town of
+Cento.</p>
+<p>When Guido Reni died in 1642, Guercino moved to Bologna and took his place
+as the city's leading painter. His later pictures are lighter and calmer,
+closer to Reni's taste: the drama you see here belongs to his first years.</p>`,
+        sources: [wikipedia('Guercino')],
+      },
     ],
   },
 ]
@@ -698,19 +800,37 @@ banner painted during the plague of 1630 and the portrait of his mother.</p>`,
   },
 ]
 
-/** Content titles in visiting order; the tour's museum is the seeded one. */
+/**
+ * Content titles in visiting order; the tour's museum is the seeded one.
+ * The four tours differ in contents and level of knowledge (course
+ * specification): an all-round visit, one for connoisseurs, one on the
+ * seventeenth century and one for families. Each gives several items to some
+ * works (consecutive stops on the same object), and each carries its logistic
+ * directions (`logistics`, per-stop `directions`: `src/lib/tour-logistics.ts`).
+ */
+const LOGISTICS = `The entrance is at Via delle Belle Arti 56. Tickets are sold at the desk in the foyer (full €10, reduced €2 for 18–25, free under 18), where the cloakroom takes bags and umbrellas for free. The accessible toilets are next to the foyer, and every room is step-free.`
+// Directions shared by several tours: the same walk, worded once.
+const SAME_WORK = 'Stay in front of the same painting: this stop looks at it again.'
+const FOYER_TO_ROOM_6 =
+  'From the foyer, cross the gallery and take the doorway on the bookshop side into room 6: the gold polyptych hangs on the first wall.'
+const ROOM_7_END = 'At the far end of room 7.'
+const ROOM_7_TO_10 = 'Take the door from room 7 into room 10, the temporary exhibitions room.'
+const TO_COURT = 'Step into the central court, room 11.'
+
 export const TOURS = [
   {
     title: 'Masterpieces of the Pinacoteca',
     description: 'Twelve works, from Giotto to Guercino.',
-    durationMinutes: 75,
+    durationMinutes: 80,
     wheelchairAccessible: true,
     categories: ['arte-antica', 'arte-moderna'],
     bodyHTML: `<p>The essential visit: five centuries of painting in Bologna, from the
 gold grounds of the fourteenth century to the great altarpieces of the
 seventeenth. This is also the tour for class visits, with a final quiz.</p>`,
+    logistics: LOGISTICS,
     stops: [
       'Giotto signs his name',
+      'How a polyptych was made',
       'A knight in motion',
       'A painting for the merchants',
       'Heaven above, saints below',
@@ -722,7 +842,23 @@ seventeenth. This is also the tour for class visits, with a final quiz.</p>`,
       'Horror in perfect order',
       'Two stories on one canvas',
       'From armour to habit',
+      'Guercino before and after Reni',
     ],
+    directions: {
+      'Giotto signs his name': FOYER_TO_ROOM_6,
+      'How a polyptych was made': SAME_WORK,
+      'A knight in motion': 'Next along the same wall of room 6.',
+      'Heaven above, saints below':
+        'Go through the passage at the back of room 6 into room 7: Perugino is a few steps ahead.',
+      'Music of heaven, music of earth': ROOM_7_END,
+      'Elegance stretched to the limit': ROOM_7_TO_10,
+      'Back to nature': TO_COURT,
+      'Before Rome': 'Go on to room 8, Italian painting.',
+      'Horror in perfect order': 'In the same room, on the far wall.',
+      'Two stories on one canvas': 'Continue into room 9, modern art.',
+      'From armour to habit': 'In the same room 9, on the court side.',
+      'Guercino before and after Reni': SAME_WORK,
+    },
     quiz: [
       {
         prompt: 'Who wrote his name on the Bologna Polyptych?',
@@ -748,36 +884,52 @@ seventeenth. This is also the tour for class visits, with a final quiz.</p>`,
   },
   {
     title: 'From gold grounds to Raphael',
-    description: 'Gothic and Renaissance Bologna in ten works.',
-    durationMinutes: 50,
+    description: 'For connoisseurs: Gothic and Renaissance Bologna in depth.',
+    durationMinutes: 70,
     wheelchairAccessible: true,
     categories: ['arte-antica'],
-    bodyHTML: `<p>How painting in Bologna changed between the fourteenth and the
-sixteenth century: from Giotto's gold to Raphael's saints and Parmigianino's
-elegance, ending with the Carracci who reacted against it.</p>`,
+    bodyHTML: `<p>A visit for those who already know the basics: workshops and
+signatures, the Ferrarese masters, Perugino's methods and how Raphael and
+Parmigianino moved beyond them, up to Reni's classicism. One stop is a paid
+in-depth text.</p>`,
+    logistics: LOGISTICS,
     stops: [
-      'Giotto signs his name',
-      'A knight in motion',
-      'A painting for the merchants',
+      'A signature and a workshop',
+      'From Schifanoia to Bologna',
       'The goldsmith who became a painter',
-      'Heaven above, saints below',
+      'A formula that sold',
       'Music of heaven, music of earth',
+      'Five saints, five ways of listening',
       'Elegance stretched to the limit',
       'Painting with the fingers',
       'Back to nature',
       'An old man’s last morning',
+      'Horror in perfect order',
     ],
+    directions: {
+      'A signature and a workshop': FOYER_TO_ROOM_6,
+      'From Schifanoia to Bologna': 'Further along the same wall of room 6.',
+      'The goldsmith who became a painter':
+        'Go through the passage at the back of room 6 into room 7.',
+      'Music of heaven, music of earth': ROOM_7_END,
+      'Five saints, five ways of listening': SAME_WORK,
+      'Elegance stretched to the limit': ROOM_7_TO_10,
+      'Back to nature': TO_COURT,
+      'Horror in perfect order':
+        'Cross the court into room 8, Italian painting: Reni’s Massacre is on the far wall.',
+    },
     quiz: [],
   },
   {
     title: 'The Carracci and their heirs',
     description: 'The Bolognese school of the seventeenth century.',
-    durationMinutes: 50,
+    durationMinutes: 55,
     wheelchairAccessible: true,
     categories: ['arte-moderna'],
     bodyHTML: `<p>Around 1582 three cousins founded an academy that changed European
 painting. Follow the Carracci, then their pupils and heirs: Guido Reni,
 Domenichino and Guercino.</p>`,
+    logistics: LOGISTICS,
     stops: [
       'Elegance stretched to the limit',
       'Back to nature',
@@ -788,8 +940,46 @@ Domenichino and Guercino.</p>`,
       'A rare private picture',
       'Two stories on one canvas',
       'From armour to habit',
+      'Guercino before and after Reni',
       'Painting with the fingers',
     ],
+    directions: {
+      'Elegance stretched to the limit':
+        'From the foyer, cross the gallery and the central court (room 11) to room 10 behind it.',
+      'Back to nature': 'Come back into the central court, room 11.',
+      'Before Rome': 'Go on to room 8, Italian painting.',
+      'A rare private picture': 'Continue into room 9, modern art.',
+      'Guercino before and after Reni': SAME_WORK,
+      'Painting with the fingers': 'Return to room 10 for the last stop.',
+    },
+    quiz: [],
+  },
+  {
+    title: 'Little explorers',
+    description: 'A family visit: dragons, angels and a knight turned monk.',
+    durationMinutes: 35,
+    wheelchairAccessible: true,
+    categories: ['arte-antica', 'arte-moderna'],
+    bodyHTML: `<p>Six paintings to look at together, with easy texts and games for
+children: find the dragon's tail, count the mothers, spot the armour.</p>`,
+    logistics: `${LOGISTICS} Pushchairs are welcome in every room.`,
+    stops: [
+      'A knight in motion',
+      'Find the dragon’s tail',
+      'Heaven above, saints below',
+      'A saint who hears the angels',
+      'Count the mothers',
+      'A rare private picture',
+      'Spot the armour',
+    ],
+    directions: {
+      'A knight in motion':
+        'From the foyer, cross the gallery and take the doorway on the bookshop side into room 6. Look for the white horse!',
+      'Find the dragon’s tail': 'Stay here: the dragon is in the same painting!',
+      'Heaven above, saints below': 'Go through the passage at the back into room 7.',
+      'Count the mothers': 'Walk across the museum to room 8, on the other side of the court.',
+      'A rare private picture': 'Next door, in room 9.',
+    },
     quiz: [],
   },
 ]

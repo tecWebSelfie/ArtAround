@@ -33,7 +33,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
   const canEditPromise = can('objects', id, 'update')
   // Photo included (populated by getLocalizedPageDocument).
   const objectRead = getLocalizedPageDocument('objects', id, lng)
-  const [object, subjects, canEdit, source, { t }, { printMuseumId, offer }] = await Promise.all([
+  const reads = Promise.all([
     objectRead,
     // Its authors, movements and events need only the object: chained onto
     // its read, they load alongside the rest instead of while rendering.
@@ -51,11 +51,14 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           })
         : null,
     ),
-    getT('editing'),
     // Its museum's staff print its QR code; opened from outside the app, the
     // museum's own app is offered.
     museumAffordances('object', id),
   ])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('editing')
+  const [object, subjects, canEdit, source, { printMuseumId, offer }] = await reads
   // The form's preview reuses the populated photo.
   const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
   const thumbnail = photo && { id: photo.id, url: pictureSrc(photo, 'card') }

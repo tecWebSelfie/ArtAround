@@ -20,9 +20,9 @@
   "Filter visits…": "Filtriraj obiske …",
   "Hard": "Težko",
   "In the tour": "V ogledu",
+  "Length in seconds": "Dolžina v sekundah",
   "Look for the next tour": "Poišči naslednji ogled",
   "Medium": "Srednje",
-  "min read": "min branja",
   "Museum": "Muzej",
   "Name": "Ime",
   "No contents found": "Ni najdenih vsebin",
@@ -43,6 +43,5 @@
   "Tour": "Ogled",
   "Tours made by": "Ogledi avtorja",
   "View details": "Oglej si podrobnosti",
-  "Write a new content": "Napiši novo vsebino",
-  "Length in seconds": "Dolžina v sekundah"
+  "Write a new content": "Napiši novo vsebino"
 }

@@ -18,7 +18,12 @@ import { useParams, usePathname } from 'next/navigation'
  * drift apart.
  */
 
-/** The tab entries. Each keeps its color in both bars: Navigator green, Marketplace red. */
+/**
+ * The tab entries. Each keeps its color in both bars: Navigator green, Marketplace red.
+ * Labels are `navbar` keys of `common`; listed here for `i18next-cli extract`,
+ * which can't read a key out of a variable:
+ * t('navbar.Navigator', 'Navigator') t('navbar.Marketplace', 'Marketplace')
+ */
 export const NAV_ITEMS = [
   { Icon: Compass, color: 'green', label: 'Navigator', href: '/navigator' },
   { Icon: Store, color: 'red', label: 'Marketplace', href: '/marketplace' },
@@ -30,6 +35,9 @@ export type { NavAccount }
 export type MyMuseum = { id: string; name: string; role: MuseumRole }
 
 // Same icon per role as the profile badges (UserPage): icon + label, never color alone.
+// Role labels, `navbar` keys listed for `i18next-cli extract`:
+// t('navbar.Director', 'Director') t('navbar.Curator', 'Curator')
+// t('navbar.Verified creator', 'Verified creator')
 const ROLE_META: Record<MuseumRole, { Icon: typeof Landmark; label: string }> = {
   director: { Icon: Landmark, label: 'Director' },
   curator: { Icon: Palette, label: 'Curator' },
@@ -63,7 +71,6 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
   }
 
   return {
-    t,
     lng,
     pathname,
     signedIn,

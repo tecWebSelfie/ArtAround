@@ -1,5 +1,6 @@
 {
   "About the object": "Om föremålet",
+  "All rights reserved": "Alla rättigheter förbehållna",
   "Easy": "Lätt",
   "For children": "För barn",
   "Hard": "Svår",
@@ -8,11 +9,10 @@
   "Medium": "Medel",
   "More about this object": "Mer om detta föremål",
   "Pictures": "Bilder",
+  "Private": "Privat",
   "Rated {{rating}} out of 5": "Betyg {{rating}} av 5",
   "Sources": "Källor",
   "Unlocked": "Upplåst",
   "View the object": "Visa föremålet",
-  "Written by": "Skriven av",
-  "All rights reserved": "Alla rättigheter förbehållna",
-  "Private": "Privat"
+  "Written by": "Skriven av"
 }

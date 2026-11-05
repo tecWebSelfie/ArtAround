@@ -20,9 +20,9 @@
   "Filter visits…": "Filtrovat návštěvy…",
   "Hard": "Těžké",
   "In the tour": "V prohlídce",
+  "Length in seconds": "Délka v sekundách",
   "Look for the next tour": "Najdi další prohlídku",
   "Medium": "Střední",
-  "min read": "min čtení",
   "Museum": "Muzeum",
   "Name": "Název",
   "No contents found": "Nebyly nalezeny žádné obsahy",
@@ -43,6 +43,5 @@
   "Tour": "Prohlídka",
   "Tours made by": "Prohlídky od",
   "View details": "Zobrazit detaily",
-  "Write a new content": "Napsat nový obsah",
-  "Length in seconds": "Délka v sekundách"
+  "Write a new content": "Napsat nový obsah"
 }

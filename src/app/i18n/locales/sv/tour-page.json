@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} till fots",
   "{{duration}} of reading": "{{duration}} läsning",
   "About {{duration}}": "Cirka {{duration}}",
+  "Before you go": "Innan du går",
   "Buy all for {{price}}": "Köp allt för {{price}}",
   "By {{name}}": "Av {{name}}",
   "Customize tour": "Anpassa tur",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Avslutas med ett quiz",
   "Hard": "Svår",
   "Medium": "Medel",
+  "Private": "Privat",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Betyg {{rating}} av 5",
   "Replace the paid contents": "Byt ut det betalda innehållet",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Testa vad du minns efter sista stoppet",
   "The stops": "Stoppen",
   "Unlock for {{price}}": "Lås upp för {{price}}",
-  "Unlock this tour": "Lås upp den här turen",
-  "Private": "Privat"
+  "Unlock this tour": "Lås upp den här turen"
 }

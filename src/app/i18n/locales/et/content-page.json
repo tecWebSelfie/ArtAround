@@ -1,5 +1,6 @@
 {
   "About the object": "Objektist",
+  "All rights reserved": "Kõik õigused kaitstud",
   "Easy": "Lihtne",
   "For children": "Lastele",
   "Hard": "Raske",
@@ -8,11 +9,10 @@
   "Medium": "Keskmine",
   "More about this object": "Veel selle objekti kohta",
   "Pictures": "Pildid",
+  "Private": "Privaatne",
   "Rated {{rating}} out of 5": "Hinnang {{rating}} 5-st",
   "Sources": "Allikad",
   "Unlocked": "Avatud",
   "View the object": "Vaata objekti",
-  "Written by": "Autor",
-  "All rights reserved": "Kõik õigused kaitstud",
-  "Private": "Privaatne"
+  "Written by": "Autor"
 }

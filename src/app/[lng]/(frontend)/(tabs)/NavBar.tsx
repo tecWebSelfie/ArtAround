@@ -10,6 +10,7 @@ import {
 import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
 import { Compass, Landmark, LogIn } from 'lucide-react'
 import Link from 'next/link'
+import { useT } from 'next-i18next/client'
 
 function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
   return (
@@ -39,8 +40,10 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
   account,
   myMuseums,
 }) {
-  const { t, lng, signedIn, profileHref, displayName, inMyMuseum, signInHref, localize, isActive } =
+  const { lng, signedIn, profileHref, displayName, inMyMuseum, signInHref, localize, isActive } =
     useNavState(account, myMuseums)
+  // Here, not from `useNavState`: `i18next-cli extract` reads the prefix only at the call.
+  const { t } = useT(undefined, { keyPrefix: 'navbar' })
 
   // Tight horizontal padding (px={4}) on every entry: with four entries a
   // phone leaves ~90px each, enough for "Marketplace" only without the

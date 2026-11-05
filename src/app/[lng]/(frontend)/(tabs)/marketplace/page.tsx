@@ -33,15 +33,14 @@ export default async function Marketplace(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Translations, Payload and the museum-mode restriction are independent:
-  // read them together. Difficulty names are shared with search
-  // (search.json), not duplicated here.
-  const [{ t }, { t: ts }, payload, restrictTo] = await Promise.all([
-    getT('marketplace'),
-    getT('search'),
-    getPayload({ config }),
-    museumSearchRestriction(),
-  ])
+  // Payload and the museum-mode restriction are independent: started together.
+  const setup = Promise.all([getPayload({ config }), museumSearchRestriction()])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  // Difficulty names are shared with search (search.json), not duplicated here.
+  const { t } = await getT('marketplace')
+  const { t: ts } = await getT('search')
+  const [payload, restrictTo] = await setup
 
   const query = (firstValue(searchParams.q) ?? '').trim()
   const kind = parseKind(firstValue(searchParams.kind))

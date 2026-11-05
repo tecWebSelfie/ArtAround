@@ -17,6 +17,7 @@ import {
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
 import { hideFromSearch, readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { keptDirections } from '@/lib/tour-logistics'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -105,6 +106,17 @@ const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
   return data
 }
 
+/**
+ * A stop's directions leave with the stop: removing a content from the tour
+ * drops its note, so a later re-add starts without a stale one.
+ */
+const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
+  if (!data.contents && !data.directions) return data
+  const contents = data.contents ?? originalDoc?.contents ?? []
+  data.directions = keptDirections(data.directions ?? originalDoc?.directions, contents)
+  return data
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
   access: {
@@ -115,7 +127,7 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, guardTourContents],
+    beforeChange: [assignAuthor, guardTourContents, pruneDirections],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
     afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
     afterDelete: [deleteQuestionsOfDeletedTour],
@@ -145,6 +157,40 @@ export const Tour: CollectionConfig = {
               type: 'text',
               required: false,
               maxLength: 70,
+            },
+            // Logistic directions (course specification, "ArtAround: Architettura"):
+            // not items and not part of any item, so they live on the tour. The
+            // visit's practical information comes before the first stop; each
+            // stop may say how to reach it from the previous one. Shown in the
+            // tour page and in navigation (`src/lib/tour-logistics.ts`).
+            editorial({
+              name: 'logistics',
+              type: 'textarea',
+              required: false,
+              maxLength: 1000,
+              admin: {
+                description:
+                  'Practical information for the visit: entrance, tickets, cloakroom, opening hours.',
+              },
+            }),
+            {
+              name: 'directions',
+              type: 'array',
+              admin: {
+                description:
+                  'How to reach a stop from the previous one (from the entrance for the first).',
+              },
+              fields: [
+                {
+                  name: 'content',
+                  type: 'relationship',
+                  relationTo: 'contents',
+                  required: true,
+                  // Only the id: the stop itself comes from `contents`.
+                  maxDepth: 0,
+                },
+                editorial({ name: 'text', type: 'textarea', required: true, maxLength: 500 }),
+              ],
             },
             {
               // Authored order = visiting order (see docs/tour-navigation.md).

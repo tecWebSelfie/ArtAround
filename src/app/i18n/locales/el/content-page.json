@@ -1,5 +1,6 @@
 {
   "About the object": "Σχετικά με το έκθεμα",
+  "All rights reserved": "Με την επιφύλαξη παντός δικαιώματος",
   "Easy": "Εύκολο",
   "For children": "Για παιδιά",
   "Hard": "Δύσκολο",
@@ -8,11 +9,10 @@
   "Medium": "Μέτριο",
   "More about this object": "Περισσότερα για αυτό το έκθεμα",
   "Pictures": "Εικόνες",
+  "Private": "Ιδιωτικό",
   "Rated {{rating}} out of 5": "Βαθμολογία {{rating}} στα 5",
   "Sources": "Πηγές",
   "Unlocked": "Ξεκλειδωμένο",
   "View the object": "Δείτε το έκθεμα",
-  "Written by": "Συντάκτης",
-  "All rights reserved": "Με την επιφύλαξη παντός δικαιώματος",
-  "Private": "Ιδιωτικό"
+  "Written by": "Συντάκτης"
 }

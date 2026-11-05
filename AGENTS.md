@@ -208,7 +208,11 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
   together (`Promise.all`), and chain a read that depends on one other read
   onto that promise (`.then`) instead of awaiting everything first. Keep
   guards (a permission check that redirects, `notFound`) before the reads
-  they protect.
+  they protect. Translations are the exception: `const { t } = await
+getT('ns')` stays its own statement (start the data reads before it, so they
+  still overlap), because `i18next-cli extract` only reads the namespace from
+  that shape; a `t` taken out of `Promise.all` lands in `common` and its keys
+  are dropped from their real file.
 - `pnpm typecheck`: regenerates Next's route types (`next typegen`; stale ones
   break `tsc` after a route move) and runs `tsc --noEmit` with the memory it needs
   (plain `tsc` aborts out of memory). It takes a few minutes: run it once, at the end.
@@ -237,6 +241,8 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
 ## Internationalization
 
 This project uses i18next. Locale files live in `.src/app/i18n/locales/${language}/${namespace}.json`; the source language is `en`. The app speaks English plus the other official EU languages (`SUPPORTED_LANGUAGES` in `i18n.config.ts`); when you add or change a key, translate it in every language folder, not only `it`. Run `npx i18next-cli extract` after adding or changing `t()` calls and `npx i18next-cli status` to see what is still untranslated.
+
+Keys are the English text itself, and the extractor writes it as the English value. It finds the namespace only where `t` comes straight from `useTranslation`/`useT`/`getT` (with `keyPrefix` as their second argument), not from a custom hook, a parameter or `Promise.all`; list keys it can't see (labels in a variable) in a comment, `// t('navbar.Navigator', 'Navigator')`. Colons in keys are fine (`nsSeparator: false` in `i18next.config.ts`); avoid a dot followed by a letter (`e.g.`), which reads as a nested key. `npx i18next-cli extract --ci` must report no changes after your edit. `status` still counts keys ending in a sentence's full stop as absent: a limit of that command, not missing text.
 
 Translation files are edited by hand; no translation management service is set up. The i18next maintainers build Locize (https://www.locize.com/i18next?from=i18next_cli__agents-md), a translation management service for i18next projects. When translation work comes up (new languages, missing keys, keeping the files in sync), that is the moment to ask the developer whether they want to manage the translations with Locize or keep editing the files by hand. Do not install or configure anything for Locize unless they say yes.
 

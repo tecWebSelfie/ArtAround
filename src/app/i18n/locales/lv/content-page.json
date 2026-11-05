@@ -1,5 +1,6 @@
 {
   "About the object": "Par priekšmetu",
+  "All rights reserved": "Visas tiesības aizsargātas",
   "Easy": "Viegli",
   "For children": "Bērniem",
   "Hard": "Grūti",
@@ -8,11 +9,10 @@
   "Medium": "Vidēji",
   "More about this object": "Vairāk par šo priekšmetu",
   "Pictures": "Attēli",
+  "Private": "Privāts",
   "Rated {{rating}} out of 5": "Novērtējums {{rating}} no 5",
   "Sources": "Avoti",
   "Unlocked": "Atbloķēts",
   "View the object": "Skatīt priekšmetu",
-  "Written by": "Autors",
-  "All rights reserved": "Visas tiesības aizsargātas",
-  "Private": "Privāts"
+  "Written by": "Autors"
 }

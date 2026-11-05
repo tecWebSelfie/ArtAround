@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} με τα πόδια",
   "{{duration}} of reading": "{{duration}} ανάγνωσης",
   "About {{duration}}": "Περίπου {{duration}}",
+  "Before you go": "Πριν ξεκινήσετε",
   "Buy all for {{price}}": "Αγόρασε όλα με {{price}}",
   "By {{name}}": "Από {{name}}",
   "Customize tour": "Προσαρμογή ξενάγησης",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Τελειώνει με κουίζ",
   "Hard": "Δύσκολο",
   "Medium": "Μέτριο",
+  "Private": "Ιδιωτικό",
   "Quiz": "Κουίζ",
   "Rated {{rating}} out of 5": "Βαθμολογία {{rating}} στα 5",
   "Replace the paid contents": "Αντικατάστησε τα επί πληρωμή περιεχόμενα",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Δοκίμασε τι θυμάσαι μετά την τελευταία στάση",
   "The stops": "Οι στάσεις",
   "Unlock for {{price}}": "Ξεκλείδωμα με {{price}}",
-  "Unlock this tour": "Ξεκλείδωσε αυτήν την ξενάγηση",
-  "Private": "Ιδιωτικό"
+  "Unlock this tour": "Ξεκλείδωσε αυτήν την ξενάγηση"
 }

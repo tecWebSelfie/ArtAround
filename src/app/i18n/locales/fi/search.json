@@ -18,9 +18,9 @@
   "Filter visits…": "Suodata käyntejä…",
   "Hard": "Vaikea",
   "In the tour": "Kierroksella",
+  "Length in seconds": "Kesto sekunteina",
   "Look for the next tour": "Etsi seuraava kierroksesi",
   "Medium": "Keskitaso",
-  "min read": "min lukuaika",
   "Museum": "Museo",
   "Name": "Nimi",
   "No contents found": "Sisältöjä ei löytynyt",
@@ -41,6 +41,5 @@
   "Tour": "Kierros",
   "Tours made by": "Kierrokset tekijältä",
   "View details": "Näytä tiedot",
-  "Write a new content": "Kirjoita uusi sisältö",
-  "Length in seconds": "Kesto sekunteina"
+  "Write a new content": "Kirjoita uusi sisältö"
 }

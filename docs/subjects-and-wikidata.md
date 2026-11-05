@@ -44,5 +44,12 @@ requirement; `docs/plan/requisiti-18-33.md`, point 5).
   `src/lib/subjects.ts`) and pass them to `ObjectDetailsContent`, which stays
   free of database reads so its stories render.
 
+- Contents about a subject instead of a work: `/content/new` lets authors
+  choose "An artist, style or event" (`SubjectPicker`), and a subject page
+  offers "Write a content about it" (`?subject=`). The create call passes the
+  virtual `attachToSubject`, and the server links the content in
+  `subjects.contents` (authors can't edit subjects themselves). The subject
+  page reads its contents as the visitor, so private ones stay hidden.
+
 Tests: `tests/int/wikidata-subjects.int.spec.ts` (recorded Wikidata answers),
 story `ObjectDetailsModal` → With Subjects.

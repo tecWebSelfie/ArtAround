@@ -1,5 +1,6 @@
 {
   "About the object": "Tietoa esineestä",
+  "All rights reserved": "Kaikki oikeudet pidätetään",
   "Easy": "Helppo",
   "For children": "Lapsille",
   "Hard": "Vaikea",
@@ -8,11 +9,10 @@
   "Medium": "Keskitaso",
   "More about this object": "Lisää tästä esineestä",
   "Pictures": "Kuvat",
+  "Private": "Yksityinen",
   "Rated {{rating}} out of 5": "Arvio {{rating}}/5",
   "Sources": "Lähteet",
   "Unlocked": "Avattu",
   "View the object": "Näytä esine",
-  "Written by": "Kirjoittanut",
-  "All rights reserved": "Kaikki oikeudet pidätetään",
-  "Private": "Yksityinen"
+  "Written by": "Kirjoittanut"
 }

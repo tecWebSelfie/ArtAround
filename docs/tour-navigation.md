@@ -7,6 +7,13 @@ and cached build artifacts are not reliable handoff state.
 ## Agreed product behavior
 
 - Desktop and mobile use the same ordinary map view.
+- Logistic directions (course specification: not items, not part of one) come
+  from the tour's author: `tours.logistics` (entrance, tickets, cloakroom) and
+  `tours.directions` (per stop, how to reach it from the previous one).
+  `LogisticNotes` shows them in the tour header for the stop ahead, beside the
+  map's computed route, unless the visitor chose another destination; the
+  voice assistant gets them as context. The tour page shows them too
+  (`src/lib/tour-logistics.ts`).
 - The avatar marks the visitor's explicitly confirmed position. Opening a QR link
   or reading content must not change that position.
 - Tour contents retain their original order. The cursor counts completed contents:

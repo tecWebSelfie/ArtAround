@@ -18,9 +18,9 @@
   "Filter visits…": "Filtrér besøg…",
   "Hard": "Svær",
   "In the tour": "I turen",
+  "Length in seconds": "Længde i sekunder",
   "Look for the next tour": "Find din næste tur",
   "Medium": "Mellem",
-  "min read": "min. læsning",
   "Museum": "Museum",
   "Name": "Navn",
   "No contents found": "Intet indhold fundet",
@@ -41,6 +41,5 @@
   "Tour": "Tur",
   "Tours made by": "Ture lavet af",
   "View details": "Se detaljer",
-  "Write a new content": "Skriv nyt indhold",
-  "Length in seconds": "Længde i sekunder"
+  "Write a new content": "Skriv nyt indhold"
 }

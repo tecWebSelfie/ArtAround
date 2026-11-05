@@ -12,6 +12,7 @@ import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { formatRating } from '@/lib/rating'
 import { stopImage, summarizeTour } from '@/lib/tour-summary'
+import { stopDirections } from '@/lib/tour-logistics'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { QrCodeButton } from '@/components/QrCodeButton'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
@@ -50,6 +51,7 @@ import {
   Play,
   Replace,
   ShoppingBag,
+  Signpost,
   Star,
 } from 'lucide-react'
 import type { Route } from 'next'
@@ -265,6 +267,19 @@ export default function TourPage({
                   )}
                 </Group>
 
+                {/* The visit's practical information (entrance, tickets,
+                    cloakroom): logistic directions, not a stop (src/lib/tour-logistics.ts). */}
+                {tour.logistics?.trim() && (
+                  <Stack gap={4} component="section">
+                    <Title order={2} size="h4">
+                      {t('Before you go')}
+                    </Title>
+                    <Text size="sm" className="whitespace-pre-line">
+                      {tour.logistics}
+                    </Text>
+                  </Stack>
+                )}
+
                 {/* The Thumb-Reach Rule: on phones the way forward lives in the
                     64px footer; from md the same pair sits inline here, right
                     under the figures. */}
@@ -312,24 +327,34 @@ export default function TourPage({
                 )}
 
                 <Timeline bulletSize={28} lineWidth={2} mt="xs">
-                  {contents.map((content, index) => (
+                  {contents.map((content, index) => {
+                    const directions = stopDirections(tour, content.id)
                     // TimelineItem must stay a direct child of Timeline (it
                     // injects layout props into direct children only).
-                    <TimelineItem
-                      key={content.id}
-                      bullet={
-                        <Text size="xs" fw={700} className="tabular-nums">
-                          {index + 1}
-                        </Text>
-                      }
-                    >
-                      <StopRow
-                        content={content}
-                        locked={locked.has(content.id)}
-                        difficultyLabel={difficultyLabel[content.difficulty]}
-                      />
-                    </TimelineItem>
-                  ))}
+                    return (
+                      <TimelineItem
+                        key={content.id}
+                        bullet={
+                          <Text size="xs" fw={700} className="tabular-nums">
+                            {index + 1}
+                          </Text>
+                        }
+                      >
+                        <StopRow
+                          content={content}
+                          locked={locked.has(content.id)}
+                          difficultyLabel={difficultyLabel[content.difficulty]}
+                        />
+                        {/* How to get there from the previous stop, as the author wrote it. */}
+                        {directions && (
+                          <Group gap={6} wrap="nowrap" align="start" c="dimmed">
+                            <Signpost size={14} aria-hidden className="mt-0.5 shrink-0" />
+                            <Text size="xs">{directions}</Text>
+                          </Group>
+                        )}
+                      </TimelineItem>
+                    )
+                  })}
                   {summary.quizQuestions > 0 && (
                     <TimelineItem bullet={<ListChecks size={14} aria-hidden />}>
                       <Stack gap={0} py={4}>

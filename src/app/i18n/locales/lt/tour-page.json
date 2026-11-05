@@ -13,6 +13,7 @@
   "{{distance}} on foot": "{{distance}} pėsčiomis",
   "{{duration}} of reading": "{{duration}} skaitymo",
   "About {{duration}}": "Apie {{duration}}",
+  "Before you go": "Prieš išvykstant",
   "Buy all for {{price}}": "Pirkti viską už {{price}}",
   "By {{name}}": "Autorius: {{name}}",
   "Customize tour": "Pritaikyti turą",
@@ -21,6 +22,7 @@
   "Ends with a quiz": "Baigiasi viktorina",
   "Hard": "Sunku",
   "Medium": "Vidutiniška",
+  "Private": "Privatus",
   "Quiz": "Viktorina",
   "Rated {{rating}} out of 5": "Įvertinimas {{rating}} iš 5",
   "Replace the paid contents": "Pakeisti mokamą turinį",
@@ -31,6 +33,5 @@
   "Test what you remember after the last stop": "Po paskutinės stotelės patikrink, ką prisimeni",
   "The stops": "Stotelės",
   "Unlock for {{price}}": "Atrakinti už {{price}}",
-  "Unlock this tour": "Atrakink šį turą",
-  "Private": "Privatus"
+  "Unlock this tour": "Atrakink šį turą"
 }

@@ -124,7 +124,9 @@ describe('page reads of a group guest', () => {
     const token = await signGroupTourToken('tour-private', 'AB3X9K')
     pageCookies.set(GROUP_TOUR_COOKIE, token!)
     try {
-      expect(await readTours({ req: fakeRequest({}) } as never)).toMatchObject({
+      // A page's Local API read: no headers of its own.
+      const req = Object.assign(fakeRequest({}), { payloadAPI: 'local' as const })
+      expect(await readTours({ req } as never)).toMatchObject({
         or: expect.arrayContaining([{ id: { equals: 'tour-private' } }]),
       })
     } finally {

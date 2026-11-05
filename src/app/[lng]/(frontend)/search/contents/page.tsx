@@ -31,13 +31,13 @@ export default async function SearchContentsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Independent setup reads: read them together.
-  const [{ t }, { t: tCard }, payload, scope] = await Promise.all([
-    getT('search'),
-    getT('contents-carousel-card'),
-    getPayload({ config }),
-    museumScope(),
-  ])
+  // Independent setup reads: started together.
+  const setup = Promise.all([getPayload({ config }), museumScope()])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('search')
+  const { t: tCard } = await getT('contents-carousel-card')
+  const [payload, scope] = await setup
 
   const definitions: FilterDefinition[] = [
     {

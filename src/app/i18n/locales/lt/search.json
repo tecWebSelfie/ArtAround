@@ -20,9 +20,9 @@
   "Filter visits…": "Filtruoti apsilankymus…",
   "Hard": "Sunku",
   "In the tour": "Ture",
+  "Length in seconds": "Trukmė sekundėmis",
   "Look for the next tour": "Ieškok kito turo",
   "Medium": "Vidutiniška",
-  "min read": "min. skaitymo",
   "Museum": "Muziejus",
   "Name": "Pavadinimas",
   "No contents found": "Turinio nerasta",
@@ -43,6 +43,5 @@
   "Tour": "Turas",
   "Tours made by": "Turų autorius",
   "View details": "Daugiau informacijos",
-  "Write a new content": "Rašyti naują turinį",
-  "Length in seconds": "Trukmė sekundėmis"
+  "Write a new content": "Rašyti naują turinį"
 }

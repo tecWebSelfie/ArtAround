@@ -18,9 +18,9 @@
   "Filter visits…": "Φιλτράρισμα επισκέψεων…",
   "Hard": "Δύσκολο",
   "In the tour": "Στην ξενάγηση",
+  "Length in seconds": "Διάρκεια σε δευτερόλεπτα",
   "Look for the next tour": "Βρες την επόμενη ξενάγηση",
   "Medium": "Μέτριο",
-  "min read": "λεπτά ανάγνωσης",
   "Museum": "Μουσείο",
   "Name": "Όνομα",
   "No contents found": "Δεν βρέθηκαν περιεχόμενα",
@@ -41,6 +41,5 @@
   "Tour": "Ξενάγηση",
   "Tours made by": "Ξεναγήσεις από",
   "View details": "Λεπτομέρειες",
-  "Write a new content": "Γράψε νέο περιεχόμενο",
-  "Length in seconds": "Διάρκεια σε δευτερόλεπτα"
+  "Write a new content": "Γράψε νέο περιεχόμενο"
 }

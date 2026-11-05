@@ -13,6 +13,7 @@
   "{{distance}} on foot": "{{distance}} pieszo",
   "{{duration}} of reading": "{{duration}} czytania",
   "About {{duration}}": "Około {{duration}}",
+  "Before you go": "Zanim wyruszysz",
   "Buy all for {{price}}": "Kup wszystko za {{price}}",
   "By {{name}}": "Autor: {{name}}",
   "Customize tour": "Dostosuj trasę",
@@ -21,6 +22,7 @@
   "Ends with a quiz": "Kończy się quizem",
   "Hard": "Trudny",
   "Medium": "Średni",
+  "Private": "Prywatne",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Ocena {{rating}} na 5",
   "Replace the paid contents": "Zamień płatne treści",
@@ -31,6 +33,5 @@
   "Test what you remember after the last stop": "Sprawdź po ostatnim przystanku, co zapamiętałeś",
   "The stops": "Przystanki",
   "Unlock for {{price}}": "Odblokuj za {{price}}",
-  "Unlock this tour": "Odblokuj tę trasę",
-  "Private": "Prywatne"
+  "Unlock this tour": "Odblokuj tę trasę"
 }

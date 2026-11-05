@@ -1,5 +1,6 @@
 {
   "About the object": "За обекта",
+  "All rights reserved": "Всички права запазени",
   "Easy": "Лесно",
   "For children": "За деца",
   "Hard": "Трудно",
@@ -8,11 +9,10 @@
   "Medium": "Средно",
   "More about this object": "Още за този обект",
   "Pictures": "Изображения",
+  "Private": "Лично",
   "Rated {{rating}} out of 5": "Оценка {{rating}} от 5",
   "Sources": "Източници",
   "Unlocked": "Отключено",
   "View the object": "Виж обекта",
-  "Written by": "Автор",
-  "All rights reserved": "Всички права запазени",
-  "Private": "Лично"
+  "Written by": "Автор"
 }

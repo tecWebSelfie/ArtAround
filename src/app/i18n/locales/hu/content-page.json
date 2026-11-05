@@ -1,5 +1,6 @@
 {
   "About the object": "A tárgyról",
+  "All rights reserved": "Minden jog fenntartva",
   "Easy": "Könnyű",
   "For children": "Gyerekeknek",
   "Hard": "Nehéz",
@@ -8,11 +9,10 @@
   "Medium": "Közepes",
   "More about this object": "Még erről a tárgyról",
   "Pictures": "Képek",
+  "Private": "Privát",
   "Rated {{rating}} out of 5": "Értékelés: {{rating}} / 5",
   "Sources": "Források",
   "Unlocked": "Feloldva",
   "View the object": "A tárgy megtekintése",
-  "Written by": "Szerző",
-  "All rights reserved": "Minden jog fenntartva",
-  "Private": "Privát"
+  "Written by": "Szerző"
 }

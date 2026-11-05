@@ -36,7 +36,11 @@ export default async function CheckoutSuccess(props: {
   const back = checkoutReturn(lng, search)
   // The request's cached session (only signed-in users, not MCP API keys),
   // read together with the translations.
-  const [{ t }, { payload, user }] = await Promise.all([getT('checkout'), getSession()])
+  const session = getSession()
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('checkout')
+  const { payload, user } = await session
   const reference = sessionId ? t('Payment reference {{id}}', { id: sessionId }) : undefined
 
   if (!user) {

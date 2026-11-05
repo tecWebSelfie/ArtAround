@@ -1,5 +1,6 @@
 {
   "About the object": "Om genstanden",
+  "All rights reserved": "Alle rettigheder forbeholdes",
   "Easy": "Let",
   "For children": "For børn",
   "Hard": "Svær",
@@ -8,11 +9,10 @@
   "Medium": "Mellem",
   "More about this object": "Mere om denne genstand",
   "Pictures": "Billeder",
+  "Private": "Privat",
   "Rated {{rating}} out of 5": "Vurderet {{rating}} ud af 5",
   "Sources": "Kilder",
   "Unlocked": "Låst op",
   "View the object": "Se genstanden",
-  "Written by": "Skrevet af",
-  "All rights reserved": "Alle rettigheder forbeholdes",
-  "Private": "Privat"
+  "Written by": "Skrevet af"
 }

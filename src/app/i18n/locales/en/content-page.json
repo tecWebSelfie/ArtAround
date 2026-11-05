@@ -1,5 +1,6 @@
 {
   "About the object": "About the object",
+  "All rights reserved": "All rights reserved",
   "Easy": "Easy",
   "For children": "For children",
   "Hard": "Hard",
@@ -8,11 +9,10 @@
   "Medium": "Medium",
   "More about this object": "More about this object",
   "Pictures": "Pictures",
+  "Private": "Private",
   "Rated {{rating}} out of 5": "Rated {{rating}} out of 5",
   "Sources": "Sources",
   "Unlocked": "Unlocked",
   "View the object": "View the object",
-  "Written by": "Written by",
-  "All rights reserved": "All rights reserved",
-  "Private": "Private"
+  "Written by": "Written by"
 }

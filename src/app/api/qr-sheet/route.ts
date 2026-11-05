@@ -53,7 +53,11 @@ export async function GET(request: NextRequest) {
   const locale = normalizeLocale(lng) ?? 'en'
   // One session for the whole request: in a route handler `cache` does not
   // dedupe, and every `getSession` is an auth round-trip.
-  const [{ payload, user }, { t }] = await Promise.all([getSession(), getT('common', { lng })])
+  const session = getSession()
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('common', { lng })
+  const { payload, user } = await session
   const viewer = { user, overrideAccess: false } as const
   const origin = request.nextUrl.origin
   const hint = t('Scan with your phone camera to open it in ArtAround.')

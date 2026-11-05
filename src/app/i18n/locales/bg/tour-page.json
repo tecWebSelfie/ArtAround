@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} пеша",
   "{{duration}} of reading": "{{duration}} четене",
   "About {{duration}}": "Около {{duration}}",
+  "Before you go": "Преди да тръгнете",
   "Buy all for {{price}}": "Купи всичко за {{price}}",
   "By {{name}}": "От {{name}}",
   "Customize tour": "Персонализирай обиколката",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Завършва с тест",
   "Hard": "Трудно",
   "Medium": "Средно",
+  "Private": "Лично",
   "Quiz": "Тест",
   "Rated {{rating}} out of 5": "Оценка {{rating}} от 5",
   "Replace the paid contents": "Замени платените съдържания",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Провери какво помниш след последната спирка",
   "The stops": "Спирките",
   "Unlock for {{price}}": "Отключи за {{price}}",
-  "Unlock this tour": "Отключи тази обиколка",
-  "Private": "Лично"
+  "Unlock this tour": "Отключи тази обиколка"
 }

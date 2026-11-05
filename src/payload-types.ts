@@ -1037,6 +1037,7 @@ export interface Content {
   }
   author?: (string | null) | User
   attachToObject?: string | null
+  attachToSubject?: string | null
   lfrs?: {
     favouritesCount?: number | null
     ratingsCount?: number | null
@@ -2253,6 +2254,23 @@ export interface Tour {
     [k: string]: unknown
   } | null
   description?: string | null
+  /**
+   * Practical information for the visit: entrance, tickets, cloakroom, opening hours.
+   */
+  logistics?: string | null
+  /**
+   * How to reach a stop from the previous one (from the entrance for the first).
+   */
+  directions?:
+    | {
+        content: string | Content
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
+        text: string
+        id?: string | null
+      }[]
+    | null
   contents: (string | Content)[]
   thumbnail?: (string | null) | ToursThumbnail
   museum: string | Museum
@@ -4422,6 +4440,7 @@ export interface ContentsSelect<T extends boolean = true> {
   variants?: T
   author?: T
   attachToObject?: T
+  attachToSubject?: T
   lfrs?:
     | T
     | {
@@ -4538,6 +4557,14 @@ export interface ToursSelect<T extends boolean = true> {
   visibility?: T
   body?: T
   description?: T
+  logistics?: T
+  directions?:
+    | T
+    | {
+        content?: T
+        text?: T
+        id?: T
+      }
   contents?: T
   thumbnail?: T
   museum?: T

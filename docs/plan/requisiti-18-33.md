@@ -180,6 +180,28 @@ Già decise:
     staff per il modello 3D, non per gli item. Test: `tests/int/no-ai-labels.int.spec.ts`
     (nessun testo inglese rivolto ai visitatori nomina AI, generazione o LLM).
 
+- [x] **11. Correzioni dopo la revisione della PR (escluso il marketplace)**
+  - Ospiti di gruppo: le regole di accesso leggono il cookie del gruppo dalla
+    richiesta Next quando una lettura Local API non ha header
+    (`groupCookie` in `src/lib/visibility.ts`).
+  - Navigazione del museo: i tour si leggono come il visitatore, i tour privati
+    restano nascosti.
+  - Un contenuto non diventa privato se un tour pubblico del suo autore lo usa.
+  - Comandi vocali: "dov'è la toilette", "dov'è lo shop"; le parole di cortesia
+    si tolgono solo ai bordi della frase; "Cos'è questo" ripiega sull'opera
+    guardata o sulla tappa corrente; gli ospiti di gruppo possono chiedere
+    cos'è, l'autore e lo stile.
+  - "Ascolta" smette di attendere l'audio quando la finestra si chiude.
+  - Indicazioni logistiche: `tours.logistics` (informazioni pratiche) e
+    `tours.directions` (come raggiungere ogni tappa), in editor, pagina del
+    tour e navigazione (`src/lib/tour-logistics.ts`).
+  - Seed: 4 tour diversi per livello (generale con quiz, per esperti, Seicento,
+    famiglie), più item per la stessa opera, indicazioni logistiche.
+  - Item su artisti, stili ed eventi: `/content/new?subject=`, campo virtuale
+    `attachToSubject`, pulsante sulla pagina del soggetto.
+  - Prova: `tests/int/visibility`, `voice-vocabulary`, `tour-logistics`,
+    `demo-museum-seed`; `pnpm seed:demo`; pagine verificate nel browser.
+
 ## Fuori dal piano
 
 - [x] **Suite d'integrazione completa: 10 test rossi preesistenti**
@@ -196,8 +218,6 @@ Già decise:
 
 ## Rimandati
 
-- Indicazioni logistiche della visita (ingresso, biglietti, orari, note per
-  tappa): prossima iterazione.
 - Orientamento del dispositivo e scelta tra opere candidate: prossima iterazione.
 - "Plan my visit" e il suo campo libero "interessi": prossima iterazione.
 - `README.txt` e cartella `sources`: li preparano gli autori del progetto.

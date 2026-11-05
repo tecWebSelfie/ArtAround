@@ -13,6 +13,7 @@
   "{{distance}} on foot": "{{distance}} pěšky",
   "{{duration}} of reading": "{{duration}} čtení",
   "About {{duration}}": "Asi {{duration}}",
+  "Before you go": "Než vyrazíte",
   "Buy all for {{price}}": "Koupit vše za {{price}}",
   "By {{name}}": "Autor: {{name}}",
   "Customize tour": "Přizpůsobit prohlídku",
@@ -21,6 +22,7 @@
   "Ends with a quiz": "Končí kvízem",
   "Hard": "Těžké",
   "Medium": "Střední",
+  "Private": "Soukromé",
   "Quiz": "Kvíz",
   "Rated {{rating}} out of 5": "Hodnocení {{rating}} z 5",
   "Replace the paid contents": "Nahradit placené obsahy",
@@ -31,6 +33,5 @@
   "Test what you remember after the last stop": "Po poslední zastávce si ověř, co sis zapamatoval",
   "The stops": "Zastávky",
   "Unlock for {{price}}": "Odemknout za {{price}}",
-  "Unlock this tour": "Odemknout tuto prohlídku",
-  "Private": "Soukromé"
+  "Unlock this tour": "Odemknout tuto prohlídku"
 }

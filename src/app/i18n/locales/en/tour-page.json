@@ -6,6 +6,7 @@
   "{{distance}} on foot": "{{distance}} on foot",
   "{{duration}} of reading": "{{duration}} of reading",
   "About {{duration}}": "About {{duration}}",
+  "Before you go": "Before you go",
   "Buy all for {{price}}": "Buy all for {{price}}",
   "By {{name}}": "By {{name}}",
   "Customize tour": "Customize tour",
@@ -14,6 +15,7 @@
   "Ends with a quiz": "Ends with a quiz",
   "Hard": "Hard",
   "Medium": "Medium",
+  "Private": "Private",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Rated {{rating}} out of 5",
   "Replace the paid contents": "Replace the paid contents",
@@ -24,6 +26,5 @@
   "Test what you remember after the last stop": "Test what you remember after the last stop",
   "The stops": "The stops",
   "Unlock for {{price}}": "Unlock for {{price}}",
-  "Unlock this tour": "Unlock this tour",
-  "Private": "Private"
+  "Unlock this tour": "Unlock this tour"
 }

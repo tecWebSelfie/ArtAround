@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} til fods",
   "{{duration}} of reading": "{{duration}} læsning",
   "About {{duration}}": "Cirka {{duration}}",
+  "Before you go": "Før du går",
   "Buy all for {{price}}": "Køb alt for {{price}}",
   "By {{name}}": "Af {{name}}",
   "Customize tour": "Tilpas tur",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Slutter med en quiz",
   "Hard": "Svær",
   "Medium": "Mellem",
+  "Private": "Privat",
   "Quiz": "Quiz",
   "Rated {{rating}} out of 5": "Bedømt {{rating}} ud af 5",
   "Replace the paid contents": "Udskift det betalte indhold",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Test, hvad du husker, efter sidste stop",
   "The stops": "Stoppene",
   "Unlock for {{price}}": "Lås op for {{price}}",
-  "Unlock this tour": "Lås turen op",
-  "Private": "Privat"
+  "Unlock this tour": "Lås turen op"
 }

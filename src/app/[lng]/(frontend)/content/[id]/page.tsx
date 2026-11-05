@@ -202,20 +202,22 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   const { lng, id } = await params
   const content = await getLocalizedPageDocument('contents', id, lng)
   const locked = isLocked(content)
-  const [canEdit, canDelete, navigationHref, details, { t }, { t: tn }, { printMuseumId, offer }] =
-    await Promise.all([
-      can('contents', id, 'update'),
-      can('contents', id, 'delete'),
-      // The museum map with this content open and its object as destination;
-      // not offered while the content is locked (buying it comes first).
-      locked ? null : contentNavigationEntry(lng, id),
-      loadContentDetails(content, id, lng),
-      getT('editing'),
-      getT('tour-navigation'),
-      // Its museum's staff print its QR code; opened from outside the app, the
-      // museum's own app is offered.
-      museumAffordances('content', id),
-    ])
+  const reads = Promise.all([
+    can('contents', id, 'update'),
+    can('contents', id, 'delete'),
+    // The museum map with this content open and its object as destination;
+    // not offered while the content is locked (buying it comes first).
+    locked ? null : contentNavigationEntry(lng, id),
+    loadContentDetails(content, id, lng),
+    // Its museum's staff print its QR code; opened from outside the app, the
+    // museum's own app is offered.
+    museumAffordances('content', id),
+  ])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('editing')
+  const { t: tn } = await getT('tour-navigation')
+  const [canEdit, canDelete, navigationHref, details, { printMuseumId, offer }] = await reads
 
   // The cover pictures: the content's own, else its object's photo (the piece
   // the text is about); with neither, the content teal stands in.

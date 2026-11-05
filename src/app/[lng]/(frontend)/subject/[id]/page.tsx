@@ -1,10 +1,11 @@
 import { getT } from '@/i18n.server'
 import { normalizeLocale } from '@/lib/localized'
-import { getSession } from '@/lib/session'
+import { asViewer, getSession } from '@/lib/session'
+import { LinkButton } from '@/components/editing/LinkButton'
 import { wikidataUrl } from '@/lib/wikidata'
 import type { Content } from '@/payload-types'
-import { Anchor, Badge, Container, List, ListItem, Stack, Text, Title } from '@mantine/core'
-import { ExternalLink } from 'lucide-react'
+import { Anchor, Badge, Container, Group, List, ListItem, Stack, Text, Title } from '@mantine/core'
+import { ExternalLink, FilePlus } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
@@ -16,16 +17,19 @@ import type { ReactNode } from 'react'
  * author and movement (object details) and from the "who's the author?" and
  * "what style is it?" commands. It shows the subject's description, the
  * collection's works linked to it and the contents written about it, with a
- * link to its Wikidata item, the universal identifier behind it.
+ * link to its Wikidata item, the universal identifier behind it. Signed-in
+ * visitors can write a new content about it (`/content/new?subject=`).
  */
 export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/[id]'>) {
   const { lng, id } = await params
   const locale = normalizeLocale(lng) ?? 'en'
-  const { payload } = await getSession()
+  const { payload, user } = await getSession()
+  // As the visitor: a private content about the subject stays hidden from
+  // everyone but its author and group guests (`src/lib/visibility.ts`).
+  const viewer = await asViewer()
   // The subject, its works and the labels only need the id: read them
   // together (a missing subject just discards the works query).
-  const [{ t }, subject, works] = await Promise.all([
-    getT('object-details'),
+  const reads = Promise.all([
     payload
       .findByID({
         collection: 'subjects',
@@ -33,6 +37,7 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
         locale,
         depth: 1,
         populate: { contents: { title: true } },
+        ...viewer,
       })
       .catch(() => null),
     payload.find({
@@ -50,6 +55,10 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
       select: { name: true, dating: true },
     }),
   ])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT('object-details')
+  const [subject, works] = await reads
   if (!subject) notFound()
   const contents = (subject.contents ?? []).filter(
     (content): content is Content => typeof content === 'object',
@@ -101,6 +110,17 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
               </ListItem>
             ))}
           </Section>
+        )}
+        {user && (
+          <Group>
+            <LinkButton
+              href={`/${lng}/content/new?subject=${id}` as Route}
+              variant="light"
+              leftSection={<FilePlus size={16} aria-hidden />}
+            >
+              {t('Write a content about it')}
+            </LinkButton>
+          </Group>
         )}
       </Stack>
     </Container>

@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} gyalog",
   "{{duration}} of reading": "{{duration}} olvasás",
   "About {{duration}}": "Kb. {{duration}}",
+  "Before you go": "Mielőtt elindul",
   "Buy all for {{price}}": "Az összes megvásárlása: {{price}}",
   "By {{name}}": "Készítette: {{name}}",
   "Customize tour": "Túra testreszabása",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Kvízzel zárul",
   "Hard": "Nehéz",
   "Medium": "Közepes",
+  "Private": "Privát",
   "Quiz": "Kvíz",
   "Rated {{rating}} out of 5": "Értékelés: {{rating}}/5",
   "Replace the paid contents": "Fizetős tartalmak cseréje",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Az utolsó megálló után tedd próbára, mire emlékszel",
   "The stops": "A megállók",
   "Unlock for {{price}}": "Feloldás: {{price}}",
-  "Unlock this tour": "Túra feloldása",
-  "Private": "Privát"
+  "Unlock this tour": "Túra feloldása"
 }

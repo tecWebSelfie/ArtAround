@@ -9,6 +9,7 @@
   "{{distance}} on foot": "{{distance}} kävellen",
   "{{duration}} of reading": "{{duration}} lukemista",
   "About {{duration}}": "Noin {{duration}}",
+  "Before you go": "Ennen kuin lähdet",
   "Buy all for {{price}}": "Osta kaikki hintaan {{price}}",
   "By {{name}}": "Tekijä: {{name}}",
   "Customize tour": "Muokkaa kierrosta itsellesi",
@@ -17,6 +18,7 @@
   "Ends with a quiz": "Päättyy tietovisaan",
   "Hard": "Vaikea",
   "Medium": "Keskitaso",
+  "Private": "Yksityinen",
   "Quiz": "Tietovisa",
   "Rated {{rating}} out of 5": "Arvio {{rating}}/5",
   "Replace the paid contents": "Vaihda maksulliset sisällöt",
@@ -27,6 +29,5 @@
   "Test what you remember after the last stop": "Testaa viimeisen kohteen jälkeen, mitä muistat",
   "The stops": "Kohteet",
   "Unlock for {{price}}": "Avaa hintaan {{price}}",
-  "Unlock this tour": "Avaa tämä kierros",
-  "Private": "Yksityinen"
+  "Unlock this tour": "Avaa tämä kierros"
 }

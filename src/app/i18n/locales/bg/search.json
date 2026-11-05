@@ -18,9 +18,9 @@
   "Filter visits…": "Филтрирай посещенията…",
   "Hard": "Трудно",
   "In the tour": "В обиколката",
+  "Length in seconds": "Продължителност в секунди",
   "Look for the next tour": "Потърси следващата обиколка",
   "Medium": "Средно",
-  "min read": "мин четене",
   "Museum": "Музей",
   "Name": "Име",
   "No contents found": "Няма намерени съдържания",
@@ -41,6 +41,5 @@
   "Tour": "Обиколка",
   "Tours made by": "Обиколки, създадени от",
   "View details": "Виж подробности",
-  "Write a new content": "Напиши ново съдържание",
-  "Length in seconds": "Продължителност в секунди"
+  "Write a new content": "Напиши ново съдържание"
 }

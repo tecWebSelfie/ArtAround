@@ -2,8 +2,9 @@
  * Seeds the project's demo museum, the real Pinacoteca Nazionale di Bologna
  * the course specification asks for: the 11-room map from
  * `createRealisticMuseumMap` with 16 placed works, their contents (one paid,
- * some for children) written by the `autore1`/`autore2` accounts, three tours
- * of at least ten works (one with a quiz) and both navmeshes. Data lives in
+ * some for children) written by the `autore1`/`autore2` accounts, four tours
+ * with their logistic directions (three of at least ten works, one with a
+ * quiz, and a family tour) and both navmeshes. Data lives in
  * `demo-museum-data.ts`; the required accounts in `src/seed-accounts.ts`.
  *
  *   pnpm seed:demo
@@ -106,6 +107,8 @@ function routeLength(mesh: NavMesh, stops: Vec3[]) {
   let total = 0
   const points = [ENTRANCE, ...stops]
   for (let index = 1; index < points.length; index++) {
+    // Two items on the same work: the visitor doesn't move.
+    if (points[index - 1]!.every((value, axis) => value === points[index]![axis])) continue
     const path = museumNavigationPath(mesh, points[index - 1]!, points[index]!)
     if (!path) return { failedLeg: index }
     for (let step = 1; step < path.length; step++) {
@@ -374,6 +377,13 @@ for (const tour of TOURS) {
       // Tours have no `bodyHTML` input (contents and museums do).
       body: convertHTMLToLexical({ editorConfig, JSDOM, html: tour.bodyHTML }),
       contents: tour.stops.map((title) => contentIdByTitle.get(title)!),
+      // Logistic directions: the visit's practical information, and how to
+      // reach each stop (`src/lib/tour-logistics.ts`).
+      logistics: tour.logistics,
+      directions: Object.entries(tour.directions).map(([title, text]) => ({
+        content: contentIdByTitle.get(title)!,
+        text,
+      })),
       museum: museum.id,
       // Tours are curated by the first author account.
       author: authorId('autore1'),

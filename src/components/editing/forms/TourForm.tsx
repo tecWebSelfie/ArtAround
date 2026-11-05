@@ -14,6 +14,7 @@ import {
   Select,
   Stack,
   Text,
+  Textarea,
   TextInput,
   Timeline,
   TimelineItem,
@@ -57,6 +58,10 @@ type TourValues = {
   contents: string[]
   /** Private: a class visit (src/lib/visibility.ts). */
   visibility: 'public' | 'private'
+  /** The visit's practical information (src/lib/tour-logistics.ts). */
+  logistics: string
+  /** Per stop (content id): how to reach it from the previous one. */
+  directions: Record<string, string>
 }
 
 /**
@@ -80,6 +85,8 @@ function SortableStop({
   last,
   onMove,
   onRemove,
+  directions,
+  onDirectionsChange,
   ...timelineProps
 }: Omit<TimelineItemProps, 'content'> & {
   id: string
@@ -90,6 +97,9 @@ function SortableStop({
   last: boolean
   onMove: (delta: number) => void
   onRemove: () => void
+  /** How to reach this stop: a logistic direction, not part of the content. */
+  directions: string
+  onDirectionsChange: (value: string) => void
 }) {
   const { t } = useTranslation('editing')
   const { ref, handleRef, isDragging } = useSortable({ id, index })
@@ -151,6 +161,21 @@ function SortableStop({
           </ActionIcon>
         </Group>
       </Group>
+      <Textarea
+        mt="xs"
+        size="xs"
+        autosize
+        minRows={1}
+        maxLength={500}
+        label={
+          first
+            ? t('How to get here from the entrance')
+            : t('How to get here from the previous stop')
+        }
+        placeholder={t('For example, continue left of the stairs towards room 12')}
+        value={directions}
+        onChange={(event) => onDirectionsChange(event.currentTarget.value)}
+      />
     </TimelineItem>
   )
 }
@@ -203,6 +228,8 @@ export function TourForm({
       title: initial?.title ?? '',
       description: initial?.description ?? '',
       visibility: initial?.visibility ?? 'public',
+      logistics: initial?.logistics ?? '',
+      directions: initial?.directions ?? {},
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
       // so they stay listed instead of disappearing on save.
       contents: initial?.contents ?? [],
@@ -230,7 +257,8 @@ export function TourForm({
     } catch {
       // Storage blocked (private mode): start from the saved tour instead.
     }
-    const base = draft ?? form.getValues()
+    // A draft saved before a field existed lacks it: the current values fill it in.
+    const base = { ...form.getValues(), ...draft }
     const added = searchParams.get(ADD_PARAM)
     const contents = base.contents.filter((id) => byId.has(id))
     if (added && byId.has(added) && !contents.includes(added)) contents.push(added)
@@ -266,6 +294,12 @@ export function TourForm({
         title,
         description: values.description.trim() || null,
         visibility: values.visibility,
+        logistics: values.logistics.trim() || null,
+        // One row per stop with a note, in visiting order.
+        directions: values.contents.flatMap((content) => {
+          const text = values.directions[content]?.trim()
+          return text ? [{ content, text }] : []
+        }),
         contents: values.contents,
         museum: museum.id,
         thumbnail: await saveCover(cover, thumbnail, 'toursThumbnails', title),
@@ -305,6 +339,15 @@ export function TourForm({
           kind="tour"
           value={form.values.visibility}
           onChange={(value) => form.setFieldValue('visibility', value)}
+        />
+        {/* Logistic directions: not a stop, not part of one (src/lib/tour-logistics.ts). */}
+        <Textarea
+          label={t('Practical information')}
+          description={t('Entrance, tickets, cloakroom: what visitors read before the first stop.')}
+          autosize
+          minRows={2}
+          maxLength={1000}
+          {...form.getInputProps('logistics')}
         />
 
         <Stack gap="xs">
@@ -367,6 +410,13 @@ export function TourForm({
                     first={index === 0}
                     last={index === selected.length - 1}
                     onMove={(delta) => move(index, delta)}
+                    directions={form.values.directions[id] ?? ''}
+                    onDirectionsChange={(value) =>
+                      form.setFieldValue('directions', {
+                        ...form.values.directions,
+                        [id]: value,
+                      })
+                    }
                     onRemove={() =>
                       form.setFieldValue(
                         'contents',
