@@ -106,6 +106,41 @@ Mantine static style props are inline styles, so a property a Tailwind
 variant overrides must be set with Tailwind too. Avoid CSS modules unless
 neither fits.
 
+## Design with Impeccable (`.claude/skills/impeccable/`)
+
+Use it for every UI change, asked or not: PRODUCT.md and DESIGN.md hold the
+design decisions, and UI written without them drifts from them.
+
+- **Context, once per session:** `.claude/skills/impeccable/scripts/impeccable
+context --target <file>` loads PRODUCT.md, DESIGN.md and the surface brief.
+  DESIGN.md is long: grep the section of the component you touch and its
+  **Named Rules** instead of reading it whole.
+- **Before editing UI:** read `reference/craft-floor.md`, plus
+  `reference/<command>.md` for a named command. One command, one narrow target.
+- **Reuse the incumbent pattern** for the same job before inventing one. For
+  example, a labelled choice is an `Input.Wrapper` like `VisibilityInput`.
+- **Which command:**
+  - `shape`: plan a new surface;
+  - `critique` (UX) and `audit` (a11y, performance, responsive): review;
+  - `clarify` (copy), `harden` (errors, i18n, edge cases), `adapt` (sizes),
+    `layout` and `polish` (final pass): fix;
+  - when pushing a UI change, see Checks: `extract`, then `document`. A new
+    pattern gets its DESIGN.md section, and a Named Rule if it sets one.
+- **Verify by looking:** screenshot the real page with Playwright on a phone
+  (Pixel 7) and on desktop, in dark mode too if it changed. Fix everything one
+  look shows before looking again.
+- **Detector:** a hook in `.claude/settings.json` runs it after every UI file
+  edit; act on its findings. On files it only matches regexes, so check
+  contrast and tiny text on the rendered page:
+  `.claude/skills/impeccable/scripts/impeccable detect http://localhost:3000/en/<page>`
+  (exit code 2 means findings). It needs a Chromium. In a cloud session, as
+  root, point `IMPECCABLE_BROWSER` at a two-line script that runs
+  `/opt/pw-browsers/chromium-*/chrome-linux64/chrome --no-sandbox "$@"`.
+  Silence a deliberate finding with `impeccable ignores` or an inline
+  `impeccable-disable` comment that gives the reason.
+- Don't repair `CONTEXT_STALE` drift as a side effect: report it (`/impeccable
+doctor` fixes it when asked). `live` mode is for a local checkout only.
+
 ## Cloud preview (`scripts/cloud-preview.sh`)
 
 In a Claude Code cloud session, the user tries the app from their own devices
