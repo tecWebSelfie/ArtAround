@@ -18,6 +18,9 @@ function request({ memberships = [] as { museum: string; role: string }[] } = {}
   }
 }
 
+/** One membership in museum `m1` with `role`, or none for a plain user. */
+const staff = (role: string | null) => (role ? [{ museum: 'm1', role }] : [])
+
 function access(operation: 'read' | 'create' | 'update' | 'delete', req: unknown) {
   return Objects.access![operation]!({ req: req as PayloadRequest, id: 'object' })
 }
@@ -39,14 +42,12 @@ describe('objects access with per-museum roles', () => {
   })
 
   // Per-museum roles (docs/permissions-and-editing.md), no longer the RBAC grants.
-  it('lets museum staff create objects, and nobody else', async () => {
-    expect(
-      await access('create', request({ memberships: [{ museum: 'm1', role: 'curator' }] })),
-    ).toBe(true)
-    expect(
-      await access('create', request({ memberships: [{ museum: 'm1', role: 'verified' }] })),
-    ).toBe(false)
-    expect(await access('create', request())).toBe(false)
+  it.each([
+    ['curator', true],
+    ['verified', false],
+    [null, false],
+  ] as const)('creating objects as %s: %s', async (role, allowed) => {
+    expect(await access('create', request({ memberships: staff(role) }))).toBe(allowed)
   })
 
   it('lets only the owner update an object, through a query on createdBy', async () => {
@@ -54,9 +55,7 @@ describe('objects access with per-museum roles', () => {
   })
 
   it('keeps deletion to super admins, even for museum staff', async () => {
-    expect(
-      await access('delete', request({ memberships: [{ museum: 'm1', role: 'director' }] })),
-    ).toBe(false)
+    expect(await access('delete', request({ memberships: staff('director') }))).toBe(false)
   })
 
   it.each(['create', 'update', 'delete'] as const)(

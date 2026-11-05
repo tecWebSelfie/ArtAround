@@ -1,5 +1,3 @@
-// @vitest-environment node
-// Server code only: `jose` must load its Node build, as in the app's routes.
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { CollectionBeforeChangeHook, PayloadRequest } from 'payload'
 

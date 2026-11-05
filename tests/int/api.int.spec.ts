@@ -1,5 +1,3 @@
-// @vitest-environment node
-// Boots the real Payload config (Mongo, OpenAI-compatible clients): Node only.
 import { getPayload, Payload } from 'payload'
 import config from '@/payload.config'
 

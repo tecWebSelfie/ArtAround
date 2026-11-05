@@ -14,7 +14,10 @@ export default defineConfig({
     projects: [{
       extends: true,
       test: {
-        environment: 'jsdom',
+        // Integration specs exercise server code (Payload, jose, route handlers)
+        // and none touches the DOM: under jsdom those libraries load their
+        // browser builds and fail. A DOM spec opts in with `@vitest-environment jsdom`.
+        environment: 'node',
         setupFiles: ['./vitest.setup.ts'],
         include: ['tests/int/**/*.int.spec.{ts,tsx}']
       }

@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { ContentVariants } from '@/collections/ContentVariants'
 
 /**
  * Requirement 10 of `docs/plan/requisiti-18-33.md` (course constraint): the
@@ -34,8 +35,7 @@ describe('no AI wording in visitor-facing copy', () => {
     expect(copy.filter((text) => AI_WORDING.test(text))).toEqual([])
   })
 
-  it('keeps generation in content metadata only', async () => {
-    const { ContentVariants } = await import('@/collections/ContentVariants')
+  it('keeps generation in content metadata only', () => {
     const generation = ContentVariants.fields.find(
       (field) => 'name' in field && field.name === 'generation',
     )
