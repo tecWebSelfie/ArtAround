@@ -14,23 +14,27 @@ import { PlanVisitPage } from './PlanVisitPage'
  */
 export default async function PlanVisit({ params }: PageProps<'/[lng]/tour/plan'>) {
   const { lng } = await params
-  const museumsRead = getSession().then(({ payload }) =>
+  const lockedRead = lockedMuseumId()
+  // In museum mode only the locked museum is needed (its name for the intro).
+  const museumsRead = Promise.all([getSession(), lockedRead]).then(([{ payload }, locked]) =>
     payload.find({
       collection: 'museums',
       limit: 200,
       depth: 0,
       locale: normalizeLocale(lng) ?? 'en',
-      select: { name: true, location: true },
+      select: { name: true, location: { city: true } },
       sort: 'name',
+      ...(locked ? { where: { id: { equals: locked } } } : {}),
     }),
   )
-  const [{ docs }, lockedMuseum] = await Promise.all([museumsRead, lockedMuseumId()])
+  const [{ docs }, lockedMuseum] = await Promise.all([museumsRead, lockedRead])
   return (
     <PlanVisitPage
       museums={docs.map((museum) => ({
         value: museum.id,
         name: museum.name,
-        city: museum.location?.city ?? null,
+        // The city tells same-named museums apart in the Select.
+        label: museum.location?.city ? `${museum.name}, ${museum.location.city}` : museum.name,
       }))}
       lockedMuseum={lockedMuseum}
     />

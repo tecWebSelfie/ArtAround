@@ -42,7 +42,8 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useMounted } from '@mantine/hooks'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -66,7 +67,8 @@ import { useTranslation } from 'react-i18next'
  *   children's versions the answers asked for.
  */
 
-type Museum = { value: string; name: string; city: string | null }
+/** `label` is "Name, City" for the Select; `name` alone names it in copy. */
+type Museum = { value: string; label: string; name: string }
 
 /** The form's answers, as kept in state and in sessionStorage. */
 type Answers = {
@@ -95,6 +97,16 @@ const STORAGE_KEY = 'aa-plan-visit'
 type Stored = { answers: Answers; plan: PlannedTour | null }
 
 const MAX_CHILDREN = 10
+
+/** Props of every count field: whole numbers in range, a numeric keypad, no steppers. */
+const COUNT_INPUT = {
+  size: 'md',
+  allowDecimal: false,
+  allowNegative: false,
+  clampBehavior: 'strict',
+  hideControls: true,
+  inputMode: 'numeric',
+} as const
 
 // Mantine's light `dimmed` (gray.6) is 3.3:1 on white; on this form it
 // carries the help that explains each choice, so it uses gray.7 (AA) here.
@@ -143,8 +155,8 @@ function useDictation(onText: (text: string) => void) {
           const form = new FormData()
           form.append('audio', new Blob(chunks, { type: media.mimeType }), 'interests.webm')
           const response = await fetch('/api/transcribe', { method: 'POST', body: form })
-          const { text } = (await response.json()) as { text?: string }
           if (!response.ok) throw new Error('transcription')
+          const { text } = (await response.json()) as { text?: string }
           if (text) onText(text)
         } catch {
           setError('transcription')
@@ -170,20 +182,16 @@ type PlanVisitProps = {
   lockedMuseum: string | null
 }
 
-const noSubscribe = () => () => {}
-
 /**
  * sessionStorage exists only in the browser: the server (and hydration)
- * render the default answers, then the form remounts once with what this tab
- * stored, read in its state initializers rather than set from an effect.
+ * render the default answers; once mounted, the form remounts with what this
+ * tab stored (read in its state initializers rather than set from an effect),
+ * and only when something is stored, so a first visit mounts once.
  */
 export function PlanVisitPage(props: PlanVisitProps) {
-  const hydrated = useSyncExternalStore(
-    noSubscribe,
-    () => true,
-    () => false,
-  )
-  return <PlanVisit key={hydrated ? 'browser' : 'server'} restored={hydrated} {...props} />
+  const mounted = useMounted()
+  const hasStored = mounted && readStored() !== null
+  return <PlanVisit key={hasStored ? 'stored' : 'default'} restored={mounted} {...props} />
 }
 
 function PlanVisit({
@@ -249,7 +257,7 @@ function PlanVisit({
     if (showPreview) previewHeading.current?.focus()
   }, [showPreview])
 
-  const lockedName = lockedMuseum ? museums.find((m) => m.value === lockedMuseum)?.name : null
+  // In museum mode `answers.museumId` is the locked museum.
   const chosenName = museums.find((m) => m.value === answers.museumId)?.name ?? null
   const ages = answers.childrenAges.filter((age): age is number => age !== '')
 
@@ -259,6 +267,12 @@ function PlanVisit({
       childrenAges: Array.from({ length: count }, (_, i) => current.childrenAges[i] ?? ''),
       // Somebody has to come: without children, at least one adult.
       adults: count === 0 ? Math.max(current.adults, 1) : current.adults,
+    }))
+
+  const setAge = (index: number, age: number | '') =>
+    setAnswers((current) => ({
+      ...current,
+      childrenAges: current.childrenAges.map((old, i) => (i === index ? age : old)),
     }))
 
   const submit = async () => {
@@ -288,21 +302,21 @@ function PlanVisit({
       const json = (await response.json()) as PlannedTour & { error?: string }
       if (!response.ok) {
         // Each answer of the API gets its own problem and way out.
+        const messages: Record<string, string> = {
+          429: t('Too many visits planned in a short time. Try again in a minute.'),
+          400: t('Some answers could not be read. Check them and try again.'),
+          museum: t('Choose the museum, or name it in your interests.'),
+          empty: t('This museum has no free contents to visit yet.'),
+        }
         setError(
-          response.status === 429
-            ? t('Too many visits planned in a short time. Try again in a minute.')
-            : response.status === 400
-              ? t('Some answers could not be read. Check them and try again.')
-              : json.error === 'museum'
-                ? t('Choose the museum, or name it in your interests.')
-                : json.error === 'empty'
-                  ? t('This museum has no free contents to visit yet.')
-                  : t('The visit could not be planned right now. Try again in a minute.'),
+          messages[response.status] ??
+            messages[json.error ?? ''] ??
+            t('The visit could not be planned right now. Try again in a minute.'),
         )
         return
       }
+      // The storage effect saves it with the answers.
       setPlan(json)
-      writeStored({ answers, plan: json })
       // A history entry of its own: Back from the preview is "Change".
       window.history.pushState(null, '', `${pathname}?tour=${json.id}`)
       pushedPreview.current = true
@@ -446,12 +460,19 @@ function PlanVisit({
     .filter(Boolean)
     .join(' · ')
 
-  const dictationHelp =
-    dictation.state === 'recording'
-      ? t('Listening… Tap the square to stop.')
-      : dictation.state === 'transcribing'
-        ? t('Writing down your words…')
-        : null
+  const recording = dictation.state === 'recording'
+  const dictateLabel = recording ? t('Stop dictating') : t('Dictate')
+  const dictationHelp = {
+    idle: null,
+    recording: t('Listening… Tap the square to stop.'),
+    transcribing: t('Writing down your words…'),
+  }[dictation.state]
+  const dictationError =
+    dictation.error &&
+    {
+      microphone: t('The microphone is not available. You can type instead.'),
+      transcription: t('Dictation did not work. Try again, or type instead.'),
+    }[dictation.error]
 
   return (
     <Container size="xs" py="xl" className={READABLE_DIMMED}>
@@ -466,9 +487,9 @@ function PlanVisit({
           <Stack gap="xs">
             <Title order={1}>{t('Plan my visit')}</Title>
             <Text c="dimmed">
-              {lockedName
+              {lockedMuseum && chosenName
                 ? t('Tell us about your visit to {{museum}} and we will choose the stops.', {
-                    museum: lockedName,
+                    museum: chosenName,
                   })
                 : t('Tell us about your visit and we will choose the stops.')}
             </Text>
@@ -481,10 +502,7 @@ function PlanVisit({
                   size="md"
                   label={t('Museum')}
                   description={t('Pick one from the list, or name it in your interests.')}
-                  data={museums.map((museum) => ({
-                    value: museum.value,
-                    label: museum.city ? `${museum.name}, ${museum.city}` : museum.name,
-                  }))}
+                  data={museums}
                   value={answers.museumId}
                   onChange={(value) => update('museumId', value)}
                   searchable
@@ -521,30 +539,22 @@ function PlanVisit({
                   maxLength={500}
                   value={answers.interests}
                   onChange={(event) => update('interests', event.currentTarget.value)}
-                  error={
-                    dictation.error === 'microphone'
-                      ? t('The microphone is not available. You can type instead.')
-                      : dictation.error === 'transcription'
-                        ? t('Dictation did not work. Try again, or type instead.')
-                        : undefined
-                  }
+                  error={dictationError}
                   rightSectionWidth={52}
                   rightSection={
                     <ActionIcon
                       size="xl"
-                      variant={dictation.state === 'recording' ? 'filled' : 'subtle'}
-                      color={dictation.state === 'recording' ? 'red' : undefined}
+                      variant={recording ? 'filled' : 'subtle'}
+                      color={recording ? 'red' : undefined}
                       radius="xl"
-                      aria-label={
-                        dictation.state === 'recording' ? t('Stop dictating') : t('Dictate')
-                      }
-                      title={dictation.state === 'recording' ? t('Stop dictating') : t('Dictate')}
+                      aria-label={dictateLabel}
+                      title={dictateLabel}
                       onClick={() => void dictation.toggle()}
                       disabled={dictation.state === 'transcribing'}
                     >
                       {dictation.state === 'transcribing' ? (
                         <Loader size={16} />
-                      ) : dictation.state === 'recording' ? (
+                      ) : recording ? (
                         <Square size={16} />
                       ) : (
                         <Mic size={20} />
@@ -613,15 +623,10 @@ function PlanVisit({
                     </Stack>
                     <SimpleGrid cols={2} spacing="md">
                       <NumberInput
-                        size="md"
+                        {...COUNT_INPUT}
                         label={t('Adults')}
                         min={answers.childrenAges.length ? 0 : 1}
                         max={30}
-                        allowDecimal={false}
-                        allowNegative={false}
-                        clampBehavior="strict"
-                        hideControls
-                        inputMode="numeric"
                         value={answers.adults}
                         onChange={(value) =>
                           update('adults', typeof value === 'number' ? value : 0)
@@ -632,15 +637,10 @@ function PlanVisit({
                         }}
                       />
                       <NumberInput
-                        size="md"
+                        {...COUNT_INPUT}
                         label={t('Children')}
                         min={0}
                         max={MAX_CHILDREN}
-                        allowDecimal={false}
-                        allowNegative={false}
-                        clampBehavior="strict"
-                        hideControls
-                        inputMode="numeric"
                         value={answers.childrenAges.length}
                         onChange={(value) => setChildren(typeof value === 'number' ? value : 0)}
                       />
@@ -659,24 +659,14 @@ function PlanVisit({
                             <NumberInput
                               // Children are positional: the nth field is the nth child.
                               key={index}
-                              size="md"
+                              {...COUNT_INPUT}
                               aria-label={t('Age of child {{n}}', { n: index + 1 })}
                               min={0}
                               max={17}
-                              allowDecimal={false}
-                              allowNegative={false}
-                              clampBehavior="strict"
-                              hideControls
-                              inputMode="numeric"
                               value={age}
                               error={ageError && age === ''}
                               onChange={(value) =>
-                                setAnswers((current) => ({
-                                  ...current,
-                                  childrenAges: current.childrenAges.map((old, i) =>
-                                    i === index ? (typeof value === 'number' ? value : '') : old,
-                                  ),
-                                }))
+                                setAge(index, typeof value === 'number' ? value : '')
                               }
                             />
                           ))}
