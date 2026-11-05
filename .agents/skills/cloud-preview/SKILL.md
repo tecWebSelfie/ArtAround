@@ -6,11 +6,11 @@ description: Let the user try the app running in a Claude Code cloud session fro
 # Cloud preview
 
 `scripts/cloud-preview.sh` (`pnpm preview:cloud`) prepares Tailscale with
-HTTPS, MongoDB with a seeded database and the env files; do not rebuild the
-setup by hand. Background, tailnet setup and limits: `docs/cloud-preview.md`.
+HTTPS, MongoDB in Docker (`pnpm db:start`) with a seeded database and the env
+files; do not rebuild the setup by hand. Background, tailnet setup and limits: `docs/cloud-preview.md`.
 
 1. Run `pnpm preview:cloud` in the foreground (timeout ~10 minutes: the first
-   run downloads MongoDB and Tailscale and seeds the database).
+   run downloads the MongoDB image and Tailscale and seeds the database).
    - With `TS_AUTHKEY` in the environment it joins the tailnet by itself.
    - Without it, it prints a `login.tailscale.com` link and waits up to 5
      minutes: run it in the background, send the user the link, wait for the

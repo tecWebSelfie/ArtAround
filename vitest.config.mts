@@ -14,6 +14,9 @@ export default defineConfig({
     projects: [{
       extends: true,
       test: {
+        // `pnpm test:int` (`--project int`): without a name the project could
+        // not be selected, and the script ran the Storybook browser tests too.
+        name: 'int',
         // Integration specs exercise server code (Payload, jose, route handlers)
         // and none touches the DOM: under jsdom those libraries load their
         // browser builds and fail. A DOM spec opts in with `@vitest-environment jsdom`.

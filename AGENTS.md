@@ -13,6 +13,17 @@ for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-
 `web-design-guidelines` are **copied** there (`impeccable` has its own copy).
 After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/`.
 
+## Working with the maintainer
+
+- Commit and push freely to the branch the session works on. Ask first before
+  pushing to any other branch, merging, or opening a PR.
+- Never ask for secrets, keys or tokens in chat: they live in the
+  environment's variables or in `.env.local`.
+- Keep the git hooks on: no `--no-verify` or `HUSKY=0` unless the maintainer
+  asks for it.
+- Talk to the maintainer in Italian; code, comments, commits and docs stay in
+  English.
+
 ## Museum editor and tour navigation
 
 Use these guides as starting points for implementation and debugging:
@@ -103,6 +114,14 @@ then `pnpm dev`). [Cloud preview](docs/cloud-preview.md) covers why Tailscale,
 the one-time tailnet setup (tag, access rules, `TS_AUTHKEY`) and the limits.
 On a PC none of it applies.
 
+Known traps in cloud sessions:
+
+- After a container restart, MongoDB is down: `pnpm db:start` brings it back
+  (it also starts the Docker daemon, which a cloud container doesn't run at boot).
+- `pnpm typecheck` and `pnpm dev` rewrite `src/payload-types.ts` unformatted.
+  Run `npx prettier --write src/payload-types.ts` before committing: it then
+  matches HEAD again.
+
 ## Museum theme (`src/lib/museum-palette.ts`)
 
 Each museum's color becomes the primary color in museum mode (DESIGN.md → The
@@ -179,6 +198,17 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
 
 ## Checks
 
+- `pnpm db:start`: the development MongoDB, the `mongodb` service of
+  `docker-compose.yml` (no authentication: local test data; loopback only),
+  the same on a PC (Docker Desktop) and in a cloud session. Idempotent.
+- `pnpm test:int`: the integration specs (`tests/int`, Vitest project `int`,
+  in Node). Most need MongoDB running. Filter with a path or `-t`, e.g.
+  `pnpm test:int tests/int/objectsAccess.int.spec.ts`.
+- Server pages and route handlers: start the reads that only need the params
+  together (`Promise.all`), and chain a read that depends on one other read
+  onto that promise (`.then`) instead of awaiting everything first. Keep
+  guards (a permission check that redirects, `notFound`) before the reads
+  they protect.
 - `pnpm typecheck`: regenerates Next's route types (`next typegen`; stale ones
   break `tsc` after a route move) and runs `tsc --noEmit` with the memory it needs
   (plain `tsc` aborts out of memory). It takes a few minutes: run it once, at the end.

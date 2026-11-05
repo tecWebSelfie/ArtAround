@@ -3,9 +3,9 @@
 # own devices, over your Tailscale tailnet with HTTPS. Why and how, plus the
 # one-time tailnet setup: docs/cloud-preview.md. On a PC none of this runs.
 #
-# Sets up Tailscale (`tailscale serve`: HTTPS → port 3000), MongoDB with a
-# seeded database, `.env` if missing and a managed block in `.env.local`; then
-# start `pnpm dev`. Idempotent: re-run freely.
+# Sets up Tailscale (`tailscale serve`: HTTPS → port 3000), `.env` if missing,
+# MongoDB (`pnpm db:start`, Docker) with a seeded database and a managed block
+# in `.env.local`; then start `pnpm dev`. Idempotent: re-run freely.
 #
 # Usage: scripts/cloud-preview.sh          set up
 #        scripts/cloud-preview.sh --stop   log out, stop Tailscale, drop the block
@@ -19,15 +19,11 @@ TOOLS="${XDG_CACHE_HOME:-$HOME/.cache}/artaround-preview"
 # Unix sockets have a ~108-character path limit: keep this one short.
 TS_SOCK="${TS_SOCKET:-/tmp/artaround-ts.sock}"
 TS_HOST="${TS_HOSTNAME:-artaround-cloud}"
-MONGO_VERSION=8.0.15
-MONGO_DIR="$TOOLS/mongodb-linux-x86_64-ubuntu2404-$MONGO_VERSION"
-DB_PATH="$TOOLS/db"
 # Markers of the managed block (no '/': they sit inside a sed address).
 BEGIN='# >>> cloud-preview >>>'
 END='# <<< cloud-preview <<<'
 
 log() { printf '\033[1m[cloud-preview]\033[0m %s\n' "$*"; }
-port_open() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
 ts() { "$TOOLS/tailscale/tailscale" --socket="$TS_SOCK" "$@"; }
 tailscaled_running() { pgrep -f "tailscaled .*--socket=$TS_SOCK" >/dev/null; }
 # Prints one expression of the JSON on stdin: `… | json Self.DNSName`.
@@ -87,33 +83,19 @@ URL="https://$DNS_NAME"
 # prints the admin link that enables them.
 ts serve --bg 3000
 
-# 2. MongoDB, and a seed for a database this script creates (never one that
-# was already running: it may hold your test data).
-SEED=0
-if ! port_open 27017; then
-  if ! command -v mongod >/dev/null && [ ! -x "$MONGO_DIR/bin/mongod" ]; then
-    log "Downloading MongoDB $MONGO_VERSION…"
-    curl -fsSL "https://fastdl.mongodb.org/linux/$(basename "$MONGO_DIR").tgz" | tar xz -C "$TOOLS"
-  fi
-  MONGOD=$(command -v mongod || echo "$MONGO_DIR/bin/mongod")
-  [ -d "$DB_PATH" ] || SEED=1
-  mkdir -p "$DB_PATH"
-  "$MONGOD" --dbpath "$DB_PATH" --bind_ip 127.0.0.1 --fork --logpath "$TOOLS/mongod.log" >/dev/null
-  log 'MongoDB started.'
-fi
-
-# 3. `.env` is gitignored, so a fresh container has none: start from the
-# template with a local database and a random secret.
+# 2. `.env` is gitignored, so a fresh container has none: start from the
+# template with the local database and a random secret. Before MongoDB: the
+# seed below reads it.
 if [ ! -f "$ROOT/.env" ]; then
   sed -e "s|^PAYLOAD_SECRET=.*|PAYLOAD_SECRET=$(openssl rand -hex 24)|" \
     -e 's|^DATABASE_URL=.*|DATABASE_URL=mongodb://127.0.0.1:27017/artaround|' \
     "$ROOT/.env.example" >"$ROOT/.env"
   log 'Created .env from .env.example (local MongoDB, random PAYLOAD_SECRET).'
 fi
-if [ "$SEED" = 1 ]; then
-  log 'Seeding the new database (pnpm seed:e2e)…'
-  (cd "$ROOT" && pnpm seed:e2e)
-fi
+
+# 3. MongoDB in Docker (the compose `mongodb` service), seeded only when its
+# volume is new: an existing one may hold your test data.
+(cd "$ROOT" && node scripts/db-start.mjs --seed-if-new)
 
 # 4. The browser uses the public URL; the server calls itself on localhost
 # (`SELF_ORIGIN`, src/lib/localized.ts), since the tailnet name only answers
