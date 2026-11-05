@@ -2,6 +2,13 @@ import { describe, expect, it, vi } from 'vitest'
 import type { PayloadRequest } from 'payload'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 
+// The endpoint asks Payload whether the caller may update the object (only
+// the owner steers generation, via `docAccessOperation`): here they may.
+vi.mock('payload', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('payload')>()),
+  docAccessOperation: vi.fn(async () => ({ update: true })),
+}))
+
 const requestId = '1537177e-c7a4-4c6a-bb24-0102284b5e48'
 function request(body: unknown) {
   return {
@@ -9,6 +16,7 @@ function request(body: unknown) {
     routeParams: { id: 'object' },
     json: async () => body,
     payload: {
+      collections: { objects: {} },
       find: vi.fn().mockResolvedValue({ docs: [] }),
       findByID: vi.fn().mockResolvedValue({ id: 'object' }),
       create: vi.fn().mockResolvedValue({ id: 'object' }),

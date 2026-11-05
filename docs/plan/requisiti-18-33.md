@@ -182,17 +182,17 @@ Già decise:
 
 ## Fuori dal piano
 
-- [!] **Suite d'integrazione completa: 10 test rossi preesistenti**
-  - `tests/int/api.int.spec.ts`, `objectModelEndpoints.int.spec.ts`,
-    `objectsAccess.int.spec.ts` falliscono identici sul commit di partenza
-    `40f127f` (verificato in un worktree separato), quindi non dipendono da
-    questo lavoro.
-  - Cause: `api` gira nell'ambiente jsdom ("running in a browser-like
-    environment"); `objectsAccess` si aspetta il vecchio comportamento del
-    plugin RBAC (`true` dove ora l'accesso restituisce `{ createdBy: … }`);
-    `objectModelEndpoints` ha mock incompleti (`museumRoles`, `objects`).
-  - Bloccato: per sistemarli vanno cambiati i test esistenti, e il goal vieta
-    di modificarli solo per farli passare. Serve una decisione degli autori.
+- [x] **Suite d'integrazione completa: 10 test rossi preesistenti**
+  - Erano rossi anche sul commit di partenza `40f127f`. Aggiornati su richiesta
+    degli autori, allineandoli al codice attuale senza disattivare nulla:
+    - `api.int.spec.ts` avvia Payload vero: ora gira nell'ambiente `node`
+      invece di jsdom;
+    - `objectsAccess.int.spec.ts` verificava il vecchio controllo RBAC: ora
+      verifica i ruoli per museo (crea lo staff, modifica il proprietario con una
+      query su `createdBy`, cancella solo il super admin);
+    - `objectModelEndpoints.int.spec.ts`: il mock ora fornisce
+      `docAccessOperation`, che l'endpoint usa per riconoscere il proprietario.
+  - `pnpm test:int` completo: 71 file, 342 test passati.
 
 ## Rimandati
 
