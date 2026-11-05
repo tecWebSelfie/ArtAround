@@ -31,9 +31,13 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
   const { lng, id } = await params
   const { payload, user } = await getSession()
   const canEditPromise = can('objects', id, 'update')
-  const [object, canEdit, source, { t }, { printMuseumId, offer }] = await Promise.all([
-    // Photo included (populated by getLocalizedPageDocument).
-    getLocalizedPageDocument('objects', id, lng),
+  // Photo included (populated by getLocalizedPageDocument).
+  const objectRead = getLocalizedPageDocument('objects', id, lng)
+  const [object, subjects, canEdit, source, { t }, { printMuseumId, offer }] = await Promise.all([
+    objectRead,
+    // Its authors, movements and events need only the object: chained onto
+    // its read, they load alongside the rest instead of while rendering.
+    objectRead.then((doc) => subjectsOfWork(doc, lng)),
     canEditPromise,
     // The owner's source-locale text for the inline form, alongside the rest.
     canEditPromise.then((allowed) =>
@@ -94,7 +98,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             {/* The inline cover is the media pane's job from md. */}
             <ObjectDetailsContent
               object={object}
-              subjects={await subjectsOfWork(object, lng)}
+              subjects={subjects}
               lightbox
               coverHiddenFrom="md"
             />

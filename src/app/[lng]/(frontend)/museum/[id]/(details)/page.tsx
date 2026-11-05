@@ -24,13 +24,10 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
   // Read as the visitor so nested paid contents keep their body hidden.
   // No `locale`: the page reads the source locale (`en`), which is also what
   // the metadata form edits, so the same document seeds the form.
-  const museum = await payload.findByID({
-    collection: 'museums',
-    id,
-    depth: 2,
-    ...(await asViewer()),
-  })
-  const [canEditDetails, canManageMap] = await Promise.all([
+  const viewer = await asViewer()
+  // The permissions only need the id, so they are read alongside the museum.
+  const [museum, canEditDetails, canManageMap] = await Promise.all([
+    payload.findByID({ collection: 'museums', id, depth: 2, ...viewer }),
     can('museums', id, 'update', 'name'),
     can('museums', id, 'update', 'map'),
   ])

@@ -33,9 +33,15 @@ export default async function Marketplace(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  const { t } = await getT('marketplace')
-  // Difficulty names are shared with search (search.json), not duplicated here.
-  const { t: ts } = await getT('search')
+  // Translations, Payload and the museum-mode restriction are independent:
+  // read them together. Difficulty names are shared with search
+  // (search.json), not duplicated here.
+  const [{ t }, { t: ts }, payload, restrictTo] = await Promise.all([
+    getT('marketplace'),
+    getT('search'),
+    getPayload({ config }),
+    museumSearchRestriction(),
+  ])
 
   const query = (firstValue(searchParams.q) ?? '').trim()
   const kind = parseKind(firstValue(searchParams.kind))
@@ -44,7 +50,6 @@ export default async function Marketplace(props: {
   const price = kind === 'users' ? 'all' : parsePrice(firstValue(searchParams.price))
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
 
-  const payload = await getPayload({ config })
   const basePath = `/${lng}/marketplace`
 
   // The Payload search collection owns the result set for both text searches
@@ -59,7 +64,7 @@ export default async function Marketplace(props: {
     kind,
     price,
     page,
-    restrictTo: await museumSearchRestriction(),
+    restrictTo,
   })
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))

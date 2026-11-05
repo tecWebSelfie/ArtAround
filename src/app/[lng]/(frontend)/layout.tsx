@@ -28,8 +28,7 @@ export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props
   // The desktop top bar's account, museums and museum scope (shared, cached
   // with the tabs layout's bottom bar for the same request).
-  const chrome = await getSiteChrome()
-  const { t } = await getT()
+  const [chrome, { t }] = await Promise.all([getSiteChrome(), getT()])
 
   return (
     <MswProvider>

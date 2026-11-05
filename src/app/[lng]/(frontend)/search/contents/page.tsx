@@ -31,10 +31,13 @@ export default async function SearchContentsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  const { t } = await getT('search')
-  const { t: tCard } = await getT('contents-carousel-card')
-  const payload = await getPayload({ config })
-  const scope = await museumScope()
+  // Independent setup reads: read them together.
+  const [{ t }, { t: tCard }, payload, scope] = await Promise.all([
+    getT('search'),
+    getT('contents-carousel-card'),
+    getPayload({ config }),
+    museumScope(),
+  ])
 
   const definitions: FilterDefinition[] = [
     {

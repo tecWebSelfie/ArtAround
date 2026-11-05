@@ -85,6 +85,8 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
     tour.id,
     guests.flatMap((guest) => guest.attributes.quizToken ?? []),
   )
+  // Each guest row looks its score up by token: one Map, not a scan per row.
+  const scoreByToken = new Map(scores.map((score) => [score.token, score]))
 
   const endQuiz = () =>
     modals.openConfirmModal({
@@ -137,7 +139,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
             <Stack gap="sm" aria-live="polite">
               {guests.map((guest) => {
                 const token = guest.attributes.quizToken
-                const score = token ? scores.find((entry) => entry.token === token) : undefined
+                const score = token ? scoreByToken.get(token) : undefined
                 const answered = Number(guest.attributes.quizAnswered ?? 0)
                 return (
                   <Group key={guest.identity} gap="sm" wrap="nowrap">

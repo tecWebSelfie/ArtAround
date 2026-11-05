@@ -18,42 +18,44 @@ import TourPage from './TourPage'
 export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
   const { lng, id } = await params
   const { payload, user } = await getSession()
-  const tour = await payload.findByID({
-    collection: 'tours',
-    id,
-    depth: 3,
-    locale: normalizeLocale(lng) ?? 'en',
-    populate: {
-      contents: {
-        title: true,
-        difficulty: true,
-        durationSeconds: true,
-        price: true,
-        // Withheld by field access when locked: `isLocked` reads its absence.
-        body: true,
-        images: true,
-        objects: true,
+  const viewer = await asViewer()
+  // The permissions and the museum affordances only need the id: they are
+  // read together with the tour, not after it.
+  const [tour, canEdit, canDelete, { printMuseumId, offer }] = await Promise.all([
+    payload.findByID({
+      collection: 'tours',
+      id,
+      depth: 3,
+      locale: normalizeLocale(lng) ?? 'en',
+      populate: {
+        contents: {
+          title: true,
+          difficulty: true,
+          durationSeconds: true,
+          price: true,
+          // Withheld by field access when locked: `isLocked` reads its absence.
+          body: true,
+          images: true,
+          objects: true,
+        },
+        contentImages: PICTURE_SELECT,
+        objects: { name: true, thumbnail: true },
+        objectsThumbnails: PICTURE_SELECT,
+        museums: { name: true, location: true },
+        users: { name: true },
+        // Every picture with its URLs (src/lib/picture.ts).
+        toursThumbnails: PICTURE_SELECT,
+        // Only counted ("Ends with a quiz"). The select keeps prompts and answers
+        // out of the client payload: TourPage is a client component.
+        quizQuestions: { createdAt: true },
       },
-      contentImages: PICTURE_SELECT,
-      objects: { name: true, thumbnail: true },
-      objectsThumbnails: PICTURE_SELECT,
-      museums: { name: true, location: true },
-      users: { name: true },
-      // Every picture with its URLs (src/lib/picture.ts).
-      toursThumbnails: PICTURE_SELECT,
-      // Only counted ("Ends with a quiz"). The select keeps prompts and answers
-      // out of the client payload: TourPage is a client component.
-      quizQuestions: { createdAt: true },
-    },
-    ...(await asViewer()),
-  })
-  const contents = filterPopulated(tour.contents)
-  // Independent once the tour is read: run them together.
-  const [canEdit, canDelete, { printMuseumId, offer }] = await Promise.all([
+      ...viewer,
+    }),
     can('tours', id, 'update'),
     can('tours', id, 'delete'),
     museumAffordances('tour', id),
   ])
+  const contents = filterPopulated(tour.contents)
 
   return (
     <TourPage

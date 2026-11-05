@@ -16,9 +16,12 @@ export default async function SearchToursPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  const { t } = await getT('search')
-  const payload = await getPayload({ config })
-  const scope = await museumScope()
+  // Independent setup reads: read them together.
+  const [{ t }, payload, scope] = await Promise.all([
+    getT('search'),
+    getPayload({ config }),
+    museumScope(),
+  ])
 
   const definitions: FilterDefinition[] = [
     {

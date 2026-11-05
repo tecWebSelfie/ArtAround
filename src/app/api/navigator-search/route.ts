@@ -175,7 +175,12 @@ export async function GET(request: Request) {
   const limit = Math.min(20, Math.max(1, Number.isFinite(limitParam) ? limitParam : 8))
 
   try {
-    const payload = await getPayload({ config })
+    // The museum-mode restriction (cookie + reads) does not need the search:
+    // resolve it together with Payload.
+    const [payload, restrictTo] = await Promise.all([
+      getPayload({ config }),
+      museumSearchRestriction(),
+    ])
     const { hits } = await querySearchIndex({
       payload,
       query,
@@ -186,7 +191,7 @@ export async function GET(request: Request) {
       limit: Math.max(limit, RANK_POOL),
       sort: ['-priority', '-sourceCreatedAt'],
       locale,
-      restrictTo: await museumSearchRestriction(),
+      restrictTo,
     })
 
     // Payload has no relevance score. When the visitor types, exact city

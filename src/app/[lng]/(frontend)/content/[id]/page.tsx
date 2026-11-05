@@ -55,16 +55,36 @@ async function loadContentDetails(
   const rightsMuseumId =
     typeof content.rightsMuseum === 'string' ? content.rightsMuseum : content.rightsMuseum?.id
 
-  const [objectText, objectMedia, author, categories, images, tours, rightsMuseum] =
+  // The object's localized text, or null when there is none to show.
+  const objectRead = objectId
+    ? resolveLocalized(payload, { collection: 'objects', id: objectId, locale, user }).then(
+        (result) => (result.kind !== 'not-found' ? result.doc : null),
+      )
+    : Promise.resolve(null)
+  // Siblings come from the object's authored `contents` list (as on the object
+  // page). Chained onto the object's read, so they load alongside the other
+  // reads below instead of after all of them.
+  const relatedRead = objectRead.then((object) => {
+    const relatedIds = (object?.contents ?? [])
+      .map((c) => (typeof c === 'string' ? c : c.id))
+      .filter((relatedId) => relatedId !== id)
+    return relatedIds.length
+      ? payload.find({
+          collection: 'contents',
+          where: { id: { in: relatedIds } },
+          select: { title: true, difficulty: true, durationSeconds: true, images: true },
+          populate: { contentImages: PICTURE_SELECT },
+          locale,
+          depth: 1,
+          limit: 6,
+          ...viewer,
+        })
+      : null
+  })
+
+  const [object, objectMedia, author, categories, images, tours, rightsMuseum, related] =
     await Promise.all([
-      objectId
-        ? resolveLocalized(payload, {
-            collection: 'objects',
-            id: objectId,
-            locale,
-            user,
-          })
-        : null,
+      objectRead,
       // Thumbnail and museum: relations the depth-0 localized read leaves as ids.
       objectId
         ? payload
@@ -146,28 +166,12 @@ async function loadContentDetails(
             })
             .catch(() => null)
         : null,
+      relatedRead,
     ])
 
-  const object = objectText && objectText.kind !== 'not-found' ? objectText.doc : null
   const museum = objectMedia?.museums?.docs?.find(
     (doc): doc is Exclude<typeof doc, string> => typeof doc !== 'string',
   )
-  // Siblings come from the object's authored `contents` list (as on the object page).
-  const relatedIds = (object?.contents ?? [])
-    .map((c) => (typeof c === 'string' ? c : c.id))
-    .filter((relatedId) => relatedId !== id)
-  const related = relatedIds.length
-    ? await payload.find({
-        collection: 'contents',
-        where: { id: { in: relatedIds } },
-        select: { title: true, difficulty: true, durationSeconds: true, images: true },
-        populate: { contentImages: PICTURE_SELECT },
-        locale,
-        depth: 1,
-        limit: 6,
-        ...viewer,
-      })
-    : null
 
   return {
     object: object && { ...object, thumbnail: objectMedia?.thumbnail ?? null },

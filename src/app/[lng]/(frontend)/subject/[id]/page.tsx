@@ -22,31 +22,35 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   const { lng, id } = await params
   const locale = normalizeLocale(lng) ?? 'en'
   const { payload } = await getSession()
-  const { t } = await getT('object-details')
-  const subject = await payload
-    .findByID({
-      collection: 'subjects',
-      id,
+  // The subject, its works and the labels only need the id: read them
+  // together (a missing subject just discards the works query).
+  const [{ t }, subject, works] = await Promise.all([
+    getT('object-details'),
+    payload
+      .findByID({
+        collection: 'subjects',
+        id,
+        locale,
+        depth: 1,
+        populate: { contents: { title: true } },
+      })
+      .catch(() => null),
+    payload.find({
+      collection: 'objects',
+      where: {
+        or: [
+          { creators: { contains: id } },
+          { movements: { contains: id } },
+          { events: { contains: id } },
+        ],
+      },
       locale,
-      depth: 1,
-      populate: { contents: { title: true } },
-    })
-    .catch(() => null)
+      depth: 0,
+      limit: 50,
+      select: { name: true, dating: true },
+    }),
+  ])
   if (!subject) notFound()
-  const works = await payload.find({
-    collection: 'objects',
-    where: {
-      or: [
-        { creators: { contains: id } },
-        { movements: { contains: id } },
-        { events: { contains: id } },
-      ],
-    },
-    locale,
-    depth: 0,
-    limit: 50,
-    select: { name: true, dating: true },
-  })
   const contents = (subject.contents ?? []).filter(
     (content): content is Content => typeof content === 'object',
   )
