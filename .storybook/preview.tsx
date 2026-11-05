@@ -4,7 +4,7 @@ import '../src/app/[lng]/(frontend)/globals.css'
 
 import { ColorSchemeScript, MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
-import { theme } from '../src/theme'
+import { cssVariablesResolver, theme } from '../src/theme'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 import { setStoryCanvas } from './story-canvas'
 
@@ -59,7 +59,11 @@ const preview: Preview = {
         <>
           <ColorSchemeScript />
 
-          <MantineProvider theme={theme} forceColorScheme={scheme}>
+          <MantineProvider
+            theme={theme}
+            cssVariablesResolver={cssVariablesResolver}
+            forceColorScheme={scheme}
+          >
             <ModalsProvider>{renderStory()}</ModalsProvider>
           </MantineProvider>
         </>

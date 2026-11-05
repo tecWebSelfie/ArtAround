@@ -1,6 +1,8 @@
 'use client'
 
 import { VISIT_MINUTES, type PlannedTour, type PlanRequest } from '@/lib/tour-plan'
+import { BackToNavigator } from '@/components/navigation/BackToNavigator'
+import { createSessionStore } from '@/lib/session-store'
 import { tourNavigationPath } from '@/lib/tour-navigation'
 import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
 import {
@@ -27,7 +29,6 @@ import {
 } from '@mantine/core'
 import {
   Accessibility,
-  ArrowLeft,
   Baby,
   ChevronDown,
   CircleAlert,
@@ -40,9 +41,7 @@ import {
   Square,
 } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useMounted } from '@mantine/hooks'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -92,9 +91,18 @@ const DEFAULT_ANSWERS: Answers = {
   wheelchair: false,
 }
 
-/** Survives a reload or a trip to the map and back within the tab. */
+/**
+ * The answers and the last plan of this tab, in sessionStorage
+ * (`src/lib/session-store.ts`): they survive a reload or a trip to the map and
+ * back. The store is the only copy, so there is no state to sync with it.
+ */
 const STORAGE_KEY = 'aa-plan-visit'
 type Stored = { answers: Answers; plan: PlannedTour | null }
+const store = createSessionStore<Stored>((stored) => {
+  const parsed = stored as Partial<Stored> | null
+  return { answers: { ...DEFAULT_ANSWERS, ...parsed?.answers }, plan: parsed?.plan ?? null }
+})
+const EMPTY: Stored = { answers: DEFAULT_ANSWERS, plan: null }
 
 const MAX_CHILDREN = 10
 
@@ -107,28 +115,6 @@ const COUNT_INPUT = {
   hideControls: true,
   inputMode: 'numeric',
 } as const
-
-// Mantine's light `dimmed` (gray.6) is 3.3:1 on white; on this form it
-// carries the help that explains each choice, so it uses gray.7 (AA) here.
-const READABLE_DIMMED =
-  'in-data-[mantine-color-scheme=light]:[--mantine-color-dimmed:var(--mantine-color-gray-7)]'
-
-function readStored(): Stored | null {
-  try {
-    const raw = sessionStorage.getItem(STORAGE_KEY)
-    return raw ? (JSON.parse(raw) as Stored) : null
-  } catch {
-    return null
-  }
-}
-
-function writeStored(stored: Stored) {
-  try {
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(stored))
-  } catch {
-    // Private mode or storage full: the page still works, it just forgets.
-  }
-}
 
 type DictationState = 'idle' | 'recording' | 'transcribing'
 type DictationError = 'microphone' | 'transcription' | null
@@ -176,31 +162,13 @@ function useDictation(onText: (text: string) => void) {
   return { state, error, toggle }
 }
 
-type PlanVisitProps = {
+export function PlanVisitPage({
+  museums,
+  lockedMuseum,
+}: {
   museums: Museum[]
   /** Museum mode: the museum is fixed, its field hidden and its name in the intro. */
   lockedMuseum: string | null
-}
-
-/**
- * sessionStorage exists only in the browser: the server (and hydration)
- * render the default answers; once mounted, the form remounts with what this
- * tab stored (read in its state initializers rather than set from an effect),
- * and only when something is stored, so a first visit mounts once.
- */
-export function PlanVisitPage(props: PlanVisitProps) {
-  const mounted = useMounted()
-  const hasStored = mounted && readStored() !== null
-  return <PlanVisit key={hasStored ? 'stored' : 'default'} restored={mounted} {...props} />
-}
-
-function PlanVisit({
-  museums,
-  lockedMuseum,
-  restored,
-}: PlanVisitProps & {
-  /** True once sessionStorage was read: before that, `?tour=` can't be judged. */
-  restored: boolean
 }) {
   const { t } = useTranslation('plan-visit')
   const { lng } = useParams<{ lng: string }>()
@@ -209,15 +177,16 @@ function PlanVisit({
   const searchParams = useSearchParams()
   const tourParam = searchParams.get('tour')
 
-  // The last answers (and preview) of this tab. In museum mode the locked
-  // museum always wins over a stored choice.
-  const [stored] = useState(() => (restored ? readStored() : null))
-  const [answers, setAnswers] = useState<Answers>(() => ({
-    ...DEFAULT_ANSWERS,
-    ...stored?.answers,
-    museumId: lockedMuseum ?? stored?.answers.museumId ?? null,
-  }))
-  const [plan, setPlan] = useState<PlannedTour | null>(() => stored?.plan ?? null)
+  // `null` until hydration: the server and the first render show the
+  // defaults, and before that `?tour=` can't be judged.
+  const stored = store.useValue(STORAGE_KEY)
+  const restored = stored !== null
+  const { plan } = stored ?? EMPTY
+  // In museum mode the locked museum always wins over a stored choice.
+  const answers: Answers = {
+    ...(stored ?? EMPTY).answers,
+    museumId: lockedMuseum ?? (stored ?? EMPTY).answers.museumId,
+  }
   const [planning, setPlanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [ageError, setAgeError] = useState(false)
@@ -226,6 +195,12 @@ function PlanVisit({
   const pushedPreview = useRef(false)
   const previewHeading = useRef<HTMLHeadingElement>(null)
 
+  // Updaters read the latest stored answers, so an async one (dictation)
+  // never overwrites what was typed meanwhile.
+  const setAnswers = (next: (current: Answers) => Answers) => {
+    const latest = store.get(STORAGE_KEY)
+    store.save(STORAGE_KEY, { ...latest, answers: next(latest.answers) })
+  }
   const update = <K extends keyof Answers>(key: K, value: Answers[K]) =>
     setAnswers((current) => ({ ...current, [key]: value }))
 
@@ -235,11 +210,6 @@ function PlanVisit({
       interests: (current.interests ? `${current.interests} ${text}` : text).slice(0, 500),
     })),
   )
-
-  // Keep the answers across reloads, as typed.
-  useEffect(() => {
-    if (restored) writeStored({ answers, plan })
-  }, [answers, plan, restored])
 
   const showPreview = Boolean(plan && tourParam && plan.id === tourParam)
 
@@ -315,8 +285,7 @@ function PlanVisit({
         )
         return
       }
-      // The storage effect saves it with the answers.
-      setPlan(json)
+      store.save(STORAGE_KEY, { ...store.get(STORAGE_KEY), plan: json })
       // A history entry of its own: Back from the preview is "Change".
       window.history.pushState(null, '', `${pathname}?tour=${json.id}`)
       pushedPreview.current = true
@@ -346,27 +315,11 @@ function PlanVisit({
     router.push((query.size ? `${path}?${query}` : path) as Route)
   }
 
-  // Phones have no site header on this page: the way back to the home.
-  const backLink = (
-    <Button
-      component={Link}
-      href={`/${lng}/navigator` as Route}
-      hiddenFrom="md"
-      variant="subtle"
-      size="md"
-      px="xs"
-      className="self-start"
-      leftSection={<ArrowLeft size={18} aria-hidden />}
-    >
-      {t('Back to the navigator')}
-    </Button>
-  )
-
   if (showPreview && plan) {
     return (
-      <Container size="xs" py="xl" className={READABLE_DIMMED}>
+      <Container size="xs" py="xl">
         <Stack gap="lg">
-          {backLink}
+          <BackToNavigator />
           <Stack gap="xs">
             <Title order={1} ref={previewHeading} tabIndex={-1} className="outline-none">
               {plan.title}
@@ -475,7 +428,7 @@ function PlanVisit({
     }[dictation.error]
 
   return (
-    <Container size="xs" py="xl" className={READABLE_DIMMED}>
+    <Container size="xs" py="xl">
       <form
         onSubmit={(event) => {
           event.preventDefault()
@@ -483,7 +436,7 @@ function PlanVisit({
         }}
       >
         <Stack gap="lg">
-          {backLink}
+          <BackToNavigator />
           <Stack gap="xs">
             <Title order={1}>{t('Plan my visit')}</Title>
             <Text c="dimmed">

@@ -2,7 +2,8 @@ import React from 'react'
 import './globals.css'
 
 import { museumTheme } from '@/lib/museum-theme'
-import { AppShell, MantineProvider } from '@mantine/core'
+import { AppShell } from '@mantine/core'
+import { AppMantineProvider } from '@/components/mantine/AppMantineProvider'
 
 import { AuthProvider } from '@/components/auth/AuthProvider'
 import MswProvider from '@/mocks/MswProvider'
@@ -41,7 +42,7 @@ export default async function Layout(props: { children: React.ReactNode }) {
             the primary color. Rendered here, on the server, so the first
             paint already has the museum's colors; outside museum mode (or for a
             museum without a color) it is the default theme. */}
-        <MantineProvider theme={museumTheme(chrome.currentMuseum?.palette)}>
+        <AppMantineProvider theme={museumTheme(chrome.currentMuseum?.palette)}>
           <Notifications />
           {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
           <GroupProvider>
@@ -73,7 +74,7 @@ export default async function Layout(props: { children: React.ReactNode }) {
               </AppShell>
             </ModalsProvider>
           </GroupProvider>
-        </MantineProvider>
+        </AppMantineProvider>
       </AuthProvider>
     </MswProvider>
   )

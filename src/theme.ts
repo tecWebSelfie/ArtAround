@@ -1,4 +1,9 @@
-import { createTheme, DEFAULT_THEME, type MantineGradient } from '@mantine/core'
+import {
+  createTheme,
+  type CSSVariablesResolver,
+  DEFAULT_THEME,
+  type MantineGradient,
+} from '@mantine/core'
 
 /**
  * `respectReducedMotion`: Mantine marks the app with
@@ -33,3 +38,16 @@ export const ACCESSIBILITY_COLOR = 'blue'
  * the search result's tour icon, the deck's "Tours" label).
  */
 export const TOUR_GRADIENT = { from: 'grape', to: 'orange' } satisfies MantineGradient
+
+/**
+ * Readable supporting text (DESIGN.md → Dimmed text): Mantine's light `dimmed`
+ * is gray.6, 3.3:1 on white, below WCAG AA for the help, descriptions and
+ * captions it colors. gray.7 (about 8:1) keeps it a step quieter than body
+ * text while passing AA. Dark keeps Mantine's own value. Pass it to every
+ * MantineProvider that renders app UI.
+ */
+export const cssVariablesResolver: CSSVariablesResolver = () => ({
+  variables: {},
+  light: { '--mantine-color-dimmed': 'var(--mantine-color-gray-7)' },
+  dark: {},
+})
