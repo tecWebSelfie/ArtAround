@@ -237,8 +237,10 @@ test('Italian map editor opens its object catalog and validates generation input
     )
     rejectUpload = false
     await picker.setInputFiles(file)
+    // The autosave builds both navmeshes before it sends the map: as slow as
+    // the first test's save dispatch, hence the same timeout.
     await expect
-      .poll(() => Object.values(savedScene?.nodes ?? {}))
+      .poll(() => Object.values(savedScene?.nodes ?? {}), { timeout: 30_000 })
       .toEqual(
         expect.arrayContaining([
           expect.objectContaining({

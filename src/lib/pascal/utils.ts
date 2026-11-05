@@ -1,7 +1,12 @@
-import { museumNavMeshOptions, wheelchairNavMeshOptions, type MuseumNavMeshProfile } from './navmesh-options'
+import {
+  museumNavMeshOptions,
+  wheelchairNavMeshOptions,
+  type MuseumNavMeshProfile,
+} from './navmesh-options'
 import { DEFAULT_QUERY_FILTER, findPath, type Vec3 } from 'navcat'
 import { generateSoloNavMesh, type SoloNavMeshInput } from 'navcat/blocks'
 
+import { sceneRegistry, useScene } from '@pascal-app/core'
 import {
   buildFirstPersonColliderWorldFromRegistry,
   type NavSceneRegistry,
@@ -34,6 +39,26 @@ function fromNavSceneRegistry<T>(
   }
 }
 
+/**
+ * Resolves once Pascal has mounted every node of the loaded scene, or after
+ * `timeoutMs`. Navigation geometry is read from the mounted meshes, and the
+ * editor's own "scene ready" signal is not enough: when rendering is slow,
+ * Pascal hides its loader after a fixed timeout with walls and slabs still
+ * unmounted, and a save then would replace the museum's paths with an empty
+ * navmesh. Polled on a timer, not on animation frames, which starve exactly
+ * when mounting is slow.
+ */
+export function sceneMounted(timeoutMs = 60_000) {
+  const mounted = () =>
+    Object.keys(useScene.getState().nodes).every((id) => sceneRegistry.nodes.has(id))
+  const deadline = Date.now() + timeoutMs
+  return new Promise<void>((resolve) => {
+    const check = () =>
+      mounted() || Date.now() > deadline ? resolve() : void setTimeout(check, 100)
+    check()
+  })
+}
+
 /** Generate both visitor profiles from one extraction of Pascal navigation geometry. */
 export function generateMuseumNavMeshesFromSceneRegistry(navSceneRegistry?: NavSceneRegistry) {
   return fromNavSceneRegistry(navSceneRegistry, (input) => ({
@@ -47,7 +72,10 @@ export function generateNavMeshFromSceneRegistry(
   profile: MuseumNavMeshProfile = 'pedestrian',
 ) {
   const options = profile === 'wheelchair' ? wheelchairNavMeshOptions : museumNavMeshOptions
-  return fromNavSceneRegistry(navSceneRegistry, (input) => generateSoloNavMesh(input, options).navMesh)
+  return fromNavSceneRegistry(
+    navSceneRegistry,
+    (input) => generateSoloNavMesh(input, options).navMesh,
+  )
 }
 
 export function exportMapNavMeshJson(navSceneRegistry?: NavSceneRegistry) {

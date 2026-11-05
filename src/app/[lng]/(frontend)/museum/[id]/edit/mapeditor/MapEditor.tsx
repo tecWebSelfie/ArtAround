@@ -12,7 +12,7 @@ import {
   type EditorViewer,
 } from '@/lib/pascal/editor-viewer'
 import { placeableObjectAsset } from '@/lib/pascal/object-assets'
-import { generateMuseumNavMeshesFromSceneRegistry } from '@/lib/pascal/utils'
+import { generateMuseumNavMeshesFromSceneRegistry, sceneMounted } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
@@ -78,8 +78,10 @@ export function MapEditor({
   const { mutateAsync } = useMutation({
     mutationKey: ['saveScene'],
     mutationFn: async (scene: ParsedBuildJson) => {
-      // Scene JSON loads before the renderer has built navigation geometry.
+      // Scene JSON loads before the renderer has built navigation geometry:
+      // wait for the loader, then for every node's meshes (sceneMounted).
       await sceneReady.current.promise
+      await sceneMounted()
       const navMeshes = generateMuseumNavMeshesFromSceneRegistry()
       return payloadSdk.update({
         collection: 'museums',

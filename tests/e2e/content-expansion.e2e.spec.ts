@@ -84,8 +84,8 @@ test('importing a museum config file locks the app to that museum', async ({ pag
   await expect(page.getByRole('button', { name: 'Change museum' })).toHaveText(
     /\[DEV\] Tour navigation/,
   )
-  // Back to global mode.
+  // Back to global mode: "All museums" is the first row of the switch's list.
   await page.getByRole('button', { name: 'Change museum' }).click()
-  await page.getByRole('button', { name: 'Back to all museums' }).click()
+  await page.getByRole('dialog').getByRole('button', { name: 'All museums' }).click()
   await expect(page.getByRole('button', { name: 'Change museum' })).toHaveText('All museums')
 })
