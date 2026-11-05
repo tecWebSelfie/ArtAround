@@ -16,6 +16,7 @@ import { ListChecks, MapPinOff } from 'lucide-react'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
+import classes from './navigation-desktop.module.css'
 
 /**
  * The ordered contents are the main quest; selecting one opens it without
@@ -58,7 +59,9 @@ export function TourProgress({
   }, [step])
 
   return (
-    <Scroller controlSize={'md'}>
+    // Desktop: the track spans the header column and centres a tour that fits
+    // (navigation-desktop.module.css); a longer one scrolls as on the phone.
+    <Scroller controlSize={'md'} classNames={{ content: classes.stepperTrack }}>
       <Stepper
         active={step + offset}
         size={'xs'}
@@ -127,7 +130,7 @@ export function TourProgress({
                   description: typeof content === 'object' && (
                     <Group gap={4}>
                       <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                      <DurationBadge time={content.readingTimeMins ?? 12} />
+                      <DurationBadge seconds={content.durationSeconds ?? 0} />
                     </Group>
                   ),
                 })}

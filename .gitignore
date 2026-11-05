@@ -72,3 +72,4 @@ storybook-static
 
 # QR scanner ZXing reader, copied on postinstall (scripts/copy-zxing-assets.mjs)
 /public/zxing
+/contentAudio

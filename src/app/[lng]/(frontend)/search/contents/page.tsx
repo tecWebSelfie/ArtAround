@@ -3,7 +3,7 @@ import { SearchShell } from '@/components/mantine/SearchShell'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
 import config from '@/payload.config'
-import { Stack, Title } from '@mantine/core'
+import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
@@ -31,10 +31,13 @@ export default async function SearchContentsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
+  // Independent setup reads: started together.
+  const setup = Promise.all([getPayload({ config }), museumScope()])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
   const { t: tCard } = await getT('contents-carousel-card')
-  const payload = await getPayload({ config })
-  const scope = await museumScope()
+  const [payload, scope] = await setup
 
   const definitions: FilterDefinition[] = [
     {
@@ -55,8 +58,9 @@ export default async function SearchContentsPage(props: {
       ],
     },
     {
-      key: 'readingTimeMins',
-      label: t('Reading time'),
+      // Exact length in seconds (`src/lib/duration.ts`).
+      key: 'durationSeconds',
+      label: t('Length in seconds'),
       type: 'number',
       operators: ['=', '!=', '>', '<', '>=', '<='],
     },
@@ -95,50 +99,62 @@ export default async function SearchContentsPage(props: {
     : undefined
 
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
-      {picker && editor ? (
-        <Stack gap="xs">
-          <Title order={2}>{t('Add a stop')}</Title>
-          <Text c="dimmed" size="sm">
-            {t('Contents about the objects on show at {{museum}}', {
-              museum: editor.museum.name,
-            })}
-          </Text>
-          <Group gap="xs">
-            <LinkButton
-              href={backToTourHref(picker.returnTo) as Route}
-              variant="default"
-              leftSection={<ArrowLeft size={16} aria-hidden />}
-            >
-              {t('Back to the tour')}
-            </LinkButton>
-            {/* A stop that doesn't exist yet: write it, then it joins the tour. */}
-            <LinkButton
-              href={newStopHref(lng, picker) as Route}
-              variant="light"
-              color="teal"
-              autoContrast
-              leftSection={<PenLine size={16} aria-hidden />}
-            >
-              {t('Write a new content')}
-            </LinkButton>
-          </Group>
-        </Stack>
-      ) : (
-        <Title order={2}>{t('Search contents')}</Title>
-      )}
-      <SearchShell
-        definitions={definitions}
-        initialFilters={initialFilters}
-        page={result.page ?? page}
-        totalPages={result.totalPages ?? 1}
-        basePath={`/${lng}/search/contents`}
-        storageKeyPrefix="search-contents"
-        placeholder={t('Filter contents...')}
-        keepParams={picker ? tourPickerParams(picker) : undefined}
-      >
-        <ContentsSearchResults contents={result.docs} picker={picker} lockedPrices={lockedPrices} />
-      </SearchShell>
-    </Stack>
+    // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
+    // centered) so title, filter and the 3-column grid stop stretching across
+    // wide screens. Below md the padding equals the old side margins: no change.
+    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+      <Stack>
+        {picker && editor ? (
+          <Stack gap="xs">
+            <Title order={2}>{t('Add a stop')}</Title>
+            <Text c="dimmed" size="sm">
+              {t('Contents about the objects on show at {{museum}}', {
+                museum: editor.museum.name,
+              })}
+            </Text>
+            <Group gap="xs">
+              <LinkButton
+                href={backToTourHref(picker.returnTo) as Route}
+                variant="default"
+                leftSection={<ArrowLeft size={16} aria-hidden />}
+              >
+                {t('Back to the tour')}
+              </LinkButton>
+              {/* A stop that doesn't exist yet: write it, then it joins the tour. */}
+              <LinkButton
+                href={newStopHref(lng, picker) as Route}
+                variant="light"
+                color="teal"
+                autoContrast
+                leftSection={<PenLine size={16} aria-hidden />}
+              >
+                {t('Write a new content')}
+              </LinkButton>
+            </Group>
+          </Stack>
+        ) : (
+          <Title order={2}>{t('Search contents')}</Title>
+        )}
+        <SearchShell
+          definitions={definitions}
+          initialFilters={initialFilters}
+          page={result.page ?? page}
+          totalPages={result.totalPages ?? 1}
+          basePath={`/${lng}/search/contents`}
+          storageKeyPrefix="search-contents"
+          placeholder={t('Filter contents…')}
+          keepParams={picker ? tourPickerParams(picker) : undefined}
+        >
+          <ContentsSearchResults
+            contents={result.docs}
+            // Cards open the content's page, except while picking a stop for
+            // the tour editor: there a stray click would leave the round trip.
+            lng={picker ? undefined : lng}
+            picker={picker}
+            lockedPrices={lockedPrices}
+          />
+        </SearchShell>
+      </Stack>
+    </Container>
   )
 }

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
-import { expect, within, userEvent, waitFor } from 'storybook/test'
+import { expect, within, userEvent } from 'storybook/test'
 import { ModelGenerationProviders } from '../../../.storybook/model-generation-providers'
 import { modelGenerationHandlers } from '@/mocks/model-generation.mock'
 import { ObjectCatalogPanel } from './ObjectCatalogPanel'
@@ -29,11 +29,7 @@ export const NeedsModel: Story = {
     await userEvent.click(
       await canvas.findByRole('button', { name: 'Generate model for Attic amphora' }),
     )
-    // The Mantine modal opens with a transition; in a loaded full run that
-    // takes longer than waitFor's 1s default (over 5s during visual runs).
-    await waitFor(() => expect(within(document.body).getByRole('dialog')).toBeVisible(), {
-      timeout: 15_000,
-    })
+    await expect(await within(document.body).findByRole('dialog')).toBeVisible()
   },
 }
 export const Ready: Story = {

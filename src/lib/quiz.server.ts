@@ -25,8 +25,6 @@ import {
  * the HMAC secret can end up in a browser bundle.
  */
 
-const ORIGIN = process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000'
-
 function secret() {
   const value = process.env.PAYLOAD_SECRET
   if (!value) throw new Error('PAYLOAD_SECRET is required to key quiz options')
@@ -57,7 +55,7 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
     // Questions aren't readable by visitors (they carry the answer), so this
     // server-only read skips access; only reduced views leave the server.
     ids.map((id) =>
-      resolveLocalized(payload, ORIGIN, {
+      resolveLocalized(payload, {
         collection: 'quizQuestions',
         id,
         locale,
@@ -71,9 +69,7 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
   if (missing.length && locale !== 'en') {
     after(() =>
       Promise.all(
-        missing.map((id) =>
-          enqueueTranslation(ORIGIN, { collection: 'quizQuestions', id, locale }),
-        ),
+        missing.map((id) => enqueueTranslation({ collection: 'quizQuestions', id, locale })),
       ),
     )
   }

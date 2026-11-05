@@ -3,9 +3,20 @@ import { MantineColorSchemeScript } from '@/components/mantine/MantineColorSchem
 import { fallbackLng, generateI18nStaticParams, getResources, getT } from '@/i18n.server'
 import { mantineHtmlProps } from '@mantine/core'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import type { Viewport } from 'next'
 import { I18nProvider } from 'next-i18next/client'
 import i18nConfig from '../../../i18n.config'
 import Providers from '../providers'
+
+/**
+ * The app is light only (Mantine's default scheme, no toggle): the browser
+ * chrome takes the page background and native controls/scrollbars stay light.
+ * Change both together with a dark theme.
+ */
+export const viewport: Viewport = {
+  themeColor: '#ffffff',
+  colorScheme: 'light',
+}
 
 export async function generateStaticParams() {
   return generateI18nStaticParams()

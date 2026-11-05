@@ -1,3 +1,4 @@
+import { subjectsOfWork } from '@/lib/subjects'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
@@ -20,7 +21,7 @@ export default async function ObjectModal({
   params: Promise<{ lng: string; objectId: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
-  const { objectId } = await params
+  const { lng, objectId } = await params
   // This interceptor sits on `/[lng]/museum/[id]`, so Next also applies it to
   // navigations leaving the museum's map (`…/navigation/...`, free or tour):
   // there the object belongs over the map, not in this details modal.
@@ -35,7 +36,7 @@ export default async function ObjectModal({
   })
   return (
     <Modal size="lg" centered>
-      <ObjectDetailsContent object={object} />
+      <ObjectDetailsContent object={object} subjects={await subjectsOfWork(object, lng)} />
     </Modal>
   )
 }

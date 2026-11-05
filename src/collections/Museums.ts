@@ -29,6 +29,8 @@ import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { SocialLinks } from '@/fields/SocialLinks'
 import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
+import { HEX } from '@/lib/museum-color'
+import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
 import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
 // Import attribute: native ESM (Playwright's loader for e2e helpers that
 // import the Payload config) refuses a JSON module without it.
@@ -60,6 +62,41 @@ const directorOnly = <T extends Field>(field: T): T =>
 
 // Mongo ObjectIds only: placeholder ids from fixtures must not reach a relationship query.
 const OBJECT_ID = /^[a-f\d]{24}$/i
+
+/**
+ * `brandColor` is the director's one input for the museum's theme; `palette`
+ * (10 shades, `lib/museum-palette.ts`) is derived from it here, once per save,
+ * so visitors never pay for the color math and the stored result stays
+ * stable. A save that does not touch `brandColor` (a curator placing objects,
+ * a metadata edit) keeps the stored palette, and a client-written palette is
+ * never accepted.
+ */
+const syncMuseumPalette: CollectionBeforeChangeHook<Museum> = ({ data, originalDoc }) => {
+  const brand = data.brandColor?.trim().toLowerCase()
+  // Untouched or unchanged (the admin form resends every field): keep the
+  // stored palette instead of recomputing it.
+  if (data.brandColor === undefined || (brand || null) === (originalDoc?.brandColor ?? null)) {
+    delete data.palette
+    return data
+  }
+  data.brandColor = brand || null
+  // `validate` on the field already rejected a malformed or reserved color.
+  data.palette = brand ? museumPalette(brand).palette : []
+  return data
+}
+
+/** Field `validate`: a #rrggbb color the app can give to its buttons. */
+const validateBrandColor = (value: string | null | undefined) => {
+  if (!value) return true
+  if (!HEX.test(value)) return 'Use a six-digit hex color such as #1b2a4a.'
+  const reserved = reservedHue(value)
+  return reserved ? `${RESERVED_MESSAGE[reserved]} Try ${nearestAllowed(value)}.` : true
+}
+
+const RESERVED_MESSAGE: Record<ReservedHue, string> = {
+  destructive: 'Red marks the actions that delete something, so it cannot be a museum color.',
+  paid: 'Orange marks paid contents, so it cannot be a museum color.',
+}
 
 /**
  * `objects` is a derived index of the Pascal map: an object is exhibited by a
@@ -224,7 +261,7 @@ export const Museums: CollectionConfig = {
   },
   hooks: {
     beforeValidate: [richTextFromHtml(['description'])],
-    beforeChange: [guardCuratorMapEdits, syncMuseumObjects],
+    beforeChange: [guardCuratorMapEdits, syncMuseumObjects, syncMuseumPalette],
     afterChange: [appointCreatorAsDirector, refreshSearchAfterChange],
     afterDelete: [refreshSearchAfterDelete],
   },
@@ -357,6 +394,19 @@ export const Museums: CollectionConfig = {
           description: 'Taxonomy tags used to group and filter the museum catalog.',
         },
       } satisfies Field,
+      {
+        // The museum's theme (DESIGN.md → The Museum Primary Rule). One
+        // color: `syncMuseumPalette` derives the scale from it, and the
+        // frontend form (`MuseumAppearanceForm`) previews the result.
+        name: 'brandColor',
+        type: 'text',
+        required: false,
+        validate: validateBrandColor,
+        admin: {
+          description:
+            'The museum color as #rrggbb. Buttons, links and highlights use it while visitors are in this museum; very light colors are darkened to stay readable.',
+        },
+      } satisfies Field,
     ].map(directorOnly),
     {
       // Derived from `map` by `syncMuseumObjects`; read-only everywhere else.
@@ -366,6 +416,15 @@ export const Museums: CollectionConfig = {
       hasMany: true,
       required: false,
       index: true,
+      admin: { readOnly: true },
+    },
+    {
+      // Derived from `brandColor` by `syncMuseumPalette`; read-only everywhere
+      // else. Ten hex shades, light to dark, read by the frontend theme.
+      name: 'palette',
+      type: 'text',
+      hasMany: true,
+      required: false,
       admin: { readOnly: true },
     },
     {

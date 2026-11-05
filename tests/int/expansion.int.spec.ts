@@ -39,3 +39,35 @@ describe('expansion text', () => {
     expect(speakableText(first)).toBe('The Long Neck is a Madonna and a fake.')
   })
 })
+
+// "Tell me more" goes on (requirement 6 of docs/plan/requisiti-18-33.md):
+// each step is saved on its own and written knowing the earlier ones.
+describe('progressive "Tell me more"', async () => {
+  const { expansionPrompt } = await import('@/lib/expansion-prompt')
+  const { previousStepsWhere, variantWhere } = await import('@/lib/expansion-variants')
+
+  it('looks up each step on its own, older additions counting as the first', () => {
+    const first = variantWhere('contents', 'c1', { kind: 'more', angle: 'story' })
+    expect(JSON.stringify(first)).toContain('"exists":false')
+    const third = variantWhere('contents', 'c1', { kind: 'more', angle: 'story', step: 3 })
+    expect(third.and).toContainEqual({ step: { equals: 3 } })
+    expect(previousStepsWhere('contents', 'c1', 'story', 3).and).toContainEqual({
+      or: [{ step: { less_than: 3 } }, { step: { exists: false } }],
+    })
+  })
+
+  it('tells the model what the visitor has already read', () => {
+    const base: Parameters<typeof expansionPrompt>[0] = {
+      request: { kind: 'more', angle: 'more', step: 2 },
+      language: 'English',
+      subject: 'Ecstasy of Saint Cecilia',
+      text: 'Saint Cecilia lowers her organ.',
+      links: [],
+      sources: [],
+    }
+    const prompt = expansionPrompt({ ...base, alreadyRead: ['The instruments at her feet.'] })
+    expect(prompt.prompt).toContain('already read the original text and these additions')
+    expect(prompt.prompt).toContain('Addition 1:\nThe instruments at her feet.')
+    expect(expansionPrompt(base).prompt).not.toContain('Addition 1')
+  })
+})

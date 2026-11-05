@@ -34,7 +34,8 @@ export const Default: Story = {
     await expect(canvas.findByText('Leggere un dipinto rinascimentale')).resolves.toBeTruthy()
     // Cards expose difficulty and reading time, not just the title
     await expect(canvas.findByText('Easy')).resolves.toBeTruthy()
-    await expect(canvas.findByText('3 min read')).resolves.toBeTruthy()
+    // Exact lengths in seconds, compact chip notation (src/lib/duration.ts).
+    await expect(canvas.findByText('45"')).resolves.toBeTruthy()
   },
 }
 

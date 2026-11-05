@@ -21,9 +21,17 @@ export type ExpansionAngle = (typeof EXPANSION_ANGLES)[number]
 export const AUDIENCES = ['everyone', 'children'] as const
 export type Audience = (typeof AUDIENCES)[number]
 
+/**
+ * How many times in a row "Tell me more" can go further on the same angle.
+ * Each step adds what the previous ones (and the original) didn't say.
+ */
+export const MAX_EXPANSION_STEPS = 4
+
 export type ExpansionRequest =
-  | { kind: 'more'; angle: ExpansionAngle }
-  | { kind: 'version'; difficulty: Difficulty; minutes: number; audience: Audience }
+  /** `step`: 1 for the first addition, then 2, 3… each continuing the last. */
+  | { kind: 'more'; angle: ExpansionAngle; step?: number }
+  /** `seconds`: the version's target length (`src/lib/duration.ts`). */
+  | { kind: 'version'; difficulty: Difficulty; seconds: number; audience: Audience }
 
 /** A museum entity the text may link to, with its thumbnail for the preview row. */
 export type ExpansionLink = {
@@ -101,6 +109,3 @@ export function speakableText(paragraph: string) {
     .map((part) => part.text)
     .join('')
 }
-
-/** About 200 words a minute: the reading-time target given to the model. */
-export const WORDS_PER_MINUTE = 200

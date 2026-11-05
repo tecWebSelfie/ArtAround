@@ -5,7 +5,16 @@ import { useTranslation } from 'react-i18next'
 import { useEditableSection } from './EditableSection'
 
 /** Save / Cancel row shared by inline forms (Cancel leaves the editable section). */
-export function FormActions({ saving, submitLabel }: { saving: boolean; submitLabel?: string }) {
+export function FormActions({
+  saving,
+  submitLabel,
+  disabled,
+}: {
+  saving: boolean
+  submitLabel?: string
+  /** Blocks Save (e.g. a value the server would refuse); Cancel stays. */
+  disabled?: boolean
+}) {
   const { t } = useTranslation('editing')
   const { close } = useEditableSection()
   return (
@@ -13,7 +22,7 @@ export function FormActions({ saving, submitLabel }: { saving: boolean; submitLa
       <Button variant="default" onClick={close} disabled={saving}>
         {t('Cancel')}
       </Button>
-      <Button type="submit" loading={saving}>
+      <Button type="submit" loading={saving} disabled={disabled}>
         {submitLabel ?? t('Save')}
       </Button>
     </Group>

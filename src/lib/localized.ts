@@ -33,6 +33,15 @@ export function headerLocale(headers: Headers): TypedLocale | null {
 
 const PROVENANCE_COLLECTION = 'translator-provenance' as const
 
+/**
+ * Where the server calls its own routes (translator stale check and enqueue,
+ * uploaded files). `PAYLOAD_INTERNAL_URL` overrides the public URL when the
+ * server can't reach it itself (Tailscale cloud preview, docs/cloud-preview.md).
+ * Never take it from the request: behind a proxy that host is the public one.
+ */
+export const SELF_ORIGIN =
+  process.env.PAYLOAD_INTERNAL_URL || process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000'
+
 // PINNED-CONTRACT NOTE — @focus-reactive/payload-plugin-translator is an exact
 // pin (`0.13.4`, no caret, in package.json), so this internal route is frozen
 // for us. It is UNPUBLISHED upstream (may change across releases — never
@@ -51,17 +60,12 @@ type StaleEntry = {
   translated_at: string
 }
 
-async function isStale(
-  origin: string,
-  collection: string,
-  id: string | number,
-  locale: string,
-): Promise<boolean> {
+async function isStale(collection: string, id: string | number, locale: string): Promise<boolean> {
   try {
     const res = await fetch(
       new URL(
         `${STALE_BASE}/${encodeURIComponent(collection)}/${encodeURIComponent(String(id))}`,
-        origin,
+        SELF_ORIGIN,
       ),
     )
     if (!res.ok) return false
@@ -80,7 +84,6 @@ async function isStale(
  */
 export async function resolveLocalized<TSlug extends LocalizedSlug>(
   payload: Payload,
-  origin: string,
   {
     collection,
     id,
@@ -131,26 +134,22 @@ export async function resolveLocalized<TSlug extends LocalizedSlug>(
     .catch(() => null)) as LocalizedDoc<TSlug> | null
   if (!localizedDoc) return { kind: 'not-found' }
 
-  if (await isStale(origin, collection, id, locale))
-    return { kind: 'stale', locale, doc: localizedDoc }
+  if (await isStale(collection, id, locale)) return { kind: 'stale', locale, doc: localizedDoc }
   return { kind: 'hit', locale, doc: localizedDoc }
 }
 
 /** Queue one background translation via the plugin's published enqueue route. */
-export async function enqueueTranslation(
-  origin: string,
-  {
-    collection,
-    id,
-    locale,
-  }: {
-    collection: string
-    id: string | number
-    locale: string
-  },
-): Promise<{ queued: number | null; queueError: string | null }> {
+export async function enqueueTranslation({
+  collection,
+  id,
+  locale,
+}: {
+  collection: string
+  id: string | number
+  locale: string
+}): Promise<{ queued: number | null; queueError: string | null }> {
   try {
-    const res = await fetch(new URL('/api/translate/enqueue', origin), {
+    const res = await fetch(new URL('/api/translate/enqueue', SELF_ORIGIN), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

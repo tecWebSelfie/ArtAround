@@ -1,10 +1,13 @@
 /**
- * Seeds a realistic demo museum for trying tour navigation by hand: the
- * 11-room map from `createRealisticMuseumMap` with 16 placed objects, their
- * contents (one paid, several for children), three tours (one with a quiz)
- * and both navmeshes. Data lives in `demo-museum-data.ts`.
+ * Seeds the project's demo museum, the real Pinacoteca Nazionale di Bologna
+ * the course specification asks for: the 11-room map from
+ * `createRealisticMuseumMap` with 16 placed works, their contents (one paid,
+ * some for children) written by the `autore1`/`autore2` accounts, four tours
+ * with their logistic directions (three of at least ten works, one with a
+ * quiz, and a family tour) and both navmeshes. Data lives in
+ * `demo-museum-data.ts`; the required accounts in `src/seed-accounts.ts`.
  *
- *   pnpm exec tsx scripts/seed-demo-museum.ts
+ *   pnpm seed:demo
  *
  * Idempotent: records are matched by name/title and updated in place, so IDs
  * (and URLs) survive re-runs; the map and navmeshes are rebuilt every time.
@@ -20,7 +23,7 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
 import { mkdir, writeFile } from 'node:fs/promises'
-import { getPayload, type Payload } from 'payload'
+import { createLocalReq, getPayload, type Payload } from 'payload'
 import {
   BlockNode,
   DoorNode,
@@ -37,11 +40,14 @@ import { createRealisticMuseumMap } from '../src/mocks/museum-map.mock'
 import { museumNavMeshOptions, wheelchairNavMeshOptions } from '../src/lib/pascal/navmesh-options'
 import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
-import { MUSEUM, OBJECTS, TOURS } from './demo-museum-data'
+import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
+import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
+import { WIKIMEDIA_USER_AGENT } from '../src/lib/wikidata'
+import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 loadEnv({ path: ['.env.local', '.env'] })
 
-const MAP_KEY = 'demo_villaforte'
+const MAP_KEY = 'demo_pinacoteca'
 /** Main entrance marker of the realistic map, where every route starts. */
 const ENTRANCE: Vec3 = [15, 0, 1]
 
@@ -101,6 +107,8 @@ function routeLength(mesh: NavMesh, stops: Vec3[]) {
   let total = 0
   const points = [ENTRANCE, ...stops]
   for (let index = 1; index < points.length; index++) {
+    // Two items on the same work: the visitor doesn't move.
+    if (points[index - 1]!.every((value, axis) => value === points[index]![axis])) continue
     const path = museumNavigationPath(mesh, points[index - 1]!, points[index]!)
     if (!path) return { failedLeg: index }
     for (let step = 1; step < path.length; step++) {
@@ -126,8 +134,9 @@ async function upsert<T extends { id: string | number }>(
     depth: 0,
     limit: 1,
   })
-  // Demo objects have no 3D model: never queue Mint generation for them.
-  const context = { skipMintModelGeneration: true }
+  // Demo objects have no 3D model: never queue Mint generation for them. The
+  // Wikidata import runs below, right away, instead of as a queued job.
+  const context = { skipMintModelGeneration: true, skipWikidataImport: true }
   const options = { collection, locale: 'en' as const, depth: 0, context, data: data as never }
   return (found.docs[0]
     ? await payload.update({ ...options, id: found.docs[0].id })
@@ -141,13 +150,57 @@ const editorConfig = await editorConfigFactory.default({ config: payload.config 
 const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
 const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
 const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
-const admin = await payload.find({
-  collection: 'users',
-  where: { isSuperAdmin: { equals: true } },
-  depth: 0,
-  limit: 1,
-})
-const author = admin.docs[0]?.id
+
+// The specification's accounts (created by the base seed too): the demo
+// contents are theirs, so the examiners can log in as their authors.
+const userIdByUsername = new Map<string, string>()
+for (const account of PROJECT_ACCOUNTS) {
+  const found = await payload.find({
+    collection: 'users',
+    where: { username: { equals: account.username } },
+    depth: 0,
+    limit: 1,
+  })
+  const user = found.docs[0] ?? (await payload.create({ collection: 'users', data: account }))
+  userIdByUsername.set(account.username, String(user.id))
+}
+const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
+
+/**
+ * A 640 px photo of the work from Wikimedia Commons, uploaded once as the
+ * object's thumbnail. Best effort: without network (or when Commons rate
+ * limits us) the object simply keeps no thumbnail, as before.
+ */
+async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
+  const filename = `${object.key}.jpg`
+  const existing = await payload.find({
+    collection: 'objectsThumbnails',
+    where: { filename: { equals: filename } },
+    depth: 0,
+    limit: 1,
+  })
+  if (existing.docs[0]) return existing.docs[0].id
+  try {
+    const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(object.image)}?width=640`
+    const response = await fetch(url, {
+      headers: { 'User-Agent': WIKIMEDIA_USER_AGENT },
+      signal: AbortSignal.timeout(20_000),
+    })
+    if (!response.ok) throw new Error(`HTTP ${response.status}`)
+    const data = Buffer.from(await response.arrayBuffer())
+    const doc = await payload.create({
+      collection: 'objectsThumbnails',
+      locale: 'en',
+      depth: 0,
+      data: { alt: object.name },
+      file: { data, mimetype: 'image/jpeg', name: filename, size: data.length },
+    })
+    return doc.id
+  } catch (error) {
+    console.warn(`No Commons photo for "${object.name}": ${String(error)}`)
+    return undefined
+  }
+}
 
 // Contents first: an object needs at least one, and owns its contents.
 const contentIdByTitle = new Map<string, string>()
@@ -163,9 +216,8 @@ for (const object of OBJECTS) {
       audience: content.audience ?? 'everyone',
       price: content.price ?? null,
       sources: content.sources ?? [],
-      copyright: '© Museo Civico di Villaforte',
       categories: categoryIds(object.categories),
-      author,
+      author: authorId(content.author),
       objects: {},
     })
     contentIds.push(String(doc.id))
@@ -174,6 +226,8 @@ for (const object of OBJECTS) {
   }
   const doc = await upsert<{ id: string }>(payload, 'objects', 'name', object.name, {
     name: object.name,
+    wikidataId: object.wikidataId,
+    inventoryNumber: object.inventoryNumber ?? null,
     artist: object.artist,
     dating: object.dating,
     description: object.description,
@@ -183,10 +237,53 @@ for (const object of OBJECTS) {
     rights: object.rights,
     categories: categoryIds(object.categories),
     contents: contentIds,
+    thumbnail: await commonsThumbnail(object),
   })
   objectIdByKey.set(object.key, String(doc.id))
 }
 console.info(`${OBJECTS.length} objects and ${contentIdByTitle.size} contents ready.`)
+
+// Authors, movements and events from each work's Wikidata item (best effort:
+// without network the works keep only their own data).
+const localReq = await createLocalReq({}, payload)
+let linkedSubjects = 0
+for (const [key, id] of objectIdByKey) {
+  try {
+    linkedSubjects += (await importWikidataSubjects(localReq, id)).subjects
+  } catch (error) {
+    console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
+  }
+}
+console.info(`${linkedSubjects} subject links from Wikidata.`)
+
+// Contents about a subject rather than a work (an item about an artist).
+for (const subjectContent of SUBJECT_CONTENTS) {
+  const subject = (
+    await payload.find({
+      collection: 'subjects',
+      where: { wikidataId: { equals: subjectContent.wikidataId } },
+      depth: 0,
+      limit: 1,
+    })
+  ).docs[0]
+  if (!subject) continue
+  const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
+    title: subjectContent.title,
+    bodyHTML: subjectContent.bodyHTML,
+    difficulty: subjectContent.difficulty,
+    audience: 'everyone',
+    sources: subjectContent.sources ?? [],
+    author: authorId(subjectContent.author),
+    objects: {},
+  })
+  const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
+  await payload.update({
+    collection: 'subjects',
+    id: subject.id,
+    depth: 0,
+    data: { contents: [...contents] },
+  })
+}
 
 // Place every object; `museums.objects` is derived from these items on save.
 const map = createRealisticMuseumMap(MAP_KEY)
@@ -247,7 +344,7 @@ const museum = await upsert<{ id: string }>(payload, 'museums', 'name', MUSEUM.n
     country: 'IT',
     latlng: MUSEUM.latlng,
   },
-  ticketInfo: { label: MUSEUM.ticketLabel },
+  ticketInfo: { label: MUSEUM.ticketLabel, url: MUSEUM.ticketUrl },
   news: MUSEUM.news,
   map,
   navMesh,
@@ -280,8 +377,16 @@ for (const tour of TOURS) {
       // Tours have no `bodyHTML` input (contents and museums do).
       body: convertHTMLToLexical({ editorConfig, JSDOM, html: tour.bodyHTML }),
       contents: tour.stops.map((title) => contentIdByTitle.get(title)!),
+      // Logistic directions: the visit's practical information, and how to
+      // reach each stop (`src/lib/tour-logistics.ts`).
+      logistics: tour.logistics,
+      directions: Object.entries(tour.directions).map(([title, text]) => ({
+        content: contentIdByTitle.get(title)!,
+        text,
+      })),
       museum: museum.id,
-      author,
+      // Tours are curated by the first author account.
+      author: authorId('autore1'),
       durationMinutes: tour.durationMinutes,
       distanceMeters: walking.metres,
       wheelchairAccessible: tour.wheelchairAccessible,

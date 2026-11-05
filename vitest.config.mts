@@ -14,7 +14,13 @@ export default defineConfig({
     projects: [{
       extends: true,
       test: {
-        environment: 'jsdom',
+        // `pnpm test:int` (`--project int`): without a name the project could
+        // not be selected, and the script ran the Storybook browser tests too.
+        name: 'int',
+        // Integration specs exercise server code (Payload, jose, route handlers)
+        // and none touches the DOM: under jsdom those libraries load their
+        // browser builds and fail. A DOM spec opts in with `@vitest-environment jsdom`.
+        environment: 'node',
         setupFiles: ['./vitest.setup.ts'],
         include: ['tests/int/**/*.int.spec.{ts,tsx}']
       }
@@ -43,14 +49,21 @@ export default defineConfig({
         browser: {
           enabled: true,
           headless: true,
-          // Visual runs resize the story iframe to 390×844 and 1280×800 (see
-          // .storybook/vitest.visual.ts). The test UI scales the iframe down to
-          // fit the browser window, so give it room for both at 1:1 pixels.
-          provider: playwright(
-            process.env.VISUAL_REGRESSION === '1'
-              ? { contextOptions: { viewport: { width: 1600, height: 1100 } } }
-              : {},
-          ),
+          provider: playwright({
+            contextOptions: {
+              // The browser asks for reduced motion, and the theme honours it
+              // (`respectReducedMotion`): Mantine's modal, Spotlight and other
+              // transitions finish at once, so play functions never wait on a
+              // fade (see .storybook/vitest.visual.ts).
+              reducedMotion: 'reduce',
+              // Visual runs resize the story iframe to 390×844 and 1280×800 (see
+              // .storybook/vitest.visual.ts). The test UI scales the iframe down
+              // to fit the browser window, so give it room for both at 1:1 pixels.
+              ...(process.env.VISUAL_REGRESSION === '1'
+                ? { viewport: { width: 1600, height: 1100 } }
+                : {}),
+            },
+          }),
           instances: [{
             browser: 'chromium'
           }],
@@ -58,7 +71,9 @@ export default defineConfig({
             toMatchScreenshot: {
               // One flat folder keyed by story id instead of a __screenshots__
               // folder beside every story file. Browser and platform stay in the
-              // name because font rendering differs between OSes.
+              // name because font rendering differs between OSes; the
+              // references are Linux ones, captured in the Playwright Docker
+              // image on every host (scripts/test-visual-docker.mjs).
               resolveScreenshotPath: ({ arg, browserName, platform, ext, root }) =>
                 `${root}/__screenshots__/${arg}-${browserName}-${platform}${ext}`
             }

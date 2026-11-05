@@ -301,7 +301,7 @@ function ReviewEntry({
         )}
         <Text size="sm">
           <Text span fw={600} c={item.correct ? 'green.8' : 'red.8'}>
-            {item.correct ? t('Right:') : t('Your answer:')}
+            {item.correct ? t('Right answer:') : t('Your answer:')}
           </Text>{' '}
           {item.yourAnswer ?? t('no answer')}
         </Text>

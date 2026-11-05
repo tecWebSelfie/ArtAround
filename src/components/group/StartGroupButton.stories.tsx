@@ -58,7 +58,10 @@ export const ServerUnavailable: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
     await fillAndOpen('Anna')
     await expect(
-      await screen.findByText('The group could not be opened. Try again in a minute.'),
+      // The error arrives after the request, which under load can outlast 1s.
+      await screen.findByText('The group could not be opened. Try again in a minute.', undefined, {
+        timeout: 5_000,
+      }),
     ).toBeVisible()
   },
 }

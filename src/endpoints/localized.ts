@@ -39,9 +39,8 @@ export function localizedReadEndpoint(collection: LocalizedSlug): Endpoint {
     method: 'get',
     handler: async (req) => {
       if (!req.url) return Response.json({ error: 'missing request url' }, { status: 500 })
-      const origin = req.url
       const id = req.routeParams?.id as string | undefined
-      const params = new URL(origin).searchParams
+      const params = new URL(req.url).searchParams
       // Explicit ?locale= wins (invalid value = 400, fail loud); Accept-Language
       // is only the zero-config fallback when the param is absent entirely.
       const locale = params.has('locale')
@@ -59,7 +58,7 @@ export function localizedReadEndpoint(collection: LocalizedSlug): Endpoint {
       const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local'
       const throttled = !allowEnqueue(ip)
       // Read as the caller: paid bodies and private fields follow their access rules.
-      const state = await resolveLocalized(req.payload, origin, {
+      const state = await resolveLocalized(req.payload, {
         collection,
         id,
         locale,
@@ -81,7 +80,7 @@ export function localizedReadEndpoint(collection: LocalizedSlug): Endpoint {
               { status: 429 },
             )
           }
-          const q = await enqueueTranslation(origin, { collection, id, locale })
+          const q = await enqueueTranslation({ collection, id, locale })
           return Response.json({
             status: q.queueError ? 'miss-queue-failed' : 'miss-queued',
             source: 'fallback-en',
@@ -105,7 +104,7 @@ export function localizedReadEndpoint(collection: LocalizedSlug): Endpoint {
               queueError: 'throttled — retry shortly',
             })
           }
-          const q = await enqueueTranslation(origin, { collection, id, locale })
+          const q = await enqueueTranslation({ collection, id, locale })
           return Response.json({
             status: 'stale-refreshing',
             source: 'db-stale',

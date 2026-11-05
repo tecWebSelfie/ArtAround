@@ -1,0 +1,108 @@
+'use client'
+
+import { useAuth } from '@/components/auth/AuthProvider'
+import { type NavAccount, toNavAccount } from '@/components/navigation/nav-account'
+import type { MuseumRole } from '@/fields/MuseumFunction'
+import { Menu, Stack, Text } from '@mantine/core'
+import { BadgeCheck, Compass, Landmark, Palette, Store } from 'lucide-react'
+import type { Route } from 'next'
+import { useT } from 'next-i18next/client'
+import Link from 'next/link'
+import { useParams, usePathname } from 'next/navigation'
+
+/**
+ * What the two navigation bars share: the phone's bottom bar (`NavBar`, tabs
+ * layout) and the desktop top bar (`SiteHeader`, frontend layout) show the
+ * same entries, account and museums from the same logic, only laid out
+ * differently. Keep entries, colors and menu contents here so the two never
+ * drift apart.
+ */
+
+/**
+ * The tab entries. Each keeps its color in both bars: Navigator green, Marketplace red.
+ * Labels are `navbar` keys of `common`; listed here for `i18next-cli extract`,
+ * which can't read a key out of a variable:
+ * t('navbar.Navigator', 'Navigator') t('navbar.Marketplace', 'Marketplace')
+ */
+export const NAV_ITEMS = [
+  { Icon: Compass, color: 'green', label: 'Navigator', href: '/navigator' },
+  { Icon: Store, color: 'red', label: 'Marketplace', href: '/marketplace' },
+] as const
+
+export type { NavAccount }
+
+/** A museum where the signed-in visitor holds a per-museum role. */
+export type MyMuseum = { id: string; name: string; role: MuseumRole }
+
+// Same icon per role as the profile badges (UserPage): icon + label, never color alone.
+// Role labels, `navbar` keys listed for `i18next-cli extract`:
+// t('navbar.Director', 'Director') t('navbar.Curator', 'Curator')
+// t('navbar.Verified creator', 'Verified creator')
+const ROLE_META: Record<MuseumRole, { Icon: typeof Landmark; label: string }> = {
+  director: { Icon: Landmark, label: 'Director' },
+  curator: { Icon: Palette, label: 'Curator' },
+  verified: { Icon: BadgeCheck, label: 'Verified creator' },
+}
+
+/**
+ * Navigation state for either bar.
+ * - The client session (`AuthProvider`) drives the account entry so it reacts
+ *   to sign-in/out without a reload. While its first `/api/users/me` probe
+ *   runs, the server session (`account`) answers instead, so the entry renders
+ *   the real visitor at once instead of a spinner or a placeholder name.
+ * - `isActive` localizes the href (/it/navigator) so the check matches the
+ *   actual pathname, with no redirect hop.
+ * - No sign out here: in both bars the account entry links to the profile,
+ *   which carries `SignOutButton`.
+ */
+export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
+  const pathname = usePathname()
+  const { lng } = useParams<{ lng: string }>()
+  const { t } = useT(undefined, { keyPrefix: 'navbar' })
+  const { status, user } = useAuth()
+
+  const signedIn: NavAccount | null =
+    status === 'loading' ? account : user ? toNavAccount(user) : null
+
+  const localize = (href: string) => `/${lng}${href}` as Route
+  const isActive = (href: string) => {
+    const localized = localize(href)
+    return pathname === localized || pathname.startsWith(`${localized}/`)
+  }
+
+  return {
+    lng,
+    pathname,
+    signedIn,
+    // Both bars link the account entry to the profile (it carries sign out).
+    profileHref: signedIn ? (`/${lng}/user/${signedIn.id}` as Route) : null,
+    displayName: signedIn?.name || t('Account'),
+    inMyMuseum: myMuseums.some((museum) => pathname.startsWith(`/${lng}/museum/${museum.id}`)),
+    signInHref: `/${lng}/login?next=${encodeURIComponent(pathname)}` as Route,
+    localize,
+    isActive,
+  }
+}
+
+/** One row per museum where the visitor holds a role: name over its dimmed role label. */
+export function MyMuseumsMenuItems({ lng, myMuseums }: { lng: string; myMuseums: MyMuseum[] }) {
+  const { t } = useT(undefined, { keyPrefix: 'navbar' })
+  return myMuseums.map((museum) => {
+    const { Icon, label } = ROLE_META[museum.role]
+    return (
+      <Menu.Item
+        key={museum.id}
+        component={Link}
+        href={`/${lng}/museum/${museum.id}` as Route}
+        leftSection={<Icon size={16} aria-hidden />}
+      >
+        <Stack gap={0}>
+          <Text size="sm">{museum.name}</Text>
+          <Text size="xs" c="dimmed">
+            {t(label)}
+          </Text>
+        </Stack>
+      </Menu.Item>
+    )
+  })
+}

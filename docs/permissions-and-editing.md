@@ -74,7 +74,7 @@ Super admins bypass all of the above.
   editable by super admins only.
 - 3D model generation (`POST /api/objects/:id/generate-model`): any signed-in
   user may start it, but only the owner (same update rule, via
-  `docAccessOperation`) may **steer** it. For non-owners the endpoint drops the
+  `canUpdateDoc` in `src/lib/doc-access.ts`) may **steer** it. For non-owners the endpoint drops the
   client `generation` body (prompt, reference images) and rebuilds it from the
   object document: prompt from its name and description
   (`objectGenerationPrompt`), reference image from its stored thumbnail,
@@ -122,9 +122,22 @@ Local API bypasses access unless told otherwise. Server pages use
 - `getSession()` — Payload + current user from request cookies.
 - `asViewer()` — spread into Local API calls (`user`, `overrideAccess: false`).
 - `can(collection, id, 'update' | 'delete', field?)` — Payload's own
-  `docAccessOperation`, so edit buttons follow the exact server rules.
+  `docAccessOperation` (through `docPermissions` in `src/lib/doc-access.ts`,
+  shared with custom endpoints), so edit buttons follow the exact server rules.
 
 `resolveLocalized()` takes `user` and always reads with access control.
+
+## Private contents and tours
+
+`visibility` (`public` | `private`) on contents and tours (`src/lib/visibility.ts`,
+`VisibilityInput` in the forms). Read access returns a query: public documents,
+the caller's own, and — for group-visit guests — the tour named by the signed
+`aa-group-tour` cookie and its contents (see [group tours](group-tours.md)).
+Private documents are never indexed (`skipSync`, `hideFromSearch` hooks,
+`refreshSearchDocs`). Save rules: a private content can't be sold
+(`guardVisibility`), nor made private once bought or used in another author's
+tour; a public tour can't include private contents (`guardPrivateContents`).
+Tests: `tests/int/visibility.int.spec.ts`.
 
 ## Frontend editing
 
@@ -138,10 +151,22 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
 1. **Inline metadata editing** (`EditableSection` on detail pages):
    - museum (Info tab): name, short description, description (rich text),
      email, address — director (`can('museums', id, 'update', 'name')`);
+   - museum color (Info tab, `MuseumAppearanceForm`): `brandColor`, director
+     only (field access like the other metadata). The hook `syncMuseumPalette`
+     derives the read-only `palette` on save and the field `validate` refuses
+     saturated red and orange (DESIGN.md → The Museum Primary Rule);
    - object: name, description — owner;
-   - content: title, difficulty, copyright, price and the body (rich text,
-     TipTap loaded on demand) — author (`ContentEditForm`, fields shared with
-     `ContentForm` through `ContentFields`);
+   - content: title, difficulty, price, rights holder, licence and the body
+     (rich text, TipTap loaded on demand) — author (`ContentEditForm`, fields
+     shared with `ContentForm` through `ContentFields`). Rights
+     (`src/lib/content-rights.ts`, hooks `guardRights` on contents and
+     `guardNonCommercialContents` on tours): the holder is the author or a
+     museum where the author is curator or director (`rightsMuseum`); a new
+     content needs the author's declaration that the text is theirs
+     (`rightsDeclaredAt`, stamped by the server); a paid content is always
+     "all rights reserved"; a tour that sells contents can't include another
+     author's NC content. The credit line ("© holder year · licence") is
+     computed, never typed;
    - own profile: first/last name, bio (+ sign out).
 2. **Dedicated pages** (complex relations):
    - `/[lng]/content/new?object=<id>` — full content form; sends

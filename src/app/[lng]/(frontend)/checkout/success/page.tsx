@@ -1,11 +1,9 @@
-import config from '@payload-config'
 import type { Route } from 'next'
-import { headers } from 'next/headers'
-import { getPayload } from 'payload'
 
 import { getT } from '@/i18n.server'
 import { hasPurchased } from '@/lib/entitlements'
 import { reconcileCheckoutSession } from '@/lib/purchases'
+import { getSession } from '@/lib/session'
 import { getStripe } from '@/lib/stripe'
 import { CheckoutOutcome } from '../CheckoutOutcome'
 import { checkoutReturn } from '../return-path'
@@ -36,13 +34,16 @@ export default async function CheckoutSuccess(props: {
   const search = await props.searchParams
   const sessionId = typeof search.session_id === 'string' ? search.session_id : undefined
   const back = checkoutReturn(lng, search)
+  // The request's cached session (only signed-in users, not MCP API keys),
+  // read together with the translations.
+  const session = getSession()
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('checkout')
-
-  const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
+  const { payload, user } = await session
   const reference = sessionId ? t('Payment reference {{id}}', { id: sessionId }) : undefined
 
-  if (!user || user.collection !== 'users') {
+  if (!user) {
     const here = `/${lng}/checkout/success?${new URLSearchParams(
       Object.entries(search).flatMap(([key, value]) =>
         typeof value === 'string' ? [[key, value]] : [],

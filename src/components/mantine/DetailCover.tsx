@@ -45,6 +45,7 @@ export function DetailCover({
   fallback,
   title,
   lightbox = true,
+  height = COVER_HEIGHT,
 }: {
   /**
    * The document's pictures, cover first, as read with `PICTURE_SELECT`;
@@ -58,6 +59,12 @@ export function DetailCover({
   /** What the media shows, for the 3D view's accessible name. */
   title: string
   lightbox?: boolean
+  /**
+   * The card's height, `COVER_HEIGHT` by default. The object page's desktop
+   * media pane passes a taller, viewport-bound one: there the cover stands
+   * beside the text instead of above it, so the fold rule doesn't apply.
+   */
+  height?: string
 }) {
   const { t } = useTranslation('common')
   const [show3d, setShow3d] = useState(false)
@@ -70,7 +77,7 @@ export function DetailCover({
   const openLightbox = () => setLightboxIndex(0)
 
   return (
-    <Paper radius="lg" pos="relative" h={COVER_HEIGHT} className="overflow-hidden">
+    <Paper radius="lg" pos="relative" h={height} className="overflow-hidden">
       {show3d && modelUrl ? (
         <Suspense fallback={<Skeleton h="100%" radius={0} />}>
           <ModelViewer

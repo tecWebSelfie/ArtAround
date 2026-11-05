@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
 import { spotlight } from '@mantine/spotlight'
-import { expect, fn, userEvent, waitFor, within } from 'storybook/test'
+import { expect, fn, userEvent, within } from 'storybook/test'
 import type { Route } from 'next'
 import type { NavigationCommand } from './navigation-commands'
 import { NavigationSpotlight } from './NavigationSpotlight'
@@ -51,8 +51,7 @@ export const EmptyShowsPills: Story = {
   play: async ({ canvasElement, args }) => {
     spotlight.open()
     const body = within(canvasElement.ownerDocument.body)
-    // The Spotlight opens with a transition: wait until it is fully shown.
-    await waitFor(() => expect(body.getByText('Quick actions')).toBeVisible(), { timeout: 5_000 })
+    await expect(await body.findByText('Quick actions')).toBeVisible()
     // The paid nearby content carries the locked price badge.
     const paid = await body.findByRole('button', { name: /Workshop secrets/ })
     await expect(paid).toHaveTextContent('€4.50')
@@ -78,8 +77,30 @@ export const NothingFound: Story = {
     spotlight.open()
     const body = within(canvasElement.ownerDocument.body)
     await userEvent.type(await body.findByRole('textbox', { name: 'Search' }), 'zzz')
-    await waitFor(() => expect(body.getByText('No results found')).toBeVisible(), {
-      timeout: 5_000,
-    })
+    await expect(await body.findByText('No results found')).toBeVisible()
+  },
+}
+
+/**
+ * The on-screen equivalents of the controlled voice commands
+ * (`src/lib/voice-vocabulary.ts`): each phrase's command is a pill too.
+ */
+const voiceCommands = [
+  command('previous-stop', 'Previous stop', 'quick', { description: 'Tour' }),
+  command('what-is-this', 'What is this?', 'quick', { description: 'Position' }),
+  command('author', 'Who is the author?', 'quick', { description: 'Raphael' }),
+  command('style', 'What style is it?', 'quick', { description: 'High Renaissance' }),
+]
+
+export const VoiceCommandPills: Story = {
+  args: { commands: voiceCommands, nearby: [] },
+  play: async ({ canvasElement, args }) => {
+    spotlight.open()
+    const body = within(canvasElement.ownerDocument.body)
+    for (const { label } of voiceCommands) {
+      await expect(await body.findByRole('button', { name: label })).toBeVisible()
+    }
+    await userEvent.click(body.getByRole('button', { name: 'Who is the author?' }))
+    await expect(args.onRun).toHaveBeenCalledWith(voiceCommands[2])
   },
 }

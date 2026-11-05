@@ -11,6 +11,7 @@ import { getPayload } from 'payload'
 import { ItemNode, LevelNode, type ParsedBuildJson, ZoneNode } from '@pascal-app/core'
 import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
+import { PROJECT_ACCOUNTS } from './seed-accounts'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -386,7 +387,9 @@ try {
     },
   ] satisfies RequiredDataFromCollectionSlug<'users'>[]
   const userIdByEmail: Record<string, string> = {}
-  for (const user of demoUsers) {
+  // The accounts the course specification names come first: every seeded
+  // database must let the examiners log in as authors and visitors.
+  for (const user of [...PROJECT_ACCOUNTS, ...demoUsers]) {
     const foundId = await findId('users', 'email', user.email)
     if (foundId) {
       userIdByEmail[user.email] = foundId
@@ -462,7 +465,6 @@ try {
         body: htmlToRichText(
           '<p>Gian Lorenzo Bernini trasformò il marmo in movimento: il <em>Ratto di Proserpina</em> racconta il mito attraverso panneggi, sguardi e una composizione a spirale che invita il visitatore a girare intorno al gruppo scultoreo.</p>',
         ),
-        copyright: 'Text © ArtAround, 2026.',
         categories: [categoryIdBySlug['arte-antica'], categoryIdBySlug['arte-moderna']],
         sources: [
           {
@@ -480,7 +482,6 @@ try {
         body: htmlToRichText(
           '<p>Dipinto da Giuseppe Pellizza da Volpedo nel 1901, <em>Il Quarto Stato</em> è il manifesto visivo delle lotte operaie: una folla che avanza lenta e compatta, costruita con la tecnica divisionista.</p>',
         ),
-        copyright: 'Text © ArtAround, 2026.',
         categories: [categoryIdBySlug['arte-contemporanea']],
         sources: [{ label: 'Palazzo Reale di Milano — mostre' }],
       },
@@ -493,7 +494,6 @@ try {
         body: htmlToRichText(
           '<p>Il cannocchiale, il microscopio e la bilancia idrostatica raccontano il metodo galileiano: osservare, misurare, sperimentare. Gli strumenti del Museo Galileo sono anche oggetti di artigianato di altissima qualità.</p>',
         ),
-        copyright: 'Text © ArtAround, 2026.',
         categories: [categoryIdBySlug['scienza']],
         sources: [{ label: 'Museo Galileo — collezione', url: 'https://www.museogalileo.it' }],
         // Paid content: exercises the checkout/entitlement path in the app.
@@ -508,7 +508,6 @@ try {
         body: htmlToRichText(
           '<p>L\u2019<em>Ercole Farnese</em> è una copia romana da originale greco che ha influenzato scultori e collezionisti per secoli. Il percorso racconta come le sculture Farnese arrivarono a Napoli.</p>',
         ),
-        copyright: 'Text © ArtAround, 2026.',
         categories: [categoryIdBySlug['archeologia'], categoryIdBySlug['arte-antica']],
         sources: [{ label: 'MANN — collezione Farnese', url: 'https://mann-napoli.it' }],
       },
@@ -521,7 +520,6 @@ try {
         body: htmlToRichText(
           '<p>Le sale di Palazzo Ducale celebrano il potere della Repubblica: tele del Tintoretto, soffitti dorati e il Ponte dei Sospiri raccontano la storia politica della Serenissima.</p>',
         ),
-        copyright: 'Text © ArtAround, 2026.',
         categories: [categoryIdBySlug['arte-moderna']],
         sources: [{ label: 'Palazzo Ducale — percorso di visita' }],
         price: 299,
@@ -830,7 +828,6 @@ try {
       contentTitle: '[DEV] Storia della ceramica attica',
       contentBody: 'Introduzione alla ceramica attica a figure rosse e alle sue tecniche.',
       difficulty: 'easy' as const,
-      copyright: '© Museo Civico di Esempio',
     },
     {
       objectName: 'Statua in marmo di atleta',
@@ -838,7 +835,6 @@ try {
       contentTitle: '[DEV] Il restauro del bronzo',
       contentBody: 'Come si restaura una statua: pulitura, consolidamento e integrazione.',
       difficulty: 'medium' as const,
-      copyright: '© Museo Civico di Esempio',
     },
     {
       objectName: 'Mosaico pavimentale',
@@ -846,7 +842,6 @@ try {
       contentTitle: '[DEV] Leggere un dipinto rinascimentale',
       contentBody: 'Iconografia, prospettiva e committenza nella pittura del Rinascimento.',
       difficulty: 'hard' as const,
-      copyright: '© Museo Civico di Esempio',
     },
   ]
   const seededStops: { objectId: string; contentId: string }[] = []
@@ -866,7 +861,6 @@ try {
         data: {
           title: stop.contentTitle,
           body: htmlToRichText(`<p>${stop.contentBody}</p>`),
-          copyright: stop.copyright,
           difficulty: stop.difficulty,
           objects: {},
           author: superAdminId,

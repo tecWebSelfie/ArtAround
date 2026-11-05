@@ -2,11 +2,13 @@ import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { getT } from '@/i18n.server'
+import { formatRating } from '@/lib/rating'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PictureGrid } from '@/components/mantine/PictureGrid'
 import { pictureSrc, usablePictures } from '@/lib/picture'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { isLocked, isPaid } from '@/lib/price'
+import { creditLine, LICENSE_NAME, LICENSE_URL } from '@/lib/content-rights'
 import type {
   Content,
   ContentImage,
@@ -18,6 +20,7 @@ import type {
   User,
 } from '@/payload-types'
 import {
+  Anchor,
   Avatar,
   Badge,
   Card,
@@ -32,6 +35,7 @@ import {
 } from '@mantine/core'
 import {
   Baby,
+  EyeOff,
   BookOpen,
   ChevronRight,
   Landmark,
@@ -66,11 +70,11 @@ export type ContentDetailsAuthor = Pick<User, 'id' | 'name' | 'avatar' | 'bio'>
 export type ContentDetailsTour = Pick<Tour, 'id' | 'title' | 'thumbnail' | 'museum'>
 export type ContentDetailsRelated = Pick<
   Content,
-  'id' | 'title' | 'difficulty' | 'readingTimeMins' | 'images'
+  'id' | 'title' | 'difficulty' | 'durationSeconds' | 'images'
 >
 
 export type ContentDetailsProps = {
-  /** The page's localized content (depth 0): badges, sources, copyright, dates. */
+  /** The page's localized content (depth 0): badges, sources, credits, dates. */
   content: Pick<
     Content,
     | 'difficulty'
@@ -79,13 +83,16 @@ export type ContentDetailsProps = {
     | 'body'
     | 'lfrs'
     | 'sources'
-    | 'copyright'
+    | 'license'
+    | 'visibility'
     | 'createdAt'
     | 'updatedAt'
   >
   object?: ContentDetailsObject | null
   museum?: ContentDetailsMuseum | null
   author?: ContentDetailsAuthor | null
+  /** Who holds the rights: the museum named in `rightsMuseum`, else the author. */
+  rightsHolder?: string | null
   categories?: Pick<MuseumCategory, 'id' | 'name'>[]
   images?: Pick<ContentImage, 'id' | 'url' | 'thumbnailURL' | 'alt' | 'sizes'>[]
   tours?: ContentDetailsTour[]
@@ -98,6 +105,7 @@ export async function ContentDetails({
   object,
   museum,
   author,
+  rightsHolder,
   categories = [],
   images = [],
   tours = [],
@@ -111,6 +119,11 @@ export async function ContentDetails({
     hard: t('Hard'),
   }
   const pictures = usablePictures(images)
+  const credit = creditLine({
+    holder: rightsHolder,
+    createdAt: content.createdAt,
+    license: content.license,
+  })
   const ratingsCount = content.lfrs?.ratingsCount ?? 0
   const ratingsAverage = content.lfrs?.ratingsAverage
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
@@ -126,6 +139,12 @@ export async function ContentDetails({
         <DifficultyBadge difficulty={content.difficulty} size="lg" variant="light">
           {difficultyLabel[content.difficulty]}
         </DifficultyBadge>
+        {/* Private: only its author and group-visit guests can read it. */}
+        {content.visibility === 'private' && (
+          <Badge size="lg" variant="light" color="gray" leftSection={<EyeOff size={14} />}>
+            {t('Private')}
+          </Badge>
+        )}
         {content.audience === 'children' && (
           <Badge size="lg" variant="light" color="pink" leftSection={<Baby size={14} />}>
             {t('For children')}
@@ -137,10 +156,12 @@ export async function ContentDetails({
             variant="light"
             color="yellow"
             leftSection={<Star size={14} fill="currentColor" />}
-            aria-label={t('Rated {{rating}} out of 5', { rating: ratingsAverage.toFixed(1) })}
+            aria-label={t('Rated {{rating}} out of 5', {
+              rating: formatRating(ratingsAverage, lng),
+            })}
             className="tabular-nums"
           >
-            {`${ratingsAverage.toFixed(1)} (${ratingsCount})`}
+            {`${formatRating(ratingsAverage, lng)} (${ratingsCount})`}
           </Badge>
         )}
         {/* A paid content shows its price while locked; once readable (bought,
@@ -237,7 +258,7 @@ export async function ContentDetails({
                 {museum && (
                   <Link
                     href={`/${lng}/museum/${museum.id}` as Route}
-                    className="inline-flex w-fit items-center gap-1 text-sm text-(--mantine-color-blue-8) hover:underline"
+                    className="inline-flex w-fit items-center gap-1 text-sm text-(--mantine-primary-color-8) hover:underline"
                   >
                     <Landmark size={14} aria-hidden />
                     {museum.name}
@@ -313,7 +334,8 @@ export async function ContentDetails({
           <Stack gap="xs">
             {related.map((item) => {
               // Its own picture, else the object's: they all show the same piece.
-              const image = filterPopulated<ContentImage>(item.images).find((i) => i.url) ?? objectImage
+              const image =
+                filterPopulated<ContentImage>(item.images).find((i) => i.url) ?? objectImage
               return (
                 <LinkRow
                   key={item.id}
@@ -327,9 +349,9 @@ export async function ContentDetails({
                     <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">
                       {difficultyLabel[item.difficulty]}
                     </DifficultyBadge>
-                    {item.readingTimeMins ? (
+                    {item.durationSeconds ? (
                       <DurationBadge
-                        time={item.readingTimeMins}
+                        seconds={item.durationSeconds}
                         size="xs"
                         variant="light"
                         color="gray"
@@ -343,11 +365,27 @@ export async function ContentDetails({
         </Section>
       )}
 
-      {/* Credits: the required copyright line and when the text last changed. */}
+      {/* Credits: rights holder, licence (linked to its deed) and when the
+          text last changed. Built from the author or museum and the licence
+          field (src/lib/content-rights.ts), never typed by hand. */}
       <Stack gap={2}>
-        {content.copyright && (
+        {(credit.copyright || credit.license) && (
           <Text size="xs" c="dimmed">
-            {content.copyright}
+            {credit.copyright}
+            {credit.copyright && credit.license && ' · '}
+            {credit.license &&
+              (LICENSE_URL[credit.license] ? (
+                <Anchor
+                  href={LICENSE_URL[credit.license]}
+                  target="_blank"
+                  rel="license noopener"
+                  inherit
+                >
+                  {LICENSE_NAME[credit.license]}
+                </Anchor>
+              ) : (
+                t('All rights reserved')
+              ))}
           </Text>
         )}
         <Text size="xs" c="dimmed">

@@ -1,4 +1,5 @@
-import { WORDS_PER_MINUTE, type ExpansionLink, type ExpansionRequest } from './expansion'
+import { formatDuration, wordsForSeconds } from './duration'
+import type { ExpansionLink, ExpansionRequest } from './expansion'
 
 /**
  * The instructions `/api/expand` gives the language model, kept apart from
@@ -26,7 +27,8 @@ function task(request: ExpansionRequest) {
   return [
     'Rewrite the original text as a new version of it. Keep every fact; do not add new ones.',
     `Use ${DIFFICULTY_STYLE[request.difficulty]}.`,
-    `It should take about ${request.minutes} minute(s) to read (about ${request.minutes * WORDS_PER_MINUTE} words).`,
+    // Same read-aloud pace as the stored lengths, so a 15-second version is a sentence or two.
+    `It should take about ${formatDuration(request.seconds)} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
     request.audience === 'children'
       ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
       : '',
@@ -41,6 +43,7 @@ export function expansionPrompt({
   language,
   subject,
   text,
+  alreadyRead = [],
   links,
   sources,
 }: {
@@ -49,6 +52,11 @@ export function expansionPrompt({
   language: string
   subject: string
   text: string
+  /**
+   * Earlier "Tell me more" additions on the same angle, in order: the visitor
+   * has read them, so this one continues instead of starting over.
+   */
+  alreadyRead?: string[]
   links: ExpansionLink[]
   sources: { title: string; text: string }[]
 }) {
@@ -73,6 +81,15 @@ export function expansionPrompt({
       `Task: ${task(request)}`,
       `Subject: ${subject}`,
       `Original text:\n${text.slice(0, 6_000)}`,
+      alreadyRead.length
+        ? [
+            'The visitor has already read the original text and these additions, in this order.',
+            'Continue from where they stop: add only new information, never repeat or rephrase them.',
+            ...alreadyRead.map(
+              (addition, index) => `Addition ${index + 1}:\n${addition.slice(0, 3_000)}`,
+            ),
+          ].join('\n')
+        : '',
       links.length
         ? `Museum entities you may link:\n${links.map((link) => `/${link.kind}/${link.id}: ${linkLabel(link.title)}`).join('\n')}`
         : '',

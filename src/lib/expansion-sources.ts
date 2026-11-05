@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { createMCPClient } from '@ai-sdk/mcp'
+import { WIKIMEDIA_USER_AGENT } from './wikidata'
 
 /**
  * External facts for `/api/expand`, from two public, authoritative sources:
@@ -22,8 +23,6 @@ export type ExternalSource = { title: string; url: string; text: string }
 const WIKIDATA_MCP_URL = 'https://wd-mcp.wmcloud.org/mcp'
 // Wikidata needs about 9 s (MCP handshake, tool list, search, statements).
 const TIMEOUT_MS = 10_000
-/** Wikimedia asks API clients to identify themselves. */
-const USER_AGENT = 'ArtAround/1.0 (university museum guide project)'
 /** Keeps each source to roughly 500 tokens of the prompt. */
 const MAX_SOURCE_CHARS = 2_000
 
@@ -42,16 +41,29 @@ function withTimeout<T>(promise: Promise<T>): Promise<T> {
   ])
 }
 
-async function wikidataFacts(query: string, lang: string): Promise<ExternalSource | null> {
+/**
+ * Facts about the work from Wikidata. With the work's own Q-id
+ * (`objects.wikidataId`) its statements are read directly; without one, the
+ * first search result for the name is used, which may be a namesake.
+ */
+async function wikidataFacts(
+  query: string,
+  lang: string,
+  wikidataId?: string,
+): Promise<ExternalSource | null> {
   const client = await createMCPClient({ transport: { type: 'http', url: WIKIDATA_MCP_URL } })
   try {
     const tools = await client.tools()
     const call = { toolCallId: 'expand', messages: [], context: {} }
-    // Lines look like "Q867403: Madonna with the Long Neck — painting by Parmigianino".
-    const found = toolText(await tools.search_items.execute({ query, lang }, call))
-    const first = /^(Q\d+): (.+)$/m.exec(found)
-    if (!first) return null
-    const [, qid, label] = first
+    let qid = wikidataId
+    let label = query
+    if (!qid) {
+      // Lines look like "Q867403: Madonna with the Long Neck — painting by Parmigianino".
+      const found = toolText(await tools.search_items.execute({ query, lang }, call))
+      const first = /^(Q\d+): (.+)$/m.exec(found)
+      if (!first) return null
+      ;[, qid, label] = first as unknown as [string, string, string]
+    }
     const facts = toolText(await tools.get_statements.execute({ entity_id: qid, lang }, call))
     return {
       title: `Wikidata: ${label}`,
@@ -66,7 +78,7 @@ async function wikidataFacts(query: string, lang: string): Promise<ExternalSourc
 async function wikipediaSummary(query: string, lang: string): Promise<ExternalSource | null> {
   // The language only ever picks a Wikipedia subdomain, so it must be a plain code.
   const wiki = /^[a-z]{2,3}$/.test(lang) ? lang : 'en'
-  const headers = { 'User-Agent': USER_AGENT }
+  const headers = { 'User-Agent': WIKIMEDIA_USER_AGENT }
   const search = await fetch(
     `https://${wiki}.wikipedia.org/w/rest.php/v1/search/page?q=${encodeURIComponent(query)}&limit=1`,
     { headers },
@@ -91,9 +103,13 @@ async function wikipediaSummary(query: string, lang: string): Promise<ExternalSo
 }
 
 /** Both lookups in parallel; whatever answers in time is used. */
-export async function externalSources(query: string, lang: string): Promise<ExternalSource[]> {
+export async function externalSources(
+  query: string,
+  lang: string,
+  wikidataId?: string,
+): Promise<ExternalSource[]> {
   const results = await Promise.allSettled([
-    withTimeout(wikidataFacts(query, lang)),
+    withTimeout(wikidataFacts(query, lang, wikidataId)),
     withTimeout(wikipediaSummary(query, lang)),
   ])
   return results.flatMap((result) =>

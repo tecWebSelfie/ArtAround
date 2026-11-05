@@ -9,6 +9,8 @@ import type { Route } from 'next'
  * task pages (DESIGN.md → Layout): one `Container size="xs"` reading column in
  * `AppShellMain`, and the single way forward full-width in the 64px footer
  * (The Thumb-Reach Rule), so a buyer back from Stripe knows where to go next.
+ * From md there is no thumb to reach for: the same action sits right under
+ * the message instead of ~600px below it, and the footer is hidden.
  */
 export function CheckoutOutcome({
   title,
@@ -35,13 +37,19 @@ export function CheckoutOutcome({
               </Text>
             )}
           </Stack>
+          {/* Phones: the footer. From md: right under the message. */}
+          <ActionFooter size="xs" inlineFrom="md" inlineProps={{ mt: 'xl' }}>
+            <LinkButton
+              href={action.href}
+              fullWidth
+              size="md"
+              rightSection={<ArrowRight size={18} />}
+            >
+              {action.label}
+            </LinkButton>
+          </ActionFooter>
         </Container>
       </AppShellMain>
-      <ActionFooter size="xs">
-        <LinkButton href={action.href} fullWidth size="md" rightSection={<ArrowRight size={18} />}>
-          {action.label}
-        </LinkButton>
-      </ActionFooter>
     </>
   )
 }

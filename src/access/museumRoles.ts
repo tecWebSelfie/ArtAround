@@ -71,6 +71,10 @@ export function forgetMuseumRoles(req: PayloadRequest) {
 export const hasRank = (fn: MuseumRole | null | undefined, min: MuseumRole): boolean =>
   Boolean(fn) && MUSEUM_FUNCTION_RANK[fn!] >= MUSEUM_FUNCTION_RANK[min]
 
+/** Staff (curator or director) of at least one museum, or a super admin. */
+export const anyMuseumStaff: Access = async ({ req }) =>
+  isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
+
 /** Museums where the caller holds at least `min`. */
 export async function museumsWithRank(req: PayloadRequest, min: MuseumRole): Promise<string[]> {
   const roles = await getMuseumRoles(req)

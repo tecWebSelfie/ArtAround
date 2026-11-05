@@ -9,6 +9,7 @@
  *   host  → `path`  where the group is (tour step, open modal, quiz)
  *         → `quiz`  'ended' once the host closes the group quiz
  *   guest → `quizAnswered` / `quizTotal` / `quizToken` (progress, then result)
+ *         → `requests`  what they asked for at each stop (src/lib/group-requests.ts)
  *
  * Attributes are delivered to people who join late too, so a latecomer
  * lands where the group is without extra messages.

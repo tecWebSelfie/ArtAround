@@ -10,28 +10,28 @@
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "Difficulty".
  */
-export type Difficulty = 'easy' | 'medium' | 'hard';
-export type X = number;
-export type Y = number;
-export type Z = number;
-export type X1 = number;
-export type Y1 = number;
-export type Z1 = number;
-export type X2 = number;
-export type Y2 = number;
-export type Z2 = number;
-export type MinX = number;
-export type MinY = number;
-export type MinZ = number;
-export type MaxX = number;
-export type MaxY = number;
-export type MaxZ = number;
-export type MinX1 = number;
-export type MinY1 = number;
-export type MinZ1 = number;
-export type MaxX1 = number;
-export type MaxY1 = number;
-export type MaxZ1 = number;
+export type Difficulty = 'easy' | 'medium' | 'hard'
+export type X = number
+export type Y = number
+export type Z = number
+export type X1 = number
+export type Y1 = number
+export type Z1 = number
+export type X2 = number
+export type Y2 = number
+export type Z2 = number
+export type MinX = number
+export type MinY = number
+export type MinZ = number
+export type MaxX = number
+export type MaxY = number
+export type MaxZ = number
+export type MinX1 = number
+export type MinY1 = number
+export type MinZ1 = number
+export type MaxX1 = number
+export type MaxY1 = number
+export type MaxZ1 = number
 /**
  * Supported timezones in IANA format.
  *
@@ -85,131 +85,138 @@ export type SupportedTimezones =
   | 'Pacific/Guam'
   | 'Pacific/Noumea'
   | 'Pacific/Auckland'
-  | 'Pacific/Fiji';
+  | 'Pacific/Fiji'
 
 export interface Config {
   auth: {
-    users: UserAuthOperations;
-    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations;
-  };
-  blocks: {};
+    users: UserAuthOperations
+    'payload-mcp-api-keys': PayloadMcpApiKeyAuthOperations
+  }
+  blocks: {}
   collections: {
-    users: User;
-    'user-museum-memberships': UserMuseumMembership;
-    usersPropics: UsersPropic;
-    museums: Museum;
-    museumCategories: MuseumCategory;
-    museumThumbnails: MuseumThumbnail;
-    museumMaps: MuseumMap;
-    objects: Object;
-    objectsModels: ObjectsModel;
-    objectsThumbnails: ObjectsThumbnail;
-    contents: Content;
-    contentImages: ContentImage;
-    contentVariants: ContentVariant;
-    tours: Tour;
-    toursThumbnails: ToursThumbnail;
-    quizQuestions: QuizQuestion;
-    quizAttempts: QuizAttempt;
-    purchases: Purchase;
-    'translator-provenance': TranslatorProvenance;
-    forms: Form;
-    'form-submissions': FormSubmission;
-    exports: Export;
-    imports: Import;
-    'permission-actions': PermissionAction;
-    'permission-features': PermissionFeature;
-    permissions: Permission;
-    roles: Role;
-    'roles-permissions': RolesPermission;
-    'lfrs-likes': LfrsLike;
-    'lfrs-favourites': LfrsFavourite;
-    'lfrs-reviews': LfrsReview;
-    'lfrs-replies': LfrsReply;
-    'lfrs-shares': LfrsShare;
-    'lfrs-testimonials': LfrsTestimonial;
-    search: Search;
-    'payload-mcp-api-keys': PayloadMcpApiKey;
-    'payload-kv': PayloadKv;
-    'payload-jobs': PayloadJob;
-    'payload-locked-documents': PayloadLockedDocument;
-    'payload-preferences': PayloadPreference;
-    'payload-migrations': PayloadMigration;
-  };
+    users: User
+    'user-museum-memberships': UserMuseumMembership
+    usersPropics: UsersPropic
+    museums: Museum
+    museumCategories: MuseumCategory
+    museumThumbnails: MuseumThumbnail
+    museumMaps: MuseumMap
+    objects: Object
+    subjects: Subject
+    objectsModels: ObjectsModel
+    objectsThumbnails: ObjectsThumbnail
+    contents: Content
+    contentImages: ContentImage
+    contentVariants: ContentVariant
+    contentAudio: ContentAudio
+    tours: Tour
+    toursThumbnails: ToursThumbnail
+    quizQuestions: QuizQuestion
+    quizAttempts: QuizAttempt
+    purchases: Purchase
+    'translator-provenance': TranslatorProvenance
+    forms: Form
+    'form-submissions': FormSubmission
+    exports: Export
+    imports: Import
+    'permission-actions': PermissionAction
+    'permission-features': PermissionFeature
+    permissions: Permission
+    roles: Role
+    'roles-permissions': RolesPermission
+    'lfrs-likes': LfrsLike
+    'lfrs-favourites': LfrsFavourite
+    'lfrs-reviews': LfrsReview
+    'lfrs-replies': LfrsReply
+    'lfrs-shares': LfrsShare
+    'lfrs-testimonials': LfrsTestimonial
+    search: Search
+    'payload-mcp-api-keys': PayloadMcpApiKey
+    'payload-kv': PayloadKv
+    'payload-jobs': PayloadJob
+    'payload-locked-documents': PayloadLockedDocument
+    'payload-preferences': PayloadPreference
+    'payload-migrations': PayloadMigration
+  }
   collectionsJoins: {
     users: {
-      authoredContents: 'contents';
-      authoredTours: 'tours';
-      memberships: 'user-museum-memberships';
-      curatorOf: 'user-museum-memberships';
-      directorOf: 'user-museum-memberships';
-      verifiedAt: 'user-museum-memberships';
-      purchases: 'purchases';
-    };
+      authoredContents: 'contents'
+      authoredTours: 'tours'
+      memberships: 'user-museum-memberships'
+      curatorOf: 'user-museum-memberships'
+      directorOf: 'user-museum-memberships'
+      verifiedAt: 'user-museum-memberships'
+      purchases: 'purchases'
+    }
     museums: {
-      tours: 'tours';
-      staff: 'user-museum-memberships';
-    };
+      tours: 'tours'
+      staff: 'user-museum-memberships'
+    }
     museumCategories: {
-      museums: 'museums';
-    };
+      museums: 'museums'
+    }
     objects: {
-      museums: 'museums';
-    };
+      museums: 'museums'
+    }
     contents: {
-      objects: 'objects';
-      variants: 'contentVariants';
-    };
+      objects: 'objects'
+      subjects: 'subjects'
+      variants: 'contentVariants'
+    }
     'lfrs-reviews': {
-      replies: 'lfrs-replies';
-    };
-  };
+      replies: 'lfrs-replies'
+    }
+  }
   collectionsSelect: {
-    users: UsersSelect<false> | UsersSelect<true>;
-    'user-museum-memberships': UserMuseumMembershipsSelect<false> | UserMuseumMembershipsSelect<true>;
-    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>;
-    museums: MuseumsSelect<false> | MuseumsSelect<true>;
-    museumCategories: MuseumCategoriesSelect<false> | MuseumCategoriesSelect<true>;
-    museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>;
-    museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>;
-    objects: ObjectsSelect<false> | ObjectsSelect<true>;
-    objectsModels: ObjectsModelsSelect<false> | ObjectsModelsSelect<true>;
-    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>;
-    contents: ContentsSelect<false> | ContentsSelect<true>;
-    contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>;
-    contentVariants: ContentVariantsSelect<false> | ContentVariantsSelect<true>;
-    tours: ToursSelect<false> | ToursSelect<true>;
-    toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>;
-    quizQuestions: QuizQuestionsSelect<false> | QuizQuestionsSelect<true>;
-    quizAttempts: QuizAttemptsSelect<false> | QuizAttemptsSelect<true>;
-    purchases: PurchasesSelect<false> | PurchasesSelect<true>;
-    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>;
-    forms: FormsSelect<false> | FormsSelect<true>;
-    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
-    exports: ExportsSelect<false> | ExportsSelect<true>;
-    imports: ImportsSelect<false> | ImportsSelect<true>;
-    'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>;
-    'permission-features': PermissionFeaturesSelect<false> | PermissionFeaturesSelect<true>;
-    permissions: PermissionsSelect<false> | PermissionsSelect<true>;
-    roles: RolesSelect<false> | RolesSelect<true>;
-    'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>;
-    'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>;
-    'lfrs-favourites': LfrsFavouritesSelect<false> | LfrsFavouritesSelect<true>;
-    'lfrs-reviews': LfrsReviewsSelect<false> | LfrsReviewsSelect<true>;
-    'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>;
-    'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>;
-    'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>;
-    search: SearchSelect<false> | SearchSelect<true>;
-    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>;
-    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
-    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
-    'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
-    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
-    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
-  };
+    users: UsersSelect<false> | UsersSelect<true>
+    'user-museum-memberships':
+      UserMuseumMembershipsSelect<false> | UserMuseumMembershipsSelect<true>
+    usersPropics: UsersPropicsSelect<false> | UsersPropicsSelect<true>
+    museums: MuseumsSelect<false> | MuseumsSelect<true>
+    museumCategories: MuseumCategoriesSelect<false> | MuseumCategoriesSelect<true>
+    museumThumbnails: MuseumThumbnailsSelect<false> | MuseumThumbnailsSelect<true>
+    museumMaps: MuseumMapsSelect<false> | MuseumMapsSelect<true>
+    objects: ObjectsSelect<false> | ObjectsSelect<true>
+    subjects: SubjectsSelect<false> | SubjectsSelect<true>
+    objectsModels: ObjectsModelsSelect<false> | ObjectsModelsSelect<true>
+    objectsThumbnails: ObjectsThumbnailsSelect<false> | ObjectsThumbnailsSelect<true>
+    contents: ContentsSelect<false> | ContentsSelect<true>
+    contentImages: ContentImagesSelect<false> | ContentImagesSelect<true>
+    contentVariants: ContentVariantsSelect<false> | ContentVariantsSelect<true>
+    contentAudio: ContentAudioSelect<false> | ContentAudioSelect<true>
+    tours: ToursSelect<false> | ToursSelect<true>
+    toursThumbnails: ToursThumbnailsSelect<false> | ToursThumbnailsSelect<true>
+    quizQuestions: QuizQuestionsSelect<false> | QuizQuestionsSelect<true>
+    quizAttempts: QuizAttemptsSelect<false> | QuizAttemptsSelect<true>
+    purchases: PurchasesSelect<false> | PurchasesSelect<true>
+    'translator-provenance': TranslatorProvenanceSelect<false> | TranslatorProvenanceSelect<true>
+    forms: FormsSelect<false> | FormsSelect<true>
+    'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>
+    exports: ExportsSelect<false> | ExportsSelect<true>
+    imports: ImportsSelect<false> | ImportsSelect<true>
+    'permission-actions': PermissionActionsSelect<false> | PermissionActionsSelect<true>
+    'permission-features': PermissionFeaturesSelect<false> | PermissionFeaturesSelect<true>
+    permissions: PermissionsSelect<false> | PermissionsSelect<true>
+    roles: RolesSelect<false> | RolesSelect<true>
+    'roles-permissions': RolesPermissionsSelect<false> | RolesPermissionsSelect<true>
+    'lfrs-likes': LfrsLikesSelect<false> | LfrsLikesSelect<true>
+    'lfrs-favourites': LfrsFavouritesSelect<false> | LfrsFavouritesSelect<true>
+    'lfrs-reviews': LfrsReviewsSelect<false> | LfrsReviewsSelect<true>
+    'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>
+    'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>
+    'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>
+    search: SearchSelect<false> | SearchSelect<true>
+    'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
+    'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>
+    'payload-locked-documents':
+      PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>
+    'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>
+    'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>
+  }
   db: {
-    defaultIDType: string;
-  };
+    defaultIDType: string
+  }
   fallbackLocale:
     | ('false' | 'none' | 'null')
     | false
@@ -583,13 +590,13 @@ export interface Config {
         | 'ii'
         | 'zh'
         | 'ja'
-      )[];
+      )[]
   globals: {
-    'lfrs-settings': LfrsSetting;
-  };
+    'lfrs-settings': LfrsSetting
+  }
   globalsSelect: {
-    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>;
-  };
+    'lfrs-settings': LfrsSettingsSelect<false> | LfrsSettingsSelect<true>
+  }
   locale:
     | 'om'
     | 'aa'
@@ -773,336 +780,304 @@ export interface Config {
     | 'ko'
     | 'ii'
     | 'zh'
-    | 'ja';
+    | 'ja'
   widgets: {
-    collections: CollectionsWidget;
-  };
-  user: User | PayloadMcpApiKey;
+    collections: CollectionsWidget
+  }
+  user: User | PayloadMcpApiKey
   jobs: {
     tasks: {
-      loadObjectGenerationContext: TaskLoadObjectGenerationContext;
-      startMintModelGeneration: TaskStartMintModelGeneration;
-      pollMintModelOperation: TaskPollMintModelOperation;
-      persistMintModelAssets: TaskPersistMintModelAssets;
-      translate_document: TaskTranslateDocument;
-      createCollectionExport: TaskCreateCollectionExport;
-      createCollectionImport: TaskCreateCollectionImport;
+      generateContentAudio: TaskGenerateContentAudio
+      importWikidataSubjects: TaskImportWikidataSubjects
+      loadObjectGenerationContext: TaskLoadObjectGenerationContext
+      startMintModelGeneration: TaskStartMintModelGeneration
+      pollMintModelOperation: TaskPollMintModelOperation
+      persistMintModelAssets: TaskPersistMintModelAssets
+      translate_document: TaskTranslateDocument
+      createCollectionExport: TaskCreateCollectionExport
+      createCollectionImport: TaskCreateCollectionImport
       inline: {
-        input: unknown;
-        output: unknown;
-      };
-    };
+        input: unknown
+        output: unknown
+      }
+    }
     workflows: {
-      generateObjectModel: WorkflowGenerateObjectModel;
-      interactiveObjectModel: WorkflowInteractiveObjectModel;
-      finalizeObjectModel: WorkflowFinalizeObjectModel;
-      translate_document_locales: WorkflowTranslateDocumentLocales;
-    };
-  };
+      generateObjectModel: WorkflowGenerateObjectModel
+      interactiveObjectModel: WorkflowInteractiveObjectModel
+      finalizeObjectModel: WorkflowFinalizeObjectModel
+      translate_document_locales: WorkflowTranslateDocumentLocales
+    }
+  }
 }
 export interface UserAuthOperations {
   forgotPassword:
     | {
-        email: string;
+        email: string
       }
     | {
-        username: string;
-      };
+        username: string
+      }
   login:
     | {
-        email: string;
-        password: string;
+        email: string
+        password: string
       }
     | {
-        password: string;
-        username: string;
-      };
+        password: string
+        username: string
+      }
   registerFirstUser: {
-    password: string;
-    username: string;
-    email?: string;
-  };
+    password: string
+    username: string
+    email?: string
+  }
   unlock:
     | {
-        email: string;
+        email: string
       }
     | {
-        username: string;
-      };
+        username: string
+      }
 }
 export interface PayloadMcpApiKeyAuthOperations {
   forgotPassword: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   login: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   registerFirstUser: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
   unlock: {
-    email: string;
-    password: string;
-  };
+    email: string
+    password: string
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
-  id: string;
-  isSuperAdmin?: boolean | null;
-  roles?: (string | Role)[] | null;
-  parent?: (string | null) | User;
-  parentPath?: string | null;
-  createdBy?: string | null;
+  id: string
+  isSuperAdmin?: boolean | null
+  roles?: (string | Role)[] | null
+  parent?: (string | null) | User
+  parentPath?: string | null
+  createdBy?: string | null
   name: {
-    firstName: string;
-    lastName: string;
-    fullName: string;
-  };
-  description?: string | null;
+    firstName: string
+    lastName: string
+    fullName: string
+  }
+  description?: string | null
   authoredContents?: {
-    docs?: (string | Content)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Content)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   authoredTours?: {
-    docs?: (string | Tour)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  avatar?: (string | null) | UsersPropic;
-  bio?: string | null;
+    docs?: (string | Tour)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  avatar?: (string | null) | UsersPropic
+  bio?: string | null
   memberships?: {
-    docs?: (string | UserMuseumMembership)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | UserMuseumMembership)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   /**
    * Paid content and tours for this user. Read-only — written by the Stripe webhook.
    */
   purchases?: {
-    docs?: (string | Purchase)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Purchase)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   curatorOf?: {
-    docs?: (string | UserMuseumMembership)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | UserMuseumMembership)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   directorOf?: {
-    docs?: (string | UserMuseumMembership)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | UserMuseumMembership)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   verifiedAt?: {
-    docs?: (string | UserMuseumMembership)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  highestStatus?: ('curator' | 'director' | 'verified' | 'none') | null;
-  updatedAt: string;
-  createdAt: string;
-  email?: string | null;
-  username: string;
-  resetPasswordToken?: string | null;
-  resetPasswordExpiration?: string | null;
-  salt?: string | null;
-  hash?: string | null;
-  loginAttempts?: number | null;
-  lockUntil?: string | null;
+    docs?: (string | UserMuseumMembership)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  highestStatus?: ('curator' | 'director' | 'verified' | 'none') | null
+  updatedAt: string
+  createdAt: string
+  email?: string | null
+  username: string
+  resetPasswordToken?: string | null
+  resetPasswordExpiration?: string | null
+  salt?: string | null
+  hash?: string | null
+  loginAttempts?: number | null
+  lockUntil?: string | null
   sessions?:
     | {
-        id: string;
-        createdAt?: string | null;
-        expiresAt: string;
+        id: string
+        createdAt?: string | null
+        expiresAt: string
       }[]
-    | null;
-  password?: string | null;
-  collection: 'users';
+    | null
+  password?: string | null
+  collection: 'users'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles".
  */
 export interface Role {
-  id: string;
-  code: string;
-  name: string;
-  description?: string | null;
-  status: 'active' | 'inactive';
-  dataScope: 'all' | 'own' | 'hierarchy';
+  id: string
+  code: string
+  name: string
+  description?: string | null
+  status: 'active' | 'inactive'
+  dataScope: 'all' | 'own' | 'hierarchy'
   permissionMatrixDraft?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  createdBy?: string | null;
+    | null
+  createdBy?: string | null
   /**
    * Museum function granted by this role, independent of code/name.
    */
-  museumFunction: 'curator' | 'director' | 'none';
-  updatedAt: string;
-  createdAt: string;
+  museumFunction: 'curator' | 'director' | 'none'
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contents".
  */
 export interface Content {
-  id: string;
-  createdBy?: string | null;
-  difficulty: Difficulty;
-  audience?: ('everyone' | 'children') | null;
+  id: string
+  createdBy?: string | null
+  difficulty: Difficulty
+  visibility?: ('public' | 'private') | null
+  audience?: ('everyone' | 'children') | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  title: string;
+  title: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   body: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  bodyHTML?: string | null;
-  readingTimeMins?: number | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  }
+  bodyHTML?: string | null
+  durationSeconds?: number | null
   /**
    * Euro cents. Empty or 0 = free.
    */
-  price?: number | null;
-  copyright: string;
+  price?: number | null
+  license?:
+    ('cc0' | 'cc-by' | 'cc-by-sa' | 'cc-by-nc' | 'cc-by-nc-sa' | 'all-rights-reserved') | null
+  rightsMuseum?: (string | null) | Museum
+  rightsDeclaredAt?: string | null
   /**
    * Shared museum taxonomy, used by search filters.
    */
-  categories?: (string | MuseumCategory)[] | null;
+  categories?: (string | MuseumCategory)[] | null
   sources?:
     | {
         /**
          * Editorial copy — auto-translated on demand into any locale.
          */
-        label: string;
-        url?: string | null;
-        id?: string | null;
+        label: string
+        url?: string | null
+        id?: string | null
       }[]
-    | null;
-  images?: (string | ContentImage)[] | null;
+    | null
+  images?: (string | ContentImage)[] | null
   objects: {
-    docs?: (string | Object)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Object)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  subjects?: {
+    docs?: (string | Subject)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   variants?: {
-    docs?: (string | ContentVariant)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  author?: (string | null) | User;
-  attachToObject?: string | null;
+    docs?: (string | ContentVariant)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  author?: (string | null) | User
+  attachToObject?: string | null
+  attachToSubject?: string | null
   lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Taxonomy used to group and filter museums.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "museumCategories".
- */
-export interface MuseumCategory {
-  id: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  name: string;
-  /**
-   * Stable machine name used in URLs and filters. Auto-generated from the name.
-   */
-  slug: string;
-  /**
-   * Editorial copy — auto-translated on demand into any locale.
-   */
-  description?: string | null;
-  /**
-   * Optional broader category. Leave empty for a top-level category.
-   */
-  parent?: (string | null) | MuseumCategory;
-  /**
-   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
-   */
-  icon?: string | null;
-  /**
-   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
-   */
-  color?: string | null;
-  /**
-   * Surface this category in the home/catalog shortcuts.
-   */
-  featured?: boolean | null;
-  museums?: {
-    docs?: (string | Museum)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    ratingsCount?: number | null
+    ratingsAverage?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museums".
  */
 export interface Museum {
-  id: string;
-  createdBy?: string | null;
-  name: string;
+  id: string
+  createdBy?: string | null
+  name: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   description?: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  descriptionHTML?: string | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  } | null
+  descriptionHTML?: string | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  shortDescription: string;
+  shortDescription: string
   /**
    * Step-free access and the services available to visitors with disabilities.
    */
@@ -1110,153 +1085,158 @@ export interface Museum {
     /**
      * Step-free access to the main visit route (used for catalog filters).
      */
-    isAccessible: boolean;
-    stepFreeEntrance?: boolean | null;
-    elevator?: boolean | null;
-    accessibleBathrooms?: boolean | null;
-    tactilePaths?: boolean | null;
-    audioGuides?: boolean | null;
-    signLanguage?: boolean | null;
-    serviceAnimals?: boolean | null;
+    isAccessible: boolean
+    stepFreeEntrance?: boolean | null
+    elevator?: boolean | null
+    accessibleBathrooms?: boolean | null
+    tactilePaths?: boolean | null
+    audioGuides?: boolean | null
+    signLanguage?: boolean | null
+    serviceAnimals?: boolean | null
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    notes?: string | null;
-  };
-  phone?: string | PhoneNumber | null;
-  email?: string | null;
+    notes?: string | null
+  }
+  phone?: string | PhoneNumber | null
+  email?: string | null
   socials?:
     | {
-        platform: string;
-        url: string;
-        id?: string | null;
+        platform: string
+        url: string
+        id?: string | null
       }[]
-    | null;
+    | null
   news?:
     | {
         /**
          * Editorial copy — auto-translated on demand into any locale.
          */
-        title: string;
+        title: string
         /**
          * Editorial copy — auto-translated on demand into any locale.
          */
-        content: string;
-        date: string;
-        id?: string | null;
+        content: string
+        date: string
+        id?: string | null
       }[]
-    | null;
-  thumbnails?: (string | MuseumThumbnail)[] | null;
+    | null
+  thumbnails?: (string | MuseumThumbnail)[] | null
   openingHours?: {
     monday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     tuesday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     wednesday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     thursday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     friday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     saturday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     sunday?:
       | {
-          opening?: string | null;
-          closing?: string | null;
-          id?: string | null;
+          opening?: string | null
+          closing?: string | null
+          id?: string | null
         }[]
-      | null;
+      | null
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    notes?: string | null;
-  };
+    notes?: string | null
+  }
   ticketInfo: {
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    label: string;
-    url?: string | null;
-  };
+    label: string
+    url?: string | null
+  }
   location: {
-    address: string;
-    city: string;
-    region?: string | null;
-    postalCode?: string | null;
+    address: string
+    city: string
+    region?: string | null
+    postalCode?: string | null
     /**
      * ISO 3166-1 alpha-2 code, e.g. "IT".
      */
-    country?: string | null;
+    country?: string | null
     /**
      * @minItems 2
      * @maxItems 2
      */
-    latlng: [number, number];
-  };
+    latlng: [number, number]
+  }
   /**
    * Taxonomy tags used to group and filter the museum catalog.
    */
-  categories?: (string | MuseumCategory)[] | null;
-  objects?: (string | Object)[] | null;
+  categories?: (string | MuseumCategory)[] | null
+  /**
+   * The museum color as #rrggbb. Buttons, links and highlights use it while visitors are in this museum; very light colors are darkened to stay readable.
+   */
+  brandColor?: string | null
+  objects?: (string | Object)[] | null
+  palette?: string[] | null
   tours?: {
-    docs?: (string | Tour)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Tour)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   staff?: {
-    docs?: (string | UserMuseumMembership)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | UserMuseumMembership)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   map?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
   navMesh?: {
     /**
      * Pool for link indices
      */
     linkIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * Global links. Check 'allocated' for whether the link is in use.
      */
@@ -1264,53 +1244,53 @@ export interface Museum {
       /**
        * whether the nav mesh link is allocated
        */
-      allocated: boolean;
+      allocated: boolean
       /**
        * if a boundary link, defines the max sub-edge area
        */
-      bmax: number;
+      bmax: number
       /**
        * if a boundary link, defines the min sub-edge area
        */
-      bmin: number;
+      bmin: number
       /**
        * index of the polygon edge that owns this link
        */
-      edge: number;
+      edge: number
       /**
        * the node index that owns this link
        */
-      fromNodeIndex: number;
+      fromNodeIndex: number
       /**
        * node reference that owns this link
        */
-      fromNodeRef: number;
+      fromNodeRef: number
       /**
        * the index of the link
        */
-      index: number;
+      index: number
       /**
        * if a boundary link, defines on which side the link is
        */
-      side: number;
+      side: number
       /**
        * index of the neighbour node that ref links to
        */
-      toNodeIndex: number;
+      toNodeIndex: number
       /**
        * the neighbour node reference that ref links to
        */
-      toNodeRef: number;
-      [k: string]: unknown;
-    }[];
+      toNodeRef: number
+      [k: string]: unknown
+    }[]
     /**
      * Pool for node indices
      */
     nodeIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * Global nodes
      */
@@ -1318,149 +1298,149 @@ export interface Museum {
       /**
        * whether the node is currently allocated
        */
-      allocated: boolean;
+      allocated: boolean
       /**
        * the user defined area id for this node
        */
-      area: number;
+      area: number
       /**
        * the user defined flags for this node
        */
-      flags: number;
+      flags: number
       /**
        * the index of the node
        */
-      index: number;
+      index: number
       /**
        * links for this nav mesh node
        */
-      links: number[];
+      links: number[]
       /**
        * the offmesh connection id, for offmesh connection nodes
        */
-      offMeshConnectionId: number;
+      offMeshConnectionId: number
       /**
        * the poly index, for poly nodes
        */
-      polyIndex: number;
+      polyIndex: number
       /**
        * the node ref, packed type, index, sequence
        */
-      ref: number;
+      ref: number
       /**
        * the tile id, for poly nodes
        */
-      tileId: number;
+      tileId: number
       /**
        * the type of the nav mesh node
        */
-      type: 0 | 1;
-      [k: string]: unknown;
-    }[];
+      type: 0 | 1
+      [k: string]: unknown
+    }[]
     offMeshConnectionAttachments: {
       [k: string]: {
         /**
          * the end polygon that the off mesh connection has linked to
          */
-        endPolyNode: number;
+        endPolyNode: number
         /**
          * the offmesh node
          */
-        offMeshNode: number;
+        offMeshNode: number
         /**
          * the start polygon that the off mesh connection has linked to
          */
-        startPolyNode: number;
-        [k: string]: unknown;
-      };
-    };
+        startPolyNode: number
+        [k: string]: unknown
+      }
+    }
     /**
      * Pool for off mesh connection indices
      */
     offMeshConnectionIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * The off mesh connection sequence counter
      */
-    offMeshConnectionSequenceCounter: number;
+    offMeshConnectionSequenceCounter: number
     offMeshConnections: {
       [k: string]: {
         /**
          * the area id for the off mesh connection
          */
-        area: number;
+        area: number
         /**
          * the direction of the off mesh connection
          */
-        direction: 0 | 1;
+        direction: 0 | 1
         /**
          * the end position of the off mesh connection
          *
          * @minItems 3
          * @maxItems 3
          */
-        end: [X, Y, Z];
+        end: [X, Y, Z]
         /**
          * the flags for the off mesh connection
          */
-        flags: number;
+        flags: number
         /**
          * the id of the off mesh connection
          */
-        id: number;
+        id: number
         /**
          * the radius of the endpoints
          */
-        radius: number;
+        radius: number
         /**
          * the sequence of the off mesh connection
          */
-        sequence: number;
+        sequence: number
         /**
          * the start position of the off mesh connection
          *
          * @minItems 3
          * @maxItems 3
          */
-        start: [X1, Y1, Z1];
-        [k: string]: unknown;
-      };
-    };
+        start: [X1, Y1, Z1]
+        [k: string]: unknown
+      }
+    }
     /**
      * The world space origin of the navigation mesh's tiles
      *
      * @minItems 3
      * @maxItems 3
      */
-    origin: [X2, Y2, Z2];
+    origin: [X2, Y2, Z2]
     tileColumnToTileIds: {
-      [k: string]: number[];
-    };
+      [k: string]: number[]
+    }
     /**
      * The height of each tile along the z axis
      */
-    tileHeight: number;
+    tileHeight: number
     /**
      * Pool for tile indices
      */
     tileIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     tilePositionToSequenceCounter: {
-      [k: string]: number;
-    };
+      [k: string]: number
+    }
     tilePositionToTileId: {
-      [k: string]: number;
-    };
+      [k: string]: number
+    }
     /**
      * The width of each tile along the x axis
      */
-    tileWidth: number;
+    tileWidth: number
     tiles: {
       [k: string]: {
         /**
@@ -1469,7 +1449,7 @@ export interface Museum {
          * @minItems 6
          * @maxItems 6
          */
-        bounds: [MinX, MinY, MinZ, MaxX, MaxY, MaxZ];
+        bounds: [MinX, MinY, MinZ, MaxX, MaxY, MaxZ]
         /**
          * the tile's bounding volume tree
          */
@@ -1484,31 +1464,31 @@ export interface Museum {
              * @minItems 6
              * @maxItems 6
              */
-            bounds: [MinX1, MinY1, MinZ1, MaxX1, MaxY1, MaxZ1];
+            bounds: [MinX1, MinY1, MinZ1, MaxX1, MaxY1, MaxZ1]
             /**
              * the node's index
              */
-            i: number;
-            [k: string]: unknown;
-          }[];
+            i: number
+            [k: string]: unknown
+          }[]
           /**
            * the quantisation factor for the bounding volume tree
            */
-          quantFactor: number;
-          [k: string]: unknown;
-        };
+          quantFactor: number
+          [k: string]: unknown
+        }
         /**
          * The y-axis cell height of the polygon mesh.
          * If this tile was generated with voxelization, it should be the voxel cell height.
          * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
          */
-        cellHeight: number;
+        cellHeight: number
         /**
          * The xz-plane cell size of the polygon mesh.
          * If this tile was generated with voxelization, it should be the voxel cell size.
          * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
          */
-        cellSize: number;
+        cellSize: number
         /**
          * the detail meshes
          */
@@ -1516,40 +1496,40 @@ export interface Museum {
           /**
            * The offset of the triangles in the NavMeshTile detailTriangles array
            */
-          trianglesBase: number;
+          trianglesBase: number
           /**
            * The number of triangles in the sub-mesh
            */
-          trianglesCount: number;
+          trianglesCount: number
           /**
            * The offset of the vertices in the NavMeshTile detailVertices array.
            * If the base index is between 0 and `NavMeshTile.vertices.length`, this is used to index into the NavMeshTile vertices array.
            * If the base index is greater than `NavMeshTile.vertices.length`, it is used to index into the NavMeshTile detailVertices array.
            * This allows for detail meshes to either re-use the polygon vertices or to define their own vertices without duplicating data.
            */
-          verticesBase: number;
+          verticesBase: number
           /**
            * The number of vertices in thde sub-mesh
            */
-          verticesCount: number;
-          [k: string]: unknown;
-        }[];
+          verticesCount: number
+          [k: string]: unknown
+        }[]
         /**
          * the detail mesh's triangles
          */
-        detailTriangles: number[];
+        detailTriangles: number[]
         /**
          * the detail mesh's unique vertices, in local tile space
          */
-        detailVertices: number[];
+        detailVertices: number[]
         /**
          * the id of the tile
          */
-        id: number;
+        id: number
         /**
          * poly index to global node index
          */
-        polyNodes: number[];
+        polyNodes: number[]
         /**
          * the tile polys
          */
@@ -1557,62 +1537,62 @@ export interface Museum {
           /**
            * The user defined area id for this polygon
            */
-          area: number;
+          area: number
           /**
            * The user defined flags for this polygon
            */
-          flags: number;
+          flags: number
           /**
            * Packed data representing neighbor polygons references and flags for each edge.
            * This is usually computed by the navcat's `buildPolyNeighbours` function .
            */
-          neis: number[];
+          neis: number[]
           /**
            * The indices of the polygon's vertices. vertices are stored in NavMeshTile.vertices
            */
-          vertices: number[];
-          [k: string]: unknown;
-        }[];
+          vertices: number[]
+          [k: string]: unknown
+        }[]
         /**
          * the salt of the tile
          */
-        sequence: number;
+        sequence: number
         /**
          * the tile layer in the nav mesh
          */
-        tileLayer: number;
-        tileX: number;
-        tileY: number;
+        tileLayer: number
+        tileX: number
+        tileY: number
         /**
          * nav mesh tile vertices in world space
          */
-        vertices: number[];
+        vertices: number[]
         /**
          * the agent maximum traversable ledge (up/down) in world units
          */
-        walkableClimb: number;
+        walkableClimb: number
         /**
          * the agent height in world units
          */
-        walkableHeight: number;
+        walkableHeight: number
         /**
          * the agent radius in world units
          */
-        walkableRadius: number;
-        [k: string]: unknown;
-      };
-    };
-    [k: string]: unknown;
-  };
+        walkableRadius: number
+        [k: string]: unknown
+      }
+    }
+    [k: string]: unknown
+  }
   navMeshWheelchair?: {
     /**
      * Pool for link indices
      */
     linkIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * Global links. Check 'allocated' for whether the link is in use.
      */
@@ -1620,53 +1600,53 @@ export interface Museum {
       /**
        * whether the nav mesh link is allocated
        */
-      allocated: boolean;
+      allocated: boolean
       /**
        * if a boundary link, defines the max sub-edge area
        */
-      bmax: number;
+      bmax: number
       /**
        * if a boundary link, defines the min sub-edge area
        */
-      bmin: number;
+      bmin: number
       /**
        * index of the polygon edge that owns this link
        */
-      edge: number;
+      edge: number
       /**
        * the node index that owns this link
        */
-      fromNodeIndex: number;
+      fromNodeIndex: number
       /**
        * node reference that owns this link
        */
-      fromNodeRef: number;
+      fromNodeRef: number
       /**
        * the index of the link
        */
-      index: number;
+      index: number
       /**
        * if a boundary link, defines on which side the link is
        */
-      side: number;
+      side: number
       /**
        * index of the neighbour node that ref links to
        */
-      toNodeIndex: number;
+      toNodeIndex: number
       /**
        * the neighbour node reference that ref links to
        */
-      toNodeRef: number;
-      [k: string]: unknown;
-    }[];
+      toNodeRef: number
+      [k: string]: unknown
+    }[]
     /**
      * Pool for node indices
      */
     nodeIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * Global nodes
      */
@@ -1674,149 +1654,149 @@ export interface Museum {
       /**
        * whether the node is currently allocated
        */
-      allocated: boolean;
+      allocated: boolean
       /**
        * the user defined area id for this node
        */
-      area: number;
+      area: number
       /**
        * the user defined flags for this node
        */
-      flags: number;
+      flags: number
       /**
        * the index of the node
        */
-      index: number;
+      index: number
       /**
        * links for this nav mesh node
        */
-      links: number[];
+      links: number[]
       /**
        * the offmesh connection id, for offmesh connection nodes
        */
-      offMeshConnectionId: number;
+      offMeshConnectionId: number
       /**
        * the poly index, for poly nodes
        */
-      polyIndex: number;
+      polyIndex: number
       /**
        * the node ref, packed type, index, sequence
        */
-      ref: number;
+      ref: number
       /**
        * the tile id, for poly nodes
        */
-      tileId: number;
+      tileId: number
       /**
        * the type of the nav mesh node
        */
-      type: 0 | 1;
-      [k: string]: unknown;
-    }[];
+      type: 0 | 1
+      [k: string]: unknown
+    }[]
     offMeshConnectionAttachments: {
       [k: string]: {
         /**
          * the end polygon that the off mesh connection has linked to
          */
-        endPolyNode: number;
+        endPolyNode: number
         /**
          * the offmesh node
          */
-        offMeshNode: number;
+        offMeshNode: number
         /**
          * the start polygon that the off mesh connection has linked to
          */
-        startPolyNode: number;
-        [k: string]: unknown;
-      };
-    };
+        startPolyNode: number
+        [k: string]: unknown
+      }
+    }
     /**
      * Pool for off mesh connection indices
      */
     offMeshConnectionIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     /**
      * The off mesh connection sequence counter
      */
-    offMeshConnectionSequenceCounter: number;
+    offMeshConnectionSequenceCounter: number
     offMeshConnections: {
       [k: string]: {
         /**
          * the area id for the off mesh connection
          */
-        area: number;
+        area: number
         /**
          * the direction of the off mesh connection
          */
-        direction: 0 | 1;
+        direction: 0 | 1
         /**
          * the end position of the off mesh connection
          *
          * @minItems 3
          * @maxItems 3
          */
-        end: [X, Y, Z];
+        end: [X, Y, Z]
         /**
          * the flags for the off mesh connection
          */
-        flags: number;
+        flags: number
         /**
          * the id of the off mesh connection
          */
-        id: number;
+        id: number
         /**
          * the radius of the endpoints
          */
-        radius: number;
+        radius: number
         /**
          * the sequence of the off mesh connection
          */
-        sequence: number;
+        sequence: number
         /**
          * the start position of the off mesh connection
          *
          * @minItems 3
          * @maxItems 3
          */
-        start: [X1, Y1, Z1];
-        [k: string]: unknown;
-      };
-    };
+        start: [X1, Y1, Z1]
+        [k: string]: unknown
+      }
+    }
     /**
      * The world space origin of the navigation mesh's tiles
      *
      * @minItems 3
      * @maxItems 3
      */
-    origin: [X2, Y2, Z2];
+    origin: [X2, Y2, Z2]
     tileColumnToTileIds: {
-      [k: string]: number[];
-    };
+      [k: string]: number[]
+    }
     /**
      * The height of each tile along the z axis
      */
-    tileHeight: number;
+    tileHeight: number
     /**
      * Pool for tile indices
      */
     tileIndexPool: {
-      counter: number;
-      free: number[];
-      [k: string]: unknown;
-    };
+      counter: number
+      free: number[]
+      [k: string]: unknown
+    }
     tilePositionToSequenceCounter: {
-      [k: string]: number;
-    };
+      [k: string]: number
+    }
     tilePositionToTileId: {
-      [k: string]: number;
-    };
+      [k: string]: number
+    }
     /**
      * The width of each tile along the x axis
      */
-    tileWidth: number;
+    tileWidth: number
     tiles: {
       [k: string]: {
         /**
@@ -1825,7 +1805,7 @@ export interface Museum {
          * @minItems 6
          * @maxItems 6
          */
-        bounds: [MinX, MinY, MinZ, MaxX, MaxY, MaxZ];
+        bounds: [MinX, MinY, MinZ, MaxX, MaxY, MaxZ]
         /**
          * the tile's bounding volume tree
          */
@@ -1840,31 +1820,31 @@ export interface Museum {
              * @minItems 6
              * @maxItems 6
              */
-            bounds: [MinX1, MinY1, MinZ1, MaxX1, MaxY1, MaxZ1];
+            bounds: [MinX1, MinY1, MinZ1, MaxX1, MaxY1, MaxZ1]
             /**
              * the node's index
              */
-            i: number;
-            [k: string]: unknown;
-          }[];
+            i: number
+            [k: string]: unknown
+          }[]
           /**
            * the quantisation factor for the bounding volume tree
            */
-          quantFactor: number;
-          [k: string]: unknown;
-        };
+          quantFactor: number
+          [k: string]: unknown
+        }
         /**
          * The y-axis cell height of the polygon mesh.
          * If this tile was generated with voxelization, it should be the voxel cell height.
          * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
          */
-        cellHeight: number;
+        cellHeight: number
         /**
          * The xz-plane cell size of the polygon mesh.
          * If this tile was generated with voxelization, it should be the voxel cell size.
          * If the tile was created with a different method, use a value that approximates the level of precision required for the tile.
          */
-        cellSize: number;
+        cellSize: number
         /**
          * the detail meshes
          */
@@ -1872,40 +1852,40 @@ export interface Museum {
           /**
            * The offset of the triangles in the NavMeshTile detailTriangles array
            */
-          trianglesBase: number;
+          trianglesBase: number
           /**
            * The number of triangles in the sub-mesh
            */
-          trianglesCount: number;
+          trianglesCount: number
           /**
            * The offset of the vertices in the NavMeshTile detailVertices array.
            * If the base index is between 0 and `NavMeshTile.vertices.length`, this is used to index into the NavMeshTile vertices array.
            * If the base index is greater than `NavMeshTile.vertices.length`, it is used to index into the NavMeshTile detailVertices array.
            * This allows for detail meshes to either re-use the polygon vertices or to define their own vertices without duplicating data.
            */
-          verticesBase: number;
+          verticesBase: number
           /**
            * The number of vertices in thde sub-mesh
            */
-          verticesCount: number;
-          [k: string]: unknown;
-        }[];
+          verticesCount: number
+          [k: string]: unknown
+        }[]
         /**
          * the detail mesh's triangles
          */
-        detailTriangles: number[];
+        detailTriangles: number[]
         /**
          * the detail mesh's unique vertices, in local tile space
          */
-        detailVertices: number[];
+        detailVertices: number[]
         /**
          * the id of the tile
          */
-        id: number;
+        id: number
         /**
          * poly index to global node index
          */
-        polyNodes: number[];
+        polyNodes: number[]
         /**
          * the tile polys
          */
@@ -1913,59 +1893,59 @@ export interface Museum {
           /**
            * The user defined area id for this polygon
            */
-          area: number;
+          area: number
           /**
            * The user defined flags for this polygon
            */
-          flags: number;
+          flags: number
           /**
            * Packed data representing neighbor polygons references and flags for each edge.
            * This is usually computed by the navcat's `buildPolyNeighbours` function .
            */
-          neis: number[];
+          neis: number[]
           /**
            * The indices of the polygon's vertices. vertices are stored in NavMeshTile.vertices
            */
-          vertices: number[];
-          [k: string]: unknown;
-        }[];
+          vertices: number[]
+          [k: string]: unknown
+        }[]
         /**
          * the salt of the tile
          */
-        sequence: number;
+        sequence: number
         /**
          * the tile layer in the nav mesh
          */
-        tileLayer: number;
-        tileX: number;
-        tileY: number;
+        tileLayer: number
+        tileX: number
+        tileY: number
         /**
          * nav mesh tile vertices in world space
          */
-        vertices: number[];
+        vertices: number[]
         /**
          * the agent maximum traversable ledge (up/down) in world units
          */
-        walkableClimb: number;
+        walkableClimb: number
         /**
          * the agent height in world units
          */
-        walkableHeight: number;
+        walkableHeight: number
         /**
          * the agent radius in world units
          */
-        walkableRadius: number;
-        [k: string]: unknown;
-      };
-    };
-    [k: string]: unknown;
-  };
+        walkableRadius: number
+        [k: string]: unknown
+      }
+    }
+    [k: string]: unknown
+  }
   lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1975,449 +1955,553 @@ export interface PhoneNumber {
   /**
    * Phone number in E.164 format. Useful for using in `tel:` links.
    */
-  e164: string;
+  e164: string
   /**
    * ISO 3166-1 alpha-2 country code.
    *
    * @see https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2.
    * @example "NO"
    */
-  regionCode: string;
+  regionCode: string
   /**
    * International calling code.
    *
    * @example "+47"
    */
-  callingCode: string;
+  callingCode: string
   /**
    * National format of the phone number.
    */
-  national: string;
+  national: string
   /**
    * International format of the phone number.
    */
-  international: string;
+  international: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumThumbnails".
  */
 export interface MuseumThumbnail {
-  id: string;
+  id: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     cover?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
+}
+/**
+ * Taxonomy used to group and filter museums.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "museumCategories".
+ */
+export interface MuseumCategory {
+  id: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string
+  /**
+   * Stable machine name used in URLs and filters. Auto-generated from the name.
+   */
+  slug: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null
+  /**
+   * Optional broader category. Leave empty for a top-level category.
+   */
+  parent?: (string | null) | MuseumCategory
+  /**
+   * Lucide icon name shown on category chips (e.g. "palette", "landmark").
+   */
+  icon?: string | null
+  /**
+   * Optional accent color for the category chip (hex, e.g. "#7C3AED").
+   */
+  color?: string | null
+  /**
+   * Surface this category in the home/catalog shortcuts.
+   */
+  featured?: boolean | null
+  museums?: {
+    docs?: (string | Museum)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects".
  */
 export interface Object {
-  id: string;
-  createdBy?: string | null;
+  id: string
+  createdBy?: string | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  name: string;
+  name: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  description?: string | null;
+  description?: string | null
   museums?: {
-    docs?: (string | Museum)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
+    docs?: (string | Museum)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  artist?: string | null;
+  artist?: string | null
+  /**
+   * Wikidata item of the work, e.g. Q1103801. Fills author, movement and events.
+   */
+  wikidataId?: string | null
+  inventoryNumber?: string | null
+  /**
+   * Who made the work.
+   */
+  creators?: (string | Subject)[] | null
+  /**
+   * Movement or style the work belongs to.
+   */
+  movements?: (string | Subject)[] | null
+  /**
+   * Events the work took part in.
+   */
+  events?: (string | Subject)[] | null
   /**
    * Free-form date or period, e.g. "c. 1510" or "16th century".
    */
-  dating?: string | null;
+  dating?: string | null
   /**
    * Ownership history, excavations, donations.
    */
-  provenance?: string | null;
+  provenance?: string | null
   /**
    * Conservation state and restoration notes for this object.
    */
   condition?: {
-    state?: ('excellent' | 'good' | 'fair' | 'poor' | 'restoration') | null;
+    state?: ('excellent' | 'good' | 'fair' | 'poor' | 'restoration') | null
     /**
      * Damage, past restorations, handling requirements.
      */
-    notes?: string | null;
-  };
+    notes?: string | null
+  }
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  creditLine?: string | null;
+  creditLine?: string | null
   /**
    * Licence or rights statement for images and reproductions, e.g. "CC BY-SA 4.0".
    */
-  rights?: string | null;
-  categories?: (string | MuseumCategory)[] | null;
-  contents?: (string | Content)[] | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  model?: (string | null) | ObjectsModel;
+  rights?: string | null
+  categories?: (string | MuseumCategory)[] | null
+  contents?: (string | Content)[] | null
+  thumbnail?: (string | null) | ObjectsThumbnail
+  model?: (string | null) | ObjectsModel
   lfrs?: {
-    favouritesCount?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects".
+ */
+export interface Subject {
+  id: string
+  kind: 'person' | 'movement' | 'event'
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  name: string
+  /**
+   * Editorial copy — auto-translated on demand into any locale.
+   */
+  description?: string | null
+  /**
+   * Wikidata item, e.g. Q5597 for Raphael.
+   */
+  wikidataId?: string | null
+  contents?: (string | Content)[] | null
+  importedFromWikidata?: boolean | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsThumbnails".
  */
 export interface ObjectsThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     cover?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsModels".
  */
 export interface ObjectsModel {
-  id: string;
-  userGenerated: boolean;
-  mintModelId?: string | null;
-  mintOperationId?: string | null;
-  thumbnail?: (string | null) | ObjectsThumbnail;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  userGenerated: boolean
+  mintModelId?: string | null
+  mintOperationId?: string | null
+  thumbnail?: (string | null) | ObjectsThumbnail
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours".
  */
 export interface Tour {
-  id: string;
-  createdBy?: string | null;
+  id: string
+  createdBy?: string | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  title: string;
+  title: string
+  visibility?: ('public' | 'private') | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
   body?: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  description?: string | null;
-  contents: (string | Content)[];
-  thumbnail?: (string | null) | ToursThumbnail;
-  museum: string | Museum;
-  author?: (string | null) | User;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  } | null
+  description?: string | null
+  /**
+   * Practical information for the visit: entrance, tickets, cloakroom, opening hours.
+   */
+  logistics?: string | null
+  /**
+   * How to reach a stop from the previous one (from the entrance for the first).
+   */
+  directions?:
+    | {
+        content: string | Content
+        /**
+         * Editorial copy — auto-translated on demand into any locale.
+         */
+        text: string
+        id?: string | null
+      }[]
+    | null
+  contents: (string | Content)[]
+  thumbnail?: (string | null) | ToursThumbnail
+  museum: string | Museum
+  author?: (string | null) | User
   generation?: {
-    generated?: boolean | null;
-    model?: string | null;
-    requestKey?: string | null;
+    generated?: boolean | null
+    model?: string | null
+    requestKey?: string | null
     request?:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
+      | null
+  }
   /**
    * Estimated visit length in minutes.
    */
-  durationMinutes?: number | null;
+  durationMinutes?: number | null
   /**
    * Walking distance of the route, in metres.
    */
-  distanceMeters?: number | null;
+  distanceMeters?: number | null
   /**
    * The route has a step-free variant. Requires a wheelchair nav mesh on the museum.
    */
-  wheelchairAccessible?: boolean | null;
-  categories?: (string | MuseumCategory)[] | null;
+  wheelchairAccessible?: boolean | null
+  categories?: (string | MuseumCategory)[] | null
   quiz?: {
     /**
      * Shown in this order after the last stop. Search lists questions about this tour’s contents. Questions created here without related contents belong to this tour: removing them from the quiz deletes them.
      */
-    questions?: (string | QuizQuestion)[] | null;
-  };
+    questions?: (string | QuizQuestion)[] | null
+  }
   lfrs?: {
-    favouritesCount?: number | null;
-    ratingsCount?: number | null;
-    ratingsAverage?: number | null;
-    sharesCount?: number | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+    favouritesCount?: number | null
+    ratingsCount?: number | null
+    ratingsAverage?: number | null
+    sharesCount?: number | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "toursThumbnails".
  */
 export interface ToursThumbnail {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     cover?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "quizQuestions".
  */
 export interface QuizQuestion {
-  id: string;
-  createdBy?: string | null;
+  id: string
+  createdBy?: string | null
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  prompt: string;
-  image?: (string | null) | ContentImage;
+  prompt: string
+  image?: (string | null) | ContentImage
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  correctAnswer: string;
+  correctAnswer: string
   wrongAnswers: {
     /**
      * Editorial copy — auto-translated on demand into any locale.
      */
-    text: string;
-    id?: string | null;
-  }[];
+    text: string
+    id?: string | null
+  }[]
   /**
    * Shown after the visitor answers. Auto-translated on demand.
    */
-  explanation?: string | null;
-  difficulty: Difficulty;
+  explanation?: string | null
+  difficulty: Difficulty
   /**
    * Contents this question is about. Leave empty for a question specific to the tour whose quiz uses it.
    */
-  relatedTo?: (string | Content)[] | null;
-  updatedAt: string;
-  createdAt: string;
+  relatedTo?: (string | Content)[] | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentImages".
  */
 export interface ContentImage {
-  id: string;
+  id: string
   /**
    * Editorial copy — auto-translated on demand into any locale.
    */
-  alt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  alt?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
   sizes?: {
     card?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
     cover?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-  };
+      url?: string | null
+      width?: number | null
+      height?: number | null
+      mimeType?: string | null
+      filesize?: number | null
+      filename?: string | null
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "user-museum-memberships".
  */
 export interface UserMuseumMembership {
-  id: string;
-  user: string | User;
-  role: 'director' | 'curator' | 'verified';
-  museum: string | Museum;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  role: 'director' | 'curator' | 'verified'
+  museum: string | Museum
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentVariants".
  */
 export interface ContentVariant {
-  id: string;
-  kind: 'more' | 'version';
-  content?: (string | null) | Content;
-  object?: (string | null) | Object;
-  angle?: ('more' | 'curiosities' | 'story') | null;
-  difficulty?: ('easy' | 'medium' | 'hard') | null;
-  audience?: ('everyone' | 'children') | null;
-  readingTimeMins?: number | null;
+  id: string
+  kind: 'more' | 'version'
+  content?: (string | null) | Content
+  object?: (string | null) | Object
+  angle?: ('more' | 'curiosities' | 'story') | null
+  step?: number | null
+  difficulty?: ('easy' | 'medium' | 'hard') | null
+  audience?: ('everyone' | 'children') | null
+  durationSeconds?: number | null
   body: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  }
   generation?: {
-    generated?: boolean | null;
-    model?: string | null;
+    generated?: boolean | null
+    model?: string | null
     sources?:
       | {
-          title?: string | null;
-          url?: string | null;
-          id?: string | null;
+          title?: string | null
+          url?: string | null
+          id?: string | null
         }[]
-      | null;
-  };
-  updatedAt: string;
-  createdAt: string;
+      | null
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usersPropics".
  */
 export interface UsersPropic {
-  id: string;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  alt: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * One row per paid Stripe Checkout session. Written by Stripe, read-only in the admin panel.
@@ -2426,298 +2510,322 @@ export interface UsersPropic {
  * via the `definition` "purchases".
  */
 export interface Purchase {
-  id: string;
-  user: string | User;
+  id: string
+  user: string | User
   /**
    * The purchased content or tour.
    */
   target:
     | {
-        relationTo: 'contents';
-        value: string | Content;
+        relationTo: 'contents'
+        value: string | Content
       }
     | {
-        relationTo: 'tours';
-        value: string | Tour;
-      };
-  status: 'paid' | 'refunded' | 'failed';
+        relationTo: 'tours'
+        value: string | Tour
+      }
+  status: 'paid' | 'refunded' | 'failed'
   /**
    * Stripe Checkout Session ID (cs_…). Unique — makes webhooks idempotent.
    */
-  stripeSessionID: string;
-  unlockedContents?: (string | Content)[] | null;
-  stripePaymentIntentID?: string | null;
-  productTitle?: string | null;
+  stripeSessionID: string
+  unlockedContents?: (string | Content)[] | null
+  stripePaymentIntentID?: string | null
+  productTitle?: string | null
   /**
    * Amount actually paid, in cents.
    */
-  amountCents?: number | null;
-  currency?: string | null;
-  email?: string | null;
-  purchasedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  amountCents?: number | null
+  currency?: string | null
+  email?: string | null
+  purchasedAt?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumMaps".
  */
 export interface MuseumMap {
-  id: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+  id: string
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentAudio".
+ */
+export interface ContentAudio {
+  id: string
+  content: string | Content
+  locale: string
+  textHash: string
+  durationSeconds?: number | null
+  model?: string | null
+  voice?: string | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "quizAttempts".
  */
 export interface QuizAttempt {
-  id: string;
-  token: string;
-  tour: string | Tour;
-  user?: (string | null) | User;
-  locale: string;
+  id: string
+  token: string
+  tour: string | Tour
+  user?: (string | null) | User
+  locale: string
   /**
    * Tour cursor when the quiz was taken; lower than the stop count means an early quiz.
    */
-  stepsCompleted: number;
+  stepsCompleted: number
   answers?:
     | {
-        question: string | QuizQuestion;
+        question: string | QuizQuestion
         /**
          * 'correct' or the ID of the chosen wrong-answer row.
          */
-        answer: string;
-        correct: boolean;
-        id?: string | null;
+        answer: string
+        correct: boolean
+        id?: string | null
       }[]
-    | null;
-  correctQuestions?: (string | QuizQuestion)[] | null;
-  score: number;
-  total: number;
-  percent: number;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  correctQuestions?: (string | QuizQuestion)[] | null
+  score: number
+  total: number
+  percent: number
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "translator-provenance".
  */
 export interface TranslatorProvenance {
-  id: string;
-  collectionSlug: string;
-  documentId: string;
-  targetLocale: string;
-  sourceLocale: string;
-  sourceFingerprint: string;
-  translatedAt: string;
-  dismissedFingerprint?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  collectionSlug: string
+  documentId: string
+  targetLocale: string
+  sourceLocale: string
+  sourceFingerprint: string
+  translatedAt: string
+  dismissedFingerprint?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms".
  */
 export interface Form {
-  id: string;
-  title: string;
+  id: string
+  title: string
   fields?:
     | (
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            defaultValue?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'checkbox';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            defaultValue?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'checkbox'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'country';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'country'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'email';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'email'
           }
         | {
             message?: {
               root: {
-                type: string;
+                type: string
                 children: {
-                  type: any;
-                  version: number;
-                  [k: string]: unknown;
-                }[];
-                direction: ('ltr' | 'rtl') | null;
-                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-                indent: number;
-                version: number;
-              };
-              [k: string]: unknown;
-            } | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'message';
+                  type: any
+                  version: number
+                  [k: string]: unknown
+                }[]
+                direction: ('ltr' | 'rtl') | null
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+                indent: number
+                version: number
+              }
+              [k: string]: unknown
+            } | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'message'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'number';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'number'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            placeholder?: string | null;
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            placeholder?: string | null
             options?:
               | {
-                  label: string;
-                  value: string;
-                  id?: string | null;
+                  label: string
+                  value: string
+                  id?: string | null
                 }[]
-              | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'select';
+              | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'select'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'state';
+            name: string
+            label?: string | null
+            width?: number | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'state'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'text';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'text'
           }
         | {
-            name: string;
-            label?: string | null;
-            width?: number | null;
-            defaultValue?: string | null;
-            required?: boolean | null;
-            id?: string | null;
-            blockName?: string | null;
-            blockType: 'textarea';
+            name: string
+            label?: string | null
+            width?: number | null
+            defaultValue?: string | null
+            required?: boolean | null
+            id?: string | null
+            blockName?: string | null
+            blockType: 'textarea'
           }
       )[]
-    | null;
-  submitButtonLabel?: string | null;
-  confirmationType?: ('message' | 'redirect') | null;
+    | null
+  submitButtonLabel?: string | null
+  confirmationType?: ('message' | 'redirect') | null
   confirmationMessage?: {
     root: {
-      type: string;
+      type: string
       children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+        type: any
+        version: number
+        [k: string]: unknown
+      }[]
+      direction: ('ltr' | 'rtl') | null
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+      indent: number
+      version: number
+    }
+    [k: string]: unknown
+  } | null
   redirect?: {
-    url: string;
-  };
+    url: string
+  }
   emails?:
     | {
-        emailTo?: string | null;
-        cc?: string | null;
-        bcc?: string | null;
-        replyTo?: string | null;
-        emailFrom?: string | null;
-        subject: string;
+        emailTo?: string | null
+        cc?: string | null
+        bcc?: string | null
+        replyTo?: string | null
+        emailFrom?: string | null
+        subject: string
         message?: {
           root: {
-            type: string;
+            type: string
             children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        } | null;
-        id?: string | null;
+              type: any
+              version: number
+              [k: string]: unknown
+            }[]
+            direction: ('ltr' | 'rtl') | null
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | ''
+            indent: number
+            version: number
+          }
+          [k: string]: unknown
+        } | null
+        id?: string | null
       }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions".
  */
 export interface FormSubmission {
-  id: string;
-  form: string | Form;
+  id: string
+  form: string | Form
   submissionData?:
     | {
-        field: string;
-        value: string;
-        id?: string | null;
+        field: string
+        value: string
+        id?: string | null
       }[]
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports".
  */
 export interface Export {
-  id: string;
-  name?: string | null;
-  format: 'csv' | 'json';
-  limit?: number | null;
-  page?: number | null;
-  sort?: string | null;
-  sortOrder?: ('asc' | 'desc') | null;
+  id: string
+  name?: string | null
+  format: 'csv' | 'json'
+  limit?: number | null
+  page?: number | null
+  sort?: string | null
+  sortOrder?: ('asc' | 'desc') | null
   locale?:
     | (
         | 'all'
@@ -2905,216 +3013,216 @@ export interface Export {
         | 'zh'
         | 'ja'
       )
-    | null;
-  drafts?: ('yes' | 'no') | null;
-  selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null;
-  fields?: string[] | null;
-  collectionSlug: string;
+    | null
+  drafts?: ('yes' | 'no') | null
+  selectionToUse?: ('currentSelection' | 'currentFilters' | 'all') | null
+  fields?: string[] | null
+  collectionSlug: string
   where?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+    | null
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "imports".
  */
 export interface Import {
-  id: string;
-  collectionSlug: string;
-  importMode?: ('create' | 'update' | 'upsert') | null;
-  matchField?: string | null;
-  status?: ('pending' | 'completed' | 'partial' | 'failed') | null;
+  id: string
+  collectionSlug: string
+  importMode?: ('create' | 'update' | 'upsert') | null
+  matchField?: string | null
+  status?: ('pending' | 'completed' | 'partial' | 'failed') | null
   summary?: {
-    imported?: number | null;
-    updated?: number | null;
-    total?: number | null;
-    issues?: number | null;
+    imported?: number | null
+    updated?: number | null
+    total?: number | null
+    issues?: number | null
     issueDetails?:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
+      | null
+  }
+  updatedAt: string
+  createdAt: string
+  url?: string | null
+  thumbnailURL?: string | null
+  filename?: string | null
+  mimeType?: string | null
+  filesize?: number | null
+  width?: number | null
+  height?: number | null
+  focalX?: number | null
+  focalY?: number | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-actions".
  */
 export interface PermissionAction {
-  id: string;
-  code: string;
-  type: 'main' | 'sub';
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  code: string
+  type: 'main' | 'sub'
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-features".
  */
 export interface PermissionFeature {
-  id: string;
-  code: string;
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  code: string
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permissions".
  */
 export interface Permission {
-  id: string;
-  name: string;
-  permissionFeature: string | PermissionFeature;
-  permissionAction: string | PermissionAction;
-  sortOrder?: number | null;
-  status: 'active' | 'inactive';
-  createdBy?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name: string
+  permissionFeature: string | PermissionFeature
+  permissionAction: string | PermissionAction
+  sortOrder?: number | null
+  status: 'active' | 'inactive'
+  createdBy?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles-permissions".
  */
 export interface RolesPermission {
-  id: string;
-  role: string | Role;
-  permission: string | Permission;
-  enabled?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  role: string | Role
+  permission: string | Permission
+  enabled?: boolean | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-likes".
  */
 export interface LfrsLike {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-favourites".
  */
 export interface LfrsFavourite {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-reviews".
  */
 export interface LfrsReview {
-  id: string;
-  user: string | User;
-  targetCollection: string;
-  targetDoc: string;
-  title?: string | null;
-  body?: string | null;
-  score?: number | null;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  repliesCount?: number | null;
+  id: string
+  user: string | User
+  targetCollection: string
+  targetDoc: string
+  title?: string | null
+  body?: string | null
+  score?: number | null
+  status?: ('pending' | 'approved' | 'rejected') | null
+  repliesCount?: number | null
   replies?: {
-    docs?: (string | LfrsReply)[];
-    hasNextPage?: boolean;
-    totalDocs?: number;
-  };
-  updatedAt: string;
-  createdAt: string;
+    docs?: (string | LfrsReply)[]
+    hasNextPage?: boolean
+    totalDocs?: number
+  }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-replies".
  */
 export interface LfrsReply {
-  id: string;
-  user: string | User;
-  review: string | LfrsReview;
-  body: string;
-  status?: ('pending' | 'approved' | 'rejected') | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user: string | User
+  review: string | LfrsReview
+  body: string
+  status?: ('pending' | 'approved' | 'rejected') | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-shares".
  */
 export interface LfrsShare {
-  id: string;
-  user?: (string | null) | User;
-  targetCollection: string;
-  targetDoc: string;
-  platform: 'facebook' | 'twitter' | 'whatsapp' | 'telegram' | 'linkedin' | 'web' | 'other';
-  url?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  user?: (string | null) | User
+  targetCollection: string
+  targetDoc: string
+  platform: 'facebook' | 'twitter' | 'whatsapp' | 'telegram' | 'linkedin' | 'web' | 'other'
+  url?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-testimonials".
  */
 export interface LfrsTestimonial {
-  id: string;
+  id: string
   /**
    * The email address to send the invitation to.
    */
-  invitedEmail: string;
-  uniqueCode?: string | null;
-  firstName?: string | null;
-  rating?: number | null;
-  testimonial?: string | null;
-  featured?: boolean | null;
-  status?: ('pending' | 'accepted' | 'rejected') | null;
-  invitationSentDate?: string | null;
-  testimonialAcceptedDate?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  invitedEmail: string
+  uniqueCode?: string | null
+  firstName?: string | null
+  rating?: number | null
+  testimonial?: string | null
+  featured?: boolean | null
+  status?: ('pending' | 'accepted' | 'rejected') | null
+  invitationSentDate?: string | null
+  testimonialAcceptedDate?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * Automatically generated search rows. Use the Reindex button after changing search configuration.
@@ -3123,37 +3231,37 @@ export interface LfrsTestimonial {
  * via the `definition` "search".
  */
 export interface Search {
-  id: string;
-  title?: string | null;
-  priority?: number | null;
+  id: string
+  title?: string | null
+  priority?: number | null
   doc:
     | {
-        relationTo: 'tours';
-        value: string | Tour;
+        relationTo: 'tours'
+        value: string | Tour
       }
     | {
-        relationTo: 'contents';
-        value: string | Content;
+        relationTo: 'contents'
+        value: string | Content
       }
     | {
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       }
     | {
-        relationTo: 'museums';
-        value: string | Museum;
+        relationTo: 'museums'
+        value: string | Museum
       }
     | {
-        relationTo: 'objects';
-        value: string | Object;
-      };
-  kind: 'tour' | 'content' | 'user' | 'museum' | 'object';
-  excerpt?: string | null;
-  city?: string | null;
-  priceCents?: number | null;
-  sourceCreatedAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
+        relationTo: 'objects'
+        value: string | Object
+      }
+  kind: 'tour' | 'content' | 'user' | 'museum' | 'object'
+  excerpt?: string | null
+  city?: string | null
+  priceCents?: number | null
+  sourceCreatedAt?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * API keys control which collections, resources, tools, and prompts MCP clients can access
@@ -3162,519 +3270,529 @@ export interface Search {
  * via the `definition` "payload-mcp-api-keys".
  */
 export interface PayloadMcpApiKey {
-  id: string;
+  id: string
   /**
    * The user that the API key is associated with.
    */
-  user: string | User;
+  user: string | User
   /**
    * A useful label for the API key.
    */
-  label?: string | null;
+  label?: string | null
   /**
    * The purpose of the API key.
    */
-  description?: string | null;
+  description?: string | null
   museums?: {
     /**
      * Allow clients to find museums.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create museums.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update museums.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete museums.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   objects?: {
     /**
      * Allow clients to find objects.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create objects.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update objects.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete objects.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   contents?: {
     /**
      * Allow clients to find contents.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create contents.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update contents.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete contents.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   tours?: {
     /**
      * Allow clients to find tours.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create tours.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update tours.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete tours.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   museumCategories?: {
     /**
      * Allow clients to find museumCategories.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create museumCategories.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update museumCategories.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete museumCategories.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   museumMaps?: {
     /**
      * Allow clients to find museumMaps.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create museumMaps.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update museumMaps.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete museumMaps.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   museumThumbnails?: {
     /**
      * Allow clients to find museumThumbnails.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create museumThumbnails.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update museumThumbnails.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete museumThumbnails.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   objectsModels?: {
     /**
      * Allow clients to find objectsModels.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create objectsModels.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update objectsModels.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete objectsModels.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   objectsThumbnails?: {
     /**
      * Allow clients to find objectsThumbnails.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create objectsThumbnails.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update objectsThumbnails.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete objectsThumbnails.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   contentImages?: {
     /**
      * Allow clients to find contentImages.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create contentImages.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update contentImages.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete contentImages.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   roles?: {
     /**
      * Allow clients to find roles.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create roles.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update roles.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete roles.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   permissionActions?: {
     /**
      * Allow clients to find permission-actions.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create permission-actions.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update permission-actions.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete permission-actions.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   permissions?: {
     /**
      * Allow clients to find permissions.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create permissions.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update permissions.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete permissions.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   permissionFeatures?: {
     /**
      * Allow clients to find permission-features.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create permission-features.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update permission-features.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete permission-features.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   rolesPermissions?: {
     /**
      * Allow clients to find roles-permissions.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create roles-permissions.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update roles-permissions.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete roles-permissions.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   userMuseumMemberships?: {
     /**
      * Allow clients to find user-museum-memberships.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create user-museum-memberships.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update user-museum-memberships.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete user-museum-memberships.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   toursThumbnails?: {
     /**
      * Allow clients to find toursThumbnails.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create toursThumbnails.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update toursThumbnails.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete toursThumbnails.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   users?: {
     /**
      * Allow clients to find users.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create users.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update users.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete users.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   usersPropics?: {
     /**
      * Allow clients to find usersPropics.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create usersPropics.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update usersPropics.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete usersPropics.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   imports?: {
     /**
      * Allow clients to find imports.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create imports.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update imports.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete imports.
      */
-    delete?: boolean | null;
-  };
+    delete?: boolean | null
+  }
   exports?: {
     /**
      * Allow clients to find exports.
      */
-    find?: boolean | null;
+    find?: boolean | null
     /**
      * Allow clients to create exports.
      */
-    create?: boolean | null;
+    create?: boolean | null
     /**
      * Allow clients to update exports.
      */
-    update?: boolean | null;
+    update?: boolean | null
     /**
      * Allow clients to delete exports.
      */
-    delete?: boolean | null;
-  };
-  updatedAt: string;
-  createdAt: string;
-  enableAPIKey?: boolean | null;
-  apiKey?: string | null;
-  apiKeyIndex?: string | null;
-  collection: 'payload-mcp-api-keys';
+    delete?: boolean | null
+  }
+  updatedAt: string
+  createdAt: string
+  enableAPIKey?: boolean | null
+  apiKey?: string | null
+  apiKeyIndex?: string | null
+  collection: 'payload-mcp-api-keys'
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
-  id: string;
-  key: string;
+  id: string
+  key: string
   data:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
-  id: string;
+  id: string
   /**
    * Input data provided to the job
    */
   input?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
   taskStatus?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  completedAt?: string | null;
-  totalTried?: number | null;
+    | null
+  completedAt?: string | null
+  totalTried?: number | null
   /**
    * If hasError is true this job will not be retried
    */
-  hasError?: boolean | null;
+  hasError?: boolean | null
   /**
    * If hasError is true, this is the error that caused it
    */
   error?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
+    | null
   /**
    * Task execution log
    */
   log?:
     | {
-        executedAt: string;
-        completedAt: string;
+        executedAt: string
+        completedAt: string
         taskSlug:
           | 'inline'
+          | 'generateContentAudio'
+          | 'importWikidataSubjects'
           | 'loadObjectGenerationContext'
           | 'startMintModelGeneration'
           | 'pollMintModelOperation'
           | 'persistMintModelAssets'
           | 'translate_document'
           | 'createCollectionExport'
-          | 'createCollectionImport';
-        taskID: string;
+          | 'createCollectionImport'
+        taskID: string
         input?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
+          | null
         output?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
-        state: 'failed' | 'succeeded';
+          | null
+        state: 'failed' | 'succeeded'
         error?:
           | {
-              [k: string]: unknown;
+              [k: string]: unknown
             }
           | unknown[]
           | string
           | number
           | boolean
-          | null;
-        id?: string | null;
+          | null
+        id?: string | null
       }[]
-    | null;
+    | null
   workflowSlug?:
-    ('generateObjectModel' | 'interactiveObjectModel' | 'finalizeObjectModel' | 'translate_document_locales') | null;
+    | (
+        | 'generateObjectModel'
+        | 'interactiveObjectModel'
+        | 'finalizeObjectModel'
+        | 'translate_document_locales'
+      )
+    | null
   taskSlug?:
     | (
         | 'inline'
+        | 'generateContentAudio'
+        | 'importWikidataSubjects'
         | 'loadObjectGenerationContext'
         | 'startMintModelGeneration'
         | 'pollMintModelOperation'
@@ -3683,1558 +3801,1625 @@ export interface PayloadJob {
         | 'createCollectionExport'
         | 'createCollectionImport'
       )
-    | null;
-  queue?: string | null;
-  waitUntil?: string | null;
-  processing?: boolean | null;
+    | null
+  queue?: string | null
+  waitUntil?: string | null
+  processing?: boolean | null
   /**
    * Used for concurrency control. Jobs with the same key are subject to exclusive/supersedes rules.
    */
-  concurrencyKey?: string | null;
-  updatedAt: string;
-  createdAt: string;
+  concurrencyKey?: string | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
-  id: string;
+  id: string
   document?:
     | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       } | null)
     | ({
-        relationTo: 'user-museum-memberships';
-        value: string | UserMuseumMembership;
+        relationTo: 'user-museum-memberships'
+        value: string | UserMuseumMembership
       } | null)
     | ({
-        relationTo: 'usersPropics';
-        value: string | UsersPropic;
+        relationTo: 'usersPropics'
+        value: string | UsersPropic
       } | null)
     | ({
-        relationTo: 'museums';
-        value: string | Museum;
+        relationTo: 'museums'
+        value: string | Museum
       } | null)
     | ({
-        relationTo: 'museumCategories';
-        value: string | MuseumCategory;
+        relationTo: 'museumCategories'
+        value: string | MuseumCategory
       } | null)
     | ({
-        relationTo: 'museumThumbnails';
-        value: string | MuseumThumbnail;
+        relationTo: 'museumThumbnails'
+        value: string | MuseumThumbnail
       } | null)
     | ({
-        relationTo: 'museumMaps';
-        value: string | MuseumMap;
+        relationTo: 'museumMaps'
+        value: string | MuseumMap
       } | null)
     | ({
-        relationTo: 'objects';
-        value: string | Object;
+        relationTo: 'objects'
+        value: string | Object
       } | null)
     | ({
-        relationTo: 'objectsModels';
-        value: string | ObjectsModel;
+        relationTo: 'subjects'
+        value: string | Subject
       } | null)
     | ({
-        relationTo: 'objectsThumbnails';
-        value: string | ObjectsThumbnail;
+        relationTo: 'objectsModels'
+        value: string | ObjectsModel
       } | null)
     | ({
-        relationTo: 'contents';
-        value: string | Content;
+        relationTo: 'objectsThumbnails'
+        value: string | ObjectsThumbnail
       } | null)
     | ({
-        relationTo: 'contentImages';
-        value: string | ContentImage;
+        relationTo: 'contents'
+        value: string | Content
       } | null)
     | ({
-        relationTo: 'contentVariants';
-        value: string | ContentVariant;
+        relationTo: 'contentImages'
+        value: string | ContentImage
       } | null)
     | ({
-        relationTo: 'tours';
-        value: string | Tour;
+        relationTo: 'contentVariants'
+        value: string | ContentVariant
       } | null)
     | ({
-        relationTo: 'toursThumbnails';
-        value: string | ToursThumbnail;
+        relationTo: 'contentAudio'
+        value: string | ContentAudio
       } | null)
     | ({
-        relationTo: 'quizQuestions';
-        value: string | QuizQuestion;
+        relationTo: 'tours'
+        value: string | Tour
       } | null)
     | ({
-        relationTo: 'quizAttempts';
-        value: string | QuizAttempt;
+        relationTo: 'toursThumbnails'
+        value: string | ToursThumbnail
       } | null)
     | ({
-        relationTo: 'purchases';
-        value: string | Purchase;
+        relationTo: 'quizQuestions'
+        value: string | QuizQuestion
       } | null)
     | ({
-        relationTo: 'translator-provenance';
-        value: string | TranslatorProvenance;
+        relationTo: 'quizAttempts'
+        value: string | QuizAttempt
       } | null)
     | ({
-        relationTo: 'forms';
-        value: string | Form;
+        relationTo: 'purchases'
+        value: string | Purchase
       } | null)
     | ({
-        relationTo: 'form-submissions';
-        value: string | FormSubmission;
+        relationTo: 'translator-provenance'
+        value: string | TranslatorProvenance
       } | null)
     | ({
-        relationTo: 'permission-actions';
-        value: string | PermissionAction;
+        relationTo: 'forms'
+        value: string | Form
       } | null)
     | ({
-        relationTo: 'permission-features';
-        value: string | PermissionFeature;
+        relationTo: 'form-submissions'
+        value: string | FormSubmission
       } | null)
     | ({
-        relationTo: 'permissions';
-        value: string | Permission;
+        relationTo: 'permission-actions'
+        value: string | PermissionAction
       } | null)
     | ({
-        relationTo: 'roles';
-        value: string | Role;
+        relationTo: 'permission-features'
+        value: string | PermissionFeature
       } | null)
     | ({
-        relationTo: 'roles-permissions';
-        value: string | RolesPermission;
+        relationTo: 'permissions'
+        value: string | Permission
       } | null)
     | ({
-        relationTo: 'lfrs-likes';
-        value: string | LfrsLike;
+        relationTo: 'roles'
+        value: string | Role
       } | null)
     | ({
-        relationTo: 'lfrs-favourites';
-        value: string | LfrsFavourite;
+        relationTo: 'roles-permissions'
+        value: string | RolesPermission
       } | null)
     | ({
-        relationTo: 'lfrs-reviews';
-        value: string | LfrsReview;
+        relationTo: 'lfrs-likes'
+        value: string | LfrsLike
       } | null)
     | ({
-        relationTo: 'lfrs-replies';
-        value: string | LfrsReply;
+        relationTo: 'lfrs-favourites'
+        value: string | LfrsFavourite
       } | null)
     | ({
-        relationTo: 'lfrs-shares';
-        value: string | LfrsShare;
+        relationTo: 'lfrs-reviews'
+        value: string | LfrsReview
       } | null)
     | ({
-        relationTo: 'lfrs-testimonials';
-        value: string | LfrsTestimonial;
+        relationTo: 'lfrs-replies'
+        value: string | LfrsReply
       } | null)
     | ({
-        relationTo: 'search';
-        value: string | Search;
+        relationTo: 'lfrs-shares'
+        value: string | LfrsShare
       } | null)
     | ({
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      } | null);
-  globalSlug?: string | null;
+        relationTo: 'lfrs-testimonials'
+        value: string | LfrsTestimonial
+      } | null)
+    | ({
+        relationTo: 'search'
+        value: string | Search
+      } | null)
+    | ({
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      } | null)
+  globalSlug?: string | null
   user:
     | {
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       }
     | {
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      };
-  updatedAt: string;
-  createdAt: string;
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      }
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences".
  */
 export interface PayloadPreference {
-  id: string;
+  id: string
   user:
     | {
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'users'
+        value: string | User
       }
     | {
-        relationTo: 'payload-mcp-api-keys';
-        value: string | PayloadMcpApiKey;
-      };
-  key?: string | null;
+        relationTo: 'payload-mcp-api-keys'
+        value: string | PayloadMcpApiKey
+      }
+  key?: string | null
   value?:
     | {
-        [k: string]: unknown;
+        [k: string]: unknown
       }
     | unknown[]
     | string
     | number
     | boolean
-    | null;
-  updatedAt: string;
-  createdAt: string;
+    | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations".
  */
 export interface PayloadMigration {
-  id: string;
-  name?: string | null;
-  batch?: number | null;
-  updatedAt: string;
-  createdAt: string;
+  id: string
+  name?: string | null
+  batch?: number | null
+  updatedAt: string
+  createdAt: string
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
-  isSuperAdmin?: T;
-  roles?: T;
-  parent?: T;
-  parentPath?: T;
-  createdBy?: T;
+  isSuperAdmin?: T
+  roles?: T
+  parent?: T
+  parentPath?: T
+  createdBy?: T
   name?:
     | T
     | {
-        firstName?: T;
-        lastName?: T;
-        fullName?: T;
-      };
-  description?: T;
-  authoredContents?: T;
-  authoredTours?: T;
-  avatar?: T;
-  bio?: T;
-  memberships?: T;
-  purchases?: T;
-  curatorOf?: T;
-  directorOf?: T;
-  verifiedAt?: T;
-  highestStatus?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  email?: T;
-  username?: T;
-  resetPasswordToken?: T;
-  resetPasswordExpiration?: T;
-  salt?: T;
-  hash?: T;
-  loginAttempts?: T;
-  lockUntil?: T;
+        firstName?: T
+        lastName?: T
+        fullName?: T
+      }
+  description?: T
+  authoredContents?: T
+  authoredTours?: T
+  avatar?: T
+  bio?: T
+  memberships?: T
+  purchases?: T
+  curatorOf?: T
+  directorOf?: T
+  verifiedAt?: T
+  highestStatus?: T
+  updatedAt?: T
+  createdAt?: T
+  email?: T
+  username?: T
+  resetPasswordToken?: T
+  resetPasswordExpiration?: T
+  salt?: T
+  hash?: T
+  loginAttempts?: T
+  lockUntil?: T
   sessions?:
     | T
     | {
-        id?: T;
-        createdAt?: T;
-        expiresAt?: T;
-      };
+        id?: T
+        createdAt?: T
+        expiresAt?: T
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "user-museum-memberships_select".
  */
 export interface UserMuseumMembershipsSelect<T extends boolean = true> {
-  user?: T;
-  role?: T;
-  museum?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  role?: T
+  museum?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "usersPropics_select".
  */
 export interface UsersPropicsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museums_select".
  */
 export interface MuseumsSelect<T extends boolean = true> {
-  createdBy?: T;
-  name?: T;
-  description?: T;
-  descriptionHTML?: T;
-  shortDescription?: T;
+  createdBy?: T
+  name?: T
+  description?: T
+  descriptionHTML?: T
+  shortDescription?: T
   accessibility?:
     | T
     | {
-        isAccessible?: T;
-        stepFreeEntrance?: T;
-        elevator?: T;
-        accessibleBathrooms?: T;
-        tactilePaths?: T;
-        audioGuides?: T;
-        signLanguage?: T;
-        serviceAnimals?: T;
-        notes?: T;
-      };
-  phone?: T;
-  email?: T;
+        isAccessible?: T
+        stepFreeEntrance?: T
+        elevator?: T
+        accessibleBathrooms?: T
+        tactilePaths?: T
+        audioGuides?: T
+        signLanguage?: T
+        serviceAnimals?: T
+        notes?: T
+      }
+  phone?: T
+  email?: T
   socials?:
     | T
     | {
-        platform?: T;
-        url?: T;
-        id?: T;
-      };
+        platform?: T
+        url?: T
+        id?: T
+      }
   news?:
     | T
     | {
-        title?: T;
-        content?: T;
-        date?: T;
-        id?: T;
-      };
-  thumbnails?: T;
+        title?: T
+        content?: T
+        date?: T
+        id?: T
+      }
+  thumbnails?: T
   openingHours?:
     | T
     | {
         monday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         tuesday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         wednesday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         thursday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         friday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         saturday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
+              opening?: T
+              closing?: T
+              id?: T
+            }
         sunday?:
           | T
           | {
-              opening?: T;
-              closing?: T;
-              id?: T;
-            };
-        notes?: T;
-      };
+              opening?: T
+              closing?: T
+              id?: T
+            }
+        notes?: T
+      }
   ticketInfo?:
     | T
     | {
-        label?: T;
-        url?: T;
-      };
+        label?: T
+        url?: T
+      }
   location?:
     | T
     | {
-        address?: T;
-        city?: T;
-        region?: T;
-        postalCode?: T;
-        country?: T;
-        latlng?: T;
-      };
-  categories?: T;
-  objects?: T;
-  tours?: T;
-  staff?: T;
-  map?: T;
-  navMesh?: T;
-  navMeshWheelchair?: T;
+        address?: T
+        city?: T
+        region?: T
+        postalCode?: T
+        country?: T
+        latlng?: T
+      }
+  categories?: T
+  brandColor?: T
+  objects?: T
+  palette?: T
+  tours?: T
+  staff?: T
+  map?: T
+  navMesh?: T
+  navMeshWheelchair?: T
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumCategories_select".
  */
 export interface MuseumCategoriesSelect<T extends boolean = true> {
-  name?: T;
-  slug?: T;
-  description?: T;
-  parent?: T;
-  icon?: T;
-  color?: T;
-  featured?: T;
-  museums?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  slug?: T
+  description?: T
+  parent?: T
+  icon?: T
+  color?: T
+  featured?: T
+  museums?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumThumbnails_select".
  */
 export interface MuseumThumbnailsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
   sizes?:
     | T
     | {
         card?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
         cover?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "museumMaps_select".
  */
 export interface MuseumMapsSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objects_select".
  */
 export interface ObjectsSelect<T extends boolean = true> {
-  createdBy?: T;
-  name?: T;
-  description?: T;
-  museums?: T;
-  artist?: T;
-  dating?: T;
-  provenance?: T;
+  createdBy?: T
+  name?: T
+  description?: T
+  museums?: T
+  artist?: T
+  wikidataId?: T
+  inventoryNumber?: T
+  creators?: T
+  movements?: T
+  events?: T
+  dating?: T
+  provenance?: T
   condition?:
     | T
     | {
-        state?: T;
-        notes?: T;
-      };
-  creditLine?: T;
-  rights?: T;
-  categories?: T;
-  contents?: T;
-  thumbnail?: T;
-  model?: T;
+        state?: T
+        notes?: T
+      }
+  creditLine?: T
+  rights?: T
+  categories?: T
+  contents?: T
+  thumbnail?: T
+  model?: T
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subjects_select".
+ */
+export interface SubjectsSelect<T extends boolean = true> {
+  kind?: T
+  name?: T
+  description?: T
+  wikidataId?: T
+  contents?: T
+  importedFromWikidata?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsModels_select".
  */
 export interface ObjectsModelsSelect<T extends boolean = true> {
-  userGenerated?: T;
-  mintModelId?: T;
-  mintOperationId?: T;
-  thumbnail?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  userGenerated?: T
+  mintModelId?: T
+  mintOperationId?: T
+  thumbnail?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "objectsThumbnails_select".
  */
 export interface ObjectsThumbnailsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
   sizes?:
     | T
     | {
         card?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
         cover?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contents_select".
  */
 export interface ContentsSelect<T extends boolean = true> {
-  createdBy?: T;
-  difficulty?: T;
-  audience?: T;
-  title?: T;
-  body?: T;
-  bodyHTML?: T;
-  readingTimeMins?: T;
-  price?: T;
-  copyright?: T;
-  categories?: T;
+  createdBy?: T
+  difficulty?: T
+  visibility?: T
+  audience?: T
+  title?: T
+  body?: T
+  bodyHTML?: T
+  durationSeconds?: T
+  price?: T
+  license?: T
+  rightsMuseum?: T
+  rightsDeclaredAt?: T
+  categories?: T
   sources?:
     | T
     | {
-        label?: T;
-        url?: T;
-        id?: T;
-      };
-  images?: T;
-  objects?: T;
-  variants?: T;
-  author?: T;
-  attachToObject?: T;
+        label?: T
+        url?: T
+        id?: T
+      }
+  images?: T
+  objects?: T
+  subjects?: T
+  variants?: T
+  author?: T
+  attachToObject?: T
+  attachToSubject?: T
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        ratingsCount?: T;
-        ratingsAverage?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        ratingsCount?: T
+        ratingsAverage?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentImages_select".
  */
 export interface ContentImagesSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
   sizes?:
     | T
     | {
         card?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
         cover?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contentVariants_select".
  */
 export interface ContentVariantsSelect<T extends boolean = true> {
-  kind?: T;
-  content?: T;
-  object?: T;
-  angle?: T;
-  difficulty?: T;
-  audience?: T;
-  readingTimeMins?: T;
-  body?: T;
+  kind?: T
+  content?: T
+  object?: T
+  angle?: T
+  step?: T
+  difficulty?: T
+  audience?: T
+  durationSeconds?: T
+  body?: T
   generation?:
     | T
     | {
-        generated?: T;
-        model?: T;
+        generated?: T
+        model?: T
         sources?:
           | T
           | {
-              title?: T;
-              url?: T;
-              id?: T;
-            };
-      };
-  updatedAt?: T;
-  createdAt?: T;
+              title?: T
+              url?: T
+              id?: T
+            }
+      }
+  updatedAt?: T
+  createdAt?: T
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contentAudio_select".
+ */
+export interface ContentAudioSelect<T extends boolean = true> {
+  content?: T
+  locale?: T
+  textHash?: T
+  durationSeconds?: T
+  model?: T
+  voice?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "tours_select".
  */
 export interface ToursSelect<T extends boolean = true> {
-  createdBy?: T;
-  title?: T;
-  body?: T;
-  description?: T;
-  contents?: T;
-  thumbnail?: T;
-  museum?: T;
-  author?: T;
+  createdBy?: T
+  title?: T
+  visibility?: T
+  body?: T
+  description?: T
+  logistics?: T
+  directions?:
+    | T
+    | {
+        content?: T
+        text?: T
+        id?: T
+      }
+  contents?: T
+  thumbnail?: T
+  museum?: T
+  author?: T
   generation?:
     | T
     | {
-        generated?: T;
-        model?: T;
-        requestKey?: T;
-        request?: T;
-      };
-  durationMinutes?: T;
-  distanceMeters?: T;
-  wheelchairAccessible?: T;
-  categories?: T;
+        generated?: T
+        model?: T
+        requestKey?: T
+        request?: T
+      }
+  durationMinutes?: T
+  distanceMeters?: T
+  wheelchairAccessible?: T
+  categories?: T
   quiz?:
     | T
     | {
-        questions?: T;
-      };
+        questions?: T
+      }
   lfrs?:
     | T
     | {
-        favouritesCount?: T;
-        ratingsCount?: T;
-        ratingsAverage?: T;
-        sharesCount?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        favouritesCount?: T
+        ratingsCount?: T
+        ratingsAverage?: T
+        sharesCount?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "toursThumbnails_select".
  */
 export interface ToursThumbnailsSelect<T extends boolean = true> {
-  alt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  alt?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
   sizes?:
     | T
     | {
         card?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
         cover?:
           | T
           | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-      };
+              url?: T
+              width?: T
+              height?: T
+              mimeType?: T
+              filesize?: T
+              filename?: T
+            }
+      }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "quizQuestions_select".
  */
 export interface QuizQuestionsSelect<T extends boolean = true> {
-  createdBy?: T;
-  prompt?: T;
-  image?: T;
-  correctAnswer?: T;
+  createdBy?: T
+  prompt?: T
+  image?: T
+  correctAnswer?: T
   wrongAnswers?:
     | T
     | {
-        text?: T;
-        id?: T;
-      };
-  explanation?: T;
-  difficulty?: T;
-  relatedTo?: T;
-  updatedAt?: T;
-  createdAt?: T;
+        text?: T
+        id?: T
+      }
+  explanation?: T
+  difficulty?: T
+  relatedTo?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "quizAttempts_select".
  */
 export interface QuizAttemptsSelect<T extends boolean = true> {
-  token?: T;
-  tour?: T;
-  user?: T;
-  locale?: T;
-  stepsCompleted?: T;
+  token?: T
+  tour?: T
+  user?: T
+  locale?: T
+  stepsCompleted?: T
   answers?:
     | T
     | {
-        question?: T;
-        answer?: T;
-        correct?: T;
-        id?: T;
-      };
-  correctQuestions?: T;
-  score?: T;
-  total?: T;
-  percent?: T;
-  updatedAt?: T;
-  createdAt?: T;
+        question?: T
+        answer?: T
+        correct?: T
+        id?: T
+      }
+  correctQuestions?: T
+  score?: T
+  total?: T
+  percent?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "purchases_select".
  */
 export interface PurchasesSelect<T extends boolean = true> {
-  user?: T;
-  target?: T;
-  status?: T;
-  stripeSessionID?: T;
-  unlockedContents?: T;
-  stripePaymentIntentID?: T;
-  productTitle?: T;
-  amountCents?: T;
-  currency?: T;
-  email?: T;
-  purchasedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  target?: T
+  status?: T
+  stripeSessionID?: T
+  unlockedContents?: T
+  stripePaymentIntentID?: T
+  productTitle?: T
+  amountCents?: T
+  currency?: T
+  email?: T
+  purchasedAt?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "translator-provenance_select".
  */
 export interface TranslatorProvenanceSelect<T extends boolean = true> {
-  collectionSlug?: T;
-  documentId?: T;
-  targetLocale?: T;
-  sourceLocale?: T;
-  sourceFingerprint?: T;
-  translatedAt?: T;
-  dismissedFingerprint?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  collectionSlug?: T
+  documentId?: T
+  targetLocale?: T
+  sourceLocale?: T
+  sourceFingerprint?: T
+  translatedAt?: T
+  dismissedFingerprint?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "forms_select".
  */
 export interface FormsSelect<T extends boolean = true> {
-  title?: T;
+  title?: T
   fields?:
     | T
     | {
         checkbox?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              defaultValue?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              defaultValue?: T
+              id?: T
+              blockName?: T
+            }
         country?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         email?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         message?:
           | T
           | {
-              message?: T;
-              id?: T;
-              blockName?: T;
-            };
+              message?: T
+              id?: T
+              blockName?: T
+            }
         number?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         select?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              placeholder?: T;
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              placeholder?: T
               options?:
                 | T
                 | {
-                    label?: T;
-                    value?: T;
-                    id?: T;
-                  };
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+                    label?: T
+                    value?: T
+                    id?: T
+                  }
+              required?: T
+              id?: T
+              blockName?: T
+            }
         state?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         text?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
         textarea?:
           | T
           | {
-              name?: T;
-              label?: T;
-              width?: T;
-              defaultValue?: T;
-              required?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
-  submitButtonLabel?: T;
-  confirmationType?: T;
-  confirmationMessage?: T;
+              name?: T
+              label?: T
+              width?: T
+              defaultValue?: T
+              required?: T
+              id?: T
+              blockName?: T
+            }
+      }
+  submitButtonLabel?: T
+  confirmationType?: T
+  confirmationMessage?: T
   redirect?:
     | T
     | {
-        url?: T;
-      };
+        url?: T
+      }
   emails?:
     | T
     | {
-        emailTo?: T;
-        cc?: T;
-        bcc?: T;
-        replyTo?: T;
-        emailFrom?: T;
-        subject?: T;
-        message?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        emailTo?: T
+        cc?: T
+        bcc?: T
+        replyTo?: T
+        emailFrom?: T
+        subject?: T
+        message?: T
+        id?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "form-submissions_select".
  */
 export interface FormSubmissionsSelect<T extends boolean = true> {
-  form?: T;
+  form?: T
   submissionData?:
     | T
     | {
-        field?: T;
-        value?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
+        field?: T
+        value?: T
+        id?: T
+      }
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "exports_select".
  */
 export interface ExportsSelect<T extends boolean = true> {
-  name?: T;
-  format?: T;
-  limit?: T;
-  page?: T;
-  sort?: T;
-  sortOrder?: T;
-  locale?: T;
-  drafts?: T;
-  selectionToUse?: T;
-  fields?: T;
-  collectionSlug?: T;
-  where?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+  name?: T
+  format?: T
+  limit?: T
+  page?: T
+  sort?: T
+  sortOrder?: T
+  locale?: T
+  drafts?: T
+  selectionToUse?: T
+  fields?: T
+  collectionSlug?: T
+  where?: T
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "imports_select".
  */
 export interface ImportsSelect<T extends boolean = true> {
-  collectionSlug?: T;
-  importMode?: T;
-  matchField?: T;
-  status?: T;
+  collectionSlug?: T
+  importMode?: T
+  matchField?: T
+  status?: T
   summary?:
     | T
     | {
-        imported?: T;
-        updated?: T;
-        total?: T;
-        issues?: T;
-        issueDetails?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  url?: T;
-  thumbnailURL?: T;
-  filename?: T;
-  mimeType?: T;
-  filesize?: T;
-  width?: T;
-  height?: T;
-  focalX?: T;
-  focalY?: T;
+        imported?: T
+        updated?: T
+        total?: T
+        issues?: T
+        issueDetails?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  url?: T
+  thumbnailURL?: T
+  filename?: T
+  mimeType?: T
+  filesize?: T
+  width?: T
+  height?: T
+  focalX?: T
+  focalY?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-actions_select".
  */
 export interface PermissionActionsSelect<T extends boolean = true> {
-  code?: T;
-  type?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  type?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permission-features_select".
  */
 export interface PermissionFeaturesSelect<T extends boolean = true> {
-  code?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "permissions_select".
  */
 export interface PermissionsSelect<T extends boolean = true> {
-  name?: T;
-  permissionFeature?: T;
-  permissionAction?: T;
-  sortOrder?: T;
-  status?: T;
-  createdBy?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  permissionFeature?: T
+  permissionAction?: T
+  sortOrder?: T
+  status?: T
+  createdBy?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles_select".
  */
 export interface RolesSelect<T extends boolean = true> {
-  code?: T;
-  name?: T;
-  description?: T;
-  status?: T;
-  dataScope?: T;
-  permissionMatrixDraft?: T;
-  createdBy?: T;
-  museumFunction?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  code?: T
+  name?: T
+  description?: T
+  status?: T
+  dataScope?: T
+  permissionMatrixDraft?: T
+  createdBy?: T
+  museumFunction?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "roles-permissions_select".
  */
 export interface RolesPermissionsSelect<T extends boolean = true> {
-  role?: T;
-  permission?: T;
-  enabled?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  role?: T
+  permission?: T
+  enabled?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-likes_select".
  */
 export interface LfrsLikesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-favourites_select".
  */
 export interface LfrsFavouritesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-reviews_select".
  */
 export interface LfrsReviewsSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  title?: T;
-  body?: T;
-  score?: T;
-  status?: T;
-  repliesCount?: T;
-  replies?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  title?: T
+  body?: T
+  score?: T
+  status?: T
+  repliesCount?: T
+  replies?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-replies_select".
  */
 export interface LfrsRepliesSelect<T extends boolean = true> {
-  user?: T;
-  review?: T;
-  body?: T;
-  status?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  review?: T
+  body?: T
+  status?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-shares_select".
  */
 export interface LfrsSharesSelect<T extends boolean = true> {
-  user?: T;
-  targetCollection?: T;
-  targetDoc?: T;
-  platform?: T;
-  url?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  targetCollection?: T
+  targetDoc?: T
+  platform?: T
+  url?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-testimonials_select".
  */
 export interface LfrsTestimonialsSelect<T extends boolean = true> {
-  invitedEmail?: T;
-  uniqueCode?: T;
-  firstName?: T;
-  rating?: T;
-  testimonial?: T;
-  featured?: T;
-  status?: T;
-  invitationSentDate?: T;
-  testimonialAcceptedDate?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  invitedEmail?: T
+  uniqueCode?: T
+  firstName?: T
+  rating?: T
+  testimonial?: T
+  featured?: T
+  status?: T
+  invitationSentDate?: T
+  testimonialAcceptedDate?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "search_select".
  */
 export interface SearchSelect<T extends boolean = true> {
-  title?: T;
-  priority?: T;
-  doc?: T;
-  kind?: T;
-  excerpt?: T;
-  city?: T;
-  priceCents?: T;
-  sourceCreatedAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  title?: T
+  priority?: T
+  doc?: T
+  kind?: T
+  excerpt?: T
+  city?: T
+  priceCents?: T
+  sourceCreatedAt?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-mcp-api-keys_select".
  */
 export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
-  user?: T;
-  label?: T;
-  description?: T;
+  user?: T
+  label?: T
+  description?: T
   museums?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   objects?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   contents?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   tours?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   museumCategories?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   museumMaps?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   museumThumbnails?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   objectsModels?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   objectsThumbnails?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   contentImages?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   roles?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   permissionActions?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   permissions?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   permissionFeatures?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   rolesPermissions?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   userMuseumMemberships?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   toursThumbnails?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   users?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   usersPropics?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   imports?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
   exports?:
     | T
     | {
-        find?: T;
-        create?: T;
-        update?: T;
-        delete?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  enableAPIKey?: T;
-  apiKey?: T;
-  apiKeyIndex?: T;
+        find?: T
+        create?: T
+        update?: T
+        delete?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  enableAPIKey?: T
+  apiKey?: T
+  apiKeyIndex?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
-  key?: T;
-  data?: T;
+  key?: T
+  data?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
-  input?: T;
-  taskStatus?: T;
-  completedAt?: T;
-  totalTried?: T;
-  hasError?: T;
-  error?: T;
+  input?: T
+  taskStatus?: T
+  completedAt?: T
+  totalTried?: T
+  hasError?: T
+  error?: T
   log?:
     | T
     | {
-        executedAt?: T;
-        completedAt?: T;
-        taskSlug?: T;
-        taskID?: T;
-        input?: T;
-        output?: T;
-        state?: T;
-        error?: T;
-        id?: T;
-      };
-  workflowSlug?: T;
-  taskSlug?: T;
-  queue?: T;
-  waitUntil?: T;
-  processing?: T;
-  concurrencyKey?: T;
-  updatedAt?: T;
-  createdAt?: T;
+        executedAt?: T
+        completedAt?: T
+        taskSlug?: T
+        taskID?: T
+        input?: T
+        output?: T
+        state?: T
+        error?: T
+        id?: T
+      }
+  workflowSlug?: T
+  taskSlug?: T
+  queue?: T
+  waitUntil?: T
+  processing?: T
+  concurrencyKey?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents_select".
  */
 export interface PayloadLockedDocumentsSelect<T extends boolean = true> {
-  document?: T;
-  globalSlug?: T;
-  user?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  document?: T
+  globalSlug?: T
+  user?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-preferences_select".
  */
 export interface PayloadPreferencesSelect<T extends boolean = true> {
-  user?: T;
-  key?: T;
-  value?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  user?: T
+  key?: T
+  value?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-migrations_select".
  */
 export interface PayloadMigrationsSelect<T extends boolean = true> {
-  name?: T;
-  batch?: T;
-  updatedAt?: T;
-  createdAt?: T;
+  name?: T
+  batch?: T
+  updatedAt?: T
+  createdAt?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-settings".
  */
 export interface LfrsSetting {
-  id: string;
-  reviewModeration?: boolean | null;
+  id: string
+  reviewModeration?: boolean | null
   /**
    * Manage active LFRs features for the museums collection.
    */
   museums?: {
-    favourites?: boolean | null;
-    shares?: boolean | null;
-  };
+    favourites?: boolean | null
+    shares?: boolean | null
+  }
   /**
    * Manage active LFRs features for the objects collection.
    */
   objects?: {
-    favourites?: boolean | null;
-    shares?: boolean | null;
-  };
+    favourites?: boolean | null
+    shares?: boolean | null
+  }
   /**
    * Manage active LFRs features for the contents collection.
    */
   contents?: {
-    favourites?: boolean | null;
-    ratings?: boolean | null;
-    shares?: boolean | null;
-  };
+    favourites?: boolean | null
+    ratings?: boolean | null
+    shares?: boolean | null
+  }
   /**
    * Manage active LFRs features for the tours collection.
    */
   tours?: {
-    favourites?: boolean | null;
-    ratings?: boolean | null;
-    shares?: boolean | null;
-  };
-  updatedAt?: string | null;
-  createdAt?: string | null;
+    favourites?: boolean | null
+    ratings?: boolean | null
+    shares?: boolean | null
+  }
+  updatedAt?: string | null
+  createdAt?: string | null
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "lfrs-settings_select".
  */
 export interface LfrsSettingsSelect<T extends boolean = true> {
-  reviewModeration?: T;
+  reviewModeration?: T
   museums?:
     | T
     | {
-        favourites?: T;
-        shares?: T;
-      };
+        favourites?: T
+        shares?: T
+      }
   objects?:
     | T
     | {
-        favourites?: T;
-        shares?: T;
-      };
+        favourites?: T
+        shares?: T
+      }
   contents?:
     | T
     | {
-        favourites?: T;
-        ratings?: T;
-        shares?: T;
-      };
+        favourites?: T
+        ratings?: T
+        shares?: T
+      }
   tours?:
     | T
     | {
-        favourites?: T;
-        ratings?: T;
-        shares?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-  globalType?: T;
+        favourites?: T
+        ratings?: T
+        shares?: T
+      }
+  updatedAt?: T
+  createdAt?: T
+  globalType?: T
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5242,9 +5427,36 @@ export interface LfrsSettingsSelect<T extends boolean = true> {
  */
 export interface CollectionsWidget {
   data?: {
-    [k: string]: unknown;
-  };
-  width: 'full';
+    [k: string]: unknown
+  }
+  width: 'full'
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskGenerateContentAudio".
+ */
+export interface TaskGenerateContentAudio {
+  input: {
+    contentId: string
+    locale: string
+  }
+  output: {
+    status: string
+    seconds?: number | null
+  }
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TaskImportWikidataSubjects".
+ */
+export interface TaskImportWikidataSubjects {
+  input: {
+    objectId: string
+  }
+  output: {
+    status: string
+    subjects?: number | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5252,15 +5464,15 @@ export interface CollectionsWidget {
  */
 export interface TaskLoadObjectGenerationContext {
   input: {
-    objectId: string;
-    prompt?: string | null;
-  };
+    objectId: string
+    prompt?: string | null
+  }
   output: {
-    name?: string | null;
-    prompt: string;
-    skip?: boolean | null;
-    skipReason?: string | null;
-  };
+    name?: string | null
+    prompt: string
+    skip?: boolean | null
+    skipReason?: string | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5268,25 +5480,25 @@ export interface TaskLoadObjectGenerationContext {
  */
 export interface TaskStartMintModelGeneration {
   input: {
-    objectId: string;
-    prompt: string;
-    review?: boolean | null;
-    requestId?: string | null;
+    objectId: string
+    prompt: string
+    review?: boolean | null
+    requestId?: string | null
     generation?: {
-      prompt: string;
-      name?: string;
-      generationMode?: 'auto' | 'review';
-      generationPreset?: 'fast' | 'standard' | 'production';
-      imageUrl?: string;
-      sourceImages?: string[];
-      riggingPose?: 't_pose' | 'a_pose';
-      [k: string]: unknown;
-    };
-  };
+      prompt: string
+      name?: string
+      generationMode?: 'auto' | 'review'
+      generationPreset?: 'fast' | 'standard' | 'production'
+      imageUrl?: string
+      sourceImages?: string[]
+      riggingPose?: 't_pose' | 'a_pose'
+      [k: string]: unknown
+    }
+  }
   output: {
-    mintOperationId: string;
-    creditsEstimatedTotal?: number | null;
-  };
+    mintOperationId: string
+    creditsEstimatedTotal?: number | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5294,18 +5506,18 @@ export interface TaskStartMintModelGeneration {
  */
 export interface TaskPollMintModelOperation {
   input: {
-    mintOperationId: string;
-    objectId: string;
-    stage?: ('preview' | 'final') | null;
-  };
+    mintOperationId: string
+    objectId: string
+    stage?: ('preview' | 'final') | null
+  }
   output: {
-    mintModelId?: string | null;
-    mintOperationId: string;
+    mintModelId?: string | null
+    mintOperationId: string
     operation: {
-      object: 'operation';
-      id: string;
-      type: 'model_generation';
-      generationMode: 'auto' | 'review';
+      object: 'operation'
+      id: string
+      type: 'model_generation'
+      generationMode: 'auto' | 'review'
       status:
         | 'queued'
         | 'running'
@@ -5314,34 +5526,34 @@ export interface TaskPollMintModelOperation {
         | 'succeeded'
         | 'partially_succeeded'
         | 'failed'
-        | 'canceled';
-      prompt?: string;
-      generationPreset?: 'fast' | 'standard' | 'production';
+        | 'canceled'
+      prompt?: string
+      generationPreset?: 'fast' | 'standard' | 'production'
       assets?: {
-        fbxUrl: string | null;
-        glbUrl: string | null;
-        glbSizeBytes: number | null;
-        objUrl: string | null;
-        optimizedGlbUrl: string | null;
-        optimizedGlbSizeBytes: number | null;
-        previewImageUrl: string | null;
-        stlUrl: string | null;
-        thumbnailUrl: string | null;
-        usdzUrl: string | null;
+        fbxUrl: string | null
+        glbUrl: string | null
+        glbSizeBytes: number | null
+        objUrl: string | null
+        optimizedGlbUrl: string | null
+        optimizedGlbSizeBytes: number | null
+        previewImageUrl: string | null
+        stlUrl: string | null
+        thumbnailUrl: string | null
+        usdzUrl: string | null
         bounds: {
-          min: [] | [number] | [number, number] | [number, number, number];
-          max: [] | [number] | [number, number] | [number, number, number];
-          size: [] | [number] | [number, number] | [number, number, number];
-          center: [] | [number] | [number, number] | [number, number, number];
-          [k: string]: unknown;
-        } | null;
-        [k: string]: unknown;
-      };
+          min: [] | [number] | [number, number] | [number, number, number]
+          max: [] | [number] | [number, number] | [number, number, number]
+          size: [] | [number] | [number, number] | [number, number, number]
+          center: [] | [number] | [number, number] | [number, number, number]
+          [k: string]: unknown
+        } | null
+        [k: string]: unknown
+      }
       resource: {
-        type: 'model';
-        id: string;
-        [k: string]: unknown;
-      } | null;
+        type: 'model'
+        id: string
+        [k: string]: unknown
+      } | null
       billing?: {
         reason:
           | 'subscription_required'
@@ -5349,38 +5561,46 @@ export interface TaskPollMintModelOperation {
           | 'quota_exhausted_upgrade_available'
           | 'quota_exhausted_top_tier'
           | 'insufficient_credits'
-          | 'insufficient_completion_credits';
+          | 'insufficient_completion_credits'
         resource:
-          'preview' | 'world' | 'model' | 'asset_pack' | 'material' | 'material_pack' | 'image' | 'audio' | 'video';
-        stage: 'preview' | 'final';
-        requiredCredits: number;
-        availableCredits?: number;
-        committedCredits?: number;
-        stageCredits?: number;
-        completionCredits?: number;
-        ctaKind?: 'view_plans' | 'upgrade_plan' | 'buy_top_up_credits';
-        actionUrl: string;
-        [k: string]: unknown;
-      };
+          | 'preview'
+          | 'world'
+          | 'model'
+          | 'asset_pack'
+          | 'material'
+          | 'material_pack'
+          | 'image'
+          | 'audio'
+          | 'video'
+        stage: 'preview' | 'final'
+        requiredCredits: number
+        availableCredits?: number
+        committedCredits?: number
+        stageCredits?: number
+        completionCredits?: number
+        ctaKind?: 'view_plans' | 'upgrade_plan' | 'buy_top_up_credits'
+        actionUrl: string
+        [k: string]: unknown
+      }
       credits?: {
-        estimated: number | null;
-        reserved: number;
-        finalized: number | null;
-        availableAfterReservation: number | null;
-        [k: string]: unknown;
-      };
+        estimated: number | null
+        reserved: number
+        finalized: number | null
+        availableAfterReservation: number | null
+        [k: string]: unknown
+      }
       error?: {
-        code: string;
-        message: string;
-        [k: string]: unknown;
-      };
-      createdAt: string;
-      updatedAt: string;
-      completedAt?: string;
-      canceledAt?: string;
-      [k: string]: unknown;
-    };
-  };
+        code: string
+        message: string
+        [k: string]: unknown
+      }
+      createdAt: string
+      updatedAt: string
+      completedAt?: string
+      canceledAt?: string
+      [k: string]: unknown
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5388,15 +5608,15 @@ export interface TaskPollMintModelOperation {
  */
 export interface TaskPersistMintModelAssets {
   input: {
-    objectId: string;
-    prompt: string;
-    mintModelId: string;
-    mintOperationId: string;
-  };
+    objectId: string
+    prompt: string
+    mintModelId: string
+    mintOperationId: string
+  }
   output: {
-    objectsModelId: string;
-    objectsThumbnailId?: string | null;
-  };
+    objectsModelId: string
+    objectsThumbnailId?: string | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5404,50 +5624,54 @@ export interface TaskPersistMintModelAssets {
  */
 export interface TaskTranslateDocument {
   input: {
-    collection_slug: string;
-    collection_id: string;
+    collection_slug: string
+    collection_id: string
     /**
      * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
      */
     collection?:
       | ({
-          relationTo: 'museums';
-          value: string | Museum;
+          relationTo: 'museums'
+          value: string | Museum
         } | null)
       | ({
-          relationTo: 'museumCategories';
-          value: string | MuseumCategory;
+          relationTo: 'museumCategories'
+          value: string | MuseumCategory
         } | null)
       | ({
-          relationTo: 'museumThumbnails';
-          value: string | MuseumThumbnail;
+          relationTo: 'museumThumbnails'
+          value: string | MuseumThumbnail
         } | null)
       | ({
-          relationTo: 'objects';
-          value: string | Object;
+          relationTo: 'objects'
+          value: string | Object
         } | null)
       | ({
-          relationTo: 'contents';
-          value: string | Content;
+          relationTo: 'subjects'
+          value: string | Subject
         } | null)
       | ({
-          relationTo: 'contentImages';
-          value: string | ContentImage;
+          relationTo: 'contents'
+          value: string | Content
         } | null)
       | ({
-          relationTo: 'tours';
-          value: string | Tour;
+          relationTo: 'contentImages'
+          value: string | ContentImage
         } | null)
       | ({
-          relationTo: 'quizQuestions';
-          value: string | QuizQuestion;
-        } | null);
-    source_lng: string;
-    target_lng: string;
-    strategy: string;
-    publish_on_translation?: boolean | null;
-  };
-  output?: unknown;
+          relationTo: 'tours'
+          value: string | Tour
+        } | null)
+      | ({
+          relationTo: 'quizQuestions'
+          value: string | QuizQuestion
+        } | null)
+    source_lng: string
+    target_lng: string
+    strategy: string
+    publish_on_translation?: boolean | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5455,9 +5679,9 @@ export interface TaskTranslateDocument {
  */
 export interface TaskCreateCollectionExport {
   input: {
-    id: string;
-    name: string;
-    batchSize?: number | null;
+    id: string
+    name: string
+    batchSize?: number | null
     collectionSlug:
       | 'users'
       | 'user-museum-memberships'
@@ -5467,11 +5691,13 @@ export interface TaskCreateCollectionExport {
       | 'museumThumbnails'
       | 'museumMaps'
       | 'objects'
+      | 'subjects'
       | 'objectsModels'
       | 'objectsThumbnails'
       | 'contents'
       | 'contentImages'
       | 'contentVariants'
+      | 'contentAudio'
       | 'tours'
       | 'toursThumbnails'
       | 'quizQuestions'
@@ -5481,29 +5707,29 @@ export interface TaskCreateCollectionExport {
       | 'forms'
       | 'form-submissions'
       | 'exports'
-      | 'imports';
-    drafts?: ('yes' | 'no') | null;
-    exportCollection: string;
-    fields?: string[] | null;
-    format: 'csv' | 'json';
-    limit?: number | null;
-    locale?: string | null;
-    maxLimit?: number | null;
-    page?: number | null;
-    sort?: string | null;
-    userCollection?: string | null;
-    userID?: string | null;
+      | 'imports'
+    drafts?: ('yes' | 'no') | null
+    exportCollection: string
+    fields?: string[] | null
+    format: 'csv' | 'json'
+    limit?: number | null
+    locale?: string | null
+    maxLimit?: number | null
+    page?: number | null
+    sort?: string | null
+    userCollection?: string | null
+    userID?: string | null
     where?:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
-  output?: unknown;
+      | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5511,16 +5737,16 @@ export interface TaskCreateCollectionExport {
  */
 export interface TaskCreateCollectionImport {
   input: {
-    importId: string;
-    importCollection: string;
-    userID?: string | null;
-    userCollection?: string | null;
-    batchSize?: number | null;
-    debug?: boolean | null;
-    defaultVersionStatus?: ('draft' | 'published') | null;
-    maxLimit?: number | null;
-  };
-  output?: unknown;
+    importId: string
+    importCollection: string
+    userID?: string | null
+    userCollection?: string | null
+    batchSize?: number | null
+    debug?: boolean | null
+    defaultVersionStatus?: ('draft' | 'published') | null
+    maxLimit?: number | null
+  }
+  output?: unknown
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5528,9 +5754,9 @@ export interface TaskCreateCollectionImport {
  */
 export interface WorkflowGenerateObjectModel {
   input: {
-    objectId: string;
-    prompt?: string | null;
-  };
+    objectId: string
+    prompt?: string | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5538,27 +5764,27 @@ export interface WorkflowGenerateObjectModel {
  */
 export interface WorkflowInteractiveObjectModel {
   input: {
-    objectId: string;
-    requestedBy: string;
-    requestId: string;
-    prompt?: string | null;
-    action: 'start' | 'revise';
-    operationId?: string | null;
+    objectId: string
+    requestedBy: string
+    requestId: string
+    prompt?: string | null
+    action: 'start' | 'revise'
+    operationId?: string | null
     revision?: {
-      feedback: string;
-      [k: string]: unknown;
-    };
+      feedback: string
+      [k: string]: unknown
+    }
     generation?: {
-      prompt: string;
-      name?: string;
-      generationMode?: 'auto' | 'review';
-      generationPreset?: 'fast' | 'standard' | 'production';
-      imageUrl?: string;
-      sourceImages?: string[];
-      riggingPose?: 't_pose' | 'a_pose';
-      [k: string]: unknown;
-    };
-  };
+      prompt: string
+      name?: string
+      generationMode?: 'auto' | 'review'
+      generationPreset?: 'fast' | 'standard' | 'production'
+      imageUrl?: string
+      sourceImages?: string[]
+      riggingPose?: 't_pose' | 'a_pose'
+      [k: string]: unknown
+    }
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5566,13 +5792,13 @@ export interface WorkflowInteractiveObjectModel {
  */
 export interface WorkflowFinalizeObjectModel {
   input: {
-    objectId: string;
-    requestedBy: string;
-    requestId: string;
-    prompt?: string | null;
-    previewJobId: string;
-    operationId: string;
-  };
+    objectId: string
+    requestedBy: string
+    requestId: string
+    prompt?: string | null
+    previewJobId: string
+    operationId: string
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -5580,66 +5806,69 @@ export interface WorkflowFinalizeObjectModel {
  */
 export interface WorkflowTranslateDocumentLocales {
   input: {
-    collection_slug: string;
-    collection_id: string;
+    collection_slug: string
+    collection_id: string
     /**
      * Deprecated. See docs/DEPRECATIONS.md#jobs-input-collection-field
      */
     collection?:
       | ({
-          relationTo: 'museums';
-          value: string | Museum;
+          relationTo: 'museums'
+          value: string | Museum
         } | null)
       | ({
-          relationTo: 'museumCategories';
-          value: string | MuseumCategory;
+          relationTo: 'museumCategories'
+          value: string | MuseumCategory
         } | null)
       | ({
-          relationTo: 'museumThumbnails';
-          value: string | MuseumThumbnail;
+          relationTo: 'museumThumbnails'
+          value: string | MuseumThumbnail
         } | null)
       | ({
-          relationTo: 'objects';
-          value: string | Object;
+          relationTo: 'objects'
+          value: string | Object
         } | null)
       | ({
-          relationTo: 'contents';
-          value: string | Content;
+          relationTo: 'subjects'
+          value: string | Subject
         } | null)
       | ({
-          relationTo: 'contentImages';
-          value: string | ContentImage;
+          relationTo: 'contents'
+          value: string | Content
         } | null)
       | ({
-          relationTo: 'tours';
-          value: string | Tour;
+          relationTo: 'contentImages'
+          value: string | ContentImage
         } | null)
       | ({
-          relationTo: 'quizQuestions';
-          value: string | QuizQuestion;
-        } | null);
-    source_lng: string;
-    strategy: string;
-    publish_on_translation?: boolean | null;
+          relationTo: 'tours'
+          value: string | Tour
+        } | null)
+      | ({
+          relationTo: 'quizQuestions'
+          value: string | QuizQuestion
+        } | null)
+    source_lng: string
+    strategy: string
+    publish_on_translation?: boolean | null
     target_lngs:
       | {
-          [k: string]: unknown;
+          [k: string]: unknown
         }
       | unknown[]
       | string
       | number
       | boolean
-      | null;
-  };
+      | null
+  }
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "auth".
  */
 export interface Auth {
-  [k: string]: unknown;
+  [k: string]: unknown
 }
-
 
 declare module 'payload' {
   export interface GeneratedTypes extends Config {}

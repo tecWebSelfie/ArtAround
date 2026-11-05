@@ -11,6 +11,7 @@ import { ComponentProps } from 'react'
 
 import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
+import { formatDuration } from '@/lib/duration'
 
 export { DIFFICULTY_LABEL_KEY, DIFFICULTY_META } from './DifficultyBadge'
 
@@ -94,12 +95,11 @@ const ContentsCarouselCard = async ({
                 <DifficultyBadge difficulty={content.difficulty} size="xs">
                   {t(DIFFICULTY_LABEL_KEY[content.difficulty])}
                 </DifficultyBadge>
-                {/* 0 is the estimator's "under a minute" on older documents. */}
-                {content.readingTimeMins ? (
+                {content.durationSeconds ? (
                   <Group gap={4}>
                     <Clock size={12} className="text-white" aria-hidden />
                     <Text size="xs" c="gray.3">
-                      {content.readingTimeMins} {t('min read')}
+                      {formatDuration(content.durationSeconds)}
                     </Text>
                   </Group>
                 ) : null}

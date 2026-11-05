@@ -26,7 +26,7 @@ export const ContentVariants: CollectionConfig = {
   slug: 'contentVariants',
   admin: {
     useAsTitle: 'kind',
-    defaultColumns: ['kind', 'angle', 'content', 'object', 'difficulty', 'readingTimeMins'],
+    defaultColumns: ['kind', 'angle', 'content', 'object', 'difficulty', 'durationSeconds'],
   },
   access: {
     read: superAdminOnly,
@@ -58,6 +58,14 @@ export const ContentVariants: CollectionConfig = {
       ],
       admin: { condition: (data) => data?.kind === 'more' },
     },
+    {
+      // Only for `more`: the position in a chain of additions on the same
+      // angle (1 = the first "Tell me more"; empty on older documents = 1).
+      name: 'step',
+      type: 'number',
+      min: 1,
+      admin: { condition: (data) => data?.kind === 'more' },
+    },
     // Only for `version`: the properties the visitor asked for.
     {
       // Same options as a content's difficulty, but optional here; not spread
@@ -78,7 +86,8 @@ export const ContentVariants: CollectionConfig = {
       admin: { condition: (data) => data?.kind === 'version' },
     },
     {
-      name: 'readingTimeMins',
+      // Requested length of a version, in seconds (`src/lib/duration.ts`).
+      name: 'durationSeconds',
       type: 'number',
       admin: { condition: (data) => data?.kind === 'version' },
     },

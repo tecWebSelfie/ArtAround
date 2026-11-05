@@ -1,3 +1,4 @@
+import { filterPopulated } from '@/lib/isPopulated'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
@@ -5,7 +6,7 @@ import { notFound } from 'next/navigation'
 import { validateBuildJson } from '@pascal-app/core'
 import { normalizeLocale } from '@/lib/localized'
 import { placedObjectIds, type NavigationCatalogObject } from '@/lib/tour-navigation'
-import type { Museum, Tour } from '@/payload-types'
+import type { Subject, Museum, Tour } from '@/payload-types'
 import { isLocked } from '@/lib/price'
 import { asViewer } from '@/lib/session'
 import type { NavigationTourSummary } from './TourNavigationShell'
@@ -41,7 +42,7 @@ export const getNavigationMuseum = cache(async (id: string, lng: string) => {
  * along (never its map/navmeshes again); the author only by name.
  */
 const NAVIGATION_TOUR_POPULATE = {
-  contents: { title: true, difficulty: true, readingTimeMins: true, objects: true },
+  contents: { title: true, difficulty: true, durationSeconds: true, objects: true },
   museums: { name: true },
   users: { name: true },
 } as const
@@ -54,6 +55,9 @@ export const getNavigationTour = cache(async (id: string) => {
     id,
     depth: 1,
     populate: NAVIGATION_TOUR_POPULATE,
+    // As the visitor: a private tour is readable only by its author and its
+    // group's guests (`readTours`), and its private stops likewise.
+    ...(await asViewer()),
   })
 })
 
@@ -82,6 +86,8 @@ export const getMuseumNavigationTours = cache(
       locale: lng as never,
       sort: 'title',
       pagination: false,
+      // As the visitor: private tours stay out of everyone else's list.
+      ...(await asViewer()),
     })
     const tours = docs.map((tour) => ({ ...tour, museum: museumId }))
     return {
@@ -113,19 +119,27 @@ export async function getNavigationCatalog(
   const objects = await payload.find({
     collection: 'objects',
     where: { id: { in: [...ids] } },
-    select: { name: true, contents: true },
+    select: { name: true, contents: true, creators: true, movements: true },
     // `price` + `body` let the server tell paid-and-locked contents apart.
     // Read as the visitor: field access withholds `body` exactly when they
     // aren't entitled to it, so `isLocked` needs no rules of its own.
-    populate: { contents: { title: true, price: true, body: true } },
+    populate: {
+      contents: { title: true, price: true, body: true },
+      subjects: { name: true },
+    },
     locale: normalizeLocale(lng) ?? 'en',
     depth: 1,
     pagination: false,
     ...(await asViewer()),
   })
+  // Populated subjects only, as `{ id, name }` (what the commands need).
+  const named = (list: (string | Subject)[] | null | undefined) =>
+    filterPopulated<Subject>(list).map(({ id, name }) => ({ id: String(id), name }))
   return objects.docs.map((object) => ({
     id: object.id,
     name: object.name,
+    creators: named(object.creators),
+    movements: named(object.movements),
     // Only the summary crosses into the client: the body stays on the server.
     contents: (object.contents ?? []).flatMap((content) =>
       typeof content === 'string'

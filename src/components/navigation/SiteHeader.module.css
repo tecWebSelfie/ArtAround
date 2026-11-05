@@ -1,0 +1,13 @@
+/* Desktop top bar: a plain body-colored strip with a hairline, sticky above
+   the page. Its height is the `--site-header-height` that globals.css
+   publishes while the bar is on the page. */
+.root {
+  position: sticky;
+  top: 0;
+  /* Above page content and floating carousels, below Mantine overlays
+     (modals, menus and notifications use 200+). */
+  z-index: 150;
+  height: var(--site-header-height);
+  background-color: var(--mantine-color-body);
+  border-bottom: 1px solid var(--mantine-color-default-border);
+}

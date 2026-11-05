@@ -11,6 +11,8 @@ import type { ReactNode } from 'react'
 import {
   Avatar,
   Badge,
+  Grid,
+  GridCol,
   Group,
   Indicator,
   Stack,
@@ -21,6 +23,12 @@ import {
 } from '@mantine/core'
 import { Amphora, BadgeCheck, BadgeInfo, Landmark, Palette, Verified } from 'lucide-react'
 
+/**
+ * A visitor's public profile. Phones: one column (identity with the account
+ * actions at its top-right, badges, bio, then the tabs). From `md`: a 1140px
+ * container with the profile as a column on the left and the tabs (authored
+ * tours and contents, info) using the remaining width on the right.
+ */
 export const UserPage = async ({
   user,
   curatedMuseums,
@@ -44,100 +52,113 @@ export const UserPage = async ({
     // Rhythm: tight inside the identity block (avatar, name, @handle,
     // badges), generous between it, the bio and the tabs, so the bio reads as
     // its own section rather than a caption of the name.
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm" gap="xl">
-      <Stack gap="sm">
-        {/* Identity on the left; account actions (sign out) at the top-right
-            corner, where account utilities live, out of the profile's flow. */}
-        <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
-          <Group align="center" gap="xs" wrap="nowrap" miw={0}>
-            <Indicator
-              color="transparent"
-              offset={6}
-              position="bottom-end"
-              disabled={!user.highestStatus || user.highestStatus === 'none'}
-              label={
-                <ThemeIcon size="1.3em" radius="xl" color="blue" variant="filled">
-                  {user.highestStatus === 'verified' ? (
-                    <Verified size="80%" />
-                  ) : user.highestStatus === 'director' ? (
-                    <Landmark size="80%" />
-                  ) : user.highestStatus === 'curator' ? (
-                    <Palette size="80%" />
-                  ) : null}
-                </ThemeIcon>
+    <Stack mx={{ base: 'md', sm: 'xl', md: 'auto' }} px={{ md: 'xl' }} maw={{ md: 1204 }} mt="sm">
+      {/* Grid lays out with `gap`: below md (full-width columns, `xl` gap)
+          it stacks exactly like a single Stack with the same rhythm. */}
+      <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">
+        {/* Not sticky: a long bio would make it taller than the viewport. */}
+        <GridCol span={{ base: 12, md: 4 }}>
+          <Stack gap="xl">
+            <Stack gap="sm">
+              {/* Identity on the left; account actions (sign out) at the top-right
+                  corner, where account utilities live, out of the profile's flow. */}
+              <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+                <Group align="center" gap="xs" wrap="nowrap" miw={0}>
+                  <Indicator
+                    color="transparent"
+                    offset={6}
+                    position="bottom-end"
+                    disabled={!user.highestStatus || user.highestStatus === 'none'}
+                    label={
+                      <ThemeIcon size="1.3em" radius="xl" variant="filled">
+                        {user.highestStatus === 'verified' ? (
+                          <Verified size="80%" />
+                        ) : user.highestStatus === 'director' ? (
+                          <Landmark size="80%" />
+                        ) : user.highestStatus === 'curator' ? (
+                          <Palette size="80%" />
+                        ) : null}
+                      </ThemeIcon>
+                    }
+                  >
+                    <Avatar
+                      className="border-(--mantine-primary-color-4) border-3"
+                      name={user.name.fullName}
+                      color="initials"
+                      size="lg"
+                      src={isPopulated(user.avatar) ? (user.avatar.url ?? undefined) : undefined}
+                      alt={user.name.fullName}
+                    />
+                  </Indicator>
+                  <Stack justify="start" gap={0} miw={0}>
+                    <Title order={2}>{user.name.fullName}</Title>
+                    <Text size="sm" c="dimmed">
+                      @{user.username}
+                    </Text>
+                  </Stack>
+                </Group>
+                {accountActions}
+              </Group>
+              <UserBadges user={user} curatedMuseums={curatedMuseums} />
+            </Stack>
+            <EditableSection
+              title={te('About me')}
+              canEdit={isSelf}
+              // The profile keeps the bare pencil: "Sign out" already sits at the
+              // name's height, and a second labelled button here felt heavy.
+              iconOnly
+              form={
+                isSelf && <ProfileForm user={{ id: user.id, name: user.name, bio: user.bio }} />
               }
             >
-              <Avatar
-                className="border-blue-400 border-3"
-                name={user.name.fullName}
-                color="initials"
-                size="lg"
-                src={isPopulated(user.avatar) ? (user.avatar.url ?? undefined) : undefined}
-                alt={user.name.fullName}
-              />
-            </Indicator>
-            <Stack justify="start" gap={0} miw={0}>
-              <Title order={2}>{user.name.fullName}</Title>
-              <Text size="sm" c="dimmed">
-                @{user.username}
-              </Text>
-            </Stack>
-          </Group>
-          {accountActions}
-        </Group>
-        <UserBadges user={user} curatedMuseums={curatedMuseums} />
-      </Stack>
-      <EditableSection
-        title={te('About me')}
-        canEdit={isSelf}
-        // The profile keeps the bare pencil: "Sign out" already sits at the
-        // name's height, and a second labelled button here felt heavy.
-        iconOnly
-        form={isSelf && <ProfileForm user={{ id: user.id, name: user.name, bio: user.bio }} />}
-      >
-        <Text>{user.bio}</Text>
-      </EditableSection>
-      <ArtaroundTabs
-        tabs={[
-          {
-            value: t('contents'),
-            icon: <Amphora size={16} />,
-            panel: (
-              <Stack>
-                {populatedTours.length === 0 ? (
-                  <Text size="sm" c="dimmed">
-                    {t('No Tours authored yet')}
-                  </Text>
-                ) : (
-                  <ToursCarousel tours={populatedTours} />
-                )}
-                {populatedContents.length === 0 ? (
-                  <Text size="sm" c="dimmed">
-                    {t('No contents authored yet')}
-                  </Text>
-                ) : (
-                  <ContentsCarousel contents={populatedContents} />
-                )}
-              </Stack>
-            ),
-          },
-          {
-            value: t('info'),
-            icon: <BadgeInfo size={16} />,
-            panel: (
-              <Stack>
-                <ArtaroundDataList
-                  data={{
-                    [t('Username')]: `@${user.username}`,
-                    ...(user.email ? { [t('Email')]: user.email } : {}),
-                    [t('Member since')]: new Date(user.createdAt).toLocaleDateString(),
-                  }}
-                />
-              </Stack>
-            ),
-          },
-        ]}
-      />
+              <Text>{user.bio}</Text>
+            </EditableSection>
+          </Stack>
+        </GridCol>
+        <GridCol span={{ base: 12, md: 8 }}>
+          <ArtaroundTabs
+            tabs={[
+              {
+                value: t('contents'),
+                icon: <Amphora size={16} />,
+                panel: (
+                  <Stack>
+                    {populatedTours.length === 0 ? (
+                      <Text size="sm" c="dimmed">
+                        {t('No Tours authored yet')}
+                      </Text>
+                    ) : (
+                      <ToursCarousel tours={populatedTours} />
+                    )}
+                    {populatedContents.length === 0 ? (
+                      <Text size="sm" c="dimmed">
+                        {t('No contents authored yet')}
+                      </Text>
+                    ) : (
+                      <ContentsCarousel contents={populatedContents} />
+                    )}
+                  </Stack>
+                ),
+              },
+              {
+                value: t('info'),
+                icon: <BadgeInfo size={16} />,
+                panel: (
+                  <Stack>
+                    <ArtaroundDataList
+                      data={{
+                        [t('Username')]: `@${user.username}`,
+                        ...(user.email ? { [t('Email')]: user.email } : {}),
+                        [t('Member since')]: new Date(user.createdAt).toLocaleDateString(),
+                      }}
+                    />
+                  </Stack>
+                ),
+              },
+            ]}
+          />
+        </GridCol>
+      </Grid>
     </Stack>
   )
 }
@@ -184,7 +205,7 @@ export async function UserBadges({
     <Group gap="xs">
       {verifiedMuseums.length > 0 && (
         <Tooltip label={t('Verified creator tooltip')} withArrow>
-          <Badge color="blue" size="sm" leftSection={<BadgeCheck size={14} />}>
+          <Badge size="sm" leftSection={<BadgeCheck size={14} />}>
             {t('Verified creator')}
           </Badge>
         </Tooltip>

@@ -1,4 +1,5 @@
 import { EditableSection } from '@/components/editing/EditableSection'
+import { MuseumAppearanceForm } from '@/components/editing/forms/MuseumAppearanceForm'
 import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataForm'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
@@ -13,9 +14,15 @@ import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/marke
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
+import { ACCESSIBILITY_COLOR } from '@/theme'
 import {
   Avatar,
   AvatarGroup,
+  Box,
+  Button,
+  ColorSwatch,
+  Grid,
+  GridCol,
   Group,
   List,
   ListItem,
@@ -37,6 +44,7 @@ import {
   FilePlus,
   Map as MapIcon,
   MapPin,
+  QrCode,
   Route as Route_,
   Users,
 } from 'lucide-react'
@@ -55,7 +63,7 @@ export type MuseumEditing = {
   /** Any signed-in visitor: tours and contents are user-generated. */
   isSignedIn: boolean
   /** Source-locale (`en`) values for the metadata form. */
-  source: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location'> & {
+  source: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location' | 'brandColor'> & {
     descriptionHTML: string
   }
 }
@@ -72,6 +80,7 @@ export default async function MuseumPage({
 }) {
   const { t } = await getT('museum-page')
   const { t: te } = await getT('editing')
+  const { t: tc } = await getT('common')
 
   const descriptionHTML = lexicalToHTML(museum.description) || null
   // Only the facilities the museum confirmed; unknown ones are left unsaid.
@@ -86,152 +95,225 @@ export default async function MuseumPage({
     access?.serviceAnimals && t('Service animals welcome'),
   ].filter((feature): feature is string => Boolean(feature))
   const base = editing ? `/${editing.lng}` : ''
+  const tours = filterPopulated<Tour>(museum.tours?.docs)
   return (
-    // Capped at Mantine's `md` container: past ~960px the cover and the tour
-    // deck grow taller than the viewport and push the contents below the fold.
-    <Stack mx={{ base: 'md', sm: 'xl', md: 'auto' }} maw={{ md: 960 }} mt="sm" pb="xl">
-      {/* The museum's photos: the first as cover, all of them in the lightbox. */}
-      <DetailCover
-        pictures={filterPopulated<MuseumThumbnail>(museum.thumbnails)}
-        title={museum.name}
-      />
-      <Stack gap={4}>
-        <Title order={1} size="h2">
-          {museum.name}
-        </Title>
-        {museum.location?.city && (
-          <Group gap={4} c="dimmed" fz="sm">
-            <MapPin size={14} aria-hidden />
-            {museum.location.city}
-          </Group>
-        )}
-      </Stack>
-      <MuseumBadges museum={museum} accessibleLabel={t('Accessible')} />
-      {navigationHref && (
-        // Navigation blue + compass: moving inside the museum (DESIGN.md →
-        // Buttons). The tour gradient is kept for what starts a tour.
-        <LinkButton
-          href={navigationHref}
-          color="blue.8"
-          autoContrast
-          leftSection={<Compass size={18} aria-hidden />}
-          w={{ base: '100%', sm: 'auto' }}
-        >
-          {t('Explore the map')}
-        </LinkButton>
-      )}
-      {editing && (editing.isSignedIn || editing.canManageMap) && (
-        // Complex relations get dedicated pages; metadata is edited in place (Info tab).
-        <Group gap="xs">
-          {editing.canManageMap && (
-            <LinkButton
-              href={`${base}/museum/${museum.id}/edit/mapeditor` as Route}
-              variant="light"
-              size="xs"
-              leftSection={<MapIcon size={14} />}
-            >
-              {te('Add objects to the map')}
-            </LinkButton>
-          )}
-          {editing.isSignedIn && (
-            <LinkButton
-              href={`${base}/tour/new?museum=${museum.id}` as Route}
-              variant="light"
-              size="xs"
-              leftSection={<Route_ size={14} />}
-            >
-              {te('Add tour')}
-            </LinkButton>
-          )}
-          {editing.isSignedIn && (
-            <LinkButton
-              href={`${base}/content/new` as Route}
-              variant="light"
-              size="xs"
-              leftSection={<FilePlus size={14} />}
-            >
-              {te('Add content')}
-            </LinkButton>
-          )}
-          {editing.canManageMap && (
-            <LinkButton
-              href={`${base}/museum/${museum.id}/members` as Route}
-              variant="subtle"
-              size="xs"
-              leftSection={<Users size={14} />}
-            >
-              {te('Staff')}
-            </LinkButton>
-          )}
-        </Group>
-      )}
-      <Text>{museum.shortDescription}</Text>
+    // One stacked column on phones. From `md` the page is a centered
+    // container (1140px of content inside `xl` padding) and the hero splits
+    // into cover | identity, so neither the cover (height-capped by
+    // DetailCover) nor the tour deck (beside the objects, below) outgrows the
+    // viewport.
+    <Stack
+      mx={{ base: 'md', sm: 'xl', md: 'auto' }}
+      px={{ md: 'xl' }}
+      maw={{ md: 1204 }}
+      mt="sm"
+      pb="xl"
+    >
+      {/* Hero. Mantine's Grid lays out with `gap`, so below md (both columns
+          full width, `md` gap) it stacks exactly like the page's Stack. */}
+      <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start" pb={{ md: 'md' }}>
+        {/* The museum's photos: the first as cover, all of them in the
+            lightbox. 5/12 beside the identity on desktop, so the tabs and the
+            tour deck still reach the first viewport. */}
+        <GridCol span={{ base: 12, md: 5 }}>
+          <DetailCover
+            pictures={filterPopulated<MuseumThumbnail>(museum.thumbnails)}
+            title={museum.name}
+          />
+        </GridCol>
+        {/* Identity and actions: the right pane on desktop. */}
+        <GridCol span={{ base: 12, md: 7 }}>
+          <Stack>
+            <Stack gap={4}>
+              <Title order={1} size="h2">
+                {museum.name}
+              </Title>
+              {museum.location?.city && (
+                <Group gap={4} c="dimmed" fz="sm">
+                  <MapPin size={14} aria-hidden />
+                  {museum.location.city}
+                </Group>
+              )}
+            </Stack>
+            <MuseumBadges museum={museum} accessibleLabel={t('Accessible')} />
+            {navigationHref && (
+              // Primary color (museum blue by default) + compass: moving inside the museum (DESIGN.md →
+              // Buttons). The tour gradient is kept for what starts a tour.
+              <LinkButton
+                href={navigationHref}
+                color="museum.8"
+                autoContrast
+                leftSection={<Compass size={18} aria-hidden />}
+                w={{ base: '100%', sm: 'auto' }}
+              >
+                {t('Explore the map')}
+              </LinkButton>
+            )}
+            {editing && (editing.isSignedIn || editing.canManageMap) && (
+              // Complex relations get dedicated pages; metadata is edited in place (Info tab).
+              <Group gap="xs">
+                {editing.canManageMap && (
+                  <LinkButton
+                    href={`${base}/museum/${museum.id}/edit/mapeditor` as Route}
+                    variant="light"
+                    size="xs"
+                    leftSection={<MapIcon size={14} />}
+                  >
+                    {te('Add objects to the map')}
+                  </LinkButton>
+                )}
+                {editing.isSignedIn && (
+                  <LinkButton
+                    href={`${base}/tour/new?museum=${museum.id}` as Route}
+                    variant="light"
+                    size="xs"
+                    leftSection={<Route_ size={14} />}
+                  >
+                    {te('Add tour')}
+                  </LinkButton>
+                )}
+                {editing.isSignedIn && (
+                  <LinkButton
+                    href={`${base}/content/new` as Route}
+                    variant="light"
+                    size="xs"
+                    leftSection={<FilePlus size={14} />}
+                  >
+                    {te('Add content')}
+                  </LinkButton>
+                )}
+                {editing.canManageMap && (
+                  <LinkButton
+                    href={`${base}/museum/${museum.id}/members` as Route}
+                    variant="subtle"
+                    size="xs"
+                    leftSection={<Users size={14} />}
+                  >
+                    {te('Staff')}
+                  </LinkButton>
+                )}
+                {editing.canManageMap && (
+                  // A sheet of labels, one QR per object on the map, in the
+                  // page's language (`/api/qr-sheet`). Scanned on site, each
+                  // opens the app in this museum. A plain download link.
+                  <Button
+                    component="a"
+                    href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${editing.lng}`}
+                    download
+                    variant="subtle"
+                    size="xs"
+                    leftSection={<QrCode size={14} aria-hidden />}
+                  >
+                    {tc('Print the QR codes of all objects')}
+                  </Button>
+                )}
+              </Group>
+            )}
+            <Text>{museum.shortDescription}</Text>
+          </Stack>
+        </GridCol>
+      </Grid>
       <ArtaroundTabs
         tabs={[
           {
             value: t('contents'),
             icon: <Amphora size={16} />,
             panel: (
-              <Stack>
-                {/* `tours` is the join over `tours.museum`. */}
-                <ToursCarousel tours={filterPopulated<Tour>(museum.tours?.docs)} />
-                <ObjectsCarousel objects={museum.objects} />
-              </Stack>
+              // From md the tour deck keeps a phone-like width beside the
+              // objects row: at full container width it would grow ~600px tall.
+              <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start">
+                <GridCol span={{ base: 12, md: 5 }}>
+                  {/* `tours` is the join over `tours.museum`. */}
+                  <ToursCarousel tours={tours} />
+                </GridCol>
+                <GridCol span={{ base: 12, md: 7 }}>
+                  <ObjectsCarousel objects={museum.objects} />
+                </GridCol>
+              </Grid>
             ),
           },
           {
             value: t('info'),
             icon: <BadgeInfo size={16} />,
             panel: (
-              <EditableSection
-                title={te('About this museum')}
-                canEdit={Boolean(editing?.canEditDetails)}
-                form={
-                  editing && (
-                    <MuseumMetadataForm
-                      museum={editing.source}
-                      descriptionHTML={editing.source.descriptionHTML}
-                    />
-                  )
-                }
-              >
-                <ArtaroundDataList
-                  data={{
-                    [t('Description')]: (
-                      <Spoiler maxHeight={80} showLabel={t('Show more')} hideLabel={t('Hide')}>
-                        <Typography>
-                          {!descriptionHTML ? (
-                            t('No description available')
-                          ) : (
-                            <div dangerouslySetInnerHTML={{ __html: descriptionHTML }}></div>
-                          )}
-                        </Typography>
-                      </Spoiler>
-                    ),
-                    [t('Address')]: [museum.location.address, museum.location.city].join(', '),
-                    ...(museum.email ? { [t('Email')]: museum.email } : {}),
-                    ...(accessFeatures.length
-                      ? {
-                          [t('Accessibility')]: (
-                            <List
-                              spacing={4}
-                              size="sm"
-                              icon={
-                                <ThemeIcon size={18} radius="xl" variant="light" color="blue">
-                                  <Check size={12} aria-hidden />
-                                </ThemeIcon>
-                              }
-                            >
-                              {accessFeatures.map((feature) => (
-                                <ListItem key={feature}>{feature}</ListItem>
-                              ))}
-                            </List>
-                          ),
-                        }
-                      : {}),
-                  }}
-                />
-              </EditableSection>
+              // Reading measure on desktop; the pencil stays at the trailing
+              // edge of the section it edits.
+              <Box maw={{ md: '75ch' }}>
+                <EditableSection
+                  title={te('About this museum')}
+                  canEdit={Boolean(editing?.canEditDetails)}
+                  form={
+                    editing && (
+                      <MuseumMetadataForm
+                        museum={editing.source}
+                        descriptionHTML={editing.source.descriptionHTML}
+                      />
+                    )
+                  }
+                >
+                  <ArtaroundDataList
+                    data={{
+                      [t('Description')]: (
+                        <Spoiler maxHeight={80} showLabel={t('Show more')} hideLabel={t('Hide')}>
+                          <Typography>
+                            {!descriptionHTML ? (
+                              t('No description available')
+                            ) : (
+                              <div dangerouslySetInnerHTML={{ __html: descriptionHTML }}></div>
+                            )}
+                          </Typography>
+                        </Spoiler>
+                      ),
+                      [t('Address')]: [museum.location.address, museum.location.city].join(', '),
+                      ...(museum.email ? { [t('Email')]: museum.email } : {}),
+                      ...(accessFeatures.length
+                        ? {
+                            [t('Accessibility')]: (
+                              <List
+                                spacing={4}
+                                size="sm"
+                                icon={
+                                  <ThemeIcon
+                                    size={18}
+                                    radius="xl"
+                                    variant="light"
+                                    color={ACCESSIBILITY_COLOR}
+                                  >
+                                    <Check size={12} aria-hidden />
+                                  </ThemeIcon>
+                                }
+                              >
+                                {accessFeatures.map((feature) => (
+                                  <ListItem key={feature}>{feature}</ListItem>
+                                ))}
+                              </List>
+                            ),
+                          }
+                        : {}),
+                    }}
+                  />
+                </EditableSection>
+                {/* The museum's color: only for the people who can change it
+                    (director); visitors just see the app wearing it. */}
+                {editing?.canEditDetails && (
+                  <Box mt="xl">
+                    <EditableSection
+                      title={te('Museum color')}
+                      canEdit
+                      form={<MuseumAppearanceForm museum={editing.source} />}
+                    >
+                      <Group gap="xs">
+                        {museum.brandColor && (
+                          <ColorSwatch color={museum.brandColor} size={20} aria-hidden />
+                        )}
+                        <Text size="sm">
+                          {museum.brandColor ? museum.brandColor : te('Default blue')}
+                        </Text>
+                      </Group>
+                    </EditableSection>
+                  </Box>
+                )}
+              </Box>
             ),
           },
         ]}
@@ -271,7 +353,7 @@ export async function MuseumBadges(props: { museum: Museum; accessibleLabel: str
               radius="xl"
               size="lg"
               variant="filled"
-              color="blue"
+              color={ACCESSIBILITY_COLOR}
               autoContrast
               role="img"
               aria-label={accessibleLabel}

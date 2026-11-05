@@ -12,6 +12,7 @@ import { ConnectionState } from 'livekit-client'
 import { UsersRound } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GroupMembers, MEMBERSHIP_EVENTS } from './GroupMembers'
+import { GroupRequests } from './GroupRequests'
 import { useGroup, useGroupSettings } from './GroupProvider'
 import { GroupRoom } from './GroupRoom'
 import { ShareGroup } from './ShareGroup'
@@ -20,8 +21,9 @@ import { useGroupExit } from './use-group-exit'
 /**
  * The LiveKit-backed half of GroupBadge (see GroupBadge.tsx), loaded only for
  * a device in a group: the pill with the number of people, which opens the
- * group panel (who is here; for the host, inviting and ending; for guests,
- * leaving). Turns orange for guests while the host's device is away.
+ * group panel (who is here; for the host, what each guest asked for, inviting
+ * and ending; for guests, leaving, and a note that the host sees their
+ * requests). Turns orange for guests while the host's device is away.
  */
 export default function GroupBadgePanel() {
   return (
@@ -53,7 +55,8 @@ function GroupBadgeButton() {
         size="compact-sm"
         radius="xl"
         variant="light"
-        color={warn ? 'orange' : 'blue'}
+        // Orange warns; otherwise the primary color (the museum's, if locked to one).
+        color={warn ? 'orange' : undefined}
         leftSection={connected ? <UsersRound size={14} /> : <Loader size={12} />}
         onClick={panel.open}
         aria-label={t('Your group, {{count}} people', { count: participants.length })}
@@ -68,6 +71,14 @@ function GroupBadgeButton() {
             </Text>
           )}
           <GroupMembers />
+          {isHost && <GroupRequests />}
+          {!isHost && (
+            <Text size="xs" c="dimmed">
+              {t('{{name}} sees what you ask for: more about a work, or another wording', {
+                name: hostName || t('The host'),
+              })}
+            </Text>
+          )}
           {isHost && <ShareGroup code={group.membership.code} />}
           <Divider />
           {isHost ? (

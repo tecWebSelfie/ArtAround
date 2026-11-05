@@ -1,6 +1,7 @@
 import { GroupName, HOST_IDENTITY, ROOM_CODE_PATTERN } from '@/lib/group'
 import { findGroupRoom, groupToken, isHostKey } from '@/lib/group-room'
 import { allowRequest } from '@/lib/rate-limit'
+import { GROUP_TOUR_COOKIE, GROUP_TOUR_TOKEN_HOURS, signGroupTourToken } from '@/lib/visibility'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -13,6 +14,10 @@ import { z } from 'zod'
  * Two headers say who is joining: `X-Host-Key` (only the host's device has
  * it) joins as the host; otherwise `X-Guest-Id`, a random id the device keeps,
  * so a reload is the same guest rather than a new one.
+ *
+ * Joining also sets the group cookie (`src/lib/visibility.ts`): a signed,
+ * short-lived token naming the room's tour, so the guests — who have no
+ * account — can read a private class visit and its private contents.
  */
 
 const Body = z.object({
@@ -37,10 +42,21 @@ export async function POST(request: Request) {
       identity: host ? HOST_IDENTITY : `guest-${guestId.data}`,
       name: body.data.participant_name,
     })
-    return NextResponse.json(
+    const response = NextResponse.json(
       { server_url: serverUrl, participant_token: token },
       { headers: { 'Cache-Control': 'no-store' } },
     )
+    const groupCookie = await signGroupTourToken(room.tourId, code)
+    if (groupCookie) {
+      response.cookies.set(GROUP_TOUR_COOKIE, groupCookie, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
+        maxAge: GROUP_TOUR_TOKEN_HOURS * 3600,
+      })
+    }
+    return response
   } catch (error) {
     console.error('Could not join a group room', error)
     return NextResponse.json({ error: 'unavailable' }, { status: 503 })

@@ -32,6 +32,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Tailwind variants on Mantine's breakpoints (Tailwind's own `sm`/`md` are
+   40rem/48rem, Mantine's 48em/62em; the Pascal editor relies on Tailwind's,
+   so they stay). Responsive styles use these instead of Mantine responsive
+   props, which inject a <style> tag per instance:
+   - from-sm / from-md: from Mantine's sm / md up;
+   - below-md: phones and tablets, where `hiddenFrom="md"` elements show;
+   - fit-screen: those screens held upright and at least Mantine's xs
+     breakpoint tall, where a page can be fitted to one screen (the
+     navigator home). */
+@custom-variant from-sm (@media (width >= 48em));
+@custom-variant from-md (@media (width >= 62em));
+@custom-variant below-md (@media (width < 62em));
+@custom-variant fit-screen (@media (width < 62em) and (orientation: portrait) and (height >= 36em));
+
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
@@ -168,4 +182,42 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
+}
+
+/* Desktop top bar (src/components/navigation/SiteHeader.tsx). Its height is
+   published only while the bar is actually on the page: from md, and
+   not on immersive surfaces (map navigation, scanner, map editor), where the
+   component renders nothing. Sticky panes and in-page headers offset by it. */
+:root {
+  --site-header-height: 0px;
+  /* Where a sticky pane sits under the header, and the height left for it with
+     a margin above and below. Derived here once: written inline in a Mantine
+     style prop, a bare `2 *` becomes rem and breaks the calc. */
+  --site-pane-top: calc(var(--site-header-height) + var(--mantine-spacing-md));
+  --site-pane-height: calc(100dvh - var(--site-pane-top) - var(--mantine-spacing-md));
+}
+@media (min-width: $mantine-breakpoint-md) {
+  :root:has(#site-header) {
+    --site-header-height: 56px;
+  }
+}
+
+/* Skip link (frontend layout): off screen until it takes keyboard focus, then
+   pinned top-left above the sticky header and fixed footers. */
+.skip-link {
+  position: fixed;
+  top: var(--mantine-spacing-xs);
+  left: var(--mantine-spacing-xs);
+  z-index: 1000;
+  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-body);
+  color: var(--mantine-color-text);
+  box-shadow: var(--mantine-shadow-md);
+  transform: translateY(calc(-100% - var(--mantine-spacing-xs) * 2));
+}
+.skip-link:focus-visible {
+  transform: none;
+  outline: 2px solid var(--mantine-primary-color-filled);
+  outline-offset: 2px;
 }

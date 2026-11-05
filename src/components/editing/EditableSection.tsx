@@ -1,6 +1,14 @@
 'use client'
 
-import { ActionIcon, Button, Group, Stack, Title, Tooltip } from '@mantine/core'
+import {
+  ActionIcon,
+  Button,
+  Group,
+  Stack,
+  Title,
+  Tooltip,
+  type MantineBreakpoint,
+} from '@mantine/core'
 import { Pencil, X } from 'lucide-react'
 import { createContext, useContext, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -27,10 +35,19 @@ export function EditableSection({
   actions,
   iconOnly = false,
   children,
+  hideTitleFrom,
 }: {
   /** Heading of the section; also names it in the Edit button's accessible name. */
   title: string
   canEdit: boolean
+  /**
+   * For visitors with no action here (can't edit, no `actions`), hide the
+   * section title from this breakpoint.
+   * Where the section's own content opens with the page's h1 (content and
+   * object pages), the title is only a label above that heading; on desktop it
+   * reads as an eyebrow. Editors keep it: it names what the pencil edits.
+   */
+  hideTitleFrom?: MantineBreakpoint
   form: ReactNode
   /**
    * Other owner actions on the same document (e.g. Delete), grouped after
@@ -56,7 +73,14 @@ export function EditableSection({
 
   return (
     <Stack gap="xs">
-      <Group justify="space-between" wrap="nowrap">
+      {/* `hideTitleFrom` only drops a bare label: with Edit or other owner
+          actions (e.g. Delete for museum staff who can't edit) the header
+          stays, since it carries them. */}
+      <Group
+        justify="space-between"
+        wrap="nowrap"
+        hiddenFrom={canEdit || actions ? undefined : hideTitleFrom}
+      >
         <Title order={3} size="h4">
           {title}
         </Title>

@@ -20,7 +20,8 @@ import {
 import { Anchor, Group, Image, Skeleton, Stack, Text, UnstyledButton } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import type { Route } from 'next'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import classes from './ContentExpansion.module.css'
@@ -141,7 +142,6 @@ export function ExpansionText({
   request: ExpansionRequest
 }) {
   const { t } = useTranslation('tour-navigation')
-  const router = useRouter()
   const search = useSearchParams()
   const { lng } = useParams<{ lng: string }>()
   // The museum navigation the text is read in, if any: free map or a tour step.
@@ -176,13 +176,9 @@ export function ExpansionText({
         <p key={index} className={classes.paragraph}>
           {inlineParts(paragraph).map((part, partIndex) =>
             part.type === 'link' && known.has(part.id) ? (
-              <Anchor
-                key={partIndex}
-                component="button"
-                type="button"
-                inherit
-                onClick={() => router.push(hrefFor(part.kind, part.id))}
-              >
+              // Real links (not buttons + router.push), so Cmd/Ctrl+click and
+              // middle-click open the entity in a new tab.
+              <Anchor key={partIndex} component={Link} href={hrefFor(part.kind, part.id)} inherit>
                 {part.text}
               </Anchor>
             ) : part.type === 'text' && part.bold ? (
@@ -211,8 +207,9 @@ export function ExpansionText({
           {linked.map((link) => (
             <UnstyledButton
               key={link.id}
+              component={Link}
+              href={hrefFor(link.kind, link.id)}
               className={classes.linked}
-              onClick={() => router.push(hrefFor(link.kind, link.id))}
             >
               <Image
                 src={link.thumbnail}

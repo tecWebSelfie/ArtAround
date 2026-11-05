@@ -4,6 +4,7 @@ import config from '@/payload.config'
 import { cookies } from 'next/headers'
 import { getPayload } from 'payload'
 import { cache } from 'react'
+import { OBJECT_ID, MUSEUM_MODE_COOKIE } from '@/lib/museum-cookie'
 
 /**
  * Museum mode: the app can be locked to one museum ("Museo di Torino" mode)
@@ -12,12 +13,11 @@ import { cache } from 'react'
  * config file (`MuseumSwitch`). Server pages read it here to scope what they
  * show; removing the cookie returns to global mode.
  */
-export const MUSEUM_MODE_COOKIE = 'aa-museum'
 
 /** The museum the app is locked to, or `null` in global mode. */
 export async function lockedMuseumId() {
   const value = (await cookies()).get(MUSEUM_MODE_COOKIE)?.value
-  return value && /^[a-f0-9]{24}$/.test(value) ? value : null
+  return value && OBJECT_ID.test(value) ? value : null
 }
 
 /**
@@ -35,7 +35,7 @@ export const museumScope = cache(async () => {
       collection: 'museums',
       id: museumId,
       depth: 0,
-      select: { name: true, objects: true },
+      select: { name: true, objects: true, palette: true },
     })
     .catch(() => null)
   // A cookie for a deleted museum behaves like global mode.
@@ -53,7 +53,8 @@ export const museumScope = cache(async () => {
   const contentIds = docs.flatMap((object) =>
     (object.contents ?? []).map((content) => (typeof content === 'string' ? content : content.id)),
   )
-  return { museumId, name: museum.name, objectIds, contentIds }
+  // `palette` themes the app for this museum (`museumTheme` decides if it is usable).
+  return { museumId, name: museum.name, palette: museum.palette, objectIds, contentIds }
 })
 
 /**

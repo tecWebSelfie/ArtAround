@@ -1,6 +1,9 @@
+# Optional: the root compose includes this file, and `pnpm db:start` (only
+# MongoDB) must not need the agent's secrets.
 x-env-config: &env-local
   env_file:
-    - .env.local
+    - path: .env.local
+      required: false
 
 services:  
   livekit:

@@ -1,3 +1,4 @@
+import { displayName } from '@/lib/display-name'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 
@@ -248,10 +249,7 @@ export async function buildSearchDoc({
     }
     case 'users': {
       const user = doc as unknown as User
-      const name =
-        user.name?.fullName ||
-        [user.name?.firstName, user.name?.lastName].filter(Boolean).join(' ').trim() ||
-        user.username
+      const name = displayName(user)
       return {
         title: name,
         // Username stays searchable; description and bio are not indexed.
@@ -339,7 +337,23 @@ export async function refreshSearchDocs({
     if (relation?.value) bySourceId.set(String(relation.value), searchDoc)
   }
 
+  // Private tours stay out of the index (src/lib/visibility.ts).
+  const hidden = new Set<string>()
+  if (collection === 'tours') {
+    const { docs } = await payload.find({
+      collection: 'tours',
+      where: { and: [{ id: { in: uniqueIds } }, { visibility: { equals: 'private' } }] },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    for (const doc of docs) hidden.add(String(doc.id))
+  }
+
   for (const id of uniqueIds) {
+    if (hidden.has(id)) continue
     try {
       const data = await buildSearchDoc({ payload, collection, id, req })
       const current = bySourceId.get(id)

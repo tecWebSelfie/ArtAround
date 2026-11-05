@@ -4,6 +4,7 @@ import { coverImage } from '@/lib/cover-image'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { Alert, Container } from '@mantine/core'
+import { directionsByStop } from '@/lib/tour-logistics'
 import { getTourEditorData } from '../tour-editing'
 
 /**
@@ -65,6 +66,9 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
             ? {
                 title: source.title,
                 description: source.description ?? '',
+                // The copy visits the same building: its directions still apply.
+                logistics: source.logistics ?? '',
+                directions: directionsByStop(source),
                 contents: sourceStops,
               }
             : undefined

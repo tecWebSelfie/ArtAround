@@ -3,7 +3,12 @@ import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { StepModal } from './StepModal'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
 import { expect, userEvent } from 'storybook/test'
-import { tourNavigationPath } from '@/lib/tour-navigation'
+import {
+  contentObjectId,
+  tourNavigationPath,
+  tourQuizPath,
+  withNavigationPosition,
+} from '@/lib/tour-navigation'
 
 const meta = {
   title: 'Components/StepModalContent',
@@ -15,6 +20,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
+// Completing a stop confirms the visitor is standing at its object, so the
+// next URL carries it as `at` (StepModal); built with the same helpers.
+const at = `at=${contentObjectId(mockContentSecond)}`
+const nextStepHref = tourNavigationPath('en', 'museum', 'demo', 2)
+const lastStepHref = tourNavigationPath('en', 'museum', 'demo', 3)
+
 export const Default: Story = {
   args: {
     step: mockContentSecond,
@@ -22,26 +33,18 @@ export const Default: Story = {
 }
 
 export const NextStep: Story = {
-  args: { step: mockContentSecond, nextHref: tourNavigationPath('en', 'museum', 'demo', 2) },
+  args: { step: mockContentSecond, nextHref: nextStepHref },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Go to next step' }))
-    await expect(getRouter().replace).toHaveBeenCalledWith(
-      '/en/museum/museum/navigation/tour/demo/2',
-    )
+    await expect(getRouter().replace).toHaveBeenCalledWith(withNavigationPosition(nextStepHref, at))
   },
 }
 
 export const LastStep: Story = {
-  args: {
-    step: mockContentSecond,
-    nextHref: tourNavigationPath('en', 'museum', 'demo', 3),
-    lastStep: true,
-  },
+  args: { step: mockContentSecond, nextHref: lastStepHref, lastStep: true },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Complete tour' }))
-    await expect(getRouter().replace).toHaveBeenCalledWith(
-      '/en/museum/museum/navigation/tour/demo/3',
-    )
+    await expect(getRouter().replace).toHaveBeenCalledWith(withNavigationPosition(lastStepHref, at))
   },
 }
 
@@ -49,7 +52,7 @@ export const LastStep: Story = {
 export const LastStepWithQuiz: Story = {
   args: {
     step: mockContentSecond,
-    nextHref: tourNavigationPath('en', 'museum', 'demo', 3),
+    nextHref: lastStepHref,
     lastStep: true,
     quizFrom: 3,
   },
@@ -67,6 +70,6 @@ export const LastStepWithQuiz: Story = {
   },
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Complete and go to the quiz' }))
-    await expect(getRouter().push).toHaveBeenCalledWith('/en/tour/demo/quiz?from=3')
+    await expect(getRouter().push).toHaveBeenCalledWith(tourQuizPath('en', 'demo', 3, at))
   },
 }

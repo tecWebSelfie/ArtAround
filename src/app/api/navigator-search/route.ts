@@ -16,8 +16,8 @@ export type NavigatorSearchItem = {
   href: string
   subtitle?: string
   city?: string
-  /** Tour: visit length (`durationMinutes`, else its contents' reading time). Content: reading time. */
-  minutes?: number
+  /** Length in seconds. Tour: its visit length (`durationMinutes`, else its contents' lengths). Content: its own. */
+  seconds?: number
   /** Tour: its hardest content's difficulty. Content: its own. */
   difficulty?: Difficulty
   /** Tour only: number of stops. */
@@ -34,10 +34,6 @@ const RANK_POOL = 40
 function joinParts(...parts: Array<string | null | undefined>) {
   return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ')
 }
-
-/** Reading estimates round down; a short text still takes about a minute. */
-const atLeastOneMinute = (minutes: number | null | undefined) =>
-  minutes === null || minutes === undefined ? undefined : Math.max(1, Math.round(minutes))
 
 const idOf = (value: unknown) =>
   typeof value === 'string' ? value : (value as { id?: string } | null)?.id
@@ -89,7 +85,7 @@ async function hydrateNavigatorHits({
       ? payload.find({
           collection: 'contents',
           where: { id: { in: stopIds } },
-          select: { difficulty: true, readingTimeMins: true },
+          select: { difficulty: true, durationSeconds: true },
           depth: 0,
           pagination: false,
           overrideAccess: true,
@@ -115,7 +111,7 @@ async function hydrateNavigatorHits({
   const items = new Map<string, NavigatorSearchItem>()
   for (const tour of tourDocs) {
     const own = tour.contents.map((content) => stopById.get(idOf(content) ?? '')).filter(Boolean)
-    const reading = own.reduce((sum, stop) => sum + (stop?.readingTimeMins ?? 0), 0)
+    const length = own.reduce((sum, stop) => sum + (stop?.durationSeconds ?? 0), 0)
     const hardest = own.reduce<Difficulty | undefined>((top, stop) => {
       const difficulty = stop?.difficulty
       return difficulty && (!top || DIFFICULTY_RANK[difficulty] > DIFFICULTY_RANK[top])
@@ -129,7 +125,7 @@ async function hydrateNavigatorHits({
       title: tour.title,
       href: `/${locale}/tour/${tour.id}`,
       subtitle: joinParts(museum?.name, museum?.location?.city) || undefined,
-      minutes: tour.durationMinutes ?? (own.length ? atLeastOneMinute(reading) : undefined),
+      seconds: tour.durationMinutes ? tour.durationMinutes * 60 : length || undefined,
       difficulty: hardest,
       stops: tour.contents.length,
     })
@@ -140,7 +136,7 @@ async function hydrateNavigatorHits({
       key: `content:${content.id}`,
       title: content.title,
       href: `/${locale}/content/${content.id}`,
-      minutes: atLeastOneMinute(content.readingTimeMins),
+      seconds: content.durationSeconds ?? undefined,
       difficulty: content.difficulty,
       priceCents: content.price && content.price > 0 ? content.price : undefined,
     })
@@ -179,7 +175,12 @@ export async function GET(request: Request) {
   const limit = Math.min(20, Math.max(1, Number.isFinite(limitParam) ? limitParam : 8))
 
   try {
-    const payload = await getPayload({ config })
+    // The museum-mode restriction (cookie + reads) does not need the search:
+    // resolve it together with Payload.
+    const [payload, restrictTo] = await Promise.all([
+      getPayload({ config }),
+      museumSearchRestriction(),
+    ])
     const { hits } = await querySearchIndex({
       payload,
       query,
@@ -190,7 +191,7 @@ export async function GET(request: Request) {
       limit: Math.max(limit, RANK_POOL),
       sort: ['-priority', '-sourceCreatedAt'],
       locale,
-      restrictTo: await museumSearchRestriction(),
+      restrictTo,
     })
 
     // Payload has no relevance score. When the visitor types, exact city

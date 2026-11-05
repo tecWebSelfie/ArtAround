@@ -3,7 +3,7 @@ import { SearchShell } from '@/components/mantine/SearchShell'
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
-import { Stack, Title } from '@mantine/core'
+import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
@@ -16,9 +16,12 @@ export default async function SearchToursPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
+  // Independent setup reads: started together.
+  const setup = Promise.all([getPayload({ config }), museumScope()])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
-  const payload = await getPayload({ config })
-  const scope = await museumScope()
+  const [payload, scope] = await setup
 
   const definitions: FilterDefinition[] = [
     {
@@ -55,19 +58,24 @@ export default async function SearchToursPage(props: {
   })
 
   return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} mt="sm">
-      <Title order={2}>{t('Search visits')}</Title>
-      <SearchShell
-        definitions={definitions}
-        initialFilters={initialFilters}
-        page={result.page ?? page}
-        totalPages={result.totalPages ?? 1}
-        basePath={`/${lng}/search/tours`}
-        storageKeyPrefix="search-tours"
-        placeholder={t('Filter visits...')}
-      >
-        <ToursSearchResults tours={result.docs} />
-      </SearchShell>
-    </Stack>
+    // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
+    // centered) so title, filter and the 3-column grid stop stretching across
+    // wide screens. Below md the padding equals the old side margins: no change.
+    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+      <Stack>
+        <Title order={2}>{t('Search visits')}</Title>
+        <SearchShell
+          definitions={definitions}
+          initialFilters={initialFilters}
+          page={result.page ?? page}
+          totalPages={result.totalPages ?? 1}
+          basePath={`/${lng}/search/tours`}
+          storageKeyPrefix="search-tours"
+          placeholder={t('Filter visits…')}
+        >
+          <ToursSearchResults tours={result.docs} lng={lng} />
+        </SearchShell>
+      </Stack>
+    </Container>
   )
 }

@@ -10,6 +10,7 @@ import type { Route } from 'next'
 import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 import { LockedPriceBadge } from './LockedPriceBadge'
 import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
+import { formatDuration } from '@/lib/duration'
 
 /**
  * Contents search results. With a `picker` (the tour editor's "add a stop"
@@ -20,9 +21,12 @@ import { SearchResultCard, SearchResultsGrid } from './SearchResultCard'
  */
 export const ContentsSearchResults = async ({
   contents,
+  lng,
   picker,
   lockedPrices,
 }: {
+  /** Links each card to its page (`/{lng}/content/{id}`); omitted, cards are static. */
+  lng?: string
   contents: readonly (string | Content | null | undefined)[] | null | undefined
   picker?: TourPicker | null
   /** Content id → price (cents) for contents locked to this visitor. */
@@ -45,17 +49,17 @@ export const ContentsSearchResults = async ({
             imageUrl={thumbnail?.url}
             imageAlt={thumbnail?.alt ?? content.title}
             title={content.title}
+            href={lng ? (`/${lng}/content/${content.id}` as Route) : undefined}
           >
             <Group gap="xs">
               <DifficultyBadge difficulty={content.difficulty}>
                 {t(DIFFICULTY_LABEL_KEY[content.difficulty])}
               </DifficultyBadge>
-              {/* 0 is the estimator's "under a minute" on older documents. */}
-              {content.readingTimeMins ? (
+              {content.durationSeconds ? (
                 <Group gap={4}>
                   <Clock size={14} aria-hidden />
                   <Text size="xs" c="dimmed">
-                    {content.readingTimeMins} {t('min read')}
+                    {formatDuration(content.durationSeconds)}
                   </Text>
                 </Group>
               ) : null}

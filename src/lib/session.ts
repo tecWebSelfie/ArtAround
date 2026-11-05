@@ -5,12 +5,8 @@ import type { User } from '@/payload-types'
 import type { Route } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
-import {
-  createLocalReq,
-  docAccessOperation,
-  getPayload,
-  type SanitizedCollectionPermission,
-} from 'payload'
+import { docPermissions } from '@/lib/doc-access'
+import { createLocalReq, getPayload, type SanitizedCollectionPermission } from 'payload'
 import { cache } from 'react'
 
 /**
@@ -50,16 +46,16 @@ type PermissionSlug = 'museums' | 'objects' | 'contents' | 'tours' | 'users'
 
 /**
  * Per-document permissions for the current visitor, computed by Payload from
- * the same access functions that guard writes (`docAccessOperation`, what the
- * admin panel uses). Pages use it to decide which edit affordances to show,
- * so the UI can never drift from the server rules.
+ * the same access functions that guard writes (`docPermissions`). Pages use
+ * it to decide which edit affordances to show, so the UI can never drift from
+ * the server rules.
  */
 export const getDocPermissions = cache(
   async (collection: PermissionSlug, id: string): Promise<SanitizedCollectionPermission | null> => {
     const { payload, user } = await getSession()
     if (!user) return null
     const req = await createLocalReq({ user }, payload)
-    return docAccessOperation({ collection: payload.collections[collection], id, req })
+    return docPermissions(req, collection, id)
   },
 )
 

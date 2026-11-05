@@ -9,7 +9,7 @@ const items: AutoCompleteItem[] = [
     title: 'The Farnese Marble',
     href: '/en/content/content-1',
     difficulty: 'medium',
-    minutes: 6,
+    seconds: 360,
     priceCents: 499,
   },
   {
@@ -19,7 +19,7 @@ const items: AutoCompleteItem[] = [
     href: '/en/tour/tour-1',
     subtitle: 'Galleria Borghese · Rome',
     city: 'Rome',
-    minutes: 60,
+    seconds: 3600,
     difficulty: 'easy',
     stops: 4,
   },

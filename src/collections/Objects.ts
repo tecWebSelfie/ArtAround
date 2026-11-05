@@ -1,15 +1,16 @@
 import {
+  anyMuseumStaff,
   anyone,
   authenticated,
   isSuperAdmin,
-  museumsWithRank,
   superAdminOnly,
 } from '@/access/museumRoles'
 import { editorial } from '@/fields/editorial'
-import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
+import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
+import { WIKIDATA_QUEUE } from '@/lib/wikidata'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
-import type { Access, RelationshipFieldValidation } from 'payload'
+import type { Access, Field, RelationshipFieldValidation } from 'payload'
 import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { imageUpload } from '../fields/imageUpload'
@@ -36,9 +37,6 @@ const ownerOrSuperAdmin: Access = ({ req }) => {
   if (isSuperAdmin(req)) return true
   return { createdBy: { equals: String(req.user.id) } }
 }
-
-const anyMuseumStaff: Access = async ({ req }) =>
-  isSuperAdmin(req) || (await museumsWithRank(req, MUSEUM_FUNCTION_CURATOR)).length > 0
 
 /**
  * A content is about exactly one object: it may appear in the `contents` of at
@@ -90,6 +88,32 @@ export const Objects: CollectionConfig = {
       on: 'objects',
     },
     editorial({ name: 'artist', type: 'text', required: false, maxLength: 120 }),
+    // Universal identifier of the work (src/lib/wikidata.ts). Setting it
+    // links the work to its author, movement and events (`importWikidataSubjects`).
+    wikidataIdField('Wikidata item of the work, e.g. Q1103801. Fills author, movement and events.'),
+    {
+      // The museum's own inventory number: local to the museum, not universal.
+      name: 'inventoryNumber',
+      type: 'text',
+      required: false,
+      maxLength: 60,
+    },
+    ...(
+      [
+        ['creators', 'person', 'Who made the work.'],
+        ['movements', 'movement', 'Movement or style the work belongs to.'],
+        ['events', 'event', 'Events the work took part in.'],
+      ] as const
+    ).map(([name, kind, description]): Field => ({
+      name,
+      type: 'relationship',
+      relationTo: 'subjects',
+      hasMany: true,
+      required: false,
+      // Only subjects of the matching kind (`subjects.kind`).
+      filterOptions: { kind: { equals: kind } },
+      admin: { description },
+    })),
     editorial({
       name: 'dating',
       type: 'text',
@@ -176,7 +200,19 @@ export const Objects: CollectionConfig = {
     },
   ],
   hooks: {
+    beforeValidate: [uniqueWikidataId('objects')],
     afterChange: [
+      // A new or changed Wikidata id: link the author, movement and events.
+      async ({ req, doc, previousDoc, context }) => {
+        if (context.skipWikidataImport || !doc.wikidataId) return
+        if (doc.wikidataId === previousDoc?.wikidataId) return
+        await req.payload.jobs.queue({
+          task: 'importWikidataSubjects',
+          input: { objectId: String(doc.id) },
+          queue: WIKIDATA_QUEUE,
+          req,
+        })
+      },
       async ({ req, doc, previousDoc, operation, context }) => {
         // The workflow's persist step links the model back onto the object —
         // that update must not requeue this hook.

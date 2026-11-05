@@ -59,7 +59,6 @@ This project is designed as a flexible foundation for:
 ├── public/
 ├── tests/
 ├── .env.example
-├── .env.mongo.example
 ├── docker-compose.yml
 ├── Dockerfile
 ├── Dockerfile.devcontainer
@@ -117,8 +116,10 @@ Copy the sample environment files:
 
 ```bash
 cp .env.example .env
-cp .env.mongo.example .env.mongo
 ```
+
+Start the development database (the `mongodb` service of `docker-compose.yml`,
+without authentication) with `pnpm db:start`.
 
 Configure the required values, including:
 

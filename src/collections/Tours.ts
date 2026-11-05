@@ -1,5 +1,6 @@
 import {
   anyone,
+  asId,
   authenticated,
   isSuperAdmin,
   museumsWithRank,
@@ -7,7 +8,16 @@ import {
 } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
 import type { Tour as TourType } from '@/payload-types'
-import type { Access, CollectionBeforeChangeHook, CollectionConfig, Where } from 'payload'
+import {
+  APIError,
+  type Access,
+  type CollectionBeforeChangeHook,
+  type CollectionConfig,
+  type Where,
+} from 'payload'
+import { nonCommercialConflicts } from '@/lib/content-rights'
+import { hideFromSearch, readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { keptDirections } from '@/lib/tour-logistics'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -47,18 +57,79 @@ const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operati
   return data
 }
 
+/**
+ * What a tour may include, checked whenever its stops (or visibility) change,
+ * with one read of the stops (`src/lib/content-rights.ts`, `visibility.ts`):
+ * - a tour that sells contents is commercial use of everything in it, so it
+ *   can't include an NC-licensed content of another author;
+ * - a public tour can't include private contents: its visitors couldn't read
+ *   them. Private tours (a class visit) may mix both.
+ * A later price change of a stop doesn't re-check its tours.
+ */
+const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
+  data,
+  req,
+  originalDoc,
+}) => {
+  if (!data.contents && !data.visibility) return data
+  const contents = data.contents ?? originalDoc?.contents
+  if (!contents?.length) return data
+  const author = data.author ?? originalDoc?.author
+  const visibility = data.visibility ?? originalDoc?.visibility
+  const { docs } = await req.payload.find({
+    collection: 'contents',
+    where: { id: { in: contents.map(asId).filter(Boolean) } },
+    select: { title: true, price: true, license: true, author: true, visibility: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  const quote = (list: { title: string }[]) => list.map(({ title }) => `"${title}"`).join(', ')
+  const conflicts = nonCommercialConflicts(
+    docs.map((doc) => ({ ...doc, author: asId(doc.author) })),
+    author ? asId(author) : null,
+  )
+  if (conflicts.length) {
+    throw new APIError(
+      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${quote(conflicts)}.`,
+      400,
+    )
+  }
+  const hidden = visibility === 'private' ? [] : docs.filter((doc) => doc.visibility === 'private')
+  if (hidden.length) {
+    throw new APIError(
+      `A public tour can't include private contents: ${quote(hidden)}. Make the tour private or the contents public.`,
+      400,
+    )
+  }
+  return data
+}
+
+/**
+ * A stop's directions leave with the stop: removing a content from the tour
+ * drops its note, so a later re-add starts without a stale one.
+ */
+const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
+  if (!data.contents && !data.directions) return data
+  const contents = data.contents ?? originalDoc?.contents ?? []
+  data.directions = keptDirections(data.directions ?? originalDoc?.directions, contents)
+  return data
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
   access: {
-    read: anyone,
+    // Private tours only for their author and the guests of their group visits.
+    read: readTours,
     create: authenticated,
     update: authorOrSuperAdmin,
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor],
+    beforeChange: [assignAuthor, guardTourContents, pruneDirections],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
-    afterChange: [deleteQuestionsRemovedFromQuiz],
+    afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
     afterDelete: [deleteQuestionsOfDeletedTour],
   },
   fields: [
@@ -71,12 +142,55 @@ export const Tour: CollectionConfig = {
           fields: [
             // Localized (and machine-translated, `autoTranslatePlugin`) like contents.
             editorial({ name: 'title', type: 'text', required: true }),
+            {
+              // Private: a class visit only its author and the group's guests see
+              // (`src/lib/visibility.ts`); never in search or the marketplace.
+              name: 'visibility',
+              type: 'select',
+              defaultValue: 'public',
+              index: true,
+              options: [...VISIBILITY_OPTIONS],
+            },
             editorial({ name: 'body', type: 'richText', required: false }),
             {
               name: 'description',
               type: 'text',
               required: false,
               maxLength: 70,
+            },
+            // Logistic directions (course specification, "ArtAround: Architettura"):
+            // not items and not part of any item, so they live on the tour. The
+            // visit's practical information comes before the first stop; each
+            // stop may say how to reach it from the previous one. Shown in the
+            // tour page and in navigation (`src/lib/tour-logistics.ts`).
+            editorial({
+              name: 'logistics',
+              type: 'textarea',
+              required: false,
+              maxLength: 1000,
+              admin: {
+                description:
+                  'Practical information for the visit: entrance, tickets, cloakroom, opening hours.',
+              },
+            }),
+            {
+              name: 'directions',
+              type: 'array',
+              admin: {
+                description:
+                  'How to reach a stop from the previous one (from the entrance for the first).',
+              },
+              fields: [
+                {
+                  name: 'content',
+                  type: 'relationship',
+                  relationTo: 'contents',
+                  required: true,
+                  // Only the id: the stop itself comes from `contents`.
+                  maxDepth: 0,
+                },
+                editorial({ name: 'text', type: 'textarea', required: true, maxLength: 500 }),
+              ],
             },
             {
               // Authored order = visiting order (see docs/tour-navigation.md).

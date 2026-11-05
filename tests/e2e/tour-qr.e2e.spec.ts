@@ -1,10 +1,15 @@
 import { expect as baseExpect, test } from '@playwright/test'
 import { toDataURL } from 'qrcode'
+import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
-const tourURL = process.env.TOUR_NAVIGATION_URL
-test.skip(!tourURL, 'Run scripts/seed-tour-navigation.ts and set TOUR_NAVIGATION_URL first.')
+// The seeded tour's first step (tests/helpers/tour-fixture.ts): run
+// scripts/seed-tour-navigation.ts once; TOUR_NAVIGATION_URL overrides it.
+const tourURL = tourFixture?.url
+test.beforeEach(() => {
+  requireTourFixture()
+})
 test.setTimeout(600_000)
 
 for (const target of ['object', 'content'] as const) {

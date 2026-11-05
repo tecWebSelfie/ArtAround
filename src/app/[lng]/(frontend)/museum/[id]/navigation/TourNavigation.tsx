@@ -17,13 +17,17 @@ import {
   Grid,
   GridCol,
   Group,
+  Kbd,
   Overlay,
   Progress,
   Stack,
   Text,
   Title,
+  Tooltip,
+  useMatches,
 } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
+import { ACCESSIBILITY_COLOR } from '@/theme'
 import { validateBuildJson } from '@pascal-app/core'
 import { FlagBannerFoldIcon } from '@phosphor-icons/react'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
@@ -43,9 +47,12 @@ import {
   ScanQrCode,
   Search,
 } from 'lucide-react'
+import { useElementSize } from '@mantine/hooks'
 import { Suspense, useEffect, useMemo, useState, type ComponentPropsWithoutRef } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
+import { LogisticNotes } from './LogisticNotes'
+import { logisticNotes } from '@/lib/tour-logistics'
 import { SkippedStopModal } from './SkippedStopModal'
 import { DirectionsBar, useStepSentence, type DirectionsStatus } from './DirectionsBar'
 import { GroupBadge } from '@/components/group/GroupBadge'
@@ -54,6 +61,7 @@ import { GuidanceSettings, useGuidanceSettings } from './GuidanceSettings'
 import { GpsSimulator } from './GpsSimulator'
 import { useGpsFix } from './gps-source'
 import { NavigationSpotlight } from './NavigationSpotlight'
+import classes from './navigation-desktop.module.css'
 import { useNavigationCommands, type NavigationCommand } from './navigation-commands'
 import { useNearbySuggestions } from './use-nearby-suggestions'
 import { useRouteGuidance } from './use-route-guidance'
@@ -72,8 +80,15 @@ import {
   type NavigationDestination,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+
+/** Header measured with its padding (stable object: the hook re-observes on change). */
+const HEADER_BOX: ResizeObserverOptions = { box: 'border-box' }
+
+/** Outer control columns: growing around Scan on phones, content-wide from md. */
+const SIDE_SPAN = { base: 'auto', md: 'content' } as const
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
@@ -89,6 +104,12 @@ export type NavigationPageScope =
  * destination, and the quiz. In free navigation (`scope.kind === 'free'`) the
  * header names the museum, there is no default destination, and the Spotlight
  * also lists the museum's tours to start one from here.
+ *
+ * From md up (desktop, kiosks, remote visits) the same pieces recompose for a
+ * wide screen (`navigation-desktop.module.css`): the header content is capped
+ * and centred, the floating controls gather bottom-left, the directions strip
+ * keeps a bounded width, and contextual modals dock on the right below the
+ * header, whose height this component publishes for them.
  */
 export const TourNavigationPage = ({
   scope,
@@ -106,6 +127,8 @@ export const TourNavigationPage = ({
   // URL state stays in the URL; this component reads it where map behavior needs it.
   const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
+  // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
+  const scanning = /\/scan$/.test(usePathname())
   const museumMap = useMemo(() => validateBuildJson(museum.map), [museum.map])
   // Services and entrances/exits live in the saved map scene graph, not in a
   // Payload field, so the controls derive them from the same JSON the map loads.
@@ -141,6 +164,12 @@ export const TourNavigationPage = ({
       navigationDestination(search) ??
       (defaultDestination ? { kind: 'object', id: defaultDestination } : null),
     [search, defaultDestination],
+  )
+  // The author's directions for the stop ahead, while the route leads to it
+  // (a destination the visitor chose instead has nothing to do with them).
+  const notes = useMemo(
+    () => (tour && !navigationDestination(search) ? logisticNotes(tour, step) : []),
+    [tour, step, search],
   )
   const currentObjectId = search.get('at')
   // With a confirmed position the visitor's own start replaces the entrance step.
@@ -194,6 +223,19 @@ export const TourNavigationPage = ({
   useEffect(() => {
     if (spokenStep) speak(spokenStep).catch(() => {})
   }, [spokenStep, speak])
+
+  // The header's height varies (title wrap, stepper, free visit): publish it
+  // so the docked desktop panel (portalled, see NavigationModal) starts just
+  // below it instead of covering the stepper.
+  const { ref: headerRef, height: headerHeight } = useElementSize(HEADER_BOX)
+  useEffect(() => {
+    if (!headerHeight) return
+    const root = document.documentElement
+    root.style.setProperty('--navigation-header-height', `${headerHeight}px`)
+    return () => {
+      root.style.removeProperty('--navigation-header-height')
+    }
+  }, [headerHeight])
 
   // Nearby suggestions follow the GPS estimate, or else the confirmed start.
   const here =
@@ -265,9 +307,11 @@ export const TourNavigationPage = ({
           }}
         />
       )}
-      <AppShellHeader px="xs" pb="xs" className="rounded-b-xl">
+      <AppShellHeader ref={headerRef} px="xs" pb="xs" className="rounded-b-xl">
         {tour ? (
-          <Stack gap="xs">
+          // Desktop: one centred column (the brief's 1200px container) so the
+          // progress bar and stepper don't stretch across a 1920px screen.
+          <Stack gap="xs" maw={{ md: '75rem' }} mx={{ md: 'auto' }}>
             {/* In a group, the pill beside the title opens the group panel (GroupBadge). */}
             <Group justify="center" gap="xs" wrap="nowrap">
               <Title size="h5" ta="center">
@@ -297,6 +341,7 @@ export const TourNavigationPage = ({
               entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
               hasQuiz={hasQuiz(tour)}
             />
+            <LogisticNotes notes={notes} />
           </Stack>
         ) : (
           // Free navigation: no progress to show, only where the visitor is.
@@ -319,6 +364,7 @@ export const TourNavigationPage = ({
                 map={museumMap.parsed}
                 h="100%"
                 w="100%"
+                renderPaused={scanning}
                 navMesh={wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh}
                 currentObjectId={currentObjectId}
                 destination={destination}
@@ -355,7 +401,7 @@ export const TourNavigationPage = ({
       <AppShellFooter className="rounded-t-md">
         <Group h="100%" px="xs" gap="xs" wrap="nowrap" align="center">
           {/* About four fifths: the current step of the route. */}
-          <Box className="min-w-0 flex-[4]">
+          <Box className={`min-w-0 flex-[4] ${classes.directions}`}>
             <DirectionsBar
               steps={guidance.steps}
               current={guidance.current}
@@ -370,7 +416,8 @@ export const TourNavigationPage = ({
                 tour && complete && hasQuiz(tour) && !guest ? (
                   <Button
                     size="compact-sm"
-                    onClick={() => router.push(tourQuizPath(lng, tour.id, step, search.toString()))}
+                    component={Link}
+                    href={tourQuizPath(lng, tour.id, step, search.toString())}
                   >
                     {t('Take the quiz')}
                   </Button>
@@ -378,7 +425,8 @@ export const TourNavigationPage = ({
               }
             />
           </Box>
-          {/* The remaining fifth: the assistant orb, right-aligned. */}
+          {/* The remaining fifth: the assistant orb, right-aligned (on desktop
+              the rest of the bar, so the orb stays at the trailing edge). */}
           <Group className="flex-1" justify="end">
             <NavigationAssistant
               enabled={settings.assistant}
@@ -390,6 +438,10 @@ export const TourNavigationPage = ({
                   : `Museum: ${museum.name}. Free visit, no tour.`,
                 destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
                 currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
+                // "How do I get there?", "Where is the cloakroom?": the author's notes.
+                notes.length ? `Tour directions: ${notes.join(' ')}` : '',
+                // "Are there obstacles?": what the museum declares about access.
+                accessibilityContext(museum),
               ].join(' ')}
               language={lng}
               speech={speech}
@@ -403,6 +455,23 @@ export const TourNavigationPage = ({
       </AppShellFooter>
     </>
   )
+}
+
+/** The museum's declared accessibility, in words the assistant can repeat. */
+function accessibilityContext(museum: Museum) {
+  const access = museum.accessibility
+  if (!access) return ''
+  const features = [
+    access.stepFreeEntrance && 'step-free entrance',
+    access.elevator && 'elevator',
+    access.accessibleBathrooms && 'accessible toilets',
+    access.tactilePaths && 'tactile paths',
+  ].filter(Boolean)
+  return [
+    features.length ? `Accessibility: ${features.join(', ')}.` : 'Accessibility: nothing declared.',
+    museum.navMeshWheelchair ? 'A step-free route is available ("wheelchair" command).' : '',
+    access.notes ? `Accessibility notes: ${access.notes}` : '',
+  ].join(' ')
 }
 
 /** Human name of the current destination, for directions and their title. */
@@ -476,6 +545,7 @@ function NavigationControls({
   // Toggling an active service/exit off returns to the tour route.
   const resume = command('resume-tour')
   const nextStop = command('next-stop')
+  const desktop = useMatches({ base: false, md: true })
 
   return (
     <Stack className="h-full" justify="space-between">
@@ -484,7 +554,12 @@ function NavigationControls({
       </Group>
       <Stack gap="xs" className="p-2">
         {(nextStop || resume) && (
-          <Group gap="xs" justify="center" style={{ pointerEvents: 'auto' }}>
+          <Group
+            gap="xs"
+            justify="center"
+            className={classes.controlRow}
+            style={{ pointerEvents: 'auto' }}
+          >
             {nextStop && <Button onClick={() => onRun(nextStop)}>{nextStop.label}</Button>}
             {resume && (
               <Button variant="default" onClick={() => onRun(resume)}>
@@ -493,11 +568,14 @@ function NavigationControls({
             )}
           </Group>
         )}
-        {/* Two `auto` columns grow equally around the `content` one, so Scan
-            stays centred whichever service, wheelchair or settings buttons a
-            museum shows on either side. */}
+        {/* Phone: the two outer columns (`auto`) grow equally around the
+            `content` one, so Scan stays centred whichever service, wheelchair
+            or settings buttons a museum shows on either side. Desktop: every
+            column keeps its content's width (`SIDE_SPAN`), so the same controls
+            gather in one compact bottom-left cluster; the right side is where
+            content panels dock. */}
         <Grid gap="xs" align="flex-end" style={{ pointerEvents: 'auto' }}>
-          <GridCol span="auto">
+          <GridCol span={SIDE_SPAN}>
             <Group gap="xs" wrap="nowrap" align="end">
               {(serviceTypes.length > 0 || placedExits.length > 0) && (
                 <ActionIconGroup orientation="vertical">
@@ -538,7 +616,7 @@ function NavigationControls({
                   title={t('Wheelchair route')}
                   size="lg"
                   variant={wheelchairRoute ? 'filled' : 'white'}
-                  color="blue"
+                  color={ACCESSIBILITY_COLOR}
                   radius="xl"
                   aria-pressed={wheelchairRoute}
                   onClick={() => runId('wheelchair')}
@@ -560,19 +638,34 @@ function NavigationControls({
               {t('Scan')}
             </Button>
           </GridCol>
-          <GridCol span="auto">
+          <GridCol span={SIDE_SPAN}>
             <Group gap="xs" wrap="nowrap" align="end" justify="end">
-              <ActionIcon
-                aria-label={t('Search')}
-                variant="white"
-                autoContrast
-                radius={'xl'}
-                size={'lg'}
-                className="p-1.5"
-                onClick={spotlight.open}
+              {/* Desktop hint for the keyboard shortcut ("/" or mod+K); no
+                  tooltip on phones, where a tap would only flash it. */}
+              <Tooltip
+                disabled={!desktop}
+                // Keyboard users reach the hint by focus too, not only by hover.
+                events={{ hover: true, focus: true, touch: false }}
+                label={
+                  <Group gap={6} wrap="nowrap">
+                    {t('Search')}
+                    <Kbd size="xs">/</Kbd>
+                  </Group>
+                }
               >
-                <Search className="size-full" />
-              </ActionIcon>
+                <ActionIcon
+                  aria-label={t('Search')}
+                  aria-keyshortcuts="/ Control+K Meta+K"
+                  variant="white"
+                  autoContrast
+                  radius={'xl'}
+                  size={'lg'}
+                  className="p-1.5"
+                  onClick={spotlight.open}
+                >
+                  <Search className="size-full" />
+                </ActionIcon>
+              </Tooltip>
               {settings}
               <NavigationSpotlight commands={commands} nearby={nearby} onRun={onRun} />
             </Group>
@@ -589,7 +682,8 @@ function ServiceIcon({
 }: { icon: LucideIcon } & ActionIconProps & ComponentPropsWithoutRef<'button'>) {
   return (
     <ActionIcon variant="light" className="border-(--mantine-color-default-border)" {...props}>
-      <Icon size={16} />
+      {/* The button carries the label (`aria-label`); the glyph is decoration. */}
+      <Icon size={16} aria-hidden />
     </ActionIcon>
   )
 }

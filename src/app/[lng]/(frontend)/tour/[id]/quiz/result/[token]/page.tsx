@@ -28,16 +28,18 @@ export default async function QuizResultPage({
 }: PageProps<'/[lng]/tour/[id]/quiz/result/[token]'>) {
   const { lng, id, token } = await params
   const payload = await getPayload({ config })
-  const attempt = (
-    await payload.find({
+  // The attempt and the quiz are independent reads: one round.
+  const [{ docs }, quiz] = await Promise.all([
+    payload.find({
       collection: 'quizAttempts',
       where: { and: [{ token: { equals: token } }, { tour: { equals: id } }] },
       depth: 0,
       limit: 1,
       pagination: false,
-    })
-  ).docs[0]
-  const quiz = await getTourQuiz(id, lng)
+    }),
+    getTourQuiz(id, lng),
+  ])
+  const attempt = docs[0]
   if (!attempt || !quiz) notFound()
 
   const answers = attempt.answers ?? []
@@ -52,8 +54,10 @@ export default async function QuizResultPage({
   const withStats = stats.attempts >= MIN_ATTEMPTS_FOR_STATS
   const visited = new Set(quiz.tour.contentIds.slice(0, attempt.stepsCompleted))
 
+  // One lookup per answer instead of a scan of every question.
+  const questionById = new Map(questions.map((q) => [q.id, q]))
   const review: QuizReviewItem[] = answers.map((given, index) => {
-    const question = questions.find((q) => q.id === questionIds[index])
+    const question = questionById.get(questionIds[index])
     if (!question) return { id: questionIds[index], missing: true, correct: given.correct }
     const yourAnswer =
       given.answer === CORRECT_ANSWER

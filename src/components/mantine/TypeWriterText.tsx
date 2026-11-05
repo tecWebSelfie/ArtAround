@@ -2,7 +2,8 @@
 
 import React from 'react'
 import { TextAnimate, type TypewriterProps } from '@gfazioli/mantine-text-animate'
-import { polymorphic, type MantineColor, type PolymorphicComponentProps } from '@mantine/core'
+import { polymorphic, Text, type MantineColor, type PolymorphicComponentProps } from '@mantine/core'
+import { useReducedMotion } from '@mantine/hooks'
 
 export type TypeWriterTextProps<TWords extends MantineColor = string> = Omit<
   TypewriterProps,
@@ -66,8 +67,12 @@ function TypeWriterTextView<TWords extends string>(props: TypeWriterTextProps<TW
   // `c` is Mantine's text-color style prop; `color` would land on the DOM as a
   // no-op attribute. It doubles as the fallback when a word has no entry.
   const { loopColors, value, fallbackColor, c, onCharType, ...rest } = props
-  const words = React.useMemo(() => toWords(value), [value])
+  // Stable by content: callers pass inline literals, a new array every render,
+  // and each new array makes the Typewriter schedule another typing timer.
+  const wordsKey = JSON.stringify(toWords(value))
+  const words = React.useMemo(() => JSON.parse(wordsKey) as TWords[], [wordsKey])
   const [wordIndex, trackChar] = useCurrentWordIndex(words)
+  const reducedMotion = useReducedMotion()
 
   const handleCharType = React.useCallback(
     (char: string, index: number) => {
@@ -80,8 +85,43 @@ function TypeWriterTextView<TWords extends string>(props: TypeWriterTextProps<TW
   const currentWord = words[wordIndex % Math.max(words.length, 1)]
   const currentColor = (currentWord && loopColors?.[currentWord]) ?? c ?? fallbackColor
 
+  if (reducedMotion) {
+    // `prefers-reduced-motion`: no typing, no cycling, just one word in its
+    // color (the first; nothing advances `wordIndex` without the Typewriter).
+    // The Typewriter's own fallback isn't usable: it shows the last word, whose
+    // color our `onCharType` tracking never reaches, and a typing timer it set
+    // before switching itself off still overwrites it with the first char.
+    const {
+      animate: _animate,
+      delay: _delay,
+      loop: _loop,
+      multiline: _multiline,
+      speed: _speed,
+      pauseAt: _pauseAt,
+      withSound: _withSound,
+      soundVolume: _soundVolume,
+      onTypeEnd: _onTypeEnd,
+      onTypeLoop: _onTypeLoop,
+      leftSection,
+      withCursor: _withCursor,
+      cursorChar: _cursorChar,
+      withBlink: _withBlink,
+      classNames: _classNames,
+      styles: _styles,
+      vars: _vars,
+      unstyled: _unstyled,
+      ...textProps
+    } = rest
+    return (
+      <Text {...textProps} c={currentColor}>
+        {leftSection}
+        {currentWord}
+      </Text>
+    )
+  }
+
   return (
-    <TextAnimate.Typewriter {...rest} value={value} c={currentColor} onCharType={handleCharType} />
+    <TextAnimate.Typewriter {...rest} value={words} c={currentColor} onCharType={handleCharType} />
   )
 }
 

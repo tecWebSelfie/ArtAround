@@ -72,7 +72,6 @@ if (!museum) {
           data: {
             title: `${label}: ${title}`,
             difficulty: 'easy',
-            copyright: 'Development fixture',
             objects: {},
             body: {
               root: {

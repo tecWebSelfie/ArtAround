@@ -1,7 +1,7 @@
 import React from 'react'
 import './globals.css'
 
-import { theme } from '@/theme'
+import { museumTheme } from '@/lib/museum-theme'
 import { AppShell, MantineProvider } from '@mantine/core'
 
 import { AuthProvider } from '@/components/auth/AuthProvider'
@@ -10,6 +10,10 @@ import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 
 import { GroupProvider } from '@/components/group/GroupProvider'
+import { SiteHeader } from '@/components/navigation/SiteHeader'
+import { getSiteChrome } from '@/lib/site-chrome'
+import i18nConfig from '@/../i18n.config'
+import { getT } from '@/i18n.server'
 
 export const metadata = {
   title: 'Artaround',
@@ -22,11 +26,22 @@ export const metadata = {
 // hydration mismatch (`data-mantine-color-scheme`).
 export default async function Layout(props: { children: React.ReactNode }) {
   const { children } = props
+  // The desktop top bar's account, museums and museum scope (shared, cached
+  // with the tabs layout's bottom bar for the same request).
+  const chromeRead = getSiteChrome()
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
+  const { t } = await getT()
+  const chrome = await chromeRead
 
   return (
     <MswProvider>
       <AuthProvider>
-        <MantineProvider theme={theme}>
+        {/* Museum mode (cookie `aa-museum`): the locked museum's palette becomes
+            the primary color. Rendered here, on the server, so the first
+            paint already has the museum's colors; outside museum mode (or for a
+            museum without a color) it is the default theme. */}
+        <MantineProvider theme={museumTheme(chrome.currentMuseum?.palette)}>
           <Notifications />
           {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
           <GroupProvider>
@@ -41,7 +56,20 @@ export default async function Layout(props: { children: React.ReactNode }) {
                   offset: false,
                 }}
               >
-                {children}
+                {/* Desktop only (≥ md), and not on immersive map/scan/editor
+                    surfaces: see SiteHeader. In the flow (sticky), so pages
+                    start below it without an AppShell header offset. */}
+                {/* Skip link: the first stop for keyboard users, hidden until
+                    focused (globals.css → .skip-link). It jumps past the header
+                    to the page itself; every page renders inside #main-content. */}
+                <a href="#main-content" className="skip-link">
+                  {t('Skip to main content')}
+                </a>
+                <SiteHeader {...chrome} supportedLngs={i18nConfig.supportedLngs} />
+                {/* tabIndex -1: the skip link moves focus here, not only the scroll. */}
+                <div id="main-content" tabIndex={-1} className="outline-none">
+                  {children}
+                </div>
               </AppShell>
             </ModalsProvider>
           </GroupProvider>

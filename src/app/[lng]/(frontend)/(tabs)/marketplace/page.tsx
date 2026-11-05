@@ -33,9 +33,14 @@ export default async function Marketplace(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  const { t } = await getT('marketplace')
+  // Payload and the museum-mode restriction are independent: started together.
+  const setup = Promise.all([getPayload({ config }), museumSearchRestriction()])
+  // `t` on its own statement, so `i18next-cli extract` sees its namespace;
+  // the reads above were started first and keep loading meanwhile.
   // Difficulty names are shared with search (search.json), not duplicated here.
+  const { t } = await getT('marketplace')
   const { t: ts } = await getT('search')
+  const [payload, restrictTo] = await setup
 
   const query = (firstValue(searchParams.q) ?? '').trim()
   const kind = parseKind(firstValue(searchParams.kind))
@@ -44,7 +49,6 @@ export default async function Marketplace(props: {
   const price = kind === 'users' ? 'all' : parsePrice(firstValue(searchParams.price))
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
 
-  const payload = await getPayload({ config })
   const basePath = `/${lng}/marketplace`
 
   // The Payload search collection owns the result set for both text searches
@@ -59,7 +63,7 @@ export default async function Marketplace(props: {
     kind,
     price,
     page,
-    restrictTo: await museumSearchRestriction(),
+    restrictTo,
   })
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))
@@ -117,7 +121,6 @@ export default async function Marketplace(props: {
                 user: t('user'),
                 viewProfile: t('viewProfile'),
                 min: t('min'),
-                minRead: t('minRead'),
                 difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
               }}
             />

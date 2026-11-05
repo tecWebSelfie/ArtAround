@@ -2,6 +2,7 @@
 
 import type { CurrentImage } from '@/components/editing/CoverImageInput'
 import type { ContentFormValues } from '@/components/editing/forms/ContentFields'
+import { effectiveLicense } from '@/lib/content-rights'
 import { coverImage } from '@/lib/cover-image'
 import { lexicalToHTML } from '@/lib/richtext'
 import { can, getSession } from '@/lib/session'
@@ -15,7 +16,7 @@ import { z } from 'zod'
 
 const contentId = z.string().min(1).max(64)
 
-export type ContentSource = Omit<ContentFormValues, 'object'> & {
+export type ContentSource = Omit<ContentFormValues, 'object' | 'rightsDeclared'> & {
   /** The first picture (the cover) and the ids of the others, in order. */
   cover: CurrentImage | null
   otherImages: string[]
@@ -40,7 +41,9 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     select: {
       title: true,
       difficulty: true,
-      copyright: true,
+      visibility: true,
+      license: true,
+      rightsMuseum: true,
       price: true,
       body: true,
       images: true,
@@ -54,7 +57,10 @@ export async function loadContentSource(id: string): Promise<ContentSource | nul
     otherImages: cover || !first ? otherImages : [first, ...otherImages],
     title: content.title,
     difficulty: content.difficulty,
-    copyright: content.copyright,
+    // Contents saved before licences existed start from the stored default.
+    visibility: content.visibility ?? 'public',
+    license: effectiveLicense(content.price, content.license),
+    rightsMuseum: content.rightsMuseum ? extractID(content.rightsMuseum) : null,
     price: content.price ?? null,
     bodyHTML: lexicalToHTML(content.body),
   }

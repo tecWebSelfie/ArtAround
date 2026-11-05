@@ -7,6 +7,13 @@ and cached build artifacts are not reliable handoff state.
 ## Agreed product behavior
 
 - Desktop and mobile use the same ordinary map view.
+- Logistic directions (course specification: not items, not part of one) come
+  from the tour's author: `tours.logistics` (entrance, tickets, cloakroom) and
+  `tours.directions` (per stop, how to reach it from the previous one).
+  `LogisticNotes` shows them in the tour header for the stop ahead, beside the
+  map's computed route, unless the visitor chose another destination; the
+  voice assistant gets them as context. The tour page shows them too
+  (`src/lib/tour-logistics.ts`).
 - The avatar marks the visitor's explicitly confirmed position. Opening a QR link
   or reading content must not change that position.
 - Tour contents retain their original order. The cursor counts completed contents:
@@ -36,6 +43,27 @@ and cached build artifacts are not reliable handoff state.
   in-app scanner in the app's language (`inLanguage` in `src/lib/app-url.ts`,
   which also replaces the prefix of older `/it/…` codes). Contextual tour modals
   must remain reloadable and shareable. Do not add a separate QR identifier system.
+- Printed codes: museum staff (curator or director, `staffMuseumId` in
+  `src/lib/qr-museum.ts`) get downloads in `QrCodeButton` (SVG, PNG) and a
+  printable PDF (`/api/qr-sheet`: one A5 page, or every object of a museum as
+  A4 labels; react-pdf, Noto Sans for all 24 languages, error correction Q).
+  Those codes end with `?museum=<id>`: `src/proxy.ts` sets the museum-mode
+  cookie and redirects to the plain URL, so whoever scans one on site gets the
+  app in that museum. Codes shown on screen stay plain; opened from outside the
+  app, a page of another museum only offers the switch (`MuseumModeOffer`).
+
+Desktop (≥ Mantine `md`, 62em; `museum/[id]/navigation/navigation-desktop.module.css`):
+the same routes and close/guest rules, recomposed. Contextual content, object and step
+modals (`NavigationModal`) dock as a right-side panel between the header (its height is
+published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
+with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
+draggable; `SkippedStopModal` stays centered. The control grid, which centres Scan on
+phones, switches its outer columns from `auto` to `content` at md (`SIDE_SPAN`), so the
+controls cluster bottom-left;
+the directions strip is capped at 40rem, the header column at 75rem with the stepper
+centered. The Spotlight opens with mod+K or `/` (tooltip with a `Kbd` on the search
+icon). The site header hides on the navigation shell's map URLs but stays on a tour's
+start page (`…/tour/[tourId]`, no map yet). Below `md` nothing changes.
 
 ## URL and route contract
 
@@ -210,13 +238,13 @@ command** (`navigation-commands.ts`). The Spotlight results, the
 empty-Spotlight pills, the overlay buttons and the voice assistant all run the
 same `NavigationCommand` (`router.replace` for URL state, `router.push` for modals).
 
-| Piece              | Files                                                                          | How it works                                                                                                                                                                                                                                                                                                                                                                                                        |
-| ------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `DirectionsBar.tsx`   | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                          |
-| GPS progress       | `src/lib/gps.ts`, `gps-source.ts`, `use-route-guidance.ts`, `GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                    |
-| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `use-nearby-suggestions.tsx`                  | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                           |
-| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`    | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. |
-| Settings           | `GuidanceSettings.tsx`                                                         | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                          |
+| Piece              | Files                                                                          | How it works                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `DirectionsBar.tsx`   | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| GPS progress       | `src/lib/gps.ts`, `gps-source.ts`, `use-route-guidance.ts`, `GpsSimulator.tsx` | Anchor = confirmed start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z). Snapped to the closest point on the route → step by distance walked. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `use-nearby-suggestions.tsx`                  | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`    | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. Before the model, the controlled vocabulary (`src/lib/voice-vocabulary.ts`, Italian and English fixed phrases: avanti/indietro, cos'è questo, dimmi di più/meno, non ho capito, troppo semplice, chi è l'autore, qual è lo stile, ci sono ostacoli, uscita, bagno, bar, negozio) runs its command directly. Every phrase has an on-screen pill: `previous-stop`, `what-is-this`, `author`/`style` (the work's Wikidata subjects, open `/subject/[id]`), `version:harder` ("More in depth"); "obstacles" turns on the step-free route, and the museum's declared accessibility is in the assistant's context. |
+| Settings           | `GuidanceSettings.tsx`                                                         | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
 
 The catalog (`data.ts`) is read **as the viewer** so each content summary carries
 `price` and a server-computed `locked`; the body never reaches the client.
@@ -275,8 +303,28 @@ ones only in their metadata (`generation` groups).
   appears one paragraph at a time and is read aloud when the assistant is on
   (one shared speech player, `speech-context.tsx`). Links are
   `[name](/object/ID)` to entities of the same museum only (`expansion.ts`).
+  "Tell me even more" continues the same angle (`?step=2`, up to
+  `MAX_EXPANSION_STEPS`): the model gets the earlier steps as text the
+  visitor has already read and adds only new information; each step is its
+  own `contentVariants` document (`step`, lookup keys in
+  `src/lib/expansion-variants.ts`). Asking the voice assistant again for the
+  open angle goes one step further. A work with a `wikidataId` has its
+  Wikidata statements read directly, without a name search.
+- **Listen** (`ContentAudioButton`, beside the length in every content view):
+  the base text read aloud in the page's language. `contentAudio` keeps one
+  MP3 per content and locale with a `textHash` of the text it reads
+  (`src/lib/content-audio.ts`). The `contents` hook `queueContentAudio`
+  regenerates the English one when the title or text changes; other
+  languages are generated on first listen, once the translation exists
+  (`/api/content-audio/[id]`, statuses `ready`, `pending`, `translating`,
+  `locked`, `unavailable`). Task `generateContentAudio` on queue `speech`
+  (Fish Audio through AI SDK `generateSpeech`, long texts split by paragraph
+  and joined); the source audio's real length replaces the estimated
+  `durationSeconds`. The route reads the body as the visitor, so a locked paid
+  content has no audio either. Needs `FISH_API_KEY`.
 - **Simpler / Shorter / For children** (`ContentVersion`): `?level=`,
-  `?minutes=`, `?audience=children` replace the body with a saved or newly
+  `?seconds=` (half the original's length; the Spotlight command asks for 30),
+  `?audience=children` replace the body with a saved or newly
   written version (`contentVariants`, kind `version`). `audience=children` is
   a navigation key, so a family tour keeps it on every stop.
 - Both are also voice/Spotlight commands while a modal is open

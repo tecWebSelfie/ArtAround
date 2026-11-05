@@ -12,7 +12,7 @@ import {
   type EditorViewer,
 } from '@/lib/pascal/editor-viewer'
 import { placeableObjectAsset } from '@/lib/pascal/object-assets'
-import { generateMuseumNavMeshesFromSceneRegistry } from '@/lib/pascal/utils'
+import { generateMuseumNavMeshesFromSceneRegistry, sceneMounted } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
 import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
@@ -45,6 +45,8 @@ export function MapEditor({
   canManageStructure: boolean
 }) {
   const { t } = useTranslation('map-editor')
+  // Map loading/error states are shared with `MapViewer` (common namespace).
+  const { t: tCommon } = useTranslation()
   const sceneReady = useRef<{ promise?: Promise<void>; resolve?: () => void }>({})
   // True once the stored scene is on screen: the moment an object from the
   // objects search (`?place=`) can be put in hand.
@@ -76,8 +78,10 @@ export function MapEditor({
   const { mutateAsync } = useMutation({
     mutationKey: ['saveScene'],
     mutationFn: async (scene: ParsedBuildJson) => {
-      // Scene JSON loads before the renderer has built navigation geometry.
+      // Scene JSON loads before the renderer has built navigation geometry:
+      // wait for the loader, then for every node's meshes (sceneMounted).
       await sceneReady.current.promise
+      await sceneMounted()
       const navMeshes = generateMuseumNavMeshesFromSceneRegistry()
       return payloadSdk.update({
         collection: 'museums',
@@ -148,8 +152,11 @@ export function MapEditor({
     }
   }, [sceneLoaded, searchParams, pathname, openGeneration])
 
-  if (!ready || isLoading) return <div>Loading...</div>
-  if (isError || !museum) return <div>Error loading map</div>
+  if (!ready || isLoading) return <div role="status">{tCommon('Loading map…')}</div>
+  if (isError || !museum)
+    return (
+      <div role="alert">{tCommon('The map could not load. Reload the page to try again.')}</div>
+    )
 
   return (
     <EditorMuseumContext.Provider value={museumId}>

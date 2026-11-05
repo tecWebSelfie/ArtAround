@@ -19,8 +19,8 @@ assegnato (qui `https://IL-NOSTRO-DOMINIO`).
 L'immagine ufficiale di Mongo attiva l'autenticazione solo con
 `MONGO_INITDB_ROOT_USERNAME` e `MONGO_INITDB_ROOT_PASSWORD`, e solo quando crea un
 volume dati **vuoto**. Se `mongo` non ha un utente, l'URL senza credenziali
-funziona; se ce l'ha, servono `UTENTE:PASSWORD@…?authSource=admin` (passo 2). Lo
-stesso vale per il compose di sviluppo (`.env.mongo.example`).
+funziona; se ce l'ha, servono `UTENTE:PASSWORD@…?authSource=admin` (passo 2). Il
+compose di sviluppo (`pnpm db:start`) non usa autenticazione.
 
 ## 1. Codice
 

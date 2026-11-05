@@ -6,7 +6,8 @@ import { Container } from '@mantine/core'
 
 /**
  * Write a new content. Any signed-in user may; `?object=<id>` preselects the
- * object it is about (e.g. from an object page's "Add content").
+ * object it is about (e.g. from an object page's "Add content"), `?subject=<id>`
+ * the artist, movement or event (a subject page's "Write about it").
  *
  * From the tour editor (`?museum=<id>&returnTo=<editor>`, see
  * `src/lib/tour-picker.ts`) it is a new stop: the object is chosen among that
@@ -19,6 +20,7 @@ export default async function NewContentPage({
   const { lng } = await params
   const query = await searchParams
   const objectId = typeof query.object === 'string' ? query.object : null
+  const subjectId = typeof query.subject === 'string' ? query.subject : null
   const museumId = typeof query.museum === 'string' ? query.museum : null
   const returnTo = safeTourReturnTo(
     lng,
@@ -26,6 +28,7 @@ export default async function NewContentPage({
   )
   const ownQuery = new URLSearchParams({
     ...(objectId ? { object: objectId } : {}),
+    ...(subjectId ? { subject: subjectId } : {}),
     ...(museumId && returnTo ? { museum: museumId, returnTo } : {}),
   })
   await requireUser(lng, `/${lng}/content/new${ownQuery.size ? `?${ownQuery}` : ''}`)
@@ -35,7 +38,7 @@ export default async function NewContentPage({
   // flow, else the locked one in museum mode (like every list in the app).
   const tourFlow = Boolean(museumId && returnTo)
   const pickerMuseumId = tourFlow ? museumId : await lockedMuseumId()
-  const [museum, object] = await Promise.all([
+  const [museum, object, subject] = await Promise.all([
     pickerMuseumId
       ? payload
           .findByID({
@@ -51,12 +54,18 @@ export default async function NewContentPage({
           .findByID({ collection: 'objects', id: objectId, depth: 0, select: { name: true } })
           .catch(() => null)
       : null,
+    subjectId
+      ? payload
+          .findByID({ collection: 'subjects', id: subjectId, depth: 0, select: { name: true } })
+          .catch(() => null)
+      : null,
   ])
 
   return (
     <Container size="md" py="md">
       <ContentForm
         initialObject={object ? { id: object.id, name: object.name } : null}
+        initialSubject={subject ? { id: subject.id, name: subject.name } : null}
         museum={
           museum
             ? {

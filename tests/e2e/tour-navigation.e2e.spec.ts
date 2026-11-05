@@ -1,10 +1,14 @@
 import { expect as baseExpect, test, type Page } from '@playwright/test'
+import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
-// Run the seed once, then set TOUR_NAVIGATION_URL to the URL it prints.
-const tourURL = process.env.TOUR_NAVIGATION_URL
-test.skip(!tourURL, 'Run scripts/seed-tour-navigation.ts and set TOUR_NAVIGATION_URL first.')
+// The seeded tour's first step (tests/helpers/tour-fixture.ts): run
+// scripts/seed-tour-navigation.ts once; TOUR_NAVIGATION_URL overrides it.
+const tourURL = tourFixture?.url
+test.beforeEach(() => {
+  requireTourFixture()
+})
 test.setTimeout(300_000)
 
 // The map's own canvas (the assistant orb draws another one outside `main`).

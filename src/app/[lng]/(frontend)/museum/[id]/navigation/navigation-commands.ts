@@ -13,7 +13,7 @@ import {
   type NavigationScope,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
-import { EXPANSION_ANGLES } from '@/lib/expansion'
+import { EXPANSION_ANGLES, MAX_EXPANSION_STEPS } from '@/lib/expansion'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import type { Route } from 'next'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -41,6 +41,9 @@ export type NavigationCommand = {
   /** Price in cents when the content is paid and locked for this visitor. */
   lockedPrice?: number
 }
+
+/** Commands a group guest keeps besides `more:` and `version:` (see the end of the list). */
+const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style'])
 
 export function useNavigationCommands({
   museum,
@@ -92,6 +95,27 @@ export function useNavigationCommands({
     const next = tour?.contents[scope.kind === 'tour' ? scope.step : 0]
     const nextId = typeof next === 'string' ? next : next?.id
     const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
+    const previous =
+      tour && scope.kind === 'tour' && scope.step > 0 ? tour.contents[scope.step - 1] : null
+    const previousId = typeof previous === 'string' ? previous : previous?.id
+    // The work being looked at: the open object or content's object, the
+    // stop modal's, else the visitor's position. Its author and movement
+    // (Wikidata subjects) answer "who's the author?" and "what style is it?".
+    const openContentId =
+      /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
+    const objectOf = (contentId: string | null | undefined) =>
+      contentId
+        ? catalog.find((object) => object.contents.some((content) => content.id === contentId))
+        : undefined
+    const atPosition = catalog.find((object) => object.id === search.get('at'))
+    const work =
+      catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
+      objectOf(openContentId) ??
+      atPosition
+    // "Cos'è questo?": the work at the visitor's confirmed position; without
+    // one (the base navigator places nobody), the work being looked at, else
+    // the current tour stop's.
+    const inFront = atPosition ?? work ?? objectOf(nextId)
     const wheelchairAvailable = Boolean(museum.navMeshWheelchair)
     const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
 
@@ -104,6 +128,32 @@ export function useNavigationCommands({
               description: t('Tour'),
               group: 'quick' as const,
               href: href(navigationContentPath(lng, scope, nextId)),
+              replace: false,
+            },
+          ]
+        : []),
+      // "Indietro": the previous stop's content again (group guests can't,
+      // see the filter at the end: the host leads).
+      ...(previousId
+        ? [
+            {
+              id: 'previous-stop',
+              label: t('Previous stop'),
+              description: t('Tour'),
+              group: 'quick' as const,
+              href: href(navigationContentPath(lng, scope, previousId)),
+              replace: false,
+            },
+          ]
+        : []),
+      ...(inFront
+        ? [
+            {
+              id: 'what-is-this',
+              label: t('What is this?'),
+              description: inFront.name,
+              group: 'quick' as const,
+              href: href(`${here}/object/${inFront.id}`),
               replace: false,
             },
           ]
@@ -234,7 +284,8 @@ export function useNavigationCommands({
     ]
     // While a content, step or object modal is open, its "Tell me more" pills
     // are commands too, so the voice assistant can open them ("tell me
-    // something curious about it"). They only set `?more=` on the modal URL.
+    // something curious about it"). They only set `?more=` on the modal URL;
+    // asking again for the angle already open goes one step further (`?step=`).
     const modalOpen = /\/(content|object)\/[^/]+$|\/open$/.test(pathname)
     const moreLabels = {
       more: t('Tell me more'),
@@ -244,6 +295,10 @@ export function useNavigationCommands({
     const expansion: NavigationCommand[] = modalOpen
       ? EXPANSION_ANGLES.map((angle) => {
           const params = new URLSearchParams(search)
+          const step = Number(search.get('step')) || 1
+          if (search.get('more') === angle && step < MAX_EXPANSION_STEPS) {
+            params.set('step', String(step + 1))
+          } else if (search.get('more') !== angle) params.delete('step')
           params.set('more', angle)
           return {
             id: `more:${angle}`,
@@ -258,6 +313,23 @@ export function useNavigationCommands({
     // On a content, the reading options are commands too ("non ho capito" →
     // Simpler). Voice picks fixed values: easiest wording, one-minute read.
     const contentOpen = /\/content\/[^/]+$|\/open$/.test(pathname)
+    const about = (id: string, label: string, subject: { id: string; name: string } | undefined) =>
+      subject
+        ? [
+            {
+              id,
+              label,
+              description: subject.name,
+              group: 'quick' as const,
+              href: `/${lng}/subject/${subject.id}` as Route,
+              replace: false,
+            },
+          ]
+        : []
+    const subjects: NavigationCommand[] = [
+      ...about('author', t('Who is the author?'), work?.creators?.[0]),
+      ...about('style', t('What style is it?'), work?.movements?.[0]),
+    ]
     const version = (label: string, id: string, set: Record<string, string | null>) => {
       const params = new URLSearchParams(search)
       for (const [key, value] of Object.entries(set)) {
@@ -265,6 +337,7 @@ export function useNavigationCommands({
         else params.set(key, value)
       }
       params.delete('more')
+      params.delete('step')
       return {
         id,
         label,
@@ -277,20 +350,26 @@ export function useNavigationCommands({
     const versions: NavigationCommand[] = contentOpen
       ? [
           version(t('Simpler'), 'version:simpler', { level: 'easy' }),
-          version(t('Shorter'), 'version:shorter', { minutes: '1' }),
+          // "Troppo semplice": the most detailed wording.
+          version(t('More in depth'), 'version:harder', { level: 'hard' }),
+          // A short version: half a minute, whatever the original's length.
+          version(t('Shorter'), 'version:shorter', { seconds: '30' }),
           version(t('For children'), 'version:children', { audience: 'children' }),
           version(t('Original'), 'version:original', {
             level: null,
-            minutes: null,
+            seconds: null,
             audience: null,
           }),
         ]
       : []
-    const all = [...expansion, ...versions, ...quick, ...searchable]
+    const all = [...expansion, ...versions, ...subjects, ...quick, ...searchable]
     // In a group the host decides where everyone goes: a guest keeps only
     // what changes their own reading and route (Tell me more, reading
-    // options, wheelchair), never a step, destination or another modal.
-    return guest ? all.filter(({ id }) => /^(more|version):/.test(id) || id === 'wheelchair') : all
+    // options, wheelchair) and questions about the work in front of them
+    // (what is it, its author and style), never a step or destination.
+    return guest
+      ? all.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
+      : all
   }, [
     lng,
     scope,

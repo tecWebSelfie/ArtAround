@@ -7,10 +7,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.devcontainer
-    # DATABASE_URL comes from .env, with the credentials of .env.mongo:
-    # mongodb://USER:PASSWORD@mongodb:27017/artaround?authSource=admin
+    # DATABASE_URL comes from .env: mongodb://mongodb:27017/artaround
+    # Optional so that `pnpm db:start` (only `mongodb`) works before .env exists.
     env_file:
-      - .env
+      - path: .env
+        required: false
     depends_on:
       mongodb:
         condition: service_healthy
@@ -22,13 +23,15 @@ services:
       - '3000:3000'
     command: sleep infinity
 
+  # Development and test database (`pnpm db:start`), without authentication:
+  # a university project's local data, published on the loopback interface
+  # only, so other machines on the same network can't reach it. The host's
+  # DATABASE_URL is mongodb://127.0.0.1:27017/artaround.
   mongodb:
     image: mongo:8
     restart: unless-stopped
-    env_file:
-      - .env.mongo
     ports:
-      - '27017:27017'
+      - '127.0.0.1:27017:27017'
     volumes:
       - mongo-data:/data/db
     healthcheck:
