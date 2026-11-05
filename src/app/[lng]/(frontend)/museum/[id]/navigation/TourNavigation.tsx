@@ -81,7 +81,7 @@ import {
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** Header measured with its padding (stable object: the hook re-observes on change). */
@@ -127,6 +127,8 @@ export const TourNavigationPage = ({
   // URL state stays in the URL; this component reads it where map behavior needs it.
   const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
+  // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
+  const scanning = /\/scan$/.test(usePathname())
   const museumMap = useMemo(() => validateBuildJson(museum.map), [museum.map])
   // Services and entrances/exits live in the saved map scene graph, not in a
   // Payload field, so the controls derive them from the same JSON the map loads.
@@ -362,6 +364,7 @@ export const TourNavigationPage = ({
                 map={museumMap.parsed}
                 h="100%"
                 w="100%"
+                renderPaused={scanning}
                 navMesh={wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh}
                 currentObjectId={currentObjectId}
                 destination={destination}

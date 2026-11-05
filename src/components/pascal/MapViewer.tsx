@@ -25,6 +25,7 @@ export function MapViewer({
   orbitEnabled = true,
   onSceneReadyChange,
   selectionManager = 'default',
+  renderPaused = false,
   ...props
 }: {
   map: ParsedBuildJson
@@ -32,6 +33,13 @@ export function MapViewer({
   orbitEnabled?: boolean
   onSceneReadyChange?: (ready: boolean) => void
   selectionManager?: 'default' | 'custom'
+  /**
+   * Stops drawing frames while the map is fully covered (the QR scanner's
+   * full-screen camera), keeping the scene mounted to resume as it was. A
+   * covered map still rendering its post-processing starves the page: on a
+   * slow device the scanner then gets too few frames to decode a code.
+   */
+  renderPaused?: boolean
 } & BoxProps) {
   const { t } = useTranslation()
   const setScene = useScene((state) => state.setScene)
@@ -102,7 +110,11 @@ export function MapViewer({
 
   return (
     <Box {...props}>
-      <Viewer selectionManager={selectionManager} onSceneReadyChange={handleSceneReadyChange}>
+      <Viewer
+        selectionManager={selectionManager}
+        onSceneReadyChange={handleSceneReadyChange}
+        renderPaused={renderPaused}
+      >
         <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
         {children}
       </Viewer>
