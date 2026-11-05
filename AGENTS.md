@@ -265,11 +265,26 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   design: the step is a judgement call, not a ritual. Same reasons as above
   for keeping them out of the `pre-push` hook.
 - MCP servers: the stdio ones in `.mcp.json` start through `scripts/mcp-npx.mjs`, so
-  the same file works on Windows and in Linux/macOS (cloud) sessions.
+  the same file works on Windows and in Linux/macOS (cloud) sessions. Their `npx`
+  start can exceed the 30 s connect timeout on Windows; a PC can switch off the
+  ones it doesn't use in `.claude/settings.local.json` (`disabledMcpjsonServers`).
+- Keep iterations short. Measured on the Windows PC: `eslint` ~20 s and `npx
+prettier` ~15 s of start-up per run, a typecheck of a few files ~3 min because
+  it loads the whole route tree. So:
+  - don't run `eslint`/`prettier` by hand before a commit: lint-staged runs
+    them on the staged files (eslint with a cache);
+  - run the slow checks once, at the end, not after each edit;
+  - before writing state, storage, theme or layout helpers, grep for an existing
+    one (e.g. `src/lib/session-store.ts`, `src/theme.ts`);
+  - a server component can't pass a function to a client one: wrap the client
+    side (e.g. `AppMantineProvider`);
+  - reuse the `next dev` already running (`dev (running)` in
+    `.claude/launch.json`): a second one in the same folder can't start;
+  - ask before optional costly steps (subagent reviews, full translations).
 
 ## Internationalization
 
-This project uses i18next. Locale files live in `.src/app/i18n/locales/${language}/${namespace}.json`; the source language is `en`. The app speaks English plus the other official EU languages (`SUPPORTED_LANGUAGES` in `i18n.config.ts`); when you add or change a key, translate it in every language folder, not only `it`. Run `npx i18next-cli extract` after adding or changing `t()` calls and `npx i18next-cli status` to see what is still untranslated.
+This project uses i18next. Locale files live in `.src/app/i18n/locales/${language}/${namespace}.json`; the source language is `en`. The app speaks English plus the other official EU languages (`SUPPORTED_LANGUAGES` in `i18n.config.ts`); while iterating, translate a new or changed key in `en` and `it` only (empty values fall back to English at runtime, `returnEmptyString: false`), then fill every other language folder in one pass before opening a PR, once the wording has settled; `npx i18next-cli status` lists what is left. Run `npx i18next-cli extract` after adding or changing `t()` calls and `npx i18next-cli status` to see what is still untranslated.
 
 Keys are the English text itself, and the extractor writes it as the English value. It finds the namespace only where `t` comes straight from `useTranslation`/`useT`/`getT` (with `keyPrefix` as their second argument), not from a custom hook, a parameter or `Promise.all`; list keys it can't see (labels in a variable) in a comment, `// t('navbar.Navigator', 'Navigator')`. Colons in keys are fine (`nsSeparator: false` in `i18next.config.ts`); avoid a dot followed by a letter (`e.g.`), which reads as a nested key. `npx i18next-cli extract --ci` must report no changes after your edit. `status` still counts keys ending in a sentence's full stop as absent: a limit of that command, not missing text.
 
