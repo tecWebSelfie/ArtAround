@@ -130,7 +130,9 @@ context --target <file>` loads PRODUCT.md, DESIGN.md and the surface brief.
   (Pixel 7) and on desktop, in dark mode too if it changed. Fix everything one
   look shows before looking again.
 - **Detector:** a hook in `.claude/settings.json` runs it after every UI file
-  edit; act on its findings. On files it only matches regexes, so check
+  edit (`Edit`/`Write`; a deeper pass on `Stop`); act on its findings. Edits
+  made through Bash (`sed`, scripts) skip it: edit UI files with `Edit`/`Write`.
+  On files it only matches regexes, so check
   contrast and tiny text on the rendered page:
   `.claude/skills/impeccable/scripts/impeccable detect http://localhost:3000/en/<page>`
   (exit code 2 means findings). It needs a Chromium. In a cloud session, as
