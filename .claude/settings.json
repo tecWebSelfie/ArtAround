@@ -14,12 +14,6 @@
             "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/cloud-preview-autostart.sh\"",
             "timeout": 10,
             "statusMessage": "Starting cloud preview"
-          },
-          {
-            "type": "command",
-            "command": "bash \"${CLAUDE_PROJECT_DIR}/scripts/storybook-autostart.sh\"",
-            "timeout": 10,
-            "statusMessage": "Starting Storybook"
           }
         ]
       }

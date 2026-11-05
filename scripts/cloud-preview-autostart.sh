@@ -34,12 +34,33 @@ mkdir -p "$TOOLS"
 # `pnpm dev` is (re)started after the setup because Next reads the
 # NEXT_PUBLIC_* URLs the setup writes to .env.local only at startup.
 # A failing setup stops here: its error is the last thing in the log.
+#
+# Payload regenerates src/payload-types.ts unformatted when the dev server
+# first loads its config, which leaves a formatting-only diff that the cloud
+# session's end-of-turn git check reports as uncommitted work. So the first
+# page is requested once (it also warms the compile for the user), then, since
+# Payload writes the file asynchronously a moment after that first load, the
+# job waits for the rewrite (newer than a stamp taken before `pnpm dev`, up to
+# 2 minutes) and formats the file back to its committed form.
 cd "$ROOT"
-setsid nohup bash -c '
+STAMP="$TOOLS/dev-started" setsid nohup bash -c '
   bash scripts/cloud-preview.sh || exit 1
   # "[n]ext" so the pattern does not match this very bash -c command line.
   pkill -f "[n]ext dev" || true
-  exec pnpm dev
+  touch "$STAMP"
+  pnpm dev &
+  DEV=$!
+  for _ in $(seq 60); do
+    curl --noproxy "*" -sf -o /dev/null --max-time 300 http://localhost:3000/en/navigator && break
+    sleep 5
+  done
+  for _ in $(seq 60); do
+    [ src/payload-types.ts -nt "$STAMP" ] && break
+    sleep 2
+  done
+  sleep 2 # let the write finish
+  npx prettier --write src/payload-types.ts
+  wait "$DEV"
 ' >"$LOG" 2>&1 </dev/null &
 
 # Hook stdout lands in Claude's context: say where to look.
