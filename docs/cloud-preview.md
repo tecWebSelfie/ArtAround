@@ -20,6 +20,13 @@ camera (QR scanner) and GPS work on the phone.
   MongoDB in Docker (`pnpm db:start`: the compose `mongodb` service, with
   the Docker daemon started if needed) seeded when its volume is new, `tailscaled` in userspace mode, `tailscale serve`
   (HTTPS → port 3000), and a managed block in `.env.local`. `--stop` undoes it.
+- `scripts/cloud-preview-autostart.sh`: a `SessionStart` hook
+  (`.claude/settings.json`) that, in a cloud session with `TS_AUTHKEY` set,
+  runs the script and then `pnpm dev` in the background, so the preview is up
+  shortly after the session starts (log: `~/.cache/artaround-preview/autostart.log`).
+  Set `CLOUD_PREVIEW_AUTOSTART=0` in the environment's variables to turn it
+  off. It is a hook rather than the environment's setup script because the
+  setup script can't read the environment's variables (no `TS_AUTHKEY`).
 - `.claude/skills/cloud-preview/`: tells Claude how to use the script, so in a
   cloud session it is enough to ask "fammi provare l'app".
 - Code: the browser uses the public URL (`NEXT_PUBLIC_PAYLOAD_URL`); the server

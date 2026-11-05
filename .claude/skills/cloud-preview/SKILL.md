@@ -9,6 +9,10 @@ description: Let the user try the app running in a Claude Code cloud session fro
 HTTPS, MongoDB in Docker (`pnpm db:start`) with a seeded database and the env
 files; do not rebuild the setup by hand. Background, tailnet setup and limits: `docs/cloud-preview.md`.
 
+0. With `TS_AUTHKEY` set, a `SessionStart` hook
+   (`scripts/cloud-preview-autostart.sh`) has already started the setup and
+   `pnpm dev` in the background: read `~/.cache/artaround-preview/autostart.log`
+   first. If it has the "Ready" line and `pnpm dev` answers, skip to step 3.
 1. Run `pnpm preview:cloud` in the foreground (timeout ~10 minutes: the first
    run downloads the MongoDB image and Tailscale and seeds the database).
    - With `TS_AUTHKEY` in the environment it joins the tailnet by itself.
