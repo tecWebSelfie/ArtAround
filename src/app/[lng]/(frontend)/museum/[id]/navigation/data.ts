@@ -55,6 +55,9 @@ export const getNavigationTour = cache(async (id: string) => {
     id,
     depth: 1,
     populate: NAVIGATION_TOUR_POPULATE,
+    // As the visitor: a private tour is readable only by its author and its
+    // group's guests (`readTours`), and its private stops likewise.
+    ...(await asViewer()),
   })
 })
 
@@ -83,6 +86,8 @@ export const getMuseumNavigationTours = cache(
       locale: lng as never,
       sort: 'title',
       pagination: false,
+      // As the visitor: private tours stay out of everyone else's list.
+      ...(await asViewer()),
     })
     const tours = docs.map((tour) => ({ ...tour, museum: museumId }))
     return {

@@ -30,7 +30,13 @@ describe('controlled vocabulary', () => {
     ["Dov'è il bar?", 'service-type:food'],
     ["Dov'è il negozio?", 'service-type:shop'],
     ['Who is the author?', 'author'],
+    ["Dov'è la toilette?", 'service-type:bathrooms'],
+    ["Dov'è lo shop?", 'service-type:shop'],
     ['Per favore, avanti', 'next-stop'],
+    // Polite words only around the phrase: the "è" inside it stays.
+    ["Per favore, chi è l'autore?", 'author'],
+    ["Scusi, dov'è l'uscita?", 'exit:nearest'],
+    ['Mi puoi dire qual è lo stile?', 'style'],
   ])('"%s" runs %s', (said, command) => {
     expect(matchControlledCommand(said, ALL)).toBe(command)
   })

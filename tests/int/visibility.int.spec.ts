@@ -20,6 +20,17 @@ vi.mock('@/lib/group-room', () => ({
 
 vi.stubEnv('LIVEKIT_API_SECRET', 'test-livekit-secret')
 
+/**
+ * The cookies of the Next request being rendered: what a page's Local API
+ * read (empty `req.headers`) falls back to. Empty outside a test that sets it.
+ */
+const pageCookies = new Map<string, string>()
+vi.mock('next/headers', () => ({
+  cookies: async () => ({
+    get: (name: string) => (pageCookies.has(name) ? { value: pageCookies.get(name) } : undefined),
+  }),
+}))
+
 const { GROUP_TOUR_COOKIE, readContents, readTours, signGroupTourToken, verifyGroupTourToken } =
   await import('@/lib/visibility')
 const { Contents } = await import('@/collections/Contents')
@@ -108,6 +119,20 @@ describe('who reads private documents', () => {
   })
 })
 
+describe('page reads of a group guest', () => {
+  it('find the group cookie in the rendered request when the Local API has no headers', async () => {
+    const token = await signGroupTourToken('tour-private', 'AB3X9K')
+    pageCookies.set(GROUP_TOUR_COOKIE, token!)
+    try {
+      expect(await readTours({ req: fakeRequest({}) } as never)).toMatchObject({
+        or: expect.arrayContaining([{ id: { equals: 'tour-private' } }]),
+      })
+    } finally {
+      pageCookies.clear()
+    }
+  })
+})
+
 describe('saving private documents', () => {
   const guardVisibility = hook(Contents.hooks?.beforeChange, 'guardVisibility')
   const guardPrivateContents = hook(Tour.hooks?.beforeChange, 'guardTourContents')
@@ -130,6 +155,26 @@ describe('saving private documents', () => {
     await expect(
       run(guardVisibility, { visibility: 'private' }, fakeRequest({}), original),
     ).resolves.toMatchObject({ visibility: 'private' })
+  })
+
+  it('counts the author’s own public tours among the ones a content can’t leave', async () => {
+    let where: unknown
+    const req = fakeRequest({})
+    req.payload.count = (async (args: { collection: string; where: unknown }) => {
+      if (args.collection === 'tours') where = args.where
+      return { totalDocs: 0 }
+    }) as never
+    await run(guardVisibility, { visibility: 'private' }, req, {
+      id: 'c1',
+      author: 'u1',
+      visibility: 'public',
+    })
+    expect(where).toEqual({
+      and: [
+        { contents: { contains: 'c1' } },
+        { or: [{ author: { not_equals: 'u1' } }, { visibility: { not_equals: 'private' } }] },
+      ],
+    })
   })
 
   it('keeps private contents out of public tours', async () => {

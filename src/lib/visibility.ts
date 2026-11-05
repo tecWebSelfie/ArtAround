@@ -64,12 +64,32 @@ export async function verifyGroupTourToken(token: string | undefined | null) {
 const COOKIE_CACHE = 'groupTourId'
 const CONTENTS_CACHE = 'groupTourContentIds'
 
+/**
+ * The group cookie of the request. REST requests carry it in `req.headers`;
+ * Local API reads made by a page or route handler for its visitor
+ * (`asViewer`, `resolveLocalized`) get a request with empty headers, so the
+ * cookie comes from the Next request being rendered. Outside one (scripts,
+ * jobs) `cookies()` throws: no visitor, no cookie.
+ */
+async function groupCookie(req: PayloadRequest): Promise<string | null> {
+  const fromHeaders = req.headers ? parseCookies(req.headers).get(GROUP_TOUR_COOKIE) : undefined
+  if (fromHeaders) return fromHeaders
+  try {
+    const { cookies } = await import('next/headers')
+    return (await cookies()).get(GROUP_TOUR_COOKIE)?.value ?? null
+  } catch (error) {
+    // Next's own signals (a static prerender bailing out to dynamic) must go through.
+    const { unstable_rethrow } = await import('next/navigation')
+    unstable_rethrow(error)
+    return null
+  }
+}
+
 /** The tour of the request's group cookie, verified once per request. */
 export function groupTourOf(req: PayloadRequest): Promise<string | null> {
   const cached = req.context[COOKIE_CACHE] as Promise<string | null> | undefined
   if (cached) return cached
-  const token = req.headers ? parseCookies(req.headers).get(GROUP_TOUR_COOKIE) : undefined
-  const pending = verifyGroupTourToken(token ?? null)
+  const pending = groupCookie(req).then(verifyGroupTourToken)
   req.context[COOKIE_CACHE] = pending
   return pending
 }

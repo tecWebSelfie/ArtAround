@@ -117,6 +117,7 @@ export const VOCABULARY: Vocabulary = [
     command: 'service-type:bathrooms',
     phrases: [
       'dov e il bagno',
+      'dov e la toilette',
       'bagno',
       'toilette',
       'where is the toilet',
@@ -131,7 +132,16 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'service-type:shop',
-    phrases: ['dov e il negozio', 'negozio', 'bookshop', 'where is the shop', 'shop', 'gift shop'],
+    phrases: [
+      'dov e lo shop',
+      'dov e il negozio',
+      'dov e il bookshop',
+      'negozio',
+      'bookshop',
+      'where is the shop',
+      'shop',
+      'gift shop',
+    ],
   },
 ]
 
@@ -145,12 +155,25 @@ export function normalize(text: string) {
     .trim()
 }
 
-/** Words a polite request may wrap around a phrase ("per favore, avanti"). */
+/**
+ * Words a polite request may wrap around a phrase ("per favore, avanti").
+ * Only stripped at the start and end: "e" (the normalized "è", or "and")
+ * also sits inside phrases ("chi e l autore").
+ */
 const FILLERS = new Set(
   normalize(
-    'per favore grazie scusa scusi mi puoi puoi please could you can you tell me ok okay allora e',
+    'per favore grazie scusa scusi mi puoi dire please could you can you tell me ok okay allora e',
   ).split(' '),
 )
+
+/** `words` without the fillers around them. */
+function trimFillers(words: string[]) {
+  let start = 0
+  let end = words.length
+  while (start < end && FILLERS.has(words[start])) start++
+  while (end > start && FILLERS.has(words[end - 1])) end--
+  return words.slice(start, end)
+}
 
 /**
  * The command a transcript names, if it is one of the vocabulary's phrases
@@ -164,7 +187,7 @@ export function matchControlledCommand(
 ): string | null {
   const words = normalize(transcript).split(' ').filter(Boolean)
   const said = words.join(' ')
-  const core = words.filter((word) => !FILLERS.has(word)).join(' ')
+  const core = trimFillers(words).join(' ')
   let best: { command: string; length: number } | null = null
   for (const { command, phrases } of VOCABULARY) {
     if (!available.includes(command)) continue

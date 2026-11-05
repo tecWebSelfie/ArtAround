@@ -42,6 +42,9 @@ export type NavigationCommand = {
   lockedPrice?: number
 }
 
+/** Commands a group guest keeps besides `more:` and `version:` (see the end of the list). */
+const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style'])
+
 export function useNavigationCommands({
   museum,
   scope,
@@ -95,6 +98,24 @@ export function useNavigationCommands({
     const previous =
       tour && scope.kind === 'tour' && scope.step > 0 ? tour.contents[scope.step - 1] : null
     const previousId = typeof previous === 'string' ? previous : previous?.id
+    // The work being looked at: the open object or content's object, the
+    // stop modal's, else the visitor's position. Its author and movement
+    // (Wikidata subjects) answer "who's the author?" and "what style is it?".
+    const openContentId =
+      /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
+    const objectOf = (contentId: string | null | undefined) =>
+      contentId
+        ? catalog.find((object) => object.contents.some((content) => content.id === contentId))
+        : undefined
+    const atPosition = catalog.find((object) => object.id === search.get('at'))
+    const work =
+      catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
+      objectOf(openContentId) ??
+      atPosition
+    // "Cos'è questo?": the work at the visitor's confirmed position; without
+    // one (the base navigator places nobody), the work being looked at, else
+    // the current tour stop's.
+    const inFront = atPosition ?? work ?? objectOf(nextId)
     const wheelchairAvailable = Boolean(museum.navMeshWheelchair)
     const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
 
@@ -125,15 +146,14 @@ export function useNavigationCommands({
             },
           ]
         : []),
-      // "Cos'è questo?": the work at the visitor's confirmed position.
-      ...(search.get('at') && catalog.some((object) => object.id === search.get('at'))
+      ...(inFront
         ? [
             {
               id: 'what-is-this',
               label: t('What is this?'),
-              description: t('Position'),
+              description: inFront.name,
               group: 'quick' as const,
-              href: href(`${here}/object/${search.get('at')}`),
+              href: href(`${here}/object/${inFront.id}`),
               replace: false,
             },
           ]
@@ -293,15 +313,6 @@ export function useNavigationCommands({
     // On a content, the reading options are commands too ("non ho capito" →
     // Simpler). Voice picks fixed values: easiest wording, one-minute read.
     const contentOpen = /\/content\/[^/]+$|\/open$/.test(pathname)
-    // The work being looked at: the open object or content's object, the
-    // stop modal's, else the visitor's position. Its author and movement
-    // (Wikidata subjects) answer "who's the author?" and "what style is it?".
-    const openContentId =
-      /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
-    const work =
-      catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
-      catalog.find((object) => object.contents.some((content) => content.id === openContentId)) ??
-      catalog.find((object) => object.id === search.get('at'))
     const about = (id: string, label: string, subject: { id: string; name: string } | undefined) =>
       subject
         ? [
@@ -354,8 +365,11 @@ export function useNavigationCommands({
     const all = [...expansion, ...versions, ...subjects, ...quick, ...searchable]
     // In a group the host decides where everyone goes: a guest keeps only
     // what changes their own reading and route (Tell me more, reading
-    // options, wheelchair), never a step, destination or another modal.
-    return guest ? all.filter(({ id }) => /^(more|version):/.test(id) || id === 'wheelchair') : all
+    // options, wheelchair) and questions about the work in front of them
+    // (what is it, its author and style), never a step or destination.
+    return guest
+      ? all.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
+      : all
   }, [
     lng,
     scope,

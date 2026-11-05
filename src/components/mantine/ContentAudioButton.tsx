@@ -33,14 +33,29 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
   const audio = useRef<HTMLAudioElement | null>(null)
   const url = `/api/content-audio/${contentId}?locale=${encodeURIComponent(lng ?? 'en')}`
 
-  // Leaving the page or modal stops the voice.
-  useEffect(() => () => audio.current?.pause(), [])
+  // Aborted on unmount: a press still waiting for the audio must not start
+  // it once the visitor has left the modal.
+  const unmounted = useRef(new AbortController())
+
+  // Leaving the page or modal stops the voice, and any wait for it.
+  useEffect(() => {
+    const controller = new AbortController()
+    unmounted.current = controller
+    return () => {
+      controller.abort()
+      audio.current?.pause()
+    }
+  }, [])
 
   const prepare = async () => {
+    const { signal } = unmounted.current
     setState('preparing')
     for (let poll = 0; poll < MAX_POLLS; poll++) {
-      const response = await fetch(`${url}&check=1`, { cache: 'no-store' }).catch(() => null)
+      const response = await fetch(`${url}&check=1`, { cache: 'no-store', signal }).catch(
+        () => null,
+      )
       const { status } = ((await response?.json().catch(() => null)) ?? {}) as { status?: string }
+      if (signal.aborted) return
       if (status === 'ready') {
         const player = new Audio(url)
         player.addEventListener('ended', () => setState('paused'))
@@ -51,6 +66,7 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
       }
       if (status !== 'pending' && status !== 'translating') break
       await wait(POLL_MS)
+      if (signal.aborted) return
     }
     setState('unavailable')
   }

@@ -290,8 +290,8 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
 
 /**
  * Private contents (`src/lib/visibility.ts`) can't be sold, and a content
- * someone bought or put in their own tour can't be made private afterwards:
- * it would disappear from under them.
+ * someone bought, put in their own tour, or that a public tour shows can't be
+ * made private afterwards: it would disappear from under them.
  */
 const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req, originalDoc }) => {
   const visibility = data.visibility ?? originalDoc?.visibility
@@ -310,14 +310,23 @@ const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req,
     }),
     req.payload.count({
       collection: 'tours',
-      where: { and: [{ contents: { contains: id } }, { author: { not_equals: author } }] },
+      // Other authors' tours, and public tours of the author too: a public
+      // tour can't have a private stop (`guardTourContents`).
+      where: {
+        and: [
+          { contents: { contains: id } },
+          {
+            or: [{ author: { not_equals: author } }, { visibility: { not_equals: 'private' } }],
+          },
+        ],
+      },
       overrideAccess: true,
       req,
     }),
   ])
   if (bought.totalDocs || adopted.totalDocs) {
     throw new APIError(
-      'This content was bought or is used in other authors’ tours: it cannot become private.',
+      'This content was bought or is used in public tours or other authors’ tours: it cannot become private.',
       400,
     )
   }
