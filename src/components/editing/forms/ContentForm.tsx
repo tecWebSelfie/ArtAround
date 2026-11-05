@@ -1,7 +1,7 @@
 'use client'
 
 import { payloadSdk } from '@/payload-sdk'
-import { Button, Group, SegmentedControl, Stack, Title } from '@mantine/core'
+import { Button, Group, Input, SegmentedControl, Stack, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
@@ -111,18 +111,22 @@ export function ContentForm({
     >
       <Stack gap="md">
         <Title order={2}>{t('New content')}</Title>
-        {/* A tour stop needs a work on the map: no choice in the tour flow. */}
+        {/* A tour stop needs a work on the map: no choice in the tour flow.
+            Labelled like `VisibilityInput`, the other choice of this form. */}
         {!returnTo && (
-          <SegmentedControl
-            fullWidth
-            aria-label={t('What is it about?')}
-            value={about}
-            onChange={(value) => setAbout(value as 'object' | 'subject')}
-            data={[
-              { value: 'object', label: t('A work') },
-              { value: 'subject', label: t('An artist, style or event') },
-            ]}
-          />
+          <Input.Wrapper label={t('What is it about?')}>
+            {/* Its own row under the label: the control is inline-flex. */}
+            <SegmentedControl
+              mt={4}
+              className="flex w-fit"
+              value={about}
+              onChange={(value) => setAbout(value as 'object' | 'subject')}
+              data={[
+                { value: 'object', label: t('A work') },
+                { value: 'subject', label: t('An artist, style or event') },
+              ]}
+            />
+          </Input.Wrapper>
         )}
         {about === 'object' ? (
           <ObjectPicker
