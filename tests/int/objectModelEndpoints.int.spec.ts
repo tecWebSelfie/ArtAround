@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { PayloadRequest } from 'payload'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
+import { canUpdateDoc } from '@/lib/doc-access'
 
-// The endpoint asks Payload whether the caller may update the object (only
-// the owner steers generation, via `docAccessOperation`): here they may.
-vi.mock('payload', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('payload')>()),
-  docAccessOperation: vi.fn(async () => ({ update: true })),
-}))
+// Only the object's owner (whoever may update it, `canUpdateDoc`) steers a
+// generation. Tests run as the owner unless they say otherwise; the rule
+// itself is covered by `objectsAccess.int.spec.ts`.
+vi.mock('@/lib/doc-access', () => ({ canUpdateDoc: vi.fn(async () => true) }))
+const asNonOwner = () => vi.mocked(canUpdateDoc).mockResolvedValueOnce(false)
 
 const requestId = '1537177e-c7a4-4c6a-bb24-0102284b5e48'
 function request(body: unknown) {
@@ -16,9 +16,8 @@ function request(body: unknown) {
     routeParams: { id: 'object' },
     json: async () => body,
     payload: {
-      collections: { objects: {} },
       find: vi.fn().mockResolvedValue({ docs: [] }),
-      findByID: vi.fn().mockResolvedValue({ id: 'object' }),
+      findByID: vi.fn().mockResolvedValue({ id: 'object', name: 'A vase', description: 'Blue.' }),
       create: vi.fn().mockResolvedValue({ id: 'object' }),
       jobs: { queue: vi.fn().mockResolvedValue({ id: 'queued-job' }), run: vi.fn() },
     },
@@ -100,5 +99,29 @@ describe('thin generation command endpoint', () => {
     })
     expect((await call(req)).status).toBe(400)
     expect(req.payload.jobs.queue).not.toHaveBeenCalled()
+  })
+  it('refuses revisions from anyone but the owner', async () => {
+    asNonOwner()
+    const req = request({
+      action: 'revise',
+      requestId,
+      previewJobId: 'preview-job',
+      revision: { feedback: 'Make it a dragon' },
+    })
+    expect((await call(req)).status).toBe(403)
+    expect(req.payload.jobs.queue).not.toHaveBeenCalled()
+  })
+  it("builds a non-owner's generation from the object, ignoring their prompt", async () => {
+    asNonOwner()
+    const req = request({ action: 'start', requestId, generation: { prompt: 'A dragon' } })
+    expect((await call(req)).status).toBe(202)
+    expect(req.payload.jobs.queue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        input: expect.objectContaining({
+          prompt: 'A vase. Blue.',
+          generation: expect.objectContaining({ prompt: 'A vase. Blue.' }),
+        }),
+      }),
+    )
   })
 })

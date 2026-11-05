@@ -9,7 +9,8 @@ import {
 import { uploadReferenceImage } from '@/lib/pascal/mint/client'
 import { zGenerateModelBody, zUploadReferenceImageBody } from '@/lib/pascal/mint/client/zod.gen'
 import type { Object as MuseumObject } from '@/payload-types'
-import { docAccessOperation, type Endpoint, type Job, type PayloadRequest } from 'payload'
+import { canUpdateDoc } from '@/lib/doc-access'
+import type { Endpoint, Job, PayloadRequest } from 'payload'
 import { z } from 'zod'
 
 const REFERENCE_TYPES = ['image/png', 'image/jpeg', 'image/webp']
@@ -102,16 +103,11 @@ export const objectModelGenerationEndpoints: Endpoint[] = [
         overrideAccess: false,
       })
       // Any signed-in user may generate a missing model, but only the owner
-      // (the collection's own update rule, reused via docAccessOperation) may
+      // (the collection's own update rule, asked through `canUpdateDoc`) may
       // steer it. Everyone else gets a model derived solely from what the
       // object document already says, so a non-owner can't turn the object
       // into something else through prompts, reference images or revisions.
-      const permissions = await docAccessOperation({
-        collection: req.payload.collections.objects,
-        id: object.id,
-        req,
-      })
-      const canSteer = Boolean(permissions.update)
+      const canSteer = await canUpdateDoc(req, 'objects', object.id)
       const parsed = modelGenerationCommand.safeParse(await req.json?.())
       if (!parsed.success) return Response.json({ error: parsed.error.message }, { status: 400 })
       if (!canSteer && parsed.data.action === 'revise') {

@@ -74,7 +74,7 @@ Super admins bypass all of the above.
   editable by super admins only.
 - 3D model generation (`POST /api/objects/:id/generate-model`): any signed-in
   user may start it, but only the owner (same update rule, via
-  `docAccessOperation`) may **steer** it. For non-owners the endpoint drops the
+  `canUpdateDoc` in `src/lib/doc-access.ts`) may **steer** it. For non-owners the endpoint drops the
   client `generation` body (prompt, reference images) and rebuilds it from the
   object document: prompt from its name and description
   (`objectGenerationPrompt`), reference image from its stored thumbnail,
@@ -122,7 +122,8 @@ Local API bypasses access unless told otherwise. Server pages use
 - `getSession()` — Payload + current user from request cookies.
 - `asViewer()` — spread into Local API calls (`user`, `overrideAccess: false`).
 - `can(collection, id, 'update' | 'delete', field?)` — Payload's own
-  `docAccessOperation`, so edit buttons follow the exact server rules.
+  `docAccessOperation` (through `docPermissions` in `src/lib/doc-access.ts`,
+  shared with custom endpoints), so edit buttons follow the exact server rules.
 
 `resolveLocalized()` takes `user` and always reads with access control.
 
