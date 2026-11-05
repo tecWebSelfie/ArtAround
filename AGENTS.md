@@ -108,41 +108,32 @@ neither fits.
 
 ## Design with Impeccable (`.claude/skills/impeccable/`)
 
-Use it for every UI change, asked or not: PRODUCT.md and DESIGN.md hold the
-design decisions, and UI written without them drifts from them.
+Impeccable is designed to be driven by one command on one narrow target at a
+time (`/impeccable <command> <target>`); the skill itself carries how each
+command works. Nothing runs it on its own: invoke it for every UI change,
+asked or not.
 
-- **Load the skill before touching UI** (Skill `impeccable`, or
-  `/impeccable <command> <target>`). Nothing loads it automatically: the
-  session hook prints nothing. Its Setup then runs `impeccable context`
-  (PRODUCT.md, DESIGN.md, the surface brief) and has you read
-  `craft-floor.md`. One command, one narrow target.
-- DESIGN.md is long: grep the section of the component you touch and its
-  **Named Rules** instead of reading it whole.
-- **Reuse the incumbent pattern** for the same job before inventing one. For
-  example, a labelled choice is an `Input.Wrapper` like `VisibilityInput`.
+- **Lifecycle:** `init` (PRODUCT.md) and `document` (DESIGN.md) are already
+  done. Rerun `document` when shipped UI changes the design system, and `init`
+  only if the product or its users change.
 - **Which command:**
-  - `shape`: plan a new surface;
-  - `critique` (UX) and `audit` (a11y, performance, responsive): review;
-  - `clarify` (copy), `harden` (errors, i18n, edge cases), `adapt` (sizes),
-    `layout` and `polish` (final pass): fix;
-  - when pushing a UI change, see Checks: `extract`, then `document`. A new
-    pattern gets its DESIGN.md section, and a Named Rule if it sets one.
-- **Verify by looking:** screenshot the real page with Playwright on a phone
-  (Pixel 7) and on desktop, in dark mode too if it changed. Fix everything one
-  look shows before looking again.
-- **Detector:** a hook in `.claude/settings.json` runs it after every UI file
-  edit (`Edit`/`Write`; a deeper pass on `Stop`); act on its findings. Edits
-  made through Bash (`sed`, scripts) skip it: edit UI files with `Edit`/`Write`.
-  On files it only matches regexes, so check
-  contrast and tiny text on the rendered page:
-  `.claude/skills/impeccable/scripts/impeccable detect http://localhost:3000/en/<page>`
-  (exit code 2 means findings). It needs a Chromium. In a cloud session, as
-  root, point `IMPECCABLE_BROWSER` at a two-line script that runs
+  - new surface or feature: `shape` first, then build;
+  - review: `critique` (UX, scored) and `audit` (technical, P0–P3);
+  - steer: `bolder`, `quieter`, `distill`, `typeset`, `layout`, `colorize`;
+  - finish: `polish`, then `harden`, `adapt`, `clarify`, `optimize` as needed;
+  - before pushing a UI change: `extract`, then `document` (see Checks);
+  - broken setup or stale context: `doctor`.
+- **Shared artifacts** are committed: PRODUCT.md, DESIGN.md and
+  `.impeccable/` (`config.json`, the `design.json` sidecar, `surfaces/`,
+  `live/config.json`). Per-developer state (`hook.cache.json`, `review/`,
+  `config.local.json`) is excluded locally.
+- **Detector hook** (`.claude/settings.json`): fires only on `Edit`/`Write`,
+  so UI edits made through Bash skip it. On source files it runs regex rules
+  only; the full rule set (contrast, tiny text) needs the running page:
+  `.claude/skills/impeccable/scripts/impeccable detect http://localhost:3000/en/<page>`.
+  In a cloud session, as root, it needs `IMPECCABLE_BROWSER` pointing at a
+  two-line script that runs
   `/opt/pw-browsers/chromium-*/chrome-linux64/chrome --no-sandbox "$@"`.
-  Silence a deliberate finding with `impeccable ignores` or an inline
-  `impeccable-disable` comment that gives the reason.
-- Don't repair `CONTEXT_STALE` drift as a side effect: report it (`/impeccable
-doctor` fixes it when asked). `live` mode is for a local checkout only.
 
 ## Cloud preview (`scripts/cloud-preview.sh`)
 
