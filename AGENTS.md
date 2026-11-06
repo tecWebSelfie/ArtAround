@@ -247,20 +247,29 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   (on the Windows PC ~23 s from scratch, ~8 s with the incremental cache in the
   git-ignored `tsconfig.tsbuildinfo`; `next typegen` is ~3 s of it): cheap enough
   to run on the whole project instead of a scoped tsconfig.
-  TypeScript 7 is the `typescript-7` dependency (an alias of `typescript@7.0.2`);
-  `typescript` itself stays on 5.9 because typescript-eslint, the editor and
-  `typescript-json-schema` need its JavaScript API, which 7 doesn't provide. pnpm
-  links the higher version as `node_modules/.bin/tsc`, so scripts call each compiler
-  by path. `pnpm typecheck:legacy` runs the 5.9 one (~100 s, needs the 8 GB heap) to
-  cross-check a surprising error. `tsconfig.json` has no `baseUrl` (TS 7 removed it):
-  `paths` resolve relative to the tsconfig. Drop the alias once typescript-eslint
-  supports 7 and `typescript` can move to it.
+  TypeScript 7 has no JavaScript API (it comes back in 7.1). The tools that still
+  need one carry their own TypeScript 5.9: `typescript-json-schema` as a regular
+  dependency, `@hey-api/openapi-ts` (`pnpm openapi-ts`) through `.pnpmfile.cjs`,
+  which swaps its `typescript` peer for a private 5.9 (drop that hook with the
+  first openapi-ts release after 0.99.0, which no longer uses TypeScript).
+  Storybook reads props with `react-docgen`, which needs no TypeScript. In VS Code
+  use the "TypeScript (Native Preview)" extension (`js/ts.experimental.useTsgo`
+  in `.vscode/settings.json`): the built-in one finds no `tsserver` in TS 7.
+  `tsconfig.json` has no `baseUrl` (TS 7 removed it): `paths` resolve relative
+  to the tsconfig.
+- `pnpm lint`: oxlint (`.oxlintrc.json`), the same rule set the former ESLint
+  config had (eslint-config-next, the React Compiler rules of
+  eslint-plugin-react-hooks, eslint-plugin-storybook as a JS plugin), in about a
+  second on the whole project (ESLint took ~25 s). `oxlint` is pinned to
+  **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
+  `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
+  the release after it. It reads `// eslint-disable-next-line` comments too.
 - `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
   `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
   `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
   they skip locally without it and fail when `CI` is set. A skipped spec is not a pass.
 - Git hooks (husky, installed by `pnpm install` through the `prepare` script):
-  `pre-commit` runs lint-staged (`eslint --fix` + `prettier --write` on staged files
+  `pre-commit` runs lint-staged (`oxlint --fix` + `prettier --write` on staged files
   only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
   hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
   tests stay out of the hooks: they need the database and take too long.
@@ -279,13 +288,13 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   start can exceed the 30 s connect timeout on Windows; a PC can switch off the
   ones it doesn't use in `.claude/settings.local.json` (`disabledMcpjsonServers`).
 - Keep iterations short. Measured on the Windows PC over `src` (473 TS/TSX
-  files): `eslint` ~26 s, `prettier --check` ~8 s (0.3 s on a few files, as in a
-  commit), `pnpm typecheck` ~8–23 s. `npx` adds ~9 s to every start: run tools from
-  `node_modules/.bin` or `pnpm exec`. `eslint .` ignores generated output and
-  `.claude/**` (nested worktrees, `storybook-static`): without that it ran out of
-  memory. So:
-  - don't run `eslint`/`prettier` by hand before a commit: lint-staged runs
-    them on the staged files (eslint with a cache);
+  files): `pnpm lint` ~1 s (whole project), `prettier --check` ~8 s (0.3 s on a
+  few files, as in a commit), `pnpm typecheck` ~8–28 s. `npx` adds ~9 s to every
+  start: run tools from `node_modules/.bin` or `pnpm exec`. The lint ignores
+  generated output and `.claude/**` (nested worktrees with their own copy of the
+  project). So:
+  - don't run `oxlint`/`prettier` by hand before a commit: lint-staged runs
+    them on the staged files;
   - run the slow checks once, at the end, not after each edit;
   - before writing state, storage, theme or layout helpers, grep for an existing
     one (e.g. `src/lib/session-store.ts`, `src/theme.ts`);

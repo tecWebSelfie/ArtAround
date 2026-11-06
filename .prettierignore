@@ -1,6 +1,6 @@
 # Vendored LiveKit agents-ui components: kept exactly as published, so they
 # can be re-copied from the registry (their lint exceptions are in
-# eslint.config.mjs).
+# .oxlintrc.json).
 src/components/agents-ui/
 src/hooks/agents-ui/
 

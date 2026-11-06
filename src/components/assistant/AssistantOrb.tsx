@@ -59,17 +59,20 @@ export function AssistantOrb({
 }) {
   const reducedMotion = useReducedMotion()
   // Sample the loudness ref once per frame while the orb reacts to a voice.
-  const [loudness, setLoudness] = useState(0)
+  // Outside those states the orb reads 0 at render time instead of resetting
+  // the state from the effect, which would cost an extra render.
+  const reacting = state === 'listening' || state === 'speaking'
+  const [sampled, setSampled] = useState(0)
   useEffect(() => {
-    if (state !== 'listening' && state !== 'speaking') return setLoudness(0)
+    if (!reacting) return
     let frame = requestAnimationFrame(function tick() {
-      setLoudness(level?.current ?? 0)
+      setSampled(level?.current ?? 0)
       frame = requestAnimationFrame(tick)
     })
     return () => cancelAnimationFrame(frame)
-  }, [state, level])
+  }, [reacting, level])
 
-  const settings = ballSettings(state, loudness)
+  const settings = ballSettings(state, reacting ? sampled : 0)
   return (
     <UnstyledButton
       onClick={onPress}

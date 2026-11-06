@@ -13,9 +13,8 @@
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:navmesh-schema": "typescript-json-schema tsconfig.json NavMesh --include src/lib/schemas/navmesh.ts --required --skipLibCheck --refs false --out src/lib/schemas/navmesh.schema.json",
-    "lint": "cross-env NODE_OPTIONS=--no-deprecation eslint .",
-    "typecheck": "next typegen && node node_modules/typescript-7/bin/tsc --noEmit",
-    "typecheck:legacy": "next typegen && cross-env NODE_OPTIONS=--max-old-space-size=8000 node node_modules/typescript/bin/tsc --noEmit",
+    "lint": "oxlint",
+    "typecheck": "next typegen && tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "prepare": "husky",
     "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs",
@@ -165,7 +164,6 @@
     "@storybook/addon-themes": "^10.6.5",
     "@storybook/addon-vitest": "^10.6.5",
     "@storybook/nextjs-vite": "^10.6.5",
-    "@tanstack/eslint-plugin-query": "^5.104.3",
     "@testing-library/react": "16.3.0",
     "@types/chroma-js": "3.1.3",
     "@types/howler": "^2.2.13",
@@ -176,8 +174,6 @@
     "@vitejs/plugin-react": "6.1.1",
     "@vitest/browser-playwright": "4.0.18",
     "@vitest/coverage-v8": "4.0.18",
-    "eslint": "^9.16.0",
-    "eslint-config-next": "16.4.2",
     "eslint-plugin-storybook": "^10.5.3",
     "husky": "^9.1.7",
     "i18next-cli": "^1.74.1",
@@ -185,6 +181,7 @@
     "lint-staged": "^16.4.0",
     "msw": "2.13.3",
     "msw-storybook-addon": "^3.0.0",
+    "oxlint": "1.90.0",
     "playwright": "1.63.0",
     "postcss": "^8.5.26",
     "postcss-preset-mantine": "^1.18.0",
@@ -193,10 +190,8 @@
     "sass": "^1.105.0",
     "shadcn": "^4.21.0",
     "storybook": "^10.6.5",
-    "ts-json-schema-generator": "^2.9.0",
     "tsx": "4.22.4",
-    "typescript": "^5.7.3",
-    "typescript-7": "npm:typescript@7.0.2",
+    "typescript": "^7.0.2",
     "typescript-json-schema": "^0.68.0",
     "vite": "^8.1.5",
     "vite-tsconfig-paths": "6.0.5",
@@ -208,8 +203,6 @@
     "pnpm": "^9 || ^10 || ^11"
   },
   "overrides": {
-    "typescript-eslint": "8.55.0",
-    "@typescript-eslint/visitor-keys": "8.55.0",
     "@ferocia-oss/osnap": "1.3.5"
   },
   "pnpm": {
@@ -235,7 +228,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "eslint --cache --cache-location node_modules/.cache/eslint/ --fix",
+      "oxlint --fix",
       "prettier --write"
     ],
     "*.{json,md,mdx,css,scss}": [
