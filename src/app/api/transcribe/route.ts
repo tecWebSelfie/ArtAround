@@ -10,7 +10,6 @@ import { NextResponse } from 'next/server'
  */
 export const runtime = 'nodejs'
 
-// Groq Whisper, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
 /** About a minute of compressed browser audio. */
 const MAX_AUDIO_BYTES = 2_000_000
 

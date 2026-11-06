@@ -31,31 +31,31 @@ const ZXING_OVERRIDES = {
 
 let scannerModule: Promise<typeof import('@yudiel/react-qr-scanner')> | undefined
 
-/** Loads the scanner library once, with the overrides set before any scan. */
+/**
+ * Loads the scanner library once, with the overrides set before any scan.
+ * A failed load is forgotten, so the next caller (the scanner opening after
+ * a failed prewarm, say) tries again.
+ */
 export function loadQrScannerModule() {
-  scannerModule ??= import('@yudiel/react-qr-scanner').then((m) => {
-    m.prepareZXingModule({ overrides: ZXING_OVERRIDES })
-    return m
-  })
+  scannerModule ??= import('@yudiel/react-qr-scanner').then(
+    (m) => {
+      m.prepareZXingModule({ overrides: ZXING_OVERRIDES })
+      return m
+    },
+    (error: unknown) => {
+      scannerModule = undefined
+      throw error
+    },
+  )
   return scannerModule
 }
 
-let prewarmed = false
-
 /**
- * Loads the scanner's code when the browser is idle, once per page load.
- * Safe to call from any effect: it never blocks rendering, and a failure
- * only means the scanner loads on open as before.
+ * Loads the scanner's code when the browser is idle. Calling it again only
+ * reuses the loaded module; a failure means the scanner loads on open.
  */
 export function prewarmQrScanner() {
-  if (prewarmed || typeof window === 'undefined') return
-  prewarmed = true
-  const run = () =>
-    loadQrScannerModule().catch(() => {
-      // Retried by the scanner itself when it opens.
-      prewarmed = false
-      scannerModule = undefined
-    })
+  const run = () => void loadQrScannerModule().catch(() => {})
   // Safari has no requestIdleCallback; a short timeout keeps it off the
   // page's first paint there too.
   if ('requestIdleCallback' in window) window.requestIdleCallback(run, { timeout: 5_000 })

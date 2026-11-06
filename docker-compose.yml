@@ -40,6 +40,9 @@ services:
       timeout: 5s
       retries: 20
       start_period: 10s
+      # Probe every second while starting (Docker 25+): `--wait` returns as
+      # soon as it is up instead of after the first 5 s interval.
+      start_interval: 1s
 
 volumes:
   mongo-data:

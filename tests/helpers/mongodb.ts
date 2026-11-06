@@ -14,13 +14,14 @@ import { connect } from 'node:net'
 export async function requireMongoDB(): Promise<void> {
   const url = process.env.DATABASE_URL
   if (!url) throw new Error('DATABASE_URL is not set: copy .env.example to .env.')
-  const { protocol, hostname, port } = new URL(url)
+  const { protocol, hostname, port: urlPort } = new URL(url)
+  const port = Number(urlPort || 27017)
   // An SRV address (`mongodb+srv://`, Atlas) has no single host to probe:
   // leave it to the driver.
   if (protocol !== 'mongodb:') return
 
   const reachable = await new Promise<boolean>((resolve) => {
-    const socket = connect({ host: hostname, port: Number(port || 27017) })
+    const socket = connect({ host: hostname, port })
     // Only the handshake matters: close the probe either way.
     const done = (ok: boolean) => {
       socket.destroy()
@@ -32,8 +33,6 @@ export async function requireMongoDB(): Promise<void> {
     socket.once('error', () => done(false))
   })
   if (!reachable) {
-    throw new Error(
-      `MongoDB is not reachable at ${hostname}:${port || 27017}: run \`pnpm services:start\`.`,
-    )
+    throw new Error(`MongoDB is not reachable at ${hostname}:${port}: run \`pnpm services:start\`.`)
   }
 }

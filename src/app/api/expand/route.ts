@@ -45,8 +45,6 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
-// Groq, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
-const MODEL = TEXT_MODEL
 /** Linkable entities offered to the model; keeps the prompt small. */
 const MAX_LINKS = 20
 
@@ -292,7 +290,7 @@ export async function POST(request: Request) {
               body,
               generation: {
                 generated: true,
-                model: MODEL,
+                model: TEXT_MODEL,
                 sources: sources.map(({ title, url }) => ({ title, url })),
               },
             },

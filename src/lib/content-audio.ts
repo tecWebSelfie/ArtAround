@@ -89,6 +89,18 @@ function id3Size(bytes: Uint8Array) {
 }
 
 /**
+ * `frames` silent MPEG-1 layer III frames at 128 kbps, 44.1 kHz (~26 ms
+ * each): a valid MP3 for the AI mock's speech (src/lib/ai-mock.ts) and the
+ * content-audio spec, timed by mp3DurationSeconds below.
+ */
+export function silentMp3(frames: number) {
+  const frameLength = 417 // floor(144 * 128000 / 44100), no padding
+  const bytes = new Uint8Array(frames * frameLength)
+  for (let i = 0; i < frames; i++) bytes.set([0xff, 0xfb, 0x90, 0x00], i * frameLength)
+  return bytes
+}
+
+/**
  * Length in seconds of an MP3 (layer III, any bitrate, constant or
  * variable), by walking its frame headers. Returns 0 when nothing parses.
  */

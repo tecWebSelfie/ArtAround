@@ -1,5 +1,6 @@
 import { simulateReadableStream } from 'ai'
 import { MockLanguageModelV4, MockSpeechModelV4, MockTranscriptionModelV4 } from 'ai/test'
+import { silentMp3 } from './content-audio'
 
 /**
  * Fake AI models for `AI_MOCK=true` (src/lib/ai-models.ts), built on the AI
@@ -21,15 +22,14 @@ import { MockLanguageModelV4, MockSpeechModelV4, MockTranscriptionModelV4 } from
 
 type CallOptions = Parameters<MockLanguageModelV4['doGenerate']>[0]
 type Schema = {
-  type?: string | string[]
+  type?: string
   enum?: unknown[]
   properties?: Record<string, Schema>
   items?: Schema
-  anyOf?: Schema[]
 }
 
 /** What the fake speech to text "hears": the request in tests/e2e/fixtures/open-side-discovery.wav. */
-export const TRANSCRIPT = 'Open the side discovery.'
+const TRANSCRIPT = 'Open the side discovery.'
 
 const TEXT = [
   'This is a **mocked** answer (`AI_MOCK=true`): the app ran its real request, and the AI SDK test model replied.',
@@ -59,13 +59,16 @@ const words = (text: string) => new Set(text.toLowerCase().match(/\p{L}{3,}/gu) 
 /**
  * The enum option whose prompt line (`id: label, …`) shares the most words
  * with the visitor's message; the first real option when none does. "none"
- * only when it is the sole choice.
+ * only when it is the sole choice. The assistant and plan-tour prompts list
+ * their choices as such `id:` lines: keep that shape, or CI's mock answers
+ * stop matching.
  */
 function pickOption(values: string[], call: CallOptions): string {
   const choices = values.filter((value) => value !== 'none')
   if (!choices.length) return values[0] ?? ''
-  const asked = words(promptText(call, 'user'))
-  const lines = `${promptText(call, 'system')}\n${promptText(call, 'user')}`.split('\n')
+  const user = promptText(call, 'user')
+  const asked = words(user)
+  const lines = `${promptText(call, 'system')}\n${user}`.split('\n')
   let best = choices[0]!
   let bestScore = 0
   for (const choice of choices) {
@@ -76,37 +79,29 @@ function pickOption(values: string[], call: CallOptions): string {
   return best
 }
 
-/** A value that satisfies `schema`, built the way a model would fill it. */
-function fakeValue(schema: Schema, key: string, options: CallOptions): unknown {
-  if (schema.anyOf?.length) return fakeValue(schema.anyOf[0]!, key, options)
-  if (schema.enum?.length) return pickOption(schema.enum.map(String), options)
-  const type = Array.isArray(schema.type) ? schema.type[0] : schema.type
-  switch (type) {
-    case 'object':
-      return Object.fromEntries(
-        Object.entries(schema.properties ?? {}).map(([name, property]) => [
-          name,
-          fakeValue(property, name, options),
-        ]),
-      )
-    case 'array': {
-      const items = schema.items ?? {}
-      // A list of ids: the first few real options, like a short selection.
-      if (items.enum?.length)
-        return items.enum
-          .map(String)
-          .filter((id) => id !== 'none')
-          .slice(0, 3)
-      return [fakeValue(items, key, options)]
-    }
-    case 'number':
-    case 'integer':
-      return 1
-    case 'boolean':
-      return true
-    default:
-      return `Mocked ${key}`
+/**
+ * A value that satisfies `schema`, built the way a model would fill it. It
+ * covers what the routes' `Output.object` schemas use (objects of strings,
+ * enums and lists of enums); extend it when a schema needs more.
+ */
+function fakeValue(schema: Schema, key: string, call: CallOptions): unknown {
+  if (schema.enum?.length) return pickOption(schema.enum.map(String), call)
+  if (schema.type === 'object') {
+    return Object.fromEntries(
+      Object.entries(schema.properties ?? {}).map(([name, property]) => [
+        name,
+        fakeValue(property, name, call),
+      ]),
+    )
   }
+  // A list of ids: the first few real options, like a short selection.
+  if (schema.type === 'array') {
+    return (schema.items?.enum ?? [])
+      .map(String)
+      .filter((id) => id !== 'none')
+      .slice(0, 3)
+  }
+  return `Mocked ${key}`
 }
 
 export function mockTextModel(modelId: string) {
@@ -152,14 +147,6 @@ export function mockTranscriptionModel(modelId: string) {
       response: { timestamp: new Date(), modelId },
     }),
   })
-}
-
-/** `frames` silent MPEG-1 layer III frames at 128 kbps, 44.1 kHz (~26 ms each). */
-function silentMp3(frames: number) {
-  const frameLength = 417 // floor(144 * 128000 / 44100), no padding
-  const bytes = new Uint8Array(frames * frameLength)
-  for (let i = 0; i < frames; i++) bytes.set([0xff, 0xfb, 0x90, 0x00], i * frameLength)
-  return bytes
 }
 
 export function mockSpeechModel(modelId: string) {

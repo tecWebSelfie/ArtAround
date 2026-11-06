@@ -26,6 +26,8 @@ services:
       timeout: 5s
       retries: 3
       start_period: 5s
+      # Probe every second while starting (Docker 25+), as for MongoDB.
+      start_interval: 1s
   livekit-dashboard:
     <<: *env-local
     image: jossephus/livekit-monitor:latest

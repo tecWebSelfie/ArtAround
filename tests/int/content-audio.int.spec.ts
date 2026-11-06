@@ -9,21 +9,14 @@ import type { PayloadRequest } from 'payload'
  * never call Fish Audio.
  */
 
-/** A valid MP3: `frames` MPEG-1 layer III frames at 128 kbps, 44.1 kHz. */
-function fakeMp3(frames: number) {
-  const frameLength = 417 // floor(144 * 128000 / 44100), no padding
-  const bytes = new Uint8Array(frames * frameLength)
-  for (let i = 0; i < frames; i++) bytes.set([0xff, 0xfb, 0x90, 0x00], i * frameLength)
-  return bytes
-}
-
-const generateSpeech = vi.fn(async () => ({ audio: { uint8Array: fakeMp3(100) } }))
+const generateSpeech = vi.fn(async () => ({ audio: { uint8Array: silentMp3(100) } }))
 vi.mock('ai', async (importOriginal) => ({
   ...(await importOriginal<typeof import('ai')>()),
   generateSpeech,
 }))
 
-const { audioTextHash, mp3DurationSeconds, splitForSpeech } = await import('@/lib/content-audio')
+const { audioTextHash, mp3DurationSeconds, silentMp3, splitForSpeech } =
+  await import('@/lib/content-audio')
 const { generateContentAudio } = await import('@/tasks/generateContentAudio')
 const { Contents } = await import('@/collections/Contents')
 
@@ -86,7 +79,7 @@ describe('preparing the text', () => {
 
   it('times an MP3 from its frames', () => {
     // 100 frames × 1152 samples / 44100 Hz ≈ 2.6 s
-    expect(mp3DurationSeconds(fakeMp3(100))).toBe(3)
+    expect(mp3DurationSeconds(silentMp3(100))).toBe(3)
     expect(mp3DurationSeconds(new Uint8Array(10))).toBe(0)
   })
 })

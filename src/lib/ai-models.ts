@@ -5,7 +5,8 @@ import type { LanguageModel, SpeechModel, TranscriptionModel } from 'ai'
 /**
  * The one place the server picks its AI models: Groq for text and speech to
  * text, Fish Audio for text to speech. Every route and task asks here instead
- * of building its own provider.
+ * of building its own provider; the translator plugin (src/plugins/autoTranslate.ts)
+ * has its own OpenAI-compatible client but shares TEXT_MODEL.
  *
  * `AI_MOCK=true` swaps them for the AI SDK's own mock models (`ai/test`,
  * see src/lib/ai-mock.ts): deterministic answers, no API keys, no cost. The
@@ -17,7 +18,7 @@ import type { LanguageModel, SpeechModel, TranscriptionModel } from 'ai'
  * Getters are async because the mocks are a dynamic import: a server that
  * isn't mocking never loads `ai/test`.
  */
-export const AI_MOCKED = process.env.AI_MOCK === 'true'
+const AI_MOCKED = process.env.AI_MOCK === 'true'
 if (AI_MOCKED) {
   console.warn('[ai-models] AI_MOCK=true: AI responses are mocked (src/lib/ai-mock.ts).')
 }

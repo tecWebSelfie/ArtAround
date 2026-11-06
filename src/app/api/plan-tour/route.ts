@@ -42,9 +42,6 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
-// Groq, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
-const MODEL = TEXT_MODEL
-
 export async function POST(request: Request) {
   if (!allowRequest(request, 6)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
@@ -82,6 +79,7 @@ export async function POST(request: Request) {
           'Pick the museum the visitor means from the list, or "none" when their words name or clearly describe none of them.',
         prompt: [
           `Visitor: ${answers.interests}`,
+          // `id: name` lines: the AI_MOCK model matches the visitor's words against them.
           ...docs.map((museum) => `${museum.id}: ${museum.name}, ${museum.location?.city ?? ''}`),
         ].join('\n'),
       })
@@ -214,7 +212,7 @@ export async function POST(request: Request) {
         contents: order,
         museum: museumId,
         ...(user ? { author: user.id } : {}),
-        generation: { generated: true, model: MODEL, requestKey, request: answers },
+        generation: { generated: true, model: TEXT_MODEL, requestKey, request: answers },
       },
     })
     return NextResponse.json(preview(tour))

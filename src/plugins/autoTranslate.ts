@@ -1,4 +1,5 @@
 import type { CollectionConfig, Config } from 'payload'
+import { TEXT_MODEL } from '@/lib/ai-models'
 import OpenAI from 'openai'
 import {
   collectionLevel,
@@ -80,7 +81,8 @@ export function autoTranslatePlugin({
             baseURL: process.env.GROQ_BASE_URL || 'https://api.groq.com/openai/v1',
             apiKey: process.env.GROQ_API_KEY || '',
           }),
-          model: 'openai/gpt-oss-120b',
+          // The same model as the AI routes (src/lib/ai-models.ts).
+          model: TEXT_MODEL,
           sampling: { temperature: 0 },
           // json_schema has per-model property ceilings; json_object is safer
           // for large museum docs on this model family.

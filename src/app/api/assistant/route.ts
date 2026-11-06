@@ -71,6 +71,7 @@ export async function POST(request: Request) {
         'directions that are not in the commands or the context.',
         `Reply in the language with code "${language}".`,
         `Context: ${context}`,
+        // `id: label` lines: the AI_MOCK model matches the request against them (src/lib/ai-mock.ts).
         'Available commands (id: label, kind):',
         ...commands.data.map(
           (command) => `${command.id}: ${command.label}, ${command.description}`,

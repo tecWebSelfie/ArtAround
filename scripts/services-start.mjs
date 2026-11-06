@@ -73,13 +73,22 @@ const config = JSON.parse(run('docker', ['compose', 'config', '--format', 'json'
 const volume = config.volumes['mongo-data'].name
 const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 
-// 3. Start it and wait for the compose healthcheck (a `ping` through mongosh).
+// 3. Start both, LiveKit first without waiting, so its image pull and start
+// overlap MongoDB's; then wait for each healthcheck (a `ping` through
+// mongosh for MongoDB). LiveKit stays best effort (see the header).
+let livekitStarted = true
+try {
+  run('docker', ['compose', 'up', '--detach', 'livekit'], { stdio: 'inherit' })
+} catch {
+  livekitStarted = false
+}
 log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
 log('MongoDB is ready on mongodb://127.0.0.1:27017.')
 
-// 4. LiveKit for group tours (best effort, see the header).
+// 4. LiveKit for group tours.
 try {
+  if (!livekitStarted) throw new Error('not started')
   run('docker', ['compose', 'up', '--detach', '--wait', 'livekit'], { stdio: 'inherit' })
   log('LiveKit is ready on ws://localhost:7880.')
 } catch {
