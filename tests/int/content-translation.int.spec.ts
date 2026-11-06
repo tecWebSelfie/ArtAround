@@ -2,6 +2,7 @@ import { getPayload, type Payload } from 'payload'
 import config from '@/payload.config'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
 import { resolveLocalized } from '@/lib/localized'
+import type { Content } from '@/payload-types'
 import { requireMongoDB } from '../helpers/mongodb'
 
 /**
@@ -27,7 +28,8 @@ let payload: Payload
 let contentId: string
 const TITLE = `Translation spec ${crypto.randomUUID()}`
 
-const richText = (text: string) => ({
+/** A one-paragraph Lexical body, typed as the collection's field. */
+const richText = (text: string): Content['body'] => ({
   root: {
     type: 'root',
     version: 1,
@@ -72,6 +74,8 @@ describe('contents in the visitor’s language', () => {
     const content = await payload.create({
       collection: 'contents',
       data: {
+        // `objects: {}` satisfies the generated type of the (read-only) join, as in src/seed.ts.
+        objects: {},
         title: TITLE,
         difficulty: 'medium',
         body: richText('A Dominican friar seated at his desk.'),

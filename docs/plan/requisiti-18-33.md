@@ -216,9 +216,23 @@ Già decise:
       `docAccessOperation`, che l'endpoint usa per riconoscere il proprietario.
   - `pnpm test:int` completo: 71 file, 342 test passati.
 
+- [x] **Test dei requisiti del navigator 18-33 ancora scoperti (marketplace escluso)**
+  - Seam concordati e provati con la skill TDD: comandi in linguaggio naturale
+    (`assistant-natural-language`), comandi dell'ospite di gruppo
+    (`group-guest-commands`, regola spostata in `guestCommands` di
+    `src/lib/group.ts`), traduzione dei contenuti (`content-translation`),
+    visita dai vincoli dell'utente (`tour-plan`), QR stampati
+    (`printed-qr`), metadati dell'item (`item-metadata`), teletrasporto
+    (`teleport`), opera davanti all'utente (`work-in-front`).
+  - Nuova regola pura `src/lib/work-in-front.ts`: posizione + bussola →
+    opera sicura, candidate da scegliere (massimo 4) o nessuna.
+
 ## Rimandati
 
-- Orientamento del dispositivo e scelta tra opere candidate: prossima iterazione.
+- Orientamento del dispositivo e scelta tra opere candidate: la regola
+  (`src/lib/work-in-front.ts`) è fatta e provata; manca l'interfaccia (lettura
+  della bussola con `DeviceOrientationEvent`, scelta tra le miniature delle
+  candidate) collegata alla stima GPS di `use-route-guidance.ts`.
 - "Plan my visit" e il suo campo libero "interessi": prossima iterazione.
 - `README.txt` e cartella `sources`: li preparano gli autori del progetto.
 - Test visivi (`pnpm test:visual`): solo con approvazione esplicita, per ogni

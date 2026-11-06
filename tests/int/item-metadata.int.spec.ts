@@ -1,7 +1,7 @@
 import { getPayload, type Payload } from 'payload'
 import config from '@/payload.config'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
-import type { User } from '@/payload-types'
+import type { Content, User } from '@/payload-types'
 import { requireMongoDB } from '../helpers/mongodb'
 
 /**
@@ -22,7 +22,8 @@ let author: User
 const created: string[] = []
 const suffix = crypto.randomUUID().slice(0, 8)
 
-const richText = (text: string) => ({
+/** A one-paragraph Lexical body, typed as the collection's field. */
+const richText = (text: string): Content['body'] => ({
   root: {
     type: 'root',
     version: 1,
@@ -74,6 +75,8 @@ describe('item metadata', () => {
     const content = await payload.create({
       collection: 'contents',
       data: {
+        // `objects: {}` satisfies the generated type of the (read-only) join, as in src/seed.ts.
+        objects: {},
         title: `Metadata spec ${suffix}`,
         difficulty: 'easy',
         audience: 'children',
@@ -96,6 +99,8 @@ describe('item metadata', () => {
     const content = await payload.create({
       collection: 'contents',
       data: {
+        // `objects: {}` satisfies the generated type of the (read-only) join, as in src/seed.ts.
+        objects: {},
         title: `Metadata spec author ${suffix}`,
         difficulty: 'hard',
         body: richText('Testo specialistico.'),
@@ -112,10 +117,12 @@ describe('item metadata', () => {
 
   it('refuses an item without a language level', async () => {
     await expect(
+      // @ts-expect-error -- the level is required: this is the request a client must not get through
       payload.create({
         collection: 'contents',
-        // @ts-expect-error -- the level is required: this is the request a client must not get through
         data: {
+          // `objects: {}` satisfies the generated type of the (read-only) join, as in src/seed.ts.
+          objects: {},
           title: `Metadata spec no level ${suffix}`,
           body: richText('Senza livello.'),
           rightsDeclaredAt: new Date().toISOString(),
