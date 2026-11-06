@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: Dockerfile.devcontainer
     # DATABASE_URL comes from .env: mongodb://mongodb:27017/artaround
-    # Optional so that `pnpm db:start` (only `mongodb`) works before .env exists.
+    # Optional so that `pnpm services:start` (`mongodb` and `livekit`) works before .env exists.
     env_file:
       - path: .env
         required: false
@@ -23,7 +23,7 @@ services:
       - '3000:3000'
     command: sleep infinity
 
-  # Development and test database (`pnpm db:start`), without authentication:
+  # Development and test database (`pnpm services:start`), without authentication:
   # a university project's local data, published on the loopback interface
   # only, so other machines on the same network can't reach it. The host's
   # DATABASE_URL is mongodb://127.0.0.1:27017/artaround.

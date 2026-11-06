@@ -1,5 +1,5 @@
-# Optional: the root compose includes this file, and `pnpm db:start` (only
-# MongoDB) must not need the agent's secrets.
+# Optional: the root compose includes this file, and `pnpm services:start`
+# (MongoDB and the local LiveKit) must not need the agent's secrets.
 x-env-config: &env-local
   env_file:
     - path: .env.local
@@ -10,7 +10,7 @@ services:
     image: livekit/livekit-server
     <<: *env-local
     # Like MongoDB: back after a Docker restart (on a PC, Docker Desktop
-    # restarts it; in a cloud session `pnpm db:start` starts both again).
+    # restarts it; in a cloud session `pnpm services:start` starts both again).
     restart: unless-stopped
     # --node-ip: advertise the host's loopback for WebRTC. Without it the
     # server offers its container IP, browsers never finish connecting, and

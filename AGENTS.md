@@ -145,7 +145,7 @@ On a PC none of it applies.
 
 Known traps in cloud sessions:
 
-- After a container restart, MongoDB and LiveKit are down: `pnpm db:start` brings them back
+- After a container restart, MongoDB and LiveKit are down: `pnpm services:start` brings them back
   (it also starts the Docker daemon, which a cloud container doesn't run at boot).
 - `pnpm typecheck` and `pnpm dev` rewrite `src/payload-types.ts` unformatted.
   Run `npx prettier --write src/payload-types.ts` before committing: it then
@@ -227,7 +227,7 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
 
 ## Checks
 
-- `pnpm db:start`: the development MongoDB, the `mongodb` service of
+- `pnpm services:start` (formerly `db:start`): the development MongoDB, the `mongodb` service of
   `docker-compose.yml` (no authentication: local test data; loopback only),
   the same on a PC (Docker Desktop) and in a cloud session.
   It also starts the local LiveKit server (`ws://localhost:7880`, best

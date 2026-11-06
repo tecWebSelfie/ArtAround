@@ -4,7 +4,7 @@ import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 /**
  * Group tours with two real browsers, a host and a guest, on the real Next
- * app and a real LiveKit server (`pnpm db:start` starts the local one; the
+ * app and a real LiveKit server (`pnpm services:start` starts the local one; the
  * group tests fail at once without it, see tests/helpers/livekit.ts):
  *
  *   host opens a group → guest joins with the code → host starts →

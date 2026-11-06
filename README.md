@@ -118,8 +118,9 @@ Copy the sample environment files:
 cp .env.example .env
 ```
 
-Start the development database (the `mongodb` service of `docker-compose.yml`,
-without authentication) with `pnpm db:start`.
+Start the local services with `pnpm services:start`: the development database (the
+`mongodb` service of `docker-compose.yml`, without authentication) and the local
+LiveKit server that group tours use.
 
 Configure the required values, including:
 

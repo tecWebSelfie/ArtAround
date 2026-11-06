@@ -6,7 +6,7 @@ description: Let the user try the app running in a Claude Code cloud session fro
 # Cloud preview
 
 `scripts/cloud-preview.sh` (`pnpm preview:cloud`) prepares Tailscale with
-HTTPS, MongoDB in Docker (`pnpm db:start`) with a seeded database and the env
+HTTPS, MongoDB and LiveKit in Docker (`pnpm services:start`) with a seeded database and the env
 files; do not rebuild the setup by hand. Background, tailnet setup and limits: `docs/cloud-preview.md`.
 
 0. With `TS_AUTHKEY` set, a `SessionStart` hook

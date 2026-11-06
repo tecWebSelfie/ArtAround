@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 /**
- * `pnpm db:start`: starts the development MongoDB, the `mongodb` service of
+ * `pnpm services:start`: starts the local services the app needs, in Docker.
+ *
+ * First the development MongoDB, the `mongodb` service of
  * docker-compose.yml (no authentication, loopback only), and waits until it
  * answers. The same database on a PC (Docker Desktop) and in a Claude Code
  * cloud session, so there is no second MongoDB installation to keep in step.
@@ -29,7 +31,7 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const seedIfNew = process.argv.includes('--seed-if-new')
 
-const log = (message) => console.log(`\x1b[1m[db:start]\x1b[0m ${message}`)
+const log = (message) => console.log(`\x1b[1m[services:start]\x1b[0m ${message}`)
 const run = (cmd, args, options = {}) =>
   execFileSync(cmd, args, { cwd: root, encoding: 'utf8', ...options })
 const succeeds = (cmd, args) => {
@@ -46,7 +48,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 // container ships `dockerd` but does not start it at boot.
 if (!succeeds('docker', ['info'])) {
   if (process.env.CLAUDE_CODE_REMOTE !== 'true') {
-    console.error('Docker is not running: start Docker Desktop, then run `pnpm db:start` again.')
+    console.error('Docker is not running: start Docker Desktop, then run `pnpm services:start` again.')
     process.exit(1)
   }
   const cache = path.join(process.env.XDG_CACHE_HOME ?? path.join(homedir(), '.cache'), 'artaround')

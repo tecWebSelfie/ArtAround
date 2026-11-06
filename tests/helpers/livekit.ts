@@ -1,5 +1,5 @@
 /**
- * Group-tour e2e specs run against a real LiveKit server (`pnpm db:start`
+ * Group-tour e2e specs run against a real LiveKit server (`pnpm services:start`
  * starts the local one, `livekit-server --dev` on :7880), as LiveKit's own
  * docs recommend for local testing: there is no client-side mock to swap in.
  *
@@ -22,7 +22,7 @@ export async function requireLiveKit(): Promise<void> {
   )
   if (!(await reachable)) {
     throw new Error(
-      `LiveKit is not reachable at ${url}: run \`pnpm db:start\` (it starts LiveKit too).`,
+      `LiveKit is not reachable at ${url}: run \`pnpm services:start\` (it starts LiveKit too).`,
     )
   }
 }

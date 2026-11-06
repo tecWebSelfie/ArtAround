@@ -87,7 +87,7 @@ or video publishing.
 
 ## Running it
 
-- Local: `pnpm db:start` starts LiveKit along with MongoDB (the `livekit` service of
+- Local: `pnpm services:start` starts LiveKit along with MongoDB (the `livekit` service of
   `my-agent/compose.livekit.yaml`, included by `docker-compose.yml`; dev keys
   `devkey`/`secret`, `LIVEKIT_URL=ws://localhost:7880`). The server is started with
   `--node-ip 127.0.0.1`; without it rooms stay "connecting" because the browser can't
