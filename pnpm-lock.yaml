@@ -9,7 +9,7 @@ overrides:
   '@mantine/core': 9.6.3
   '@mantine/hooks': 9.6.3
 
-pnpmfileChecksum: sha256-FiKod1mdhJwpKlVj8UblsXPCzIhYf+0lViT5DAM6L4A=
+pnpmfileChecksum: sha256-pStgVX+v3S1xZtmK+ejOycwwqSLSnDC46saSArRP/jo=
 
 patchedDependencies:
   '@pascal-app/editor@1.0.4':
