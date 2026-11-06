@@ -269,6 +269,18 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
   `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
   the release after it. It reads `// eslint-disable-next-line` comments too.
+- `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
+  `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
+  instead, as CI does: no route compiles inside a test's timeout, and the
+  full suite took 5.5 min there against 11 min on `next dev`. In a cloud
+  session with the preview on, `.env.local` points `NEXT_PUBLIC_PAYLOAD_URL`
+  at the Tailscale URL, where the test browser has no session: build with
+  `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
+- CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
+  `test:int`, then the e2e suite against the production build, with MongoDB
+  and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
+  blocks nothing unless branch protection requires it. Repository secrets:
+  `GROQ_API_KEY`, `FISH_API_KEY` (the AI and voice specs call them for real).
 - `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
   `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
   `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
