@@ -141,3 +141,17 @@ export function followHref(
   }
   return `/${lng}${hostPath}${params.size ? `?${params}` : ''}`
 }
+
+/** Commands a group guest keeps besides `more:` and `version:` ones. */
+const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style'])
+
+/**
+ * The navigation commands (buttons, Spotlight, voice) a group guest keeps. In
+ * a group the host decides where everyone goes: a guest keeps only what
+ * changes their own reading and route (Tell me more, reading options,
+ * wheelchair) and questions about the work in front of them (what is it, its
+ * author and style), never a step or destination.
+ */
+export function guestCommands<T extends { id: string }>(commands: T[]) {
+  return commands.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
+}

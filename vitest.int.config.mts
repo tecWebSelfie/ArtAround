@@ -19,5 +19,9 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.{ts,tsx}'],
+    // next-i18next's proxy build imports `next/server` without an extension,
+    // which Node's ESM loader refuses; inlined, Vite resolves it (the proxy
+    // spec, tests/int/printed-qr.int.spec.ts, runs `src/proxy.ts`).
+    server: { deps: { inline: ['next-i18next'] } },
   },
 })
