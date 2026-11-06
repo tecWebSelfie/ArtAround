@@ -252,9 +252,12 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   dependency, `@hey-api/openapi-ts` (`pnpm openapi-ts`) through `.pnpmfile.cjs`,
   which swaps its `typescript` peer for a private 5.9 (drop that hook with the
   first openapi-ts release after 0.99.0, which no longer uses TypeScript).
-  Storybook reads props with `react-docgen`, which needs no TypeScript. In VS Code
-  use the "TypeScript (Native Preview)" extension (`js/ts.experimental.useTsgo`
-  in `.vscode/settings.json`): the built-in one finds no `tsserver` in TS 7.
+  Storybook reads props with `react-docgen`, which needs no TypeScript. VS Code
+  (`.vscode/settings.json`, recommended extensions): "TypeScript (Native Preview)"
+  replaces the built-in TypeScript (`js/ts.experimental.useTsgo`; the built-in one
+  finds no `tsserver` in TS 7) and points at `node_modules/typescript/lib`, used
+  once you click Allow on its prompt (otherwise it runs its bundled tsgo); the oxc
+  extension runs the project's oxlint, with oxfmt and the ESLint extension off.
   `tsconfig.json` has no `baseUrl` (TS 7 removed it): `paths` resolve relative
   to the tsconfig.
 - `pnpm lint`: oxlint (`.oxlintrc.json`), the same rule set the former ESLint
