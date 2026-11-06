@@ -243,8 +243,18 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   that shape; a `t` taken out of `Promise.all` lands in `common` and its keys
   are dropped from their real file.
 - `pnpm typecheck`: regenerates Next's route types (`next typegen`; stale ones
-  break `tsc` after a route move) and runs `tsc --noEmit` with the memory it needs
-  (plain `tsc` aborts out of memory). It takes a few minutes: run it once, at the end.
+  break the check after a route move) and runs TypeScript 7's native `tsc --noEmit`
+  (on the Windows PC ~23 s from scratch, ~8 s with the incremental cache in the
+  git-ignored `tsconfig.tsbuildinfo`; `next typegen` is ~3 s of it): cheap enough
+  to run on the whole project instead of a scoped tsconfig.
+  TypeScript 7 is the `typescript-7` dependency (an alias of `typescript@7.0.2`);
+  `typescript` itself stays on 5.9 because typescript-eslint, the editor and
+  `typescript-json-schema` need its JavaScript API, which 7 doesn't provide. pnpm
+  links the higher version as `node_modules/.bin/tsc`, so scripts call each compiler
+  by path. `pnpm typecheck:legacy` runs the 5.9 one (~100 s, needs the 8 GB heap) to
+  cross-check a surprising error. `tsconfig.json` has no `baseUrl` (TS 7 removed it):
+  `paths` resolve relative to the tsconfig. Drop the alias once typescript-eslint
+  supports 7 and `typescript` can move to it.
 - `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
   `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
   `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
@@ -268,9 +278,12 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   the same file works on Windows and in Linux/macOS (cloud) sessions. Their `npx`
   start can exceed the 30 s connect timeout on Windows; a PC can switch off the
   ones it doesn't use in `.claude/settings.local.json` (`disabledMcpjsonServers`).
-- Keep iterations short. Measured on the Windows PC: `eslint` ~20 s and `npx
-prettier` ~15 s of start-up per run, a typecheck of a few files ~3 min because
-  it loads the whole route tree. So:
+- Keep iterations short. Measured on the Windows PC over `src` (473 TS/TSX
+  files): `eslint` ~26 s, `prettier --check` ~8 s (0.3 s on a few files, as in a
+  commit), `pnpm typecheck` ~8–23 s. `npx` adds ~9 s to every start: run tools from
+  `node_modules/.bin` or `pnpm exec`. `eslint .` ignores generated output and
+  `.claude/**` (nested worktrees, `storybook-static`): without that it ran out of
+  memory. So:
   - don't run `eslint`/`prettier` by hand before a commit: lint-staged runs
     them on the staged files (eslint with a cache);
   - run the slow checks once, at the end, not after each edit;

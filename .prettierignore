@@ -3,3 +3,7 @@
 # eslint.config.mjs).
 src/components/agents-ui/
 src/hooks/agents-ui/
+
+# Nested git worktrees of Claude sessions: full copies of the project, not
+# source of this checkout (`prettier --check .` would format them too).
+.claude/worktrees/

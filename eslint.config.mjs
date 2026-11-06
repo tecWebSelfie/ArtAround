@@ -39,7 +39,23 @@ const eslintConfig = [
   },
 
   {
-    ignores: ['.next/**', 'src/payload-types.ts', 'src/payload-generated-schema.ts'],
+    // `.claude/**`: the nested git worktrees of Claude sessions (full copies of
+    // the project, with their own node_modules, that made `eslint .` run out of
+    // memory) and the skill copies of `.agents/skills`, linted at their source.
+    //
+    // `storybook-static/**` and the test reports are generated output (ignored
+    // by git, but ESLint doesn't read .gitignore): the built Storybook alone is
+    // tens of MB of minified bundles, enough to exhaust the heap.
+    ignores: [
+      '.next/**',
+      '.claude/**',
+      'storybook-static/**',
+      'test-results/**',
+      'playwright-report/**',
+      'coverage/**',
+      'src/payload-types.ts',
+      'src/payload-generated-schema.ts',
+    ],
   },
 
   ...storybook.configs['flat/recommended'],

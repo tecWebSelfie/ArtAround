@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "types": ["msw-storybook-addon/csf3"],
-    "baseUrl": ".",
     "lib": ["DOM", "DOM.Iterable", "ES2022"],
     "allowJs": true,
     "skipLibCheck": true,
