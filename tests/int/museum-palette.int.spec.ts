@@ -38,10 +38,16 @@ for (let hue = 0; hue < 360; hue += 30) {
 
 const ratio = (a: string, b: string) => chroma.contrast(a, b)
 
+// Each palette costs a few ms (Leonardo solves the contrast curve): derive the
+// grid's palettes once and share them across the checks below, instead of
+// recomputing ~150 of them per test (that alone was ~4 s of the int suite).
+let samplePalettes: Array<{ hex: string; palette: string[] }> | undefined
+const paletteOfEachSample = () =>
+  (samplePalettes ??= samples.map((hex) => ({ hex, palette: museumPalette(hex).palette })))
+
 describe('museumPalette', () => {
   it('returns ten lowercase hex shades, light to dark', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of paletteOfEachSample()) {
       expect(palette).toHaveLength(10)
       for (const shade of palette) expect(shade).toMatch(/^#[0-9a-f]{6}$/)
       // Shade 0 → 9 only gets darker (never lighter).
@@ -54,15 +60,13 @@ describe('museumPalette', () => {
   })
 
   it('keeps shade 6 readable on white for any brand color (buttons, links, focus)', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of paletteOfEachSample()) {
       expect(contrastOnWhite(palette[PRIMARY_SHADE]), hex).toBeGreaterThanOrEqual(AA - 0.05)
     }
   })
 
   it('keeps the light variant readable: shade 9 on shades 1 and 2, shade 1 apart from white', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of paletteOfEachSample()) {
       expect(ratio(palette[9], palette[1]), `${hex} 9 on 1`).toBeGreaterThanOrEqual(AA)
       expect(ratio(palette[9], palette[2]), `${hex} 9 on 2`).toBeGreaterThanOrEqual(AA)
       expect(contrastOnWhite(palette[1]), `${hex} shade 1`).toBeGreaterThan(1.02)
@@ -70,8 +74,7 @@ describe('museumPalette', () => {
   })
 
   it('makes the hover shade (7) visibly different from shade 6 unless already near black', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of paletteOfEachSample()) {
       if (contrastOnWhite(palette[PRIMARY_SHADE]) > 15) continue
       expect(ratio(palette[7], palette[6]), hex).toBeGreaterThan(1.03)
     }

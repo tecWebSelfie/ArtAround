@@ -50,5 +50,5 @@ Cold development-route compilation can take several minutes on this project.
 The integration checks can be run independently:
 
 ```powershell
-pnpm exec vitest run --config vitest.config.mts --pool threads --maxWorkers 1 tests/int/navMesh.int.spec.ts tests/int/tour-navigation.int.spec.ts
+pnpm exec vitest run --config vitest.int.config.mts --pool threads --maxWorkers 1 tests/int/navMesh.int.spec.ts tests/int/tour-navigation.int.spec.ts
 ```
