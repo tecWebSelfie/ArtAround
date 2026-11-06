@@ -45,6 +45,13 @@ export function QrScanner({
 
   return (
     <Scanner
+      // The library gives `video.play()` 3 s, then reports the camera as
+      // failed and never starts scanning, even though the video then plays:
+      // the visitor sees a live camera that never reads a code. A busy page
+      // (the 3D museum map behind the scanner) on a slow phone can exceed 3 s.
+      // The timeout only exists to catch a wedged play(), so give it room.
+      // Before `{...props}`, so a caller can still set its own.
+      startTimeoutMs={15_000}
       {...props}
       formats={['qr_code']}
       onScan={(codes) => {

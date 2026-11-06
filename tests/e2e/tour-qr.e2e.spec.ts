@@ -10,7 +10,10 @@ const tourURL = tourFixture?.url
 test.beforeEach(() => {
   requireTourFixture()
 })
-test.setTimeout(600_000)
+// A passing run takes 20–40 s, the first one after a fresh `next dev` more
+// (route compile): 3 minutes covers that without letting a broken scanner
+// hold the suite for ten.
+test.setTimeout(180_000)
 
 for (const target of ['object', 'content'] as const) {
   test(`scans a canonical ${target} URL into the tour modal`, async ({ page, request }) => {
@@ -61,14 +64,16 @@ for (const target of ['object', 'content'] as const) {
     await expect
       .poll(decoded, {
         message: 'The real scanner decodes the camera image and leaves the scanner',
-        timeout: 300_000,
+        // A live camera decodes within seconds. This waited 5 minutes while the
+        // scanner gave up on a slow camera start (startTimeoutMs in Scanner.tsx).
+        timeout: 60_000,
       })
       .toBe(true)
     await expect(page).toHaveURL(
       target === 'object'
         ? /\/navigation\/tour\/[^/]+\/0\/object\//
         : /\/navigation\/tour\/[^/]+\/0\/open/,
-      { timeout: 300_000 },
+      { timeout: 30_000 },
     )
     await expect(page.getByRole('dialog')).toHaveCount(1)
     if (target === 'content') {
