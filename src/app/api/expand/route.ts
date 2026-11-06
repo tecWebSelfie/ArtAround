@@ -17,13 +17,13 @@ import { allowRequest } from '@/lib/rate-limit'
 import { asViewer } from '@/lib/session'
 import { contentObjectId } from '@/lib/tour-navigation'
 import type { ContentVariant, Object as MuseumObject } from '@/payload-types'
-import { createGroq } from '@ai-sdk/groq'
 import {
   convertLexicalToMarkdown,
   convertMarkdownToLexical,
   editorConfigFactory,
 } from '@payloadcms/richtext-lexical'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
+import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { streamText } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
@@ -45,8 +45,8 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-const MODEL = 'openai/gpt-oss-120b'
+// Groq, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
+const MODEL = TEXT_MODEL
 /** Linkable entities offered to the model; keeps the prompt small. */
 const MAX_LINKS = 20
 
@@ -249,7 +249,7 @@ export async function POST(request: Request) {
     subject.object?.wikidataId ?? undefined,
   ).catch(() => [])
   const result = streamText({
-    model: groq(MODEL),
+    model: await textModel(),
     ...expansionPrompt({
       request: ask,
       language: IsoCodes.getName(locale) || 'English',

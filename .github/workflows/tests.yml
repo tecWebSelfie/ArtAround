@@ -9,15 +9,21 @@
 #
 # Visual regression tests (`pnpm test:visual`) stay out: they run on demand.
 #
-# Repository secrets (Settings → Secrets and variables → Actions):
-#   GROQ_API_KEY  "Tell me more", "Plan my visit", voice assistant (real Groq)
-#   FISH_API_KEY  voice assistant speech
-# Without them those specs fail; everything else runs on local services.
+# AI: pull requests run on the AI SDK's mock models (AI_MOCK=true,
+# src/lib/ai-models.ts), so they need no keys and get the same answers every
+# time. "Run workflow" with "real AI" checked calls Groq and Fish Audio for
+# real; that needs the repository secrets GROQ_API_KEY and FISH_API_KEY
+# (Settings → Secrets and variables → Actions).
 name: Tests
 
 on:
   pull_request:
   workflow_dispatch:
+    inputs:
+      real_ai:
+        description: Call Groq and Fish Audio for real (needs their secrets)
+        type: boolean
+        default: false
 
 concurrency:
   group: tests-${{ github.ref }}
@@ -41,8 +47,9 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       # tour-guidance drives the simulated GPS (src/.../gps-source.ts).
       NEXT_PUBLIC_GPS_SIMULATOR: 'true'
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      FISH_API_KEY: ${{ secrets.FISH_API_KEY }}
+      AI_MOCK: ${{ inputs.real_ai && 'false' || 'true' }}
+      GROQ_API_KEY: ${{ inputs.real_ai && secrets.GROQ_API_KEY || '' }}
+      FISH_API_KEY: ${{ inputs.real_ai && secrets.FISH_API_KEY || '' }}
     steps:
       - uses: actions/checkout@v4
 

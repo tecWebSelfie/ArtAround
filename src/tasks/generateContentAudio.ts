@@ -6,7 +6,7 @@ import {
   mp3DurationSeconds,
   splitForSpeech,
 } from '@/lib/content-audio'
-import { createFishAudio } from '@ai-sdk/fish-audio'
+import { speechModel } from '@/lib/ai-models'
 import { generateSpeech } from 'ai'
 import type { PayloadRequest, TaskConfig } from 'payload'
 
@@ -54,11 +54,12 @@ export async function generateContentAudio(
   if (existing?.textHash === textHash) return { status: 'up-to-date' }
 
   // One speech request per chunk, in order; the MP3s are joined (see MAX_CHUNK_CHARS).
-  const fishAudio = createFishAudio({ apiKey: process.env.FISH_API_KEY })
+  // Fish Audio, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
+  const model = await speechModel(AUDIO_MODEL)
   const parts: Uint8Array[] = []
   for (const chunk of splitForSpeech(text)) {
     const { audio } = await generateSpeech({
-      model: fishAudio.speech(AUDIO_MODEL),
+      model,
       text: chunk,
       voice: AUDIO_VOICE,
       outputFormat: 'mp3',

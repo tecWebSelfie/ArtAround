@@ -59,5 +59,10 @@ export default defineConfig({
           command: productionServer ? 'pnpm start' : 'pnpm dev',
           reuseExistingServer: true,
           url: 'http://localhost:3000',
+          // The production server Playwright starts answers with the AI SDK's
+          // mock models (src/lib/ai-models.ts): no Groq/Fish keys, same answers
+          // every run. `AI_MOCK=false` keeps the real providers (the manual CI
+          // run with real AI). A reused `next dev` keeps whatever it has.
+          env: productionServer ? { AI_MOCK: process.env.AI_MOCK ?? 'true' } : undefined,
         },
 })

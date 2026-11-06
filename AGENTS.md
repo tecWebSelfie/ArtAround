@@ -269,6 +269,10 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
   `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
   the release after it. It reads `// eslint-disable-next-line` comments too.
+- Writing tests: before mocking or faking a library, check whether it ships
+  its own test module or API and use that (e.g. the AI SDK's `ai/test`
+  mock models, Playwright's `page.route`, MSW handlers in `src/mocks/`).
+  Hand-rolled fakes come last, when the library offers nothing.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
   `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
   instead, as CI does: no route compiles inside a test's timeout, and the
@@ -279,8 +283,15 @@ getT('ns')` stays its own statement (start the data reads before it, so they
 - CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
   `test:int`, then the e2e suite against the production build, with MongoDB
   and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
-  blocks nothing unless branch protection requires it. Repository secrets:
-  `GROQ_API_KEY`, `FISH_API_KEY` (the AI and voice specs call them for real).
+  blocks nothing unless branch protection requires it. It runs on mocked AI;
+  "Run workflow" with "real AI" calls Groq and Fish Audio, with the
+  repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
+- `AI_MOCK=true` (`src/lib/ai-models.ts`, the only place routes and tasks
+  get their AI models): the AI SDK's `ai/test` mock models answer instead of
+  Groq and Fish Audio (`src/lib/ai-mock.ts`). Set by CI and by Playwright on
+  the `pnpm start` server it launches; a `next dev` you start keeps the real
+  providers unless you set it. Never in a deployment (the server logs a
+  warning when it is on).
 - `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
   `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
   `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;

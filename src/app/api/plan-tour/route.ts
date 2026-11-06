@@ -18,7 +18,7 @@ import {
 } from '@/lib/tour-plan'
 import { normalizeLocale } from '@/lib/localized'
 import type { Tour } from '@/payload-types'
-import { createGroq } from '@ai-sdk/groq'
+import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { generateText, Output } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
@@ -42,8 +42,8 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-const MODEL = 'openai/gpt-oss-120b'
+// Groq, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
+const MODEL = TEXT_MODEL
 
 export async function POST(request: Request) {
   if (!allowRequest(request, 6)) {
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'museum' }, { status: 422 })
       }
       const { output } = await generateText({
-        model: groq(MODEL),
+        model: await textModel(),
         output: Output.object({
           schema: z.object({ museumId: z.enum(['none', ...docs.map((museum) => museum.id)]) }),
         }),
@@ -178,7 +178,7 @@ export async function POST(request: Request) {
 
     // 4. The model picks, most important first.
     const { output } = await generateText({
-      model: groq(MODEL),
+      model: await textModel(),
       output: Output.object({
         schema: z.object({
           title: z.string(),

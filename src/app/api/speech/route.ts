@@ -1,6 +1,6 @@
 import { AUDIO_MODEL, AUDIO_VOICE } from '@/lib/content-audio'
 import { allowRequest } from '@/lib/rate-limit'
-import { createFishAudio } from '@ai-sdk/fish-audio'
+import { speechModel } from '@/lib/ai-models'
 import { generateSpeech } from 'ai'
 import { NextResponse } from 'next/server'
 
@@ -11,9 +11,9 @@ import { NextResponse } from 'next/server'
  */
 export const runtime = 'nodejs'
 
-// `FISH_API_KEY` is the name the LiveKit agent already uses in `.env`. Voice and
-// model are shared with the contents' read-aloud audio (src/lib/content-audio.ts).
-const fishAudio = createFishAudio({ apiKey: process.env.FISH_API_KEY })
+// Voice and model are shared with the contents' read-aloud audio
+// (src/lib/content-audio.ts); Fish Audio, or the mock under AI_MOCK=true
+// (src/lib/ai-models.ts).
 
 export async function POST(request: Request) {
   if (!allowRequest(request, 40)) {
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   }
   try {
     const { audio } = await generateSpeech({
-      model: fishAudio.speech(AUDIO_MODEL),
+      model: await speechModel(AUDIO_MODEL),
       text,
       voice: AUDIO_VOICE,
       outputFormat: 'mp3',

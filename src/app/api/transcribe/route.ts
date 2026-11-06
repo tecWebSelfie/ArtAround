@@ -1,5 +1,5 @@
 import { allowRequest } from '@/lib/rate-limit'
-import { createGroq } from '@ai-sdk/groq'
+import { transcriptionModel } from '@/lib/ai-models'
 import { transcribe } from 'ai'
 import { NextResponse } from 'next/server'
 
@@ -10,7 +10,7 @@ import { NextResponse } from 'next/server'
  */
 export const runtime = 'nodejs'
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
+// Groq Whisper, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
 /** About a minute of compressed browser audio. */
 const MAX_AUDIO_BYTES = 2_000_000
 
@@ -25,7 +25,7 @@ export async function POST(request: Request) {
   }
   try {
     const { text } = await transcribe({
-      model: groq.transcription('whisper-large-v3-turbo'),
+      model: await transcriptionModel(),
       audio: new Uint8Array(await audio.arrayBuffer()),
     })
     return NextResponse.json({ text: text.trim() })
