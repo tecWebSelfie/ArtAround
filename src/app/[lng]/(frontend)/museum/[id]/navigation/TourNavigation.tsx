@@ -38,6 +38,7 @@ import {
   type ServiceMarker,
 } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
+import { prewarmQrScanner } from '@/lib/qr-scanner-module'
 import { museumRooms } from '@/lib/museum-rooms'
 import {
   Accessibility,
@@ -129,6 +130,9 @@ export const TourNavigationPage = ({
   const search = useSearchParams()
   // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
   const scanning = /\/scan$/.test(usePathname())
+  // "Scan" is one tap away: load the scanner's code while the visitor looks at
+  // the map, not after the tap (src/lib/qr-scanner-module.ts).
+  useEffect(prewarmQrScanner, [])
   const museumMap = useMemo(() => validateBuildJson(museum.map), [museum.map])
   // Services and entrances/exits live in the saved map scene graph, not in a
   // Payload field, so the controls derive them from the same JSON the map loads.
