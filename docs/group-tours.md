@@ -87,10 +87,12 @@ or video publishing.
 
 ## Running it
 
-- Local: `docker compose -f my-agent/compose.livekit.yaml up -d livekit` (dev keys
+- Local: `pnpm db:start` starts LiveKit along with MongoDB (the `livekit` service of
+  `my-agent/compose.livekit.yaml`, included by `docker-compose.yml`; dev keys
   `devkey`/`secret`, `LIVEKIT_URL=ws://localhost:7880`). The server is started with
   `--node-ip 127.0.0.1`; without it rooms stay "connecting" because the browser can't
-  reach the container's IP.
+  reach the container's IP. The group e2e tests check the server first
+  (`tests/helpers/livekit.ts`) and fail at once when it is down.
 - Production: a LiveKit Cloud project; set `LIVEKIT_URL` (`wss://…`), `LIVEKIT_API_KEY`
   and `LIVEKIT_API_SECRET`. An HTTPS site can't open `ws://`.
 

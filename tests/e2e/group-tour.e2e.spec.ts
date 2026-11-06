@@ -1,10 +1,11 @@
 import { expect as baseExpect, test, type Page } from '@playwright/test'
+import { requireLiveKit } from '../helpers/livekit'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 /**
  * Group tours with two real browsers, a host and a guest, on the real Next
- * app and a LiveKit server (`docker compose -f my-agent/compose.livekit.yaml
- * up -d livekit` locally):
+ * app and a real LiveKit server (`pnpm db:start` starts the local one; the
+ * group tests fail at once without it, see tests/helpers/livekit.ts):
  *
  *   host opens a group → guest joins with the code → host starts →
  *   guest follows → host opens a stop, guest can't close it → host closes →
@@ -28,6 +29,7 @@ test.beforeEach(() => {
 })
 
 test('a guest follows the host through the tour and the quiz', async ({ browser }) => {
+  await requireLiveKit()
   const host = await browser.newPage({ viewport: { width: 390, height: 844 } })
   const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
 
@@ -180,6 +182,7 @@ async function takeQuiz(
 }
 
 test('private results, a late guest in Italian, and the host reloading', async ({ browser }) => {
+  await requireLiveKit()
   const host = await browser.newPage({ viewport: { width: 390, height: 844 } })
   const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
   const code = await openGroup(host, 'Anna')
@@ -262,6 +265,7 @@ test('private results, a late guest in Italian, and the host reloading', async (
 })
 
 test('leaving, switching groups, ending from each place, ended codes', async ({ browser }) => {
+  await requireLiveKit()
   const anna = await browser.newPage({ viewport: { width: 390, height: 844 } })
   const luca = await browser.newPage({ viewport: { width: 1280, height: 900 } })
   const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })

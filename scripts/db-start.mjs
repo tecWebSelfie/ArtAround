@@ -6,6 +6,13 @@
  * cloud session, so there is no second MongoDB installation to keep in step.
  * Idempotent: an already running database is left as it is.
  *
+ * It then starts the local LiveKit server too (`livekit`, included from
+ * my-agent/compose.livekit.yaml, `--dev` keys `devkey`/`secret`): group tours
+ * and their e2e spec need a real one, and a cloud container restart stops it
+ * along with everything else. LiveKit is best effort: if it can't start, the
+ * script warns and still exits 0, since everything but group tours works
+ * without it.
+ *
  * Options:
  *   --seed-if-new  run `pnpm seed:e2e` when this call created the data volume
  *                  (never on an existing one: it may hold your test data).
@@ -68,6 +75,14 @@ const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
 log('MongoDB is ready on mongodb://127.0.0.1:27017.')
+
+// 4. LiveKit for group tours (best effort, see the header).
+try {
+  run('docker', ['compose', 'up', '--detach', '--wait', 'livekit'], { stdio: 'inherit' })
+  log('LiveKit is ready on ws://localhost:7880.')
+} catch {
+  console.warn('LiveKit did not start: group tours (and their e2e spec) will not connect.')
+}
 
 if (isNew && seedIfNew) {
   log('Seeding the new database (pnpm seed:e2e)…')
