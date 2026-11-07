@@ -3,6 +3,7 @@ import {
   AUDIO_VOICE,
   audioTextHash,
   contentAudioText,
+  contentAudioWhere,
   mp3DurationSeconds,
   splitForSpeech,
 } from '@/lib/content-audio'
@@ -14,7 +15,7 @@ import type { PayloadRequest, TaskConfig } from 'payload'
 const SOURCE_LOCALE = 'en'
 
 /**
- * Generates (or refreshes) the read-aloud MP3 of one content in one locale
+ * Generates (or refreshes) the read-aloud MP3 of one content/version in one locale
  * and stores it in `contentAudio` (`src/lib/content-audio.ts`).
  *
  * Queued by the `contents` hook when the source text changes, and by
@@ -25,7 +26,11 @@ const SOURCE_LOCALE = 'en'
  */
 export async function generateContentAudio(
   req: PayloadRequest,
-  { contentId, locale }: { contentId: string; locale: string },
+  {
+    contentId,
+    locale,
+    variantId,
+  }: { contentId: string; locale: string; variantId?: string | null },
 ): Promise<{ status: 'no-text' | 'up-to-date' | 'generated'; seconds?: number }> {
   const { payload } = req
   const content = await payload.findByID({
@@ -38,13 +43,33 @@ export async function generateContentAudio(
     overrideAccess: true,
     req,
   })
-  if (!content.body) return { status: 'no-text' }
-  const text = contentAudioText(content)
+  const variant = variantId
+    ? await payload
+        .findByID({
+          collection: 'contentVariants',
+          id: variantId,
+          locale: locale as 'en',
+          fallbackLocale: false,
+          depth: 0,
+          overrideAccess: true,
+          req,
+        })
+        .catch(() => null)
+    : null
+  // A queued job must never attach another content's version to this content's audio.
+  if (
+    variantId &&
+    (!variant?.body || variant.kind !== 'version' || variant.content !== contentId)
+  ) {
+    return { status: 'no-text' }
+  }
+  if (!variant?.body && !content.body) return { status: 'no-text' }
+  const text = contentAudioText({ ...content, body: variant?.body ?? content.body })
   const textHash = audioTextHash(text)
 
   const { docs } = await payload.find({
     collection: 'contentAudio',
-    where: { and: [{ content: { equals: contentId } }, { locale: { equals: locale } }] },
+    where: contentAudioWhere(contentId, locale, variantId ?? undefined),
     depth: 0,
     limit: 1,
     overrideAccess: true,
@@ -71,12 +96,13 @@ export async function generateContentAudio(
   const file = {
     data,
     mimetype: 'audio/mpeg',
-    name: `content-${contentId}-${locale}.mp3`,
+    name: `content-${contentId}${variantId ? `-${variantId}` : ''}-${locale}.mp3`,
     size: data.length,
   }
   const fields = {
     content: contentId,
     locale,
+    variant: variantId ?? null,
     textHash,
     durationSeconds: seconds,
     model: AUDIO_MODEL,
@@ -101,8 +127,8 @@ export async function generateContentAudio(
     })
   }
 
-  // The real length of the source audio replaces the word-count estimate.
-  if (locale === SOURCE_LOCALE && seconds) {
+  // Only base source audio replaces the estimate; a variant duration is a request/cache key.
+  if (!variantId && locale === SOURCE_LOCALE && seconds) {
     await payload.update({
       collection: 'contents',
       id: contentId,
@@ -124,6 +150,7 @@ export const generateContentAudioTask: TaskConfig<'generateContentAudio'> = {
   inputSchema: [
     { name: 'contentId', type: 'text', required: true },
     { name: 'locale', type: 'text', required: true },
+    { name: 'variantId', type: 'text' },
   ],
   outputSchema: [
     { name: 'status', type: 'text', required: true },

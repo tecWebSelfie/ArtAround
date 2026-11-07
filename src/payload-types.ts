@@ -2569,6 +2569,7 @@ export interface ContentAudio {
   id: string
   content: string | Content
   locale: string
+  variant?: (string | null) | ContentVariant
   textHash: string
   durationSeconds?: number | null
   model?: string | null
@@ -4533,6 +4534,7 @@ export interface ContentVariantsSelect<T extends boolean = true> {
 export interface ContentAudioSelect<T extends boolean = true> {
   content?: T
   locale?: T
+  variant?: T
   textHash?: T
   durationSeconds?: T
   model?: T
@@ -5441,6 +5443,7 @@ export interface TaskGenerateContentAudio {
   input: {
     contentId: string
     locale: string
+    variantId?: string | null
   }
   output: {
     status: string

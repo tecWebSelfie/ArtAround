@@ -27,7 +27,12 @@ const routeURL = () => {
 // Chromium reads this WAV as the microphone (1 s silence, the request, 3 s silence).
 test.use({
   launchOptions: {
+    // This test overrides project launchOptions to add a microphone: preserve the cloud browser.
+    executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
     args: [
+      '--use-gl=angle',
+      '--use-angle=swiftshader',
+      '--enable-unsafe-swiftshader',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-audio-capture=${resolve('tests/e2e/fixtures/open-side-discovery.wav')}`,

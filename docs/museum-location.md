@@ -119,8 +119,7 @@ DESIGN's overview/extraction note and matching sidecar overview still describe
 motion and the `museum` primary. Later DESIGN rules describe that primary. This
 local extension does not resolve the older contradiction.
 
-New English and Italian UI keys are filled. Other locales use the existing
-fallback policy; translation-status output still has pre-existing punctuation
+All 15 geographic-location UI keys are filled in all 24 supported locales; translation-status output still has pre-existing punctuation
 and other-key warnings. Extraction `--ci` passing is not proof of complete
 translation in all locales.
 
@@ -177,3 +176,20 @@ Pre-push simplify/extract review retained the shared map and address formatter,
 existing FormActions, reading-profile helpers and Mantine primitives. No further
 pattern met the three-use/same-intent extraction threshold. DESIGN.md and its
 sidecar now record the full-address/manual-city pattern; global tokens are unchanged.
+
+## Live-provider network boundary (2026-11-07)
+
+Fresh HTTPS probes to CARTO styles and Photon both received proxy CONNECT 403.
+This is a cloud destination-policy denial, before the providers are reached.
+A saved environment configuration draft now permits `basemaps.cartocdn.com`,
+`*.basemaps.cartocdn.com`, `tiles.basemaps.cartocdn.com` and `photon.komoot.io`.
+The draft requires review/save and environment publication to become effective;
+no environment was published. After activation, verify both style JSON files,
+their sprite/glyph/vector-tile requests, the visible street basemap and a real
+Photon suggestion. Fixture map tests cannot certify live-provider readiness.
+
+Final provider probes also returned CONNECT 403 for both CARTO styles and Photon;
+receipt: `/tmp/artaround-live-map-probes.json`. All 15 location strings are now
+translated across the 24 locales, with extraction `--ci` passing. The final
+project-wide integration run passed 276 tests in 43 files; the geographic map
+continues to use synthetic basemap responses in scoped UI verification.

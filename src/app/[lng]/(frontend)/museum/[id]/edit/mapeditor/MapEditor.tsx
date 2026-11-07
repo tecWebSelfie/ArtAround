@@ -1,5 +1,7 @@
 'use client'
 
+import '@/lib/gltf-decoder'
+
 import { ObjectCatalogPanel, useObjectGeneration } from '@/components/pascal/ObjectCatalogPanel'
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'

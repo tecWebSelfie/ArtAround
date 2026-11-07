@@ -138,3 +138,36 @@ profile-free. Starting/following keeps each reader's `age` and `audience` on the
 shared work. Same-modal duration choices use `seconds` (legacy `minutes` remains
 accepted). See [Planned visits](planned-visits.md) for the three-device e2e proof
 and its explicit model-provider boundary.
+
+## Connection recovery (2026-11-07)
+
+Initial token or connection failures now retry with a 1–5 second backoff while
+membership remains active. This also applies when a host reloads. Only an
+explicit missing/ended-room response (404/410) clears membership; transient 5xx
+or rate limits do not turn an open room into an ended group. Leaving, switching
+rooms and unmounting cancel retry waits and disconnect through LiveKit's
+sequential connect/disconnect hook. Established-connection recovery remains
+LiveKit's responsibility.
+
+The reload E2E case injects one token-endpoint 503, then requires the guest to
+follow the reconnected host again. Group specs close their manually created
+browser contexts after every case. `E2E_SOFTWARE_WEBGL=true` limits animation
+scheduling for their simultaneous software-rendered maps in cloud tests; it
+changes neither app code nor a production performance claim.
+
+Ending a group now requires a successful DELETE response before clearing local
+membership or navigating home. A failed request preserves the host connection
+and shows a localized retry message. This corrects the earlier false success
+where the host left even though the LiveKit room still existed. The focused
+provider test uses MSW to refuse the first authorized DELETE and accept a retry;
+it verifies that membership survives the failure. The end-to-end cases also
+observe the exact room's DELETE and verify that its public status becomes 404,
+instead of inferring deletion solely from the host leaving the page.
+
+Final group rerun: all three multi-browser scenarios passed on the local
+production build and real LiveKit. This includes injected initial-token 503,
+injected DELETE 503 followed by authorized retry, private results, reload,
+leaving/switching rooms and ended codes. End assertions require HTTP 204 and
+then a real 404 lookup for the same room. Evidence:
+`/tmp/artaround-e2e-group-final.log`. No real speech provider or phone sensor
+acceptance is implied by these deterministic regression checks.

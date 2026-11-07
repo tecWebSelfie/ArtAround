@@ -34,13 +34,19 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 let asked: { request: { age?: number; seconds?: number } } | undefined
+let audioVersion: unknown
 export const ExactAgeCaption: Story = {
   beforeEach: () => {
     asked = undefined
+    audioVersion = undefined
   },
   parameters: {
     msw: {
       handlers: [
+        http.get('*/api/content-audio/:id', ({ request }) => {
+          audioVersion = JSON.parse(new URL(request.url).searchParams.get('version') ?? 'null')
+          return HttpResponse.json({ status: 'unavailable' }, { status: 503 })
+        }),
         http.post('*/api/expand', async ({ request }) => {
           asked = (await request.json()) as typeof asked
           return new HttpResponse('The same facts for a five-year-old.', {
@@ -53,6 +59,9 @@ export const ExactAgeCaption: Story = {
   play: async ({ canvas }) => {
     await expect(await canvas.findByText('The same facts for a five-year-old.')).toBeVisible()
     await waitFor(() => expect(asked?.request).toMatchObject({ age: 5, seconds: 3 }))
+    await userEvent.click(canvas.getByRole('button', { name: /^Listen$/ }))
+    await expect(await canvas.findByRole('button', { name: 'Audio not available' })).toBeDisabled()
+    await expect(audioVersion).toEqual(asked?.request)
     await userEvent.click(canvas.getByRole('button', { name: /^Original$/ }))
     const location = new URL(getRouter().replace.mock.calls.at(-1)![0], 'http://test')
     await expect(location.searchParams.has('age')).toBe(false)

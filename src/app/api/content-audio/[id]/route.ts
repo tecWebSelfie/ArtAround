@@ -1,4 +1,11 @@
-import { audioTextHash, AUDIO_QUEUE, contentAudioText } from '@/lib/content-audio'
+import {
+  audioTextHash,
+  AUDIO_QUEUE,
+  contentAudioText,
+  contentAudioWhere,
+} from '@/lib/content-audio'
+import { VersionRequest } from '@/lib/expansion-request'
+import { variantWhere } from '@/lib/expansion-variants'
 import { normalizeLocale } from '@/lib/localized'
 import { allowRequest } from '@/lib/rate-limit'
 import { asViewer, getSession } from '@/lib/session'
@@ -11,6 +18,7 @@ import { NextResponse } from 'next/server'
  *
  *   GET /api/content-audio/ID?locale=it          → the MP3 (Range supported)
  *   GET /api/content-audio/ID?locale=it&check=1  → { status } without the file
+ *   Add version=<JSON version request> to read the matching saved personal text.
  *
  * Statuses: `ready`; `pending` (being generated: ask again in a few
  * seconds); `translating` (no translation in that language yet, the page's
@@ -38,6 +46,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const { id } = await params
   const url = new URL(request.url)
   const locale = normalizeLocale(url.searchParams.get('locale') ?? 'en') ?? 'en'
+  const versionParam = url.searchParams.get('version')
+  const version =
+    versionParam === null
+      ? null
+      : VersionRequest.safeParse(
+          await Promise.resolve()
+            .then(() => JSON.parse(versionParam))
+            .catch(() => null),
+        )
+  if (version && !version.success) return json('invalid-version', 400)
   const { payload } = await getSession()
   const viewer = await asViewer()
 
@@ -55,6 +73,23 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!source) return json('not-found', 404)
   if (!source.body) return json('locked', 403)
 
+  // Resolve by the same validated parameters as /api/expand, after checking the base access.
+  // While the text stream is saving, wait instead of accidentally playing the base version.
+  const variant = version?.success
+    ? (
+        await payload.find({
+          collection: 'contentVariants',
+          where: variantWhere('contents', id, version.data),
+          locale,
+          fallbackLocale: false,
+          depth: 0,
+          limit: 1,
+          overrideAccess: true,
+        })
+      ).docs[0]
+    : undefined
+  if (version && !variant?.body) return json('translating', 202)
+
   // 2. The text in the requested language (never the English fallback) and
   //    the stored audio, read together: neither depends on the other.
   const [content, { docs }] = await Promise.all([
@@ -69,14 +104,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     }),
     payload.find({
       collection: 'contentAudio',
-      where: { and: [{ content: { equals: id } }, { locale: { equals: locale } }] },
+      where: contentAudioWhere(id, locale, variant?.id),
       depth: 0,
       limit: 1,
       overrideAccess: true,
     }),
   ])
-  if (!content.body) return json('translating', 202)
-  const textHash = audioTextHash(contentAudioText(content))
+  if (!content.body && !variant?.body) return json('translating', 202)
+  const textHash = audioTextHash(
+    contentAudioText({ ...content, body: variant?.body ?? content.body }),
+  )
 
   // 3. A current audio is served; a missing or stale one is generated.
   const audio = docs[0]
@@ -94,13 +131,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       etag,
     )
   }
-  if (!process.env.FISH_API_KEY) return json('unavailable', 503)
-  const key = `${id}:${locale}`
+  if (!process.env.FISH_API_KEY && process.env.AI_MOCK !== 'true') return json('unavailable', 503)
+  const key = `${id}:${locale}:${variant?.id ?? 'base'}`
   if (Date.now() - (queuedAt.get(key) ?? 0) > REQUEUE_AFTER_MS) {
     queuedAt.set(key, Date.now())
     await payload.jobs.queue({
       task: 'generateContentAudio',
-      input: { contentId: id, locale },
+      input: { contentId: id, locale, ...(variant ? { variantId: variant.id } : {}) },
       queue: AUDIO_QUEUE,
     })
   }

@@ -1,10 +1,7 @@
 import config from '@/payload.config'
 import {
-  AUDIENCES,
-  EXPANSION_ANGLES,
   keepKnownLinks,
   LINKS_HEADER,
-  MAX_EXPANSION_STEPS,
   type ExpansionAngle,
   type ExpansionLink,
 } from '@/lib/expansion'
@@ -29,6 +26,7 @@ import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { z } from 'zod'
+import { ExpansionRequestSchema } from '@/lib/expansion-request'
 
 /**
  * Extra text for a content or object modal, streamed as plain text:
@@ -52,24 +50,7 @@ const Body = z.object({
   target: z.enum(['contents', 'objects']),
   id: z.string().min(1).max(64),
   lng: z.string().min(2).max(10),
-  request: z.discriminatedUnion('kind', [
-    z.object({
-      kind: z.literal('more'),
-      angle: z.enum(EXPANSION_ANGLES),
-      step: z.number().int().min(1).max(MAX_EXPANSION_STEPS).optional(),
-      age: z.number().int().min(0).max(17).optional(),
-    }),
-    z
-      .object({
-        kind: z.literal('version'),
-        difficulty: z.enum(['easy', 'medium', 'hard']),
-        // From a few seconds (a one-line caption) to a quarter of an hour.
-        seconds: z.number().int().min(3).max(900),
-        audience: z.enum(AUDIENCES),
-        age: z.number().int().min(0).max(17).optional(),
-      })
-      .refine((request) => request.age === undefined || request.audience === 'children'),
-  ]),
+  request: ExpansionRequestSchema,
 })
 
 /**

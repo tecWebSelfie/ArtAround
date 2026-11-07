@@ -1,14 +1,16 @@
 import { expect as baseExpect, test } from '@playwright/test'
 import { toDataURL } from 'qrcode'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
 // The seeded tour's first step (tests/helpers/tour-fixture.ts): run
 // scripts/seed-tour-navigation.ts once; TOUR_NAVIGATION_URL overrides it.
 const tourURL = tourFixture?.url
-test.beforeEach(() => {
+test.beforeEach(async ({ page }) => {
   requireTourFixture()
+  await prepareSoftwareWebGL(page)
 })
 // A passing run takes 20–40 s, the first one after a fresh `next dev` more
 // (route compile): 3 minutes covers that without letting a broken scanner
@@ -58,7 +60,7 @@ for (const target of ['object', 'content'] as const) {
     await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
     // A click before hydration opens nothing: retry until the scanner is up.
     await expect(async () => {
-      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 2_000 })
+      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 10_000 })
       await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
     }).toPass({ timeout: 60_000 })
     await expect

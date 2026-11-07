@@ -1,5 +1,7 @@
 'use client'
 
+import '@/lib/gltf-decoder'
+
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'

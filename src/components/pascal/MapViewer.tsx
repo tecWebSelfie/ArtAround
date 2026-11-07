@@ -1,5 +1,7 @@
 'use client'
 
+import '@/lib/gltf-decoder'
+
 import { Box, BoxProps } from '@mantine/core'
 import {
   AnyNode,

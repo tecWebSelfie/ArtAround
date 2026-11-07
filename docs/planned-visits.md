@@ -85,3 +85,38 @@ has the correct singular/plural entries. The final typecheck, scoped lint and
 The documenter reconciled DESIGN.md and `.impeccable/design.json` with personal
 reader selection and the scoped contrast treatment, preserving earlier navigation
 changes and global tokens. Nothing was published, merged, or deployed.
+
+## Read-aloud versions (2026-11-07)
+
+The selected version now exposes Listen, using exactly the same validated
+difficulty, duration, audience and age request as the displayed text. The audio
+route checks source entitlement first, then resolves the saved localized variant.
+Until that version is saved it reports translating; it never substitutes base
+audio. Stored files and queue deduplication are isolated by content/locale/variant.
+Switching reader, language or content remounts the player and aborts old polling.
+
+`ContentAudio.variant` is nullable for legacy base files. At startup,
+`ensureContentAudioVariantIndex` installs content/locale/variant uniqueness before
+removing only the obsolete content/locale unique index. It retains existing
+recordings and unrelated indexes and tolerates concurrent startup workers.
+Only base English audio updates content duration: variant duration remains a
+request/cache key. Playback retains private access checks and Range/ETag support.
+
+The new route/task tests cover locked sources, invalid versions, missing text,
+exact-age lookup, distinct jobs, wrong-content variants, byte ranges and ETags.
+Four focused Storybook interaction/a11y stories passed without violations;
+mobile, desktop and mobile-dark captures were inspected without horizontal
+overflow in `.impeccable/review/personal-audio/`. Speech-provider testing uses
+AI SDK mocks, not a claim about live Fish Audio quality or availability.
+
+The local production API/task/file smoke test also returned ready for both age
+5 and age 8 recordings, with valid HTTP 206 byte ranges. Its provider is still
+the AI SDK mock, so equal mock text/fingerprints do not prove pedagogical quality;
+variant identifiers and recordings remain independent. Receipt:
+`/tmp/artaround-personal-audio-check.json`.
+
+The updated public family E2E passed on the local production build with three
+independent readers and age-specific recording lookup/generation/Range serving.
+Group recovery/end regressions also passed after targeted fixes. The final full
+integration run passed 276 tests across 43 files. Full-suite and rerun evidence
+is recorded in `docs/plan/requisiti-18-33.md`.

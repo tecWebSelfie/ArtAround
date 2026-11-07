@@ -1,14 +1,15 @@
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { createHash } from 'node:crypto'
 import type { Content } from '@/payload-types'
+import type { Where } from 'payload'
 
 /**
- * Read-aloud audio of a content's base text (requirement 4 of
+ * Read-aloud audio of a content's base text or selected saved version (requirement 4 of
  * `docs/plan/requisiti-18-33.md`): the pure parts shared by the
  * `generateContentAudio` task, the `contents` hook that queues it and the
  * `/api/content-audio/[id]` route that serves it.
  *
- * One MP3 per content and locale lives in the `contentAudio` upload
+ * One MP3 per content, locale and optional saved variant lives in the `contentAudio` upload
  * collection. Its `textHash` fingerprints the text it reads (plus the voice
  * and model), so an edited text — or a refreshed translation — makes the
  * stored audio stale and the next request generates it again.
@@ -20,6 +21,19 @@ export const AUDIO_MODEL = 's2.1-pro-free'
 
 /** Jobs queue the audio tasks run on (`jobs.autoRun` in `payload.config.ts`). */
 export const AUDIO_QUEUE = 'speech'
+
+/** Missing/null variant is the legacy base audio; every saved version has its own file. */
+export function contentAudioWhere(contentId: string, locale: string, variantId?: string): Where {
+  return {
+    and: [
+      { content: { equals: contentId } },
+      { locale: { equals: locale } },
+      variantId
+        ? { variant: { equals: variantId } }
+        : { or: [{ variant: { exists: false } }, { variant: { equals: null } }] },
+    ],
+  }
+}
 
 /**
  * Longest text sent in one speech request. Long bodies are read in several

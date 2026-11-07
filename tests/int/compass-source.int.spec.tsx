@@ -58,6 +58,36 @@ describe('absolute compass measurements', () => {
     expect(result.current.status).toBe('denied')
     expect(result.current.heading).toBeNull()
   })
+  it('reads Android absolute events and removes listeners when the device source stops', async () => {
+    vi.stubGlobal('DeviceOrientationEvent', {})
+    vi.stubGlobal('isSecureContext', true)
+    const { result, rerender } = renderHook(({ mode }) => useCompass(mode), {
+      initialProps: { mode: 'device' as 'device' | 'off' },
+    })
+    await act(() => result.current.enable())
+    const event = () =>
+      Object.assign(new Event('deviceorientationabsolute'), { alpha: 270, absolute: true })
+    act(() => window.dispatchEvent(event()))
+    expect(result.current.heading).toBe(90)
+    expect(result.current.status).toBe('ready')
+    rerender({ mode: 'off' })
+    act(() => window.dispatchEvent(event()))
+    expect(result.current.heading).toBeNull()
+    expect(result.current.status).toBe('off')
+  })
+  it('handles insecure contexts and Safari permission errors without inventing a heading', async () => {
+    const permission = vi.fn().mockRejectedValue(new Error('NotAllowedError'))
+    vi.stubGlobal('DeviceOrientationEvent', { requestPermission: permission })
+    vi.stubGlobal('isSecureContext', false)
+    const { result } = renderHook(() => useCompass('device'))
+    await act(() => result.current.enable())
+    expect(result.current.status).toBe('unsupported')
+    expect(permission).not.toHaveBeenCalled()
+    vi.stubGlobal('isSecureContext', true)
+    await act(() => result.current.enable())
+    expect(result.current.status).toBe('denied')
+    expect(result.current.heading).toBeNull()
+  })
   it('turns the simulated compass in the D-pad movement direction', () => {
     const { result } = renderHook(() => useCompass('simulated'))
     act(() => result.current.turn(2, 0))

@@ -1,6 +1,7 @@
 'use client'
 
-import type { Audience } from '@/lib/expansion'
+import type { Audience, ExpansionRequest } from '@/lib/expansion'
+import { ContentAudioButton } from '@/components/mantine/ContentAudioButton'
 import type { Content, Difficulty } from '@/payload-types'
 import { Button, Group, Stack } from '@mantine/core'
 import { Baby, Clock, Feather, GraduationCap, RotateCcw } from 'lucide-react'
@@ -50,6 +51,14 @@ export function ContentVersion({
   const audience: Audience = search.get('audience') === 'children' ? 'children' : 'everyone'
   const age = audience === 'children' ? readingAge(search.get('age')) : undefined
   const changed = Boolean(level || seconds || audience === 'children')
+  // The visible text and Listen must resolve the same saved version, including exact age.
+  const version: Extract<ExpansionRequest, { kind: 'version' }> = {
+    kind: 'version',
+    difficulty: audience === 'children' ? 'easy' : (level ?? content.difficulty),
+    seconds: Math.min(900, Math.max(3, seconds ?? originalSeconds)),
+    audience,
+    ...(age === undefined ? {} : { age }),
+  }
 
   const toggle = (key: (typeof VERSION_KEYS)[number], value: string | null) => {
     const query = new URLSearchParams(search)
@@ -136,19 +145,8 @@ export function ContentVersion({
       {changed ? (
         <div>
           <h2>{content.title}</h2>
-          <ExpansionText
-            target="contents"
-            id={content.id}
-            request={{
-              kind: 'version',
-              // Children always get the easiest wording.
-              difficulty: audience === 'children' ? 'easy' : (level ?? content.difficulty),
-              // Captions can be shorter than the API minimum; long items exceed its maximum.
-              seconds: Math.min(900, Math.max(3, seconds ?? originalSeconds)),
-              audience,
-              ...(age === undefined ? {} : { age }),
-            }}
-          />
+          <ContentAudioButton contentId={content.id} version={version} />
+          <ExpansionText target="contents" id={content.id} request={version} />
         </div>
       ) : (
         children

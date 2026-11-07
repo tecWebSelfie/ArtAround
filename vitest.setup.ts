@@ -1,4 +1,4 @@
-// Any setup scripts you might need go here
+import { config } from 'dotenv'
 
-// Load .env files
-import 'dotenv/config'
+// Match Next's local development configuration without overriding CI process variables.
+config({ path: process.env.DOTENV_CONFIG_PATH ?? ['.env.local', '.env'] })

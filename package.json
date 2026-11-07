@@ -17,7 +17,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "prepare": "husky",
-    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs && node scripts/copy-maplibre-assets.mjs",
+    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs && node scripts/copy-maplibre-assets.mjs && node scripts/copy-draco-assets.mjs",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.config.ts",

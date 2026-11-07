@@ -3,8 +3,9 @@
 Written for the next agent (ChatGPT Codex) taking over from a Claude Code
 session. Read `AGENTS.md` first: its rules (Italian with the maintainer,
 English in code/commits/docs, intent comments, i18n, responsive layout,
-checks) apply unchanged. Branch: `ccr-05ce6c3f-yjnqrl` (push here only; no
-PR or merge without asking).
+checks) apply unchanged. Current branch: `db-populate`; no PR or merge without asking.
+The original handoff below has been superseded by the completed implementation
+record in `docs/plan/requisiti-18-33.md`.
 
 ## Goal
 
@@ -40,34 +41,33 @@ Code changes: `guestCommands()` moved into `src/lib/group.ts` (used by
 
 Run them: `pnpm test:int tests/int/<name>.int.spec.ts`.
 
-## Remaining work
+## Current status (2026-11-07)
 
-1. **Advanced localization UI** (only open requirement). The rule exists;
-   nothing calls it yet. Wire:
-   - compass heading from `DeviceOrientationEvent` (`webkitCompassHeading`
-     on iOS, which needs `DeviceOrientationEvent.requestPermission()` from a
-     user tap; `alpha` from `deviceorientationabsolute` elsewhere) in a hook
-     next to `museum/[id]/navigation/gps-source.ts` (simulator: let the D-pad
-     also turn the heading when `NEXT_PUBLIC_GPS_SIMULATOR=true`);
-   - the GPS plan estimate already computed in `use-route-guidance.ts`
-     (`estimatePlanPoint`) plus placed works' plan points (the map's object
-     positions, see `museumRooms(nodes).objects` in `src/lib/museum-rooms.ts`)
-     → `workInFront(...)`;
-   - `sure` → offer/open that work (same as "What is this?":
-     `${here}/object/${id}`); `choose` → a small chooser with each
-     candidate's low-resolution image (object thumbnail) and name; picking
-     one sets `at` like `NavigationObjectActions` (`withNavigationValue`).
-   - It is a new UI surface: per AGENTS.md run `/impeccable shape` first, add
-     a Storybook story, translate new keys in `en`/`it` (then all languages
-     before a PR), `npx i18next-cli extract`. Add an e2e or story test.
-2. Before pushing: `/simplify` on the unpushed diff (not run on the commits
-   above), `pnpm typecheck` (also the pre-push hook), focused `pnpm test:int`.
-3. Optional, not done: full `pnpm test:int` run; e2e suite.
+Advanced localization is connected to the real GPS/compass hooks, a direction-aware
+candidate chooser and distinct next-stop/off-tour notices. Explicit confirmation
+updates `at`; estimated movement remains device-local. Family planning/reading,
+museum address search/map and personalized read-aloud versions are implemented.
+See `docs/tour-navigation.md`, `docs/planned-visits.md` and `docs/museum-location.md`.
+
+The full integration suite has been rerun successfully. The current browser
+regression outcome and commands are recorded in the living requirements plan.
+Old failures in this handoff are historical, not current findings.
+
+External acceptance still needs evidence unavailable to this executor:
+
+1. Physical iOS/Android permission, heading and indoor-accuracy checks. Synthetic
+   sensor tests do not prove real hardware precision. Use HTTPS and check deny,
+   grant, background/resume, direction changes, nearby notice withdrawal and
+   explicit `at` confirmation; test on a real museum floor plan aligned north.
+2. Live CARTO/Photon acceptance after publishing the saved cloud network draft.
+   Both provider probes currently stop at proxy CONNECT 403. The draft was saved,
+   not published; do not claim a successful live-provider check.
 
 ## Traps
 
-- `pnpm typecheck` rewrites `src/payload-types.ts` unformatted: restore it
-  with `git checkout src/payload-types.ts` (or prettier) before committing.
+- `pnpm typecheck` rewrites `src/payload-types.ts` unformatted: format it
+  with `pnpm exec prettier --write src/payload-types.ts` before committing; preserve
+  real schema changes in the generated file.
 - Never run `npx prettier --write tests/int/*.ts`: it reformats unrelated
   specs. lint-staged formats staged files at commit.
 - Creating `contents` through the Local API in TypeScript needs

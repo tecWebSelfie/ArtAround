@@ -434,9 +434,13 @@ Use `PLAYWRIGHT_CHANNEL=chrome` if Playwright's pinned Chromium is unavailable,
 and `PLAYWRIGHT_USE_RUNNING_SERVER=true` to use an existing Next server.
 Do not start duplicate servers or kill unrelated processes.
 
-## Verification status and next work
+## Historical verification at the original handoff
 
-Evidence accumulated before this handoff:
+The following failures describe the original handoff, not the current branch.
+Current closing evidence is in `docs/plan/requisiti-18-33.md`; production build,
+TypeScript, navigation progression and both QR cases have since passed.
+
+Evidence accumulated before that handoff:
 
 - 11 focused integration tests passed.
 - Manual browser checks passed: search, side content without advancement, explicit
@@ -458,8 +462,8 @@ Evidence accumulated before this handoff:
   Also audit how localized RSC reads expose translation refresh status; the helper
   currently returns the document and does not add a client translation polling UI.
 
-On resumption, prioritize one QR case on a fresh development runtime, then fix
-only demonstrated feature failures. Avoid broad unrelated cleanup.
+That original QR-priority instruction is superseded by the current regression
+record. Preserve the historical evidence without treating old failures as open tasks.
 
 ## Environment pitfalls
 
@@ -478,3 +482,31 @@ only demonstrated feature failures. Avoid broad unrelated cleanup.
 - If route changes leave stale generated references, regenerate types. If HMR
   reports a missing module factory, restart the owned development process before
   changing application logic or deleting caches.
+
+## Local GLTF decoder (2026-11-07)
+
+The editor regression exposed an uncaught request failure for Drei's default
+Google-hosted Draco decoder. `src/lib/gltf-decoder.ts` now sets the documented
+`useGLTF.setDecoderPath` before viewer/editor/model/Avatar preload. Postinstall
+copies the matching JS/WASM trio already shipped by the installed Three package
+into ignored `public/draco`; no decoder dependency or network exception is added.
+Do not replace this with a test filter that suppresses runtime errors.
+
+## Closing regression outcome (2026-11-07)
+
+All 21 distinct browser scenarios are now covered by the complete run plus
+focused reruns after fixes. Both QR cases use real generated camera frames and
+the actual decoder, opening/reloading contextual object/content modals. Guidance
+verifies that simulated GPS offers a nearby destination without changing `at`
+until explicit confirmation. Voice uses the WAV microphone and AI SDK mocks.
+Both editor cases pass with the local Draco decoder; all three group scenarios
+pass with real LiveKit, including reconnect and failed/successful end recovery.
+The public family flow includes separate age-version audio through the real
+route/job/MongoDB/file pipeline. Current full integration count: 43 files,
+276 tests; production build and TypeScript passed. i18next extraction `--ci`
+passes. Lint has no errors, retaining warnings in pre-existing unrelated files.
+
+This is functional regression evidence, not physical-device sensor acceptance or
+live cartographic-provider verification. The visual-regression suite was not
+run. See `docs/plan/requisiti-18-33.md` for the staged run evidence and the two
+external acceptance boundaries.

@@ -1,6 +1,13 @@
-import { expect as baseExpect, test, type Page } from '@playwright/test'
+import {
+  expect as baseExpect,
+  test,
+  type Page,
+  type Browser,
+  type BrowserContextOptions,
+} from '@playwright/test'
 import { requireLiveKit } from '../helpers/livekit'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 /**
  * Group tours with two real browsers, a host and a guest, on the real Next
@@ -28,27 +35,23 @@ test.beforeEach(() => {
   test.setTimeout(400_000)
 })
 
+// Manually created contexts otherwise survive successful tests and retain their WebGL maps.
+test.afterEach(async ({ browser }) => {
+  await Promise.all(browser.contexts().map((context) => context.close()))
+})
+
+async function groupPage(browser: Browser, options: BrowserContextOptions) {
+  const page = await browser.newPage(options)
+  await prepareSoftwareWebGL(page)
+  return page
+}
+
 test('a guest follows the host through the tour and the quiz', async ({ browser }) => {
   await requireLiveKit()
-  const host = await browser.newPage({ viewport: { width: 390, height: 844 } })
-  const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  const host = await groupPage(browser, { viewport: { width: 390, height: 844 } })
+  const guest = await groupPage(browser, { viewport: { width: 390, height: 844 } })
 
-  // Host: "Start with a group" on the tour's start page.
-  await host.goto(at(`/en/museum/${fixture!.museumId}/navigation/tour/${fixture!.tourId}`), {
-    waitUntil: 'domcontentloaded',
-  })
-  // A click before hydration does nothing: click until the name field appears.
-  const hostName = host.getByRole('textbox', { name: 'Your name' })
-  await expect(async () => {
-    await host.getByRole('button', { name: 'Start with a group' }).click()
-    await expect(hostName).toBeVisible({ timeout: 1_000 })
-  }).toPass()
-  await hostName.fill('Anna')
-  // The host chooses to see everyone's score (off by default).
-  await host.getByRole('checkbox', { name: 'See everyone’s quiz results' }).check()
-  await host.getByRole('button', { name: 'Open the group' }).click()
-  await expect(host).toHaveURL(/\/en\/room\/[A-Z2-9]{6}$/)
-  const code = host.url().split('/').pop()!
+  const code = await openGroup(host, 'Anna', { showResults: true })
 
   // Guest: joins with the code from the navigator home.
   await guest.goto(at('/en/navigator'), { waitUntil: 'domcontentloaded' })
@@ -119,11 +122,59 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
   await expect(host.getByText(/^[0-2] of 2$/)).toBeVisible()
   await shot(host, 'group-results-host')
 
-  // Ending the group tour disconnects everyone.
+  // A failed DELETE must keep the host in the room, with a visible retry message.
+  let rejectedEnd = false
+  await host.route(`**/api/rooms/${code}`, (route) => {
+    if (route.request().method() === 'DELETE' && !rejectedEnd) {
+      rejectedEnd = true
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: '{"error":"unavailable"}',
+      })
+    }
+    return route.continue()
+  })
   await host.getByRole('button', { name: 'End the group tour' }).click()
-  await host.getByRole('button', { name: 'End for everyone' }).click()
-  await expect(guest.getByText('The group tour has ended')).toBeVisible()
+  await Promise.all([
+    expect(host.getByText('The group could not be ended. Try again.')).toBeVisible(),
+    confirmGroupEnd(host, code, 503),
+  ])
+  expect(rejectedEnd).toBe(true)
+  expect((await guest.request.get(at(`/api/rooms/${code}`))).ok()).toBe(true)
+  // The second attempt ends the real room and disconnects everyone.
+  await host.getByRole('button', { name: 'End the group tour' }).click()
+  await Promise.all([
+    expect(guest.getByText('The group tour has ended')).toBeVisible(),
+    confirmGroupEnd(host, code),
+  ])
 })
+
+/** Observe the actual DELETE, so a local departure cannot masquerade as a successful room end. */
+async function confirmGroupEnd(page: Page, code: string, status = 204) {
+  let receivedStatus = 0
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const deleted = page.waitForResponse(
+      (response) =>
+        response.request().method() === 'DELETE' &&
+        new URL(response.url()).pathname === `/api/rooms/${code}`,
+    )
+    await page.getByRole('button', { name: 'End for everyone' }).click()
+    receivedStatus = (await deleted).status()
+    if (status !== 204 || receivedStatus < 500 || attempt === 2) break
+    // Exercise the actual retry affordance after a temporary server error; never bypass authorization.
+    await expect(page.getByText('The group could not be ended. Try again.')).toBeVisible()
+    await page.getByRole('button', { name: 'End the group tour' }).click()
+  }
+  expect(receivedStatus).toBe(status)
+  if (status === 204) {
+    await expect
+      .poll(async () => (await page.request.get(at(`/api/rooms/${code}`))).status(), {
+        timeout: 30_000,
+      })
+      .toBe(404)
+  }
+}
 
 /** "Start with a group" on the tour's start page; returns the room code. */
 async function openGroup(page: Page, name: string, { showResults = false } = {}) {
@@ -132,13 +183,19 @@ async function openGroup(page: Page, name: string, { showResults = false } = {})
   })
   const nameField = page.getByRole('textbox', { name: 'Your name' })
   await expect(async () => {
-    await page.getByRole('button', { name: 'Start with a group' }).click()
-    await expect(nameField).toBeVisible({ timeout: 1_000 })
-  }).toPass()
+    if (!(await nameField.isVisible())) {
+      await page.getByRole('button', { name: 'Start with a group' }).click({ timeout: 1_500 })
+    }
+    await expect(nameField).toBeVisible({ timeout: 1_500 })
+  }).toPass({ timeout: 90_000 })
   await nameField.fill(name)
   if (showResults) await page.getByRole('checkbox', { name: 'See everyone’s quiz results' }).check()
-  await page.getByRole('button', { name: 'Open the group' }).click()
-  await expect(page).toHaveURL(/\/en\/room\/[A-Z2-9]{6}$/)
+  // The UI exposes the same action again after a transient LiveKit error; retry as a visitor can.
+  await expect(async () => {
+    if (/\/en\/room\/[A-Z2-9]{6}$/.test(page.url())) return
+    await page.getByRole('button', { name: 'Open the group' }).click({ timeout: 2_000 })
+    await expect(page).toHaveURL(/\/en\/room\/[A-Z2-9]{6}$/, { timeout: 5_000 })
+  }).toPass({ timeout: 90_000, intervals: [1_000, 3_000] })
   return page.url().split('/').pop()!
 }
 
@@ -183,8 +240,8 @@ async function takeQuiz(
 
 test('private results, a late guest in Italian, and the host reloading', async ({ browser }) => {
   await requireLiveKit()
-  const host = await browser.newPage({ viewport: { width: 390, height: 844 } })
-  const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  const host = await groupPage(browser, { viewport: { width: 390, height: 844 } })
+  const guest = await groupPage(browser, { viewport: { width: 390, height: 844 } })
   const code = await openGroup(host, 'Anna')
   await host.getByRole('button', { name: 'Start the tour' }).click()
   await host.getByRole('button', { name: 'Open next stop' }).click()
@@ -215,6 +272,19 @@ test('private results, a late guest in Italian, and the host reloading', async (
   )
 
   // The host's device reloads: guests stay put, then follow again.
+  // One transient token failure during reload must reconnect without losing the group.
+  let interruptedToken = false
+  await host.route('**/api/rooms/token', (route) => {
+    if (!interruptedToken) {
+      interruptedToken = true
+      return route.fulfill({
+        status: 503,
+        contentType: 'application/json',
+        body: '{"error":"unavailable"}',
+      })
+    }
+    return route.continue()
+  })
   await host.reload({ waitUntil: 'domcontentloaded' })
   await expect(guest).toHaveURL(/\/navigation\/tour\/[^/]+\/0\?/)
   // Clicks before hydration are lost: click until the host's modal opens.
@@ -225,6 +295,7 @@ test('private results, a late guest in Italian, and the host reloading', async (
     await expect(host.getByRole('dialog')).toBeVisible({ timeout: 1_000 })
   }).toPass()
   await expect(guest.getByRole('dialog')).toBeVisible()
+  expect(interruptedToken).toBe(true)
   await expect(guest).toHaveURL(/mobility=wheelchair/)
   await host.getByRole('dialog').getByRole('button', { name: 'Close' }).click()
 
@@ -260,15 +331,17 @@ test('private results, a late guest in Italian, and the host reloading', async (
   await shot(host, 'group-results-private-host')
 
   await host.getByRole('button', { name: 'End the group tour' }).click()
-  await host.getByRole('button', { name: 'End for everyone' }).click()
-  await expect(guest.getByText('Il tour di gruppo è terminato')).toBeVisible()
+  await Promise.all([
+    expect(guest.getByText('Il tour di gruppo è terminato')).toBeVisible(),
+    confirmGroupEnd(host, code),
+  ])
 })
 
 test('leaving, switching groups, ending from each place, ended codes', async ({ browser }) => {
   await requireLiveKit()
-  const anna = await browser.newPage({ viewport: { width: 390, height: 844 } })
-  const luca = await browser.newPage({ viewport: { width: 1280, height: 900 } })
-  const guest = await browser.newPage({ viewport: { width: 390, height: 844 } })
+  const anna = await groupPage(browser, { viewport: { width: 390, height: 844 } })
+  const luca = await groupPage(browser, { viewport: { width: 1280, height: 900 } })
+  const guest = await groupPage(browser, { viewport: { width: 390, height: 844 } })
 
   const first = await openGroup(anna, 'Anna')
   await joinGroup(guest, `/en/room/${first}`, 'Marco')
@@ -308,7 +381,7 @@ test('leaving, switching groups, ending from each place, ended codes', async ({ 
 
   // Ending from the waiting room: the code stops working.
   await luca.getByRole('button', { name: 'End the group tour' }).click()
-  await luca.getByRole('button', { name: 'End for everyone' }).click()
+  await confirmGroupEnd(luca, second)
   await expect(luca).toHaveURL(/\/en\/navigator/)
   await guest.goto(at(`/en/room/${second}`), { waitUntil: 'domcontentloaded' })
   await expect(guest.getByRole('heading', { name: 'This group has ended' })).toBeVisible()
@@ -320,7 +393,7 @@ test('leaving, switching groups, ending from each place, ended codes', async ({ 
   await anna.getByRole('dialog').getByRole('button', { name: 'Close' }).click()
   await anna.getByRole('button', { name: 'Your group, 1 person' }).click()
   await anna.getByRole('button', { name: 'End the group tour' }).click()
-  await anna.getByRole('button', { name: 'End for everyone' }).click()
+  await confirmGroupEnd(anna, first)
   await expect(anna.getByRole('button', { name: /Your group/ })).toHaveCount(0)
 })
 

@@ -45,11 +45,27 @@ const body = (text: string) => ({
 type Doc = Record<string, unknown>
 
 /** Local API double: one content per locale, the stored audios, recorded writes. */
-function fakeRequest({ contents, audios = [] }: { contents: Record<string, Doc>; audios?: Doc[] }) {
+function fakeRequest({
+  contents,
+  audios = [],
+  variants = {},
+}: {
+  contents: Record<string, Doc>
+  audios?: Doc[]
+  variants?: Record<string, Doc>
+}) {
   const writes: { op: string; collection: string; data: Doc; file?: unknown }[] = []
   const req = {
     payload: {
-      findByID: async ({ locale }: { locale: string }) => contents[locale] ?? {},
+      findByID: async ({
+        locale,
+        collection,
+        id,
+      }: {
+        locale: string
+        collection: string
+        id: string
+      }) => (collection === 'contentVariants' ? (variants[id] ?? {}) : (contents[locale] ?? {})),
       find: async () => ({ docs: audios }),
       create: async ({ collection, data, file }: Doc & { collection: string; data: Doc }) => {
         writes.push({ op: 'create', collection, data, file })
@@ -86,6 +102,36 @@ describe('preparing the text', () => {
 
 describe('generateContentAudio', () => {
   beforeEach(() => generateSpeech.mockClear())
+
+  it('reads a saved personal version and never changes the base duration or version lookup key', async () => {
+    const { req, writes } = fakeRequest({
+      contents: { en: { title: 'The work', body: body('Base facts.') } },
+      variants: { v5: { kind: 'version', content: 'c1', body: body('Facts for age five.') } },
+    })
+    await generateContentAudio(req, { contentId: 'c1', locale: 'en', variantId: 'v5' })
+    expect(generateSpeech).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'The work.\nFacts for age five.' }),
+    )
+    expect(writes).toHaveLength(1)
+    expect(writes[0]).toMatchObject({
+      collection: 'contentAudio',
+      data: { variant: 'v5', content: 'c1' },
+    })
+  })
+
+  it('rejects another content’s version or a missing translation without generating speech', async () => {
+    const { req, writes } = fakeRequest({
+      contents: { en: { title: 'The work', body: body('Base facts.') } },
+      variants: { other: { kind: 'version', content: 'c2', body: body('Private facts.') } },
+    })
+    for (const variantId of ['other', 'untranslated']) {
+      expect(await generateContentAudio(req, { contentId: 'c1', locale: 'en', variantId })).toEqual(
+        { status: 'no-text' },
+      )
+    }
+    expect(generateSpeech).not.toHaveBeenCalled()
+    expect(writes).toEqual([])
+  })
 
   it('reads the source text aloud, stores the MP3 and its real length', async () => {
     const { req, writes } = fakeRequest({

@@ -4,7 +4,10 @@ import { defineConfig, devices } from '@playwright/test'
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-import 'dotenv/config'
+import { config } from 'dotenv'
+
+// Cloud/Next setup writes .env.local; plain dotenv/config only reads .env.
+config({ path: process.env.DOTENV_CONFIG_PATH ?? ['.env.local', '.env'] })
 
 /**
  * Which app the specs drive. `next dev` while iterating (the one already
@@ -47,6 +50,8 @@ export default defineConfig({
         // on its own, and without WebGL the Pascal map never draws, so tour
         // navigation stays on "Finding your route" (group-tour, tour-guidance).
         launchOptions: {
+          // Cloud environments can reuse an installed browser without downloading Playwright's build.
+          executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
           args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
         },
       },

@@ -2,6 +2,7 @@ import { expect as baseExpect, test } from '@playwright/test'
 import { requireLiveKit } from '../helpers/livekit'
 import { requireTourFixture } from '../helpers/tour-fixture'
 import { MUSEUM_MODE_COOKIE } from '@/lib/museum-cookie'
+import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 /** Real public planner + Payload + LiveKit; only the model is the AI SDK mock. */
 const expect = baseExpect.configure({ timeout: 60_000 })
@@ -18,11 +19,7 @@ test('a planned family follows the same works with adult, five-year-old and eigh
   try {
     // Software WebGL in the cloud is not a production frame-rate benchmark.
     // Throttle only test-browser animation scheduling; touch/layout stay real.
-    for (const context of contexts)
-      await context.addInitScript(() => {
-        const raf = requestAnimationFrame.bind(window)
-        window.requestAnimationFrame = (callback) => window.setTimeout(() => raf(callback), 200)
-      })
+    for (const context of contexts) await prepareSoftwareWebGL(context)
     const [host, five, eight] = await Promise.all(contexts.map((context) => context.newPage()))
     await host.goto(`${origin}/en/tour/plan`, { waitUntil: 'domcontentloaded' })
     const museum = host.getByRole('combobox', { name: 'Museum', exact: true })
@@ -69,7 +66,12 @@ test('a planned family follows the same works with adult, five-year-old and eigh
       await expect(host.getByRole('textbox', { name: 'Your name' })).toBeVisible({ timeout: 1500 })
     }).toPass({ timeout: 90_000 })
     await host.getByRole('textbox', { name: 'Your name' }).fill('Parent')
-    await host.getByRole('button', { name: 'Open the group' }).click()
+    // Retry the exposed form action on a transient LiveKit startup error, without duplicate busy submits.
+    await expect(async () => {
+      if (/\/room\/[A-Z2-9]{6}$/.test(new URL(host.url()).pathname)) return
+      await host.getByRole('button', { name: 'Open the group' }).click({ timeout: 2_000 })
+      await expect(host).toHaveURL(/\/room\/[A-Z2-9]{6}\?mobility=wheelchair/, { timeout: 5_000 })
+    }).toPass({ timeout: 90_000, intervals: [1_000, 3_000] })
     await expect(host).toHaveURL(/\/room\/[A-Z2-9]{6}\?mobility=wheelchair/)
     const code = new URL(host.url()).pathname.split('/').pop()!
     for (const [page, age] of [
@@ -108,6 +110,26 @@ test('a planned family follows the same works with adult, five-year-old and eigh
       await expect(page.getByRole('dialog').locator('[aria-busy="false"] p').first()).toBeVisible({
         timeout: 120_000,
       })
+    // Real audio route + speech job + MongoDB: each child's saved version gets its own file.
+    // Only the provider is mocked; requesting a version must never fall back to base speech.
+    for (const [index, page] of [five, eight].entries()) {
+      const { id, request: version } = versions[index].postDataJSON()
+      const query = new URLSearchParams({ locale: 'en', version: JSON.stringify(version) })
+      const audioURL = `${origin}/api/content-audio/${id}?${query}`
+      await expect
+        .poll(
+          async () => {
+            const response = await page.request.get(`${audioURL}&check=1`)
+            return (await response.json()).status
+          },
+          { timeout: 60_000, intervals: [1_000, 3_000] },
+        )
+        .toBe('ready')
+      const recording = await page.request.get(audioURL, { headers: { Range: 'bytes=0-15' } })
+      expect(recording.status()).toBe(206)
+      expect(recording.headers()['content-type']).toBe('audio/mpeg')
+      expect((await recording.body()).length).toBe(16)
+    }
     expect(new URL(host.url()).searchParams.has('audience')).toBe(false)
     for (const page of [five, eight])
       await expect(

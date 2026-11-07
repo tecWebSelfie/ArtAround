@@ -108,10 +108,12 @@ export function GroupProvider({ children }: { children: ReactNode }) {
       start: () => setMembership({ ...membership, started: true }),
       leave: () => setMembership(null),
       end: async () => {
-        await fetch(`/api/rooms/${membership.code}`, {
+        const response = await fetch(`/api/rooms/${membership.code}`, {
           method: 'DELETE',
           headers: { 'X-Host-Key': membership.hostKey ?? '' },
-        }).catch(() => {})
+        })
+        // Keep the host connected when deletion fails; leaving locally is not ending the room.
+        if (!response.ok) throw new Error(`Group deletion failed: ${response.status}`)
         setMembership(null)
       },
     }

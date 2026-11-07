@@ -76,3 +76,6 @@ storybook-static
 
 # MapLibre 6 worker modules, copied on postinstall.
 /public/maplibre
+
+# Draco decoder from the installed Three.js package (copied on postinstall).
+/public/draco

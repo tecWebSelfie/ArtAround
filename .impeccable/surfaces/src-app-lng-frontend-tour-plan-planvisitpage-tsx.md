@@ -62,3 +62,15 @@ New controls have readable selected/neutral states, theme help and errors;
 the tour start retains its identity with deeper existing shades. Independent
 finish disposition: ship for this scoped extension. Design documentation and
 sidecar reconciled. No new shipping rasters or global design tokens.
+
+## Read-aloud hardening refinement (2026-11-07)
+
+The existing Listen primitive now accompanies the displayed saved personal
+version, using the same difficulty/duration/audience/age request as its text.
+Switching reader or locale cancels preparation and replaces the player. The
+refinement adds no design tokens or new control style. Impeccable harden/polish
+review inspected mobile, desktop and mobile-dark captures without overflow;
+four focused interaction/a11y stories passed without reported violations.
+Captures: `.impeccable/review/personal-audio/`. This is a local refinement review,
+not a new independent ship verdict. The real public family E2E also passed the
+age-specific audio route/job/file flow with only the provider mocked.

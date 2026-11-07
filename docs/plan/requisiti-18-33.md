@@ -127,7 +127,8 @@ Già decise:
     `generateContentAudio` (coda `speech`, ogni 5 s), hook `queueContentAudio`,
     route `/api/content-audio/[id]` (legge il testo come il visitatore, supporta
     Range), pulsante `ContentAudioButton` in tutte le viste del contenuto.
-    Variante per le versioni (bambini, semplice) non fatta: legge il testo base.
+    Versioni per bambini, età esatta, livello e durata supportate: “Ascolta”
+    usa la variante mostrata, con file e cache separati dal testo base.
     Test: `tests/int/content-audio.int.spec.ts` (Fish Audio simulato), storia
     `ContentAudioButton`. Limite: la chiamata reale a Fish Audio non è
     verificata qui, perché nell'ambiente cloud manca `FISH_API_KEY`.
@@ -383,3 +384,52 @@ routing are outside its implementation scope.
   per farli passare.
 - Un punto bloccato da una chiave API o da una decisione degli autori diventa
   `[!]` con il motivo, e si passa al successivo.
+
+### Closing pending implementation and regression work (2026-11-07)
+
+- [x] Filled all 15 museum-location strings in all 24 supported UI languages;
+      i18next extraction `--ci` reports no file updates.
+- [x] Added Listen for the displayed saved version, including exact age, with
+      source entitlement checks, separate recordings/cache/jobs, Range/ETag and
+      cancellation on reader changes. Existing base recordings are retained by
+      a targeted startup index upgrade.
+- [x] Final full integration run: 43 files, 276 tests passed, including Android
+      absolute event/cleanup, insecure context/Safari permission exceptions,
+      personalized audio and failed group-end recovery. No skipped tests.
+- [x] Four scoped audio interaction/a11y stories passed without reported
+      violations. Mobile, desktop and mobile-dark renders were inspected without
+      horizontal overflow. Production build and its TypeScript check passed.
+- [ ] Physical iOS/Android/museum acceptance requires actual devices and an
+      indoor trial. Automated sensors cover permissions, event formats, stale
+      measurements and cleanup; they do not certify hardware accuracy.
+- [!] Live CARTO/Photon verification is blocked by the current enforced cloud
+  network policy (fresh CONNECT 403 probes). The allowlist draft is saved;
+  review/save and environment publication are needed to apply it. No
+  environment publication or deployment was performed.
+
+- [x] Removed the editor's blocked external Draco decoder request: matching
+      Three.js decoder assets are copied locally at postinstall and configured
+      before GLTF preload. Both map-editor E2E cases now pass without suppressing
+      their runtime-error assertions; no dependency was added.
+- [x] Rechecked real QR decoding for canonical object/content links, voice-command
+      execution, personalized family audio and GPS proximity confirmation. The
+      navigation test now targets the implemented proximity notice, replacing
+      its obsolete room-carousel expectation.
+- [x] Group token/connection startup retries preserve membership on temporary
+      failures. Failed DELETE no longer abandons the host locally or redirects
+      home; the host can retry. The retry message is translated in all 24 locales.
+
+- [x] Closed all 21 distinct E2E scenarios through the full run and focused
+      reruns after demonstrated fixes. The initial 21-case run passed 11 and
+      exposed 10 failures; the affected 12-case rerun passed 10, leaving two
+      group-end failures. After correcting false deletion success, all three
+      group scenarios passed, including injected token/DELETE 503 recovery,
+      exact room deletion (HTTP 204 then 404), group switching and ended codes.
+      Logs: `/tmp/artaround-full-e2e.log`, `/tmp/artaround-e2e-recheck.log`,
+      `/tmp/artaround-e2e-group-final.log`. No visual-regression suite was run.
+
+No local implementation or regression failure remains from this closing pass.
+The open items above are external acceptance boundaries: actual phone/museum
+sensors and live cartographic providers after activation of the saved network
+configuration draft. Fresh final CARTO light/dark and Photon probes still return
+proxy CONNECT 403 (`/tmp/artaround-live-map-probes.json`).
