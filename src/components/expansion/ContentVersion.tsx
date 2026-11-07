@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ExpansionText } from './ExpansionText'
+import { readingAge } from '@/lib/reading-profile'
 
 /**
  * Lets the visitor change a content's difficulty, length and audience
@@ -23,7 +24,7 @@ import { ExpansionText } from './ExpansionText'
 const EASIER: Record<Difficulty, Difficulty | null> = { hard: 'medium', medium: 'easy', easy: null }
 // "Too simple": one level more detailed (the voice command asks for the hardest).
 const HARDER: Record<Difficulty, Difficulty | null> = { easy: 'medium', medium: 'hard', hard: null }
-const VERSION_KEYS = ['level', 'seconds', 'audience'] as const
+const VERSION_KEYS = ['level', 'seconds', 'audience', 'age'] as const
 
 export function ContentVersion({
   content,
@@ -47,6 +48,7 @@ export function ContentVersion({
   const level = (['easy', 'medium', 'hard'] as const).find((value) => value === search.get('level'))
   const seconds = Number(search.get('seconds')) || null
   const audience: Audience = search.get('audience') === 'children' ? 'children' : 'everyone'
+  const age = audience === 'children' ? readingAge(search.get('age')) : undefined
   const changed = Boolean(level || seconds || audience === 'children')
 
   const toggle = (key: (typeof VERSION_KEYS)[number], value: string | null) => {
@@ -70,6 +72,8 @@ export function ContentVersion({
         <Button
           size="compact-sm"
           radius="xl"
+          color="museum.8"
+          autoContrast
           variant={level && level === simpler ? 'filled' : 'default'}
           leftSection={<Feather size={14} aria-hidden />}
           disabled={!simpler}
@@ -81,6 +85,8 @@ export function ContentVersion({
         <Button
           size="compact-sm"
           radius="xl"
+          color="museum.8"
+          autoContrast
           variant={level && level === deeper ? 'filled' : 'default'}
           leftSection={<GraduationCap size={14} aria-hidden />}
           disabled={!deeper}
@@ -92,6 +98,8 @@ export function ContentVersion({
         <Button
           size="compact-sm"
           radius="xl"
+          color="museum.8"
+          autoContrast
           variant={seconds ? 'filled' : 'default'}
           leftSection={<Clock size={14} aria-hidden />}
           disabled={!shorter && !seconds}
@@ -103,6 +111,8 @@ export function ContentVersion({
         <Button
           size="compact-sm"
           radius="xl"
+          color="museum.8"
+          autoContrast
           variant={audience === 'children' ? 'filled' : 'default'}
           leftSection={<Baby size={14} aria-hidden />}
           aria-pressed={audience === 'children'}
@@ -133,8 +143,10 @@ export function ContentVersion({
               kind: 'version',
               // Children always get the easiest wording.
               difficulty: audience === 'children' ? 'easy' : (level ?? content.difficulty),
-              seconds: seconds ?? originalSeconds,
+              // Captions can be shorter than the API minimum; long items exceed its maximum.
+              seconds: Math.min(900, Math.max(3, seconds ?? originalSeconds)),
               audience,
+              ...(age === undefined ? {} : { age }),
             }}
           />
         </div>

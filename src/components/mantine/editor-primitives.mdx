@@ -97,6 +97,27 @@ attributes (`control` is `first`, `previous`, `last`, or `next`). Both accept
 
 [Official Pagination documentation](https://mantine.dev/core/pagination/)
 
+## Navigation popovers and touch controls
+
+`Popover` from `@mantine/core` accepts `opened` and `onChange` for controlled
+state; its target button toggles that state. Use `trapFocus` for interactive
+dropdowns. `position` accepts `top-start`/`top-end`, `withArrow` adds its arrow,
+`shadow` accepts theme shadow names, and `width` accepts a number or CSS width.
+`Popover.Target` wraps one ref-capable control; `Popover.Dropdown` accepts
+`className` for a viewport-bounded scrolling content area. Outside clicks and
+Escape retain Mantine's default close behavior.
+
+`ActionIcon` numeric `size={44}` gives a minimum touch size using Mantine's rem
+conversion. `Button` accepts `className` for a wrapping, minimum-height action.
+`Badge` accepts theme `color` and `autoContrast`; choosing a deeper primary
+shade and checking the rendered pair is necessary for AA small-text contrast.
+`Scroller` accepts numeric `controlSize` and `className`; its existing native
+horizontal scroll behavior remains available to touch and keyboard users.
+
+[Popover](https://mantine.dev/core/popover/),
+[Badge](https://mantine.dev/core/badge/),
+[Scroller](https://mantine.dev/core/scroller/).
+
 ## Tour navigation search
 
 `Spotlight` from `@mantine/spotlight` accepts `actions`, `nothingFound`, `limit`,
@@ -105,3 +126,34 @@ and `searchProps` with `placeholder` and `aria-label`. Each action supplies `id`
 Filtering and keyboard selection are handled by Spotlight.
 
 [Official Spotlight documentation](https://mantine.dev/x/spotlight/)
+
+## Visit profile Select
+
+`Select` from `@mantine/core` supports controlled `value` (string or null),
+`onChange(value)`, and `data` entries with `value`/`label`. `label` and
+`description` name and explain the field; `size="md"` uses the existing planner
+input scale. Use the selected value as device-local reading state.
+
+[Official Select documentation](https://mantine.dev/core/select/)
+
+The existing tour-start `Button` uses `variant="gradient"` and
+`gradient={{ from, to }}`. Endpoints accept theme colors/shades (for example
+`grape.9` and `orange.9`) to retain the tour identity with readable white text.
+[Button gradient](https://mantine.dev/core/button/#gradient)
+
+## Address autocomplete
+
+`Combobox` uses `store` from `useCombobox()` and `onOptionSubmit(value)` for
+selection. Its exported `ComboboxTarget`, `ComboboxDropdown`, `ComboboxOptions`,
+`ComboboxOption` and `ComboboxEmpty` compose the field and option list. Set
+`withExpandedAttribute` on `ComboboxTarget` for the combobox role and expanded state. An option
+uses its stable string `value`; `children` renders the result. The options accept
+`className` for a bounded scroll area. The store provides `openDropdown()`,
+`closeDropdown()` and `resetSelectedOption()`; `onDropdownClose` can reset the
+selection. Keep Mantine's target keyboard handling and the default portal.
+
+`TextInput` also accepts native `type`, `min`, `max`, `step`, `onFocus`, `onBlur`
+and `required`; its `error` accepts React content. `Text` accepts `size`, `fw`
+and `c`; `Stack` accepts `gap` and spacing props. `Anchor` accepts native `href`,
+`target`, `rel` and `size`. `useComputedColorScheme('light')` resolves the active
+light/dark scheme including the app's explicit selection.

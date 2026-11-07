@@ -357,6 +357,7 @@ export function useNavigationCommands({
             level: null,
             seconds: null,
             audience: null,
+            age: null,
           }),
         ]
       : []

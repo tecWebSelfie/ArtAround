@@ -19,7 +19,13 @@ import { GroupNameForm } from './GroupNameForm'
  * Seeing everyone's quiz score is the host's choice, off by default (friends
  * may not want it; a teacher will): guests are told on the join page.
  */
-export function StartGroupButton({ tourId }: { tourId: string }) {
+export function StartGroupButton({
+  tourId,
+  navigationQuery = '',
+}: {
+  tourId: string
+  navigationQuery?: string
+}) {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
   const router = useRouter()
@@ -41,7 +47,8 @@ export function StartGroupButton({ tourId }: { tourId: string }) {
       if (!response.ok) throw new Error(String(response.status))
       const { code, hostKey } = (await response.json()) as { code: string; hostKey: string }
       join({ code, tourId, name, role: 'host', hostKey })
-      router.push(roomPath(lng, code) as Route)
+      // The invite remains language/profile-free; these choices belong only to the host.
+      router.push(`${roomPath(lng, code)}${navigationQuery ? `?${navigationQuery}` : ''}` as Route)
     } catch {
       setFailed(true)
       setBusy(false)
@@ -53,7 +60,13 @@ export function StartGroupButton({ tourId }: { tourId: string }) {
       <Button variant="default" leftSection={<UsersRound size={16} />} onClick={modal.open}>
         {t('Start with a group')}
       </Button>
-      <Modal opened={opened} onClose={modal.close} title={t('Start with a group')} centered>
+      <Modal
+        opened={opened}
+        onClose={modal.close}
+        title={t('Start with a group')}
+        closeButtonProps={{ 'aria-label': t('Close', { ns: 'common' }) }}
+        centered
+      >
         <Stack gap="md">
           <Text size="sm" c="dimmed">
             {t('You lead the group: everyone follows your steps and waits for you to move on.')}

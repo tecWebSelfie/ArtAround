@@ -91,9 +91,15 @@ export async function POST(request: Request) {
     const requestKey = createHash('sha256').update(planRequestKey(museumId, answers)).digest('hex')
     const previous = await payload.find({
       collection: 'tours',
-      where: { 'generation.requestKey': { equals: requestKey } },
+      where: {
+        and: [
+          { 'generation.requestKey': { equals: requestKey } },
+          { visibility: { not_equals: 'private' } },
+        ],
+      },
       limit: 1,
       depth: 0,
+      ...viewer,
     })
     const museum = await payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale })
     const nodes = mapNodes(museum.map)
@@ -117,6 +123,7 @@ export async function POST(request: Request) {
           audience: true,
           durationSeconds: true,
           price: true,
+          visibility: true,
           body: true,
         },
       },
@@ -127,7 +134,7 @@ export async function POST(request: Request) {
       const point = pointOf.get(object.id)
       const room = point ? (roomAt(rooms, point)?.name ?? null) : null
       return (object.contents ?? []).flatMap((content) =>
-        typeof content === 'object' && !isLocked(content)
+        typeof content === 'object' && content.visibility !== 'private' && !isLocked(content)
           ? [
               {
                 id: content.id,
@@ -172,7 +179,16 @@ export async function POST(request: Request) {
         stops,
       }
     }
-    if (previous.docs[0]) return NextResponse.json(preview(previous.docs[0]))
+    if (previous.docs[0]) {
+      const cached = preview(previous.docs[0])
+      // Content can be removed, made private or lengthened after planning.
+      if (
+        cached.stops.length === previous.docs[0].contents.length &&
+        cached.stops.length &&
+        cached.totalMinutes <= answers.minutes
+      )
+        return NextResponse.json(cached)
+    }
 
     // 4. The model picks, most important first.
     const { output } = await generateText({
@@ -188,11 +204,20 @@ export async function POST(request: Request) {
     })
 
     // 5. Our rules: no repeats, within the time, then nearest-room order.
+    const selectedObjects = new Set<string>()
     const picked = [...new Set(output.contentIds)].flatMap((id) => {
       const candidate = byId.get(id)
-      return candidate ? [candidate] : []
+      // Adult/child descriptions of one work are reading choices, not two stops.
+      if (!candidate || selectedObjects.has(candidate.objectId)) return []
+      selectedObjects.add(candidate.objectId)
+      return [candidate]
     })
-    const fitted = fitTimeBudget(picked.length ? picked : candidates.slice(0, 1), answers.minutes)
+    // Recover from a model choosing only overlong entries without exceeding time.
+    const preferred = fitTimeBudget(picked, answers.minutes)
+    const fitted = preferred.length
+      ? preferred
+      : fitTimeBudget(candidates, answers.minutes).slice(0, 1)
+    if (!fitted.length) return NextResponse.json({ error: 'budget' }, { status: 422 })
     const entrance = collectMuseumMarkers(nodes).exitEntrances.find(
       (marker) => marker.placed && marker.direction === 'entrance',
     )

@@ -86,6 +86,13 @@ export const ContentVariants: CollectionConfig = {
       admin: { condition: (data) => data?.kind === 'version' },
     },
     {
+      // Exact-age versions and additions keep separate caches from generic text.
+      name: 'age',
+      type: 'number',
+      min: 0,
+      max: 17,
+    },
+    {
       // Requested length of a version, in seconds (`src/lib/duration.ts`).
       name: 'durationSeconds',
       type: 'number',

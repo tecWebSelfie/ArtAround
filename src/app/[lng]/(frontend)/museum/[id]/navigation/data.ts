@@ -119,13 +119,14 @@ export async function getNavigationCatalog(
   const objects = await payload.find({
     collection: 'objects',
     where: { id: { in: [...ids] } },
-    select: { name: true, contents: true, creators: true, movements: true },
+    select: { name: true, contents: true, creators: true, movements: true, thumbnail: true },
     // `price` + `body` let the server tell paid-and-locked contents apart.
     // Read as the visitor: field access withholds `body` exactly when they
     // aren't entitled to it, so `isLocked` needs no rules of its own.
     populate: {
       contents: { title: true, price: true, body: true },
       subjects: { name: true },
+      objectsThumbnails: { sizes: true, thumbnailURL: true },
     },
     locale: normalizeLocale(lng) ?? 'en',
     depth: 1,
@@ -138,6 +139,11 @@ export async function getNavigationCatalog(
   return objects.docs.map((object) => ({
     id: object.id,
     name: object.name,
+    // Recognition needs only the card derivative, never the full-size artwork.
+    thumbnail:
+      typeof object.thumbnail === 'object' && object.thumbnail
+        ? (object.thumbnail.sizes?.card?.url ?? object.thumbnail.thumbnailURL ?? null)
+        : null,
     creators: named(object.creators),
     movements: named(object.movements),
     // Only the summary crosses into the client: the body stays on the server.

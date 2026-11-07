@@ -1,0 +1,8 @@
+/* Only the standalone map is used: autocomplete and form feedback are native Mantine components. */
+.museum-location-map.rmp-map {
+  --rmp-font-family: var(--mantine-font-family);
+  --rmp-border-color: var(--mantine-color-default-border);
+  --rmp-border-radius: var(--mantine-radius-default);
+  margin-top: 0;
+  font-family: var(--mantine-font-family);
+}

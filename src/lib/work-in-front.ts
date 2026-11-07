@@ -38,6 +38,9 @@ export function workInFront(
   position: PolygonPoint2D,
   heading: number | null,
   works: readonly PlacedWork[],
+  // A wider exit boundary lets a live caller retain its existing suggestion
+  // through small sensor fluctuations without widening the entry boundary.
+  limits = { reach: REACH_METRES, halfField: HALF_FIELD_DEGREES },
 ): WorkInFront {
   const candidates = works
     .map(({ id, point }) => {
@@ -51,11 +54,14 @@ export function workInFront(
         offAxis: heading === null ? 0 : angleBetween(bearing, heading),
       }
     })
-    .filter(({ distance, offAxis }) => distance <= REACH_METRES && offAxis <= HALF_FIELD_DEGREES)
+    .filter(({ distance, offAxis }) => distance <= limits.reach && offAxis <= limits.halfField)
     // Stable sort: equal works keep the caller's order.
     .sort((a, b) => a.offAxis - b.offAxis || a.distance - b.distance)
 
-  if (candidates.length === 0) return { kind: 'none' }
-  if (candidates.length === 1) return { kind: 'sure', id: candidates[0]!.id }
-  return { kind: 'choose', ids: candidates.slice(0, MAX_CANDIDATES).map(({ id }) => id) }
+  // One work can have multiple placed instances; the chooser identifies the
+  // work, so repeated placements must not consume its four available choices.
+  const ids = [...new Set(candidates.map(({ id }) => id))]
+  if (ids.length === 0) return { kind: 'none' }
+  if (ids.length === 1) return { kind: 'sure', id: ids[0]! }
+  return { kind: 'choose', ids: ids.slice(0, MAX_CANDIDATES) }
 }

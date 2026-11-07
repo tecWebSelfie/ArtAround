@@ -1,3 +1,4 @@
+import { MuseumLocationMap } from '@/components/location/MuseumLocationMap'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { MuseumAppearanceForm } from '@/components/editing/forms/MuseumAppearanceForm'
 import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataForm'
@@ -10,6 +11,7 @@ import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
 import { lexicalToHTML } from '@/lib/richtext'
+import { formatMuseumAddress } from '@/lib/museum-location'
 import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
@@ -264,7 +266,12 @@ export default async function MuseumPage({
                           </Typography>
                         </Spoiler>
                       ),
-                      [t('Address')]: [museum.location.address, museum.location.city].join(', '),
+                      [t('Address')]: (
+                        <Stack gap="sm">
+                          <Text>{formatMuseumAddress(museum.location)}</Text>
+                          <MuseumLocationMap point={museum.location.latlng} />
+                        </Stack>
+                      ),
                       ...(museum.email ? { [t('Email')]: museum.email } : {}),
                       ...(accessFeatures.length
                         ? {

@@ -73,3 +73,6 @@ storybook-static
 # QR scanner ZXing reader, copied on postinstall (scripts/copy-zxing-assets.mjs)
 /public/zxing
 /contentAudio
+
+# MapLibre 6 worker modules, copied on postinstall.
+/public/maplibre

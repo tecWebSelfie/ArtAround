@@ -378,7 +378,8 @@ export const Museums: CollectionConfig = {
           {
             name: 'latlng',
             type: 'point',
-            hidden: true,
+            // Public museum coordinates must survive Payload reads; hide only the admin control.
+            admin: { hidden: true },
             required: true,
           },
         ],

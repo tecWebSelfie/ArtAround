@@ -8,7 +8,9 @@ import { ShareGroup } from '@/components/group/ShareGroup'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { HOST_IDENTITY } from '@/lib/group'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { tourNavigationPath } from '@/lib/tour-navigation'
+import { tourNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { ReadingProfile } from '@/components/group/ReadingProfile'
+import { setReadingProfile } from '@/lib/reading-profile'
 import { useConnectionState, useRemoteParticipant } from '@livekit/components-react'
 import {
   Alert,
@@ -29,7 +31,7 @@ import { ConnectionState } from 'livekit-client'
 import { Play } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 type RoomTour = {
@@ -38,6 +40,7 @@ type RoomTour = {
   museumId: string
   title: string
   thumbnail: { url: string; alt: string } | null
+  childrenAges?: number[]
 }
 
 /**
@@ -121,6 +124,12 @@ function JoinGroup({
   const { t } = useTranslation('group')
   const join = useJoinGroup()
   const current = useGroup()
+  const pathname = usePathname()
+  const search = useSearchParams()
+  const router = useRouter()
+  const ages = tour.childrenAges ?? []
+  const age = search.get('age')
+  const reader = age !== null && ages.includes(Number(age)) ? age : 'adult'
 
   return (
     <Stack gap="lg">
@@ -139,7 +148,19 @@ function JoinGroup({
       <GroupNameForm
         submitLabel={t('Join the group')}
         onSubmit={(name) => join({ code, tourId: tour.id, name, role: 'guest' })}
-      />
+      >
+        <ReadingProfile
+          ages={ages}
+          value={reader}
+          onChange={(value) => {
+            const query = new URLSearchParams(search)
+            setReadingProfile(query, value)
+            router.replace(`${pathname}${query.size ? `?${query}` : ''}` as Route, {
+              scroll: false,
+            })
+          }}
+        />
+      </GroupNameForm>
     </Stack>
   )
 }
@@ -155,6 +176,7 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
   const connection = useConnectionState()
+  const search = useSearchParams()
   const { hostName } = useGroupSettings()
   const hostHere = Boolean(useRemoteParticipant(HOST_IDENTITY))
   const { confirmLeave, confirmEnd } = useGroupExit()
@@ -191,7 +213,13 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
             leftSection={<Play size={18} />}
             onClick={() => {
               group.start()
-              router.push(tourNavigationPath(lng, tour.museumId, tour.id, 0))
+              // Keep this reader's age/accessibility choices when leaving the room.
+              router.push(
+                withNavigationPosition(
+                  tourNavigationPath(lng, tour.museumId, tour.id, 0),
+                  search.toString(),
+                ),
+              )
             }}
           >
             {group.membership.started ? t('Back to the tour') : t('Start the tour')}

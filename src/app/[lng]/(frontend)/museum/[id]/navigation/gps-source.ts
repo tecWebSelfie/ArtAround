@@ -43,18 +43,33 @@ export function useGpsFix(mode: GpsMode) {
     const watch = navigator.geolocation.watchPosition(
       ({ coords }) => {
         // A very inaccurate fix would throw the estimate across the building.
-        if (coords.accuracy > MAX_ACCURACY_METRES) return
+        if (coords.accuracy > MAX_ACCURACY_METRES) {
+          setFix(null)
+          return
+        }
         setFix({
           latitude: coords.latitude,
           longitude: coords.longitude,
           accuracy: coords.accuracy,
         })
+        setError(null)
       },
-      (failure) => setError(failure.code === failure.PERMISSION_DENIED ? 'denied' : 'unavailable'),
+      (failure) => {
+        // Never leave a proximity prompt attached to a fix that is no longer usable.
+        setFix(null)
+        setError(failure.code === failure.PERMISSION_DENIED ? 'denied' : 'unavailable')
+      },
       { enableHighAccuracy: true, maximumAge: 2_000 },
     )
     return () => navigator.geolocation.clearWatch(watch)
   }, [mode, unsupported])
+
+  useEffect(() => {
+    if (mode !== 'device' || !fix) return
+    // Stop suggesting arrivals if the OS silently stops delivering fixes.
+    const expiry = setTimeout(() => setFix(null), 15_000)
+    return () => clearTimeout(expiry)
+  }, [mode, fix])
 
   /** Simulator only: walk `east`/`north` metres. */
   const move = useCallback(

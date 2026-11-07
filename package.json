@@ -17,7 +17,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "prepare": "husky",
-    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs",
+    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs && node scripts/copy-maplibre-assets.mjs",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.config.ts",
@@ -45,6 +45,7 @@
     "@ai-sdk/fish-audio": "^3.0.40",
     "@ai-sdk/groq": "^4.0.63",
     "@ai-sdk/mcp": "2.0.61",
+    "@asammad48/react-map-place": "0.1.0",
     "@base-ui/react": "^1.8.0",
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/react": "^0.5.1",
@@ -223,7 +224,8 @@
     },
     "patchedDependencies": {
       "payload-phone-number-plugin": "patches/payload-phone-number-plugin.patch",
-      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch"
+      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch",
+      "@asammad48/react-map-place@0.1.0": "patches/@asammad48__react-map-place@0.1.0.patch"
     }
   },
   "lint-staged": {

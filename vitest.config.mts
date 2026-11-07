@@ -39,6 +39,11 @@ export default defineConfig({
           enabled: true,
           headless: true,
           provider: playwright({
+            // Cloud tasks can use an installed Chromium when browser downloads
+            // are restricted. Ordinary local/CI runs keep Playwright's browser.
+            ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH
+              ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } }
+              : {}),
             contextOptions: {
               // The browser asks for reduced motion, and the theme honours it
               // (`respectReducedMotion`): Mantine's modal, Spotlight and other

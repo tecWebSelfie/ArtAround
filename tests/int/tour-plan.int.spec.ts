@@ -51,16 +51,18 @@ describe('a visit within the visitor’s time', () => {
     expect(fitTimeBudget(stops, 30).map(({ id }) => id)).toEqual(['a', 'b', 'd'])
   })
 
-  it('still offers one stop when even the first does not fit', () => {
+  it('skips an overlong first choice and offers a shorter work within the budget', () => {
     expect(
       fitTimeBudget([candidate('long', 45), candidate('x', 1)], 30).map(({ id }) => id),
-    ).toEqual(['long'])
+    ).toEqual(['x'])
+    expect(fitTimeBudget([candidate('long', 45)], 30)).toEqual([])
   })
 
   it('accepts the form’s constraints and refuses impossible ones', () => {
     expect(PlanRequest.safeParse(request({ childrenAges: [5, 8], adults: 2 })).success).toBe(true)
     expect(PlanRequest.safeParse(request({ minutes: 5 })).success).toBe(false)
     expect(PlanRequest.safeParse(request({ childrenAges: [25] })).success).toBe(false)
+    expect(PlanRequest.safeParse(request({ adults: 0, childrenAges: [] })).success).toBe(false)
   })
 })
 

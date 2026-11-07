@@ -29,9 +29,9 @@ export const MAX_EXPANSION_STEPS = 4
 
 export type ExpansionRequest =
   /** `step`: 1 for the first addition, then 2, 3… each continuing the last. */
-  | { kind: 'more'; angle: ExpansionAngle; step?: number }
+  | { kind: 'more'; angle: ExpansionAngle; step?: number; age?: number }
   /** `seconds`: the version's target length (`src/lib/duration.ts`). */
-  | { kind: 'version'; difficulty: Difficulty; seconds: number; audience: Audience }
+  | { kind: 'version'; difficulty: Difficulty; seconds: number; audience: Audience; age?: number }
 
 /** A museum entity the text may link to, with its thumbnail for the preview row. */
 export type ExpansionLink = {

@@ -15,7 +15,7 @@ export function GpsSimulator({ onMove }: { onMove: (east: number, north: number)
   const { t } = useTranslation('tour-navigation')
   const step = SIMULATOR_STEP_METRES
   const arrow = (label: string, Icon: typeof ArrowUp, east: number, north: number) => (
-    <ActionIcon variant="default" size="lg" aria-label={label} onClick={() => onMove(east, north)}>
+    <ActionIcon variant="default" size={44} aria-label={label} onClick={() => onMove(east, north)}>
       <Icon size={18} />
     </ActionIcon>
   )

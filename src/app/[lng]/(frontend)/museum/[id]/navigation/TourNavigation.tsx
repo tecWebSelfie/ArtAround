@@ -6,8 +6,6 @@ import { useSpeech } from '@/components/assistant/use-speech'
 import { Museum, Tour } from '@/payload-types'
 import {
   ActionIcon,
-  ActionIconGroup,
-  ActionIconProps,
   AppShellFooter,
   AppShellHeader,
   AppShellMain,
@@ -18,7 +16,6 @@ import {
   GridCol,
   Group,
   Kbd,
-  Overlay,
   Progress,
   Stack,
   Text,
@@ -40,16 +37,9 @@ import {
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
 import { museumRooms } from '@/lib/museum-rooms'
-import {
-  Accessibility,
-  DoorOpen,
-  FlagTriangleRight,
-  LucideIcon,
-  ScanQrCode,
-  Search,
-} from 'lucide-react'
+import { Accessibility, DoorOpen, FlagTriangleRight, ScanQrCode, Search } from 'lucide-react'
 import { useElementSize } from '@mantine/hooks'
-import { Suspense, useEffect, useMemo, useState, type ComponentPropsWithoutRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
 import { LogisticNotes } from './LogisticNotes'
@@ -61,7 +51,11 @@ import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { GuidanceSettings, useGuidanceSettings } from './GuidanceSettings'
 import { GpsSimulator } from './GpsSimulator'
 import { useGpsFix } from './gps-source'
+import { useCompass } from './compass-source'
+import { NavigationProximity } from './NavigationProximity'
 import { NavigationSpotlight } from './NavigationSpotlight'
+import { NavigationServices, type NavigationServiceAction } from './NavigationServices'
+import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import { useNavigationCommands, type NavigationCommand } from './navigation-commands'
 import { useNearbySuggestions } from './use-nearby-suggestions'
@@ -87,9 +81,6 @@ import { useTranslation } from 'react-i18next'
 
 /** Header measured with its padding (stable object: the hook re-observes on change). */
 const HEADER_BOX: ResizeObserverOptions = { box: 'border-box' }
-
-/** Outer control columns: growing around Scan on phones, content-wide from md. */
-const SIDE_SPAN = { base: 'auto', md: 'content' } as const
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
@@ -190,7 +181,16 @@ export const TourNavigationPage = ({
 
   const settings = useGuidanceSettings()
   const gps = useGpsFix(settings.gpsMode)
-  const guidance = useRouteGuidance({ route, rooms, fix: gps.fix })
+  const compass = useCompass(settings.gpsMode)
+  const confirmedPoint = rooms.objects.find(({ objectId }) => objectId === currentObjectId)?.point
+  // Identification also works before selecting a destination in a free visit.
+  const guidance = useRouteGuidance({
+    route,
+    rooms,
+    fix: gps.fix,
+    startPoint: confirmedPoint,
+    anchorScope: `${museum.id}:${currentObjectId}:${settings.gpsMode}`,
+  })
   const { commands: allCommands, run } = useNavigationCommands({
     museum,
     scope,
@@ -232,6 +232,16 @@ export const TourNavigationPage = ({
   // so the docked desktop panel (portalled, see NavigationModal) starts just
   // below it instead of covering the stepper.
   const { ref: headerRef, height: headerHeight } = useElementSize(HEADER_BOX)
+  const { ref: footerRef, height: footerHeight } = useElementSize(HEADER_BOX)
+  // The footer grows with text instead of reserving a fixed-height strip.
+  useEffect(() => {
+    if (!footerHeight) return
+    const root = document.documentElement
+    root.style.setProperty('--navigation-footer-height', `${footerHeight}px`)
+    return () => {
+      root.style.removeProperty('--navigation-footer-height')
+    }
+  }, [footerHeight])
   useEffect(() => {
     if (!headerHeight) return
     const root = document.documentElement
@@ -254,9 +264,19 @@ export const TourNavigationPage = ({
       ),
     [tourContents],
   )
+  const tourObjectIds = useMemo(
+    () =>
+      new Set(
+        (tourContents ?? [])
+          .map((content) => stopObjectId(content, catalog))
+          .filter((id): id is string => Boolean(id)),
+      ),
+    [tourContents, catalog],
+  )
   const commandById = (id: string) => commands.find((command) => command.id === id)
   const nearbyHistory = useNearbySuggestions({
     enabled: settings.suggestions,
+    notify: settings.gpsMode === 'off',
     rooms,
     point: here,
     catalog,
@@ -289,6 +309,35 @@ export const TourNavigationPage = ({
           : guidance.steps.length === 0
             ? 'loading'
             : null
+
+  // Active guidance shares its lower control row with the assistant, leaving
+  // the entire footer width for the sentence when text is enlarged.
+  const assistant = (
+    <Group className="ml-auto shrink-0" justify="end">
+      <NavigationAssistant
+        enabled={settings.assistant}
+        onEnable={() => settings.setAssistant(true)}
+        commands={commands.map(({ id, label, description }) => ({ id, label, description }))}
+        context={[
+          tour
+            ? `Museum: ${museum.name}. Tour: ${tour.title}, stop ${step + 1} of ${tour.contents.length}.`
+            : `Museum: ${museum.name}. Free visit, no tour.`,
+          destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
+          currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
+          // "How do I get there?", "Where is the cloakroom?": the author's notes.
+          notes.length ? `Tour directions: ${notes.join(' ')}` : '',
+          // "Are there obstacles?": what the museum declares about access.
+          accessibilityContext(museum),
+        ].join(' ')}
+        language={lng}
+        speech={speech}
+        onCommand={(id) => {
+          const command = commandById(id)
+          if (command) run(command)
+        }}
+      />
+    </Group>
+  )
 
   return (
     <>
@@ -360,7 +409,10 @@ export const TourNavigationPage = ({
         )}
       </AppShellHeader>
 
-      <AppShellMain h="100dvh" className={`overflow-hidden`}>
+      <AppShellMain
+        h="100dvh"
+        className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]"
+      >
         <Box pos="relative" h="100%">
           <Suspense fallback={<Box>{t('Loading map')}</Box>}>
             {museumMap.parsed ? (
@@ -385,7 +437,8 @@ export const TourNavigationPage = ({
               <Box>{t('Map not available')}</Box>
             )}
           </Suspense>
-          <Overlay backgroundOpacity={0} style={{ pointerEvents: 'none' }}>
+          {/* Only the space between the measured bars belongs to map controls. */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--navigation-header-height,7rem)] min-h-0">
             <NavigationControls
               museum={museum}
               commands={commands}
@@ -393,20 +446,63 @@ export const TourNavigationPage = ({
               onRun={run}
               services={markers.services}
               exits={markers.exitEntrances}
-              settings={<GuidanceSettings settings={settings} gpsError={gps.error} />}
+              settings={
+                <GuidanceSettings settings={settings} gpsError={gps.error} compass={compass} />
+              }
               simulator={
-                settings.gpsMode === 'simulated' ? <GpsSimulator onMove={gps.move} /> : null
+                settings.gpsMode === 'simulated' ? (
+                  <GpsSimulator
+                    onMove={(east, north) => {
+                      gps.move(east, north)
+                      compass.turn(east, north)
+                    }}
+                  />
+                ) : null
+              }
+              proximity={
+                // A guessed entrance is never treated as the visitor's position.
+                // Group guests continue following the host, including `at`.
+                !guest && !scanning && currentObjectId && settings.gpsMode !== 'off' ? (
+                  <NavigationProximity
+                    point={guidance.estimate}
+                    heading={compass.heading}
+                    rooms={rooms}
+                    catalog={catalog}
+                    nextId={destination?.kind === 'object' ? destination.id : null}
+                    tourObjectIds={tourObjectIds}
+                    discoveries={settings.suggestions}
+                    scopeKey={`${museum.id}:${currentObjectId}:${settings.gpsMode}:${destination?.kind === 'object' ? destination.id : (destination?.target ?? '')}`}
+                    onOpen={(id) => {
+                      const command = commandById(`object:${id}`)
+                      if (command) run(command)
+                    }}
+                    onConfirm={(id) =>
+                      router.replace(
+                        withNavigationValue(
+                          navigationBasePath(lng, scope),
+                          search.toString(),
+                          'at',
+                          id,
+                        ),
+                        { scroll: false },
+                      )
+                    }
+                  />
+                ) : null
               }
             />
-          </Overlay>
+          </div>
         </Box>
       </AppShellMain>
 
-      <AppShellFooter className="rounded-t-md">
-        <Group h="100%" px="xs" gap="xs" wrap="nowrap" align="center">
-          {/* About four fifths: the current step of the route. */}
-          <Box className={`min-w-0 flex-[4] ${classes.directions}`}>
+      <AppShellFooter ref={footerRef} className="h-auto rounded-t-md">
+        <Group className="min-h-16 py-1" px="xs" gap="xs" align="center">
+          {/* Directions use the remaining width; the orb keeps its intrinsic
+              target size instead of reserving a fifth of a narrow screen.
+              Active guidance places the orb beside its arrows at enlarged text. */}
+          <Box className={`min-w-0 basis-64 grow ${classes.directions}`}>
             <DirectionsBar
+              trailingControl={assistant}
               steps={guidance.steps}
               current={guidance.current}
               onCurrentChange={guidance.setCurrent}
@@ -419,7 +515,10 @@ export const TourNavigationPage = ({
               action={
                 tour && complete && hasQuiz(tour) && !guest ? (
                   <Button
-                    size="compact-sm"
+                    size="sm"
+                    className={NAVIGATION_ACTION_CLASS}
+                    color="museum.8"
+                    autoContrast
                     component={Link}
                     href={tourQuizPath(lng, tour.id, step, search.toString())}
                   >
@@ -429,32 +528,6 @@ export const TourNavigationPage = ({
               }
             />
           </Box>
-          {/* The remaining fifth: the assistant orb, right-aligned (on desktop
-              the rest of the bar, so the orb stays at the trailing edge). */}
-          <Group className="flex-1" justify="end">
-            <NavigationAssistant
-              enabled={settings.assistant}
-              onEnable={() => settings.setAssistant(true)}
-              commands={commands.map(({ id, label, description }) => ({ id, label, description }))}
-              context={[
-                tour
-                  ? `Museum: ${museum.name}. Tour: ${tour.title}, stop ${step + 1} of ${tour.contents.length}.`
-                  : `Museum: ${museum.name}. Free visit, no tour.`,
-                destination ? `Heading to: ${destinationName}.` : 'No destination chosen.',
-                currentStep ? `Current direction: ${sentence(currentStep, destinationName)}.` : '',
-                // "How do I get there?", "Where is the cloakroom?": the author's notes.
-                notes.length ? `Tour directions: ${notes.join(' ')}` : '',
-                // "Are there obstacles?": what the museum declares about access.
-                accessibilityContext(museum),
-              ].join(' ')}
-              language={lng}
-              speech={speech}
-              onCommand={(id) => {
-                const command = commandById(id)
-                if (command) run(command)
-              }}
-            />
-          </Group>
         </Group>
       </AppShellFooter>
     </>
@@ -508,6 +581,7 @@ function NavigationControls({
   exits,
   settings,
   simulator,
+  proximity,
 }: {
   museum: Museum
   commands: NavigationCommand[]
@@ -517,6 +591,7 @@ function NavigationControls({
   exits: ExitEntranceMarker[]
   settings: React.ReactNode
   simulator: React.ReactNode
+  proximity: React.ReactNode
 }) {
   // The overlay buttons are shortcuts to the same commands as search.
   const search = useSearchParams()
@@ -550,144 +625,142 @@ function NavigationControls({
   const resume = command('resume-tour')
   const nextStop = command('next-stop')
   const desktop = useMatches({ base: false, md: true })
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const [overflowing, setOverflowing] = useState(false)
+  useEffect(() => {
+    const scroll = scrollRef.current
+    const content = contentRef.current
+    if (!scroll || !content) return
+    // Only a genuinely overflowing column owns pan gestures. Empty map space
+    // stays draggable; gaps between overflowing notices remain scrollable.
+    const update = () => setOverflowing(scroll.scrollHeight > scroll.clientHeight + 1)
+    const observer = new ResizeObserver(update)
+    observer.observe(scroll)
+    observer.observe(content)
+    // Proximity updates can change overflow inside a height-bounded child
+    // without resizing that child's outer box; watch its rendered content too.
+    const mutations = new MutationObserver(update)
+    mutations.observe(content, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    })
+    update()
+    return () => {
+      observer.disconnect()
+      mutations.disconnect()
+    }
+  }, [])
+
+  const serviceActions: NavigationServiceAction[] = serviceTypes.map((type) => ({
+    id: type,
+    label: serviceLabel[type],
+    Icon: SERVICE_META[type].Icon,
+    color: SERVICE_META[type].color,
+    active: activeService === type,
+    onSelect: () => runId(activeService === type ? 'resume-tour' : `service-type:${type}`),
+  }))
+  if (placedExits.length)
+    serviceActions.push({
+      id: 'exit',
+      label: t('Nearest exit'),
+      Icon: DoorOpen,
+      color: 'red',
+      active: Boolean(exitTarget),
+      onSelect: () => runId(exitTarget ? 'resume-tour' : 'exit:nearest'),
+    })
+  if (wheelchairMapAvailable)
+    serviceActions.push({
+      id: 'wheelchair',
+      label: t('Wheelchair route'),
+      Icon: Accessibility,
+      color: ACCESSIBILITY_COLOR,
+      active: wheelchairRoute,
+      onSelect: () => runId('wheelchair'),
+    })
 
   return (
-    <Stack className="h-full" justify="space-between">
-      <Group justify="start" className="p-2 pt-36">
-        {simulator}
-      </Group>
-      <Stack gap="xs" className="p-2">
-        {(nextStop || resume) && (
-          <Group
-            gap="xs"
-            justify="center"
-            className={classes.controlRow}
-            style={{ pointerEvents: 'auto' }}
-          >
-            {nextStop && <Button onClick={() => onRun(nextStop)}>{nextStop.label}</Button>}
-            {resume && (
-              <Button variant="default" onClick={() => onRun(resume)}>
-                {resume.label}
-              </Button>
-            )}
-          </Group>
-        )}
-        {/* Phone: the two outer columns (`auto`) grow equally around the
-            `content` one, so Scan stays centred whichever service, wheelchair
-            or settings buttons a museum shows on either side. Desktop: every
-            column keeps its content's width (`SIDE_SPAN`), so the same controls
-            gather in one compact bottom-left cluster; the right side is where
-            content panels dock. */}
-        <Grid gap="xs" align="flex-end" style={{ pointerEvents: 'auto' }}>
-          <GridCol span={SIDE_SPAN}>
-            <Group gap="xs" wrap="nowrap" align="end">
-              {(serviceTypes.length > 0 || placedExits.length > 0) && (
-                <ActionIconGroup orientation="vertical">
-                  {serviceTypes.map((type) => {
-                    const { Icon, color } = SERVICE_META[type]
-                    const label = serviceLabel[type]
-                    const active = activeService === type
-                    return (
-                      <ServiceIcon
-                        key={type}
-                        icon={Icon}
-                        color={color}
-                        aria-label={label}
-                        title={label}
-                        aria-pressed={active}
-                        variant={active ? 'filled' : 'light'}
-                        onClick={() => runId(active ? 'resume-tour' : `service-type:${type}`)}
-                      />
-                    )
-                  })}
-                  {placedExits.length > 0 && (
-                    <ServiceIcon
-                      icon={DoorOpen}
-                      color="red"
-                      aria-label={t('Nearest exit')}
-                      title={t('Nearest exit')}
-                      aria-pressed={Boolean(exitTarget)}
-                      variant={exitTarget ? 'filled' : 'light'}
-                      onClick={() => runId(exitTarget ? 'resume-tour' : 'exit:nearest')}
-                    />
-                  )}
-                </ActionIconGroup>
-              )}
-
-              {wheelchairMapAvailable && (
-                <ActionIcon
-                  aria-label={t('Wheelchair route')}
-                  title={t('Wheelchair route')}
-                  size="lg"
-                  variant={wheelchairRoute ? 'filled' : 'white'}
-                  color={ACCESSIBILITY_COLOR}
-                  radius="xl"
-                  aria-pressed={wheelchairRoute}
-                  onClick={() => runId('wheelchair')}
-                >
-                  <Accessibility size={20} />
-                </ActionIcon>
-              )}
-            </Group>
-          </GridCol>
-
-          <GridCol span="content">
-            <Button
-              onClick={() => runId('scan')}
-              size="compact-xl"
-              rightSection={<ScanQrCode size={24} />}
-              color="dark"
-              className="rounded-full"
+    // The upper slot can scroll/shrink. The essential dock never gets pushed
+    // below the footer by a simulator, a notice, or larger text.
+    <div className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 p-2">
+      <div
+        ref={scrollRef}
+        className={`min-h-0 w-full max-w-sm justify-self-center overflow-y-auto from-md:justify-self-start ${overflowing ? 'pointer-events-auto' : 'pointer-events-none'}`}
+      >
+        <div ref={contentRef} className="flex h-max min-h-full flex-col justify-between gap-2">
+          <div className="pointer-events-auto flex w-fit max-w-full flex-col gap-2">
+            {simulator}
+            {proximity}
+          </div>
+          {(nextStop || resume) && (
+            <Group
+              gap="xs"
+              justify="center"
+              className={`pointer-events-auto ${classes.controlRow}`}
             >
-              {t('Scan')}
-            </Button>
-          </GridCol>
-          <GridCol span={SIDE_SPAN}>
-            <Group gap="xs" wrap="nowrap" align="end" justify="end">
-              {/* Desktop hint for the keyboard shortcut ("/" or mod+K); no
-                  tooltip on phones, where a tap would only flash it. */}
-              <Tooltip
-                disabled={!desktop}
-                // Keyboard users reach the hint by focus too, not only by hover.
-                events={{ hover: true, focus: true, touch: false }}
-                label={
-                  <Group gap={6} wrap="nowrap">
-                    {t('Search')}
-                    <Kbd size="xs">/</Kbd>
-                  </Group>
-                }
-              >
-                <ActionIcon
-                  aria-label={t('Search')}
-                  aria-keyshortcuts="/ Control+K Meta+K"
-                  variant="white"
+              {nextStop && (
+                <Button
+                  color="museum.8"
                   autoContrast
-                  radius={'xl'}
-                  size={'lg'}
-                  className="p-1.5"
-                  onClick={spotlight.open}
+                  className={NAVIGATION_ACTION_CLASS}
+                  onClick={() => onRun(nextStop)}
                 >
-                  <Search className="size-full" />
-                </ActionIcon>
-              </Tooltip>
-              {settings}
-              <NavigationSpotlight commands={commands} nearby={nearby} onRun={onRun} />
+                  {nextStop.label}
+                </Button>
+              )}
+              {resume && (
+                <Button
+                  variant="default"
+                  className={NAVIGATION_ACTION_CLASS}
+                  onClick={() => onRun(resume)}
+                >
+                  {resume.label}
+                </Button>
+              )}
             </Group>
-          </GridCol>
-        </Grid>
-      </Stack>
-    </Stack>
-  )
-}
-
-function ServiceIcon({
-  icon: Icon,
-  ...props
-}: { icon: LucideIcon } & ActionIconProps & ComponentPropsWithoutRef<'button'>) {
-  return (
-    <ActionIcon variant="light" className="border-(--mantine-color-default-border)" {...props}>
-      {/* The button carries the label (`aria-label`); the glyph is decoration. */}
-      <Icon size={16} aria-hidden />
-    </ActionIcon>
+          )}
+        </div>
+      </div>
+      <div className="pointer-events-auto flex min-w-0 flex-col gap-2">
+        <div className="flex flex-wrap items-end justify-center gap-2 from-md:justify-start">
+          <NavigationServices actions={serviceActions} />
+          <Button
+            onClick={() => runId('scan')}
+            size="md"
+            className={`${NAVIGATION_ACTION_CLASS} rounded-full`}
+            rightSection={<ScanQrCode size={24} />}
+            color="dark"
+          >
+            {t('Scan')}
+          </Button>
+          <Tooltip
+            disabled={!desktop}
+            events={{ hover: true, focus: true, touch: false }}
+            label={
+              <Group gap={6} wrap="nowrap">
+                {t('Search')}
+                <Kbd size="xs">/</Kbd>
+              </Group>
+            }
+          >
+            <ActionIcon
+              aria-label={t('Search')}
+              aria-keyshortcuts="/ Control+K Meta+K"
+              variant="white"
+              autoContrast
+              radius="xl"
+              size={44}
+              onClick={spotlight.open}
+            >
+              <Search size={22} />
+            </ActionIcon>
+          </Tooltip>
+          {settings}
+          <NavigationSpotlight commands={commands} nearby={nearby} onRun={onRun} />
+        </div>
+      </div>
+    </div>
   )
 }

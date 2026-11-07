@@ -2454,6 +2454,7 @@ export interface ContentVariant {
   step?: number | null
   difficulty?: ('easy' | 'medium' | 'hard') | null
   audience?: ('everyone' | 'children') | null
+  age?: number | null
   durationSeconds?: number | null
   body: {
     root: {
@@ -4506,6 +4507,7 @@ export interface ContentVariantsSelect<T extends boolean = true> {
   step?: T
   difficulty?: T
   audience?: T
+  age?: T
   durationSeconds?: T
   body?: T
   generation?:

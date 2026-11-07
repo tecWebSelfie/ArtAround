@@ -22,10 +22,16 @@ export function useRouteGuidance({
   route,
   rooms,
   fix,
+  startPoint,
+  anchorScope = '',
 }: {
   route: MuseumRoute | null
   rooms: MuseumRooms
   fix: GpsFix | null
+  /** Confirmed work, even when free navigation has no destination/route yet. */
+  startPoint?: PolygonPoint2D | null
+  /** Changing GPS source or confirming a different work resets its reference fix. */
+  anchorScope?: string
 }) {
   const steps = useMemo(
     () => buildDirections(route?.path ?? null, rooms, route?.target),
@@ -33,8 +39,12 @@ export function useRouteGuidance({
   )
   const samples = useMemo(() => (route?.path ? samplePath(route.path) : []), [route])
 
-  const start: PolygonPoint2D | null = route?.start ? [route.start[0], route.start[2]] : null
-  const startKey = start?.join(',') ?? null
+  // Prefer the map's reachable teleport point; use the work's centre only
+  // while no navmesh route/start has been resolved yet.
+  const start: PolygonPoint2D | null = route?.start
+    ? [route.start[0], route.start[2]]
+    : (startPoint ?? null)
+  const startKey = start ? `${anchorScope}:${start.join(',')}` : null
   const [anchor, setAnchor] = useState<{ key: string; fix: GpsFix } | null>(null)
   // Take the anchor fix at a new confirmed start (or at the first fix after it).
   // Adjusted during render (React's pattern for state derived from changing
@@ -72,6 +82,9 @@ export function useRouteGuidance({
     progressPoint:
       progress && route?.start
         ? ([progress.point[0], route.start[1], progress.point[1]] as [number, number, number])
-        : null,
+        : // Free navigation can track a position without having a route to snap to.
+          estimate
+          ? ([estimate[0], route?.start?.[1] ?? 0, estimate[1]] as [number, number, number])
+          : null,
   }
 }

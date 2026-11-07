@@ -80,6 +80,17 @@ cached="$cache_root/bin/$version/impeccable$exe"
 if [ -n "$version" ] && [ -x "$cached" ]; then
   exec "$cached" "$@"
 fi
+# This repository runs in both desktop clients and cloud sandboxes. Reuse a
+# user installation above, but bootstrap Node projects into their ignored,
+# writable dependency cache instead of requiring writes to the user's home.
+# An explicit IMPECCABLE_HOME always keeps the upstream override semantics.
+if [ -z "${IMPECCABLE_HOME:-}" ] && [ -f "$PWD/package.json" ] && [ -d "$PWD/.impeccable" ]; then
+  cache_root="$PWD/node_modules/.cache/impeccable"
+  cached="$cache_root/bin/$version/impeccable$exe"
+  if [ -n "$version" ] && [ -x "$cached" ]; then
+    exec "$cached" "$@"
+  fi
+fi
 if [ -z "$probing" ] && command -v impeccable >/dev/null 2>&1 && probe_ok impeccable; then
   exec impeccable "$@"
 fi

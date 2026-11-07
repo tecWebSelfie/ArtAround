@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Group } from '@mantine/core'
+import { Button, Group, type MantineColor } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
 import { useEditableSection } from './EditableSection'
 
@@ -9,11 +9,17 @@ export function FormActions({
   saving,
   submitLabel,
   disabled,
+  autoContrast,
+  submitColor,
 }: {
   saving: boolean
   submitLabel?: string
   /** Blocks Save (e.g. a value the server would refuse); Cancel stays. */
   disabled?: boolean
+  /** Opt in to readable primary-button text without changing other forms. */
+  autoContrast?: boolean
+  /** Optional stronger primary shade for small labels on filled buttons. */
+  submitColor?: MantineColor
 }) {
   const { t } = useTranslation('editing')
   const { close } = useEditableSection()
@@ -22,7 +28,13 @@ export function FormActions({
       <Button variant="default" onClick={close} disabled={saving}>
         {t('Cancel')}
       </Button>
-      <Button type="submit" loading={saving} disabled={disabled}>
+      <Button
+        type="submit"
+        loading={saving}
+        disabled={disabled}
+        autoContrast={autoContrast}
+        color={submitColor}
+      >
         {submitLabel ?? t('Save')}
       </Button>
     </Group>

@@ -23,14 +23,17 @@ const DIFFICULTY_STYLE = {
 } as const
 
 function task(request: ExpansionRequest) {
-  if (request.kind === 'more') return ANGLE_TASKS[request.angle]
+  if (request.kind === 'more')
+    return `${ANGLE_TASKS[request.angle]}${request.age === undefined ? '' : ` Write for a child aged ${request.age}: use age-appropriate language and detail.`}`
   return [
     'Rewrite the original text as a new version of it. Keep every fact; do not add new ones.',
     `Use ${DIFFICULTY_STYLE[request.difficulty]}.`,
     // Same read-aloud pace as the stored lengths, so a 15-second version is a sentence or two.
     `It should take about ${formatDuration(request.seconds)} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
     request.audience === 'children'
-      ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
+      ? request.age === undefined
+        ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
+        : `Write for a child aged ${request.age}: adapt vocabulary, sentence length and detail to that exact age. Keep the same artwork and facts as the adults, with concrete things to look for.`
       : '',
   ].join(' ')
 }

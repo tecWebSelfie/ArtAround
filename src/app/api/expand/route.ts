@@ -57,14 +57,18 @@ const Body = z.object({
       kind: z.literal('more'),
       angle: z.enum(EXPANSION_ANGLES),
       step: z.number().int().min(1).max(MAX_EXPANSION_STEPS).optional(),
+      age: z.number().int().min(0).max(17).optional(),
     }),
-    z.object({
-      kind: z.literal('version'),
-      difficulty: z.enum(['easy', 'medium', 'hard']),
-      // From a few seconds (a one-line caption) to a quarter of an hour.
-      seconds: z.number().int().min(3).max(900),
-      audience: z.enum(AUDIENCES),
-    }),
+    z
+      .object({
+        kind: z.literal('version'),
+        difficulty: z.enum(['easy', 'medium', 'hard']),
+        // From a few seconds (a one-line caption) to a quarter of an hour.
+        seconds: z.number().int().min(3).max(900),
+        audience: z.enum(AUDIENCES),
+        age: z.number().int().min(0).max(17).optional(),
+      })
+      .refine((request) => request.age === undefined || request.audience === 'children'),
   ]),
 })
 
@@ -80,10 +84,11 @@ async function previousAdditions(
   angle: ExpansionAngle,
   step: number,
   locale: NonNullable<ReturnType<typeof normalizeLocale>>,
+  age?: number,
 ): Promise<string[]> {
   const { docs } = await payload.find({
     collection: 'contentVariants',
-    where: previousStepsWhere(target, id, angle, step),
+    where: previousStepsWhere(target, id, angle, step, age),
     locale,
     fallbackLocale: false,
     sort: 'step',
@@ -238,7 +243,7 @@ export async function POST(request: Request) {
   // angle: the model gets them too, as text the visitor has already read.
   const alreadyRead =
     ask.kind === 'more' && (ask.step ?? 1) > 1
-      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale)
+      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale, ask.age)
       : []
   const sources: ExternalSource[] = await externalSources(
     subject.object?.name ?? subject.name,
@@ -279,6 +284,7 @@ export async function POST(request: Request) {
             data: {
               kind: ask.kind,
               ...(target === 'contents' ? { content: id } : { object: id }),
+              ...(ask.age === undefined ? {} : { age: ask.age }),
               ...(ask.kind === 'more'
                 ? { angle: ask.angle, step: ask.step ?? 1 }
                 : {

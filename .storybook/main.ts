@@ -40,7 +40,8 @@ const config: StorybookConfig = {
         // `{ __esModule, default }`, and React rejects the object
         // ("Element type is invalid … ControlModes"), so the map editor story
         // never renders. External, it resolves through the Next.js framework.
-        exclude: ['next/image'],
+        // Read the patched widget ESM directly instead of retaining pre-patch optimized code.
+        exclude: ['next/image', '@asammad48/react-map-place'],
       },
     }),
 }

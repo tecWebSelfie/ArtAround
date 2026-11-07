@@ -32,7 +32,7 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   host sees what they ask for.
 - **During the tour, guests follow the host.** Shared: the step, position (`at`),
   destination (`to`/`service`/`exit`) and the open modal. Personal: language,
-  wheelchair route, reading options (`level`, `minutes`, `audience`), "Tell me more"
+  wheelchair route, reading options (`level`, `seconds`, `audience`, `age`), "Tell me more"
   (`more`), GPS estimate. Guests have no step selection, destinations, "go to"
   commands, scanner or position buttons; their voice/search commands are limited to
   reading and wheelchair routing.
@@ -128,3 +128,13 @@ Last reviewed 2026-10-20.
   to a client component); quiz pages 404'd for visitors (questions are not readable by
   them, so `quiz.server.ts` reads with `overrideAccess`); submitting a quiz could
   bounce back to question 1 (the URL clamp ran after the saved answers were cleared).
+
+## Planned family visits (2026-11-06)
+
+A planned family can start a group directly from its preview. Each device chooses
+Adult or one planned age; only that age list is sent to the join UI. Host profile
+and wheelchair routing reach the waiting room, while invitation links stay
+profile-free. Starting/following keeps each reader's `age` and `audience` on the
+shared work. Same-modal duration choices use `seconds` (legacy `minutes` remains
+accepted). See [Planned visits](planned-visits.md) for the three-device e2e proof
+and its explicit model-provider boundary.

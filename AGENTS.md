@@ -108,6 +108,16 @@ neither fits.
 
 ## Design with Impeccable (`.claude/skills/impeccable/`)
 
+Codex uses `.agents/skills/impeccable/`; Claude uses `.claude/skills/impeccable/`.
+Both launchers run the same pinned engine and share the ignored
+`node_modules/.cache/impeccable/` bootstrap cache in this Node project; existing
+user installations and explicit `IMPECCABLE_HOME`/`IMPECCABLE_BIN` overrides
+remain supported. Run either launcher's `engine-probe` from the repository root
+to verify setup. A cloud sandbox may need authorized network access for the
+first verified download; cached runs need neither Internet nor home writes.
+See [Impeccable runtime](docs/impeccable-runtime.md) for client hook differences,
+bootstrap checks and the distinction between skills and engine commands.
+
 Impeccable is designed to be driven by one command on one narrow target at a
 time (`/impeccable <command> <target>`); the skill itself carries how each
 command works. Nothing runs it on its own: invoke it for every UI change,

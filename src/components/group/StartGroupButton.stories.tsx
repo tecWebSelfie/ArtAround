@@ -65,3 +65,18 @@ export const ServerUnavailable: Story = {
     ).toBeVisible()
   },
 }
+
+/** The host's reading/accessibility profile reaches the waiting room, not the invite. */
+export const KeepsPersonalProfile: Story = {
+  ...OpensTheGroup,
+  args: { navigationQuery: 'age=5&audience=children&mobility=wheelchair' },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
+    await fillAndOpen('Anna')
+    await waitFor(() =>
+      expect(getRouter().push).toHaveBeenCalledWith(
+        '/en/room/AB3X9K?age=5&audience=children&mobility=wheelchair',
+      ),
+    )
+  },
+}

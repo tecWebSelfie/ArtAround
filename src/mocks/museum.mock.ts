@@ -76,7 +76,7 @@ function baseMuseum(): Museum {
     location: {
       address: 'Via dei Musei 1',
       city: 'Milano',
-      latlng: [45.4642, 9.19],
+      latlng: [9.19, 45.4642],
     },
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,

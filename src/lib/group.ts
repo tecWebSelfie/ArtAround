@@ -76,9 +76,9 @@ export const roomSharePath = (code: string) => `/room/${code}`
  */
 const SHARED_PARAMS = ['at', 'to', 'service', 'exit'] as const
 /** Personal params that stay valid on any page of the tour. */
-const PERSONAL_PARAMS = ['mobility', 'audience'] as const
+const PERSONAL_PARAMS = ['mobility', 'audience', 'age'] as const
 /** Personal reading choices of the open modal; dropped when the modal changes. */
-const MODAL_PARAMS = ['level', 'minutes', 'more'] as const
+const MODAL_PARAMS = ['level', 'seconds', 'minutes', 'more'] as const
 
 /** Strips the `/{lng}` prefix: guests may read the tour in another language. */
 function withoutLanguage(pathname: string) {

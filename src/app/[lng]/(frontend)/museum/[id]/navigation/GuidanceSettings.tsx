@@ -1,10 +1,11 @@
 'use client'
 
-import { ActionIcon, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
+import { ActionIcon, Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GPS_SIMULATOR_ENABLED, type GpsMode } from './gps-source'
+import type { useCompass } from './compass-source'
 
 /**
  * The visitor's guidance choices. Assistance is opt-in (PRODUCT.md), so
@@ -41,9 +42,11 @@ export type GuidanceSettingsValue = ReturnType<typeof useGuidanceSettings>
 export function GuidanceSettings({
   settings,
   gpsError,
+  compass,
 }: {
   settings: GuidanceSettingsValue
   gpsError: string | null
+  compass?: ReturnType<typeof useCompass>
 }) {
   const { t } = useTranslation('tour-navigation')
   const gpsOptions = [
@@ -52,19 +55,19 @@ export function GuidanceSettings({
     ...(GPS_SIMULATOR_ENABLED ? [{ value: 'simulated', label: t('Simulated') }] : []),
   ]
   return (
-    <Popover position="top-end" withArrow shadow="md" width={260}>
+    <Popover position="top-end" withArrow shadow="md" width={260} trapFocus>
       <Popover.Target>
         <ActionIcon
           aria-label={t('Guidance settings')}
           title={t('Guidance settings')}
           variant="white"
           radius="xl"
-          size="lg"
+          size={44}
         >
           <SlidersHorizontal size={18} />
         </ActionIcon>
       </Popover.Target>
-      <Popover.Dropdown>
+      <Popover.Dropdown className="max-h-[60dvh] max-w-[calc(100vw-2rem)] overflow-y-auto">
         <Stack gap="sm">
           <Switch
             label={t('Voice assistant')}
@@ -102,6 +105,32 @@ export function GuidanceSettings({
                   ? t('Location permission was denied.')
                   : t('Location is not available on this device.')}
               </Text>
+            )}
+            {/* iOS requires a direct visitor tap for orientation permission. */}
+            {settings.gpsMode === 'device' && compass && (
+              <>
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => void compass.enable()}
+                  disabled={compass.status === 'ready' || compass.status === 'waiting'}
+                >
+                  {compass.status === 'ready' ? t('Compass active') : t('Enable compass')}
+                </Button>
+                <Text size="xs">
+                  {compass.status === 'denied'
+                    ? t(
+                        'Compass permission denied. Allow it in browser settings or choose a nearby work.',
+                      )
+                    : compass.status === 'unsupported'
+                      ? t('Compass unavailable. Choose a nearby work or scan its QR code.')
+                      : compass.status === 'waiting'
+                        ? t(
+                            'Waiting for orientation. Hold the phone upright and point towards a work.',
+                          )
+                        : t('Point your phone towards a work to help identify it.')}
+                </Text>
+              </>
             )}
           </Stack>
         </Stack>
