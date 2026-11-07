@@ -75,8 +75,10 @@ No API keys are required by the implemented default. Search times out after
 other interface languages request English labels. Provider errors explain that
 search is unavailable and retain manual coordinates as the fallback.
 
-Maps use CARTO Positron in light mode and Dark Matter in dark mode. They retain
-the wrapper's attribution controls and use the museum primary for the pin.
+Maps use OpenFreeMap Bright in light mode and Dark in dark mode, at
+`https://tiles.openfreemap.org/styles/bright` and `/styles/dark`. The public
+instance requires no registration or API key. Maps retain the wrapper's
+attribution controls and use the museum primary for the pin.
 There is no GPS request, current-location marker, map-click selection, marker
 dragging, reverse-geocoding flow or outdoor route implementation. Indoor Pascal
 maps and navigation are unaffected.
@@ -179,17 +181,49 @@ sidecar now record the full-address/manual-city pattern; global tokens are uncha
 
 ## Live-provider network boundary (2026-11-07)
 
-Fresh HTTPS probes to CARTO styles and Photon both received proxy CONNECT 403.
-This is a cloud destination-policy denial, before the providers are reached.
-A saved environment configuration draft now permits `basemaps.cartocdn.com`,
-`*.basemaps.cartocdn.com`, `tiles.basemaps.cartocdn.com` and `photon.komoot.io`.
-The draft requires review/save and environment publication to become effective;
-no environment was published. After activation, verify both style JSON files,
-their sprite/glyph/vector-tile requests, the visible street basemap and a real
-Photon suggestion. Fixture map tests cannot certify live-provider readiness.
+The basemap has moved from CARTO to OpenFreeMap: CARTO's current documented
+usage requires an API key, while [OpenFreeMap's public instance](https://github.com/hyperknot/openfreemap)
+requires neither registration nor a key. Photon remains the address provider;
+its public demo has reasonable-use limits and no availability guarantee.
 
-Final provider probes also returned CONNECT 403 for both CARTO styles and Photon;
-receipt: `/tmp/artaround-live-map-probes.json`. All 15 location strings are now
-translated across the 24 locales, with extraction `--ci` passing. The final
+The saved cloud draft lists `tiles.openfreemap.org`, `assets.openfreemap.com`
+and `photon.komoot.io`. The active policy still denies unapproved destinations;
+this follow-up did not change network settings or publish the environment.
+The maintainer will enable the domains later. Earlier CARTO/Photon CONNECT 403
+receipts (`/tmp/artaround-live-map-probes.json`) are historical policy evidence,
+not successful provider checks and not an OpenFreeMap tile test.
+
+All 15 location strings are translated across the 24 locales, with extraction `--ci` passing. The final
 project-wide integration run passed 276 tests in 43 files; the geographic map
 continues to use synthetic basemap responses in scoped UI verification.
+
+## Opt-in real-provider acceptance
+
+Run `pnpm test:live:location` only after provider access is available. This
+separate Playwright configuration makes real browser requests, without MSW, HAR replay or route interception. It contains
+three read-only checks:
+
+- Photon CORS plus its FeatureCollection/Point coordinate contract.
+- The light OpenFreeMap style, a nonempty real vector tile and the visible museum pin.
+- The same map check in dark mode, with screenshots saved in Playwright's output.
+
+It uses the museum in `.e2e-fixtures/tour-navigation-fixture.json` created by
+`pnpm seed:e2e`; it never seeds or modifies records itself. Alternatively, point
+it at an English public museum page with saved coordinates:
+
+```sh
+pnpm exec cross-env MUSEUM_LOCATION_LIVE_URL=http://localhost:3000/en/museum/MUSEUM_ID pnpm test:live:location
+```
+
+The base Playwright configuration reuses a server on port 3000 or starts the
+development server. For a remote URL, also set `PLAYWRIGHT_USE_RUNNING_SERVER=true`.
+A production server must be rebuilt after provider changes before testing.
+A missing fixture/URL produces a setup error rather than silently skipping.
+These checks do not test director writes or certify physical GPS/compass accuracy.
+
+Local follow-up evidence: nine museum-location integration tests and all 16
+scoped metadata/autocomplete/map interaction and accessibility stories passed,
+including light/dark map fixtures and retry. Both Playwright configurations were
+listed: the live suite has three cases, while the ordinary suite still has 21.
+The live cases are prepared but have **not** been executed against providers.
+Empty-background fixtures establish marker/rendering behavior, not real streets.

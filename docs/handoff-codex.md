@@ -59,9 +59,13 @@ External acceptance still needs evidence unavailable to this executor:
    sensor tests do not prove real hardware precision. Use HTTPS and check deny,
    grant, background/resume, direction changes, nearby notice withdrawal and
    explicit `at` confirmation; test on a real museum floor plan aligned north.
-2. Live CARTO/Photon acceptance after publishing the saved cloud network draft.
-   Both provider probes currently stop at proxy CONNECT 403. The draft was saved,
-   not published; do not claim a successful live-provider check.
+2. Live OpenFreeMap/Photon acceptance after the maintainer enables the domains:
+   `tiles.openfreemap.org`, `assets.openfreemap.com`, `photon.komoot.io`.
+   OpenFreeMap Bright/Dark replaces CARTO; run `pnpm test:live:location` with the
+   existing fixture or `MUSEUM_LOCATION_LIVE_URL` (English museum with a saved point).
+   Three read-only live cases are ready, excluded from ordinary tests, but have
+   not been executed. Network settings were not changed in this follow-up; no
+   environment publication occurred. See `docs/museum-location.md` for setup.
 
 ## Traps
 

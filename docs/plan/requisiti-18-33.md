@@ -433,3 +433,21 @@ The open items above are external acceptance boundaries: actual phone/museum
 sensors and live cartographic providers after activation of the saved network
 configuration draft. Fresh final CARTO light/dark and Photon probes still return
 proxy CONNECT 403 (`/tmp/artaround-live-map-probes.json`).
+
+### Keyless basemap follow-up (2026-11-07)
+
+- [x] Replaced the current CARTO basemap with OpenFreeMap Bright/Dark, keeping
+      Map Place rendering, Mantine controls, saved marker and attribution.
+      OpenFreeMap's public instance requires no key or registration; Photon
+      autocomplete and persisted address/Point are unchanged.
+- [x] Updated deterministic provider fixtures and added dark-map coverage:
+      nine museum-location integration tests and 16 scoped interaction/a11y
+      stories passed. The default E2E listing still contains 21 cases.
+- [x] Prepared the separate opt-in `pnpm test:live:location` suite: three
+      read-only browser checks for Photon/CORS and real light/dark vector tiles
+      plus the saved pin. No writes, provider mocks or hidden skips.
+- [!] Real-provider execution remains pending until the maintainer enables
+  `tiles.openfreemap.org`, `assets.openfreemap.com`, `photon.komoot.io`.
+  These supersede the older CARTO domain plan above. Network settings were
+  not changed and no environment was published in this follow-up.
+- [ ] Physical GPS/compass/museum-floor checks remain with the maintainer.

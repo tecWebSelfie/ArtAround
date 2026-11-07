@@ -27,7 +27,7 @@ export const MUSEUM_PHOTON_RESPONSE = {
 
 // Empty background style exercises real WebGL and marker lifecycle without fetching external tiles.
 export const museumBasemapHandler = http.get(
-  'https://basemaps.cartocdn.com/gl/:style/style.json',
+  'https://tiles.openfreemap.org/styles/:style',
   ({ params }) =>
     HttpResponse.json({
       version: 8,
@@ -37,7 +37,7 @@ export const museumBasemapHandler = http.get(
           id: 'fixture-background',
           type: 'background',
           paint: {
-            'background-color': params.style === 'dark-matter-gl-style' ? '#25262b' : '#e9ecef',
+            'background-color': params.style === 'dark' ? '#25262b' : '#e9ecef',
           },
         },
       ],

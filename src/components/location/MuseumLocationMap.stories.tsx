@@ -49,12 +49,17 @@ export const MissingPosition: Story = {
     await expect(canvas.queryByRole('region', { name: 'Museum location' })).not.toBeInTheDocument()
   },
 }
+/** The dark scheme selects a separate OpenFreeMap style while preserving the same pin lifecycle. */
+export const SavedPositionDark: Story = {
+  globals: { theme: 'dark' },
+  play: SavedPosition.play,
+}
 export const MapUnavailable: Story = {
   parameters: {
     msw: {
       handlers: [
         http.get(
-          'https://basemaps.cartocdn.com/gl/:style/style.json',
+          'https://tiles.openfreemap.org/styles/:style',
           () => new HttpResponse(null, { status: 503 }),
         ),
       ],

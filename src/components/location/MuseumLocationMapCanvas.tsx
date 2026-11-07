@@ -22,10 +22,11 @@ export default function MuseumLocationMapCanvas({ point }: { point: MuseumPoint 
   const [attempt, setAttempt] = useState(0)
   const [longitude, latitude] = point
   const coordinates = { longitude, latitude }
+  // OpenFreeMap supplies keyless vector basemaps; Map Place still owns rendering and markers.
   const styleUrl =
     scheme === 'dark'
-      ? 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-      : 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json'
+      ? 'https://tiles.openfreemap.org/styles/dark'
+      : 'https://tiles.openfreemap.org/styles/bright'
   const href = `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=17/${latitude}/${longitude}`
 
   return (

@@ -34,8 +34,9 @@ The reversed Milan mock was corrected; production records were not migrated.
 
 MapLibre's worker and shared module are copied to `public/maplibre` by
 `postinstall`; generated output is ignored. Photon defaults to its public demo
-endpoint and accepts `NEXT_PUBLIC_PHOTON_ENDPOINT`. Map styles currently use
-CARTO light/dark endpoints. No key, paid service configuration, GPS request,
+endpoint and accepts `NEXT_PUBLIC_PHOTON_ENDPOINT`. Map styles now use
+OpenFreeMap Bright/Dark endpoints (keyless public instance), replacing CARTO
+after checking its current API-key requirement. No paid service configuration, GPS request,
 outdoor routing or publication was added.
 
 ## Current verification and remaining boundaries

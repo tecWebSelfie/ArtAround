@@ -21,6 +21,7 @@
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.config.ts",
+    "test:live:location": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.location-live.config.ts",
     "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.int.config.mts",
     "test:visual": "node scripts/test-visual-docker.mjs",
     "test:visual:update": "node scripts/test-visual-docker.mjs --update",

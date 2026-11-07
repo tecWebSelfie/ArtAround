@@ -65,3 +65,21 @@ Nine focused integration tests and 12 affected metadata/autocomplete interaction
 lint and i18next extraction passed. These use fixture basemap/provider data; live
 tile verification remains outside this evidence. The earlier independent ship
 verdict applies to the initial extension, not a new independent review.
+
+## Keyless basemap refinement (2026-11-07)
+
+Harden replaces CARTO URLs with OpenFreeMap Bright/Dark (public instance without
+registration or keys), preserving the shared Map Place canvas, Mantine frame,
+primary pin, fallback link and retry. Photon and persistence are unchanged.
+Polish inspected desktop-light and mobile-dark renders; three captured viewports
+(including mobile-light) had no horizontal overflow and requested the intended
+style. These captures use empty-background MSW fixtures, so actual Bright/Dark
+street colors, labels and attribution still require real-provider acceptance.
+
+Nine focused integration tests and 16 scoped interaction/a11y stories passed;
+TypeScript passed. Three read-only opt-in Playwright live-provider cases are
+prepared but not executed: network access remains pending with the maintainer.
+Extract/simplify retained the existing shared map and base Playwright setup;
+there is no new repeated UI or token to extract. Document leaves DESIGN.md and
+its sidecar unchanged because the Mantine framing/pin/control system is preserved.
+This is a scoped refinement, not a new independent ship verdict.
