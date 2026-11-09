@@ -81,7 +81,9 @@ export function EditableSection({
         wrap="nowrap"
         hiddenFrom={canEdit || actions ? undefined : hideTitleFrom}
       >
-        <Title order={3} size="h4">
+        {/* h2: a section of its page, right under the page's h1 (an h3
+            here skipped a level on the profile and detail pages). */}
+        <Title order={2} size="h4">
           {title}
         </Title>
         <Group gap={4} wrap="nowrap" className="shrink-0">

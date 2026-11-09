@@ -52,7 +52,13 @@ export const UserPage = async ({
     // Rhythm: tight inside the identity block (avatar, name, @handle,
     // badges), generous between it, the bio and the tabs, so the bio reads as
     // its own section rather than a caption of the name.
-    <Stack mx={{ base: 'md', sm: 'xl', md: 'auto' }} px={{ md: 'xl' }} maw={{ md: 1204 }} mt="sm">
+    <Stack
+      component="main"
+      mx={{ base: 'md', sm: 'xl', md: 'auto' }}
+      px={{ md: 'xl' }}
+      maw={{ md: 1204 }}
+      mt="sm"
+    >
       {/* Grid lays out with `gap`: below md (full-width columns, `xl` gap)
           it stacks exactly like a single Stack with the same rhythm. */}
       <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">
@@ -91,7 +97,9 @@ export const UserPage = async ({
                     />
                   </Indicator>
                   <Stack justify="start" gap={0} miw={0}>
-                    <Title order={2}>{user.name.fullName}</Title>
+                    <Title order={1} size="h2">
+                      {user.name.fullName}
+                    </Title>
                     <Text size="sm" c="dimmed">
                       @{user.username}
                     </Text>

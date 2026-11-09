@@ -78,6 +78,7 @@ export default function NavigatorHomePage({
   const lng = lngProp ?? params.lng
   return (
     <Stack
+      component="main"
       // `--start-visual`: side of the QR, the Plan circle and the desktop
       // group icon (smaller below md, see StartVisual).
       className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] fit-screen:[contain:size]"

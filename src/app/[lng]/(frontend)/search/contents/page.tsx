@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { ContentsSearchResults } from '@/components/mantine/ContentsSearchResults'
 import { SearchShell } from '@/components/mantine/SearchShell'
 import { getT } from '@/i18n.server'
@@ -25,6 +26,12 @@ const PAGE_SIZE = 12
  *   (`getTourEditorData`), each card adding itself to the tour, plus "Write a
  *   new content" for a stop that doesn't exist yet. See `src/lib/tour-picker.ts`.
  */
+/** The tab names the search. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT('search')
+  return { title: t('Search contents') }
+}
+
 export default async function SearchContentsPage(props: {
   params: Promise<{ lng: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -102,11 +109,13 @@ export default async function SearchContentsPage(props: {
     // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
     // centered) so title, filter and the 3-column grid stop stretching across
     // wide screens. Below md the padding equals the old side margins: no change.
-    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+    <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
         {picker && editor ? (
           <Stack gap="xs">
-            <Title order={2}>{t('Add a stop')}</Title>
+            <Title order={1} size="h2">
+              {t('Add a stop')}
+            </Title>
             <Text c="dimmed" size="sm">
               {t('Contents about the objects on show at {{museum}}', {
                 museum: editor.museum.name,
@@ -133,7 +142,9 @@ export default async function SearchContentsPage(props: {
             </Group>
           </Stack>
         ) : (
-          <Title order={2}>{t('Search contents')}</Title>
+          <Title order={1} size="h2">
+            {t('Search contents')}
+          </Title>
         )}
         <SearchShell
           definitions={definitions}

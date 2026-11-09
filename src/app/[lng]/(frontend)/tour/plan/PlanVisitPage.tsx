@@ -445,7 +445,7 @@ export function PlanVisitPage({
     }[dictation.error]
 
   return (
-    <div className="text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]">
+    <main className="text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]">
       <Container size="xs" py="xl">
         <form
           onSubmit={(event) => {
@@ -680,6 +680,6 @@ export function PlanVisitPage({
           </Stack>
         </form>
       </Container>
-    </div>
+    </main>
   )
 }

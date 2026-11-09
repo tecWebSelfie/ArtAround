@@ -115,6 +115,7 @@ export default async function MuseumPage({
     // DetailCover) nor the tour deck (beside the objects, below) outgrows the
     // viewport.
     <Stack
+      component="main"
       mx={{ base: 'md', sm: 'xl', md: 'auto' }}
       px={{ md: 'xl' }}
       maw={{ md: 1204 }}

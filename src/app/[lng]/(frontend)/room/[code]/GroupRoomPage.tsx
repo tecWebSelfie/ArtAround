@@ -71,7 +71,7 @@ export function GroupRoomPage({
     )
   }
   return (
-    <Container size="xs" py="xl">
+    <Container component="main" size="xs" py="xl">
       {!tour ? (
         <GroupEnded />
       ) : group?.membership.code === code ? (

@@ -39,7 +39,8 @@ export const ContentsCarousel = async ({
 
   return (
     <Stack>
-      <Title order={3} size="h5">
+      {/* h2: the carousel is a section of its page, right under the h1. */}
+      <Title order={2} size="h5">
         {t('Contents')}{' '}
         <Text span c="dimmed" fw={400} inherit className="tabular-nums">
           {validContents.length}
@@ -88,7 +89,7 @@ const ContentsCarouselCard = async ({
               className="h-full bg-linear-to-t from-black/75 via-black/15 to-transparent"
               p="sm"
             >
-              <Title order={4} size="h6" c="white" lineClamp={2}>
+              <Title order={3} size="h6" c="white" lineClamp={2}>
                 {content.title}
               </Title>
               <Group gap="xs">

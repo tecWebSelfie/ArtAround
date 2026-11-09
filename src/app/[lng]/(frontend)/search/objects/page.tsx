@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
 import { SearchShell } from '@/components/mantine/SearchShell'
@@ -25,6 +26,12 @@ const PAGE_SIZE = 12
  *   edit that map; anyone else gets the plain search. See
  *   `src/lib/museum-picker.ts`.
  */
+/** The tab names the search. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT('search')
+  return { title: t('Search objects') }
+}
+
 export default async function SearchObjectsPage(props: {
   params: Promise<{ lng: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -93,11 +100,13 @@ export default async function SearchObjectsPage(props: {
     // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
     // centered) so title, filter and the 3-column grid stop stretching across
     // wide screens. Below md the padding equals the old side margins: no change.
-    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+    <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
         {picker && museum ? (
           <Stack gap="xs">
-            <Title order={2}>{t('Add an object')}</Title>
+            <Title order={1} size="h2">
+              {t('Add an object')}
+            </Title>
             <Text c="dimmed" size="sm">
               {t('Pick an object from the catalog to place it on the map of {{museum}}', {
                 museum: museum.name,
@@ -122,7 +131,9 @@ export default async function SearchObjectsPage(props: {
             </Group>
           </Stack>
         ) : (
-          <Title order={2}>{t('Search objects')}</Title>
+          <Title order={1} size="h2">
+            {t('Search objects')}
+          </Title>
         )}
         <SearchShell
           definitions={definitions}

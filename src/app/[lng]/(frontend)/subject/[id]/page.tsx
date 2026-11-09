@@ -107,7 +107,7 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   }[subject.kind]
 
   return (
-    <Container size="sm" py="md">
+    <Container component="main" size="sm" py="md">
       <Stack gap="lg">
         <Stack gap="xs">
           <Badge variant="light" color="gray">

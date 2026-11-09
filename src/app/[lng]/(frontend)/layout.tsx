@@ -71,7 +71,10 @@ export default async function Layout(props: { children: React.ReactNode }) {
                   {t('Skip to main content')}
                 </a>
                 <SiteHeader {...chrome} supportedLngs={i18nConfig.supportedLngs} />
-                {/* tabIndex -1: the skip link moves focus here, not only the scroll. */}
+                {/* tabIndex -1: the skip link moves focus here, not only the scroll.
+                    A div, not <main>: each page renders its own main landmark
+                    (AppShellMain, or its root with `component="main"`), and a
+                    main here would nest inside theirs. */}
                 <div id="main-content" tabIndex={-1} className="outline-none">
                   {children}
                 </div>

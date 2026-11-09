@@ -123,7 +123,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
 
   return (
     // `maw` widens Mantine's `md` container (960px) to 1140px from md only.
-    <Container size="md" py="md" maw={{ md: 1140 }}>
+    <Container component="main" size="md" py="md" maw={{ md: 1140 }}>
       <Grid gap={{ base: 0, md: 48 }} align="flex-start">
         {/* Desktop media pane: the cover fills the viewport's height under the
             site header (capped, so it stays a picture beside the text, not a
