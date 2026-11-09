@@ -152,7 +152,7 @@ export function MarketplaceSearch({
                   inline
                   label={activeFilterCount}
                   size={16}
-                  color="red"
+                  color="red.8"
                   autoContrast
                   disabled={activeFilterCount === 0}
                 >
@@ -172,7 +172,7 @@ export function MarketplaceSearch({
               </Group>
             }
           />
-          <Button type="submit" size="md" color="red" px={{ base: 'md', sm: 'xl' }}>
+          <Button type="submit" size="md" color="red.8" px={{ base: 'md', sm: 'xl' }}>
             {labels.search}
           </Button>
         </Group>

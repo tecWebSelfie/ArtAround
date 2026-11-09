@@ -221,3 +221,16 @@
   outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
 }
+
+/* Badge text floor (DESIGN.md → Badges): Mantine draws `xs` and `sm` badges at
+   9px and 10px, below the 11px floor for functional text, and the app leans on
+   them for difficulty, duration and price labels. Same sizes, readable text:
+   11px with a slightly taller pill. In `components`, after the mantine layer. */
+@layer components {
+  .mantine-Badge-root {
+    --badge-fz-xs: 0.6875rem;
+    --badge-fz-sm: 0.6875rem;
+    --badge-height-xs: 1.125rem;
+    --badge-height-sm: 1.25rem;
+  }
+}

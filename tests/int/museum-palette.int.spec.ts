@@ -9,6 +9,8 @@ import {
   similarHue,
 } from '@/lib/museum-palette'
 import { PRIMARY_SHADE } from '@/lib/museum-color'
+import { DEFAULT_THEME } from '@mantine/core'
+import { DEFAULT_PRIMARY, lightVariantText } from '@/theme'
 
 // The per-museum theme (src/lib/museum-palette.ts): whatever color a director
 // types, the derived scale has to keep the contrast Mantine's primary roles
@@ -142,5 +144,19 @@ describe('reserved and similar hues', () => {
     expect(similarHue('#40c057')).toBe('navigator')
     expect(similarHue('#228be6')).toBeNull()
     expect(similarHue('#808080')).toBeNull()
+  })
+})
+
+// The app's own primary (src/theme.ts) and the light-variant text color it
+// derives for every palette: the same AA guarantees outside museum mode.
+describe('default theme contrast', () => {
+  it('freezes museumPalette of Mantine blue as the default primary', () => {
+    expect([...DEFAULT_PRIMARY]).toEqual(museumPalette('#228be6').palette)
+  })
+
+  it('keeps light-variant text at AA on shade 1 for every Mantine color', () => {
+    for (const [name, shades] of Object.entries(DEFAULT_THEME.colors)) {
+      expect(ratio(lightVariantText(shades), shades[1]), name).toBeGreaterThanOrEqual(AA - 0.05)
+    }
   })
 })

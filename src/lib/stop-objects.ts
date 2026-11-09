@@ -2,7 +2,7 @@ import type { Payload, TypedLocale } from 'payload'
 import { isPopulated } from '@/lib/isPopulated'
 import { PICTURE_SELECT } from '@/lib/picture'
 import type { asViewer } from '@/lib/session'
-import type { Content, Tour } from '@/payload-types'
+import type { Content, Object as ArtObject, Tour } from '@/payload-types'
 
 /**
  * Fills in the works each stop of a tour talks about.
@@ -43,7 +43,9 @@ export async function withStopObjects(
     locale,
     ...viewer,
   })
-  const byId = new Map(docs.map((doc) => [doc.id, doc]))
+  // Partial documents (the select above), typed as whole ones the way a
+  // `populate` select is: readers only touch name and thumbnail.
+  const byId = new Map(docs.map((doc) => [doc.id, doc as ArtObject]))
 
   const withObjects = (content: Content): Content =>
     content.objects?.docs

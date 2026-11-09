@@ -173,8 +173,10 @@ export async function ContentDetails({
             {t('Unlocked')}
           </Badge>
         ) : null}
+        {/* `default`: a bordered neutral chip with body-colored text (the gray
+            outline variant drew its label at 3.3:1). */}
         {categories.map((category) => (
-          <Badge key={category.id} size="lg" variant="outline" color="gray">
+          <Badge key={category.id} size="lg" variant="default">
             {category.name}
           </Badge>
         ))}

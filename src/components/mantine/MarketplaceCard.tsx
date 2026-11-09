@@ -91,7 +91,8 @@ export function MarketplaceCard({
   ) as Route
 
   const kindLabel = isTour ? labels.tour : isContent ? labels.content : labels.user
-  const kindColor = isTour ? 'grape' : isContent ? 'teal' : 'blue'
+  // Deep shades: the kind badge is filled with a white label (AA on each).
+  const kindColor = isTour ? 'grape.8' : isContent ? 'teal.9' : 'blue.8'
   const FallbackIcon = KIND_FALLBACK[item.kind].Icon
 
   // `Link` wraps the card instead of being passed as Mantine's `component`:
@@ -188,7 +189,7 @@ export function MarketplaceCard({
                 {labels.viewProfile}
               </Text>
             ) : (
-              <Text fw={700} c={isPaid ? undefined : 'green.8'}>
+              <Text fw={700} c={isPaid ? undefined : 'var(--mantine-color-green-light-color)'}>
                 {isPaid ? formatPrice(item.priceCents, item.currency, locale) : labels.free}
               </Text>
             )}
