@@ -1,5 +1,6 @@
 'use client'
 
+import { angleBetween, bearing, normalizeDegrees } from '@/lib/work-in-front'
 import { useCallback, useEffect, useState } from 'react'
 import type { GpsMode } from './gps-source'
 
@@ -14,14 +15,6 @@ export type CompassStatus = 'off' | 'waiting' | 'ready' | 'denied' | 'unsupporte
 
 /** Smaller heading changes are sensor jitter: not worth re-rendering the map. */
 const MIN_TURN_DEGREES = 2
-
-const normalizeDegrees = (degrees: number) => ((degrees % 360) + 360) % 360
-
-/** Smallest difference between two headings, in degrees (0–180). */
-const turnBetween = (a: number, b: number) => {
-  const difference = normalizeDegrees(a - b)
-  return Math.min(difference, 360 - difference)
-}
 
 /**
  * Where the top of the screen points, in degrees from north. Absolute
@@ -89,7 +82,7 @@ export function useCompass(mode: GpsMode) {
       if (next === null) return
       // Events arrive tens of times a second (two streams on Android): jitter
       // sets no state at all, so the whole navigation doesn't re-render.
-      if (published === null || turnBetween(published, next) >= MIN_TURN_DEGREES) {
+      if (published === null || angleBetween(published, next) >= MIN_TURN_DEGREES) {
         published = next
         setHeading(next)
         setStatus('ready')
@@ -109,7 +102,7 @@ export function useCompass(mode: GpsMode) {
   const turn = useCallback(
     (east: number, north: number) => {
       if (mode === 'simulated' && (east || north)) {
-        setHeading(((Math.atan2(east, north) * 180) / Math.PI + 360) % 360)
+        setHeading(normalizeDegrees(bearing(east, north)))
         setStatus('ready')
       }
     },

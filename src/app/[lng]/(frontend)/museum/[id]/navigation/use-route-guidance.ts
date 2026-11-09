@@ -73,18 +73,17 @@ export function useRouteGuidance({
     else if (seen.steps !== steps) setCurrent(0)
   }
 
+  // Snapped onto the route when there is one; free navigation can track a
+  // position without a route to snap to.
+  const onPlan = progress && route?.start ? progress.point : estimate
   return {
     steps,
     current: Math.min(current, Math.max(0, steps.length - 1)),
     setCurrent,
     estimate,
     /** The estimate snapped onto the route, at floor height, for the map dot. */
-    progressPoint:
-      progress && route?.start
-        ? ([progress.point[0], route.start[1], progress.point[1]] as [number, number, number])
-        : // Free navigation can track a position without having a route to snap to.
-          estimate
-          ? ([estimate[0], route?.start?.[1] ?? 0, estimate[1]] as [number, number, number])
-          : null,
+    progressPoint: onPlan
+      ? ([onPlan[0], route?.start?.[1] ?? 0, onPlan[1]] as [number, number, number])
+      : null,
   }
 }

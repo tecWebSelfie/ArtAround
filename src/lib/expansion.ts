@@ -1,4 +1,5 @@
-import type { Difficulty } from '@/payload-types'
+import type { z } from 'zod'
+import type { ExpansionRequestSchema } from './expansion-request'
 
 /**
  * Pure rules shared by `/api/expand` (server) and `ContentExpansion` (browser)
@@ -27,11 +28,8 @@ export type Audience = (typeof AUDIENCES)[number]
  */
 export const MAX_EXPANSION_STEPS = 4
 
-export type ExpansionRequest =
-  /** `step`: 1 for the first addition, then 2, 3… each continuing the last. */
-  | { kind: 'more'; angle: ExpansionAngle; step?: number; age?: number }
-  /** `seconds`: the version's target length (`src/lib/duration.ts`). */
-  | { kind: 'version'; difficulty: Difficulty; seconds: number; audience: Audience; age?: number }
+/** One request for extra text, as `/api/expand` validates it (`expansion-request.ts`). */
+export type ExpansionRequest = z.infer<typeof ExpansionRequestSchema>
 
 /** A museum entity the text may link to, with its thumbnail for the preview row. */
 export type ExpansionLink = {

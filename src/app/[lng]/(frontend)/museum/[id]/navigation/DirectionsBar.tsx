@@ -136,26 +136,24 @@ export function DirectionsBar({
     // thing to do before guidance can start. Both are chosen from search.
     const position = status === 'no-position'
     return (
-      <>
-        <DirectionsLayout trailingControl={trailingControl}>
-          <UnstyledButton
-            onClick={onSearch}
-            className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-orange-light-color)"
-          >
-            {position ? (
-              <MapPinOff size={20} aria-hidden className="shrink-0" />
-            ) : (
-              <Navigation size={20} aria-hidden className="shrink-0" />
-            )}
-            <Text size="sm" fw={600} lineClamp={2}>
-              {position
-                ? t('Open an object and set it as your position')
-                : t('Choose where to go from search')}
-            </Text>
-            <ChevronRight size={18} aria-hidden className="ml-auto shrink-0" />
-          </UnstyledButton>
-        </DirectionsLayout>
-      </>
+      <DirectionsLayout trailingControl={trailingControl}>
+        <UnstyledButton
+          onClick={onSearch}
+          className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-orange-light-color)"
+        >
+          {position ? (
+            <MapPinOff size={20} aria-hidden className="shrink-0" />
+          ) : (
+            <Navigation size={20} aria-hidden className="shrink-0" />
+          )}
+          <Text size="sm" fw={600} lineClamp={2}>
+            {position
+              ? t('Open an object and set it as your position')
+              : t('Choose where to go from search')}
+          </Text>
+          <ChevronRight size={18} aria-hidden className="ml-auto shrink-0" />
+        </UnstyledButton>
+      </DirectionsLayout>
     )
   }
 
@@ -171,17 +169,15 @@ export function DirectionsBar({
     const Icon =
       status === 'complete' ? MapPinCheck : status === 'unavailable' ? MapPinOff : Navigation
     return (
-      <>
-        <DirectionsLayout trailingControl={trailingControl}>
-          <Group gap="xs" wrap="nowrap" role="status" aria-live="polite" className="min-h-12 px-1">
-            <Icon size={20} aria-hidden />
-            <Text fw={600} size="sm">
-              {message}
-            </Text>
-            {action && <Box ml="auto">{action}</Box>}
-          </Group>
-        </DirectionsLayout>
-      </>
+      <DirectionsLayout trailingControl={trailingControl}>
+        <Group gap="xs" wrap="nowrap" role="status" aria-live="polite" className="min-h-12 px-1">
+          <Icon size={20} aria-hidden />
+          <Text fw={600} size="sm">
+            {message}
+          </Text>
+          {action && <Box ml="auto">{action}</Box>}
+        </Group>
+      </DirectionsLayout>
     )
   }
 

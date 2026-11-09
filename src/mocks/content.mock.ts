@@ -2,7 +2,8 @@ import type { Content } from '@/payload-types'
 
 const TIMESTAMP = '2026-01-15T10:00:00.000Z'
 
-function mockBody(text: string): Content['body'] {
+/** A one-paragraph Lexical body: for stories, and for specs that need a content's text. */
+export function mockBody(text: string): Content['body'] {
   return {
     root: {
       type: 'root',

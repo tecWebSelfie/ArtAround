@@ -12,11 +12,12 @@ export function nearbyWorks(
   const ids = (decision: ReturnType<typeof workInFront>) =>
     decision.kind === 'sure' ? [decision.id] : decision.kind === 'choose' ? decision.ids : []
   const entering = ids(workInFront(point, heading, works))
+  const shown = new Set(previous)
   const retained = ids(
     workInFront(
       point,
       heading,
-      works.filter(({ id }) => previous.includes(id)),
+      works.filter(({ id }) => shown.has(id)),
       { reach: 4.5, halfField: 45 },
     ),
   )

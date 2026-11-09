@@ -4,6 +4,7 @@ import {
   contentAudioText,
   contentAudioWhere,
 } from '@/lib/content-audio'
+import { speechAvailable } from '@/lib/ai-models'
 import { VersionRequest } from '@/lib/expansion-request'
 import { variantWhere } from '@/lib/expansion-variants'
 import { normalizeLocale } from '@/lib/localized'
@@ -41,20 +42,22 @@ const REQUEUE_AFTER_MS = 2 * 60_000
 const json = (status: string, code: number) =>
   NextResponse.json({ status }, { status: code, headers: { 'Cache-Control': 'no-store' } })
 
+/** The `version` query parameter as JSON, or null when it isn't JSON at all. */
+function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!allowRequest(request, 60)) return json('busy', 429)
   const { id } = await params
   const url = new URL(request.url)
   const locale = normalizeLocale(url.searchParams.get('locale') ?? 'en') ?? 'en'
   const versionParam = url.searchParams.get('version')
-  const version =
-    versionParam === null
-      ? null
-      : VersionRequest.safeParse(
-          await Promise.resolve()
-            .then(() => JSON.parse(versionParam))
-            .catch(() => null),
-        )
+  const version = versionParam === null ? null : VersionRequest.safeParse(parseJson(versionParam))
   if (version && !version.success) return json('invalid-version', 400)
   const { payload } = await getSession()
   const viewer = await asViewer()
@@ -73,11 +76,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!source) return json('not-found', 404)
   if (!source.body) return json('locked', 403)
 
-  // Resolve by the same validated parameters as /api/expand, after checking the base access.
-  // While the text stream is saving, wait instead of accidentally playing the base version.
-  const variant = version?.success
-    ? (
-        await payload.find({
+  // 2. The saved version asked for (resolved by the same validated parameters
+  //    as /api/expand), the text in the requested language (never the English
+  //    fallback) and the stored audio. Only the audio depends on the version,
+  //    so the content read runs alongside both.
+  const variantRead = version?.success
+    ? payload
+        .find({
           collection: 'contentVariants',
           where: variantWhere('contents', id, version.data),
           locale,
@@ -86,13 +91,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           limit: 1,
           overrideAccess: true,
         })
-      ).docs[0]
-    : undefined
-  if (version && !variant?.body) return json('translating', 202)
-
-  // 2. The text in the requested language (never the English fallback) and
-  //    the stored audio, read together: neither depends on the other.
-  const [content, { docs }] = await Promise.all([
+        .then(({ docs }) => docs[0])
+    : Promise.resolve(undefined)
+  const [variant, content, { docs }] = await Promise.all([
+    variantRead,
     payload.findByID({
       collection: 'contents',
       id,
@@ -102,14 +104,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       select: { title: true, body: true },
       overrideAccess: true,
     }),
-    payload.find({
-      collection: 'contentAudio',
-      where: contentAudioWhere(id, locale, variant?.id),
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-    }),
+    variantRead.then((found) =>
+      payload.find({
+        collection: 'contentAudio',
+        where: contentAudioWhere(id, locale, found?.id),
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+      }),
+    ),
   ])
+  // While the version's text stream is saving, wait instead of accidentally
+  // playing the base version.
+  if (version && !variant?.body) return json('translating', 202)
   if (!content.body && !variant?.body) return json('translating', 202)
   const textHash = audioTextHash(
     contentAudioText({ ...content, body: variant?.body ?? content.body }),
@@ -131,7 +138,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       etag,
     )
   }
-  if (!process.env.FISH_API_KEY && process.env.AI_MOCK !== 'true') return json('unavailable', 503)
+  if (!speechAvailable()) return json('unavailable', 503)
   const key = `${id}:${locale}:${variant?.id ?? 'base'}`
   if (Date.now() - (queuedAt.get(key) ?? 0) > REQUEUE_AFTER_MS) {
     queuedAt.set(key, Date.now())

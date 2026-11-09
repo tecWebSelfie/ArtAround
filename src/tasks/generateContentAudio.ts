@@ -33,29 +33,33 @@ export async function generateContentAudio(
   }: { contentId: string; locale: string; variantId?: string | null },
 ): Promise<{ status: 'no-text' | 'up-to-date' | 'generated'; seconds?: number }> {
   const { payload } = req
-  const content = await payload.findByID({
-    collection: 'contents',
-    id: contentId,
-    locale: locale as 'en',
-    fallbackLocale: false,
-    depth: 0,
-    select: { title: true, body: true },
-    overrideAccess: true,
-    req,
-  })
-  const variant = variantId
-    ? await payload
-        .findByID({
-          collection: 'contentVariants',
-          id: variantId,
-          locale: locale as 'en',
-          fallbackLocale: false,
-          depth: 0,
-          overrideAccess: true,
-          req,
-        })
-        .catch(() => null)
-    : null
+  // Independent reads: the content (its title, and the body of a base
+  // audio) and the saved version a personal audio reads instead.
+  const [content, variant] = await Promise.all([
+    payload.findByID({
+      collection: 'contents',
+      id: contentId,
+      locale: locale as 'en',
+      fallbackLocale: false,
+      depth: 0,
+      select: { title: true, body: true },
+      overrideAccess: true,
+      req,
+    }),
+    variantId
+      ? payload
+          .findByID({
+            collection: 'contentVariants',
+            id: variantId,
+            locale: locale as 'en',
+            fallbackLocale: false,
+            depth: 0,
+            overrideAccess: true,
+            req,
+          })
+          .catch(() => null)
+      : null,
+  ])
   // A queued job must never attach another content's version to this content's audio.
   if (
     variantId &&
@@ -63,13 +67,14 @@ export async function generateContentAudio(
   ) {
     return { status: 'no-text' }
   }
-  if (!variant?.body && !content.body) return { status: 'no-text' }
-  const text = contentAudioText({ ...content, body: variant?.body ?? content.body })
+  const body = variant?.body ?? content.body
+  if (!body) return { status: 'no-text' }
+  const text = contentAudioText({ ...content, body })
   const textHash = audioTextHash(text)
 
   const { docs } = await payload.find({
     collection: 'contentAudio',
-    where: contentAudioWhere(contentId, locale, variantId ?? undefined),
+    where: contentAudioWhere(contentId, locale, variantId),
     depth: 0,
     limit: 1,
     overrideAccess: true,

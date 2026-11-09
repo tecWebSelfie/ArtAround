@@ -17,18 +17,6 @@ import type { MuseumRooms } from '@/lib/museum-rooms'
  */
 afterEach(cleanup)
 
-// jsdom has no `matchMedia`, which Mantine reads for the color scheme.
-window.matchMedia ??= ((query: string) => ({
-  matches: false,
-  media: query,
-  onchange: null,
-  addListener: () => {},
-  removeListener: () => {},
-  addEventListener: () => {},
-  removeEventListener: () => {},
-  dispatchEvent: () => false,
-})) as typeof window.matchMedia
-
 const square = (x0: number, x1: number) =>
   [
     [x0, 0],

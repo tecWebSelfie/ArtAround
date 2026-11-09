@@ -4,7 +4,7 @@ import { VISIT_MINUTES, type PlannedTour, type PlanRequest } from '@/lib/tour-pl
 import { BackToNavigator } from '@/components/navigation/BackToNavigator'
 import { createSessionStore } from '@/lib/session-store'
 import { tourNavigationPath } from '@/lib/tour-navigation'
-import { setReadingProfile } from '@/lib/reading-profile'
+import { readerFor, setReadingProfile } from '@/lib/reading-profile'
 import { ReadingProfile } from '@/components/group/ReadingProfile'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
 import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
@@ -312,8 +312,7 @@ export function PlanVisitPage({
     }
   }
 
-  const reader =
-    answers.reader !== 'adult' && ages.includes(Number(answers.reader)) ? answers.reader : 'adult'
+  const reader = readerFor(answers.reader, ages)
   const readingQuery = new URLSearchParams()
   if (answers.wheelchair) readingQuery.set('mobility', 'wheelchair')
   setReadingProfile(readingQuery, reader)

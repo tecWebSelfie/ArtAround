@@ -33,6 +33,15 @@ export function NavigationProximity({
 }) {
   const room = point ? roomAt(rooms.rooms, point) : null
   const catalogById = useMemo(() => new Map(catalog.map((work) => [work.id, work])), [catalog])
+  // A placed work never changes room: look each one up once per map, not on
+  // every room change of the estimate.
+  const roomOf = useMemo(
+    () =>
+      new Map(
+        rooms.objects.map(({ objectId, point }) => [objectId, roomAt(rooms.rooms, point)?.id]),
+      ),
+    [rooms],
+  )
   // Room-aware filtering avoids discoveries through walls: only works in the
   // same room as the estimate, or, when it falls outside every room (a
   // doorway, a corridor, GPS drift), only works outside every room too.
@@ -41,15 +50,15 @@ export function NavigationProximity({
     () =>
       rooms.objects
         .filter(
-          ({ objectId, point: placed }) =>
+          ({ objectId }) =>
             catalogById.has(objectId) &&
-            (!rooms.rooms.length || roomAt(rooms.rooms, placed)?.id === room?.id) &&
+            (!rooms.rooms.length || roomOf.get(objectId) === room?.id) &&
             (objectId === nextId || (discoveries && !tourObjectIds.has(objectId))),
         )
         .map(({ objectId, point }) => ({ id: objectId, point }))
         // Prefer the requested destination when several works share one direction.
         .sort((a, b) => Number(b.id === nextId) - Number(a.id === nextId)),
-    [rooms, catalogById, room, nextId, discoveries, tourObjectIds],
+    [rooms, roomOf, catalogById, room, nextId, discoveries, tourObjectIds],
   )
   const [seen, setSeen] = useState({
     key: scopeKey,
@@ -57,7 +66,12 @@ export function NavigationProximity({
     dismissed: [] as string[],
   })
   const previous = seen.key === scopeKey ? seen.ids : []
-  const ids = nearbyWorks(point, heading, works, previous)
+  // Recomputed only when a sensor reading or the candidate works change, not
+  // on every re-render of the navigation around it.
+  const ids = useMemo(
+    () => nearbyWorks(point, heading, works, previous),
+    [point, heading, works, previous],
+  )
   // A dismissal lasts for the whole scope (until the confirmed position, GPS
   // source or destination changes): one jittery fix out of range must not
   // bring the same work back.

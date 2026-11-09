@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { ChildAge } from './reading-profile'
 
 /**
  * Pure rules of the "Plan my visit" form, shared by the form page and
@@ -23,7 +24,7 @@ export const PlanRequest = z
     minutes: z.number().int().min(15).max(240),
     returning: z.boolean(),
     adults: z.number().int().min(0).max(30),
-    childrenAges: z.array(z.number().int().min(0).max(17)).max(20),
+    childrenAges: z.array(ChildAge).max(20),
     interests: z.string().max(500),
     lng: z.string().min(2).max(10),
   })

@@ -3,26 +3,7 @@ import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { audioTextHash, contentAudioText, contentAudioWhere } from '@/lib/content-audio'
-import type { Content } from '@/payload-types'
-
-const plainToRichText = (text: string): Content['body'] => ({
-  root: {
-    type: 'root',
-    version: 1,
-    direction: null,
-    format: '',
-    indent: 0,
-    children: [
-      {
-        type: 'paragraph',
-        version: 1,
-        children: [
-          { type: 'text', version: 1, text, detail: 0, format: 0, mode: 'normal', style: '' },
-        ],
-      },
-    ],
-  },
-})
+import { mockBody } from '@/mocks/content.mock'
 
 /** The actual audio route checks the base entitlement before resolving a saved personal version. */
 const api = vi.hoisted(() => ({ findByID: vi.fn(), find: vi.fn(), queue: vi.fn() }))
@@ -46,8 +27,8 @@ const version = {
   audience: 'children',
   age: 5,
 } as const
-const content = { title: 'Work', body: plainToRichText('Base facts.') }
-const variant = { id: 'v5', content: 'c1', body: plainToRichText('Facts for age five.') }
+const content = { title: 'Work', body: mockBody('Base facts.') }
+const variant = { id: 'v5', content: 'c1', body: mockBody('Facts for age five.') }
 let sequence = 0
 const invoke = (query = '', headers?: HeadersInit) => {
   const id = `c${++sequence}`

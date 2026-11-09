@@ -79,8 +79,20 @@ import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
-/** Header measured with its padding (stable object: the hook re-observes on change). */
-const HEADER_BOX: ResizeObserverOptions = { box: 'border-box' }
+/** Bars measured with their padding (stable object: the hook re-observes on change). */
+const BORDER_BOX: ResizeObserverOptions = { box: 'border-box' }
+
+/** Publishes a measured height as a root CSS variable while it is known. */
+function useRootHeightVariable(name: string, height: number) {
+  useEffect(() => {
+    if (!height) return
+    const root = document.documentElement
+    root.style.setProperty(name, `${height}px`)
+    return () => {
+      root.style.removeProperty(name)
+    }
+  }, [name, height])
+}
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
@@ -160,6 +172,8 @@ export const TourNavigationPage = ({
       (defaultDestination ? { kind: 'object', id: defaultDestination } : null),
     [search, defaultDestination],
   )
+  // The work the route leads to, if it is one (not a service or an exit).
+  const nextObjectId = destination?.kind === 'object' ? destination.id : null
   // The author's directions for the stop ahead, while the route leads to it
   // (a destination the visitor chose instead has nothing to do with them).
   const notes = useMemo(
@@ -183,13 +197,16 @@ export const TourNavigationPage = ({
   const gps = useGpsFix(settings.gpsMode)
   const compass = useCompass(settings.gpsMode)
   const confirmedPoint = rooms.objects.find(({ objectId }) => objectId === currentObjectId)?.point
+  // Where GPS offsets start from: a new museum, confirmed work or GPS source
+  // resets it (the guidance anchor, and the proximity notice's state).
+  const positionScope = `${museum.id}:${currentObjectId}:${settings.gpsMode}`
   // Identification also works before selecting a destination in a free visit.
   const guidance = useRouteGuidance({
     route,
     rooms,
     fix: gps.fix,
     startPoint: confirmedPoint,
-    anchorScope: `${museum.id}:${currentObjectId}:${settings.gpsMode}`,
+    anchorScope: positionScope,
   })
   const { commands: allCommands, run } = useNavigationCommands({
     museum,
@@ -231,25 +248,11 @@ export const TourNavigationPage = ({
   // The header's height varies (title wrap, stepper, free visit): publish it
   // so the docked desktop panel (portalled, see NavigationModal) starts just
   // below it instead of covering the stepper.
-  const { ref: headerRef, height: headerHeight } = useElementSize(HEADER_BOX)
-  const { ref: footerRef, height: footerHeight } = useElementSize(HEADER_BOX)
+  const { ref: headerRef, height: headerHeight } = useElementSize(BORDER_BOX)
+  useRootHeightVariable('--navigation-header-height', headerHeight)
   // The footer grows with text instead of reserving a fixed-height strip.
-  useEffect(() => {
-    if (!footerHeight) return
-    const root = document.documentElement
-    root.style.setProperty('--navigation-footer-height', `${footerHeight}px`)
-    return () => {
-      root.style.removeProperty('--navigation-footer-height')
-    }
-  }, [footerHeight])
-  useEffect(() => {
-    if (!headerHeight) return
-    const root = document.documentElement
-    root.style.setProperty('--navigation-header-height', `${headerHeight}px`)
-    return () => {
-      root.style.removeProperty('--navigation-header-height')
-    }
-  }, [headerHeight])
+  const { ref: footerRef, height: footerHeight } = useElementSize(BORDER_BOX)
+  useRootHeightVariable('--navigation-footer-height', footerHeight)
 
   // Nearby suggestions follow the GPS estimate, or else the confirmed start.
   const here =
@@ -468,10 +471,10 @@ export const TourNavigationPage = ({
                     heading={compass.heading}
                     rooms={rooms}
                     catalog={catalog}
-                    nextId={destination?.kind === 'object' ? destination.id : null}
+                    nextId={nextObjectId}
                     tourObjectIds={tourObjectIds}
                     discoveries={settings.suggestions}
-                    scopeKey={`${museum.id}:${currentObjectId}:${settings.gpsMode}:${destination?.kind === 'object' ? destination.id : (destination?.target ?? '')}`}
+                    scopeKey={`${positionScope}:${destination?.kind === 'object' ? destination.id : (destination?.target ?? '')}`}
                     onOpen={(id) => {
                       const command = commandById(`object:${id}`)
                       if (command) run(command)
@@ -638,15 +641,11 @@ function NavigationControls({
     const observer = new ResizeObserver(update)
     observer.observe(scroll)
     observer.observe(content)
-    // Proximity updates can change overflow inside a height-bounded child
-    // without resizing that child's outer box; watch its rendered content too.
+    // Notices mounting or unmounting change what overflows. Attribute and
+    // text changes are left out: they fire on every hover and sensor update,
+    // and a size change they cause already reaches the ResizeObserver.
     const mutations = new MutationObserver(update)
-    mutations.observe(content, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      attributes: true,
-    })
+    mutations.observe(content, { childList: true, subtree: true })
     update()
     return () => {
       observer.disconnect()

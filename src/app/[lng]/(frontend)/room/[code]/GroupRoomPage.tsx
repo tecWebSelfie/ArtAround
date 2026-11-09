@@ -10,7 +10,7 @@ import { HOST_IDENTITY } from '@/lib/group'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { tourNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
 import { ReadingProfile } from '@/components/group/ReadingProfile'
-import { setReadingProfile } from '@/lib/reading-profile'
+import { readerFor, setReadingProfile } from '@/lib/reading-profile'
 import { useConnectionState, useRemoteParticipant } from '@livekit/components-react'
 import {
   Alert,
@@ -129,7 +129,7 @@ function JoinGroup({
   const router = useRouter()
   const ages = tour.childrenAges ?? []
   const age = search.get('age')
-  const reader = age !== null && ages.includes(Number(age)) ? age : 'adult'
+  const reader = readerFor(age, ages)
 
   return (
     <Stack gap="lg">

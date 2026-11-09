@@ -23,7 +23,11 @@ export const AUDIO_MODEL = 's2.1-pro-free'
 export const AUDIO_QUEUE = 'speech'
 
 /** Missing/null variant is the legacy base audio; every saved version has its own file. */
-export function contentAudioWhere(contentId: string, locale: string, variantId?: string): Where {
+export function contentAudioWhere(
+  contentId: string,
+  locale: string,
+  variantId?: string | null,
+): Where {
   return {
     and: [
       { content: { equals: contentId } },

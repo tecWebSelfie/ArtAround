@@ -1,6 +1,7 @@
 import type { Content, Object as MuseumObject, Tour } from '@/payload-types'
 import { ItemNode } from '@pascal-app/core'
 import type { Route } from 'next'
+import { readingAge } from './reading-profile'
 
 /** URL and Payload/Pascal adapters shared across the tour navigation route tree. */
 export type NavigationCatalogObject = Pick<MuseumObject, 'id' | 'name'> & {
@@ -157,7 +158,7 @@ export function withNavigationPosition(path: string, search: string | Navigation
         : key === 'audience'
           ? value === 'children'
           : key === 'age'
-            ? typeof value === 'string' && /^\d{1,2}$/.test(value) && Number(value) <= 17
+            ? typeof value === 'string' && readingAge(value) !== undefined
             : typeof value === 'string' && value
     if (valid) {
       output.set(key, value as string)

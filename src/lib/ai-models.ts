@@ -41,6 +41,13 @@ export async function transcriptionModel(): Promise<TranscriptionModel> {
     : groq.transcription(TRANSCRIPTION_MODEL)
 }
 
+/**
+ * Whether text to speech can run: a Fish Audio key, or the mocks. Read at
+ * call time, like the key, so tests can switch either with `vi.stubEnv`.
+ */
+export const speechAvailable = () =>
+  process.env.AI_MOCK === 'true' || Boolean(process.env.FISH_API_KEY)
+
 export async function speechModel(modelId: string): Promise<SpeechModel> {
   return AI_MOCKED
     ? (await import('./ai-mock')).mockSpeechModel(modelId)

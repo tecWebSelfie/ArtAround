@@ -28,11 +28,17 @@ export type PlacedWork = { id: string; point: PolygonPoint2D }
 export type WorkInFront =
   { kind: 'sure'; id: string } | { kind: 'choose'; ids: string[] } | { kind: 'none' }
 
+/** Any angle in degrees, brought into 0–360. */
+export const normalizeDegrees = (degrees: number) => ((degrees % 360) + 360) % 360
+
 /** Smallest difference between two angles, in degrees (0–180). */
-const angleBetween = (a: number, b: number) => {
-  const difference = (((a - b) % 360) + 360) % 360
+export const angleBetween = (a: number, b: number) => {
+  const difference = normalizeDegrees(a - b)
   return Math.min(difference, 360 - difference)
 }
+
+/** Compass bearing of an east/north offset: 0 north, 90 east (−180–180). */
+export const bearing = (east: number, north: number) => (Math.atan2(east, north) * 180) / Math.PI
 
 export function workInFront(
   position: PolygonPoint2D,
@@ -46,12 +52,10 @@ export function workInFront(
     .map(({ id, point }) => {
       const east = point[0] - position[0]
       const north = position[1] - point[1]
-      // Compass bearing of the work from the visitor: 0 north, 90 east.
-      const bearing = (Math.atan2(east, north) * 180) / Math.PI
       return {
         id,
         distance: Math.hypot(east, north),
-        offAxis: heading === null ? 0 : angleBetween(bearing, heading),
+        offAxis: heading === null ? 0 : angleBetween(bearing(east, north), heading),
       }
     })
     .filter(({ distance, offAxis }) => distance <= limits.reach && offAxis <= limits.halfField)

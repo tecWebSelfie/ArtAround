@@ -89,22 +89,25 @@ export async function POST(request: Request) {
 
     // 2. Planned before with the same answers? Reuse it.
     const requestKey = createHash('sha256').update(planRequestKey(museumId, answers)).digest('hex')
-    const previous = await payload.find({
-      collection: 'tours',
-      where: {
-        and: [
-          { 'generation.requestKey': { equals: requestKey } },
-          { visibility: { not_equals: 'private' } },
-        ],
-      },
-      // Newest first: a stale plan is replaced by a new tour with the same key,
-      // and that replacement (not the stale original) is the one to reuse.
-      sort: '-createdAt',
-      limit: 1,
-      depth: 0,
-      ...viewer,
-    })
-    const museum = await payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale })
+    // Independent reads: a plan made before for the same answers, and the museum.
+    const [previous, museum] = await Promise.all([
+      payload.find({
+        collection: 'tours',
+        where: {
+          and: [
+            { 'generation.requestKey': { equals: requestKey } },
+            { visibility: { not_equals: 'private' } },
+          ],
+        },
+        // Newest first: a stale plan is replaced by a new tour with the same key,
+        // and that replacement (not the stale original) is the one to reuse.
+        sort: '-createdAt',
+        limit: 1,
+        depth: 0,
+        ...viewer,
+      }),
+      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }),
+    ])
     const nodes = mapNodes(museum.map)
     const { rooms, objects: placed } = museumRooms(nodes)
     const pointOf = new Map(placed.map((entry) => [entry.objectId, entry.point]))

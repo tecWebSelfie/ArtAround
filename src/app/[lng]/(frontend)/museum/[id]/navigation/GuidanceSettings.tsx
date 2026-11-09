@@ -5,7 +5,7 @@ import { useLocalStorage } from '@mantine/hooks'
 import { SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GPS_SIMULATOR_ENABLED, type GpsMode } from './gps-source'
-import type { useCompass } from './compass-source'
+import type { CompassStatus, useCompass } from './compass-source'
 
 /**
  * The visitor's guidance choices. Assistance is opt-in (PRODUCT.md), so
@@ -49,6 +49,15 @@ export function GuidanceSettings({
   compass?: ReturnType<typeof useCompass>
 }) {
   const { t } = useTranslation('tour-navigation')
+  // What the visitor can do about the compass, by its status.
+  const pointHint = t('Point your phone towards a work to help identify it.')
+  const compassHint: Record<CompassStatus, string> = {
+    denied: t('Compass permission denied. Allow it in browser settings or choose a nearby work.'),
+    unsupported: t('Compass unavailable. Choose a nearby work or scan its QR code.'),
+    waiting: t('Waiting for orientation. Hold the phone upright and point towards a work.'),
+    ready: pointHint,
+    off: pointHint,
+  }
   const gpsOptions = [
     { value: 'off', label: t('Off') },
     { value: 'device', label: t('GPS') },
@@ -117,19 +126,7 @@ export function GuidanceSettings({
                 >
                   {compass.status === 'ready' ? t('Compass active') : t('Enable compass')}
                 </Button>
-                <Text size="xs">
-                  {compass.status === 'denied'
-                    ? t(
-                        'Compass permission denied. Allow it in browser settings or choose a nearby work.',
-                      )
-                    : compass.status === 'unsupported'
-                      ? t('Compass unavailable. Choose a nearby work or scan its QR code.')
-                      : compass.status === 'waiting'
-                        ? t(
-                            'Waiting for orientation. Hold the phone upright and point towards a work.',
-                          )
-                        : t('Point your phone towards a work to help identify it.')}
-                </Text>
+                <Text size="xs">{compassHint[compass.status]}</Text>
               </>
             )}
           </Stack>

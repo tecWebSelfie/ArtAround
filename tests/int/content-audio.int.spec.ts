@@ -19,28 +19,9 @@ const { audioTextHash, mp3DurationSeconds, silentMp3, splitForSpeech } =
   await import('@/lib/content-audio')
 const { generateContentAudio } = await import('@/tasks/generateContentAudio')
 const { Contents } = await import('@/collections/Contents')
+const { mockBody } = await import('@/mocks/content.mock')
 
-const body = (text: string) => ({
-  root: {
-    type: 'root',
-    version: 1,
-    direction: null,
-    format: '',
-    indent: 0,
-    children: [
-      {
-        type: 'paragraph',
-        version: 1,
-        direction: null,
-        format: '',
-        indent: 0,
-        children: [
-          { type: 'text', version: 1, text, detail: 0, format: 0, mode: 'normal', style: '' },
-        ],
-      },
-    ],
-  },
-})
+const body = mockBody
 
 type Doc = Record<string, unknown>
 

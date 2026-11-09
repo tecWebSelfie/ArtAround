@@ -1,4 +1,5 @@
 import { superAdminOnly } from '@/access/museumRoles'
+import { MAX_CHILD_AGE } from '@/lib/reading-profile'
 import { DifficultyField } from '@/fields/DifficultyField'
 import type { CollectionConfig } from 'payload'
 
@@ -90,7 +91,7 @@ export const ContentVariants: CollectionConfig = {
       name: 'age',
       type: 'number',
       min: 0,
-      max: 17,
+      max: MAX_CHILD_AGE,
     },
     {
       // Requested length of a version, in seconds (`src/lib/duration.ts`).
