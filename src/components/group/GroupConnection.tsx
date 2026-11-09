@@ -5,6 +5,7 @@ import {
   groupLocation,
   HOST_IDENTITY,
   isQuizLocation,
+  isRetryableTokenError,
   isTourLocation,
   parseRoomMetadata,
 } from '@/lib/group'
@@ -101,7 +102,7 @@ export default function GroupConnection({
           })
           if (!cancelled) await connect(serverUrl, participantToken)
           return
-        } catch {
+        } catch (error) {
           if (cancelled) return
           // A transient token/server failure must not strand a reloading host offline.
           // Only an explicit missing/ended room ends membership; 5xx/429 are retryable.
@@ -113,6 +114,11 @@ export default function GroupConnection({
           if (ended) {
             setMembership(null)
             notifications.show({ title: t('This group has ended'), message: '' })
+            return
+          }
+          // A refusal (other 4xx) won't change by asking again every few seconds.
+          if (!isRetryableTokenError(error)) {
+            notifications.show({ title: t('Could not connect to the group'), message: '' })
             return
           }
           await new Promise<void>((resolve) => {

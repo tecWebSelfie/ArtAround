@@ -97,6 +97,9 @@ export async function POST(request: Request) {
           { visibility: { not_equals: 'private' } },
         ],
       },
+      // Newest first: a stale plan is replaced by a new tour with the same key,
+      // and that replacement (not the stale original) is the one to reuse.
+      sort: '-createdAt',
       limit: 1,
       depth: 0,
       ...viewer,

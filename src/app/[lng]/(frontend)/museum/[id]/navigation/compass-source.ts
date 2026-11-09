@@ -12,17 +12,33 @@ type PermissionDevice = typeof DeviceOrientationEvent & {
 }
 export type CompassStatus = 'off' | 'waiting' | 'ready' | 'denied' | 'unsupported'
 
-/** Absolute headings only: a relative alpha must never masquerade as north. */
-export function compassHeading(event: CompassEvent): number | null {
+/** Smaller heading changes are sensor jitter: not worth re-rendering the map. */
+const MIN_TURN_DEGREES = 2
+
+const normalizeDegrees = (degrees: number) => ((degrees % 360) + 360) % 360
+
+/** Smallest difference between two headings, in degrees (0–180). */
+const turnBetween = (a: number, b: number) => {
+  const difference = normalizeDegrees(a - b)
+  return Math.min(difference, 360 - difference)
+}
+
+/**
+ * Where the top of the screen points, in degrees from north. Absolute
+ * headings only: a relative alpha must never masquerade as north. Sensors
+ * report the device's top edge; `screenAngle` (`screen.orientation.angle`,
+ * clockwise) turns that into the screen's top when the phone is in landscape.
+ */
+export function compassHeading(event: CompassEvent, screenAngle = 0): number | null {
   if (
     typeof event.webkitCompassHeading === 'number' &&
     Number.isFinite(event.webkitCompassHeading) &&
     (event.webkitCompassAccuracy === undefined || event.webkitCompassAccuracy >= 0)
   ) {
-    return ((event.webkitCompassHeading % 360) + 360) % 360
+    return normalizeDegrees(event.webkitCompassHeading + screenAngle)
   }
   return event.absolute && event.alpha !== null && Number.isFinite(event.alpha)
-    ? (360 - (event.alpha % 360)) % 360
+    ? normalizeDegrees(360 - event.alpha + screenAngle)
     : null
 }
 
@@ -61,15 +77,23 @@ export function useCompass(mode: GpsMode) {
   useEffect(() => {
     if (!enabled || mode !== 'device') return
     let expiry: ReturnType<typeof setTimeout> | undefined
+    // The heading last published as state, local to this listener.
+    let published: number | null = null
     const expire = () => {
+      published = null
       setHeading(null)
       setStatus('waiting')
     }
     const receive = (event: DeviceOrientationEvent) => {
-      const next = compassHeading(event)
+      const next = compassHeading(event, window.screen?.orientation?.angle ?? 0)
       if (next === null) return
-      setHeading(next)
-      setStatus('ready')
+      // Events arrive tens of times a second (two streams on Android): jitter
+      // sets no state at all, so the whole navigation doesn't re-render.
+      if (published === null || turnBetween(published, next) >= MIN_TURN_DEGREES) {
+        published = next
+        setHeading(next)
+        setStatus('ready')
+      }
       clearTimeout(expiry)
       // A suspended or stopped sensor must not keep filtering by an old heading.
       expiry = setTimeout(expire, 8_000)

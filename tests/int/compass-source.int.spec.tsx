@@ -29,6 +29,31 @@ describe('absolute compass measurements', () => {
       compassHeading(orientation({ webkitCompassHeading: 90, webkitCompassAccuracy: -1 })),
     ).toBeNull()
   })
+  it('turns the heading with the screen when the phone is held in landscape', () => {
+    // The visitor points the top of the screen: rotated 90° clockwise, that
+    // is 90° to the right of where the device's top edge points.
+    expect(compassHeading(orientation({ webkitCompassHeading: 0 }), 90)).toBe(90)
+    expect(compassHeading(orientation({ alpha: 270, absolute: true }), 90)).toBe(180)
+    expect(compassHeading(orientation({ alpha: 0, absolute: true }), 270)).toBe(270)
+  })
+  it('ignores jitter under two degrees, so a still phone does not re-render the map', async () => {
+    vi.stubGlobal('DeviceOrientationEvent', {})
+    vi.stubGlobal('isSecureContext', true)
+    let renders = 0
+    const { result } = renderHook(() => {
+      renders++
+      return useCompass('device')
+    })
+    await act(() => result.current.enable())
+    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 15 })))
+    const settled = renders
+    for (const reading of [15.4, 14.7, 15.9, 14.2])
+      act(() => window.dispatchEvent(orientation({ webkitCompassHeading: reading })))
+    expect(result.current.heading).toBe(15)
+    expect(renders).toBe(settled)
+    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 40 })))
+    expect(result.current.heading).toBe(40)
+  })
   it('requests Safari permission on demand, expires measurements and cleans up', async () => {
     vi.useFakeTimers()
     const permission = vi.fn().mockResolvedValue('granted')

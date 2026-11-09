@@ -32,7 +32,7 @@ describe('GPS identification without an active route', () => {
     rerender({ fix: moveFix(start, 2, 0), point: [50, 60] })
     expect(result.current.estimate).toEqual([50, 60])
   })
-  it('withdraws an unusable fix, expires silence and stops watching on disable', () => {
+  it('withdraws an unusable fix, keeps a still visitor’s fix and stops watching on disable', () => {
     vi.useFakeTimers()
     let receive!: PositionCallback
     let fail!: PositionErrorCallback
@@ -57,8 +57,10 @@ describe('GPS identification without an active route', () => {
     act(() => receive(position(200)))
     expect(result.current.fix).toBeNull()
     act(() => receive(position(4)))
-    act(() => vi.advanceTimersByTime(15_001))
-    expect(result.current.fix).toBeNull()
+    // The OS reports again only when the device moves: a visitor standing in
+    // front of a work for minutes keeps their fix (and the nearby-work notice).
+    act(() => vi.advanceTimersByTime(5 * 60_000))
+    expect(result.current.fix).not.toBeNull()
     act(() => fail({ code: 1, PERMISSION_DENIED: 1 } as GeolocationPositionError))
     expect(result.current.error).toBe('denied')
     act(() => receive(position(4)))

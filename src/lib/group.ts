@@ -155,3 +155,17 @@ const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style']
 export function guestCommands<T extends { id: string }>(commands: T[]) {
   return commands.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
 }
+
+/**
+ * Whether a failed group token request is worth retrying. LiveKit's endpoint
+ * token source throws `… received <status> / <body>` for an HTTP answer:
+ * server errors (5xx) and the rate limiter (429) pass, other 4xx answers
+ * (bad code, rejected device, a tour this visitor may not read) never will.
+ * Errors without a status are network failures, also worth retrying.
+ */
+export function isRetryableTokenError(error: unknown) {
+  const status = /received (\d{3}) \//.exec(error instanceof Error ? error.message : '')?.[1]
+  if (!status) return true
+  const code = Number(status)
+  return code >= 500 || code === 429
+}

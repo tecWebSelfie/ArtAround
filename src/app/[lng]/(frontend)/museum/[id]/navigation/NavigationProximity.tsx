@@ -33,15 +33,17 @@ export function NavigationProximity({
 }) {
   const room = point ? roomAt(rooms.rooms, point) : null
   const catalogById = useMemo(() => new Map(catalog.map((work) => [work.id, work])), [catalog])
-  // Room-aware filtering avoids discoveries through walls. In maps without
-  // named rooms, use the same geometric rule as the rest of route guidance.
+  // Room-aware filtering avoids discoveries through walls: only works in the
+  // same room as the estimate, or, when it falls outside every room (a
+  // doorway, a corridor, GPS drift), only works outside every room too.
+  // Maps without rooms use the geometric rule alone.
   const works = useMemo(
     () =>
       rooms.objects
         .filter(
           ({ objectId, point: placed }) =>
             catalogById.has(objectId) &&
-            (!room || roomAt(rooms.rooms, placed)?.id === room.id) &&
+            (!rooms.rooms.length || roomAt(rooms.rooms, placed)?.id === room?.id) &&
             (objectId === nextId || (discoveries && !tourObjectIds.has(objectId))),
         )
         .map(({ objectId, point }) => ({ id: objectId, point }))
@@ -56,7 +58,10 @@ export function NavigationProximity({
   })
   const previous = seen.key === scopeKey ? seen.ids : []
   const ids = nearbyWorks(point, heading, works, previous)
-  const dismissed = seen.key === scopeKey ? seen.dismissed.filter((id) => ids.includes(id)) : []
+  // A dismissal lasts for the whole scope (until the confirmed position, GPS
+  // source or destination changes): one jittery fix out of range must not
+  // bring the same work back.
+  const dismissed = seen.key === scopeKey ? seen.dismissed : []
   // State follows sensor inputs during render, so a stale suggestion is never
   // displayed for one frame after GPS is disabled, or the museum changes.
   if (
@@ -77,7 +82,9 @@ export function NavigationProximity({
       works={visible}
       onOpen={onOpen}
       onConfirm={onConfirm}
-      onDismiss={() => setSeen({ key: scopeKey, ids, dismissed: ids })}
+      onDismiss={() =>
+        setSeen({ key: scopeKey, ids, dismissed: [...new Set([...dismissed, ...ids])] })
+      }
     />
   )
 }

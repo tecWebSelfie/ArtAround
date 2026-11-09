@@ -3,7 +3,13 @@ import type { Payload } from 'payload'
 /** Upgrade only the obsolete audio uniqueness constraint; retain files and every other index. */
 export async function ensureContentAudioVariantIndex(payload: Payload) {
   const collection = payload.db.collections.contentAudio.collection
-  const indexes = await collection.indexes()
+  // A fresh database has no collection yet (NamespaceNotFound, code 26): there
+  // is no old index to upgrade, and Payload creates the new one with it.
+  const indexes = await collection.indexes().catch((error: unknown) => {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 26) return null
+    throw error
+  })
+  if (!indexes) return
   // Install the replacement first, so an interrupted upgrade never removes uniqueness.
   if (
     !indexes.some(

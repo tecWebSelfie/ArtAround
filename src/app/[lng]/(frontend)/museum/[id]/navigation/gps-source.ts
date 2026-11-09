@@ -64,12 +64,9 @@ export function useGpsFix(mode: GpsMode) {
     return () => navigator.geolocation.clearWatch(watch)
   }, [mode, unsupported])
 
-  useEffect(() => {
-    if (mode !== 'device' || !fix) return
-    // Stop suggesting arrivals if the OS silently stops delivering fixes.
-    const expiry = setTimeout(() => setFix(null), 15_000)
-    return () => clearTimeout(expiry)
-  }, [mode, fix])
+  // No silence timeout: `watchPosition` reports again only when the device
+  // moves, so a visitor standing still in front of a work keeps their fix.
+  // Unusable fixes and errors above are what withdraw it.
 
   /** Simulator only: walk `east`/`north` metres. */
   const move = useCallback(
