@@ -7,7 +7,8 @@ import type { Content } from '@/payload-types'
 import { Anchor, Badge, Container, Group, List, ListItem, Stack, Text, Title } from '@mantine/core'
 import { ExternalLink, FilePlus } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+// A server page: links go through the client wrapper, not `component={Link}`.
+import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 
@@ -88,9 +89,9 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           <Section title={t('Contents about it')}>
             {contents.map((content) => (
               <ListItem key={content.id}>
-                <Anchor component={Link} href={`/${lng}/content/${content.id}` as Route}>
+                <LinkAnchor href={`/${lng}/content/${content.id}` as Route}>
                   {content.title}
-                </Anchor>
+                </LinkAnchor>
               </ListItem>
             ))}
           </Section>
@@ -99,9 +100,7 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           <Section title={t('Works in the collection')}>
             {works.docs.map((work) => (
               <ListItem key={work.id}>
-                <Anchor component={Link} href={`/${lng}/object/${work.id}` as Route}>
-                  {work.name}
-                </Anchor>
+                <LinkAnchor href={`/${lng}/object/${work.id}` as Route}>{work.name}</LinkAnchor>
                 {work.dating && (
                   <Text span size="sm" c="dimmed">
                     {` · ${work.dating}`}

@@ -3,8 +3,6 @@ import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Content, Object } from '@/payload-types'
 import type { WorkSubjects } from '@/lib/subjects'
 import {
-  Anchor,
-  Badge,
   Box,
   Group,
   List,
@@ -15,7 +13,8 @@ import {
   type MantineBreakpoint,
 } from '@mantine/core'
 import type { Route } from 'next'
-import Link from 'next/link'
+// Link wrappers: this server component can't pass `component={Link}` to Mantine.
+import { LinkAnchor, LinkBadge } from './LinkAnchor'
 import { DetailCover } from './DetailCover'
 
 // Server Component: renders the modal body. Wrap it in the `ObjectModal` shell
@@ -72,9 +71,9 @@ export async function ObjectDetailsContent({
             ? creators.map((creator, index) => (
                 <span key={creator.id}>
                   {index > 0 && ', '}
-                  <Anchor component={Link} href={subjectHref(creator.id)} inherit>
+                  <LinkAnchor href={subjectHref(creator.id)} inherit>
                     {creator.name}
-                  </Anchor>
+                  </LinkAnchor>
                 </span>
               ))
             : object.artist}
@@ -85,16 +84,15 @@ export async function ObjectDetailsContent({
       {movements.length > 0 && (
         <Group gap={6}>
           {movements.map((movement) => (
-            <Badge
+            <LinkBadge
               key={movement.id}
-              component={Link}
               href={subjectHref(movement.id)}
               variant="light"
               color="gray"
               className="cursor-pointer"
             >
               {movement.name}
-            </Badge>
+            </LinkBadge>
           ))}
         </Group>
       )}
