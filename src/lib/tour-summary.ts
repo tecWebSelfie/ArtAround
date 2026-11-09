@@ -1,5 +1,6 @@
 import { toMinutes } from '@/lib/duration'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
+import type { Picture } from '@/lib/picture'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 
 /**
@@ -54,19 +55,23 @@ export function summarizeTour(tour: Tour): TourSummary {
 
 /**
  * The picture that represents a stop: the content's own first image, else the
- * thumbnail of the object it talks about. Null when neither is populated, so
- * the caller can show the content icon instead of a stock placeholder.
+ * thumbnail of the work it talks about (`withStopObjects` fills those in on
+ * server reads). Null when neither is populated, so the caller can show the
+ * content icon instead of a stock placeholder.
  */
-export function stopImage(content: Content): { url: string; alt: string } | null {
+export function stopPicture(content: Content): (Picture & { alt?: string | null }) | null {
   const image = content.images?.find(isPopulated)
-  if (image?.url) return { url: image.thumbnailURL ?? image.url, alt: image.alt ?? '' }
+  if (image?.url) return image
   for (const object of content.objects?.docs ?? []) {
     if (isPopulated(object) && isPopulated(object.thumbnail) && object.thumbnail.url) {
-      return {
-        url: object.thumbnail.thumbnailURL ?? object.thumbnail.url,
-        alt: object.thumbnail.alt ?? object.name,
-      }
+      return { ...object.thumbnail, alt: object.thumbnail.alt ?? object.name }
     }
   }
   return null
+}
+
+/** `stopPicture` as a list thumbnail: its small URL and alt text. */
+export function stopImage(content: Content): { url: string; alt: string } | null {
+  const picture = stopPicture(content)
+  return picture?.url ? { url: picture.thumbnailURL ?? picture.url, alt: picture.alt ?? '' } : null
 }
