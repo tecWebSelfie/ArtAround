@@ -12,8 +12,6 @@ import {
   AppShellMainProps,
   Box,
   Button,
-  Grid,
-  GridCol,
   Group,
   Kbd,
   Progress,
@@ -26,7 +24,6 @@ import {
 import { spotlight } from '@mantine/spotlight'
 import { ACCESSIBILITY_COLOR } from '@/theme'
 import { validateBuildJson } from '@pascal-app/core'
-import { FlagBannerFoldIcon } from '@phosphor-icons/react'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import {
   collectMuseumMarkers,
@@ -36,8 +33,9 @@ import {
 } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { museumRooms } from '@/lib/museum-rooms'
-import { Accessibility, DoorOpen, FlagTriangleRight, ScanQrCode, Search } from 'lucide-react'
+import { museumRooms, roomAt } from '@/lib/museum-rooms'
+import { formatUnit, toMinutes } from '@/lib/duration'
+import { Accessibility, DoorOpen, ScanQrCode, Search, X } from 'lucide-react'
 import { useElementSize } from '@mantine/hooks'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
@@ -75,6 +73,7 @@ import {
   type NavigationDestination,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
+import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -190,6 +189,34 @@ export const TourNavigationPage = ({
   const wheelchairRoute =
     Boolean(museum.navMeshWheelchair) && search.get('mobility') === 'wheelchair'
   const complete = tour !== null && step === tour.contents.length
+  // "Stop 3 of 14 · Room 6 · 25 min left": where the visitor is in the tour,
+  // where the next work hangs and how long the rest takes (the remaining
+  // stops' lengths, the only duration the data carries). Parts the data
+  // can't support are left out.
+  const position = useMemo(() => {
+    if (!tour) return ''
+    if (step >= tour.contents.length)
+      return t('All {{count}} stops visited', { count: tour.contents.length })
+    const point = rooms.objects.find(({ objectId }) => objectId === defaultDestination)?.point
+    const room = point ? roomAt(rooms.rooms, point)?.name : null
+    const seconds = tour.contents
+      .slice(step)
+      .reduce(
+        (sum, content) => sum + (typeof content === 'object' ? (content.durationSeconds ?? 0) : 0),
+        0,
+      )
+    return [
+      t('Stop {{number}} of {{count}}', { number: step + 1, count: tour.contents.length }),
+      room,
+      seconds
+        ? t('{{duration}} of reading left', {
+            duration: formatUnit(toMinutes(seconds), 'minute', lng),
+          })
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  }, [tour, step, rooms, defaultDestination, t, lng])
   // Group guests follow the host, who leads them into the quiz too.
   const guest = useIsGroupGuest()
 
@@ -368,28 +395,42 @@ export const TourNavigationPage = ({
           // Desktop: one centred column (the brief's 1200px container) so the
           // progress bar and stepper don't stretch across a 1920px screen.
           <Stack gap="xs" maw={{ md: '75rem' }} mx={{ md: 'auto' }}>
-            {/* In a group, the pill beside the title opens the group panel (GroupBadge). */}
-            <Group justify="center" gap="xs" wrap="nowrap">
-              <Title size="h5" ta="center">
-                {tour.title}
-              </Title>
-              <GroupBadge />
-            </Group>
-            <Grid>
-              <GridCol span={1}>
-                <FlagTriangleRight size={14} />
-              </GridCol>
-              <GridCol span={'auto'} align={'center'}>
-                <Progress
-                  aria-label={t('Tour progress')}
-                  size={'xs'}
-                  value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
-                />
-              </GridCol>
-              <GridCol span={1}>
-                <FlagBannerFoldIcon size={14} />
-              </GridCol>
-            </Grid>
+            {/* In a group, the pill beside the title opens the group panel
+                (GroupBadge). The trailing X leaves the tour for its page: the visit
+                can be resumed from the same URL, so leaving needs no confirm. */}
+            {/* Three columns, the outer two equal: the title stays centred on
+                the screen whatever the X's size. */}
+            <div className="grid grid-cols-[1fr_minmax(0,auto)_1fr] items-center gap-(--mantine-spacing-xs)">
+              {/* Left column empty: the floating site logo sits there. */}
+              <span aria-hidden />
+              <Stack gap={0} align="center" className="min-w-0">
+                <Group justify="center" gap="xs" wrap="nowrap">
+                  <Title size="h5" ta="center" lineClamp={1}>
+                    {tour.title}
+                  </Title>
+                  <GroupBadge />
+                </Group>
+                <Text size="xs" c="dimmed" ta="center">
+                  {position}
+                </Text>
+              </Stack>
+              <ActionIcon
+                component={Link}
+                href={`/${lng}/tour/${tour.id}` as Route}
+                variant="subtle"
+                color="gray"
+                size="lg"
+                className="justify-self-end"
+                aria-label={t('Leave the tour')}
+              >
+                <X size={18} aria-hidden />
+              </ActionIcon>
+            </div>
+            <Progress
+              aria-label={t('Tour progress')}
+              size="xs"
+              value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
+            />
             <TourProgress
               contents={tour.contents}
               step={step}

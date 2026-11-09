@@ -131,15 +131,17 @@ export function DirectionsBar({
 
   if (status === 'no-position' || status === 'no-destination') {
     // Directions need a start and an end, asked for in that order: first the
-    // position, then (if the tour doesn't give one) where to go. Accent-coloured
-    // and tappable, unlike the plain status messages, so each reads as the one
-    // thing to do before guidance can start. Both are chosen from search.
+    // position, then (if the tour doesn't give one) where to go. In the primary
+    // color (orange means "paid" in this app) and tappable, unlike the plain
+    // status messages, so each reads as the one thing to do before guidance
+    // can start. Both are chosen from search; the copy says so in the
+    // visitor's terms (the work in front of them), not the map's.
     const position = status === 'no-position'
     return (
       <DirectionsLayout trailingControl={trailingControl}>
         <UnstyledButton
           onClick={onSearch}
-          className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-orange-light-color)"
+          className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-museum-light-color)"
         >
           {position ? (
             <MapPinOff size={20} aria-hidden className="shrink-0" />
@@ -148,7 +150,7 @@ export function DirectionsBar({
           )}
           <Text size="sm" fw={600} lineClamp={2}>
             {position
-              ? t('Open an object and set it as your position')
+              ? t('Where are you? Find the work in front of you')
               : t('Choose where to go from search')}
           </Text>
           <ChevronRight size={18} aria-hidden className="ml-auto shrink-0" />

@@ -146,7 +146,7 @@ export const NeedsPosition: Story = {
     onSearch: fn(),
   },
   play: async ({ canvas, args }) => {
-    const cta = canvas.getByRole('button', { name: 'Open an object and set it as your position' })
+    const cta = canvas.getByRole('button', { name: 'Where are you? Find the work in front of you' })
     await userEvent.click(cta)
     await expect(args.onSearch).toHaveBeenCalled()
   },

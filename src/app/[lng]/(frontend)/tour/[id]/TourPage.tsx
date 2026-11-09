@@ -11,6 +11,7 @@ import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { formatRating } from '@/lib/rating'
+import { formatUnit } from '@/lib/duration'
 import { stopImage, stopPicture, summarizeTour } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
@@ -74,11 +75,6 @@ type TourPageProps = {
   printMuseumId?: string | null
   /** Opened from outside the app on another museum's tour: offer that museum's app. */
   museumOffer?: { id: string; name: string } | null
-}
-
-/** Localized measurements ("25 min", "320 m"): units follow the visitor's language. */
-function formatUnit(value: number, unit: 'minute' | 'meter', lng: string) {
-  return new Intl.NumberFormat(lng, { style: 'unit', unit, unitDisplay: 'short' }).format(value)
 }
 
 /**
