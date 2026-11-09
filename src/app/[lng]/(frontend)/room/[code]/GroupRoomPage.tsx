@@ -31,6 +31,7 @@ import { ConnectionState } from 'livekit-client'
 import { Play } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
+import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
@@ -247,16 +248,24 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
   )
 }
 
+/**
+ * An ended (or mistyped) code. Not a dead end: the visitor can type the new
+ * code the host gives out right here, the same form as on the navigator, or
+ * go back and explore on their own.
+ */
 function GroupEnded() {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
   return (
-    <Stack gap="md" align="center" ta="center">
-      <Title order={1} size="h2">
-        {t('This group has ended')}
-      </Title>
-      <Text c="dimmed">{t('Ask for a new code, or visit the tour on your own.')}</Text>
-      <Button component={Link} href={`/${lng}/navigator` as Route} variant="default">
+    <Stack gap="lg" align="center" ta="center">
+      <Stack gap="xs" align="center">
+        <Title order={1} size="h2">
+          {t('This group has ended')}
+        </Title>
+        <Text c="dimmed">{t('Ask for a new code, or visit the tour on your own.')}</Text>
+      </Stack>
+      <JoinGroupForm />
+      <Button component={Link} href={`/${lng}/navigator` as Route} variant="subtle">
         {t('Back to the navigator')}
       </Button>
     </Stack>

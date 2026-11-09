@@ -1,6 +1,8 @@
 {
   "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._one": "{{count}} stop is a paid content you do not own. Replace it to keep the tour free.",
   "{{count}} stops are paid contents you do not own. Replace them to keep the tour free._other": "{{count}} stops are paid contents you do not own. Replace them to keep the tour free.",
+  "{{count}} stops have no directions yet: visitors only see the route on the map_one": "{{count}} stop has no directions yet: visitors only see the route on the map",
+  "{{count}} stops have no directions yet: visitors only see the route on the map_other": "{{count}} stops have no directions yet: visitors only see the route on the map",
   "A content that no longer exists": "A content that no longer exists",
   "A work": "A work",
   "About me": "About me",
@@ -95,6 +97,7 @@
   "Object": "Object",
   "Only you and the guests of your group visits can read this content": "Only you and the guests of your group visits can read this content",
   "Only you and the guests of your group visits can see this tour": "Only you and the guests of your group visits can see this tour",
+  "Only you work on this museum so far. Add the curators who write its contents and build its tours, by their username.": "Only you work on this museum so far. Add the curators who write its contents and build its tours, by their username.",
   "Open {{id}} on Wikidata": "Open {{id}} on Wikidata",
   "Open a museum and choose “Add tour” to build a tour for it.": "Open a museum and choose “Add tour” to build a tour for it.",
   "Open location in OpenStreetMap": "Open location in OpenStreetMap",

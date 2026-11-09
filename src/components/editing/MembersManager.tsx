@@ -90,7 +90,19 @@ export function MembersManager({
 
   return (
     <Stack gap="md">
-      <Title order={2}>{t('Museum staff')}</Title>
+      {/* The page's h1 (members page). */}
+      <Title order={1} size="h2">
+        {t('Museum staff')}
+      </Title>
+      {/* Nobody else yet (often only the director who set the museum up):
+          say what the list is for instead of showing a lone row. */}
+      {members.filter((member) => member.userId !== viewerId).length === 0 && (
+        <Text c="dimmed">
+          {t(
+            'Only you work on this museum so far. Add the curators who write its contents and build its tours, by their username.',
+          )}
+        </Text>
+      )}
       {members.map((member) => {
         // Only rows strictly below the visitor's rank are manageable.
         const manageable = member.userId !== viewerId && grantable.includes(member.role)
@@ -139,7 +151,7 @@ export function MembersManager({
       {grantable.length > 0 && (
         <form onSubmit={invite.onSubmit((values) => add.mutate(values))}>
           <Stack gap="xs">
-            <Title order={3} size="h4">
+            <Title order={2} size="h4">
               {t('Add someone')}
             </Title>
             <Group align="end" grow>
