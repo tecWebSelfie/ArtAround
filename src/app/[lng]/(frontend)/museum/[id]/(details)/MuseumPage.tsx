@@ -18,6 +18,7 @@ import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { Museum, type MuseumThumbnail, type Tour } from '@/payload-types'
 import { ACCESSIBILITY_COLOR } from '@/theme'
 import {
+  Anchor,
   Avatar,
   AvatarGroup,
   Box,
@@ -43,6 +44,7 @@ import {
   BadgeInfo,
   Check,
   Compass,
+  ExternalLink,
   FilePlus,
   Map as MapIcon,
   MapPin,
@@ -80,7 +82,7 @@ export default async function MuseumPage({
   /** Free navigation of this museum, when its map is saved (`museumNavigationEntry`). */
   navigationHref?: Route | null
 }) {
-  const { t } = await getT('museum-page')
+  const { t, lng } = await getT('museum-page')
   const { t: te } = await getT('editing')
   const { t: tc } = await getT('common')
 
@@ -96,6 +98,14 @@ export default async function MuseumPage({
     access?.signLanguage && t('Sign language'),
     access?.serviceAnimals && t('Service animals welcome'),
   ].filter((feature): feature is string => Boolean(feature))
+  // Planning the visit: when it's open, what it costs, how to reach the
+  // museum, what's new. All optional museum fields; empty ones say nothing.
+  const hours = openingHoursRows(museum.openingHours, lng)
+  const phone =
+    typeof museum.phone === 'string' ? museum.phone : (museum.phone?.international ?? null)
+  const socials = museum.socials ?? []
+  const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
+  const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium' })
   const base = editing ? `/${editing.lng}` : ''
   const tours = filterPopulated<Tour>(museum.tours?.docs)
   return (
@@ -272,7 +282,98 @@ export default async function MuseumPage({
                           <MuseumLocationMap point={museum.location.latlng} />
                         </Stack>
                       ),
+                      ...(hours.length || museum.openingHours?.notes
+                        ? {
+                            [t('Opening hours')]: (
+                              <Stack gap={4}>
+                                {hours.map(({ day, ranges }) => (
+                                  <Group key={day} gap="md" wrap="nowrap">
+                                    <Text size="sm" w="7em" c="dimmed">
+                                      {day}
+                                    </Text>
+                                    <Text size="sm" className="tabular-nums">
+                                      {ranges || t('Closed')}
+                                    </Text>
+                                  </Group>
+                                ))}
+                                {museum.openingHours?.notes && (
+                                  <Text size="sm" c="dimmed">
+                                    {museum.openingHours.notes}
+                                  </Text>
+                                )}
+                              </Stack>
+                            ),
+                          }
+                        : {}),
+                      ...(museum.ticketInfo?.label
+                        ? {
+                            [t('Tickets')]: (
+                              <Stack gap={4}>
+                                <Text size="sm">{museum.ticketInfo.label}</Text>
+                                {museum.ticketInfo.url && (
+                                  <Anchor
+                                    href={museum.ticketInfo.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    size="sm"
+                                    className="inline-flex items-center gap-1 self-start"
+                                  >
+                                    {t('Tickets and prices on the museum’s site')}
+                                    <ExternalLink size={14} aria-hidden />
+                                  </Anchor>
+                                )}
+                              </Stack>
+                            ),
+                          }
+                        : {}),
+                      ...(phone
+                        ? {
+                            [t('Phone')]: (
+                              <Anchor href={`tel:${phone.replace(/\s/g, '')}`} size="sm">
+                                {phone}
+                              </Anchor>
+                            ),
+                          }
+                        : {}),
                       ...(museum.email ? { [t('Email')]: museum.email } : {}),
+                      ...(socials.length
+                        ? {
+                            [t('Follow the museum')]: (
+                              <Group gap="md">
+                                {socials.map((social) => (
+                                  <Anchor
+                                    key={social.id ?? social.url}
+                                    href={social.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    size="sm"
+                                  >
+                                    {social.platform}
+                                  </Anchor>
+                                ))}
+                              </Group>
+                            ),
+                          }
+                        : {}),
+                      ...(news.length
+                        ? {
+                            [t('News')]: (
+                              <Stack gap="sm">
+                                {news.map((item) => (
+                                  <Stack key={item.id ?? item.title} gap={2}>
+                                    <Text size="xs" c="dimmed">
+                                      {newsDate.format(new Date(item.date))}
+                                    </Text>
+                                    <Text size="sm" fw={600}>
+                                      {item.title}
+                                    </Text>
+                                    <Text size="sm">{item.content}</Text>
+                                  </Stack>
+                                ))}
+                              </Stack>
+                            ),
+                          }
+                        : {}),
                       ...(accessFeatures.length
                         ? {
                             [t('Accessibility')]: (
@@ -372,4 +473,38 @@ export async function MuseumBadges(props: { museum: Museum; accessibleLabel: str
       </TooltipGroup>
     </Group>
   )
+}
+
+const WEEKDAYS = [
+  'monday',
+  'tuesday',
+  'wednesday',
+  'thursday',
+  'friday',
+  'saturday',
+  'sunday',
+] as const
+
+/**
+ * The week's opening hours as rows ("Monday", "09:00–13:00, 14:00–19:00"), day
+ * names in the visitor's language; a day without ranges reads as closed. No
+ * rows at all when the museum entered no hours, so nothing is guessed.
+ */
+function openingHoursRows(hours: Museum['openingHours'], lng: string) {
+  if (!hours || WEEKDAYS.every((day) => !hours[day]?.length)) return []
+  const dayName = new Intl.DateTimeFormat(lng, { weekday: 'long', timeZone: 'UTC' })
+  // Opening and closing are Payload date fields (ISO instants); only their
+  // time of day matters, in the visitor's notation.
+  const time = new Intl.DateTimeFormat(lng, { timeStyle: 'short' })
+  return WEEKDAYS.map((day, index) => ({
+    // 1 January 2024 was a Monday.
+    day: dayName.format(new Date(Date.UTC(2024, 0, 1 + index))),
+    ranges: (hours[day] ?? [])
+      .filter((range) => range.opening && range.closing)
+      .map(
+        (range) =>
+          `${time.format(new Date(range.opening!))}–${time.format(new Date(range.closing!))}`,
+      )
+      .join(', '),
+  }))
 }

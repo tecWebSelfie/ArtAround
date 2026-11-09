@@ -5,7 +5,9 @@ import { Route as RouteIcon, UsersRound } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useTranslation } from 'react-i18next'
+import { Trans, useTranslation } from 'react-i18next'
+import type { ReactNode } from 'react'
+import { APP_NAME } from '@/lib/app-name'
 import { NavigatorSearch } from './NavigatorSearch'
 
 /** The bordered card both ways to start a visit share. */
@@ -211,13 +213,40 @@ export default function NavigatorHomePage({
   )
 }
 
-function NavigationHomeTitle() {
+/** The app's name in the home title's gradient, kept on one line. */
+function BrandName({ children }: { children?: ReactNode }) {
   return (
-    <Title ta="center" order={1}>
-      Everything&apos;s&nbsp;
-      <Text span inherit variant="gradient" gradient={{ from: 'blue', to: 'purple' }}>
-        Artaround
-      </Text>
+    <Text
+      span
+      inherit
+      variant="gradient"
+      gradient={{ from: 'blue', to: 'purple' }}
+      className="whitespace-nowrap"
+    >
+      {children}
+    </Text>
+  )
+}
+
+/**
+ * The home's h1, translated with the brand kept whole and in its gradient.
+ * It wraps between words (a non-breaking space here pushed the page to 406px
+ * on a 390px phone) and balances its lines.
+ */
+function NavigationHomeTitle() {
+  const { t } = useTranslation('plan-visit')
+  return (
+    <Title ta="center" order={1} textWrap="balance">
+      {/* Children: what renders without an i18next instance (Storybook);
+          with one, the translation of `i18nKey` replaces them. */}
+      <Trans
+        t={t}
+        i18nKey="Everything’s <brand>{{name}}</brand>"
+        values={{ name: APP_NAME }}
+        components={{ brand: <BrandName /> }}
+      >
+        Everything’s <BrandName>{APP_NAME}</BrandName>
+      </Trans>
     </Title>
   )
 }
