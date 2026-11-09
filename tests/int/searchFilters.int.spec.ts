@@ -24,10 +24,7 @@ const definitions: FilterDefinition[] = [
 
 describe('parseFilterSearchParams', () => {
   it('parses filter[key][operator] params into active filters', () => {
-    const filters = parseFilterSearchParams(
-      { 'filter[title][contains]': 'bronzo' },
-      definitions,
-    )
+    const filters = parseFilterSearchParams({ 'filter[title][contains]': 'bronzo' }, definitions)
     expect(filters).toHaveLength(1)
     expect(filters[0]).toMatchObject({ key: 'title', operator: 'contains', value: 'bronzo' })
   })
@@ -44,14 +41,16 @@ describe('parseFilterSearchParams', () => {
     expect(filters).toHaveLength(0)
   })
 
+  it('reads a plain ?q= as "title contains"', () => {
+    const [filter] = parseFilterSearchParams({ q: 'raphael' }, definitions)
+    expect(filter).toMatchObject({ key: 'title', operator: 'contains', value: 'raphael' })
+  })
+
   it('regroups repeated multi_select params', () => {
     const multi: FilterDefinition[] = [
       { key: 'tags', label: 'Tags', type: 'multi_select', operators: ['='] },
     ]
-    const filters = parseFilterSearchParams(
-      { 'filter[tags][=]': ['a', 'b'] },
-      multi,
-    )
+    const filters = parseFilterSearchParams({ 'filter[tags][=]': ['a', 'b'] }, multi)
     expect(filters).toHaveLength(1)
     expect(filters[0].value).toEqual(['a', 'b'])
   })

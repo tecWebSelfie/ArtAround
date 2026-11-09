@@ -47,6 +47,7 @@
   "Download as SVG": "Изтегляне като SVG",
   "Download printable PDF": "Изтегли PDF за печат",
   "Exit full screen": "Изход от цял екран",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "За печат: изтегленият код отваря приложението в този музей.",
   "Full screen": "Цял екран",
   "Go to photo {{current}}": "Към снимка {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Избери език"
   },
+  "Last page": "",
   "Loading map…": "Картата се зарежда…",
   "navbar": {
     "Account": "Акаунт",
@@ -67,18 +69,22 @@
     "SignIn": "Вход",
     "Verified creator": "Потвърден автор"
   },
+  "Next page": "",
   "Next photo": "Следваща снимка",
   "No museum matches “{{query}}”.": "Няма музей, който да отговаря на „{{query}}“.",
   "Not now": "Не сега",
   "Open photo {{current}}": "Отваряне на снимка {{current}}",
   "Open photos": "Отваряне на снимките",
   "or": "или",
+  "Page {{page}}": "",
   "Photo": "Снимка",
   "Photo {{current}} of {{total}}": "Снимка {{current}} от {{total}}",
   "Photos": "Снимки",
+  "Previous page": "",
   "Previous photo": "Предишна снимка",
   "Print the QR codes of all objects": "Отпечатай QR кодовете на всички предмети",
   "Required": "Задължително",
+  "Result pages": "",
   "Scan to open this content": "Сканирайте, за да отворите това съдържание",
   "Scan to open this object": "Сканирайте, за да отворите този предмет",
   "Scan to open this tour": "Сканирай, за да отвориш тази обиколка",

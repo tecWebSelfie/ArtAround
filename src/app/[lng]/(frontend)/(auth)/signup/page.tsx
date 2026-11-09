@@ -3,6 +3,13 @@ import { getSession } from '@/lib/session'
 import type { Route } from 'next'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import { getT } from '@/i18n.server'
+import type { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT('common')
+  return { title: t('auth.signUp') }
+}
 
 /** Already signed-in visitors go straight to their profile. */
 export default async function SignupPage({ params }: PageProps<'/[lng]/signup'>) {

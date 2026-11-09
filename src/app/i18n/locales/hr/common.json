@@ -47,6 +47,7 @@
   "Download as SVG": "Preuzmi kao SVG",
   "Download printable PDF": "Preuzmi PDF za ispis",
   "Exit full screen": "Izađi iz cijelog zaslona",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Za ispis: preuzeti kod otvara aplikaciju u ovom muzeju.",
   "Full screen": "Cijeli zaslon",
   "Go to photo {{current}}": "Idi na fotografiju {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Odaberi jezik"
   },
+  "Last page": "",
   "Loading map…": "Učitavanje karte…",
   "navbar": {
     "Account": "Račun",
@@ -67,18 +69,22 @@
     "SignIn": "Prijava",
     "Verified creator": "Potvrđeni autor"
   },
+  "Next page": "",
   "Next photo": "Sljedeća fotografija",
   "No museum matches “{{query}}”.": "Nijedan muzej ne odgovara upitu „{{query}}”.",
   "Not now": "Ne sada",
   "Open photo {{current}}": "Otvori fotografiju {{current}}",
   "Open photos": "Otvori fotografije",
   "or": "ili",
+  "Page {{page}}": "",
   "Photo": "Fotografija",
   "Photo {{current}} of {{total}}": "Fotografija {{current}} od {{total}}",
   "Photos": "Fotografije",
+  "Previous page": "",
   "Previous photo": "Prethodna fotografija",
   "Print the QR codes of all objects": "Ispiši QR kodove svih predmeta",
   "Required": "Obavezno",
+  "Result pages": "",
   "Scan to open this content": "Skenirajte za otvaranje ovog sadržaja",
   "Scan to open this object": "Skenirajte za otvaranje ovog predmeta",
   "Scan to open this tour": "Skeniraj za otvaranje ove ture",

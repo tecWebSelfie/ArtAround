@@ -1,7 +1,8 @@
 'use client'
 
 import type { Route } from 'next'
-import { Group, Pagination, Stack } from '@mantine/core'
+import { Group, Stack } from '@mantine/core'
+import { LabeledPagination } from './LabeledPagination'
 import {
   CompositeFiltersInput,
   useCompositeFilters,
@@ -84,7 +85,7 @@ export function SearchShell({
       {children}
       {totalPages > 1 && (
         <Group justify="center">
-          <Pagination value={page} total={totalPages} onChange={goToPage} />
+          <LabeledPagination value={page} total={totalPages} onChange={goToPage} />
         </Group>
       )}
     </Stack>

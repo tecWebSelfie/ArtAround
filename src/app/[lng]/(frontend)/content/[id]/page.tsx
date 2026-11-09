@@ -24,6 +24,7 @@ import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
 import { Compass } from 'lucide-react'
 import type { Route } from 'next'
 import { ContentDetails, ContentGlance, type ContentDetailsProps } from './ContentDetails'
+import type { Metadata } from 'next'
 
 const firstId = (values: readonly (string | { id: string })[] | null | undefined) => {
   const [first] = values ?? []
@@ -184,6 +185,15 @@ async function loadContentDetails(
     tours: tours.docs,
     related: related?.docs ?? [],
   }
+}
+
+/** The tab names the content; the read is the page's own (React cache). */
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lng]/content/[id]'>): Promise<Metadata> {
+  const { lng, id } = await params
+  const content = await getLocalizedPageDocument('contents', id, lng)
+  return { title: content.title }
 }
 
 /**

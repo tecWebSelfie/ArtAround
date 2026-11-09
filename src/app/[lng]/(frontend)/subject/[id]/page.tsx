@@ -27,6 +27,25 @@ import type { Route } from 'next'
 import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
+
+/** The tab names the artist, movement or event. */
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lng]/subject/[id]'>): Promise<Metadata> {
+  const { lng, id } = await params
+  const { payload } = await getSession()
+  const subject = await payload
+    .findByID({
+      collection: 'subjects',
+      id,
+      depth: 0,
+      select: { name: true },
+      locale: normalizeLocale(lng) ?? 'en',
+    })
+    .catch(() => null)
+  return subject ? { title: subject.name } : {}
+}
 
 /**
  * A subject's page: an artist, a movement or an event (`subjects`,

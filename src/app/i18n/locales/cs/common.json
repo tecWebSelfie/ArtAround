@@ -47,6 +47,7 @@
   "Download as SVG": "Stáhnout jako SVG",
   "Download printable PDF": "Stáhnout PDF k tisku",
   "Exit full screen": "Ukončit celou obrazovku",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "K tisku: stažený kód otevře aplikaci v tomto muzeu.",
   "Full screen": "Celá obrazovka",
   "Go to photo {{current}}": "Přejít na fotografii {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Vyber jazyk"
   },
+  "Last page": "",
   "Loading map…": "Načítání mapy…",
   "navbar": {
     "Account": "Účet",
@@ -67,18 +69,22 @@
     "SignIn": "Přihlásit se",
     "Verified creator": "Ověřený tvůrce"
   },
+  "Next page": "",
   "Next photo": "Další fotografie",
   "No museum matches “{{query}}”.": "Žádné muzeum neodpovídá „{{query}}“.",
   "Not now": "Teď ne",
   "Open photo {{current}}": "Otevřít fotografii {{current}}",
   "Open photos": "Otevřít fotografie",
   "or": "nebo",
+  "Page {{page}}": "",
   "Photo": "Fotografie",
   "Photo {{current}} of {{total}}": "Fotografie {{current}} z {{total}}",
   "Photos": "Fotografie",
+  "Previous page": "",
   "Previous photo": "Předchozí fotografie",
   "Print the QR codes of all objects": "Vytisknout QR kódy všech předmětů",
   "Required": "Povinné",
+  "Result pages": "",
   "Scan to open this content": "Naskenujte a otevřete tento obsah",
   "Scan to open this object": "Naskenujte a otevřete tento předmět",
   "Scan to open this tour": "Naskenuj a otevři tuto prohlídku",

@@ -47,6 +47,7 @@
   "Download as SVG": "Downloaden als SVG",
   "Download printable PDF": "Afdrukbare pdf downloaden",
   "Exit full screen": "Volledig scherm sluiten",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Om af te drukken: de gedownloade code opent de app in dit museum.",
   "Full screen": "Volledig scherm",
   "Go to photo {{current}}": "Naar foto {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Taal kiezen"
   },
+  "Last page": "",
   "Loading map…": "Kaart laden…",
   "navbar": {
     "Account": "Account",
@@ -67,18 +69,22 @@
     "SignIn": "Inloggen",
     "Verified creator": "Geverifieerde maker"
   },
+  "Next page": "",
   "Next photo": "Volgende foto",
   "No museum matches “{{query}}”.": "Geen museum gevonden voor “{{query}}”.",
   "Not now": "Niet nu",
   "Open photo {{current}}": "Foto {{current}} openen",
   "Open photos": "Foto’s openen",
   "or": "of",
+  "Page {{page}}": "",
   "Photo": "Foto",
   "Photo {{current}} of {{total}}": "Foto {{current}} van {{total}}",
   "Photos": "Foto’s",
+  "Previous page": "",
   "Previous photo": "Vorige foto",
   "Print the QR codes of all objects": "QR-codes van alle objecten afdrukken",
   "Required": "Verplicht",
+  "Result pages": "",
   "Scan to open this content": "Scan om deze inhoud te openen",
   "Scan to open this object": "Scan om dit object te openen",
   "Scan to open this tour": "Scan om deze tour te openen",

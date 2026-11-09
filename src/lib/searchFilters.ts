@@ -57,6 +57,17 @@ export function parseFilterSearchParams(
     if (rawValue === undefined || rawKey === 'page') continue
     const values = (Array.isArray(rawValue) ? rawValue : [rawValue]).filter((v) => v !== '')
 
+    // `?q=` (a plain search link, the convention of the marketplace and the
+    // navigator): "title (or name) contains q", shown as an ordinary filter
+    // chip the visitor can edit or remove.
+    if (rawKey === 'q') {
+      const def = byKey.get('title') ?? byKey.get('name')
+      if (def && values[0] && allowedOperators(def).includes('contains')) {
+        push(def, 'contains', values[0])
+      }
+      continue
+    }
+
     const filterMatch = FILTER_PARAM.exec(rawKey)
     if (filterMatch) {
       const [, key, operator] = filterMatch

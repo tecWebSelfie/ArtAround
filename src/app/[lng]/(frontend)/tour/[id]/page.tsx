@@ -6,6 +6,26 @@ import { museumAffordances } from '@/lib/qr-museum'
 import { asViewer, can, getSession } from '@/lib/session'
 import { withStopObjects } from '@/lib/stop-objects'
 import TourPage from './TourPage'
+import type { Metadata } from 'next'
+
+/** The tab names the tour (`%s · Artaround`, frontend layout). */
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lng]/tour/[id]'>): Promise<Metadata> {
+  const { lng, id } = await params
+  const { payload } = await getSession()
+  const tour = await payload
+    .findByID({
+      collection: 'tours',
+      id,
+      depth: 0,
+      select: { title: true },
+      locale: normalizeLocale(lng) ?? 'en',
+      ...(await asViewer()),
+    })
+    .catch(() => null)
+  return tour ? { title: tour.title } : {}
+}
 
 /**
  * Tour details. Read as the visitor, so locked (paid, not owned) contents

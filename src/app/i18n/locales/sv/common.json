@@ -47,6 +47,7 @@
   "Download as SVG": "Ladda ned som SVG",
   "Download printable PDF": "Ladda ned utskriftsbar PDF",
   "Exit full screen": "Avsluta helskärm",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "För utskrift: den nedladdade koden öppnar appen i det här museet.",
   "Full screen": "Helskärm",
   "Go to photo {{current}}": "Gå till foto {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Välj språk"
   },
+  "Last page": "",
   "Loading map…": "Läser in kartan…",
   "navbar": {
     "Account": "Konto",
@@ -67,18 +69,22 @@
     "SignIn": "Logga in",
     "Verified creator": "Verifierad skapare"
   },
+  "Next page": "",
   "Next photo": "Nästa foto",
   "No museum matches “{{query}}”.": "Inget museum matchar ”{{query}}”.",
   "Not now": "Inte nu",
   "Open photo {{current}}": "Öppna foto {{current}}",
   "Open photos": "Öppna foton",
   "or": "eller",
+  "Page {{page}}": "",
   "Photo": "Foto",
   "Photo {{current}} of {{total}}": "Foto {{current}} av {{total}}",
   "Photos": "Foton",
+  "Previous page": "",
   "Previous photo": "Föregående foto",
   "Print the QR codes of all objects": "Skriv ut QR-koder för alla föremål",
   "Required": "Obligatoriskt",
+  "Result pages": "",
   "Scan to open this content": "Skanna för att öppna innehållet",
   "Scan to open this object": "Skanna för att öppna föremålet",
   "Scan to open this tour": "Skanna för att öppna turen",

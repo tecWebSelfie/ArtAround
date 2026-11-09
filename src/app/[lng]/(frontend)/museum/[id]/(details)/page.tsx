@@ -4,6 +4,7 @@ import { asViewer, can, getSession } from '@/lib/session'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import MuseumPage from './MuseumPage'
+import type { Metadata } from 'next'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config })
@@ -16,6 +17,16 @@ export async function generateStaticParams() {
   return museums.docs.map((museum) => ({
     id: museum.id,
   }))
+}
+
+/** The tab names the museum. */
+export async function generateMetadata(props: PageProps<'/[lng]/museum/[id]'>): Promise<Metadata> {
+  const { id } = await props.params
+  const { payload } = await getSession()
+  const museum = await payload
+    .findByID({ collection: 'museums', id, depth: 0, select: { name: true } })
+    .catch(() => null)
+  return museum ? { title: museum.name } : {}
 }
 
 export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {

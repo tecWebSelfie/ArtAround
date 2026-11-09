@@ -29,6 +29,16 @@ import {
 } from '@mantine/core'
 import { FilePlus } from 'lucide-react'
 import type { Route } from 'next'
+import type { Metadata } from 'next'
+
+/** The tab names the work; the read is the page's own (React cache). */
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lng]/object/[id]'>): Promise<Metadata> {
+  const { lng, id } = await params
+  const object = await getLocalizedPageDocument('objects', id, lng)
+  return { title: object.name, description: object.description ?? undefined }
+}
 
 /**
  * Canonical object page. Shows the visitor's language; its owner edits the

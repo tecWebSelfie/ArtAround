@@ -3,6 +3,24 @@ import { museumScope } from '@/lib/museum-mode'
 import { asViewer, getSession } from '@/lib/session'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { UserPage } from './UserPage'
+import { displayName } from '@/lib/display-name'
+import type { Metadata } from 'next'
+
+/** The tab names the person. */
+export async function generateMetadata(props: PageProps<'/[lng]/user/[id]'>): Promise<Metadata> {
+  const { id } = await props.params
+  const { payload } = await getSession()
+  const user = await payload
+    .findByID({
+      collection: 'users',
+      id,
+      depth: 0,
+      select: { name: true, username: true },
+      ...(await asViewer()),
+    })
+    .catch(() => null)
+  return user ? { title: displayName(user) } : {}
+}
 
 export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) {
   // Museum mode (`scope`): the profile's tour and content carousels keep only

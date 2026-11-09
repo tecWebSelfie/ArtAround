@@ -47,6 +47,7 @@
   "Download as SVG": "Transferir como SVG",
   "Download printable PDF": "Transferir PDF para imprimir",
   "Exit full screen": "Sair do ecrã inteiro",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Para imprimir: o código transferido abre a app neste museu.",
   "Full screen": "Ecrã inteiro",
   "Go to photo {{current}}": "Ir para a foto {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Selecionar idioma"
   },
+  "Last page": "",
   "Loading map…": "A carregar o mapa…",
   "navbar": {
     "Account": "Conta",
@@ -67,18 +69,22 @@
     "SignIn": "Iniciar sessão",
     "Verified creator": "Criador verificado"
   },
+  "Next page": "",
   "Next photo": "Próxima foto",
   "No museum matches “{{query}}”.": "Nenhum museu corresponde a «{{query}}».",
   "Not now": "Agora não",
   "Open photo {{current}}": "Abrir foto {{current}}",
   "Open photos": "Abrir fotos",
   "or": "ou",
+  "Page {{page}}": "",
   "Photo": "Foto",
   "Photo {{current}} of {{total}}": "Foto {{current}} de {{total}}",
   "Photos": "Fotos",
+  "Previous page": "",
   "Previous photo": "Foto anterior",
   "Print the QR codes of all objects": "Imprimir os QR de todos os objetos",
   "Required": "Obrigatório",
+  "Result pages": "",
   "Scan to open this content": "Leia para abrir este conteúdo",
   "Scan to open this object": "Leia para abrir este objeto",
   "Scan to open this tour": "Lê o código para abrir este tour",
