@@ -14,11 +14,12 @@ export default async function Page({
   const { lng, objectId } = await params
   const object = await getNavigationDocument('objects', objectId, lng)
   return (
-    <NavigationModal>
+    <NavigationModal kind="work">
       <ObjectDetailsContent
         object={object}
         subjects={await subjectsOfWork(object, lng)}
         hideContents
+        subjectLinks={false}
       />
       <ContentExpansion target="objects" id={object.id} />
       <NavigationObjectActions objectId={object.id} contents={object.contents} />

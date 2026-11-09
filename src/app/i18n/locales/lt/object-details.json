@@ -1,10 +1,18 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_few": "",
+  "{{count}} stops_many": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Turinys apie tai",
+  "Credit line": "",
   "Event": "Įvykis",
+  "Inventory number": "",
   "Movement or style": "Kryptis ar stilius",
   "On Wikidata": "Vikiduomenyse",
   "Person": "Asmuo",
-  "Related contents": "Susijęs turinys",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Kūriniai kolekcijoje",
   "Write a content about it": "Parašyti turinį apie tai"
 }

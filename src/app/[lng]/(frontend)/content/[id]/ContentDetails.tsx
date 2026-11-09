@@ -100,13 +100,81 @@ export type ContentDetailsProps = {
   related?: ContentDetailsRelated[]
 }
 
+/**
+ * The content at a glance (difficulty, privacy, audience, rating, price or
+ * unlocked, categories): rendered by the page right under the title and the
+ * length, so the facts come before the text rather than after it. Icon +
+ * label on every badge, never color alone.
+ */
+export async function ContentGlance({
+  content,
+  categories = [],
+}: Pick<ContentDetailsProps, 'content' | 'categories'>) {
+  const { t, lng } = await getT('content-page')
+  // Literal keys so i18next-cli keeps them (DIFFICULTY_LABEL_KEY is dynamic).
+  const difficultyLabel: Record<Difficulty, string> = {
+    easy: t('Easy'),
+    medium: t('Medium'),
+    hard: t('Hard'),
+  }
+  const ratingsCount = content.lfrs?.ratingsCount ?? 0
+  const ratingsAverage = content.lfrs?.ratingsAverage
+  return (
+    <Group gap="xs">
+      <DifficultyBadge difficulty={content.difficulty} size="lg" variant="light">
+        {difficultyLabel[content.difficulty]}
+      </DifficultyBadge>
+      {/* Private: only its author and group-visit guests can read it. */}
+      {content.visibility === 'private' && (
+        <Badge size="lg" variant="light" color="gray" leftSection={<EyeOff size={14} />}>
+          {t('Private')}
+        </Badge>
+      )}
+      {content.audience === 'children' && (
+        <Badge size="lg" variant="light" color="pink" leftSection={<Baby size={14} />}>
+          {t('For children')}
+        </Badge>
+      )}
+      {ratingsCount > 0 && ratingsAverage != null && (
+        <Badge
+          size="lg"
+          variant="light"
+          color="yellow"
+          leftSection={<Star size={14} fill="currentColor" />}
+          aria-label={t('Rated {{rating}} out of 5', {
+            rating: formatRating(ratingsAverage, lng),
+          })}
+          className="tabular-nums"
+        >
+          {`${formatRating(ratingsAverage, lng)} (${ratingsCount})`}
+        </Badge>
+      )}
+      {/* A paid content shows its price while locked; once readable (bought,
+          or the visitor is its author or museum staff) it says so instead. */}
+      {isLocked(content) ? (
+        <LockedPriceBadge price={content.price ?? 0} size="lg" />
+      ) : isPaid(content) ? (
+        <Badge size="lg" variant="light" color="teal" leftSection={<LockOpen size={14} />}>
+          {t('Unlocked')}
+        </Badge>
+      ) : null}
+      {/* `default`: a bordered neutral chip with body-colored text (the gray
+          outline variant drew its label at 3.3:1). */}
+      {categories.map((category) => (
+        <Badge key={category.id} size="lg" variant="default">
+          {category.name}
+        </Badge>
+      ))}
+    </Group>
+  )
+}
+
 export async function ContentDetails({
   content,
   object,
   museum,
   author,
   rightsHolder,
-  categories = [],
   images = [],
   tours = [],
   related = [],
@@ -124,8 +192,6 @@ export async function ContentDetails({
     createdAt: content.createdAt,
     license: content.license,
   })
-  const ratingsCount = content.lfrs?.ratingsCount ?? 0
-  const ratingsAverage = content.lfrs?.ratingsAverage
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
   const sources = content.sources ?? []
   const authorAvatar = isPopulated(author?.avatar) ? author.avatar : null
@@ -134,54 +200,6 @@ export async function ContentDetails({
 
   return (
     <Stack gap="xl">
-      {/* At a glance: icon + label on every badge, never color alone. */}
-      <Group gap="xs">
-        <DifficultyBadge difficulty={content.difficulty} size="lg" variant="light">
-          {difficultyLabel[content.difficulty]}
-        </DifficultyBadge>
-        {/* Private: only its author and group-visit guests can read it. */}
-        {content.visibility === 'private' && (
-          <Badge size="lg" variant="light" color="gray" leftSection={<EyeOff size={14} />}>
-            {t('Private')}
-          </Badge>
-        )}
-        {content.audience === 'children' && (
-          <Badge size="lg" variant="light" color="pink" leftSection={<Baby size={14} />}>
-            {t('For children')}
-          </Badge>
-        )}
-        {ratingsCount > 0 && ratingsAverage != null && (
-          <Badge
-            size="lg"
-            variant="light"
-            color="yellow"
-            leftSection={<Star size={14} fill="currentColor" />}
-            aria-label={t('Rated {{rating}} out of 5', {
-              rating: formatRating(ratingsAverage, lng),
-            })}
-            className="tabular-nums"
-          >
-            {`${formatRating(ratingsAverage, lng)} (${ratingsCount})`}
-          </Badge>
-        )}
-        {/* A paid content shows its price while locked; once readable (bought,
-            or the visitor is its author or museum staff) it says so instead. */}
-        {isLocked(content) ? (
-          <LockedPriceBadge price={content.price ?? 0} size="lg" />
-        ) : isPaid(content) ? (
-          <Badge size="lg" variant="light" color="teal" leftSection={<LockOpen size={14} />}>
-            {t('Unlocked')}
-          </Badge>
-        ) : null}
-        {/* `default`: a bordered neutral chip with body-colored text (the gray
-            outline variant drew its label at 3.3:1). */}
-        {categories.map((category) => (
-          <Badge key={category.id} size="lg" variant="default">
-            {category.name}
-          </Badge>
-        ))}
-      </Group>
-
       {pictures.length > 0 && (
         <Section title={t('Pictures')}>
           {/* Tapping a picture opens them all full screen (PictureLightbox). */}

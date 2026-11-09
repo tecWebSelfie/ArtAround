@@ -1,10 +1,16 @@
 {
+  "{{count}} stops_one": "{{count}} stop",
+  "{{count}} stops_other": "{{count}} stops",
   "Contents about it": "Contents about it",
+  "Credit line": "Credit line",
   "Event": "Event",
+  "Inventory number": "Inventory number",
   "Movement or style": "Movement or style",
   "On Wikidata": "On Wikidata",
   "Person": "Person",
-  "Related contents": "Related contents",
+  "Provenance": "Provenance",
+  "Rights": "Rights",
+  "Tours that stop here": "Tours that stop here",
   "Works in the collection": "Works in the collection",
   "Write a content about it": "Write a content about it"
 }

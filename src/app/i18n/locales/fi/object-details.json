@@ -1,10 +1,16 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Sisältöjä aiheesta",
+  "Credit line": "",
   "Event": "Tapahtuma",
+  "Inventory number": "",
   "Movement or style": "Suuntaus tai tyyli",
   "On Wikidata": "Wikidatassa",
   "Person": "Henkilö",
-  "Related contents": "Aiheeseen liittyvät sisällöt",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Teoksia kokoelmassa",
   "Write a content about it": "Kirjoita siitä sisältö"
 }

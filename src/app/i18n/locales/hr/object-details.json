@@ -1,10 +1,17 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_few": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Sadržaji o tome",
+  "Credit line": "",
   "Event": "Događaj",
+  "Inventory number": "",
   "Movement or style": "Pravac ili stil",
   "On Wikidata": "Na Wikipodacima",
   "Person": "Osoba",
-  "Related contents": "Povezani sadržaji",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Djela u zbirci",
   "Write a content about it": "Napiši sadržaj o tome"
 }

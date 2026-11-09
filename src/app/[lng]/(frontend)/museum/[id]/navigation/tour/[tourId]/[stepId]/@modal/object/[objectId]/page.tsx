@@ -18,11 +18,12 @@ export default async function Page({
   if (tourStepIndex(stepId, tour.contents.length) === null) notFound()
   const object = await getNavigationDocument('objects', objectId, lng)
   return (
-    <NavigationModal>
+    <NavigationModal kind="work">
       <ObjectDetailsContent
         object={object}
         subjects={await subjectsOfWork(object, lng)}
         hideContents
+        subjectLinks={false}
       />
       {/* Extra text about the object, drawn from the contents this visitor may read. */}
       <ContentExpansion target="objects" id={object.id} />

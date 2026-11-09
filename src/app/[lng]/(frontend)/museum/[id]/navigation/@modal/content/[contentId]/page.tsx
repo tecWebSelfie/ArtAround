@@ -19,7 +19,7 @@ export default async function Page({
   const { lng, id, contentId } = await params
   const content = await getNavigationDocument('contents', contentId, lng)
   return (
-    <NavigationModal>
+    <NavigationModal kind="content">
       {/* Simpler / Shorter / For children: swaps the body for another version. */}
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />

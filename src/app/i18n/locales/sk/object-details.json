@@ -1,10 +1,18 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_few": "",
+  "{{count}} stops_many": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Obsah o tejto téme",
+  "Credit line": "",
   "Event": "Udalosť",
+  "Inventory number": "",
   "Movement or style": "Hnutie alebo štýl",
   "On Wikidata": "Na Wikidátach",
   "Person": "Osoba",
-  "Related contents": "Súvisiace obsahy",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Diela v zbierke",
   "Write a content about it": "Napísať obsah o tejto téme"
 }

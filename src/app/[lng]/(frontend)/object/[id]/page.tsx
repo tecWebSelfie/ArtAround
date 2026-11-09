@@ -9,10 +9,24 @@ import { pictureSrc } from '@/lib/picture'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
 import { museumAffordances } from '@/lib/qr-museum'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
-import { can, getSession } from '@/lib/session'
+import { asViewer, can, getSession } from '@/lib/session'
+import { normalizeLocale } from '@/lib/localized'
+import { LinkAnchor } from '@/components/mantine/LinkAnchor'
+import type { Content } from '@/payload-types'
 import { QrCodeButton } from '@/components/QrCodeButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
-import { Container, Grid, GridCol, Group } from '@mantine/core'
+import {
+  Box,
+  Container,
+  Grid,
+  GridCol,
+  Group,
+  List,
+  ListItem,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
 import { FilePlus } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -30,6 +44,8 @@ import type { Route } from 'next'
 export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>) {
   const { lng, id } = await params
   const { payload, user } = await getSession()
+  const viewer = await asViewer()
+  const locale = normalizeLocale(lng) ?? 'en'
   const canEditPromise = can('objects', id, 'update')
   // Photo included (populated by getLocalizedPageDocument).
   const objectRead = getLocalizedPageDocument('objects', id, lng)
@@ -54,11 +70,43 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
     // Its museum's staff print its QR code; opened from outside the app, the
     // museum's own app is offered.
     museumAffordances('object', id),
+    // What to do next with this work: the contents about it (the localized
+    // read returns their ids only) and the tours that stop at it. Read as the
+    // visitor, so private tours and contents stay hidden.
+    objectRead.then(async (doc) => {
+      const ids = (doc.contents ?? []).map((content) =>
+        typeof content === 'string' ? content : content.id,
+      )
+      if (ids.length === 0) return { contents: [], tours: [] }
+      const [contents, tours] = await Promise.all([
+        payload.find({
+          collection: 'contents',
+          where: { id: { in: ids } },
+          select: { title: true, durationSeconds: true },
+          limit: ids.length,
+          pagination: false,
+          locale,
+          ...viewer,
+        }),
+        payload.find({
+          collection: 'tours',
+          where: { contents: { in: ids } },
+          select: { title: true, contents: true },
+          depth: 0,
+          limit: 6,
+          pagination: false,
+          locale,
+          ...viewer,
+        }),
+      ])
+      return { contents: contents.docs as Content[], tours: tours.docs }
+    }),
   ])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('editing')
-  const [object, subjects, canEdit, source, { printMuseumId, offer }] = await reads
+  const { t: tObject } = await getT('object-details')
+  const [object, subjects, canEdit, source, { printMuseumId, offer }, related] = await reads
   // The form's preview reuses the populated photo.
   const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
   const thumbnail = photo && { id: photo.id, url: pictureSrc(photo, 'card') }
@@ -79,7 +127,11 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           />
         </GridCol>
         <GridCol span={{ base: 12, md: 7 }}>
-          {offer && <MuseumModeOffer museum={offer} />}
+          {offer && (
+            <Box mb="md">
+              <MuseumModeOffer museum={offer} />
+            </Box>
+          )}
           <EditableSection
             title={t('Object')}
             canEdit={canEdit}
@@ -100,11 +152,31 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           >
             {/* The inline cover is the media pane's job from md. */}
             <ObjectDetailsContent
-              object={object}
+              object={{ ...object, contents: related.contents }}
               subjects={subjects}
               lightbox
               coverHiddenFrom="md"
+              headingOrder={1}
             />
+            {related.tours.length > 0 && (
+              <Stack gap={4} mt="md" component="section">
+                <Title order={2} size="h5">
+                  {tObject('Tours that stop here')}
+                </Title>
+                <List size="sm" spacing={4}>
+                  {related.tours.map((tour) => (
+                    <ListItem key={tour.id}>
+                      <LinkAnchor href={`/${lng}/tour/${tour.id}` as Route} size="sm">
+                        {tour.title}
+                      </LinkAnchor>
+                      <Text span size="sm" c="dimmed">
+                        {` · ${tObject('{{count}} stops', { count: tour.contents?.length ?? 0 })}`}
+                      </Text>
+                    </ListItem>
+                  ))}
+                </List>
+              </Stack>
+            )}
           </EditableSection>
           {user && (
             <Group mt="md">

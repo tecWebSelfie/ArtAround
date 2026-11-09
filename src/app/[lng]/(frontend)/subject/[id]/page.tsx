@@ -4,7 +4,23 @@ import { asViewer, getSession } from '@/lib/session'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { wikidataUrl } from '@/lib/wikidata'
 import type { Content } from '@/payload-types'
-import { Anchor, Badge, Container, Group, List, ListItem, Stack, Text, Title } from '@mantine/core'
+import {
+  Anchor,
+  AspectRatio,
+  Badge,
+  Container,
+  Group,
+  Image,
+  List,
+  ListItem,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import { isPopulated } from '@/lib/isPopulated'
+import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { ExternalLink, FilePlus } from 'lucide-react'
 import type { Route } from 'next'
 // A server page: links go through the client wrapper, not `component={Link}`.
@@ -51,9 +67,10 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
         ],
       },
       locale,
-      depth: 0,
+      depth: 1,
       limit: 50,
-      select: { name: true, dating: true },
+      select: { name: true, dating: true, thumbnail: true },
+      populate: { objectsThumbnails: PICTURE_SELECT },
     }),
   ])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
@@ -80,7 +97,12 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           <Title order={1}>{subject.name}</Title>
           {subject.description && <Text>{subject.description}</Text>}
           {subject.wikidataId && (
-            <Anchor href={wikidataUrl(subject.wikidataId)} target="_blank" size="sm">
+            <Anchor
+              href={wikidataUrl(subject.wikidataId)}
+              target="_blank"
+              size="sm"
+              className="inline-flex items-center gap-1 self-start"
+            >
               <ExternalLink size={14} aria-hidden /> {t('On Wikidata')} ({subject.wikidataId})
             </Anchor>
           )}
@@ -97,18 +119,46 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           </Section>
         )}
         {works.docs.length > 0 && (
-          <Section title={t('Works in the collection')}>
-            {works.docs.map((work) => (
-              <ListItem key={work.id}>
-                <LinkAnchor href={`/${lng}/object/${work.id}` as Route}>{work.name}</LinkAnchor>
-                {work.dating && (
-                  <Text span size="sm" c="dimmed">
-                    {` · ${work.dating}`}
-                  </Text>
-                )}
-              </ListItem>
-            ))}
-          </Section>
+          // The works as pictures: a subject is mostly known by what it made
+          // or inspired, and a name list said little. Two columns on phones,
+          // three from sm; works without a photo keep a neutral tile.
+          <Stack gap="xs" component="section">
+            <Title order={2} size="h4">
+              {t('Works in the collection')}
+            </Title>
+            <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="md">
+              {works.docs.map((work) => {
+                const photo = isPopulated(work.thumbnail) ? work.thumbnail : null
+                return (
+                  <LinkAnchor
+                    key={work.id}
+                    href={`/${lng}/object/${work.id}` as Route}
+                    underline="never"
+                    c="inherit"
+                    className="block"
+                  >
+                    <AspectRatio ratio={4 / 5}>
+                      <Image
+                        src={pictureSrc(photo, 'card') ?? PLACEHOLDER_IMAGE}
+                        alt=""
+                        radius="md"
+                        fit="cover"
+                        bg="gray.1"
+                      />
+                    </AspectRatio>
+                    <Text size="sm" fw={600} mt={6} lineClamp={2}>
+                      {work.name}
+                    </Text>
+                    {work.dating && (
+                      <Text size="xs" c="dimmed">
+                        {work.dating}
+                      </Text>
+                    )}
+                  </LinkAnchor>
+                )
+              })}
+            </SimpleGrid>
+          </Stack>
         )}
         {user && (
           <Group>

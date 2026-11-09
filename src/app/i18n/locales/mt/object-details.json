@@ -1,10 +1,19 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_two": "",
+  "{{count}} stops_few": "",
+  "{{count}} stops_many": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Kontenut dwaru",
+  "Credit line": "",
   "Event": "Avveniment",
+  "Inventory number": "",
   "Movement or style": "Moviment jew stil",
   "On Wikidata": "Fuq Wikidata",
   "Person": "Persuna",
-  "Related contents": "Kontenuti relatati",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Xogħlijiet fil-kollezzjoni",
   "Write a content about it": "Ikteb kontenut dwaru"
 }

@@ -4,6 +4,7 @@ import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { Alert, Group, Modal, ModalProps, Stack, Title, Typography } from '@mantine/core'
 import { RichText } from '@payloadcms/richtext-lexical/react'
 import { Lock } from 'lucide-react'
+import type { ReactNode } from 'react'
 
 export const ContentDetailsModal = ({
   content,
@@ -30,13 +31,19 @@ export const ContentDetailsModal = ({
 export function ContentDetailsModalContent({
   content,
   lockedLabel = 'This content is paid. Unlock it to read the full text.',
+  headingOrder = 2,
+  glance,
 }: {
   content: Content
   lockedLabel?: string
+  /** `h1` on the content page; `h2` under a dialog's own title. */
+  headingOrder?: 1 | 2
+  /** The page's at-a-glance badges (`ContentGlance`), shown before the text. */
+  glance?: ReactNode
 }) {
   return (
     <Stack gap="sm">
-      <Title order={2} className="text-balance">
+      <Title order={headingOrder} size="h2" className="text-balance">
         {content.title}
       </Title>
       {content.durationSeconds || content.body ? (
@@ -47,6 +54,7 @@ export function ContentDetailsModalContent({
           {content.body ? <ContentAudioButton contentId={String(content.id)} /> : null}
         </Group>
       ) : null}
+      {glance}
       {content.body ? (
         <Typography maw="68ch">
           <RichText data={content.body} />

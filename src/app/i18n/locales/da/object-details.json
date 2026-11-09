@@ -1,10 +1,16 @@
 {
+  "{{count}} stops_one": "",
+  "{{count}} stops_other": "",
   "Contents about it": "Indhold om det",
+  "Credit line": "",
   "Event": "Begivenhed",
+  "Inventory number": "",
   "Movement or style": "Retning eller stil",
   "On Wikidata": "På Wikidata",
   "Person": "Person",
-  "Related contents": "Relateret indhold",
+  "Provenance": "",
+  "Rights": "",
+  "Tours that stop here": "",
   "Works in the collection": "Værker i samlingen",
   "Write a content about it": "Skriv et indhold om det"
 }

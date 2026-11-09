@@ -23,7 +23,7 @@ import type { Content } from '@/payload-types'
 import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
 import { Compass } from 'lucide-react'
 import type { Route } from 'next'
-import { ContentDetails, type ContentDetailsProps } from './ContentDetails'
+import { ContentDetails, ContentGlance, type ContentDetailsProps } from './ContentDetails'
 
 const firstId = (values: readonly (string | { id: string })[] | null | undefined) => {
   const [first] = values ?? []
@@ -286,6 +286,8 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
             <ContentDetailsModalContent
               content={content}
               lockedLabel={t('This content is paid. Unlock it to read the full text.')}
+              headingOrder={1}
+              glance={<ContentGlance content={content} categories={details.categories} />}
             />
           </EditableSection>
           {/* The Thumb-Reach Rule on phones, as on the tour page: the way

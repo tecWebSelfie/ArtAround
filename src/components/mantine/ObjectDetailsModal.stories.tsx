@@ -28,7 +28,12 @@ const ObjectDetailsModalStory = serverComponentStory(
     object: typeof mockObjectWithContents
     subjects?: WorkSubjects
   }) => (
-    <Modal opened title={object.name} onClose={() => {}}>
+    <Modal
+      opened
+      title={object.name}
+      onClose={() => {}}
+      closeButtonProps={{ 'aria-label': 'Close' }}
+    >
       <ObjectDetailsContent object={object} subjects={subjects} />
     </Modal>
   ),
@@ -60,7 +65,7 @@ export const Default: Story = {
         'Anfora attica a figure rosse con scena di banchetto, databile al V secolo a.C.',
       ),
     ).resolves.toBeTruthy()
-    await expect(body.findByText('Related contents')).resolves.toBeTruthy()
+    await expect(body.findByRole('heading', { name: 'Contents about it' })).resolves.toBeTruthy()
     await expect(body.findByText('Storia della ceramica attica')).resolves.toBeTruthy()
     await expect(body.findByText('Il restauro del bronzo')).resolves.toBeTruthy()
   },
