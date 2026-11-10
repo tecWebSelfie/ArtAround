@@ -96,7 +96,7 @@ export function MembersManager({
       </Title>
       {/* Nobody else yet (often only the director who set the museum up):
           say what the list is for instead of showing a lone row. */}
-      {members.filter((member) => member.userId !== viewerId).length === 0 && (
+      {!members.some((member) => member.userId !== viewerId) && (
         <Text c="dimmed">
           {t(
             'Only you work on this museum so far. Add the curators who write its contents and build its tours, by their username.',

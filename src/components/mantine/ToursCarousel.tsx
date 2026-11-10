@@ -3,6 +3,7 @@
 import { TOUR_GRADIENT } from '@/theme'
 import { isPopulated } from '@/lib/isPopulated'
 import { summarizeTour } from '@/lib/tour-summary'
+import { formatUnit } from '@/lib/duration'
 import { Tour } from '@/payload-types'
 import { BorderAnimate, type BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
@@ -199,11 +200,7 @@ const TourCard = ({ tour, lng, ...props }: CardProps & { tour: Tour; lng: string
               {minutes != null && (
                 <Group gap={4} wrap="nowrap">
                   <Clock size={14} aria-hidden />
-                  {new Intl.NumberFormat(lng, {
-                    style: 'unit',
-                    unit: 'minute',
-                    unitDisplay: 'short',
-                  }).format(minutes)}
+                  {formatUnit(minutes, 'minute', lng)}
                 </Group>
               )}
             </Group>

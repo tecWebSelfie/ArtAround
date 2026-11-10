@@ -16,10 +16,8 @@ import { getPayload } from 'payload'
 loadEnv({ path: ['.env.local', '.env'] })
 
 const { default: config } = await import('../src/payload.config')
-const { TIME_OF_DAY } = await import('../src/lib/opening-hours')
+const { TIME_OF_DAY, WEEKDAYS } = await import('../src/lib/opening-hours')
 const payload = await getPayload({ config })
-
-const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
 
 /** `HH:mm` as is; an ISO instant as its UTC `HH:mm`; anything else dropped. */
 function toTimeOfDay(value: unknown): string | null {
@@ -34,7 +32,7 @@ let changed = 0
 for (const museum of museums as { _id: unknown; openingHours?: Record<string, unknown> }[]) {
   const hours = museum.openingHours ?? {}
   const next: Record<string, unknown> = { ...hours }
-  for (const day of DAYS) {
+  for (const day of WEEKDAYS) {
     const ranges = hours[day]
     if (!Array.isArray(ranges)) continue
     next[day] = ranges.map((range: Record<string, unknown>) => ({

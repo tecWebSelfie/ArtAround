@@ -26,19 +26,29 @@ export type TourSummary = {
 
 const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'medium', 'hard']
 
-export function summarizeTour(tour: Tour): TourSummary {
-  const contents = filterPopulated<Content>(tour.contents)
-  const timed = contents.filter((content) => content.durationSeconds != null)
-  const readingMinutes = timed.length
+/**
+ * Minutes of reading in these stops (their `durationSeconds`, the only
+ * duration the data carries), or null when none of them has a length. Shared
+ * by the tour page's figure and the navigation header's "25 min of reading
+ * left", so both count the same way.
+ */
+export function readingMinutes(stops: Tour['contents']): number | null {
+  const timed = filterPopulated<Content>(stops).filter((content) => content.durationSeconds != null)
+  return timed.length
     ? toMinutes(timed.reduce((sum, content) => sum + (content.durationSeconds ?? 0), 0))
     : null
+}
+
+export function summarizeTour(tour: Tour): TourSummary {
+  const contents = filterPopulated<Content>(tour.contents)
+  const reading = readingMinutes(tour.contents)
   const ratingsCount = tour.lfrs?.ratingsCount ?? 0
 
   return {
     // Unpopulated relations still count as stops: the order is the tour.
     stops: tour.contents?.length ?? 0,
-    readingMinutes,
-    visitMinutes: tour.durationMinutes ?? readingMinutes,
+    readingMinutes: reading,
+    visitMinutes: tour.durationMinutes ?? reading,
     distanceMeters: tour.distanceMeters ?? null,
     wheelchairAccessible: Boolean(tour.wheelchairAccessible),
     quizQuestions: tour.quiz?.questions?.length ?? 0,

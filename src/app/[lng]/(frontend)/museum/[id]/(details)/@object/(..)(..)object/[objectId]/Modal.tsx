@@ -2,7 +2,6 @@
 
 import { Modal, ModalProps } from '@mantine/core'
 import { useRouter } from 'next/navigation'
-import { useTranslation } from 'react-i18next'
 
 // Client shell for the object details modal. The body is passed as `children`
 // from a Server Component (see `ObjectDetailsContent`): importing the async
@@ -13,10 +12,9 @@ export function ObjectModal({
   ...props
 }: { children: React.ReactNode } & Omit<ModalProps, 'opened' | 'onClose'>) {
   const router = useRouter()
-  const { t } = useTranslation('common')
-  // The close button is an icon: it needs its name for screen readers.
+  // The close button's name comes from AppMantineProvider.
   return (
-    <Modal opened closeButtonProps={{ 'aria-label': t('Close') }} {...props} onClose={router.back}>
+    <Modal opened {...props} onClose={router.back}>
       {children}
     </Modal>
   )

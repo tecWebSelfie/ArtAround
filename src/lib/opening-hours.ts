@@ -8,7 +8,8 @@ import type { Museum } from '@/payload-types'
 /** `HH:mm`, 00:00 to 23:59. */
 export const TIME_OF_DAY = /^([01]\d|2[0-3]):[0-5]\d$/
 
-const WEEKDAYS = [
+/** The days of `openingHours`, in display order. */
+export const WEEKDAYS = [
   'monday',
   'tuesday',
   'wednesday',

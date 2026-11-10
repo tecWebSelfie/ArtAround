@@ -4,7 +4,7 @@ import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } fro
 import { createRealisticMuseumMap } from './museum-map.mock'
 import { mockToursList } from './tour.mock'
 
-const TIMESTAMP = '10:00'
+const TIMESTAMP = '2026-01-15T10:00:00.000Z'
 
 type MuseumMapOptions = {
   width: number

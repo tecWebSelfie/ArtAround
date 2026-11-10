@@ -34,7 +34,8 @@ import {
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
 import { museumRooms, roomAt } from '@/lib/museum-rooms'
-import { formatUnit, toMinutes } from '@/lib/duration'
+import { formatUnit } from '@/lib/duration'
+import { readingMinutes } from '@/lib/tour-summary'
 import { Accessibility, DoorOpen, ScanQrCode, Search, X } from 'lucide-react'
 import { useElementSize } from '@mantine/hooks'
 import { Suspense, useEffect, useMemo, useRef, useState } from 'react'
@@ -199,18 +200,13 @@ export const TourNavigationPage = ({
       return t('All {{count}} stops visited', { count: tour.contents.length })
     const point = rooms.objects.find(({ objectId }) => objectId === defaultDestination)?.point
     const room = point ? roomAt(rooms.rooms, point)?.name : null
-    const seconds = tour.contents
-      .slice(step)
-      .reduce(
-        (sum, content) => sum + (typeof content === 'object' ? (content.durationSeconds ?? 0) : 0),
-        0,
-      )
+    const minutesLeft = readingMinutes(tour.contents.slice(step))
     return [
       t('Stop {{number}} of {{count}}', { number: step + 1, count: tour.contents.length }),
       room,
-      seconds
+      minutesLeft
         ? t('{{duration}} of reading left', {
-            duration: formatUnit(toMinutes(seconds), 'minute', lng),
+            duration: formatUnit(minutesLeft, 'minute', lng),
           })
         : null,
     ]

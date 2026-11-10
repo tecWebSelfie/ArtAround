@@ -5,33 +5,17 @@ import { SignOutButton } from '@/components/auth/SignOutButton'
 import { UserPage } from './UserPage'
 import { displayName } from '@/lib/display-name'
 import type { Metadata } from 'next'
+import { cache } from 'react'
 
-/** The tab names the person. */
-export async function generateMetadata(props: PageProps<'/[lng]/user/[id]'>): Promise<Metadata> {
-  const { id } = await props.params
-  const { payload } = await getSession()
-  const user = await payload
-    .findByID({
-      collection: 'users',
-      id,
-      depth: 0,
-      select: { name: true, username: true },
-      ...(await asViewer()),
-    })
-    .catch(() => null)
-  return user ? { title: displayName(user) } : {}
-}
-
-export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) {
-  // Museum mode (`scope`): the profile's tour and content carousels keep only
-  // the locked museum's work, like every other list in the app.
-  const [{ payload, user: viewer }, { id }, scope] = await Promise.all([
-    getSession(),
-    props.params,
-    museumScope(),
-  ])
-  // As the visitor: the email is only returned to its owner.
-  const user = await payload.findByID({
+/**
+ * The profile, read once per request (React `cache`) for the page and its
+ * metadata. As the visitor: the email is only returned to its owner. Museum
+ * mode (`scope`): the tour and content carousels keep only the locked
+ * museum's work, like every other list in the app.
+ */
+const readUser = cache(async (id: string) => {
+  const [{ payload }, scope, viewer] = await Promise.all([getSession(), museumScope(), asViewer()])
+  return payload.findByID({
     id,
     collection: 'users',
     ...(scope && {
@@ -40,8 +24,20 @@ export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) 
         authoredContents: { where: { id: { in: scope.contentIds } } },
       },
     }),
-    ...(await asViewer()),
+    ...viewer,
   })
+})
+
+/** The tab names the person. */
+export async function generateMetadata(props: PageProps<'/[lng]/user/[id]'>): Promise<Metadata> {
+  const { id } = await props.params
+  const user = await readUser(id).catch(() => null)
+  return user ? { title: displayName(user) } : {}
+}
+
+export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) {
+  const [{ user: viewer }, { id }] = await Promise.all([getSession(), props.params])
+  const user = await readUser(id)
   const isSelf = String(viewer?.id) === String(user.id)
   const { t } = await getT('editing')
 

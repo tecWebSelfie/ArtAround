@@ -28,22 +28,34 @@ import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
+import { cache } from 'react'
+
+/**
+ * The subject with its contents' titles, read once per request (React
+ * `cache`) for the page and its metadata. As the visitor: a private content
+ * about the subject stays hidden from everyone but its author and group
+ * guests (`src/lib/visibility.ts`). Null when there is no such subject.
+ */
+const readSubject = cache(async (id: string, lng: string) => {
+  const [{ payload }, viewer] = await Promise.all([getSession(), asViewer()])
+  return payload
+    .findByID({
+      collection: 'subjects',
+      id,
+      locale: normalizeLocale(lng) ?? 'en',
+      depth: 1,
+      populate: { contents: { title: true } },
+      ...viewer,
+    })
+    .catch(() => null)
+})
 
 /** The tab names the artist, movement or event. */
 export async function generateMetadata({
   params,
 }: PageProps<'/[lng]/subject/[id]'>): Promise<Metadata> {
   const { lng, id } = await params
-  const { payload } = await getSession()
-  const subject = await payload
-    .findByID({
-      collection: 'subjects',
-      id,
-      depth: 0,
-      select: { name: true },
-      locale: normalizeLocale(lng) ?? 'en',
-    })
-    .catch(() => null)
+  const subject = await readSubject(id, lng)
   return subject ? { title: subject.name } : {}
 }
 
@@ -60,22 +72,10 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   const { lng, id } = await params
   const locale = normalizeLocale(lng) ?? 'en'
   const { payload, user } = await getSession()
-  // As the visitor: a private content about the subject stays hidden from
-  // everyone but its author and group guests (`src/lib/visibility.ts`).
-  const viewer = await asViewer()
   // The subject, its works and the labels only need the id: read them
   // together (a missing subject just discards the works query).
   const reads = Promise.all([
-    payload
-      .findByID({
-        collection: 'subjects',
-        id,
-        locale,
-        depth: 1,
-        populate: { contents: { title: true } },
-        ...viewer,
-      })
-      .catch(() => null),
+    readSubject(id, lng),
     payload.find({
       collection: 'objects',
       where: {
