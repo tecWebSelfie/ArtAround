@@ -111,6 +111,9 @@ function AgentChatInput({ chatOpen, onSend = async () => {}, className }: AgentC
   return (
     <div className={cn('mb-3 flex grow items-end gap-2 rounded-md pl-1 text-sm', className)}>
       <textarea
+        // The input mounts when the visitor opens the chat themselves, so
+        // moving focus into it is the expected next step, not a surprise.
+        // eslint-disable-next-line jsx-a11y/no-autofocus
         autoFocus
         ref={inputRef}
         value={message}

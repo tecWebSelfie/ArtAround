@@ -2,14 +2,16 @@
   // Oxlint replaces ESLint (`pnpm lint`, lint-staged). The rule set mirrors the
   // former eslint.config.mjs (eslint-config-next core-web-vitals + typescript,
   // the project overrides, eslint-plugin-storybook), as converted by
-  // `@oxlint/migrate`: only those rules, no extra oxlint categories, so a file
-  // that passed ESLint passes here. The React Compiler rules of
-  // eslint-plugin-react-hooks 7 (`set-state-in-effect`, `immutability`, ...)
-  // are native in oxlint under the `react/` prefix.
+  // `@oxlint/migrate`. The React Compiler rules of eslint-plugin-react-hooks 7
+  // (`set-state-in-effect`, `immutability`, ...) are native in oxlint under
+  // the `react/` prefix.
+  // On top of that, oxlint's `correctness` category (code that is outright
+  // wrong or useless: duplicate keys, unsafe finally, empty patterns, ...)
+  // fails the lint, so lint-staged blocks such code at commit time.
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["nextjs", "typescript"],
   "categories": {
-    "correctness": "off"
+    "correctness": "error"
   },
   "env": {
     "builtin": true
@@ -22,6 +24,9 @@
     "build/**",
     "next-env.d.ts",
     ".claude/**",
+    // Skill sources: vendored bundles (impeccable's minified scripts) and
+    // sample assets, not project code.
+    ".agents/**",
     "storybook-static/**",
     "test-results/**",
     "playwright-report/**",
@@ -93,6 +98,12 @@
         "node": true
       },
       "rules": {
+        // Part of `correctness`, but it asks to swap ARIA roles for
+        // "equivalent" tags that aren't: `<output>` is a form result, not a
+        // live status; `<fieldset>` brings its own border and legend;
+        // `role="img"` on an SVG or emoji wrapper is the documented pattern.
+        // Mantine components take `role` on purpose, so the rule is off.
+        "jsx-a11y/prefer-tag-over-role": "off",
         "react/display-name": "error",
         "react/jsx-key": "error",
         "react/jsx-no-comment-textnodes": "error",
