@@ -109,7 +109,13 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           ...viewer,
         }),
       ])
-      return { contents: contents.docs as Content[], tours: tours.docs }
+      // `id in` comes back in the database's order: put the contents back in
+      // the object's own (curated) order.
+      const byId = new Map(contents.docs.map((content) => [content.id, content as Content]))
+      return {
+        contents: ids.flatMap((contentId) => byId.get(contentId) ?? []),
+        tours: tours.docs,
+      }
     }),
   ])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;

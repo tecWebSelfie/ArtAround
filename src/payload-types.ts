@@ -1125,50 +1125,50 @@ export interface Museum {
   openingHours?: {
     monday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     tuesday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     wednesday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     thursday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     friday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     saturday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null
     sunday?:
       | {
-          opening?: string | null
-          closing?: string | null
+          opening: string
+          closing: string
           id?: string | null
         }[]
       | null

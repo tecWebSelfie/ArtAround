@@ -102,8 +102,14 @@ export default async function MuseumPage({
   // Planning the visit: when it's open, what it costs, how to reach the
   // museum, what's new. All optional museum fields; empty ones say nothing.
   const hours = openingHoursRows(museum.openingHours, lng)
+  // Shown in international notation; dialled as E.164, the form the phone
+  // field stores for `tel:` links.
   const phone =
-    typeof museum.phone === 'string' ? museum.phone : (museum.phone?.international ?? null)
+    typeof museum.phone === 'string'
+      ? { shown: museum.phone, dial: museum.phone.replace(/[^\d+]/g, '') }
+      : museum.phone?.international
+        ? { shown: museum.phone.international, dial: museum.phone.e164 }
+        : null
   const socials = museum.socials ?? []
   const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
   const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium' })
@@ -337,8 +343,8 @@ export default async function MuseumPage({
                       ...(phone
                         ? {
                             [t('Phone')]: (
-                              <Anchor href={`tel:${phone.replace(/\s/g, '')}`} size="sm">
-                                {phone}
+                              <Anchor href={`tel:${phone.dial}`} size="sm">
+                                {phone.shown}
                               </Anchor>
                             ),
                           }

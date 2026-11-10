@@ -94,9 +94,10 @@ export function MembersManager({
       <Title order={1} size="h2">
         {t('Museum staff')}
       </Title>
-      {/* Nobody else yet (often only the director who set the museum up):
-          say what the list is for instead of showing a lone row. */}
-      {!members.some((member) => member.userId !== viewerId) && (
+      {/* The viewer is the only member (often the director who set the
+          museum up): say what the list is for instead of a lone row. Not for
+          a super admin looking at a museum they don't belong to. */}
+      {members.length > 0 && members.every((member) => member.userId === viewerId) && (
         <Text c="dimmed">
           {t(
             'Only you work on this museum so far. Add the curators who write its contents and build its tours, by their username.',

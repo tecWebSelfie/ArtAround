@@ -47,9 +47,15 @@ function timeOfDay(name: 'opening' | 'closing'): TextField {
   return {
     name,
     type: 'text',
+    // Both ends required: a range with one time missing can't be shown, and
+    // the museum page would read the day as closed.
+    required: true,
     admin: { placeholder: name === 'opening' ? '09:00' : '18:00', width: '50%' },
+    // A custom `validate` replaces Payload's own required check, so it
+    // refuses the empty value itself.
     validate: (value: string | null | undefined) =>
-      !value || TIME_OF_DAY.test(value) || 'Use the 24-hour HH:mm format, e.g. 09:30.',
+      Boolean(value && TIME_OF_DAY.test(value)) ||
+      (value ? 'Use the 24-hour HH:mm format, e.g. 09:30.' : 'This field is required.'),
   }
 }
 

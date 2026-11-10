@@ -5,6 +5,7 @@ import {
   Button,
   Group,
   Stack,
+  Text,
   Title,
   Tooltip,
   type MantineBreakpoint,
@@ -82,10 +83,19 @@ export function EditableSection({
         hiddenFrom={canEdit || actions ? undefined : hideTitleFrom}
       >
         {/* h2: a section of its page, right under the page's h1 (an h3
-            here skipped a level on the profile and detail pages). */}
-        <Title order={2} size="h4">
-          {title}
-        </Title>
+            here skipped a level on the profile and detail pages). With
+            `hideTitleFrom` the section's own content opens with the page's
+            h1, so the title is only a label above it: a heading there would
+            put an h2 before the h1. Same look either way. */}
+        {hideTitleFrom ? (
+          <Text fz="h4" fw={700} lh="h4">
+            {title}
+          </Text>
+        ) : (
+          <Title order={2} size="h4">
+            {title}
+          </Title>
+        )}
         <Group gap={4} wrap="nowrap" className="shrink-0">
           {canEdit &&
             (iconOnly ? (
