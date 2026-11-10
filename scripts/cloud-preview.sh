@@ -4,7 +4,7 @@
 # one-time tailnet setup: docs/cloud-preview.md. On a PC none of this runs.
 #
 # Sets up Tailscale (`tailscale serve`: HTTPS → port 3000), `.env` if missing,
-# MongoDB (`pnpm db:start`, Docker) with a seeded database and a managed block
+# MongoDB (`pnpm services:start`, Docker) with a seeded database and a managed block
 # in `.env.local`; then start `pnpm dev`. Idempotent: re-run freely.
 #
 # Usage: scripts/cloud-preview.sh          set up
@@ -95,7 +95,7 @@ fi
 
 # 3. MongoDB in Docker (the compose `mongodb` service), seeded only when its
 # volume is new: an existing one may hold your test data.
-(cd "$ROOT" && node scripts/db-start.mjs --seed-if-new)
+(cd "$ROOT" && node scripts/services-start.mjs --seed-if-new)
 
 # 4. The browser uses the public URL; the server calls itself on localhost
 # (`SELF_ORIGIN`, src/lib/localized.ts), since the tailnet name only answers

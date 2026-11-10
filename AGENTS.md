@@ -108,6 +108,16 @@ neither fits.
 
 ## Design with Impeccable (`.claude/skills/impeccable/`)
 
+Codex uses `.agents/skills/impeccable/`; Claude uses `.claude/skills/impeccable/`.
+Both launchers run the same pinned engine and share the ignored
+`node_modules/.cache/impeccable/` bootstrap cache in this Node project; existing
+user installations and explicit `IMPECCABLE_HOME`/`IMPECCABLE_BIN` overrides
+remain supported. Run either launcher's `engine-probe` from the repository root
+to verify setup. A cloud sandbox may need authorized network access for the
+first verified download; cached runs need neither Internet nor home writes.
+See [Impeccable runtime](docs/impeccable-runtime.md) for client hook differences,
+bootstrap checks and the distinction between skills and engine commands.
+
 Impeccable is designed to be driven by one command on one narrow target at a
 time (`/impeccable <command> <target>`); the skill itself carries how each
 command works. Nothing runs it on its own: invoke it for every UI change,
@@ -145,7 +155,7 @@ On a PC none of it applies.
 
 Known traps in cloud sessions:
 
-- After a container restart, MongoDB is down: `pnpm db:start` brings it back
+- After a container restart, MongoDB and LiveKit are down: `pnpm services:start` brings them back
   (it also starts the Docker daemon, which a cloud container doesn't run at boot).
 - `pnpm typecheck` and `pnpm dev` rewrite `src/payload-types.ts` unformatted.
   Run `npx prettier --write src/payload-types.ts` before committing: it then
@@ -161,7 +171,7 @@ that replaces `@types/chroma-js` in the whole project, so `chroma.contrast` and
 
 ## On-demand AI translation (`src/plugins/autoTranslate.ts`)
 
-When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`). It is not started automatically (it costs memory every session): start it in the background with `pnpm storybook --ci` when the work touches the UI, then reconnect the `storybook` MCP server.
+When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`). In a cloud session a SessionStart hook (`scripts/storybook-autostart.sh`, opt out with `STORYBOOK_AUTOSTART=0`) starts it in the background; on a PC it is not started automatically (it costs memory): start it with `pnpm storybook --ci` when the work touches the UI, then reconnect the `storybook` MCP server. Storybook takes a while to build, so the MCP connection made at session start can miss it: if its tools are absent, call the endpoint directly (JSON-RPC over HTTP POST to `/mcp`).
 
 - **CRITICAL: Never hallucinate component properties!** Before using ANY property on a component from the design system (including common-sounding ones like `shadow`, etc.), you MUST use the MCP tools to check if the property is actually documented for that component.
 - Query `list-all-documentation` to get a list of documented components
@@ -227,9 +237,11 @@ Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in pr
 
 ## Checks
 
-- `pnpm db:start`: the development MongoDB, the `mongodb` service of
+- `pnpm services:start` (formerly `db:start`): the development MongoDB, the `mongodb` service of
   `docker-compose.yml` (no authentication: local test data; loopback only),
-  the same on a PC (Docker Desktop) and in a cloud session. Idempotent.
+  the same on a PC (Docker Desktop) and in a cloud session.
+  It also starts the local LiveKit server (`ws://localhost:7880`, best
+  effort) that group tours and their e2e spec need. Idempotent.
 - `pnpm test:int`: the integration specs (`tests/int`, Vitest project `int`,
   in Node). Most need MongoDB running. Filter with a path or `-t`, e.g.
   `pnpm test:int tests/int/objectsAccess.int.spec.ts`.
@@ -267,6 +279,29 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
   `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
   the release after it. It reads `// eslint-disable-next-line` comments too.
+- Writing tests: before mocking or faking a library, check whether it ships
+  its own test module or API and use that (e.g. the AI SDK's `ai/test`
+  mock models, Playwright's `page.route`, MSW handlers in `src/mocks/`).
+  Hand-rolled fakes come last, when the library offers nothing.
+- `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
+  `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
+  instead, as CI does: no route compiles inside a test's timeout, and the
+  full suite took 5.5 min there against 11 min on `next dev`. In a cloud
+  session with the preview on, `.env.local` points `NEXT_PUBLIC_PAYLOAD_URL`
+  at the Tailscale URL, where the test browser has no session: build with
+  `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
+- CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
+  `test:int`, then the e2e suite against the production build, with MongoDB
+  and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
+  blocks nothing unless branch protection requires it. It runs on mocked AI;
+  "Run workflow" with "real AI" calls Groq and Fish Audio, with the
+  repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
+- `AI_MOCK=true` (`src/lib/ai-models.ts`, the only place routes and tasks
+  get their AI models): the AI SDK's `ai/test` mock models answer instead of
+  Groq and Fish Audio (`src/lib/ai-mock.ts`). Set by CI and by Playwright on
+  the `pnpm start` server it launches; a `next dev` you start keeps the real
+  providers unless you set it. Never in a deployment (the server logs a
+  warning when it is on).
 - `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
   `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
   `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
@@ -276,8 +311,12 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
   hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
   tests stay out of the hooks: they need the database and take too long.
+- Before every commit, run `/code-review` on the diff about to be committed
+  and fix what it finds; commit only once it comes back clean (or the
+  remaining findings are explained to the maintainer).
 - Before opening a PR, run `/simplify` (reuse, simplification, efficiency) and
-  `/code-review` (correctness) by hand on the diff. They are deliberately not
+  `/code-review` (correctness) by hand on the whole PR diff, as a final pass
+  over the commits already reviewed one by one. They are deliberately not
   wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
   the working tree after staging, and a commit hook could loop on them.
 - Before pushing, run `/simplify` on the unpushed changes. When they touch the

@@ -50,5 +50,12 @@ Cold development-route compilation can take several minutes on this project.
 The integration checks can be run independently:
 
 ```powershell
-pnpm exec vitest run --config vitest.config.mts --pool threads --maxWorkers 1 tests/int/navMesh.int.spec.ts tests/int/tour-navigation.int.spec.ts
+pnpm exec vitest run --config vitest.int.config.mts --pool threads --maxWorkers 1 tests/int/navMesh.int.spec.ts tests/int/tour-navigation.int.spec.ts
 ```
+
+Cloud regression can use an installed Chromium without another download:
+`PLAYWRIGHT_EXECUTABLE_PATH=/usr/bin/chromium`. For multi-browser group checks
+on software WebGL, set `E2E_SOFTWARE_WEBGL=true`; this only throttles test-browser
+animation scheduling. Test configuration reads `.env.local` before `.env`,
+leaving existing CI process variables untouched. Use `E2E_SERVER=start` after
+`pnpm build` to verify production output instead of cold development compilation.

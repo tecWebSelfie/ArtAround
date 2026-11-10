@@ -6,25 +6,13 @@ import dynamic from 'next/dynamic'
 import { create, type BitMatrix } from 'qrcode'
 import { useRef, useState } from 'react'
 import { parseAppUrl } from '@/lib/app-url'
+import { loadQrScannerModule } from '@/lib/qr-scanner-module'
 
 export { parseAppUrl } from '@/lib/app-url'
 
-export const Scanner = dynamic(
-  () =>
-    import('@yudiel/react-qr-scanner').then((m) => {
-      // Without a native BarcodeDetector (Chrome on Windows/Linux) the scanner
-      // decodes with ZXing's WebAssembly reader, by default fetched from a public
-      // CDN on first use. Serve it from our origin instead (public/zxing, copied
-      // on postinstall by scripts/copy-zxing-assets.mjs). Set before the first
-      // scan, since the module is prepared once.
-      m.setZXingModuleOverrides({
-        locateFile: (path: string, prefix: string) =>
-          path.endsWith('.wasm') ? `/zxing/${path}` : prefix + path,
-      })
-      return m.Scanner
-    }),
-  { ssr: false },
-)
+// Shared loader (src/lib/qr-scanner-module.ts): it serves ZXing's WebAssembly
+// from our origin, and the tour page may already have loaded and compiled it.
+export const Scanner = dynamic(() => loadQrScannerModule().then((m) => m.Scanner), { ssr: false })
 
 /** Client-only scanner that accepts app URLs and turns them into safe URL objects. */
 export function QrScanner({
@@ -45,6 +33,13 @@ export function QrScanner({
 
   return (
     <Scanner
+      // The library gives `video.play()` 3 s, then reports the camera as
+      // failed and never starts scanning, even though the video then plays:
+      // the visitor sees a live camera that never reads a code. A busy page
+      // (the 3D museum map behind the scanner) on a slow phone can exceed 3 s.
+      // The timeout only exists to catch a wedged play(), so give it room.
+      // Before `{...props}`, so a caller can still set its own.
+      startTimeoutMs={15_000}
       {...props}
       formats={['qr_code']}
       onScan={(codes) => {

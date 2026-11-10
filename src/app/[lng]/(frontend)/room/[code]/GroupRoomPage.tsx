@@ -8,7 +8,9 @@ import { ShareGroup } from '@/components/group/ShareGroup'
 import { useGroupExit } from '@/components/group/use-group-exit'
 import { HOST_IDENTITY } from '@/lib/group'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { tourNavigationPath } from '@/lib/tour-navigation'
+import { tourNavigationPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { ReadingProfile } from '@/components/group/ReadingProfile'
+import { readerFor, setReadingProfile } from '@/lib/reading-profile'
 import { useConnectionState, useRemoteParticipant } from '@livekit/components-react'
 import {
   Alert,
@@ -29,7 +31,8 @@ import { ConnectionState } from 'livekit-client'
 import { Play } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { JoinGroupForm } from '@/components/group/JoinGroupForm'
+import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 type RoomTour = {
@@ -38,6 +41,7 @@ type RoomTour = {
   museumId: string
   title: string
   thumbnail: { url: string; alt: string } | null
+  childrenAges?: number[]
 }
 
 /**
@@ -68,7 +72,7 @@ export function GroupRoomPage({
     )
   }
   return (
-    <Container size="xs" py="xl">
+    <Container component="main" size="xs" py="xl">
       {!tour ? (
         <GroupEnded />
       ) : group?.membership.code === code ? (
@@ -121,6 +125,12 @@ function JoinGroup({
   const { t } = useTranslation('group')
   const join = useJoinGroup()
   const current = useGroup()
+  const pathname = usePathname()
+  const search = useSearchParams()
+  const router = useRouter()
+  const ages = tour.childrenAges ?? []
+  const age = search.get('age')
+  const reader = readerFor(age, ages)
 
   return (
     <Stack gap="lg">
@@ -139,7 +149,19 @@ function JoinGroup({
       <GroupNameForm
         submitLabel={t('Join the group')}
         onSubmit={(name) => join({ code, tourId: tour.id, name, role: 'guest' })}
-      />
+      >
+        <ReadingProfile
+          ages={ages}
+          value={reader}
+          onChange={(value) => {
+            const query = new URLSearchParams(search)
+            setReadingProfile(query, value)
+            router.replace(`${pathname}${query.size ? `?${query}` : ''}` as Route, {
+              scroll: false,
+            })
+          }}
+        />
+      </GroupNameForm>
     </Stack>
   )
 }
@@ -155,6 +177,7 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
   const connection = useConnectionState()
+  const search = useSearchParams()
   const { hostName } = useGroupSettings()
   const hostHere = Boolean(useRemoteParticipant(HOST_IDENTITY))
   const { confirmLeave, confirmEnd } = useGroupExit()
@@ -191,7 +214,13 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
             leftSection={<Play size={18} />}
             onClick={() => {
               group.start()
-              router.push(tourNavigationPath(lng, tour.museumId, tour.id, 0))
+              // Keep this reader's age/accessibility choices when leaving the room.
+              router.push(
+                withNavigationPosition(
+                  tourNavigationPath(lng, tour.museumId, tour.id, 0),
+                  search.toString(),
+                ),
+              )
             }}
           >
             {group.membership.started ? t('Back to the tour') : t('Start the tour')}
@@ -219,16 +248,24 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
   )
 }
 
+/**
+ * An ended (or mistyped) code. Not a dead end: the visitor can type the new
+ * code the host gives out right here, the same form as on the navigator, or
+ * go back and explore on their own.
+ */
 function GroupEnded() {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
   return (
-    <Stack gap="md" align="center" ta="center">
-      <Title order={1} size="h2">
-        {t('This group has ended')}
-      </Title>
-      <Text c="dimmed">{t('Ask for a new code, or visit the tour on your own.')}</Text>
-      <Button component={Link} href={`/${lng}/navigator` as Route} variant="default">
+    <Stack gap="lg" align="center" ta="center">
+      <Stack gap="xs" align="center">
+        <Title order={1} size="h2">
+          {t('This group has ended')}
+        </Title>
+        <Text c="dimmed">{t('Ask for a new code, or visit the tour on your own.')}</Text>
+      </Stack>
+      <JoinGroupForm />
+      <Button component={Link} href={`/${lng}/navigator` as Route} variant="subtle">
         {t('Back to the navigator')}
       </Button>
     </Stack>

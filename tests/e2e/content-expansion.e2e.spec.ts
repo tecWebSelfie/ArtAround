@@ -3,7 +3,9 @@ import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 /**
  * Full-flow checks of the language-model features on the real Next app (real
- * Groq, Wikidata and Wikipedia calls, real seeded tour):
+ * Wikidata and Wikipedia calls, real seeded tour). The model is Groq on a
+ * `next dev` you started, the AI SDK mock on the server Playwright starts
+ * (AI_MOCK, src/lib/ai-models.ts): the specs check the flow, not the prose.
  *
  * - "Tell me more" and "Simpler" in a tour content modal;
  * - "Plan my visit" from the form to the preview;

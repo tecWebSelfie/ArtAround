@@ -57,13 +57,24 @@ the same routes and close/guest rules, recomposed. Contextual content, object an
 modals (`NavigationModal`) dock as a right-side panel between the header (its height is
 published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
 with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
-draggable; `SkippedStopModal` stays centered. The control grid, which centres Scan on
-phones, switches its outer columns from `auto` to `content` at md (`SIDE_SPAN`), so the
-controls cluster bottom-left;
-the directions strip is capped at 40rem, the header column at 75rem with the stepper
-centered. The Spotlight opens with mod+K or `/` (tooltip with a `Kbd` on the search
-icon). The site header hides on the navigation shell's map URLs but stays on a tour's
-start page (`…/tour/[tourId]`, no map yet). Below `md` nothing changes.
+draggable; `SkippedStopModal` stays centered. Controls cluster bottom-left on desktop
+and centre on phones. The directions strip is capped at 40rem and the header
+column at 75rem with the stepper centered. Spotlight opens with mod+K or `/`.
+The site header hides on map URLs but stays on a tour's start page.
+
+The overlay uses the measured header and footer heights rather than a fixed
+vertical offset. The footer grows with wrapped directions; the assistant uses
+its intrinsic width. Active directions use a font-relative container layout:
+when narrow, the complete instruction sits above the arrows and assistant
+instead of being squeezed between them. Services, Scan, Search and guidance settings occupy a
+persistent wrapping dock. Placed services, the nearest exit and the optional
+wheelchair route live in a keyboard-accessible Services popover; choosing an
+active destination resumes the tour. The popover closes on selection or Escape.
+Simulator, proximity notices and tour shortcuts share the remaining scrollable
+column. Only an overflowing column owns pan gestures; empty map space stays
+draggable. Actions and stepper controls have minimum 44px targets; long labels
+wrap. Duration badges and the next-stop action use the deeper museum shade
+with automatic foreground contrast. These refinements are navigation-specific.
 
 ## URL and route contract
 
@@ -233,6 +244,49 @@ Navcat mesh and two catalog items separated by a divider, to show the detour.
 
 ## Route guidance, GPS, suggestions and voice assistant
 
+### Advanced localization and live proximity (2026-11-06)
+
+GPS estimates now also work from a confirmed object in a free visit without a
+selected destination. The estimate remains device-local: only explicit “I am
+here” confirmation writes `at`, using the existing navigation URL helper.
+
+`compass-source.ts` reads iOS `webkitCompassHeading` or absolute orientation
+(`360 - alpha`). It never treats relative orientation as north. The visitor
+enables it from Guidance settings; Safari permission is requested directly from
+that tap. Missing/denied orientation falls back to choosing nearby works. After
+8 seconds without readings, the old heading expires; GPS fixes expire after
+15 seconds without updates and are cleared on errors or poor accuracy.
+
+`NavigationProximity` combines `useRouteGuidance().estimate`, the placed works
+from `museumRooms`, and `workInFront`. Enter within 3 m and 30°; an existing
+candidate remains until beyond 4.5 m or 45°, reducing sensor flicker. Known rooms
+filter out works across walls. At most four distinct works appear, with card-size
+thumbnails from the navigation catalog (never full content bodies or full-size
+images). These distances assume the existing north-up, metre-scaled museum plan.
+
+The nonmodal `NearbyWorksNotice` distinguishes the requested next destination
+(flag/filled action) from optional off-tour discoveries (compass/neutral action).
+Discovery suggestions follow the existing Nearby suggestions setting; other
+tour stops are not advertised as detours. Opening a work preserves the current
+position; confirming explicitly recalibrates it. Dismissing keeps the current
+candidates hidden until they leave range. Disabling GPS or losing a usable fix
+withdraws the notice. Group guests do not get local position-changing notices.
+
+In GPS mode, the old room notification is suppressed to avoid stacking two
+suggestion systems; its history still supplies Nearby search pills. Without
+GPS, room notifications retain their previous behavior. Simulator arrows both
+walk and set the simulated heading to the movement's cardinal direction.
+
+Validation: focused integration tests (`work-in-front`, `proximity-works`,
+`compass-source`, `gps-localization`, `tour-guidance`), interactive Storybook
+stories (`Nearby Works`, `Live Proximity`, `Compass Settings`), plus typecheck.
+Browser tests may use an installed Chromium through
+`PLAYWRIGHT_EXECUTABLE_PATH=/usr/bin/chromium` if browser downloads are restricted.
+Real indoor GPS precision and physical iOS/Android sensor behavior still need
+device testing; synthetic sensor/browser tests do not certify that hardware.
+
+### Existing guidance architecture
+
 Added 2026-10-19. One idea ties these together: **every visitor action is a URL
 command** (`navigation-commands.ts`). The Spotlight results, the
 empty-Spotlight pills, the overlay buttons and the voice assistant all run the
@@ -336,6 +390,11 @@ ones only in their metadata (`generation` groups).
   free content IDs, keeps what fits the time (`tour-plan.ts`), orders stops by
   nearest room (`tour-order.ts`) and saves an ordinary tour with
   `generation.generated` and a hash of the answers, reused for identical ones.
+  Family previews and group join offer a device-local adult/exact-age reader.
+  `age` stays personal when following the host; versions and further
+  explanations use separate age-specific caches. Budgets are strict, including
+  the first stop. See [Planned visits](planned-visits.md) for the verified
+  public/group flow and provider-testing boundary.
 - **Museum mode** (`MuseumSwitch` in the tabs layout, `museum-mode.ts`): a
   cookie locks the app to one museum; search pages and the plan form follow
   it. "Import a config file" accepts a museum exported from the Payload admin
@@ -375,9 +434,13 @@ Use `PLAYWRIGHT_CHANNEL=chrome` if Playwright's pinned Chromium is unavailable,
 and `PLAYWRIGHT_USE_RUNNING_SERVER=true` to use an existing Next server.
 Do not start duplicate servers or kill unrelated processes.
 
-## Verification status and next work
+## Historical verification at the original handoff
 
-Evidence accumulated before this handoff:
+The following failures describe the original handoff, not the current branch.
+Current closing evidence is in `docs/plan/requisiti-18-33.md`; production build,
+TypeScript, navigation progression and both QR cases have since passed.
+
+Evidence accumulated before that handoff:
 
 - 11 focused integration tests passed.
 - Manual browser checks passed: search, side content without advancement, explicit
@@ -399,8 +462,8 @@ Evidence accumulated before this handoff:
   Also audit how localized RSC reads expose translation refresh status; the helper
   currently returns the document and does not add a client translation polling UI.
 
-On resumption, prioritize one QR case on a fresh development runtime, then fix
-only demonstrated feature failures. Avoid broad unrelated cleanup.
+That original QR-priority instruction is superseded by the current regression
+record. Preserve the historical evidence without treating old failures as open tasks.
 
 ## Environment pitfalls
 
@@ -419,3 +482,31 @@ only demonstrated feature failures. Avoid broad unrelated cleanup.
 - If route changes leave stale generated references, regenerate types. If HMR
   reports a missing module factory, restart the owned development process before
   changing application logic or deleting caches.
+
+## Local GLTF decoder (2026-11-07)
+
+The editor regression exposed an uncaught request failure for Drei's default
+Google-hosted Draco decoder. `src/lib/gltf-decoder.ts` now sets the documented
+`useGLTF.setDecoderPath` before viewer/editor/model/Avatar preload. Postinstall
+copies the matching JS/WASM trio already shipped by the installed Three package
+into ignored `public/draco`; no decoder dependency or network exception is added.
+Do not replace this with a test filter that suppresses runtime errors.
+
+## Closing regression outcome (2026-11-07)
+
+All 21 distinct browser scenarios are now covered by the complete run plus
+focused reruns after fixes. Both QR cases use real generated camera frames and
+the actual decoder, opening/reloading contextual object/content modals. Guidance
+verifies that simulated GPS offers a nearby destination without changing `at`
+until explicit confirmation. Voice uses the WAV microphone and AI SDK mocks.
+Both editor cases pass with the local Draco decoder; all three group scenarios
+pass with real LiveKit, including reconnect and failed/successful end recovery.
+The public family flow includes separate age-version audio through the real
+route/job/MongoDB/file pipeline. Current full integration count: 43 files,
+276 tests; production build and TypeScript passed. i18next extraction `--ci`
+passes. Lint has no errors, retaining warnings in pre-existing unrelated files.
+
+This is functional regression evidence, not physical-device sensor acceptance or
+live cartographic-provider verification. The visual-regression suite was not
+run. See `docs/plan/requisiti-18-33.md` for the staged run evidence and the two
+external acceptance boundaries.

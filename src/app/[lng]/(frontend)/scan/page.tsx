@@ -18,12 +18,12 @@ import classes from './scan.module.css'
  */
 export default function Scan() {
   return (
-    <div className={classes.stage}>
+    <main className={classes.stage}>
       <div className={classes.frame}>
         <Suspense>
           <QrScanPage />
         </Suspense>
       </div>
-    </div>
+    </main>
   )
 }

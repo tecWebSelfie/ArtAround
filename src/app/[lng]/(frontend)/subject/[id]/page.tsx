@@ -4,12 +4,60 @@ import { asViewer, getSession } from '@/lib/session'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { wikidataUrl } from '@/lib/wikidata'
 import type { Content } from '@/payload-types'
-import { Anchor, Badge, Container, Group, List, ListItem, Stack, Text, Title } from '@mantine/core'
+import {
+  Anchor,
+  AspectRatio,
+  Badge,
+  Container,
+  Group,
+  Image,
+  List,
+  ListItem,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core'
+import { isPopulated } from '@/lib/isPopulated'
+import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
+import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { ExternalLink, FilePlus } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+// A server page: links go through the client wrapper, not `component={Link}`.
+import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
+import type { Metadata } from 'next'
+import { cache } from 'react'
+
+/**
+ * The subject with its contents' titles, read once per request (React
+ * `cache`) for the page and its metadata. As the visitor: a private content
+ * about the subject stays hidden from everyone but its author and group
+ * guests (`src/lib/visibility.ts`). Null when there is no such subject.
+ */
+const readSubject = cache(async (id: string, lng: string) => {
+  const [{ payload }, viewer] = await Promise.all([getSession(), asViewer()])
+  return payload
+    .findByID({
+      collection: 'subjects',
+      id,
+      locale: normalizeLocale(lng) ?? 'en',
+      depth: 1,
+      populate: { contents: { title: true } },
+      ...viewer,
+    })
+    .catch(() => null)
+})
+
+/** The tab names the artist, movement or event. */
+export async function generateMetadata({
+  params,
+}: PageProps<'/[lng]/subject/[id]'>): Promise<Metadata> {
+  const { lng, id } = await params
+  const subject = await readSubject(id, lng)
+  return subject ? { title: subject.name } : {}
+}
 
 /**
  * A subject's page: an artist, a movement or an event (`subjects`,
@@ -24,22 +72,10 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   const { lng, id } = await params
   const locale = normalizeLocale(lng) ?? 'en'
   const { payload, user } = await getSession()
-  // As the visitor: a private content about the subject stays hidden from
-  // everyone but its author and group guests (`src/lib/visibility.ts`).
-  const viewer = await asViewer()
   // The subject, its works and the labels only need the id: read them
   // together (a missing subject just discards the works query).
   const reads = Promise.all([
-    payload
-      .findByID({
-        collection: 'subjects',
-        id,
-        locale,
-        depth: 1,
-        populate: { contents: { title: true } },
-        ...viewer,
-      })
-      .catch(() => null),
+    readSubject(id, lng),
     payload.find({
       collection: 'objects',
       where: {
@@ -50,9 +86,10 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
         ],
       },
       locale,
-      depth: 0,
+      depth: 1,
       limit: 50,
-      select: { name: true, dating: true },
+      select: { name: true, dating: true, thumbnail: true },
+      populate: { objectsThumbnails: PICTURE_SELECT },
     }),
   ])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
@@ -70,7 +107,7 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   }[subject.kind]
 
   return (
-    <Container size="sm" py="md">
+    <Container component="main" size="sm" py="md">
       <Stack gap="lg">
         <Stack gap="xs">
           <Badge variant="light" color="gray">
@@ -79,7 +116,12 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           <Title order={1}>{subject.name}</Title>
           {subject.description && <Text>{subject.description}</Text>}
           {subject.wikidataId && (
-            <Anchor href={wikidataUrl(subject.wikidataId)} target="_blank" size="sm">
+            <Anchor
+              href={wikidataUrl(subject.wikidataId)}
+              target="_blank"
+              size="sm"
+              className="inline-flex items-center gap-1 self-start"
+            >
               <ExternalLink size={14} aria-hidden /> {t('On Wikidata')} ({subject.wikidataId})
             </Anchor>
           )}
@@ -88,28 +130,54 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           <Section title={t('Contents about it')}>
             {contents.map((content) => (
               <ListItem key={content.id}>
-                <Anchor component={Link} href={`/${lng}/content/${content.id}` as Route}>
+                <LinkAnchor href={`/${lng}/content/${content.id}` as Route}>
                   {content.title}
-                </Anchor>
+                </LinkAnchor>
               </ListItem>
             ))}
           </Section>
         )}
         {works.docs.length > 0 && (
-          <Section title={t('Works in the collection')}>
-            {works.docs.map((work) => (
-              <ListItem key={work.id}>
-                <Anchor component={Link} href={`/${lng}/object/${work.id}` as Route}>
-                  {work.name}
-                </Anchor>
-                {work.dating && (
-                  <Text span size="sm" c="dimmed">
-                    {` · ${work.dating}`}
-                  </Text>
-                )}
-              </ListItem>
-            ))}
-          </Section>
+          // The works as pictures: a subject is mostly known by what it made
+          // or inspired, and a name list said little. Two columns on phones,
+          // three from sm; works without a photo keep a neutral tile.
+          <Stack gap="xs" component="section">
+            <Title order={2} size="h4">
+              {t('Works in the collection')}
+            </Title>
+            <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="md">
+              {works.docs.map((work) => {
+                const photo = isPopulated(work.thumbnail) ? work.thumbnail : null
+                return (
+                  <LinkAnchor
+                    key={work.id}
+                    href={`/${lng}/object/${work.id}` as Route}
+                    underline="never"
+                    c="inherit"
+                    className="block"
+                  >
+                    <AspectRatio ratio={4 / 5}>
+                      <Image
+                        src={pictureSrc(photo, 'card') ?? PLACEHOLDER_IMAGE}
+                        alt=""
+                        radius="md"
+                        fit="cover"
+                        bg="gray.1"
+                      />
+                    </AspectRatio>
+                    <Text size="sm" fw={600} mt={6} lineClamp={2}>
+                      {work.name}
+                    </Text>
+                    {work.dating && (
+                      <Text size="xs" c="dimmed">
+                        {work.dating}
+                      </Text>
+                    )}
+                  </LinkAnchor>
+                )
+              })}
+            </SimpleGrid>
+          </Stack>
         )}
         {user && (
           <Group>

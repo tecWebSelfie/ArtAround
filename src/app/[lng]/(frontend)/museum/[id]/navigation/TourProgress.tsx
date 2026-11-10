@@ -61,7 +61,13 @@ export function TourProgress({
   return (
     // Desktop: the track spans the header column and centres a tour that fits
     // (navigation-desktop.module.css); a longer one scrolls as on the phone.
-    <Scroller controlSize={'md'} classNames={{ content: classes.stepperTrack }}>
+    // Numeric control size also enlarges the scroll arrows; stop hit areas
+    // grow independently of the compact metadata's visual type scale.
+    <Scroller
+      controlSize={44}
+      classNames={{ content: classes.stepperTrack }}
+      className="[&_.mantine-Stepper-step]:min-h-11"
+    >
       <Stepper
         active={step + offset}
         size={'xs'}
@@ -130,7 +136,11 @@ export function TourProgress({
                   description: typeof content === 'object' && (
                     <Group gap={4}>
                       <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                      <DurationBadge seconds={content.durationSeconds ?? 0} />
+                      <DurationBadge
+                        seconds={content.durationSeconds ?? 0}
+                        color="museum.8"
+                        autoContrast
+                      />
                     </Group>
                   ),
                 })}

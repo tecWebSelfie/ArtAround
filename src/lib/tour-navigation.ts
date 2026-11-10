@@ -1,10 +1,13 @@
 import type { Content, Object as MuseumObject, Tour } from '@/payload-types'
 import { ItemNode } from '@pascal-app/core'
 import type { Route } from 'next'
+import { readingAge } from './reading-profile'
 
 /** URL and Payload/Pascal adapters shared across the tour navigation route tree. */
 export type NavigationCatalogObject = Pick<MuseumObject, 'id' | 'name'> & {
   contents: NavigationCatalogContent[]
+  /** Small upload derivative for the nearby-work recognition chooser. */
+  thumbnail?: string | null
   /**
    * The work's author and movement (`subjects`, from Wikidata), for the
    * "who's the author?" and "what style is it?" commands. Optional: catalogs
@@ -123,7 +126,7 @@ export function navigationDetailPath(
  * `audience=children` (a family visit): carried across every navigation URL
  * so each content opens in its children's version (`ContentVersion`).
  */
-export type NavigationKey = 'at' | 'to' | 'mobility' | 'service' | 'exit' | 'audience'
+export type NavigationKey = 'at' | 'to' | 'mobility' | 'service' | 'exit' | 'audience' | 'age'
 
 type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
 
@@ -133,7 +136,15 @@ type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
  */
 const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
 
-const NAVIGATION_KEYS: NavigationKey[] = ['at', 'to', 'mobility', 'service', 'exit', 'audience']
+const NAVIGATION_KEYS: NavigationKey[] = [
+  'at',
+  'to',
+  'mobility',
+  'service',
+  'exit',
+  'audience',
+  'age',
+]
 
 /** Carry shareable navigation state between canonical and contextual routes. */
 export function withNavigationPosition(path: string, search: string | NavigationSearch) {
@@ -146,7 +157,9 @@ export function withNavigationPosition(path: string, search: string | Navigation
         ? value === 'wheelchair'
         : key === 'audience'
           ? value === 'children'
-          : typeof value === 'string' && value
+          : key === 'age'
+            ? typeof value === 'string' && readingAge(value) !== undefined
+            : typeof value === 'string' && value
     if (valid) {
       output.set(key, value as string)
     }

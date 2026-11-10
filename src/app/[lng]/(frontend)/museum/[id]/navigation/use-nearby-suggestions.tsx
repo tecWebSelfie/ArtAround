@@ -23,6 +23,7 @@ const NOTIFICATION_MS = 12_000
  */
 export function useNearbySuggestions({
   enabled,
+  notify = true,
   rooms,
   point,
   catalog,
@@ -31,6 +32,8 @@ export function useNearbySuggestions({
   onGo,
 }: {
   enabled: boolean
+  /** GPS uses the live facing-work notice; keep only discovery history here. */
+  notify?: boolean
   rooms: MuseumRooms
   point: PolygonPoint2D | null
   catalog: NavigationCatalogObject[]
@@ -49,6 +52,12 @@ export function useNearbySuggestions({
   useEffect(() => {
     handlers.current = { onOpen, onGo }
   })
+  useEffect(() => {
+    if (!enabled || !notify) notifications.hide(NOTIFICATION_ID)
+    return () => {
+      notifications.hide(NOTIFICATION_ID)
+    }
+  }, [enabled, notify])
 
   useEffect(() => {
     if (!enabled) return
@@ -66,6 +75,9 @@ export function useNearbySuggestions({
     if (!suggestions.length) return
     for (const suggestion of suggestions) suggested.current.add(suggestion.content.id)
     setHistory((previous) => [...suggestions, ...previous])
+    // Do not stack a timed room notification over a sensor-driven notice
+    // that disappears as soon as the visitor leaves its range.
+    if (!notify) return
 
     const [first] = suggestions
     notifications.hide(NOTIFICATION_ID)
@@ -111,7 +123,7 @@ export function useNearbySuggestions({
         </Stack>
       ),
     })
-  }, [enabled, rooms, point, catalog, tourContentIds, t])
+  }, [enabled, notify, rooms, point, catalog, tourContentIds, t])
 
   return history
 }

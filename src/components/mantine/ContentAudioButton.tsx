@@ -5,9 +5,10 @@ import { Pause, Volume2 } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { ExpansionRequest } from '@/lib/expansion'
 
 /**
- * "Listen": plays the content's text read aloud in the page's language
+ * "Listen": plays the displayed base text or selected version in the page's language
  * (`/api/content-audio/[id]`, `src/lib/content-audio.ts`). The first press
  * may have to wait while the audio is generated (or the translation it reads
  * is written): the button shows it is preparing and asks the server again
@@ -25,13 +26,26 @@ const MAX_POLLS = 40
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-export function ContentAudioButton({ contentId }: { contentId: string }) {
-  const { t } = useTranslation('tour-navigation')
+export function ContentAudioButton({
+  contentId,
+  version,
+}: {
+  contentId: string
+  version?: Extract<ExpansionRequest, { kind: 'version' }>
+}) {
   // Storybook and tests may render it outside a `[lng]` route.
   const lng = useParams<{ lng?: string }>()?.lng
+  const query = new URLSearchParams({ locale: lng ?? 'en' })
+  if (version) query.set('version', JSON.stringify(version))
+  const url = `/api/content-audio/${contentId}?${query}`
+  // A new language/reader/version owns a fresh player: stale preparation cannot resume.
+  return <AudioControl key={url} url={url} />
+}
+
+function AudioControl({ url }: { url: string }) {
+  const { t } = useTranslation('tour-navigation')
   const [state, setState] = useState<State>('idle')
   const audio = useRef<HTMLAudioElement | null>(null)
-  const url = `/api/content-audio/${contentId}?locale=${encodeURIComponent(lng ?? 'en')}`
 
   // Aborted on unmount: a press still waiting for the audio must not start
   // it once the visitor has left the modal.
@@ -62,6 +76,10 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
         player.addEventListener('ended', () => setState('paused'))
         audio.current = player
         await player.play().catch(() => undefined)
+        if (signal.aborted) {
+          player.pause()
+          return
+        }
         setState(player.paused ? 'paused' : 'playing')
         return
       }
@@ -76,8 +94,15 @@ export function ContentAudioButton({ contentId }: { contentId: string }) {
     const player = audio.current
     if (!player) return void prepare()
     if (player.paused) {
-      void player.play()
-      setState('playing')
+      void player
+        .play()
+        .then(() => {
+          if (unmounted.current?.signal.aborted) player.pause()
+          else setState('playing')
+        })
+        .catch(() => {
+          if (!unmounted.current?.signal.aborted) setState('paused')
+        })
     } else {
       player.pause()
       setState('paused')

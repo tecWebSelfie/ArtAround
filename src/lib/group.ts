@@ -76,9 +76,9 @@ export const roomSharePath = (code: string) => `/room/${code}`
  */
 const SHARED_PARAMS = ['at', 'to', 'service', 'exit'] as const
 /** Personal params that stay valid on any page of the tour. */
-const PERSONAL_PARAMS = ['mobility', 'audience'] as const
+const PERSONAL_PARAMS = ['mobility', 'audience', 'age'] as const
 /** Personal reading choices of the open modal; dropped when the modal changes. */
-const MODAL_PARAMS = ['level', 'minutes', 'more'] as const
+const MODAL_PARAMS = ['level', 'seconds', 'minutes', 'more'] as const
 
 /** Strips the `/{lng}` prefix: guests may read the tour in another language. */
 function withoutLanguage(pathname: string) {
@@ -140,4 +140,32 @@ export function followHref(
     if (value) params.set(key, value)
   }
   return `/${lng}${hostPath}${params.size ? `?${params}` : ''}`
+}
+
+/** Commands a group guest keeps besides `more:` and `version:` ones. */
+const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style'])
+
+/**
+ * The navigation commands (buttons, Spotlight, voice) a group guest keeps. In
+ * a group the host decides where everyone goes: a guest keeps only what
+ * changes their own reading and route (Tell me more, reading options,
+ * wheelchair) and questions about the work in front of them (what is it, its
+ * author and style), never a step or destination.
+ */
+export function guestCommands<T extends { id: string }>(commands: T[]) {
+  return commands.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
+}
+
+/**
+ * Whether a failed group token request is worth retrying. LiveKit's endpoint
+ * token source throws `… received <status> / <body>` for an HTTP answer:
+ * server errors (5xx) and the rate limiter (429) pass, other 4xx answers
+ * (bad code, rejected device, a tour this visitor may not read) never will.
+ * Errors without a status are network failures, also worth retrying.
+ */
+export function isRetryableTokenError(error: unknown) {
+  const status = /received (\d{3}) \//.exec(error instanceof Error ? error.message : '')?.[1]
+  if (!status) return true
+  const code = Number(status)
+  return code >= 500 || code === 429
 }

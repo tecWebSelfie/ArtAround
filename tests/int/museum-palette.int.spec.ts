@@ -9,6 +9,8 @@ import {
   similarHue,
 } from '@/lib/museum-palette'
 import { PRIMARY_SHADE } from '@/lib/museum-color'
+import { DEFAULT_THEME } from '@mantine/core'
+import { DEFAULT_PRIMARY, lightVariantText } from '@/theme'
 
 // The per-museum theme (src/lib/museum-palette.ts): whatever color a director
 // types, the derived scale has to keep the contrast Mantine's primary roles
@@ -38,10 +40,14 @@ for (let hue = 0; hue < 360; hue += 30) {
 
 const ratio = (a: string, b: string) => chroma.contrast(a, b)
 
+// Each palette costs a few ms (Leonardo solves the contrast curve): derive the
+// grid's palettes once and share them across the checks below, instead of
+// recomputing ~150 of them per test (that alone was ~4 s of the int suite).
+const samplePalettes = samples.map((hex) => ({ hex, palette: museumPalette(hex).palette }))
+
 describe('museumPalette', () => {
   it('returns ten lowercase hex shades, light to dark', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of samplePalettes) {
       expect(palette).toHaveLength(10)
       for (const shade of palette) expect(shade).toMatch(/^#[0-9a-f]{6}$/)
       // Shade 0 → 9 only gets darker (never lighter).
@@ -54,15 +60,13 @@ describe('museumPalette', () => {
   })
 
   it('keeps shade 6 readable on white for any brand color (buttons, links, focus)', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of samplePalettes) {
       expect(contrastOnWhite(palette[PRIMARY_SHADE]), hex).toBeGreaterThanOrEqual(AA - 0.05)
     }
   })
 
   it('keeps the light variant readable: shade 9 on shades 1 and 2, shade 1 apart from white', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of samplePalettes) {
       expect(ratio(palette[9], palette[1]), `${hex} 9 on 1`).toBeGreaterThanOrEqual(AA)
       expect(ratio(palette[9], palette[2]), `${hex} 9 on 2`).toBeGreaterThanOrEqual(AA)
       expect(contrastOnWhite(palette[1]), `${hex} shade 1`).toBeGreaterThan(1.02)
@@ -70,8 +74,7 @@ describe('museumPalette', () => {
   })
 
   it('makes the hover shade (7) visibly different from shade 6 unless already near black', () => {
-    for (const hex of samples) {
-      const { palette } = museumPalette(hex)
+    for (const { hex, palette } of samplePalettes) {
       if (contrastOnWhite(palette[PRIMARY_SHADE]) > 15) continue
       expect(ratio(palette[7], palette[6]), hex).toBeGreaterThan(1.03)
     }
@@ -141,5 +144,19 @@ describe('reserved and similar hues', () => {
     expect(similarHue('#40c057')).toBe('navigator')
     expect(similarHue('#228be6')).toBeNull()
     expect(similarHue('#808080')).toBeNull()
+  })
+})
+
+// The app's own primary (src/theme.ts) and the light-variant text color it
+// derives for every palette: the same AA guarantees outside museum mode.
+describe('default theme contrast', () => {
+  it('freezes museumPalette of Mantine blue as the default primary', () => {
+    expect([...DEFAULT_PRIMARY]).toEqual(museumPalette('#228be6').palette)
+  })
+
+  it('keeps light-variant text at AA on shade 1 for every Mantine color', () => {
+    for (const [name, shades] of Object.entries(DEFAULT_THEME.colors)) {
+      expect(ratio(lightVariantText(shades), shades[1]), name).toBeGreaterThanOrEqual(AA - 0.05)
+    }
   })
 })

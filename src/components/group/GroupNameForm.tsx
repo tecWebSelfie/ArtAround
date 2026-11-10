@@ -63,7 +63,8 @@ export function GroupNameForm({
             {error}
           </Alert>
         )}
-        <Button type="submit" loading={busy}>
+        {/* Group entry shares the readable museum action treatment. */}
+        <Button type="submit" loading={busy} color="museum.8" autoContrast>
           {submitLabel}
         </Button>
       </Stack>

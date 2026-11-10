@@ -17,7 +17,7 @@ camera (QR scanner) and GPS work on the phone.
 ## What runs where
 
 - `scripts/cloud-preview.sh` (`pnpm preview:cloud`): `.env` if missing,
-  MongoDB in Docker (`pnpm db:start`: the compose `mongodb` service, with
+  MongoDB in Docker (`pnpm services:start`: the compose `mongodb` and `livekit` services, with
   the Docker daemon started if needed) seeded when its volume is new, `tailscaled` in userspace mode, `tailscale serve`
   (HTTPS → port 3000), and a managed block in `.env.local`. `--stop` undoes it.
 - `scripts/cloud-preview-autostart.sh`: a `SessionStart` hook

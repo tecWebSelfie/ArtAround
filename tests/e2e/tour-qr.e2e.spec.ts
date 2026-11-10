@@ -1,16 +1,21 @@
 import { expect as baseExpect, test } from '@playwright/test'
 import { toDataURL } from 'qrcode'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 
 // The seeded tour's first step (tests/helpers/tour-fixture.ts): run
 // scripts/seed-tour-navigation.ts once; TOUR_NAVIGATION_URL overrides it.
 const tourURL = tourFixture?.url
-test.beforeEach(() => {
+test.beforeEach(async ({ page }) => {
   requireTourFixture()
+  await prepareSoftwareWebGL(page)
 })
-test.setTimeout(600_000)
+// A passing run takes 20–40 s, the first one after a fresh `next dev` more
+// (route compile): 3 minutes covers that without letting a broken scanner
+// hold the suite for ten.
+test.setTimeout(180_000)
 
 for (const target of ['object', 'content'] as const) {
   test(`scans a canonical ${target} URL into the tour modal`, async ({ page, request }) => {
@@ -55,20 +60,22 @@ for (const target of ['object', 'content'] as const) {
     await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
     // A click before hydration opens nothing: retry until the scanner is up.
     await expect(async () => {
-      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 2_000 })
+      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 10_000 })
       await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
     }).toPass({ timeout: 60_000 })
     await expect
       .poll(decoded, {
         message: 'The real scanner decodes the camera image and leaves the scanner',
-        timeout: 300_000,
+        // A live camera decodes within seconds. This waited 5 minutes while the
+        // scanner gave up on a slow camera start (startTimeoutMs in Scanner.tsx).
+        timeout: 60_000,
       })
       .toBe(true)
     await expect(page).toHaveURL(
       target === 'object'
         ? /\/navigation\/tour\/[^/]+\/0\/object\//
         : /\/navigation\/tour\/[^/]+\/0\/open/,
-      { timeout: 300_000 },
+      { timeout: 30_000 },
     )
     await expect(page.getByRole('dialog')).toHaveCount(1)
     if (target === 'content') {

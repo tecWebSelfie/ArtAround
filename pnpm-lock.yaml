@@ -9,9 +9,12 @@ overrides:
   '@mantine/core': 9.6.3
   '@mantine/hooks': 9.6.3
 
-pnpmfileChecksum: sha256-FiKod1mdhJwpKlVj8UblsXPCzIhYf+0lViT5DAM6L4A=
+pnpmfileChecksum: sha256-pStgVX+v3S1xZtmK+ejOycwwqSLSnDC46saSArRP/jo=
 
 patchedDependencies:
+  '@asammad48/react-map-place@0.1.0':
+    hash: eaa1f6b994d58e4dc4d20596ae5b78e83eb84f62c0e9c4922b0ab5f2efb5b101
+    path: patches/@asammad48__react-map-place@0.1.0.patch
   '@pascal-app/editor@1.0.4':
     hash: d0a58fc9d46b2fdf6aa4cf7dc584abcadf7eaaa122b08a0d3b209f01130fee24
     path: patches/@pascal-app__editor.patch
@@ -35,6 +38,9 @@ importers:
       '@ai-sdk/mcp':
         specifier: 2.0.61
         version: 2.0.61(zod@4.5.4)
+      '@asammad48/react-map-place':
+        specifier: 0.1.0
+        version: 0.1.0(patch_hash=eaa1f6b994d58e4dc4d20596ae5b78e83eb84f62c0e9c4922b0ab5f2efb5b101)(maplibre-gl@6.11.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@base-ui/react':
         specifier: ^1.8.0
         version: 1.8.0(@date-fns/tz@1.2.0)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -546,6 +552,13 @@ packages:
   '@apidevtools/json-schema-ref-parser@11.9.3':
     resolution: {integrity: sha512-60vepv88RwcJtSHrD6MjIL6Ta3SOYbgfnkHb+ppAVK+o9mXprRtulx7VlRl3lN3bbvysAfCS7WMVfhUYemB0IQ==}
     engines: {node: '>= 16'}
+
+  '@asammad48/react-map-place@0.1.0':
+    resolution: {integrity: sha512-3u019dfC9ZRjR6GT8bMYVhUm5ejvqGT/rX0lUE5w+fAKPEBrGDlO9D0b3n+X2AF88nKKXSi8H1aQ3rY0sdaugg==}
+    peerDependencies:
+      maplibre-gl: '>=4.0.0'
+      react: '>=18.0.0'
+      react-dom: '>=18.0.0'
 
   '@asamuzakjp/css-color@4.1.2':
     resolution: {integrity: sha512-NfBUvBaYgKIuq6E/RBLY1m0IohzNHAYyaJGuTK79Z23uNwmz2jl1mPsC5ZxCCxylinKhT1Amn5oNTlx1wN8cQg==}
@@ -10686,6 +10699,13 @@ snapshots:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.15
       js-yaml: 4.3.2
+
+  '@asammad48/react-map-place@0.1.0(patch_hash=eaa1f6b994d58e4dc4d20596ae5b78e83eb84f62c0e9c4922b0ab5f2efb5b101)(maplibre-gl@6.11.2)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      maplibre-gl: 6.11.2
+      react: 19.2.6
+      react-dom: 19.2.6(react@19.2.6)
 
   '@asamuzakjp/css-color@4.1.2':
     dependencies:

@@ -47,6 +47,7 @@
   "Download as SVG": "Lejupielādēt kā SVG",
   "Download printable PDF": "Lejupielādēt drukājamu PDF",
   "Exit full screen": "Iziet no pilnekrāna",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Drukāšanai: lejupielādētais kods atver lietotni šajā muzejā.",
   "Full screen": "Pilnekrāns",
   "Go to photo {{current}}": "Pāriet uz {{current}}. fotoattēlu",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Izvēlies valodu"
   },
+  "Last page": "",
   "Loading map…": "Ielādē karti…",
   "navbar": {
     "Account": "Konts",
@@ -67,18 +69,22 @@
     "SignIn": "Pieslēgties",
     "Verified creator": "Verificēts autors"
   },
+  "Next page": "",
   "Next photo": "Nākamais fotoattēls",
   "No museum matches “{{query}}”.": "Neviens muzejs neatbilst “{{query}}”.",
   "Not now": "Ne tagad",
   "Open photo {{current}}": "Atvērt {{current}}. fotoattēlu",
   "Open photos": "Atvērt fotoattēlus",
   "or": "vai",
+  "Page {{page}}": "",
   "Photo": "Fotoattēls",
   "Photo {{current}} of {{total}}": "Fotoattēls {{current}} no {{total}}",
   "Photos": "Fotoattēli",
+  "Previous page": "",
   "Previous photo": "Iepriekšējais fotoattēls",
   "Print the QR codes of all objects": "Drukāt visu priekšmetu QR kodus",
   "Required": "Obligāts",
+  "Result pages": "",
   "Scan to open this content": "Skenējiet, lai atvērtu šo saturu",
   "Scan to open this object": "Skenējiet, lai atvērtu šo priekšmetu",
   "Scan to open this tour": "Skenē, lai atvērtu šo tūri",

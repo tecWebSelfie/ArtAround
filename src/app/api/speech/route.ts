@@ -1,6 +1,6 @@
 import { AUDIO_MODEL, AUDIO_VOICE } from '@/lib/content-audio'
 import { allowRequest } from '@/lib/rate-limit'
-import { createFishAudio } from '@ai-sdk/fish-audio'
+import { speechModel } from '@/lib/ai-models'
 import { generateSpeech } from 'ai'
 import { NextResponse } from 'next/server'
 
@@ -8,12 +8,10 @@ import { NextResponse } from 'next/server'
  * Text-to-speech for the assistant's replies and spoken directions: text in,
  * MP3 out. Uses the same Fish Audio voice as the LiveKit agent (`my-agent`).
  * The browser plays the audio through an analyser so the orb follows it.
+ * Voice and model are shared with the contents' read-aloud audio
+ * (src/lib/content-audio.ts); the model comes from src/lib/ai-models.ts.
  */
 export const runtime = 'nodejs'
-
-// `FISH_API_KEY` is the name the LiveKit agent already uses in `.env`. Voice and
-// model are shared with the contents' read-aloud audio (src/lib/content-audio.ts).
-const fishAudio = createFishAudio({ apiKey: process.env.FISH_API_KEY })
 
 export async function POST(request: Request) {
   if (!allowRequest(request, 40)) {
@@ -25,7 +23,7 @@ export async function POST(request: Request) {
   }
   try {
     const { audio } = await generateSpeech({
-      model: fishAudio.speech(AUDIO_MODEL),
+      model: await speechModel(AUDIO_MODEL),
       text,
       voice: AUDIO_VOICE,
       outputFormat: 'mp3',

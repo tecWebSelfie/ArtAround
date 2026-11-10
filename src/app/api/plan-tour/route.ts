@@ -18,7 +18,7 @@ import {
 } from '@/lib/tour-plan'
 import { normalizeLocale } from '@/lib/localized'
 import type { Tour } from '@/payload-types'
-import { createGroq } from '@ai-sdk/groq'
+import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { generateText, Output } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
@@ -41,9 +41,6 @@ import { z } from 'zod'
  * creates contents or runs any other action.
  */
 export const runtime = 'nodejs'
-
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-const MODEL = 'openai/gpt-oss-120b'
 
 export async function POST(request: Request) {
   if (!allowRequest(request, 6)) {
@@ -74,7 +71,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'museum' }, { status: 422 })
       }
       const { output } = await generateText({
-        model: groq(MODEL),
+        model: await textModel(),
         output: Output.object({
           schema: z.object({ museumId: z.enum(['none', ...docs.map((museum) => museum.id)]) }),
         }),
@@ -82,6 +79,7 @@ export async function POST(request: Request) {
           'Pick the museum the visitor means from the list, or "none" when their words name or clearly describe none of them.',
         prompt: [
           `Visitor: ${answers.interests}`,
+          // `id: name` lines: the AI_MOCK model matches the visitor's words against them.
           ...docs.map((museum) => `${museum.id}: ${museum.name}, ${museum.location?.city ?? ''}`),
         ].join('\n'),
       })
@@ -91,13 +89,25 @@ export async function POST(request: Request) {
 
     // 2. Planned before with the same answers? Reuse it.
     const requestKey = createHash('sha256').update(planRequestKey(museumId, answers)).digest('hex')
-    const previous = await payload.find({
-      collection: 'tours',
-      where: { 'generation.requestKey': { equals: requestKey } },
-      limit: 1,
-      depth: 0,
-    })
-    const museum = await payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale })
+    // Independent reads: a plan made before for the same answers, and the museum.
+    const [previous, museum] = await Promise.all([
+      payload.find({
+        collection: 'tours',
+        where: {
+          and: [
+            { 'generation.requestKey': { equals: requestKey } },
+            { visibility: { not_equals: 'private' } },
+          ],
+        },
+        // Newest first: a stale plan is replaced by a new tour with the same key,
+        // and that replacement (not the stale original) is the one to reuse.
+        sort: '-createdAt',
+        limit: 1,
+        depth: 0,
+        ...viewer,
+      }),
+      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }),
+    ])
     const nodes = mapNodes(museum.map)
     const { rooms, objects: placed } = museumRooms(nodes)
     const pointOf = new Map(placed.map((entry) => [entry.objectId, entry.point]))
@@ -119,6 +129,7 @@ export async function POST(request: Request) {
           audience: true,
           durationSeconds: true,
           price: true,
+          visibility: true,
           body: true,
         },
       },
@@ -129,7 +140,7 @@ export async function POST(request: Request) {
       const point = pointOf.get(object.id)
       const room = point ? (roomAt(rooms, point)?.name ?? null) : null
       return (object.contents ?? []).flatMap((content) =>
-        typeof content === 'object' && !isLocked(content)
+        typeof content === 'object' && content.visibility !== 'private' && !isLocked(content)
           ? [
               {
                 id: content.id,
@@ -174,11 +185,20 @@ export async function POST(request: Request) {
         stops,
       }
     }
-    if (previous.docs[0]) return NextResponse.json(preview(previous.docs[0]))
+    if (previous.docs[0]) {
+      const cached = preview(previous.docs[0])
+      // Content can be removed, made private or lengthened after planning.
+      if (
+        cached.stops.length === previous.docs[0].contents.length &&
+        cached.stops.length &&
+        cached.totalMinutes <= answers.minutes
+      )
+        return NextResponse.json(cached)
+    }
 
     // 4. The model picks, most important first.
     const { output } = await generateText({
-      model: groq(MODEL),
+      model: await textModel(),
       output: Output.object({
         schema: z.object({
           title: z.string(),
@@ -190,11 +210,20 @@ export async function POST(request: Request) {
     })
 
     // 5. Our rules: no repeats, within the time, then nearest-room order.
+    const selectedObjects = new Set<string>()
     const picked = [...new Set(output.contentIds)].flatMap((id) => {
       const candidate = byId.get(id)
-      return candidate ? [candidate] : []
+      // Adult/child descriptions of one work are reading choices, not two stops.
+      if (!candidate || selectedObjects.has(candidate.objectId)) return []
+      selectedObjects.add(candidate.objectId)
+      return [candidate]
     })
-    const fitted = fitTimeBudget(picked.length ? picked : candidates.slice(0, 1), answers.minutes)
+    // Recover from a model choosing only overlong entries without exceeding time.
+    const preferred = fitTimeBudget(picked, answers.minutes)
+    const fitted = preferred.length
+      ? preferred
+      : fitTimeBudget(candidates, answers.minutes).slice(0, 1)
+    if (!fitted.length) return NextResponse.json({ error: 'budget' }, { status: 422 })
     const entrance = collectMuseumMarkers(nodes).exitEntrances.find(
       (marker) => marker.placed && marker.direction === 'entrance',
     )
@@ -214,7 +243,7 @@ export async function POST(request: Request) {
         contents: order,
         museum: museumId,
         ...(user ? { author: user.id } : {}),
-        generation: { generated: true, model: MODEL, requestKey, request: answers },
+        generation: { generated: true, model: TEXT_MODEL, requestKey, request: answers },
       },
     })
     return NextResponse.json(preview(tour))

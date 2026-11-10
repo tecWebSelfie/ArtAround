@@ -1,4 +1,5 @@
 {
+  "“{{title}}” is now unlocked on your account.": "“{{title}}” is now unlocked on your account.",
   "Back to the content": "Back to the content",
   "Back to the navigator": "Back to the navigator",
   "Back to the tour": "Back to the tour",
@@ -11,6 +12,7 @@
   "Sign in": "Sign in",
   "Sign in to see your purchase": "Sign in to see your purchase",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "The paid contents of “{{title}}” are now unlocked on your account.",
   "The paid contents of this tour are now unlocked on your account.": "The paid contents of this tour are now unlocked on your account.",
   "Your purchase is now unlocked on your account.": "Your purchase is now unlocked on your account."
 }

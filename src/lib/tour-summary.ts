@@ -1,5 +1,6 @@
 import { toMinutes } from '@/lib/duration'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
+import type { Picture } from '@/lib/picture'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 
 /**
@@ -25,19 +26,29 @@ export type TourSummary = {
 
 const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'medium', 'hard']
 
-export function summarizeTour(tour: Tour): TourSummary {
-  const contents = filterPopulated<Content>(tour.contents)
-  const timed = contents.filter((content) => content.durationSeconds != null)
-  const readingMinutes = timed.length
+/**
+ * Minutes of reading in these stops (their `durationSeconds`, the only
+ * duration the data carries), or null when none of them has a length. Shared
+ * by the tour page's figure and the navigation header's "25 min of reading
+ * left", so both count the same way.
+ */
+export function readingMinutes(stops: Tour['contents']): number | null {
+  const timed = filterPopulated<Content>(stops).filter((content) => content.durationSeconds != null)
+  return timed.length
     ? toMinutes(timed.reduce((sum, content) => sum + (content.durationSeconds ?? 0), 0))
     : null
+}
+
+export function summarizeTour(tour: Tour): TourSummary {
+  const contents = filterPopulated<Content>(tour.contents)
+  const reading = readingMinutes(tour.contents)
   const ratingsCount = tour.lfrs?.ratingsCount ?? 0
 
   return {
     // Unpopulated relations still count as stops: the order is the tour.
     stops: tour.contents?.length ?? 0,
-    readingMinutes,
-    visitMinutes: tour.durationMinutes ?? readingMinutes,
+    readingMinutes: reading,
+    visitMinutes: tour.durationMinutes ?? reading,
     distanceMeters: tour.distanceMeters ?? null,
     wheelchairAccessible: Boolean(tour.wheelchairAccessible),
     quizQuestions: tour.quiz?.questions?.length ?? 0,
@@ -54,19 +65,23 @@ export function summarizeTour(tour: Tour): TourSummary {
 
 /**
  * The picture that represents a stop: the content's own first image, else the
- * thumbnail of the object it talks about. Null when neither is populated, so
- * the caller can show the content icon instead of a stock placeholder.
+ * thumbnail of the work it talks about (`withStopObjects` fills those in on
+ * server reads). Null when neither is populated, so the caller can show the
+ * content icon instead of a stock placeholder.
  */
-export function stopImage(content: Content): { url: string; alt: string } | null {
+export function stopPicture(content: Content): (Picture & { alt?: string | null }) | null {
   const image = content.images?.find(isPopulated)
-  if (image?.url) return { url: image.thumbnailURL ?? image.url, alt: image.alt ?? '' }
+  if (image?.url) return image
   for (const object of content.objects?.docs ?? []) {
     if (isPopulated(object) && isPopulated(object.thumbnail) && object.thumbnail.url) {
-      return {
-        url: object.thumbnail.thumbnailURL ?? object.thumbnail.url,
-        alt: object.thumbnail.alt ?? object.name,
-      }
+      return { ...object.thumbnail, alt: object.thumbnail.alt ?? object.name }
     }
   }
   return null
+}
+
+/** `stopPicture` as a list thumbnail: its small URL and alt text. */
+export function stopImage(content: Content): { url: string; alt: string } | null {
+  const picture = stopPicture(content)
+  return picture?.url ? { url: picture.thumbnailURL ?? picture.url, alt: picture.alt ?? '' } : null
 }

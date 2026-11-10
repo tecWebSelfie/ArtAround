@@ -3,6 +3,7 @@
 import { TOUR_GRADIENT } from '@/theme'
 import { isPopulated } from '@/lib/isPopulated'
 import { summarizeTour } from '@/lib/tour-summary'
+import { formatUnit } from '@/lib/duration'
 import { Tour } from '@/payload-types'
 import { BorderAnimate, type BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
@@ -84,11 +85,7 @@ export const ToursCarousel = ({ tours, ...props }: BorderAnimateProps & { tours:
           <CardSection inheritPadding withBorder py="xs">
             <Group align="center" justify="space-between" className="h-full">
               <Badge radius="xl" variant="white" className="py-3">
-                <Text
-                  className="font-semibold"
-                  variant="gradient"
-                  gradient={TOUR_GRADIENT}
-                >
+                <Text className="font-semibold" variant="gradient" gradient={TOUR_GRADIENT}>
                   {t('Tours')}
                 </Text>
               </Badge>
@@ -190,7 +187,9 @@ const TourCard = ({ tour, lng, ...props }: CardProps & { tour: Tour; lng: string
       >
         <Center className="h-full items-end bg-linear-to-t from-black/75 via-black/20 to-transparent">
           <Stack gap={4} className="w-full" p="sm">
-            <Title order={3} size="h5" className="text-white" lineClamp={2}>
+            {/* h2: the deck has no heading of its own, so each tour is a
+                section of the page right under its h1 (museum, profile). */}
+            <Title order={2} size="h5" className="text-white" lineClamp={2}>
               {tour.title}
             </Title>
             <Group gap="sm" c="white" fz="xs" fw={500}>
@@ -201,11 +200,7 @@ const TourCard = ({ tour, lng, ...props }: CardProps & { tour: Tour; lng: string
               {minutes != null && (
                 <Group gap={4} wrap="nowrap">
                   <Clock size={14} aria-hidden />
-                  {new Intl.NumberFormat(lng, {
-                    style: 'unit',
-                    unit: 'minute',
-                    unitDisplay: 'short',
-                  }).format(minutes)}
+                  {formatUnit(minutes, 'minute', lng)}
                 </Group>
               )}
             </Group>

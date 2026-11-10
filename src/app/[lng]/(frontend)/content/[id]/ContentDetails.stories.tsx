@@ -9,10 +9,18 @@ import { serverComponentStory } from '@/mocks/server-component'
 import { mockTourMinimal, mockTourSecond } from '@/mocks/tour.mock'
 import { mockUserAuthor } from '@/mocks/user.mock'
 
-import { ContentDetails } from './ContentDetails'
+import { Stack } from '@mantine/core'
+import { ContentDetails, ContentGlance, type ContentDetailsProps } from './ContentDetails'
 
-// Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
-const ContentDetailsStory = serverComponentStory(ContentDetails)
+// Async Server Components: resolved in a Storybook loader before render (see
+// serverComponentStory). The page shows the glance badges under the title and
+// the details below the text; the story stacks both.
+const ContentDetailsStory = serverComponentStory(async (props: ContentDetailsProps) => (
+  <Stack gap="xl">
+    <ContentGlance content={props.content} categories={props.categories} />
+    <ContentDetails {...props} />
+  </Stack>
+))
 
 const meta = {
   title: 'Frontend/Content/ContentDetails',

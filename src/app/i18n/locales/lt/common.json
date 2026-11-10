@@ -47,6 +47,7 @@
   "Download as SVG": "Atsisiųsti kaip SVG",
   "Download printable PDF": "Atsisiųsti spausdinamą PDF",
   "Exit full screen": "Išeiti iš viso ekrano",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Spausdinti: atsisiųstas kodas atidaro programą šiame muziejuje.",
   "Full screen": "Visas ekranas",
   "Go to photo {{current}}": "Eiti į {{current}} nuotrauką",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Pasirink kalbą"
   },
+  "Last page": "",
   "Loading map…": "Įkeliamas žemėlapis…",
   "navbar": {
     "Account": "Paskyra",
@@ -67,18 +69,22 @@
     "SignIn": "Prisijungti",
     "Verified creator": "Patvirtintas kūrėjas"
   },
+  "Next page": "",
   "Next photo": "Kita nuotrauka",
   "No museum matches “{{query}}”.": "Pagal „{{query}}“ muziejų nerasta.",
   "Not now": "Ne dabar",
   "Open photo {{current}}": "Atidaryti {{current}} nuotrauką",
   "Open photos": "Atidaryti nuotraukas",
   "or": "arba",
+  "Page {{page}}": "",
   "Photo": "Nuotrauka",
   "Photo {{current}} of {{total}}": "Nuotrauka {{current}} iš {{total}}",
   "Photos": "Nuotraukos",
+  "Previous page": "",
   "Previous photo": "Ankstesnė nuotrauka",
   "Print the QR codes of all objects": "Spausdinti visų objektų QR kodus",
   "Required": "Privaloma",
+  "Result pages": "",
   "Scan to open this content": "Nuskaitykite, kad atidarytumėte šį turinį",
   "Scan to open this object": "Nuskaitykite, kad atidarytumėte šį objektą",
   "Scan to open this tour": "Nuskenuok, kad atidarytum šį turą",

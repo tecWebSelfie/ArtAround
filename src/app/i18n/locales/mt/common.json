@@ -47,6 +47,7 @@
   "Download as SVG": "Niżżel bħala SVG",
   "Download printable PDF": "Niżżel PDF għall-istampar",
   "Exit full screen": "Oħroġ mill-iskrin sħiħ",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Għall-istampar: il-kodiċi mniżżel jiftaħ l-app f’dan il-mużew.",
   "Full screen": "Skrin sħiħ",
   "Go to photo {{current}}": "Mur għar-ritratt {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Agħżel il-lingwa"
   },
+  "Last page": "",
   "Loading map…": "Il-mappa qed titgħabba…",
   "navbar": {
     "Account": "Kont",
@@ -67,18 +69,22 @@
     "SignIn": "Idħol",
     "Verified creator": "Kreatur ivverifikat"
   },
+  "Next page": "",
   "Next photo": "Ritratt li jmiss",
   "No museum matches “{{query}}”.": "L-ebda mużew ma jaqbel ma’ “{{query}}”.",
   "Not now": "Mhux issa",
   "Open photo {{current}}": "Iftaħ ir-ritratt {{current}}",
   "Open photos": "Iftaħ ir-ritratti",
   "or": "jew",
+  "Page {{page}}": "",
   "Photo": "Ritratt",
   "Photo {{current}} of {{total}}": "Ritratt {{current}} minn {{total}}",
   "Photos": "Ritratti",
+  "Previous page": "",
   "Previous photo": "Ritratt ta’ qabel",
   "Print the QR codes of all objects": "Stampa l-kodiċijiet QR tal-oġġetti kollha",
   "Required": "Meħtieġ",
+  "Result pages": "",
   "Scan to open this content": "Skennja biex tiftaħ dan il-kontenut",
   "Scan to open this object": "Skennja biex tiftaħ dan l-oġġett",
   "Scan to open this tour": "Skennja biex tiftaħ dan it-tour",

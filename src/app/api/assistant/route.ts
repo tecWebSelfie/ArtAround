@@ -1,6 +1,6 @@
 import { allowRequest } from '@/lib/rate-limit'
 import { matchControlledCommand } from '@/lib/voice-vocabulary'
-import { createGroq } from '@ai-sdk/groq'
+import { textModel, transcriptionModel } from '@/lib/ai-models'
 import { generateText, Output, transcribe } from 'ai'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -11,6 +11,8 @@ import { z } from 'zod'
  *   recorded speech (WAV) → Groq Whisper transcript → one language-model call
  *   that fills { reply, commandId } → JSON back to the browser
  *
+ * Both models come from src/lib/ai-models.ts (mocked under AI_MOCK=true).
+ *
  * The browser sends the commands it can run right now (the same list as the
  * navigation search). The model only *chooses* one of their ids; the browser
  * runs it, so there are no tool round-trips between servers.
@@ -20,8 +22,6 @@ import { z } from 'zod'
  * runs its command without asking the model.
  */
 export const runtime = 'nodejs'
-
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
 
 /** About 30 s of 16 kHz mono WAV; longer recordings are not commands. */
 const MAX_AUDIO_BYTES = 1_000_000
@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
   try {
     const { text: transcript } = await transcribe({
-      model: groq.transcription('whisper-large-v3-turbo'),
+      model: await transcriptionModel(),
       audio: new Uint8Array(await audio.arrayBuffer()),
     })
     if (!transcript.trim()) return NextResponse.json({ transcript, reply: '', commandId: null })
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
     const controlled = matchControlledCommand(transcript, ids)
     if (controlled) return NextResponse.json({ transcript, reply: '', commandId: controlled })
     const { output } = await generateText({
-      model: groq('openai/gpt-oss-120b'),
+      model: await textModel(),
       // The schema is the whole contract: a short spoken reply, plus either
       // one of the offered command ids or "none".
       output: Output.object({
@@ -71,6 +71,7 @@ export async function POST(request: Request) {
         'directions that are not in the commands or the context.',
         `Reply in the language with code "${language}".`,
         `Context: ${context}`,
+        // `id: label` lines: the AI_MOCK model matches the request against them (src/lib/ai-mock.ts).
         'Available commands (id: label, kind):',
         ...commands.data.map(
           (command) => `${command.id}: ${command.label}, ${command.description}`,

@@ -19,9 +19,15 @@ import { useIsGroupGuest } from '@/components/group/GroupProvider'
 export function NavigationObjectActions({
   objectId,
   contents,
+  navigate = true,
 }: {
   objectId: string | null
   contents?: MuseumObject['contents']
+  /**
+   * Offer "Navigate here". Off in a tour's step modal: the route already
+   * leads to that stop, and its own "Go to next step" is the one primary.
+   */
+  navigate?: boolean
 }) {
   const navigation = useNavigationScope()
   const { lng } = useParams<{ lng: string }>()
@@ -64,9 +70,11 @@ export function NavigationObjectActions({
       >
         {t('Set as my position')}
       </Button>
-      <Button disabled={!canLocate} onClick={() => objectId && navigateTo(objectId)}>
-        {canLocate ? t('Navigate here') : t('This object is not placed on the map')}
-      </Button>
+      {navigate && (
+        <Button disabled={!canLocate} onClick={() => objectId && navigateTo(objectId)}>
+          {canLocate ? t('Navigate here') : t('This object is not placed on the map')}
+        </Button>
+      )}
     </Stack>
   )
 }

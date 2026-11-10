@@ -10,7 +10,7 @@ import { Container, Stack } from '@mantine/core'
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Container size="xs" py="xl">
+    <Container component="main" size="xs" py="xl">
       <Stack gap="lg">
         <BackToNavigator />
         {children}

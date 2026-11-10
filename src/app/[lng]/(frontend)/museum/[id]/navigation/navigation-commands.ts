@@ -15,6 +15,7 @@ import {
 import type { NavigationTourSummary } from './TourNavigationShell'
 import { EXPANSION_ANGLES, MAX_EXPANSION_STEPS } from '@/lib/expansion'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
+import { guestCommands } from '@/lib/group'
 import type { Route } from 'next'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
@@ -41,9 +42,6 @@ export type NavigationCommand = {
   /** Price in cents when the content is paid and locked for this visitor. */
   lockedPrice?: number
 }
-
-/** Commands a group guest keeps besides `more:` and `version:` (see the end of the list). */
-const GUEST_COMMANDS = new Set(['wheelchair', 'what-is-this', 'author', 'style'])
 
 export function useNavigationCommands({
   museum,
@@ -359,17 +357,13 @@ export function useNavigationCommands({
             level: null,
             seconds: null,
             audience: null,
+            age: null,
           }),
         ]
       : []
     const all = [...expansion, ...versions, ...subjects, ...quick, ...searchable]
-    // In a group the host decides where everyone goes: a guest keeps only
-    // what changes their own reading and route (Tell me more, reading
-    // options, wheelchair) and questions about the work in front of them
-    // (what is it, its author and style), never a step or destination.
-    return guest
-      ? all.filter(({ id }) => /^(more|version):/.test(id) || GUEST_COMMANDS.has(id))
-      : all
+    // In a group the host leads: a guest never gets a step or destination.
+    return guest ? guestCommands(all) : all
   }, [
     lng,
     scope,

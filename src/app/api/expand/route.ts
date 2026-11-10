@@ -1,10 +1,7 @@
 import config from '@/payload.config'
 import {
-  AUDIENCES,
-  EXPANSION_ANGLES,
   keepKnownLinks,
   LINKS_HEADER,
-  MAX_EXPANSION_STEPS,
   type ExpansionAngle,
   type ExpansionLink,
 } from '@/lib/expansion'
@@ -17,18 +14,19 @@ import { allowRequest } from '@/lib/rate-limit'
 import { asViewer } from '@/lib/session'
 import { contentObjectId } from '@/lib/tour-navigation'
 import type { ContentVariant, Object as MuseumObject } from '@/payload-types'
-import { createGroq } from '@ai-sdk/groq'
 import {
   convertLexicalToMarkdown,
   convertMarkdownToLexical,
   editorConfigFactory,
 } from '@payloadcms/richtext-lexical'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
+import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { streamText } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { z } from 'zod'
+import { ExpansionRequestSchema } from '@/lib/expansion-request'
 
 /**
  * Extra text for a content or object modal, streamed as plain text:
@@ -45,8 +43,6 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
-const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-const MODEL = 'openai/gpt-oss-120b'
 /** Linkable entities offered to the model; keeps the prompt small. */
 const MAX_LINKS = 20
 
@@ -54,20 +50,7 @@ const Body = z.object({
   target: z.enum(['contents', 'objects']),
   id: z.string().min(1).max(64),
   lng: z.string().min(2).max(10),
-  request: z.discriminatedUnion('kind', [
-    z.object({
-      kind: z.literal('more'),
-      angle: z.enum(EXPANSION_ANGLES),
-      step: z.number().int().min(1).max(MAX_EXPANSION_STEPS).optional(),
-    }),
-    z.object({
-      kind: z.literal('version'),
-      difficulty: z.enum(['easy', 'medium', 'hard']),
-      // From a few seconds (a one-line caption) to a quarter of an hour.
-      seconds: z.number().int().min(3).max(900),
-      audience: z.enum(AUDIENCES),
-    }),
-  ]),
+  request: ExpansionRequestSchema,
 })
 
 /**
@@ -82,10 +65,11 @@ async function previousAdditions(
   angle: ExpansionAngle,
   step: number,
   locale: NonNullable<ReturnType<typeof normalizeLocale>>,
+  age?: number,
 ): Promise<string[]> {
   const { docs } = await payload.find({
     collection: 'contentVariants',
-    where: previousStepsWhere(target, id, angle, step),
+    where: previousStepsWhere(target, id, angle, step, age),
     locale,
     fallbackLocale: false,
     sort: 'step',
@@ -240,7 +224,7 @@ export async function POST(request: Request) {
   // angle: the model gets them too, as text the visitor has already read.
   const alreadyRead =
     ask.kind === 'more' && (ask.step ?? 1) > 1
-      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale)
+      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale, ask.age)
       : []
   const sources: ExternalSource[] = await externalSources(
     subject.object?.name ?? subject.name,
@@ -249,7 +233,7 @@ export async function POST(request: Request) {
     subject.object?.wikidataId ?? undefined,
   ).catch(() => [])
   const result = streamText({
-    model: groq(MODEL),
+    model: await textModel(),
     ...expansionPrompt({
       request: ask,
       language: IsoCodes.getName(locale) || 'English',
@@ -281,6 +265,7 @@ export async function POST(request: Request) {
             data: {
               kind: ask.kind,
               ...(target === 'contents' ? { content: id } : { object: id }),
+              ...(ask.age === undefined ? {} : { age: ask.age }),
               ...(ask.kind === 'more'
                 ? { angle: ask.angle, step: ask.step ?? 1 }
                 : {
@@ -292,7 +277,7 @@ export async function POST(request: Request) {
               body,
               generation: {
                 generated: true,
-                model: MODEL,
+                model: TEXT_MODEL,
                 sources: sources.map(({ title, url }) => ({ title, url })),
               },
             },

@@ -1,4 +1,5 @@
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
+import { ensureContentAudioVariantIndex } from './lib/content-audio-index'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig, LocalizationConfig, type Field } from 'payload'
@@ -91,6 +92,7 @@ const localizationConfig: LocalizationConfig = {
 }
 
 export default buildConfig({
+  onInit: ensureContentAudioVariantIndex,
   endpoints: mintEndpoints,
   localization: localizationConfig,
   admin: {

@@ -9,7 +9,7 @@
     "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev",
     "devsafe": "rm -rf .next && cross-env NODE_OPTIONS=--no-deprecation next dev",
     "preview:cloud": "bash scripts/cloud-preview.sh",
-    "db:start": "node scripts/db-start.mjs",
+    "services:start": "node scripts/services-start.mjs",
     "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
     "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
     "generate:navmesh-schema": "typescript-json-schema tsconfig.json NavMesh --include src/lib/schemas/navmesh.ts --required --skipLibCheck --refs false --out src/lib/schemas/navmesh.schema.json",
@@ -17,11 +17,12 @@
     "typecheck": "next typegen && tsc --noEmit",
     "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
     "prepare": "husky",
-    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs",
+    "postinstall": "node scripts/copy-vad-assets.mjs && node scripts/copy-zxing-assets.mjs && node scripts/copy-maplibre-assets.mjs && node scripts/copy-draco-assets.mjs",
     "start": "cross-env NODE_OPTIONS=--no-deprecation next start",
     "test": "pnpm run test:int && pnpm run test:e2e",
     "test:e2e": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.config.ts",
-    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.config.mts --project int",
+    "test:live:location": "cross-env NODE_OPTIONS=--no-deprecation playwright test --config=playwright.location-live.config.ts",
+    "test:int": "cross-env NODE_OPTIONS=--no-deprecation vitest run --config ./vitest.int.config.mts",
     "test:visual": "node scripts/test-visual-docker.mjs",
     "test:visual:update": "node scripts/test-visual-docker.mjs --update",
     "test:visual:run": "cross-env NODE_OPTIONS=--no-deprecation VISUAL_REGRESSION=1 vitest run --config ./vitest.config.mts --project storybook",
@@ -45,6 +46,7 @@
     "@ai-sdk/fish-audio": "^3.0.40",
     "@ai-sdk/groq": "^4.0.63",
     "@ai-sdk/mcp": "2.0.61",
+    "@asammad48/react-map-place": "0.1.0",
     "@base-ui/react": "^1.8.0",
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/react": "^0.5.1",
@@ -223,7 +225,8 @@
     },
     "patchedDependencies": {
       "payload-phone-number-plugin": "patches/payload-phone-number-plugin.patch",
-      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch"
+      "@pascal-app/editor@1.0.4": "patches/@pascal-app__editor.patch",
+      "@asammad48/react-map-place@0.1.0": "patches/@asammad48__react-map-place@0.1.0.patch"
     }
   },
   "lint-staged": {

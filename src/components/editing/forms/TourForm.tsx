@@ -284,6 +284,7 @@ export function TourForm({
   const picker = { museumId: museum.id, returnTo: editorUrl, have: selected }
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
+  const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
 
   // Not in the form values: a picked file can't go into the sessionStorage draft.
   const [cover, setCover] = useState<CoverChange>(null)
@@ -361,6 +362,16 @@ export function TourForm({
                 },
               )}
             </Alert>
+          )}
+          {/* How much of the route is still unexplained: stops without the
+              author's directions show visitors only the map's route. A quiet
+              count, not a warning: directions are optional. */}
+          {missingDirections > 0 && (
+            <Text size="sm" c="dimmed">
+              {t('{{count}} stops have no directions yet: visitors only see the route on the map', {
+                count: missingDirections,
+              })}
+            </Text>
           )}
           {unavailableSelected.length > 0 && (
             <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>

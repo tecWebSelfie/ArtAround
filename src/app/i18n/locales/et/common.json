@@ -47,6 +47,7 @@
   "Download as SVG": "Laadi alla SVG-na",
   "Download printable PDF": "Laadi alla prinditav PDF",
   "Exit full screen": "Välju täisekraanist",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Printimiseks: allalaaditud kood avab rakenduse selles muuseumis.",
   "Full screen": "Täisekraan",
   "Go to photo {{current}}": "Mine fotole {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Vali keel"
   },
+  "Last page": "",
   "Loading map…": "Kaardi laadimine…",
   "navbar": {
     "Account": "Konto",
@@ -67,18 +69,22 @@
     "SignIn": "Logi sisse",
     "Verified creator": "Kinnitatud autor"
   },
+  "Next page": "",
   "Next photo": "Järgmine foto",
   "No museum matches “{{query}}”.": "Päringule „{{query}}” ei vasta ükski muuseum.",
   "Not now": "Mitte praegu",
   "Open photo {{current}}": "Ava foto {{current}}",
   "Open photos": "Ava fotod",
   "or": "või",
+  "Page {{page}}": "",
   "Photo": "Foto",
   "Photo {{current}} of {{total}}": "Foto {{current}}/{{total}}",
   "Photos": "Fotod",
+  "Previous page": "",
   "Previous photo": "Eelmine foto",
   "Print the QR codes of all objects": "Prindi kõigi esemete QR-koodid",
   "Required": "Kohustuslik",
+  "Result pages": "",
   "Scan to open this content": "Skanni, et avada see sisu",
   "Scan to open this object": "Skanni, et avada see ese",
   "Scan to open this tour": "Skanni, et see tuur avada",

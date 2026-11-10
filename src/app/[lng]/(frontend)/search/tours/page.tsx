@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { SearchShell } from '@/components/mantine/SearchShell'
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
@@ -9,6 +10,12 @@ import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
 
 const PAGE_SIZE = 12
+
+/** The tab names the search. */
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT('search')
+  return { title: t('Search visits') }
+}
 
 export default async function SearchToursPage(props: {
   params: Promise<{ lng: string }>
@@ -61,9 +68,11 @@ export default async function SearchToursPage(props: {
     // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
     // centered) so title, filter and the 3-column grid stop stretching across
     // wide screens. Below md the padding equals the old side margins: no change.
-    <Container size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
+    <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
-        <Title order={2}>{t('Search visits')}</Title>
+        <Title order={1} size="h2">
+          {t('Search visits')}
+        </Title>
         <SearchShell
           definitions={definitions}
           initialFilters={initialFilters}

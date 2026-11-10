@@ -47,6 +47,7 @@
   "Download as SVG": "Lataa SVG-muodossa",
   "Download printable PDF": "Lataa tulostettava PDF",
   "Exit full screen": "Poistu koko näytöstä",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Tulostettavaksi: ladattu koodi avaa sovelluksen tässä museossa.",
   "Full screen": "Koko näyttö",
   "Go to photo {{current}}": "Siirry kuvaan {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Valitse kieli"
   },
+  "Last page": "",
   "Loading map…": "Ladataan karttaa…",
   "navbar": {
     "Account": "Tili",
@@ -67,18 +69,22 @@
     "SignIn": "Kirjaudu sisään",
     "Verified creator": "Vahvistettu tekijä"
   },
+  "Next page": "",
   "Next photo": "Seuraava kuva",
   "No museum matches “{{query}}”.": "Mikään museo ei vastaa hakua ”{{query}}”.",
   "Not now": "Ei nyt",
   "Open photo {{current}}": "Avaa kuva {{current}}",
   "Open photos": "Avaa kuvat",
   "or": "tai",
+  "Page {{page}}": "",
   "Photo": "Kuva",
   "Photo {{current}} of {{total}}": "Kuva {{current}}/{{total}}",
   "Photos": "Kuvat",
+  "Previous page": "",
   "Previous photo": "Edellinen kuva",
   "Print the QR codes of all objects": "Tulosta kaikkien esineiden QR-koodit",
   "Required": "Pakollinen",
+  "Result pages": "",
   "Scan to open this content": "Skannaa avataksesi tämän sisällön",
   "Scan to open this object": "Skannaa avataksesi tämän esineen",
   "Scan to open this tour": "Avaa tämä kierros skannaamalla",

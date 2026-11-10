@@ -2,6 +2,7 @@
 
 import { Text } from '@mantine/core'
 import { modals } from '@mantine/modals'
+import { notifications } from '@mantine/notifications'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -35,8 +36,13 @@ export function useGroupExit() {
       labels: { confirm: t('End for everyone'), cancel: t('Cancel') },
       confirmProps: { color: 'red' },
       onConfirm: async () => {
-        await group?.end()
-        router.push(`/${lng}/navigator` as Route)
+        if (!group) return
+        try {
+          await group.end()
+          router.push(`/${lng}/navigator` as Route)
+        } catch {
+          notifications.show({ title: t('The group could not be ended. Try again.'), message: '' })
+        }
       },
     })
 

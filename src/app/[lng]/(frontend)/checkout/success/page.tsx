@@ -1,6 +1,9 @@
 import type { Route } from 'next'
 
+import type { Payload } from 'payload'
+
 import { getT } from '@/i18n.server'
+import { normalizeLocale } from '@/lib/localized'
 import { hasPurchased } from '@/lib/entitlements'
 import { reconcileCheckoutSession } from '@/lib/purchases'
 import { getSession } from '@/lib/session'
@@ -75,9 +78,17 @@ export default async function CheckoutSuccess(props: {
     }
   }
 
-  const owned = back.target
-    ? await hasPurchased(payload, user.id, back.target.collection, back.target.id)
-    : false
+  // Ownership, and the bought item's name so the page says what was bought
+  // ("Masterpieces of the Pinacoteca is unlocked"), read together. In
+  // parallel on purpose: this page is reached after paying, so ownership is
+  // almost always confirmed, and waiting for it first would add a round trip
+  // to that common case; the rare pending payment wastes one small read.
+  const [owned, item] = back.target
+    ? await Promise.all([
+        hasPurchased(payload, user.id, back.target.collection, back.target.id),
+        purchasedTitle(payload, back.target, lng),
+      ])
+    : [false, null]
   const action = {
     label: back.isTour
       ? t('Back to the tour')
@@ -91,9 +102,15 @@ export default async function CheckoutSuccess(props: {
     <CheckoutOutcome
       title={t('Payment received')}
       description={
-        back.isTour
-          ? t('The paid contents of this tour are now unlocked on your account.')
-          : t('Your purchase is now unlocked on your account.')
+        item
+          ? back.isTour
+            ? t('The paid contents of “{{title}}” are now unlocked on your account.', {
+                title: item,
+              })
+            : t('“{{title}}” is now unlocked on your account.', { title: item })
+          : back.isTour
+            ? t('The paid contents of this tour are now unlocked on your account.')
+            : t('Your purchase is now unlocked on your account.')
       }
       detail={reference}
       action={action}
@@ -108,4 +125,22 @@ export default async function CheckoutSuccess(props: {
       action={action}
     />
   )
+}
+
+/** The bought tour's or content's title in the visitor's language; null if unreadable. */
+async function purchasedTitle(
+  payload: Payload,
+  target: { collection: 'contents' | 'tours'; id: string },
+  lng: string,
+): Promise<string | null> {
+  const doc = await payload
+    .findByID({
+      collection: target.collection,
+      id: target.id,
+      depth: 0,
+      select: { title: true },
+      locale: normalizeLocale(lng) ?? 'en',
+    })
+    .catch(() => null)
+  return doc?.title ?? null
 }

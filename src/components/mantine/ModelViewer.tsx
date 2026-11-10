@@ -1,5 +1,7 @@
 'use client'
 
+import '@/lib/gltf-decoder'
+
 import { Center as MantineCenter, Loader, Text } from '@mantine/core'
 import {
   CameraControls,

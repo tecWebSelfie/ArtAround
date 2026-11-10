@@ -25,7 +25,14 @@ import classes from './navigation-desktop.module.css'
  * no dimming and no scroll lock, so the map stays visible and draggable beside
  * the text and a click on another object simply swaps the panel's content.
  */
-export function NavigationModal({ children }: { children: ReactNode }) {
+export function NavigationModal({
+  kind,
+  children,
+}: {
+  /** What the dialog holds, named in its title: a work, a content, or the next stop. */
+  kind: 'work' | 'content' | 'stop'
+  children: ReactNode
+}) {
   const router = useRouter()
   const navigation = useNavigationScope()
   const search = useSearchParams()
@@ -39,7 +46,7 @@ export function NavigationModal({ children }: { children: ReactNode }) {
   return (
     <Modal
       opened
-      title={t('Museum content')}
+      title={kind === 'work' ? t('Artwork') : kind === 'stop' ? t('Next stop') : t('Content')}
       closeButtonProps={{ 'aria-label': t('Close') }}
       withCloseButton={!guest}
       closeOnEscape={!guest}

@@ -20,15 +20,18 @@ import {
   Container,
   Group,
   Image,
+  List,
+  ListItem,
   Paper,
   Progress,
   Stack,
   Text,
+  ThemeIcon,
   Title,
   VisuallyHidden,
 } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { ArrowLeft, ArrowRight, BookOpen, Check, TriangleAlert, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, Check, ListChecks, TriangleAlert, X } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
@@ -478,6 +481,11 @@ function QuizIntro({
       <Container size="xs" px="md" py="xl">
         <Stack gap="lg">
           <Stack gap={4}>
+            {/* The quiz mark (DESIGN.md: grape, as on the tour's "Ends with a
+                quiz" badge), so the screen reads as the tour's last step. */}
+            <ThemeIcon variant="light" color="grape" size="xl" radius="xl" mb="xs" aria-hidden>
+              <ListChecks size={22} />
+            </ThemeIcon>
             <Title order={1} size="h2" style={{ textWrap: 'balance' }}>
               {tour.title}
             </Title>
@@ -489,15 +497,19 @@ function QuizIntro({
             </Text>
           </Stack>
 
-          <Text>
-            {t(
-              'Each question has four answers and only one is right. You see straight away whether you got it, with a short explanation.',
-            )}
-          </Text>
+          {/* How it works, as three short facts instead of one paragraph. */}
+          <List spacing="xs" size="sm" icon={<Check size={16} aria-hidden />} center>
+            <ListItem>{t('Four answers per question, only one is right.')}</ListItem>
+            <ListItem>
+              {t('You see straight away whether you got it, with a short explanation.')}
+            </ListItem>
+            <ListItem>{t('At the end, your score and a link to share it.')}</ListItem>
+          </List>
 
           {unvisited > 0 && (
             <Alert
-              color="orange"
+              // Yellow, not orange: orange means "paid" in this app.
+              color="yellow"
               icon={<TriangleAlert size={18} />}
               title={t('You have not seen every stop yet')}
             >

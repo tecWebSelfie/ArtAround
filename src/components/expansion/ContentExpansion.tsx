@@ -7,6 +7,7 @@ import type { Route } from 'next'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { ExpansionText } from './ExpansionText'
+import { readingAge } from '@/lib/reading-profile'
 
 /**
  * "Tell me more" inside a content, step or object modal: three pills and,
@@ -45,6 +46,8 @@ export function ContentExpansion({
   const search = useSearchParams()
   const angle = EXPANSION_ANGLES.find((option) => option === search.get('more')) ?? null
   const step = Math.min(Math.max(Number(search.get('step')) || 1, 1), MAX_EXPANSION_STEPS)
+  // Further explanations keep the child's own language/detail without moving the group.
+  const age = search.get('audience') === 'children' ? readingAge(search.get('age')) : undefined
   if (locked) return null
 
   const label: Record<ExpansionAngle, string> = {
@@ -70,7 +73,11 @@ export function ContentExpansion({
               key={option}
               size="compact-sm"
               radius="xl"
-              variant={option === angle ? 'filled' : 'light'}
+              // Selected reading options use the accessible museum shade.
+              color="museum.8"
+              autoContrast
+              // Match the version controls: unselected options stay neutral and readable.
+              variant={option === angle ? 'filled' : 'default'}
               leftSection={<Icon size={14} aria-hidden />}
               aria-pressed={option === angle}
               // A new angle starts again from its first step.
@@ -87,7 +94,12 @@ export function ContentExpansion({
             key={`${angle}-${index + 1}`}
             target={target}
             id={id}
-            request={{ kind: 'more', angle, step: index + 1 }}
+            request={{
+              kind: 'more',
+              angle,
+              step: index + 1,
+              ...(age === undefined ? {} : { age }),
+            }}
           />
         ))}
       {angle && step < MAX_EXPANSION_STEPS && (

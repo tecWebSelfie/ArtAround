@@ -44,3 +44,11 @@ export function formatDuration(seconds: number): string {
   const rest = total % 60
   return rest && minutes < 10 ? `${minutes}'${String(rest).padStart(2, '0')}"` : `${minutes}'`
 }
+
+/**
+ * Localized measurements ("25 min", "320 m"): units follow the visitor's
+ * language. Shared by the tour page and the navigation header.
+ */
+export function formatUnit(value: number, unit: 'minute' | 'meter', lng: string) {
+  return new Intl.NumberFormat(lng, { style: 'unit', unit, unitDisplay: 'short' }).format(value)
+}

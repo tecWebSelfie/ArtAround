@@ -99,11 +99,12 @@ export const WheelchairRoute: Story = {
       },
     },
   },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole('button', { name: 'Wheelchair route' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    )
+  play: async ({ canvas, canvasElement }) => {
+    // Accessibility shares the services panel so the map dock remains reachable.
+    await userEvent.click(canvas.getByRole('button', { name: 'Services' }))
+    await expect(
+      within(canvasElement.ownerDocument.body).getByRole('button', { name: 'Wheelchair route' }),
+    ).toHaveAttribute('aria-pressed', 'true')
   },
 }
 
@@ -130,12 +131,15 @@ export const WheelchairRouteWithoutWheelchairMesh: Story = {
       },
     },
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvas, canvasElement }) => {
     // Without a wheelchair mesh the toggle is not offered at all (rather than
     // shown disabled), and a shared `mobility=wheelchair` URL falls back to
     // the standard route.
     await expect(canvas.findByRole('button', { name: 'Search' })).resolves.toBeTruthy()
-    await expect(canvas.queryByRole('button', { name: 'Wheelchair route' })).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: 'Services' }))
+    await expect(
+      within(canvasElement.ownerDocument.body).queryByRole('button', { name: 'Wheelchair route' }),
+    ).toBeNull()
   },
 }
 
@@ -181,8 +185,9 @@ export const NearbySuggestion: Story = {
 
 /**
  * Simulated GPS with suggestions on: the D-pad moves the progress dot along
- * the route, advancing the step; walking east into the East hall suggests
- * its paid content with the locked price badge.
+ * the route, advancing the step. Each arrow also turns the simulated compass;
+ * facing a nearby work shows a live next-stop/discovery notice. Room history
+ * remains available in search without stacking a second notification.
  */
 export const SimulatedGps: Story = {
   ...RouteBetweenObjects,
@@ -260,7 +265,7 @@ export const FreeNavigation: Story = {
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     // Directions ask for a start before an end: with no position yet, the bar
     // asks for it first (DirectionsBar's "no-position" state).
-    await expect(canvas.getByText('Open an object and set it as your position')).toBeVisible()
+    await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
   },
 }
 

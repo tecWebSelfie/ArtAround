@@ -6,8 +6,9 @@ import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
  * One real voice turn through the orb on the seeded tour, with a WAV file as
  * the microphone: tap → Silero VAD hears the sentence end and closes the mic
  * → /api/assistant (Groq Whisper + one model call) → the browser runs the
- * chosen command. Needs the seed (scripts/seed-tour-navigation.ts), a running
- * dev server and GROQ_API_KEY / FISH_API_KEY.
+ * chosen command. Needs the seed (scripts/seed-tour-navigation.ts) and either
+ * GROQ_API_KEY / FISH_API_KEY or AI_MOCK=true, whose transcript is this WAV's
+ * request (src/lib/ai-mock.ts).
  */
 const expect = baseExpect.configure({ timeout: 60_000 })
 // Seeded by scripts/seed-tour-navigation.ts (see tests/helpers/tour-fixture.ts).
@@ -26,7 +27,12 @@ const routeURL = () => {
 // Chromium reads this WAV as the microphone (1 s silence, the request, 3 s silence).
 test.use({
   launchOptions: {
+    // This test overrides project launchOptions to add a microphone: preserve the cloud browser.
+    executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
     args: [
+      '--use-gl=angle',
+      '--use-angle=swiftshader',
+      '--enable-unsafe-swiftshader',
       '--use-fake-ui-for-media-stream',
       '--use-fake-device-for-media-stream',
       `--use-file-for-fake-audio-capture=${resolve('tests/e2e/fixtures/open-side-discovery.wav')}`,

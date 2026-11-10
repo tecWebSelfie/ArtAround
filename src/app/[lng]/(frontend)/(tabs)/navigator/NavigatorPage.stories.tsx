@@ -26,7 +26,8 @@ export const SearchFocus: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    await expect(canvas.getByText("Everything's")).toBeVisible()
+    // The title's typographic apostrophe (’), as the translation writes it.
+    await expect(canvas.getByText(/Everything’s/)).toBeVisible()
     await expect(canvas.getByText('Scan a tour QR code to start')).toBeVisible()
     // The plan caption reads "Or plan a visit…" on phones and "Plan a visit…"
     // from md (the other is display:none), so check the card by its accessible

@@ -25,7 +25,7 @@ const routeURL = () => {
   return `${fixture!.url}?at=${start}&to=${end}`
 }
 
-test('simulated GPS advances the directions and suggests the room’s off-tour content', async ({
+test('simulated GPS offers the nearby destination without silently confirming position', async ({
   page,
 }) => {
   // Guidance choices are per-device settings in localStorage (useLocalStorage → JSON).
@@ -48,9 +48,12 @@ test('simulated GPS advances the directions and suggests the room’s off-tour c
   // The estimate snaps onto the route past the hall boundary, so the bar has
   // left the first step (entering the East hall, or arriving).
   await expect(page.getByText(/Step 1 of 3/)).toHaveCount(0)
-  await expect(page.getByText('Nearby in East hall')).toBeVisible()
-  await expect(page.getByText('[DEV] Tour navigation: Side discovery').first()).toBeVisible()
-  // "Go there" makes Object 3 the destination through the URL.
-  await page.getByRole('button', { name: 'Go there' }).click()
-  await expect(page).toHaveURL(new RegExp(`to=${fixture!.objectIds[2]}`))
+  // The direction-aware proximity notice replaces the old room-level content carousel.
+  await expect(page.getByRole('heading', { name: 'Your next stop is nearby' })).toBeVisible()
+  const destination = '[DEV] Tour navigation: Object 3'
+  await expect(page.getByRole('button', { name: `Open ${destination}`, exact: true })).toBeVisible()
+  expect(new URL(page.url()).searchParams.get('at')).toBe(fixture!.objectIds[0])
+  expect(new URL(page.url()).searchParams.get('to')).toBe(fixture!.objectIds[2])
+  await page.getByRole('button', { name: `Confirm position at ${destination}` }).click()
+  await expect.poll(() => new URL(page.url()).searchParams.get('at')).toBe(fixture!.objectIds[2])
 })

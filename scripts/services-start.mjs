@@ -1,10 +1,19 @@
 #!/usr/bin/env node
 /**
- * `pnpm db:start`: starts the development MongoDB, the `mongodb` service of
+ * `pnpm services:start`: starts the local services the app needs, in Docker.
+ *
+ * First the development MongoDB, the `mongodb` service of
  * docker-compose.yml (no authentication, loopback only), and waits until it
  * answers. The same database on a PC (Docker Desktop) and in a Claude Code
  * cloud session, so there is no second MongoDB installation to keep in step.
  * Idempotent: an already running database is left as it is.
+ *
+ * It then starts the local LiveKit server too (`livekit`, included from
+ * my-agent/compose.livekit.yaml, `--dev` keys `devkey`/`secret`): group tours
+ * and their e2e spec need a real one, and a cloud container restart stops it
+ * along with everything else. LiveKit is best effort: if it can't start, the
+ * script warns and still exits 0, since everything but group tours works
+ * without it.
  *
  * Options:
  *   --seed-if-new  run `pnpm seed:e2e` when this call created the data volume
@@ -22,7 +31,7 @@ import { fileURLToPath } from 'node:url'
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const seedIfNew = process.argv.includes('--seed-if-new')
 
-const log = (message) => console.log(`\x1b[1m[db:start]\x1b[0m ${message}`)
+const log = (message) => console.log(`\x1b[1m[services:start]\x1b[0m ${message}`)
 const run = (cmd, args, options = {}) =>
   execFileSync(cmd, args, { cwd: root, encoding: 'utf8', ...options })
 const succeeds = (cmd, args) => {
@@ -39,7 +48,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 // container ships `dockerd` but does not start it at boot.
 if (!succeeds('docker', ['info'])) {
   if (process.env.CLAUDE_CODE_REMOTE !== 'true') {
-    console.error('Docker is not running: start Docker Desktop, then run `pnpm db:start` again.')
+    console.error('Docker is not running: start Docker Desktop, then run `pnpm services:start` again.')
     process.exit(1)
   }
   const cache = path.join(process.env.XDG_CACHE_HOME ?? path.join(homedir(), '.cache'), 'artaround')
@@ -64,10 +73,27 @@ const config = JSON.parse(run('docker', ['compose', 'config', '--format', 'json'
 const volume = config.volumes['mongo-data'].name
 const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 
-// 3. Start it and wait for the compose healthcheck (a `ping` through mongosh).
+// 3. Start both, LiveKit first without waiting, so its image pull and start
+// overlap MongoDB's; then wait for each healthcheck (a `ping` through
+// mongosh for MongoDB). LiveKit stays best effort (see the header).
+let livekitStarted = true
+try {
+  run('docker', ['compose', 'up', '--detach', 'livekit'], { stdio: 'inherit' })
+} catch {
+  livekitStarted = false
+}
 log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
 log('MongoDB is ready on mongodb://127.0.0.1:27017.')
+
+// 4. LiveKit for group tours.
+try {
+  if (!livekitStarted) throw new Error('not started')
+  run('docker', ['compose', 'up', '--detach', '--wait', 'livekit'], { stdio: 'inherit' })
+  log('LiveKit is ready on ws://localhost:7880.')
+} catch {
+  console.warn('LiveKit did not start: group tours (and their e2e spec) will not connect.')
+}
 
 if (isNew && seedIfNew) {
   log('Seeding the new database (pnpm seed:e2e)…')

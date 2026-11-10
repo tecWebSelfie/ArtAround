@@ -5,6 +5,7 @@ import {
   groupLocation,
   HOST_IDENTITY,
   isQuizLocation,
+  isRetryableTokenError,
   isTourLocation,
   parseRoomMetadata,
 } from '@/lib/group'
@@ -89,27 +90,49 @@ export default function GroupConnection({
 
   useEffect(() => {
     let cancelled = false
+    let retryTimer: ReturnType<typeof setTimeout> | undefined
+    let resume: (() => void) | undefined
     void (async () => {
-      try {
-        const { serverUrl, participantToken } = await tokenSource.fetch({
-          roomName: code,
-          participantName: name,
-        })
-        if (!cancelled) await connect(serverUrl, participantToken)
-      } catch {
-        // The host may have ended the group while this device was away.
-        const open = await fetch(`/api/rooms/${code}`).then(
-          (response) => response.ok,
-          () => true,
-        )
-        if (!open && !cancelled) {
-          setMembership(null)
-          notifications.show({ title: t('This group has ended'), message: '' })
+      let retryMs = 1_000
+      while (!cancelled) {
+        try {
+          const { serverUrl, participantToken } = await tokenSource.fetch({
+            roomName: code,
+            participantName: name,
+          })
+          if (!cancelled) await connect(serverUrl, participantToken)
+          return
+        } catch (error) {
+          if (cancelled) return
+          // A transient token/server failure must not strand a reloading host offline.
+          // Only an explicit missing/ended room ends membership; 5xx/429 are retryable.
+          const ended = await fetch(`/api/rooms/${code}`, { cache: 'no-store' }).then(
+            (response) => response.status === 404 || response.status === 410,
+            () => false,
+          )
+          if (cancelled) return
+          if (ended) {
+            setMembership(null)
+            notifications.show({ title: t('This group has ended'), message: '' })
+            return
+          }
+          // A refusal (other 4xx) won't change by asking again every few seconds.
+          if (!isRetryableTokenError(error)) {
+            notifications.show({ title: t('Could not connect to the group'), message: '' })
+            return
+          }
+          await new Promise<void>((resolve) => {
+            resume = resolve
+            retryTimer = setTimeout(resolve, retryMs)
+          })
+          retryMs = Math.min(retryMs * 2, 5_000)
         }
       }
     })()
     return () => {
       cancelled = true
+      clearTimeout(retryTimer)
+      resume?.()
       void disconnect()
       onHost({})
     }

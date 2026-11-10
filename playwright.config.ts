@@ -4,7 +4,19 @@ import { defineConfig, devices } from '@playwright/test'
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-import 'dotenv/config'
+import { config } from 'dotenv'
+
+// Cloud/Next setup writes .env.local; plain dotenv/config only reads .env.
+config({ path: process.env.DOTENV_CONFIG_PATH ?? ['.env.local', '.env'] })
+
+/**
+ * Which app the specs drive. `next dev` while iterating (the one already
+ * running is reused, and edits show up without a rebuild); the production
+ * build in CI or with `E2E_SERVER=start` after `pnpm build`: no route compiles
+ * on first visit inside a test's timeout, production React, closer to what
+ * visitors get. `pnpm build` takes ~2 min (cloud session, 4 cores).
+ */
+const productionServer = !!process.env.CI || process.env.E2E_SERVER === 'start'
 
 /**
  * See https://playwright.dev/docs/test-configuration.
@@ -18,7 +30,8 @@ export default defineConfig({
   /* Opt out of parallel tests on CI. */
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
-  reporter: 'html',
+  // CI: annotations on the PR checks plus the HTML report as an artifact.
+  reporter: process.env.CI ? [['github'], ['html', { open: 'never' }]] : 'html',
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
@@ -37,6 +50,8 @@ export default defineConfig({
         // on its own, and without WebGL the Pascal map never draws, so tour
         // navigation stays on "Finding your route" (group-tour, tour-guidance).
         launchOptions: {
+          // Cloud environments can reuse an installed browser without downloading Playwright's build.
+          executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
           args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'],
         },
       },
@@ -46,8 +61,13 @@ export default defineConfig({
     process.env.PLAYWRIGHT_USE_RUNNING_SERVER === 'true'
       ? undefined
       : {
-          command: 'pnpm dev',
+          command: productionServer ? 'pnpm start' : 'pnpm dev',
           reuseExistingServer: true,
           url: 'http://localhost:3000',
+          // The production server Playwright starts answers with the AI SDK's
+          // mock models (src/lib/ai-models.ts): no Groq/Fish keys, same answers
+          // every run. `AI_MOCK=false` keeps the real providers (the manual CI
+          // run with real AI). A reused `next dev` keeps whatever it has.
+          env: productionServer ? { AI_MOCK: process.env.AI_MOCK ?? 'true' } : undefined,
         },
 })

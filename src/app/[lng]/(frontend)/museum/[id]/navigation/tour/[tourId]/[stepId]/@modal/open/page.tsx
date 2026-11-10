@@ -21,7 +21,7 @@ export default async function OpenStepModal({
   )
 
   return (
-    <NavigationModal>
+    <NavigationModal kind="stop">
       <StepModal
         step={content}
         nextHref={tourNavigationPath(lng, museumId, tourId, step + 1)}

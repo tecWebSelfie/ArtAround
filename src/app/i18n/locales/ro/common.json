@@ -47,6 +47,7 @@
   "Download as SVG": "Descarcă ca SVG",
   "Download printable PDF": "Descarcă PDF pentru tipărire",
   "Exit full screen": "Ieși din ecran complet",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Pentru tipărire: codul descărcat deschide aplicația în acest muzeu.",
   "Full screen": "Ecran complet",
   "Go to photo {{current}}": "Mergi la fotografia {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Alege limba"
   },
+  "Last page": "",
   "Loading map…": "Se încarcă harta…",
   "navbar": {
     "Account": "Cont",
@@ -67,18 +69,22 @@
     "SignIn": "Conectare",
     "Verified creator": "Creator verificat"
   },
+  "Next page": "",
   "Next photo": "Fotografia următoare",
   "No museum matches “{{query}}”.": "Niciun muzeu nu corespunde cu „{{query}}”.",
   "Not now": "Nu acum",
   "Open photo {{current}}": "Deschide fotografia {{current}}",
   "Open photos": "Deschide fotografiile",
   "or": "sau",
+  "Page {{page}}": "",
   "Photo": "Fotografie",
   "Photo {{current}} of {{total}}": "Fotografia {{current}} din {{total}}",
   "Photos": "Fotografii",
+  "Previous page": "",
   "Previous photo": "Fotografia anterioară",
   "Print the QR codes of all objects": "Tipărește codurile QR ale tuturor obiectelor",
   "Required": "Obligatoriu",
+  "Result pages": "",
   "Scan to open this content": "Scanează pentru a deschide acest conținut",
   "Scan to open this object": "Scanează pentru a deschide acest obiect",
   "Scan to open this tour": "Scanează ca să deschizi acest tur",

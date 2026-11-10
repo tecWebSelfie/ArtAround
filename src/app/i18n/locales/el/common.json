@@ -47,6 +47,7 @@
   "Download as SVG": "Λήψη ως SVG",
   "Download printable PDF": "Λήψη PDF για εκτύπωση",
   "Exit full screen": "Έξοδος από πλήρη οθόνη",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Για εκτύπωση: ο κωδικός που κατεβάζετε ανοίγει την εφαρμογή σε αυτό το μουσείο.",
   "Full screen": "Πλήρης οθόνη",
   "Go to photo {{current}}": "Μετάβαση στη φωτογραφία {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Επιλογή γλώσσας"
   },
+  "Last page": "",
   "Loading map…": "Φόρτωση χάρτη…",
   "navbar": {
     "Account": "Λογαριασμός",
@@ -67,18 +69,22 @@
     "SignIn": "Σύνδεση",
     "Verified creator": "Επαληθευμένος δημιουργός"
   },
+  "Next page": "",
   "Next photo": "Επόμενη φωτογραφία",
   "No museum matches “{{query}}”.": "Κανένα μουσείο δεν ταιριάζει με «{{query}}».",
   "Not now": "Όχι τώρα",
   "Open photo {{current}}": "Άνοιγμα φωτογραφίας {{current}}",
   "Open photos": "Άνοιγμα φωτογραφιών",
   "or": "ή",
+  "Page {{page}}": "",
   "Photo": "Φωτογραφία",
   "Photo {{current}} of {{total}}": "Φωτογραφία {{current}} από {{total}}",
   "Photos": "Φωτογραφίες",
+  "Previous page": "",
   "Previous photo": "Προηγούμενη φωτογραφία",
   "Print the QR codes of all objects": "Εκτύπωση των κωδικών QR όλων των αντικειμένων",
   "Required": "Υποχρεωτικό",
+  "Result pages": "",
   "Scan to open this content": "Σαρώστε για να ανοίξετε αυτό το περιεχόμενο",
   "Scan to open this object": "Σαρώστε για να ανοίξετε αυτό το αντικείμενο",
   "Scan to open this tour": "Σάρωσε για να ανοίξεις αυτήν την ξενάγηση",

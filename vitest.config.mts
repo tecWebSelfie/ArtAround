@@ -11,20 +11,9 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
   test: {
-    projects: [{
-      extends: true,
-      test: {
-        // `pnpm test:int` (`--project int`): without a name the project could
-        // not be selected, and the script ran the Storybook browser tests too.
-        name: 'int',
-        // Integration specs exercise server code (Payload, jose, route handlers)
-        // and none touches the DOM: under jsdom those libraries load their
-        // browser builds and fail. A DOM spec opts in with `@vitest-environment jsdom`.
-        environment: 'node',
-        setupFiles: ['./vitest.setup.ts'],
-        include: ['tests/int/**/*.int.spec.{ts,tsx}']
-      }
-    }, {
+    projects: [
+    // `int` lives in its own file so `pnpm test:int` skips loading Storybook.
+    './vitest.int.config.mts', {
       extends: true,
       // Vitest uses Vite 6 here; plugin-react 6 configures JSX through Vite 8's Oxc API.
       esbuild: { jsx: 'automatic' },
@@ -50,6 +39,11 @@ export default defineConfig({
           enabled: true,
           headless: true,
           provider: playwright({
+            // Cloud tasks can use an installed Chromium when browser downloads
+            // are restricted. Ordinary local/CI runs keep Playwright's browser.
+            ...(process.env.PLAYWRIGHT_EXECUTABLE_PATH
+              ? { launchOptions: { executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH } }
+              : {}),
             contextOptions: {
               // The browser asks for reduced motion, and the theme honours it
               // (`respectReducedMotion`): Mantine's modal, Spotlight and other

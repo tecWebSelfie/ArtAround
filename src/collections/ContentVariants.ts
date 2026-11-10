@@ -1,4 +1,5 @@
 import { superAdminOnly } from '@/access/museumRoles'
+import { MAX_CHILD_AGE } from '@/lib/reading-profile'
 import { DifficultyField } from '@/fields/DifficultyField'
 import type { CollectionConfig } from 'payload'
 
@@ -84,6 +85,13 @@ export const ContentVariants: CollectionConfig = {
         { label: 'Children', value: 'children' },
       ],
       admin: { condition: (data) => data?.kind === 'version' },
+    },
+    {
+      // Exact-age versions and additions keep separate caches from generic text.
+      name: 'age',
+      type: 'number',
+      min: 0,
+      max: MAX_CHILD_AGE,
     },
     {
       // Requested length of a version, in seconds (`src/lib/duration.ts`).

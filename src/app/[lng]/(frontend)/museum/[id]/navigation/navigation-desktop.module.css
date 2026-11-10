@@ -49,10 +49,13 @@
   }
 
   .panelInner {
-    /* Clear the navigation header (measured in TourNavigation) and the 64px
-       navigation bar, so the stepper and the orb stay usable while reading. */
+    /* Clear both measured bars, including enlarged-text footers, so the
+       stepper and the orb stay usable while reading. */
     top: calc(var(--navigation-header-height, 7rem) + var(--mantine-spacing-md));
-    bottom: calc(var(--app-shell-footer-height, 4rem) + var(--mantine-spacing-md));
+    bottom: calc(
+      var(--navigation-footer-height, var(--app-shell-footer-height, 4rem)) +
+        var(--mantine-spacing-md)
+    );
     justify-content: flex-end;
     --modal-inner-align: stretch;
     --modal-inner-y-offset: 0;

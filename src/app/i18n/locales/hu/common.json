@@ -47,6 +47,7 @@
   "Download as SVG": "Letöltés SVG-ként",
   "Download printable PDF": "Nyomtatható PDF letöltése",
   "Exit full screen": "Kilépés a teljes képernyőből",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Nyomtatáshoz: a letöltött kód ebben a múzeumban nyitja meg az appot.",
   "Full screen": "Teljes képernyő",
   "Go to photo {{current}}": "Ugrás a(z) {{current}}. fotóra",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Nyelv kiválasztása"
   },
+  "Last page": "",
   "Loading map…": "Térkép betöltése…",
   "navbar": {
     "Account": "Fiók",
@@ -67,18 +69,22 @@
     "SignIn": "Bejelentkezés",
     "Verified creator": "Ellenőrzött alkotó"
   },
+  "Next page": "",
   "Next photo": "Következő fotó",
   "No museum matches “{{query}}”.": "Egy múzeum sem felel meg ennek: „{{query}}”.",
   "Not now": "Most nem",
   "Open photo {{current}}": "{{current}}. fotó megnyitása",
   "Open photos": "Fotók megnyitása",
   "or": "vagy",
+  "Page {{page}}": "",
   "Photo": "Fotó",
   "Photo {{current}} of {{total}}": "{{current}}/{{total}}. fotó",
   "Photos": "Fotók",
+  "Previous page": "",
   "Previous photo": "Előző fotó",
   "Print the QR codes of all objects": "Az összes tárgy QR-kódjának nyomtatása",
   "Required": "Kötelező",
+  "Result pages": "",
   "Scan to open this content": "Olvasd be a tartalom megnyitásához",
   "Scan to open this object": "Olvasd be a tárgy megnyitásához",
   "Scan to open this tour": "Olvasd be a túra megnyitásához",

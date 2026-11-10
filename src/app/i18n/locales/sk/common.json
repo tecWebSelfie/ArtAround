@@ -47,6 +47,7 @@
   "Download as SVG": "Stiahnuť ako SVG",
   "Download printable PDF": "Stiahnuť PDF na tlač",
   "Exit full screen": "Ukončiť celú obrazovku",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Na tlač: stiahnutý kód otvorí aplikáciu v tomto múzeu.",
   "Full screen": "Celá obrazovka",
   "Go to photo {{current}}": "Prejsť na fotografiu {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Vyber jazyk"
   },
+  "Last page": "",
   "Loading map…": "Načítava sa mapa…",
   "navbar": {
     "Account": "Účet",
@@ -67,18 +69,22 @@
     "SignIn": "Prihlásiť sa",
     "Verified creator": "Overený tvorca"
   },
+  "Next page": "",
   "Next photo": "Nasledujúca fotografia",
   "No museum matches “{{query}}”.": "Žiadne múzeum nezodpovedá „{{query}}“.",
   "Not now": "Teraz nie",
   "Open photo {{current}}": "Otvoriť fotografiu {{current}}",
   "Open photos": "Otvoriť fotografie",
   "or": "alebo",
+  "Page {{page}}": "",
   "Photo": "Fotografia",
   "Photo {{current}} of {{total}}": "Fotografia {{current}} z {{total}}",
   "Photos": "Fotografie",
+  "Previous page": "",
   "Previous photo": "Predchádzajúca fotografia",
   "Print the QR codes of all objects": "Vytlačiť QR kódy všetkých predmetov",
   "Required": "Povinné",
+  "Result pages": "",
   "Scan to open this content": "Naskenujte a otvorte tento obsah",
   "Scan to open this object": "Naskenujte a otvorte tento predmet",
   "Scan to open this tour": "Naskenuj a otvor túto prehliadku",

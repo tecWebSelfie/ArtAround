@@ -1,4 +1,5 @@
 {
+  "“{{title}}” is now unlocked on your account.": "",
   "Back to the content": "Ar ais chuig an ábhar",
   "Back to the navigator": "Ar ais chuig an nascleanaí",
   "Back to the tour": "Ar ais chuig an turas",
@@ -11,6 +12,7 @@
   "Sign in": "Logáil isteach",
   "Sign in to see your purchase": "Logáil isteach chun do cheannachán a fheiceáil",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Níor dheimhnigh Stripe an íocaíocht seo dúinn fós. Díghlasálfar é i do chuntas a luaithe is a dhéanfaidh sé sin; níl aon rud eile le déanamh agat.",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "",
   "The paid contents of this tour are now unlocked on your account.": "Tá ábhar íoctha an turais seo díghlasáilte anois i do chuntas.",
   "Your purchase is now unlocked on your account.": "Tá do cheannachán díghlasáilte anois i do chuntas."
 }

@@ -5,6 +5,8 @@ import type { ReactNode } from 'react'
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
+import { DetailCover } from '@/components/mantine/DetailCover'
+import { stopPicture } from '@/lib/tour-summary'
 import { Content } from '@/payload-types'
 import { Button, Stack } from '@mantine/core'
 import type { Route } from 'next'
@@ -16,7 +18,9 @@ import { NavigationObjectActions } from '../../../../../NavigationObjectActions'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 
 /**
- * Shows the next ordered content and advances only when the visitor confirms.
+ * Shows the next ordered content, headed by the artwork it is about, and
+ * advances only when the visitor confirms ("Go to next step", the modal's
+ * one filled action).
  * On the last stop of a tour with a quiz, completing goes straight to the quiz
  * (with the completed cursor as `from`), which is the tour's final step.
  * In a group only the host moves on; guests follow (GroupProvider).
@@ -43,14 +47,25 @@ export function StepModal({
   const { t } = useTranslation('tour-navigation')
   const toQuiz = lastStep && quizFrom !== undefined
   const guest = useIsGroupGuest()
+  // The work this stop talks about, so the visitor can recognise it on the
+  // wall before reading (the content's own image, else the work's photo).
+  const picture = stopPicture(content)
   return (
     <Stack>
+      {picture && (
+        <DetailCover
+          pictures={[picture]}
+          title={content.title}
+          lightbox={false}
+          height="clamp(120px, 26dvh, 280px)"
+        />
+      )}
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />
       </ContentVersion>
       {unlock}
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />
-      <NavigationObjectActions objectId={contentObjectId(content)} />
+      <NavigationObjectActions objectId={contentObjectId(content)} navigate={false} />
       {nextHref && !guest && (
         <Button
           onClick={() => {

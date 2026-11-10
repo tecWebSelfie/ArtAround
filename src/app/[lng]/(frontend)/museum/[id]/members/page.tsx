@@ -56,7 +56,7 @@ export default async function MembersPage({ params }: PageProps<'/[lng]/museum/[
   )
 
   return (
-    <Container size="md" py="md">
+    <Container component="main" size="md" py="md">
       <MembersManager
         museumId={id}
         members={members}

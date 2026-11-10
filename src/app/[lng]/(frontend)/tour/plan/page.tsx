@@ -2,6 +2,13 @@ import { getSession } from '@/lib/session'
 import { normalizeLocale } from '@/lib/localized'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { PlanVisitPage } from './PlanVisitPage'
+import { getT } from '@/i18n.server'
+import type { Metadata } from 'next'
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getT('plan-visit')
+  return { title: t('Plan my visit') }
+}
 
 /**
  * "Plan my visit": a short form (museum, time, interests, step-free route,

@@ -14,6 +14,12 @@ const ownerOf = (target: 'contents' | 'objects', id: string): Where =>
 /** Older additions have no step: they count as the first one. */
 const FIRST_STEP: Where = { or: [{ step: { equals: 1 } }, { step: { exists: false } }] }
 
+/** Older and generic variants have no age; they never answer an exact-age request. */
+const ageWhere = (age?: number): Where =>
+  age === undefined
+    ? { or: [{ age: { exists: false } }, { age: { equals: null } }] }
+    : { age: { equals: age } }
+
 /** Where to look for a saved variant answering the same request. */
 export function variantWhere(
   target: 'contents' | 'objects',
@@ -31,7 +37,9 @@ export function variantWhere(
           { durationSeconds: { equals: request.seconds } },
           { audience: { equals: request.audience } },
         ]
-  return { and: [{ kind: { equals: request.kind } }, ownerOf(target, id), ...keys] }
+  return {
+    and: [{ kind: { equals: request.kind } }, ownerOf(target, id), ageWhere(request.age), ...keys],
+  }
 }
 
 /** The additions on `angle` before `step`, which the visitor has already read. */
@@ -40,11 +48,13 @@ export function previousStepsWhere(
   id: string,
   angle: ExpansionAngle,
   step: number,
+  age?: number,
 ): Where {
   return {
     and: [
       { kind: { equals: 'more' } },
       ownerOf(target, id),
+      ageWhere(age),
       { angle: { equals: angle } },
       { or: [{ step: { less_than: step } }, { step: { exists: false } }] },
     ],

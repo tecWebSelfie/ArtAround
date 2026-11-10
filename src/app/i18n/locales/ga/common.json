@@ -47,6 +47,7 @@
   "Download as SVG": "Íoslódáil mar SVG",
   "Download printable PDF": "Íoslódáil PDF le priontáil",
   "Exit full screen": "Fág an lánscáileán",
+  "First page": "",
   "For printing: the downloaded code opens the app in this museum.": "Le haghaidh priontála: osclaíonn an cód íoslódáilte an aip sa mhúsaem seo.",
   "Full screen": "Lánscáileán",
   "Go to photo {{current}}": "Téigh go grianghraf {{current}}",
@@ -55,6 +56,7 @@
   "languageSwitcher": {
     "label": "Roghnaigh teanga"
   },
+  "Last page": "",
   "Loading map…": "An léarscáil á lódáil…",
   "navbar": {
     "Account": "Cuntas",
@@ -67,18 +69,22 @@
     "SignIn": "Logáil isteach",
     "Verified creator": "Cruthaitheoir fíoraithe"
   },
+  "Next page": "",
   "Next photo": "An chéad ghrianghraf eile",
   "No museum matches “{{query}}”.": "Níl aon mhúsaem ag teacht le “{{query}}”.",
   "Not now": "Ní anois",
   "Open photo {{current}}": "Oscail grianghraf {{current}}",
   "Open photos": "Oscail na grianghraif",
   "or": "nó",
+  "Page {{page}}": "",
   "Photo": "Grianghraf",
   "Photo {{current}} of {{total}}": "Grianghraf {{current}} as {{total}}",
   "Photos": "Grianghraif",
+  "Previous page": "",
   "Previous photo": "An grianghraf roimhe seo",
   "Print the QR codes of all objects": "Priontáil cóid QR na réad go léir",
   "Required": "Riachtanach",
+  "Result pages": "",
   "Scan to open this content": "Scan chun an t-ábhar seo a oscailt",
   "Scan to open this object": "Scan chun an réad seo a oscailt",
   "Scan to open this tour": "Scan chun an turas seo a oscailt",

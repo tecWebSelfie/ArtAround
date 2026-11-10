@@ -29,7 +29,7 @@ export default async function Page({
   if (path.endsWith('/open')) redirect(withNavigationPosition(path, await searchParams))
   const content = await getNavigationDocument('contents', contentId, lng)
   return (
-    <NavigationModal>
+    <NavigationModal kind="content">
       {/* Simpler / Shorter / For children: swaps the body for another version. */}
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />

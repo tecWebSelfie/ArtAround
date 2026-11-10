@@ -3,6 +3,7 @@ import { findGroupRoom } from '@/lib/group-room'
 import { normalizeLocale } from '@/lib/localized'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { getSession } from '@/lib/session'
+import { plannedChildrenAges } from '@/lib/reading-profile'
 import { GroupRoomPage } from './GroupRoomPage'
 
 /**
@@ -26,7 +27,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
           id: room.tourId,
           depth: 1,
           locale: normalizeLocale(lng) ?? 'en',
-          select: { title: true, thumbnail: true, museum: true },
+          select: { title: true, thumbnail: true, museum: true, generation: true },
         })
         .catch(() => null)
     : null
@@ -44,6 +45,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
               // The tour map lives in its museum's navigation (tourNavigationPath).
               museumId: tourMuseumId(tour),
               title: tour.title,
+              childrenAges: plannedChildrenAges(tour.generation?.request),
               thumbnail: thumbnail?.url ? { url: thumbnail.url, alt: thumbnail.alt } : null,
             }
           : null

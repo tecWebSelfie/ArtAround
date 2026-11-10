@@ -4,7 +4,7 @@ import { Input } from '@mantine/core'
 import { Link, RichTextEditor } from '@mantine/tiptap'
 import { useEditor } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -31,16 +31,20 @@ export function RichTextInput({
   onChange: (html: string) => void
 }) {
   const { t } = useTranslation('editing')
+  const id = useId()
   const editor = useEditor({
     // Next renders client components on the server first; TipTap must not.
     immediatelyRender: false,
     extensions: [StarterKit.configure({ link: false }), Link],
     content: value,
+    // Input.Wrapper's visual label must also name the actual contenteditable textbox.
+    editorProps: { attributes: { 'aria-labelledby': `${id}-label` } },
     onUpdate: ({ editor }) => onChange(editor.isEmpty ? '' : editor.getHTML()),
   })
 
   return (
     <Input.Wrapper
+      id={id}
       label={label}
       description={description}
       error={error}

@@ -1,14 +1,15 @@
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import { createHash } from 'node:crypto'
 import type { Content } from '@/payload-types'
+import type { Where } from 'payload'
 
 /**
- * Read-aloud audio of a content's base text (requirement 4 of
+ * Read-aloud audio of a content's base text or selected saved version (requirement 4 of
  * `docs/plan/requisiti-18-33.md`): the pure parts shared by the
  * `generateContentAudio` task, the `contents` hook that queues it and the
  * `/api/content-audio/[id]` route that serves it.
  *
- * One MP3 per content and locale lives in the `contentAudio` upload
+ * One MP3 per content, locale and optional saved variant lives in the `contentAudio` upload
  * collection. Its `textHash` fingerprints the text it reads (plus the voice
  * and model), so an edited text — or a refreshed translation — makes the
  * stored audio stale and the next request generates it again.
@@ -20,6 +21,23 @@ export const AUDIO_MODEL = 's2.1-pro-free'
 
 /** Jobs queue the audio tasks run on (`jobs.autoRun` in `payload.config.ts`). */
 export const AUDIO_QUEUE = 'speech'
+
+/** Missing/null variant is the legacy base audio; every saved version has its own file. */
+export function contentAudioWhere(
+  contentId: string,
+  locale: string,
+  variantId?: string | null,
+): Where {
+  return {
+    and: [
+      { content: { equals: contentId } },
+      { locale: { equals: locale } },
+      variantId
+        ? { variant: { equals: variantId } }
+        : { or: [{ variant: { exists: false } }, { variant: { equals: null } }] },
+    ],
+  }
+}
 
 /**
  * Longest text sent in one speech request. Long bodies are read in several
@@ -86,6 +104,18 @@ const SAMPLE_RATES: Record<number, number[]> = {
 function id3Size(bytes: Uint8Array) {
   if (bytes[0] !== 0x49 || bytes[1] !== 0x44 || bytes[2] !== 0x33) return 0
   return 10 + ((bytes[6]! << 21) | (bytes[7]! << 14) | (bytes[8]! << 7) | bytes[9]!)
+}
+
+/**
+ * `frames` silent MPEG-1 layer III frames at 128 kbps, 44.1 kHz (~26 ms
+ * each): a valid MP3 for the AI mock's speech (src/lib/ai-mock.ts) and the
+ * content-audio spec, timed by mp3DurationSeconds below.
+ */
+export function silentMp3(frames: number) {
+  const frameLength = 417 // floor(144 * 128000 / 44100), no padding
+  const bytes = new Uint8Array(frames * frameLength)
+  for (let i = 0; i < frames; i++) bytes.set([0xff, 0xfb, 0x90, 0x00], i * frameLength)
+  return bytes
 }
 
 /**

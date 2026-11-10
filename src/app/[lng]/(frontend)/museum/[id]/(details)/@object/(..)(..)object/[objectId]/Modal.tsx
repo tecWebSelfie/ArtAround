@@ -12,6 +12,7 @@ export function ObjectModal({
   ...props
 }: { children: React.ReactNode } & Omit<ModalProps, 'opened' | 'onClose'>) {
   const router = useRouter()
+  // The close button's name comes from AppMantineProvider.
   return (
     <Modal opened {...props} onClose={router.back}>
       {children}

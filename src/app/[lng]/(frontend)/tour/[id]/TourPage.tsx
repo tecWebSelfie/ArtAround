@@ -11,7 +11,8 @@ import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { formatRating } from '@/lib/rating'
-import { stopImage, summarizeTour } from '@/lib/tour-summary'
+import { formatUnit } from '@/lib/duration'
+import { stopImage, stopPicture, summarizeTour } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { QrCodeButton } from '@/components/QrCodeButton'
@@ -76,11 +77,6 @@ type TourPageProps = {
   museumOffer?: { id: string; name: string } | null
 }
 
-/** Localized measurements ("25 min", "320 m"): units follow the visitor's language. */
-function formatUnit(value: number, unit: 'minute' | 'meter', lng: string) {
-  return new Intl.NumberFormat(lng, { style: 'unit', unit, unitDisplay: 'short' }).format(value)
-}
-
 /**
  * Tour details, read before deciding to take the tour: what it is (cover,
  * museum, author, description), what it asks of the visitor (time, stops,
@@ -113,7 +109,11 @@ export default function TourPage({
   const summary = summarizeTour(tour)
   const museum = isPopulated(tour.museum) ? tour.museum : null
   const author = isPopulated(tour.author) ? tour.author.name?.fullName : null
-  const cover = isPopulated(tour.thumbnail) ? tour.thumbnail : null
+  // A tour without its own picture borrows its first stop's (an artwork it
+  // shows): a real work says more about the visit than the tour gradient.
+  const cover = isPopulated(tour.thumbnail)
+    ? tour.thumbnail
+    : (contents.map(stopPicture).find(Boolean) ?? null)
   // Literal keys so i18next-cli keeps them (DIFFICULTY_LABEL_KEY is dynamic).
   const difficultyLabel: Record<Difficulty, string> = {
     easy: t('Easy'),
@@ -267,6 +267,20 @@ export default function TourPage({
                   )}
                 </Group>
 
+                {/* The Thumb-Reach Rule: on phones the way forward lives in the
+                    64px footer; from md the same pair sits inline here, right
+                    under the figures and above the logistics, which can run
+                    long and would push "Start tour" below the fold. */}
+                <ActionFooter size="sm" inlineFrom="md">
+                  <TourActions
+                    price={price}
+                    editHref={editHref}
+                    canEdit={canEdit}
+                    startHref={startHref}
+                    onUnlock={() => setPurchaseOpen(true)}
+                  />
+                </ActionFooter>
+
                 {/* The visit's practical information (entrance, tickets,
                     cloakroom): logistic directions, not a stop (src/lib/tour-logistics.ts). */}
                 {tour.logistics?.trim() && (
@@ -279,19 +293,6 @@ export default function TourPage({
                     </Text>
                   </Stack>
                 )}
-
-                {/* The Thumb-Reach Rule: on phones the way forward lives in the
-                    64px footer; from md the same pair sits inline here, right
-                    under the figures. */}
-                <ActionFooter size="sm" inlineFrom="md">
-                  <TourActions
-                    price={price}
-                    editHref={editHref}
-                    canEdit={canEdit}
-                    startHref={startHref}
-                    onUnlock={() => setPurchaseOpen(true)}
-                  />
-                </ActionFooter>
               </Stack>
             </GridCol>
 

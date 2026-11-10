@@ -8,14 +8,51 @@ per punto. Bozza discussa: <https://claude.ai/artifact/PB41CcTaZFytdGChZQeAVY>.
 Stati: `[ ]` da fare, `[x]` fatto e verificato, `[!]` bloccato (motivo scritto
 sotto il punto).
 
+## Perimetro confermato dal PDF
+
+Fonte: **25 Progetto 2526 (1).pdf**, fornito dal maintainer. `18-33` indica
+il livello di valutazione: comprende navigator base (18-24), prima estensione
+(18-27) e seconda estensione (18-33), non soltanto le pagine 18–33.
+I numeri di pagina qui sotto sono quelli fisici del PDF, a partire da 1.
+Il marketplace è escluso da questo lavoro e affidato a un altro componente
+del gruppo; le sue funzionalità non vanno segnate come verificate da noi.
+
+| Area                  | Requisiti nel nostro perimetro                                                                                                                                                                                       | PDF       |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| Navigator base        | Selezione/esecuzione visita; mappa delle opere; testo e sintesi vocale; comandi controllati e pulsanti accessibili equivalenti                                                                                       | 27        |
+| Comandi               | Prossimo/precedente, cos'è questo, più/meno dettagli, più semplice/approfondito, autore/stile, uscita/toilette/bar/shop/ostacoli                                                                                     | 27        |
+| Visite di gruppo      | Ingresso con nome mnemonico; elenco partecipanti; contenuti avviati dalla guida; ospiti liberi di approfondire/cambiare linguaggio ma non tappa; monitoraggio richieste; quiz finale e voti                          | 28        |
+| Localizzazione        | Individuazione dell'opera e indicazioni per raggiungere opere e servizi, considerando ostacoli; scansione QR; nella versione avanzata posizione e orientamento del device, scelta tra miniature in caso d'incertezza | 29        |
+| Generazione           | Item mancanti, alternativi o di livello/linguaggio non disponibili                                                                                                                                                   | 30        |
+| Linguaggio naturale   | Comandi vocali liberi ricondotti ai comandi disponibili                                                                                                                                                              | 30        |
+| Lingue                | Traduzione dei contenuti e dei comandi; ascolto nella lingua del visitatore                                                                                                                                          | 30        |
+| Visite personalizzate | Creazione da vincoli del visitatore: tempo, visite precedenti, composizione/età del gruppo, interessi                                                                                                                | 30        |
+| Interazione           | Form e interazioni dirette; nessun prompt LLM esposto; provenienza umana/AI distinguibile solo nei metadati                                                                                                          | 30        |
+| Modello condiviso     | Visite con logistica separata dagli item; item con durata, linguaggio, autore, licenza; contenuti anche su artisti, stili ed eventi                                                                                  | 22        |
+| Generalità            | Navigator per smartphone e utilizzabile da PC; musei intercambiabili tramite configurazione, titoli e immagini                                                                                                       | 31        |
+| Dimostrazione         | Museo reale popolato; visite disponibili; almeno una visita sincronizzata con quiz; QR stampabili; teletrasporto vicino a ogni opera della visita                                                                    | 32–33     |
+| Consegna              | Backend Node.js, MongoDB e codice sui server del dipartimento, due container Docker; README.txt e sorgenti per la consegna                                                                                           | 31, 37–40 |
+
+Account e visite di esempio sono dati condivisi con il marketplace: conservarli
+e usarli per provare il navigator non significa intervenire sull'interfaccia
+marketplace. Restano fuori da questa attività catalogo commerciale, acquisti,
+vendite, adozioni e relativa UI di authoring/editor del compagno. Il collegamento
+dal navigator al marketplace va preservato (p. 27).
+
+La presenza di test di regole pure non certifica l'intero flusso utente:
+in particolare `tour-plan.int.spec.ts` prova vincoli, prompt e budget, non la
+sincronizzazione di contenuti diversi per età o l'intero flusso nel browser.
+Gli stati storici sotto riportano le verifiche delle sessioni precedenti;
+non sono una nuova esecuzione di tutte le suite in questa sessione.
+
 ## Decisioni
 
-| Decisione                     | Scelta                                                                   |
-| ----------------------------- | ------------------------------------------------------------------------ |
-| Commit e push durante il goal | Commit + push sul branch `ccr-05ce6c3f-yjnqrl` per ogni punto completato |
-| Dichiarazione dei diritti     | Casella a ogni nuovo contenuto, salvata in `rightsDeclaredAt`            |
-| Autori, stili, eventi         | Collection separata `subjects`                                           |
-| "Plan my visit"               | Fuori da questo goal                                                     |
+| Decisione                 | Scelta                                                                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------- |
+| Branch di lavoro attuale  | `db-populate`, richiesto dal maintainer; supera il vecchio branch del handoff             |
+| Dichiarazione dei diritti | Casella a ogni nuovo contenuto, salvata in `rightsDeclaredAt`                             |
+| Autori, stili, eventi     | Collection separata `subjects`                                                            |
+| "Plan my visit"           | Nel perimetro navigator 18-33 (PDF p. 30); flusso verificato con gruppo e profili per età |
 
 Già decise:
 
@@ -90,7 +127,8 @@ Già decise:
     `generateContentAudio` (coda `speech`, ogni 5 s), hook `queueContentAudio`,
     route `/api/content-audio/[id]` (legge il testo come il visitatore, supporta
     Range), pulsante `ContentAudioButton` in tutte le viste del contenuto.
-    Variante per le versioni (bambini, semplice) non fatta: legge il testo base.
+    Versioni per bambini, età esatta, livello e durata supportate: “Ascolta”
+    usa la variante mostrata, con file e cache separati dal testo base.
     Test: `tests/int/content-audio.int.spec.ts` (Fish Audio simulato), storia
     `ContentAudioButton`. Limite: la chiamata reale a Fish Audio non è
     verificata qui, perché nell'ambiente cloud manca `FISH_API_KEY`.
@@ -216,10 +254,122 @@ Già decise:
       `docAccessOperation`, che l'endpoint usa per riconoscere il proprietario.
   - `pnpm test:int` completo: 71 file, 342 test passati.
 
+- [x] **Test dei requisiti del navigator 18-33 ancora scoperti (marketplace escluso)**
+  - Seam concordati e provati con la skill TDD: comandi in linguaggio naturale
+    (`assistant-natural-language`), comandi dell'ospite di gruppo
+    (`group-guest-commands`, regola spostata in `guestCommands` di
+    `src/lib/group.ts`), traduzione dei contenuti (`content-translation`),
+    visita dai vincoli dell'utente (`tour-plan`), QR stampati
+    (`printed-qr`), metadati dell'item (`item-metadata`), teletrasporto
+    (`teleport`), opera davanti all'utente (`work-in-front`).
+  - Nuova regola pura `src/lib/work-in-front.ts`: posizione + bussola →
+    opera sicura, candidate da scegliere (massimo 4) o nessuna.
+
+## Localizzazione avanzata — implementazione Codex
+
+- [x] Collegamento posizione stimata + bussola + opere sulla mappa, sul branch
+      `db-populate`, secondo il brief confermato nella sessione vocale.
+      `compass-source.ts` legge heading iOS e alpha assoluto, con autorizzazione
+      da un tap; il simulatore ruota anche la direzione con le frecce.
+- [x] Avviso non bloccante distinto per destinazione successiva e scoperta
+      facoltativa fuori tour. Miniature e nomi per massimo quattro opere; apertura
+      e conferma della posizione sono azioni separate. Nessun aggiornamento
+      automatico di `at`, né cambio locale della posizione per gli ospiti di gruppo.
+- [x] Comparsa a 3 m / 30°, permanenza fino a 4,5 m / 45°, scomparsa quando
+      ci si allontana o il GPS non è utilizzabile; chiusura persistente finché le
+      candidate restano in portata. Nessuna notifica della stanza sovrapposta
+      all'avviso GPS; lo storico dei suggerimenti resta nella ricerca.
+- [x] Stima GPS anche in visita libera senza destinazione; nuova calibrazione
+      cambiando posizione confermata o sorgente GPS. Tradotte tutte le 16 nuove
+      chiavi nelle 24 lingue. Il controllo i18n globale segnala ancora lacune
+      estranee alle nuove chiavi: non è una certificazione di tutte le traduzioni.
+- [x] Test mirati delle regole e dei sensori simulati; storie interattive
+      `Nearby Works`, `Live Proximity`, `Compass Settings`, con accessibilità.
+      Ultimo controllo mirato: 6 file, 35 test passati (incluse le regole esistenti
+      di guida e pianificazione); 9 storie verificate fra i componenti coinvolti.
+      Rendering ispezionato a 390×844 e 1280×800, tema chiaro/scuro; nessun test
+      di regressione visiva eseguito. Controllo TypeScript e lint eseguiti;
+      lint conserva warning su file preesistenti fuori da queste modifiche.
+      Provato anche il collegamento nella mappa completa: tre movimenti a est
+      nel simulatore della storia `SimulatedGps` mostrano l'avviso per Gallery exhibit.
+- [ ] Prova fisica su iOS/Android e dentro il museo: permessi e precisione
+      reali non sono certificati dai sensori sintetici. Il piano usa l'ipotesi
+      già presente di mappa orientata a nord e coordinate in metri.
+
+### Ripristino del motore Impeccable
+
+- [x] Launcher `.agents` e `.claude` verificati con il motore Linux 0.1.16:
+      bootstrap nella cache ignorata del progetto, senza richiedere scritture
+      nella home del sandbox. Override, TLS e checksum restano invariati.
+- [x] Verificati i parser degli hook con fixture Claude Edit e Codex apply_patch;
+      documentate le differenze dei client in `docs/impeccable-runtime.md`.
+- [x] Ripetuti i controlli del motore su sorgenti e rendering mobile/desktop/
+      scuro. Corretto il salto h3→h2 nell'avviso; i tre rendering non presentano
+      segnalazioni. Revisore indipendente Impeccable: `ship` sul perimetro fornito.
+      Il brief è ora registrato dal motore con i suoi effettivi file sorgenti.
+
+### Navigation audit follow-up — adapt, harden, polish (2026-11-06)
+
+- [x] Corrected navigation action/duration contrast with museum-primary shade 8.
+- [x] Bounded overlays between measured bars; essential commands stay in a
+      wrapping dock, services use a separate popover, and secondary actions scroll.
+- [x] Enlarged navigation touch targets to at least 44px and allowed long
+      labels/footer directions to wrap.
+- [x] Passed 38 focused integration tests, 10 interaction/a11y stories and the
+      full TypeScript check. Repeated seven-state axe scan: no violations or
+      horizontal overflow. Evidence and limitations: `tour-navigation-audit.md`.
+- [x] Synthetic Chromium swipes recovered Open/Confirm/Next/Resume in landscape
+      and with 200% text, while essential dock controls remained hittable.
+- [x] Independent finish review: `ship` for the scored A3 active-footer fix;
+      no regression identified in that correction. DESIGN.md and its sidecar
+      reconciled with the navigation rules. This is not whole-application certification.
+
+### Planned visits and synchronized family reading (2026-11-06)
+
+- [x] Verified the public planner with time, returning visit, interests, adults
+      and children aged 5/8. Added group start to the preview and a personal reader
+      choice to preview/join; adults no longer receive children's text by default.
+- [x] Exact-age variants and further explanations use distinct prompts/cache
+      keys. Age persists across shared stops and reload without being broadcast
+      by the host. Saved MongoDB variants for 5 and 8 were inspected independently.
+- [x] Fixed the overlong-first-stop budget exception, duplicate works, private
+      candidate exclusion and stale cached-plan validation. Two-second captions
+      now request the API's valid minimum version length rather than failing.
+- [x] 32 focused integration tests and both new public-flow e2e tests passed:
+      real Next/Payload/MongoDB/LiveKit, three independent browser contexts, AI SDK
+      mocks only at the language-model boundary. No claim about real provider prose.
+- [x] Translated the five new planner strings across all 24 locales. Applied
+      readable action/gradient shades, dark secondary text and validation colors.
+- [x] Independent Impeccable finish review: `ship` for this scoped planner/reader
+      extension. Eight interaction/a11y stories, final TypeScript, scoped lint and
+      i18next extraction checks passed; DESIGN.md and its sidecar reconciled.
+
+Detailed behavior, test boundaries and evidence: `docs/planned-visits.md`.
+
+### Museum geographic location (2026-11-07)
+
+- [x] Public Info map/pin and director inline address autocomplete implemented
+      with Map Place hooks, native Mantine UI and standalone `MapPlaceMap`.
+      Save commits postal text and the existing native Payload point together;
+      changing address/city/coordinates requires a new explicit confirmation.
+- [x] Simplified the normal form to one full address; city is derived from the
+      suggestion and editable only in the manual fallback. Legacy addresses display
+      without duplicated city. Nine integration tests and 12 affected interaction/a11y
+      stories passed for this refinement, with no reported accessibility violations.
+- [x] Eight focused integration tests and 14 initial scoped interaction/a11y stories
+      passed; TypeScript, scoped lint and i18next extraction `--ci` passed.
+- [x] Independent final visual verdict: `ship` for this scoped extension, with
+      all five contract sections and six valid final captures; no material fixes
+      remain. Public Info placement was source-verified, without a separate public-page
+      capture. Live providers, street tiles and physical GPS were not tested.
+
+Behavior, configuration and evidence: [Museum location](../museum-location.md).
+Historical library comparison: [shape and library audit](museum-location-shape-and-library-audit.md).
+This is a geographic address extension; indoor Pascal navigation and outdoor
+routing are outside its implementation scope.
+
 ## Rimandati
 
-- Orientamento del dispositivo e scelta tra opere candidate: prossima iterazione.
-- "Plan my visit" e il suo campo libero "interessi": prossima iterazione.
 - `README.txt` e cartella `sources`: li preparano gli autori del progetto.
 - Test visivi (`pnpm test:visual`): solo con approvazione esplicita, per ogni
   esecuzione.
@@ -234,3 +384,70 @@ Già decise:
   per farli passare.
 - Un punto bloccato da una chiave API o da una decisione degli autori diventa
   `[!]` con il motivo, e si passa al successivo.
+
+### Closing pending implementation and regression work (2026-11-07)
+
+- [x] Filled all 15 museum-location strings in all 24 supported UI languages;
+      i18next extraction `--ci` reports no file updates.
+- [x] Added Listen for the displayed saved version, including exact age, with
+      source entitlement checks, separate recordings/cache/jobs, Range/ETag and
+      cancellation on reader changes. Existing base recordings are retained by
+      a targeted startup index upgrade.
+- [x] Final full integration run: 43 files, 276 tests passed, including Android
+      absolute event/cleanup, insecure context/Safari permission exceptions,
+      personalized audio and failed group-end recovery. No skipped tests.
+- [x] Four scoped audio interaction/a11y stories passed without reported
+      violations. Mobile, desktop and mobile-dark renders were inspected without
+      horizontal overflow. Production build and its TypeScript check passed.
+- [ ] Physical iOS/Android/museum acceptance requires actual devices and an
+      indoor trial. Automated sensors cover permissions, event formats, stale
+      measurements and cleanup; they do not certify hardware accuracy.
+- [!] Live CARTO/Photon verification is blocked by the current enforced cloud
+  network policy (fresh CONNECT 403 probes). The allowlist draft is saved;
+  review/save and environment publication are needed to apply it. No
+  environment publication or deployment was performed.
+
+- [x] Removed the editor's blocked external Draco decoder request: matching
+      Three.js decoder assets are copied locally at postinstall and configured
+      before GLTF preload. Both map-editor E2E cases now pass without suppressing
+      their runtime-error assertions; no dependency was added.
+- [x] Rechecked real QR decoding for canonical object/content links, voice-command
+      execution, personalized family audio and GPS proximity confirmation. The
+      navigation test now targets the implemented proximity notice, replacing
+      its obsolete room-carousel expectation.
+- [x] Group token/connection startup retries preserve membership on temporary
+      failures. Failed DELETE no longer abandons the host locally or redirects
+      home; the host can retry. The retry message is translated in all 24 locales.
+
+- [x] Closed all 21 distinct E2E scenarios through the full run and focused
+      reruns after demonstrated fixes. The initial 21-case run passed 11 and
+      exposed 10 failures; the affected 12-case rerun passed 10, leaving two
+      group-end failures. After correcting false deletion success, all three
+      group scenarios passed, including injected token/DELETE 503 recovery,
+      exact room deletion (HTTP 204 then 404), group switching and ended codes.
+      Logs: `/tmp/artaround-full-e2e.log`, `/tmp/artaround-e2e-recheck.log`,
+      `/tmp/artaround-e2e-group-final.log`. No visual-regression suite was run.
+
+No local implementation or regression failure remains from this closing pass.
+The open items above are external acceptance boundaries: actual phone/museum
+sensors and live cartographic providers after activation of the saved network
+configuration draft. Fresh final CARTO light/dark and Photon probes still return
+proxy CONNECT 403 (`/tmp/artaround-live-map-probes.json`).
+
+### Keyless basemap follow-up (2026-11-07)
+
+- [x] Replaced the current CARTO basemap with OpenFreeMap Bright/Dark, keeping
+      Map Place rendering, Mantine controls, saved marker and attribution.
+      OpenFreeMap's public instance requires no key or registration; Photon
+      autocomplete and persisted address/Point are unchanged.
+- [x] Updated deterministic provider fixtures and added dark-map coverage:
+      nine museum-location integration tests and 16 scoped interaction/a11y
+      stories passed. The default E2E listing still contains 21 cases.
+- [x] Prepared the separate opt-in `pnpm test:live:location` suite: three
+      read-only browser checks for Photon/CORS and real light/dark vector tiles
+      plus the saved pin. No writes, provider mocks or hidden skips.
+- [!] Real-provider execution remains pending until the maintainer enables
+  `tiles.openfreemap.org`, `assets.openfreemap.com`, `photon.komoot.io`.
+  These supersede the older CARTO domain plan above. Network settings were
+  not changed and no environment was published in this follow-up.
+- [ ] Physical GPS/compass/museum-floor checks remain with the maintainer.

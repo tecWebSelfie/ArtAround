@@ -3,6 +3,7 @@ import {
   followHref,
   groupLocation,
   isQuizLocation,
+  isRetryableTokenError,
   isTourLocation,
   normalizeRoomCode,
   ROOM_CODE_PATTERN,
@@ -62,5 +63,23 @@ describe('group tours', () => {
     expect(isTourLocation('/museum/m1/navigation/tour/t10/2', 't1')).toBe(false)
     expect(isTourLocation('/museum/m1/navigation', 't1')).toBe(false)
     expect(isTourLocation('/tour/t1', 't1')).toBe(false)
+  })
+})
+
+// Reconnecting to a group (`GroupConnection`): only transient token failures
+// are retried, so a rejected device stops asking every few seconds.
+describe('group token retries', () => {
+  const answer = (status: number) =>
+    new Error(`Error generating token from endpoint /api/rooms/token: received ${status} / nope`)
+
+  it('retries network failures, server errors and the rate limiter', () => {
+    expect(isRetryableTokenError(new TypeError('Failed to fetch'))).toBe(true)
+    expect(isRetryableTokenError(answer(502))).toBe(true)
+    expect(isRetryableTokenError(answer(429))).toBe(true)
+  })
+
+  it('gives up on requests the server refuses', () => {
+    expect(isRetryableTokenError(answer(400))).toBe(false)
+    expect(isRetryableTokenError(answer(403))).toBe(false)
   })
 })

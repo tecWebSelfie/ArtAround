@@ -1,4 +1,5 @@
 {
+  "“{{title}}” is now unlocked on your account.": "“{{title}}” è ora sbloccato sul tuo account.",
   "Back to the content": "Torna al contenuto",
   "Back to the navigator": "Torna al navigatore",
   "Back to the tour": "Torna al tour",
@@ -11,6 +12,7 @@
   "Sign in": "Accedi",
   "Sign in to see your purchase": "Accedi per vedere il tuo acquisto",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe non ci ha ancora confermato questo pagamento. Si sblocca sul tuo account appena lo fa: non devi fare altro.",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "I contenuti a pagamento di “{{title}}” sono ora sbloccati sul tuo account.",
   "The paid contents of this tour are now unlocked on your account.": "I contenuti a pagamento di questo tour sono ora sbloccati sul tuo account.",
   "Your purchase is now unlocked on your account.": "Il tuo acquisto è ora sbloccato sul tuo account."
 }

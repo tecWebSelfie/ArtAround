@@ -1,0 +1,4 @@
+# pnpm hashes .pnpmfile.cjs byte for byte into pnpm-lock.yaml (pnpmfileChecksum):
+# keep it LF everywhere so a Windows CRLF checkout and a Linux one agree and
+# `pnpm install --frozen-lockfile` works on both.
+.pnpmfile.cjs text eol=lf

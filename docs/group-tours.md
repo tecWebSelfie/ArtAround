@@ -32,7 +32,7 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   host sees what they ask for.
 - **During the tour, guests follow the host.** Shared: the step, position (`at`),
   destination (`to`/`service`/`exit`) and the open modal. Personal: language,
-  wheelchair route, reading options (`level`, `minutes`, `audience`), "Tell me more"
+  wheelchair route, reading options (`level`, `seconds`, `audience`, `age`), "Tell me more"
   (`more`), GPS estimate. Guests have no step selection, destinations, "go to"
   commands, scanner or position buttons; their voice/search commands are limited to
   reading and wheelchair routing.
@@ -87,10 +87,12 @@ or video publishing.
 
 ## Running it
 
-- Local: `docker compose -f my-agent/compose.livekit.yaml up -d livekit` (dev keys
+- Local: `pnpm services:start` starts LiveKit along with MongoDB (the `livekit` service of
+  `my-agent/compose.livekit.yaml`, included by `docker-compose.yml`; dev keys
   `devkey`/`secret`, `LIVEKIT_URL=ws://localhost:7880`). The server is started with
   `--node-ip 127.0.0.1`; without it rooms stay "connecting" because the browser can't
-  reach the container's IP.
+  reach the container's IP. The group e2e tests check the server first
+  (`tests/helpers/livekit.ts`) and fail at once when it is down.
 - Production: a LiveKit Cloud project; set `LIVEKIT_URL` (`wss://…`), `LIVEKIT_API_KEY`
   and `LIVEKIT_API_SECRET`. An HTTPS site can't open `ws://`.
 
@@ -126,3 +128,46 @@ Last reviewed 2026-10-20.
   to a client component); quiz pages 404'd for visitors (questions are not readable by
   them, so `quiz.server.ts` reads with `overrideAccess`); submitting a quiz could
   bounce back to question 1 (the URL clamp ran after the saved answers were cleared).
+
+## Planned family visits (2026-11-06)
+
+A planned family can start a group directly from its preview. Each device chooses
+Adult or one planned age; only that age list is sent to the join UI. Host profile
+and wheelchair routing reach the waiting room, while invitation links stay
+profile-free. Starting/following keeps each reader's `age` and `audience` on the
+shared work. Same-modal duration choices use `seconds` (legacy `minutes` remains
+accepted). See [Planned visits](planned-visits.md) for the three-device e2e proof
+and its explicit model-provider boundary.
+
+## Connection recovery (2026-11-07)
+
+Initial token or connection failures now retry with a 1–5 second backoff while
+membership remains active. This also applies when a host reloads. Only an
+explicit missing/ended-room response (404/410) clears membership; transient 5xx
+or rate limits do not turn an open room into an ended group. Leaving, switching
+rooms and unmounting cancel retry waits and disconnect through LiveKit's
+sequential connect/disconnect hook. Established-connection recovery remains
+LiveKit's responsibility.
+
+The reload E2E case injects one token-endpoint 503, then requires the guest to
+follow the reconnected host again. Group specs close their manually created
+browser contexts after every case. `E2E_SOFTWARE_WEBGL=true` limits animation
+scheduling for their simultaneous software-rendered maps in cloud tests; it
+changes neither app code nor a production performance claim.
+
+Ending a group now requires a successful DELETE response before clearing local
+membership or navigating home. A failed request preserves the host connection
+and shows a localized retry message. This corrects the earlier false success
+where the host left even though the LiveKit room still existed. The focused
+provider test uses MSW to refuse the first authorized DELETE and accept a retry;
+it verifies that membership survives the failure. The end-to-end cases also
+observe the exact room's DELETE and verify that its public status becomes 404,
+instead of inferring deletion solely from the host leaving the page.
+
+Final group rerun: all three multi-browser scenarios passed on the local
+production build and real LiveKit. This includes injected initial-token 503,
+injected DELETE 503 followed by authorized retry, private results, reload,
+leaving/switching rooms and ended codes. End assertions require HTTP 204 and
+then a real 404 lookup for the same room. Evidence:
+`/tmp/artaround-e2e-group-final.log`. No real speech provider or phone sensor
+acceptance is implied by these deterministic regression checks.

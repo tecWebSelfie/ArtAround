@@ -1,4 +1,5 @@
 {
+  "“{{title}}” is now unlocked on your account.": "",
   "Back to the content": "Natrag na sadržaj",
   "Back to the navigator": "Natrag na navigator",
   "Back to the tour": "Natrag na turu",
@@ -11,6 +12,7 @@
   "Sign in": "Prijavi se",
   "Sign in to see your purchase": "Prijavi se da vidiš svoju kupnju",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nam još nije potvrdio ovo plaćanje. Otključat će se na tvom računu čim to učini; ne trebaš ništa više poduzeti.",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "",
   "The paid contents of this tour are now unlocked on your account.": "Plaćeni sadržaji ove ture sada su otključani na tvom računu.",
   "Your purchase is now unlocked on your account.": "Tvoja kupnja sada je otključana na tvom računu."
 }
