@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-06T20:17:14Z",
+  "generatedAt": "2026-11-10T00:00:00Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -8,28 +8,32 @@
         "role": "primary",
         "displayName": "Navigation blue (museum primary)",
         "tonalRamp": [
-          "#e7f5ff",
-          "#d0ebff",
-          "#a5d8ff",
-          "#74c0fc",
-          "#4dabf7",
-          "#339af0",
-          "#228be6",
-          "#1c7ed6"
+          "#f1f7fe",
+          "#ddecfd",
+          "#c0dcfa",
+          "#9dc8f6",
+          "#71aff0",
+          "#3993e8",
+          "#0077d1",
+          "#0065bd",
+          "#0053a9",
+          "#003d92"
         ]
       },
       "navigation-blue-hover": {
         "role": "primary",
         "displayName": "Navigation blue hover",
         "tonalRamp": [
-          "#e7f5ff",
-          "#d0ebff",
-          "#a5d8ff",
-          "#74c0fc",
-          "#4dabf7",
-          "#339af0",
-          "#228be6",
-          "#1c7ed6"
+          "#f1f7fe",
+          "#ddecfd",
+          "#c0dcfa",
+          "#9dc8f6",
+          "#71aff0",
+          "#3993e8",
+          "#0077d1",
+          "#0065bd",
+          "#0053a9",
+          "#003d92"
         ]
       },
       "tour-purple": {
@@ -409,6 +413,14 @@
           "#228be6",
           "#1c7ed6"
         ]
+      },
+      "tour-grape": {
+        "role": "secondary",
+        "displayName": "Tour gradient start (grape.8)"
+      },
+      "tour-orange-deep": {
+        "role": "secondary",
+        "displayName": "Tour gradient end (orange.9)"
       }
     },
     "typographyMeta": {
