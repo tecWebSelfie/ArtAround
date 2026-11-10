@@ -12,6 +12,7 @@ import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
 import { lexicalToHTML } from '@/lib/richtext'
 import { formatMuseumAddress } from '@/lib/museum-location'
+import { openingHoursRows } from '@/lib/opening-hours'
 import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
@@ -297,6 +298,12 @@ export default async function MuseumPage({
                                     </Text>
                                   </Group>
                                 ))}
+                                {hours.length > 0 && (
+                                  // Visitors abroad shouldn't convert them.
+                                  <Text size="xs" c="dimmed">
+                                    {t('Local time at the museum')}
+                                  </Text>
+                                )}
                                 {museum.openingHours?.notes && (
                                   <Text size="sm" c="dimmed">
                                     {museum.openingHours.notes}
@@ -474,38 +481,4 @@ export async function MuseumBadges(props: { museum: Museum; accessibleLabel: str
       </TooltipGroup>
     </Group>
   )
-}
-
-const WEEKDAYS = [
-  'monday',
-  'tuesday',
-  'wednesday',
-  'thursday',
-  'friday',
-  'saturday',
-  'sunday',
-] as const
-
-/**
- * The week's opening hours as rows ("Monday", "09:00–13:00, 14:00–19:00"), day
- * names in the visitor's language; a day without ranges reads as closed. No
- * rows at all when the museum entered no hours, so nothing is guessed.
- */
-function openingHoursRows(hours: Museum['openingHours'], lng: string) {
-  if (!hours || WEEKDAYS.every((day) => !hours[day]?.length)) return []
-  const dayName = new Intl.DateTimeFormat(lng, { weekday: 'long', timeZone: 'UTC' })
-  // Opening and closing are Payload date fields (ISO instants); only their
-  // time of day matters, in the visitor's notation.
-  const time = new Intl.DateTimeFormat(lng, { timeStyle: 'short' })
-  return WEEKDAYS.map((day, index) => ({
-    // 1 January 2024 was a Monday.
-    day: dayName.format(new Date(Date.UTC(2024, 0, 1 + index))),
-    ranges: (hours[day] ?? [])
-      .filter((range) => range.opening && range.closing)
-      .map(
-        (range) =>
-          `${time.format(new Date(range.opening!))}–${time.format(new Date(range.closing!))}`,
-      )
-      .join(', '),
-  }))
 }

@@ -4,7 +4,7 @@ import { BuildingNode, LevelNode, SiteNode, WallNode, type ParsedBuildJson } fro
 import { createRealisticMuseumMap } from './museum-map.mock'
 import { mockToursList } from './tour.mock'
 
-const TIMESTAMP = '2026-01-15T10:00:00.000Z'
+const TIMESTAMP = '10:00'
 
 type MuseumMapOptions = {
   width: number
@@ -187,30 +187,15 @@ export const mockMuseumFull: Museum = createMuseum({
     },
   ],
   objects: mockObjectsList,
-  // Payload stores museum opening times in date fields; use ISO timestamps so
-  // these reusable fixtures pass the same validation as seeded documents.
+  // Wall-clock `HH:mm` at the museum (src/fields/OpeningHours.ts).
   openingHours: {
-    monday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
-    ],
-    tuesday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-tue-1' },
-    ],
-    wednesday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
-    ],
-    thursday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T20:00:00.000Z', id: 'oh-thu-1' },
-    ],
-    friday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
-    ],
-    saturday: [
-      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T19:00:00.000Z', id: 'oh-sat-1' },
-    ],
-    sunday: [
-      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-sun-1' },
-    ],
+    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
+    tuesday: [{ opening: '09:00', closing: '18:00', id: 'oh-tue-1' }],
+    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
+    thursday: [{ opening: '09:00', closing: '20:00', id: 'oh-thu-1' }],
+    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
+    saturday: [{ opening: '10:00', closing: '19:00', id: 'oh-sat-1' }],
+    sunday: [{ opening: '10:00', closing: '18:00', id: 'oh-sun-1' }],
     notes: null,
   },
   lfrs: {
@@ -242,24 +227,12 @@ export const mockMuseumBrera: Museum = createMuseum({
 export const mockMuseumClosed: Museum = createMuseum({
   id: 'museum-closed-001',
   openingHours: {
-    monday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
-    ],
-    tuesday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-tue-1' },
-    ],
-    wednesday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
-    ],
-    thursday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-thu-1' },
-    ],
-    friday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
-    ],
-    saturday: [
-      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T13:00:00.000Z', id: 'oh-sat-1' },
-    ],
+    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
+    tuesday: [{ opening: '09:00', closing: '18:00', id: 'oh-tue-1' }],
+    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
+    thursday: [{ opening: '09:00', closing: '18:00', id: 'oh-thu-1' }],
+    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
+    saturday: [{ opening: '10:00', closing: '13:00', id: 'oh-sat-1' }],
     sunday: null,
     notes: 'Chiuso la domenica e nei giorni festivi.',
   },
@@ -269,23 +242,13 @@ export const mockMuseumWithServices: Museum = createMuseum({
   id: 'museum-services-001',
   accessibility: { isAccessible: true },
   openingHours: {
-    monday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-mon-1' },
-    ],
+    monday: [{ opening: '09:00', closing: '18:00', id: 'oh-mon-1' }],
     tuesday: null,
-    wednesday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-wed-1' },
-    ],
+    wednesday: [{ opening: '09:00', closing: '18:00', id: 'oh-wed-1' }],
     thursday: null,
-    friday: [
-      { opening: '2026-01-15T09:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-fri-1' },
-    ],
-    saturday: [
-      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T19:00:00.000Z', id: 'oh-sat-1' },
-    ],
-    sunday: [
-      { opening: '2026-01-15T10:00:00.000Z', closing: '2026-01-15T18:00:00.000Z', id: 'oh-sun-1' },
-    ],
+    friday: [{ opening: '09:00', closing: '18:00', id: 'oh-fri-1' }],
+    saturday: [{ opening: '10:00', closing: '19:00', id: 'oh-sat-1' }],
+    sunday: [{ opening: '10:00', closing: '18:00', id: 'oh-sun-1' }],
     notes: 'Martedi e giovedi apertura solo su prenotazione per i servizi.',
   },
   // Service markers now live in the saved map scene graph, so the museum page
