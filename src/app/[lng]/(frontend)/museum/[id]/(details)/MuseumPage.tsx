@@ -112,7 +112,10 @@ export default async function MuseumPage({
         : null
   const socials = museum.socials ?? []
   const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
-  const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium' })
+  // A news date is a day, which Payload's date picker stores as 12:00 UTC of
+  // the picked day: formatted in UTC it is that day for every visitor, where
+  // the server's or visitor's zone could shift it to the day before or after.
+  const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium', timeZone: 'UTC' })
   const base = editing ? `/${editing.lng}` : ''
   const tours = filterPopulated<Tour>(museum.tours?.docs)
   return (

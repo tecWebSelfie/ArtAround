@@ -52,7 +52,11 @@ async function loadContentDetails(
   const objectId = firstId(content.objects?.docs)
   const authorId = typeof content.author === 'string' ? content.author : content.author?.id
   const categoryIds = (content.categories ?? []).map((c) => (typeof c === 'string' ? c : c.id))
-  const imageIds = (content.images ?? []).map((i) => (typeof i === 'string' ? i : i.id))
+  // The work's thumbnail, filled in by the page's localized read.
+  const objectThumbnail =
+    content.objects?.docs?.flatMap((doc) =>
+      typeof doc !== 'string' && doc.id === objectId ? [doc.thumbnail ?? null] : [],
+    )[0] ?? null
   const rightsMuseumId =
     typeof content.rightsMuseum === 'string' ? content.rightsMuseum : content.rightsMuseum?.id
 
@@ -83,10 +87,11 @@ async function loadContentDetails(
       : null
   })
 
-  const [object, objectMedia, author, categories, images, tours, rightsMuseum, related] =
+  const [object, objectMuseums, author, categories, tours, rightsMuseum, related] =
     await Promise.all([
       objectRead,
-      // Thumbnail and museum: relations the depth-0 localized read leaves as ids.
+      // The museum: a join the depth-0 localized read leaves as ids. (The
+      // work's thumbnail already came with the content, `content.objects`.)
       objectId
         ? payload
             .findByID({
@@ -94,11 +99,8 @@ async function loadContentDetails(
               id: objectId,
               depth: 1,
               locale,
-              select: { thumbnail: true, museums: true },
-              populate: {
-                objectsThumbnails: PICTURE_SELECT,
-                museums: { name: true, shortDescription: true },
-              },
+              select: { museums: true },
+              populate: { museums: { name: true, shortDescription: true } },
               ...viewer,
             })
             .catch(() => null)
@@ -121,17 +123,6 @@ async function loadContentDetails(
             collection: 'museumCategories',
             where: { id: { in: categoryIds } },
             select: { name: true },
-            locale,
-            depth: 0,
-            pagination: false,
-            ...viewer,
-          })
-        : null,
-      imageIds.length
-        ? payload.find({
-            collection: 'contentImages',
-            where: { id: { in: imageIds } },
-            select: PICTURE_SELECT,
             locale,
             depth: 0,
             pagination: false,
@@ -170,18 +161,19 @@ async function loadContentDetails(
       relatedRead,
     ])
 
-  const museum = objectMedia?.museums?.docs?.find(
+  const museum = objectMuseums?.museums?.docs?.find(
     (doc): doc is Exclude<typeof doc, string> => typeof doc !== 'string',
   )
 
   return {
-    object: object && { ...object, thumbnail: objectMedia?.thumbnail ?? null },
+    object: object && { ...object, thumbnail: objectThumbnail },
     museum: museum ?? null,
     author,
     rightsHolder: rightsMuseum?.name ?? (author ? displayName(author) : null),
     // `in` queries don't keep the authored order: restore it.
     categories: categoryIds.flatMap((cid) => categories?.docs.filter((c) => c.id === cid) ?? []),
-    images: imageIds.flatMap((iid) => images?.docs.filter((i) => i.id === iid) ?? []),
+    // Populated, in order, by the page's localized read (src/lib/localized-page.ts).
+    images: (content.images ?? []).filter(isPopulated),
     tours: tours.docs,
     related: related?.docs ?? [],
   }

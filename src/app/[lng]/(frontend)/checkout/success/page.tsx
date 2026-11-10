@@ -79,7 +79,10 @@ export default async function CheckoutSuccess(props: {
   }
 
   // Ownership, and the bought item's name so the page says what was bought
-  // ("Masterpieces of the Pinacoteca is unlocked"), read together.
+  // ("Masterpieces of the Pinacoteca is unlocked"), read together. In
+  // parallel on purpose: this page is reached after paying, so ownership is
+  // almost always confirmed, and waiting for it first would add a round trip
+  // to that common case; the rare pending payment wastes one small read.
   const [owned, item] = back.target
     ? await Promise.all([
         hasPurchased(payload, user.id, back.target.collection, back.target.id),

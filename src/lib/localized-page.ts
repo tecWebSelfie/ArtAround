@@ -18,7 +18,9 @@ const PUBLIC_MEDIA = { overrideAccess: true } as const
  * arrive as bare ids. For objects both are populated here, alongside, so every
  * object view (page and modals) shows the photo and can offer the 3D view.
  * For contents the same goes for their images and the works they talk about
- * (with thumbnails), so the tour's step modal can show the artwork.
+ * (with thumbnails), so the tour's step modal can show the artwork and the
+ * content page needs no second read for either. Pictures are read in the
+ * visitor's locale, so their `alt` text is translated.
  */
 export const getLocalizedPageDocument = cache(
   async <T extends 'objects' | 'contents'>(collection: T, id: string, lng: string) => {
@@ -37,6 +39,8 @@ export const getLocalizedPageDocument = cache(
               collection: 'objects',
               id,
               depth: 1,
+              // The visitor's locale: the pictures' `alt` is editorial text.
+              locale,
               select: { thumbnail: true, model: true },
               // The GLB's `url` is computed from `filename` too.
               populate: {
@@ -50,6 +54,7 @@ export const getLocalizedPageDocument = cache(
               collection: 'contents',
               id,
               depth: 1,
+              locale,
               select: { images: true, objects: true },
               populate: { contentImages: PICTURE_SELECT },
             })
