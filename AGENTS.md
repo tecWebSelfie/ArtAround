@@ -311,8 +311,12 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
   hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
   tests stay out of the hooks: they need the database and take too long.
+- Before every commit, run `/code-review` on the diff about to be committed
+  and fix what it finds; commit only once it comes back clean (or the
+  remaining findings are explained to the maintainer).
 - Before opening a PR, run `/simplify` (reuse, simplification, efficiency) and
-  `/code-review` (correctness) by hand on the diff. They are deliberately not
+  `/code-review` (correctness) by hand on the whole PR diff, as a final pass
+  over the commits already reviewed one by one. They are deliberately not
   wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
   the working tree after staging, and a commit hook could loop on them.
 - Before pushing, run `/simplify` on the unpushed changes. When they touch the
