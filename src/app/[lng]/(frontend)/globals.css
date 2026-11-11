@@ -28,6 +28,24 @@
 @source "../../../../node_modules/@pascal-app/viewer/src";
 @source "../../../../node_modules/@pascal-app/nodes/src";
 
+/* `light-dark()` in Tailwind classes (`text-[light-dark(…)]`,
+   `[--input-bd:light-dark(…)]`): Lightning CSS, which builds this file,
+   rewrites it into `var(--lightningcss-light, a) var(--lightningcss-dark, b)`
+   and switches those two variables only where a stylesheet declares
+   `color-scheme`. Mantine picks the scheme with an attribute instead, so the
+   variables were never set and every such color was invalid (the plan
+   page's dimmed descriptions rendered black). Set them from Mantine's
+   attribute, exactly as Lightning CSS would. Mantine props (`c="light-dark(…)"`)
+   are inline styles and never needed this. */
+[data-mantine-color-scheme='light'] {
+  --lightningcss-light: initial;
+  --lightningcss-dark: ;
+}
+[data-mantine-color-scheme='dark'] {
+  --lightningcss-light: ;
+  --lightningcss-dark: initial;
+}
+
 /* `dark:` follows Mantine's scheme (`data-mantine-color-scheme` on <html>,
    which is `auto`: the visitor's system setting), so Tailwind and shadcn
    pieces turn dark together with the Mantine UI around them. `.dark` stays

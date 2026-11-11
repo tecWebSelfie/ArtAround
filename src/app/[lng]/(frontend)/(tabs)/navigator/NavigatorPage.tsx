@@ -23,9 +23,11 @@ const START_CARD = {
   h: '100%',
   // Below md each card is a width container (`@container`) for its visual's
   // size (StartVisual). In fit mode a card squeezed past its content clips
-  // rather than spill onto the group form.
+  // rather than spill onto the group form. `mantine-focus-auto` gives the
+  // card link Mantine's keyboard focus ring (a Paper rendered as a Link had
+  // none), and focus lifts it like hover does.
   className:
-    'w-full from-md:w-min transition-shadow hover:shadow-md below-md:@container fit-screen:overflow-hidden',
+    'mantine-focus-auto w-full from-md:w-min transition-shadow hover:shadow-md focus-visible:shadow-md below-md:@container fit-screen:overflow-hidden',
 } as const
 
 /**
@@ -216,8 +218,10 @@ export default function NavigatorHomePage({
 }
 
 /**
- * The title's one accented phrase (DESIGN.md → Gradient-Span Rule), kept on
- * one line. "Around art" echoes the app's name, so the brand stays in the
+ * The title's one accented phrase (DESIGN.md → Gradient-Span Rule). It may
+ * wrap: with `nowrap` the balanced title broke as "Find your / way around
+ * art"; free, balancing gives "Find your way / around art". "Around art"
+ * echoes the app's name, so the brand stays in the
  * title without the title being only the brand.
  */
 function TitleAccent({ children }: { children?: ReactNode }) {
@@ -233,7 +237,6 @@ function TitleAccent({ children }: { children?: ReactNode }) {
         from: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))',
         to: 'light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))',
       }}
-      className="whitespace-nowrap"
     >
       {children}
     </Text>

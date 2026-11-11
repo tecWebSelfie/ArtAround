@@ -175,9 +175,14 @@ export function ArtAroundGlobalSearch({
             autoComplete="off"
             // The search's violet edge as theme tokens (it was CSS `purple`):
             // violet.7 on the light field, violet.4 on the dark one, both
-            // above the 3:1 a control's boundary needs.
-            bd="1px solid light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))"
-            bdrs="xl"
+            // above the 3:1 a control's boundary needs. Set as the input's
+            // own border variable (declared on the wrapper), not as a second
+            // border around the root: one edge, and focus still turns it to
+            // the primary color.
+            classNames={{
+              wrapper:
+                '[--input-bd:light-dark(var(--mantine-color-violet-7),var(--mantine-color-violet-4))]',
+            }}
             size="lg"
             radius="xl"
             w="100%"
