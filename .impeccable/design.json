@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-10T00:00:00Z",
+  "generatedAt": "2026-11-11T19:09:43Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -421,6 +421,55 @@
       "tour-orange-deep": {
         "role": "secondary",
         "displayName": "Tour gradient end (orange.9)"
+      },
+      "brand-blue": {
+        "role": "secondary",
+        "displayName": "Brand blue (title gradient start)",
+        "canonical": "light-dark(blue.7 #1c7ed6, blue.4 #4dabf7)",
+        "tonalRamp": [
+          "#e7f5ff",
+          "#d0ebff",
+          "#a5d8ff",
+          "#74c0fc",
+          "#4dabf7",
+          "#339af0",
+          "#228be6",
+          "#1c7ed6",
+          "#1971c2",
+          "#1864ab"
+        ]
+      },
+      "brand-violet": {
+        "role": "secondary",
+        "displayName": "Brand violet (title gradient end, search edge)",
+        "canonical": "light-dark(violet.7 #7048e8, violet.4 #9775fa)",
+        "tonalRamp": [
+          "#f3f0ff",
+          "#e5dbff",
+          "#d0bfff",
+          "#b197fc",
+          "#9775fa",
+          "#845ef7",
+          "#7950f2",
+          "#7048e8",
+          "#6741d9",
+          "#5f3dc4"
+        ]
+      },
+      "start-action-tint": {
+        "role": "primary",
+        "displayName": "Start action tint (primary light)",
+        "canonical": "var(--mantine-primary-color-light)"
+      },
+      "start-action-ink": {
+        "role": "primary",
+        "displayName": "Start action ink (primary light-color)",
+        "canonical": "var(--mantine-primary-color-light-color)"
+      },
+      "chip-border": {
+        "role": "neutral",
+        "displayName": "Chip hairline (default border, gray.4)",
+        "canonical": "var(--mantine-color-default-border)"
       }
     },
     "typographyMeta": {
@@ -439,6 +488,10 @@
       "label": {
         "displayName": "Label",
         "purpose": "Compact controls and supporting copy; 0.75rem in compact footers."
+      },
+      "display": {
+        "displayName": "Display",
+        "purpose": "The navigator home's h1 only: the brand pun at a fluid display size."
       }
     },
     "shadows": [
@@ -466,6 +519,11 @@
         "name": "mantine-lg",
         "value": "0 calc(0.0625rem * var(--mantine-scale)) calc(0.1875rem * var(--mantine-scale)) rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.05) 0 calc(1.75rem * var(--mantine-scale)) calc(1.4375rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale)), rgba(0, 0, 0, 0.04) 0 calc(0.75rem * var(--mantine-scale)) calc(0.75rem * var(--mantine-scale)) calc(-0.4375rem * var(--mantine-scale))",
         "purpose": "Decoratively deep tour card only"
+      },
+      {
+        "name": "search-float",
+        "value": "0 2px 6px rgb(0 0 0 / 0.06), 0 22px 30px -14px rgb(0 0 0 / 0.3)",
+        "purpose": "Attached two-layer shadow that floats the navigator search; replaced the Reflection ripple's detached smudge."
       }
     ],
     "motion": [
@@ -478,11 +536,6 @@
         "name": "tour-stack-transition",
         "value": "500ms",
         "purpose": "Observed tour carousel stacked-selection transition"
-      },
-      {
-        "name": "search-reflection",
-        "value": "rippleStrength 30; rippleFrequency 0.025; shadowOpacity 0.2; shadowBlur 5.51; shadowSize 29",
-        "purpose": "Observed Reflection ripple and soft shadow under the navigator search"
       },
       {
         "name": "orb-ready",
@@ -559,9 +612,9 @@
       "name": "Discovery search",
       "kind": "input",
       "refersTo": "search",
-      "description": "Large pill input with a hardcoded purple border; while it holds text it ends with the shared ClearSearchButton (\"Clear search\"), as every visitor search field does. A paid content's result row carries the shared PaidMark (small orange light Euro mark) right after its title; the price badge below gives the amount. In the app a BorderAnimate wrapper runs a 4s border cycle and the navigator adds a Reflection ripple; both are React-owned and not reproduced here.",
+      "description": "Large pill input (50px) with one 1px violet edge, set as the input's own border variable (violet.7 on light, violet.4 on dark) so focus still turns it to the primary color; while it holds text it ends with the shared ClearSearchButton. On the navigator it floats on the search-float shadow. The open list always says something: a loading line, dimmed busy results, \"Nothing matches\" with a hint and a Browse all tours option, or the failed request with Try again. A paid content's row carries the shared PaidMark. In the app a BorderAnimate wrapper runs a 4s border cycle around it; that is React-owned and not reproduced here.",
       "html": "<div class=\"ds-search-wrap\"><label class=\"ds-search\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input value=\"Madonna\" aria-label=\"Search\" /><button class=\"ds-search-clear\" aria-label=\"Clear search\" title=\"Clear search\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg></button></label><div class=\"ds-search-row\"><span class=\"ds-search-kind\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z\"/></svg></span><span class=\"ds-search-text\"><span class=\"ds-search-title\">The Long-Necked Madonna<span class=\"ds-euro\" role=\"img\" aria-label=\"Paid\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M4 10h12M4 14h9M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12c0 4.4 3.5 8 7.8 8 2 0 3.8-.8 5.2-2\"/></svg></span></span><span class=\"ds-search-sub\">Room 4</span></span></div></div>",
-      "css": ".ds-search-wrap{display:flex;flex-direction:column;gap:6px;max-width:420px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-search{display:flex;align-items:center;gap:10px;border:1px solid purple;border-radius:var(--mantine-radius-xl,32px);padding:0 8px 0 16px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-dimmed,#868e96);transition:border-color .2s ease}.ds-search input{font-family:inherit;height:48px;width:100%;min-width:0;border:0;background:transparent;font-size:18px;color:var(--mantine-color-text,#212529);outline:none}.ds-search:hover{border-color:var(--mantine-color-grape-6,#be4bdb)}.ds-search:focus-within{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-search-clear{display:grid;place-items:center;flex:none;width:28px;height:28px;border:0;border-radius:var(--mantine-radius-sm,4px);background:transparent;color:var(--mantine-color-gray-7,#495057);cursor:pointer}.ds-search-clear:hover{background:var(--mantine-color-gray-0,#f8f9fa)}.ds-search-clear:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:1px}.ds-search-row{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:#fff;border-radius:var(--mantine-radius-md,8px)}.ds-search-kind{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--mantine-color-teal-6,#12b886);color:#fff}.ds-search-text{display:flex;flex-direction:column;gap:4px;min-width:0}.ds-search-title{display:inline-flex;align-items:flex-start;gap:6px;font-weight:600;line-height:1.3;color:#212529}.ds-euro{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:rgba(253,126,20,.1);color:#e8590c}.ds-search-sub{font-size:14px;color:#868e96}"
+      "css": ".ds-search-wrap{display:flex;flex-direction:column;gap:6px;max-width:420px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-search{box-shadow:0 2px 6px rgb(0 0 0 / .06),0 22px 30px -14px rgb(0 0 0 / .3);display:flex;align-items:center;gap:10px;border:1px solid #7048e8;border-radius:var(--mantine-radius-xl,32px);padding:0 8px 0 16px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-dimmed,#868e96);transition:border-color .2s ease}.ds-search input{font-family:inherit;height:48px;width:100%;min-width:0;border:0;background:transparent;font-size:18px;color:var(--mantine-color-text,#212529);outline:none}.ds-search:hover{border-color:var(--mantine-color-grape-6,#be4bdb)}.ds-search:focus-within{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:2px}.ds-search-clear{display:grid;place-items:center;flex:none;width:28px;height:28px;border:0;border-radius:var(--mantine-radius-sm,4px);background:transparent;color:var(--mantine-color-gray-7,#495057);cursor:pointer}.ds-search-clear:hover{background:var(--mantine-color-gray-0,#f8f9fa)}.ds-search-clear:focus-visible{outline:2px solid var(--mantine-color-blue-6,#228be6);outline-offset:1px}.ds-search-row{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:#fff;border-radius:var(--mantine-radius-md,8px)}.ds-search-kind{display:grid;place-items:center;flex:none;width:28px;height:28px;border-radius:50%;background:var(--mantine-color-teal-6,#12b886);color:#fff}.ds-search-text{display:flex;flex-direction:column;gap:4px;min-width:0}.ds-search-title{display:inline-flex;align-items:flex-start;gap:6px;font-weight:600;line-height:1.3;color:#212529}.ds-euro{display:grid;place-items:center;flex:none;width:22px;height:22px;border-radius:50%;background:rgba(253,126,20,.1);color:#e8590c}.ds-search-sub{font-size:14px;color:#868e96}"
     },
     {
       "name": "Section tabs",
@@ -696,12 +749,12 @@
       "css": ".ds-pl{max-width:420px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529}.ds-pl-h{font-size:30px;line-height:1.2;margin:0 0 4px}.ds-pl-d{margin:0 0 8px;color:#495057}.ds-pl-b{display:flex;gap:6px;margin-bottom:16px}.ds-pl-badge{height:20px;padding:0 10px;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:11px;font-weight:700;text-transform:uppercase;display:inline-flex;align-items:center}.ds-pl-badge.is-gray{background:#f1f3f5;color:#495057}.ds-pl-tl{list-style:none;margin:0 0 16px;padding:0 0 0 30px;border-left:2px solid #228be6;margin-left:10px}.ds-pl-tl li{position:relative;margin-bottom:18px}.ds-pl-tl li::before{content:\"\";position:absolute;left:-42px;top:0;width:22px;height:22px;border-radius:50%;background:#228be6}.ds-pl-tl b{display:block;font-size:15px}.ds-pl-tl span{font-size:12px;color:#495057}.ds-pl-a{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ds-pl-btn{height:36px;border-radius:4px;border:1px solid #dee2e6;background:#fff;font-weight:600;cursor:pointer}.ds-pl-btn.is-primary{border:0;background:linear-gradient(45deg,#862e9c,#d9480f);color:#fff}.ds-pl-btn:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-pl-reader{display:block;font-size:16px;font-weight:500;margin-bottom:4px}.ds-pl-help{font-size:14px;line-height:1.5;text-wrap:pretty;color:#495057;margin:0 0 8px}.ds-pl-select{width:100%;height:42px;padding:0 12px;background:#fff;color:#212529;border:1px solid #ced4da;border-radius:4px;font-size:16px;margin-bottom:20px}.ds-pl-group{width:100%;margin-top:20px}.ds-pl-btn:hover{background:#f8f9fa}.ds-pl-btn.is-primary:hover{filter:brightness(.95)}.ds-pl-select:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     },
     {
-      "name": "Museum switch",
-      "kind": "button",
-      "refersTo": "museum-switch",
-      "description": "Light round compact trigger: leading Landmark, the label (\"All museums\" or the locked museum, truncated), trailing 12px RefreshCw. Opens \"Change museum\": a search field (with the shared clear X) over one always-visible NavLink list in a 360px scroll area, \"All museums\" first (gray Globe, hidden while searching), then each museum (Landmark, city as description); the current row is active with a trailing Check. Below an \"or\" divider, a subtle gray \"Import a config file\". Each museum row's icon wears that museum's own color (blue when it has none), previewing the theme it switches to.",
-      "html": "<div class=\"ds-ms\"><button class=\"ds-ms-btn\" aria-label=\"Change museum\" title=\"Change museum\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg><span class=\"ds-ms-label\">Galleria Borghese</span><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\"/><path d=\"M21 3v5h-5\"/><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\"/><path d=\"M8 16H3v5\"/></svg></button><div class=\"ds-ms-modal\" role=\"dialog\" aria-label=\"Change museum\"><label class=\"ds-ms-in\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"11\" cy=\"11\" r=\"8\"/><path d=\"m21 21-4.3-4.3\"/></svg><input placeholder=\"Search a museum\" aria-label=\"Search a museum\" /></label><div class=\"ds-ms-list\"><button class=\"ds-ms-row\"><span class=\"ds-ms-ic is-gray\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20\"/></svg></span><span class=\"ds-ms-name\">All museums</span></button><button class=\"ds-ms-row is-active\" aria-current=\"true\"><span class=\"ds-ms-ic\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg></span><span class=\"ds-ms-name\">Galleria Borghese<small>Rome</small></span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg></button><button class=\"ds-ms-row\"><span class=\"ds-ms-ic\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7M14 18v-7M18 18v-7M6 18v-7M3 22h18M12 2l9 5H3z\"/></svg></span><span class=\"ds-ms-name\">Uffizi<small>Florence</small></span></button></div><div class=\"ds-ms-or\"><span>or</span></div><button class=\"ds-ms-file\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z\"/><path d=\"M14 2v4a2 2 0 0 0 2 2h4M12 12v6M15 15l-3-3-3 3\"/></svg>Import a config file</button></div></div>",
-      "css": ".ds-ms{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;display:flex;flex-direction:column;align-items:flex-end;gap:12px;max-width:360px}.ds-ms-btn{display:inline-flex;align-items:center;gap:6px;height:26px;max-width:100%;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;cursor:pointer;transition:background .15s ease}.ds-ms-btn:hover{background:rgba(34,139,230,.16)}.ds-ms-btn svg{flex:none}.ds-ms-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ds-ms-modal{align-self:stretch;display:flex;flex-direction:column;gap:12px;padding:16px;background:#fff;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-ms-in{display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid #ced4da;border-radius:4px;color:#868e96}.ds-ms-in:focus-within{border-color:#228be6}.ds-ms-in input{flex:1;min-width:0;border:0;outline:none;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#212529;background:transparent}.ds-ms-list{display:flex;flex-direction:column;gap:2px;max-height:360px;overflow:auto}.ds-ms-row{display:flex;align-items:center;gap:12px;padding:8px 12px;border:0;border-radius:8px;background:transparent;color:#212529;font:14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;text-align:left;cursor:pointer}.ds-ms-row:hover{background:#f8f9fa}.ds-ms-row.is-active{background:rgba(34,139,230,.1);color:#1c7ed6}.ds-ms-name{flex:1;display:flex;flex-direction:column}.ds-ms-name small{font-size:12px;color:#868e96}.ds-ms-ic{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:rgba(34,139,230,.1);color:#1c7ed6}.ds-ms-ic.is-gray{background:#f1f3f5;color:#495057}.ds-ms-or{display:flex;align-items:center;gap:8px;font-size:12px;color:#868e96}.ds-ms-or::before,.ds-ms-or::after{content:\"\";flex:1;border-top:1px solid #dee2e6}.ds-ms-file{align-self:center;display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border:0;border-radius:4px;background:transparent;color:#495057;font:600 14px -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;cursor:pointer}.ds-ms-file:hover{background:#f1f3f5}.ds-ms button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
+      "name": "Context chips",
+      "kind": "chip",
+      "refersTo": "context-chip",
+      "description": "The tabs' language and museum switches as one pair of settings (CONTEXT_CHIP): default 26px pills with a gray.4 hairline, a leading 14px icon, the current value and a trailing chevron. The museum landmark takes the primary color when a museum is locked. The language chip opens a searchable list (code tag + native name); the museum chip opens the Change museum modal (search over a NavLink list, All museums first).",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-label=\"Language: English\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m5 8 6 6\"/><path d=\"m4 14 6-6 2-3\"/><path d=\"M2 5h12\"/><path d=\"M7 2h1\"/><path d=\"m22 22-5-10-5 10\"/><path d=\"M14 18h6\"/></svg><span>English</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button><button class=\"ds-chip\" aria-label=\"Museum: All museums\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 18v-7\"/><path d=\"M14 18v-7\"/><path d=\"M18 18v-7\"/><path d=\"M6 18v-7\"/><path d=\"m12 2 8 5H4z\"/><path d=\"M3 22h18\"/></svg><span>All museums</span><svg width=\"14\" height=\"14\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></button></div>",
+      "css": ".ds-chips{display:flex;gap:10px;justify-content:flex-end;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-chip{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border:1px solid #ced4da;border-radius:32px;background:var(--mantine-color-body,#fff);color:var(--mantine-color-text,#000);font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s ease}.ds-chip:hover{background:#f8f9fa}.ds-chip:focus-visible{outline:2px solid #0077d1;outline-offset:2px}.ds-chip svg:first-child{color:#868e96}"
     },
     {
       "name": "Quiz answer option",
@@ -768,9 +821,9 @@
     {
       "name": "Start visit cards",
       "kind": "card",
-      "description": "The navigator home's \"Or\" row: two twin link cards (Paper withBorder, shadow sm, p xs, full row height; on phones each fills its half of the row, from md w-min so the visual sets the width), the QR scan on the left and Plan my visit on the right. Each holds a square visual of the same size (--start-visual: 12.5rem from md; on phones the largest square the card and the screen allow, shrinking when the home has to fit a short screen) over a caption in the body text color.",
+      "description": "The navigator home's two primary ways in: twin link cards (Paper withBorder, radius lg, shadow sm, p xs), the QR scan and Plan my visit, either side of a vertical divider; halves of the row on phones, a centered pair from md. Each holds a square visual over a StartAction bar (primary light tint, primary light ink, weight 600, md radius, trailing chevron) so the card reads as a button; hover lifts it and turns its edge to the primary color, keyboard focus shows Mantine's ring. Joining a group is the secondary way, set apart below.",
       "html": "<div class=\"ds-start\"><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-qr\" aria-hidden=\"true\"></span><span class=\"ds-start-cap\">Scan a tour QR code to start</span></a><span class=\"ds-start-or\">Or</span><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-plan\" aria-hidden=\"true\"><svg width=\"60\" height=\"60\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/></svg></span><span class=\"ds-start-cap\">Or plan a visit around your time and interests</span></a></div>",
-      "css": ".ds-start{display:flex;align-items:stretch;justify-content:center;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-or{align-self:center;font-size:12px;color:#495057}.ds-start-card{--v:min(140px,calc(50vw - 56px));flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border:1px solid #dee2e6;border-radius:4px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);text-decoration:none;transition:box-shadow .15s ease}.ds-start-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-card:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-start-qr{width:var(--v);height:var(--v);background:repeating-conic-gradient(#212529 0 25%,#fff 0 50%) 0 0/20% 20%}.ds-start-plan{display:grid;place-items:center;width:var(--v);height:var(--v);border-radius:50%;background:#228be6;color:#fff}.ds-start-cap{font-size:14px;text-align:center;text-wrap:balance;color:#000}"
+      "css": ".ds-start{display:flex;align-items:stretch;justify-content:center;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-or{align-self:center;font-size:12px;color:#495057}.ds-start-card{--v:min(140px,calc(50vw - 56px));flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border:1px solid #dee2e6;border-radius:16px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);text-decoration:none;transition:box-shadow .15s ease}.ds-start-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-card:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-start-qr{width:var(--v);height:var(--v);background:repeating-conic-gradient(#212529 0 25%,#fff 0 50%) 0 0/20% 20%}.ds-start-plan{display:grid;place-items:center;width:var(--v);height:var(--v);border-radius:50%;background:#228be6;color:#fff}.ds-start-cap{font-size:14px;text-align:center;text-wrap:balance;color:#000}.ds-start-cap{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;padding:6px 10px;border-radius:8px;background:#ddecfd;color:#0065bd;font-weight:600;font-size:12px;text-align:center;box-sizing:border-box}.ds-start-card:hover{border-color:#0077d1}.ds-start-card:focus-visible{outline:2px solid #0077d1;outline-offset:2px}"
     },
     {
       "name": "Media card",
@@ -785,7 +838,7 @@
       "kind": "button",
       "refersTo": "button-primary",
       "description": "ContentAudioButton: a light compact-sm round pill with a speaker icon beside the duration chip; reads the content aloud, toggles Pause, shows a loader while the audio is prepared and turns disabled when none can be produced. Never labelled as synthetic.",
-      "html": "<span class=\"ds-dur\">&#x1F552; 1'30\"</span> <button class=\"ds-listen\">&#x1F50A; Listen</button>",
+      "html": "<span class=\"ds-dur\">&#x1F552; 1 min 30 sec</span> <button class=\"ds-listen\">&#x1F50A; Listen</button>",
       "css": ".ds-dur{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--mantine-color-gray-1,#f1f3f5);color:var(--mantine-color-gray-7,#495057)}.ds-listen{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:13px;font-weight:600;height:26px;padding:0 12px;border:0;border-radius:999px;background:var(--mantine-color-blue-light,#e7f5ff);color:var(--mantine-color-blue-light-color,#1c7ed6);cursor:pointer}.ds-listen:disabled{opacity:.5;cursor:not-allowed}"
     },
     {
@@ -806,7 +859,7 @@
   ],
   "narrative": {
     "northStar": "The Adaptable Museum Companion",
-    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as **one product over four namespaces**. They coexist in the same runtime and dress very different jobs:\n\n1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.\n2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.\n3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.\n4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code, but no screen renders them any more: only their session provider is still mounted in the frontend layout. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
+    "overview": "ArtAround should feel familiar and approachable to casual museum visitors as well as staff. Mantine is the main design system: recognizable controls, clear labels, system typography, neutral surfaces, and straightforward task flows provide the foundation. The existing UI is the main suggestion for the product's feel, but remains a prototype rather than a finished specification.\n\nThe system is best described as **one product over four namespaces**. They coexist in the same runtime and dress very different jobs:\n\n1. **Visitor Mantine UI** — the visitor-facing interface. `src/theme.ts` is an empty `createTheme({})`, so the palette is Mantine's stock tokens plus Tailwind utilities; this layer is the brand authority for the visitor experience.\n2. **shadcn / editor token layer** — Tailwind v4 `@theme inline` plus `:root` / `.dark` OKLCH variables (background, foreground, primary, border). Neutral by design; it is not Mantine's palette and should not be mistaken for it.\n3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.\n4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code, but no screen renders them any more: only their session provider is still mounted in the frontend layout. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.\n\nPlayfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border (the navigator home's one moving accent), the brand name's gradient in the home title, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.",
     "keyCharacteristics": [
       "Familiar and approachable Mantine controls as the visitor-facing foundation.",
       "Neutral light and dark surfaces with clear task hierarchy.",
@@ -849,7 +902,7 @@
       },
       {
         "name": "The Gradient-Span Rule",
-        "body": "A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.",
+        "body": "A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way, the app's name. Its stops are theme tokens per scheme, `light-dark(blue.7, blue.4)` → `light-dark(violet.7, violet.4)`, each above the 3:1 large text needs.",
         "section": "typography"
       },
       {
@@ -946,6 +999,11 @@
         "name": "The Museum Address Rule",
         "body": "Use one Mantine address autocomplete with the provider's full postal label. Derive structured city from the selection; expose City only in the manual-location disclosure. Reuse MuseumLocationMap for public information and the editor draft, with a bounded one-pin map, readable address and recovery link. Save address and geographic point together. This extension adds no global tokens; existing Mantine fields and shared FormActions remain the design-system primitives.",
         "section": "components"
+      },
+      {
+        "name": "The Follow-the-System Rule",
+        "body": "The app is light or dark as the visitor's system says (`defaultColorScheme=\"auto\"` in `AppMantineProvider` and `MantineColorSchemeScript`, set before the first paint). Tailwind's `dark:` follows the same `data-mantine-color-scheme` attribute (the `.dark` class stays for the Pascal editor). Text colored with a fixed dark shade (`c=\"green.8\"`, `museum.8`, primary .8) is written `light-dark(<color>.8, <color>.4)` so it keeps AA on the dark page; filled buttons with `autoContrast` need nothing. `light-dark()` works in Mantine props (inline styles) and in Tailwind classes alike: Lightning CSS lowers the Tailwind ones to `--lightningcss-light/dark` variables, which `globals.css` sets from Mantine's attribute. In dark the theme lifts `dimmed` and the placeholder to dark.2/dark.1 mixes (about 4.8:1 and 4.6:1 on a card). The 3D map scene keeps its own light stage.",
+        "section": "colors"
       }
     ],
     "dos": [

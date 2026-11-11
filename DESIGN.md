@@ -23,6 +23,11 @@ colors:
   chart-highlight: '#ff922b'
   chart-muted: '#ced4da'
   accessibility-blue: '#228be6'
+  brand-blue: '#1c7ed6'
+  brand-violet: '#7048e8'
+  start-action-tint: '#ddecfd'
+  start-action-ink: '#0065bd'
+  chip-border: '#ced4da'
   surface-light: '#ffffff'
   surface-subtle: '#f8f9fa'
   surface-dark: '#242424'
@@ -34,6 +39,12 @@ colors:
   editor-primary: 'oklch(0.205 0 0)'
   editor-border: 'oklch(0.922 0 0)'
 typography:
+  display:
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'
+    fontSize: 'clamp(2.25rem, 1.6rem + 2.8vw, 3.5rem)'
+    fontWeight: 700
+    lineHeight: 1.1
+    letterSpacing: '-0.01em'
   headline:
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"'
     fontSize: '2.125rem'
@@ -87,8 +98,13 @@ components:
     backgroundColor: '{colors.surface-light}'
     textColor: '{colors.editor-foreground}'
     rounded: '{rounded.xl}'
-    height: '3rem'
+    height: '3.125rem'
     padding: '0 1rem'
+  start-card-action:
+    backgroundColor: '{colors.start-action-tint}'
+    textColor: '{colors.start-action-ink}'
+    rounded: '{rounded.md}'
+    padding: '6px 10px'
   button-unlock:
     backgroundColor: '{colors.paid-orange}'
     textColor: '{colors.surface-light}'
@@ -136,10 +152,12 @@ components:
   reading-pill-active:
     backgroundColor: '{colors.navigation-blue}'
     textColor: '{colors.surface-light}'
-  museum-switch:
-    textColor: '{colors.navigation-blue}'
+  context-chip:
+    backgroundColor: '{colors.surface-light}'
+    textColor: '{colors.editor-foreground}'
     rounded: '{rounded.xl}'
     height: '1.625rem'
+    padding: '0 0.75rem'
   group-pill:
     textColor: '{colors.navigation-blue}'
     rounded: '{rounded.xl}'
@@ -178,7 +196,7 @@ components:
 
 # Design System: ArtAround
 
-<!-- Prototype-derived visual guidance confirmed with the user. This records the intended feel and the muscle memory of the incumbent code, not a claim that every detail is polished, accessible, or finished. Where the code is mid-refactor, the description is deliberately provisional.  2026-11-04 merge (requirements 18-33): src/components/mantine/{ContentAudioButton,DurationBadge,ObjectDetailsModal}.tsx, src/components/editing/{VisibilityInput,WikidataInput}.tsx, editing/forms/{ContentFields,ObjectMetadataForm,TourForm}.tsx, src/components/group/GroupRequests.tsx, GroupBadgePanel.tsx, content/[id]/ContentDetails.tsx (credits line, Private badge), tour/[id]/TourPage.tsx (Private badge), subject/[id]/page.tsx, expansion/{ContentExpansion,ContentVersion}.tsx; tokens unchanged; extract found no pattern used 3+ times and no hard-coded color, px value or inline style; verified through stories (no new rendered screenshots: visual tests need approval). 2026-11-05 merge (logistics, subject contents): museum/[id]/navigation/{LogisticNotes,TourNavigation}.tsx, tour/[id]/TourPage.tsx, editing/forms/{TourForm,ContentForm}.tsx, editing/ObjectPicker.tsx (NamePicker, SubjectPicker), subject/[id]/page.tsx; tokens unchanged; extract found nothing to move (the Signpost note appears in two different shapes: a tappable header row and a timeline line); rendered at Pixel 7 size through Playwright screenshots. 2026-11-10 merge (UI/UX overhaul, branch ccr-05ce6c3f): src/theme.ts (DEFAULT_PRIMARY, lightVariantText, cssVariablesResolver, TOUR_GRADIENT), globals.css badge floor, AppMantineProvider (dialog close labels), LabeledPagination, ContentGlance, TourNavigation header, StepModal cover, NavigationModal kinds, ObjectDetailsModal facts, MuseumPage info, opening hours (src/lib/opening-hours.ts), page titles and main landmarks; extract moved the dialog close label and the reading-time count into shared code (AppMantineProvider, readingMinutes) and found no other pattern used 3+ times with one intent. -->
+<!-- Prototype-derived visual guidance confirmed with the user. This records the intended feel and the muscle memory of the incumbent code, not a claim that every detail is polished, accessible, or finished. Where the code is mid-refactor, the description is deliberately provisional.  2026-11-04 merge (requirements 18-33): src/components/mantine/{ContentAudioButton,DurationBadge,ObjectDetailsModal}.tsx, src/components/editing/{VisibilityInput,WikidataInput}.tsx, editing/forms/{ContentFields,ObjectMetadataForm,TourForm}.tsx, src/components/group/GroupRequests.tsx, GroupBadgePanel.tsx, content/[id]/ContentDetails.tsx (credits line, Private badge), tour/[id]/TourPage.tsx (Private badge), subject/[id]/page.tsx, expansion/{ContentExpansion,ContentVersion}.tsx; tokens unchanged; extract found no pattern used 3+ times and no hard-coded color, px value or inline style; verified through stories (no new rendered screenshots: visual tests need approval). 2026-11-05 merge (logistics, subject contents): museum/[id]/navigation/{LogisticNotes,TourNavigation}.tsx, tour/[id]/TourPage.tsx, editing/forms/{TourForm,ContentForm}.tsx, editing/ObjectPicker.tsx (NamePicker, SubjectPicker), subject/[id]/page.tsx; tokens unchanged; extract found nothing to move (the Signpost note appears in two different shapes: a tappable header row and a timeline line); rendered at Pixel 7 size through Playwright screenshots. 2026-11-10 merge (UI/UX overhaul, branch ccr-05ce6c3f): src/theme.ts (DEFAULT_PRIMARY, lightVariantText, cssVariablesResolver, TOUR_GRADIENT), globals.css badge floor, AppMantineProvider (dialog close labels), LabeledPagination, ContentGlance, TourNavigation header, StepModal cover, NavigationModal kinds, ObjectDetailsModal facts, MuseumPage info, opening hours (src/lib/opening-hours.ts), page titles and main landmarks; extract moved the dialog close label and the reading-time count into shared code (AppMantineProvider, readingMinutes) and found no other pattern used 3+ times with one intent. 2026-11-11 refresh (navigator home rework, branch db-populate): NavigatorPage/NavigatorSearch (display title with the brand pun, attached search shadow, StartAction button bars, group join as the secondary way), ArtAroundGlobalSearch (states, one violet edge), LanguageSwitcher/MuseumSwitch (shared CONTEXT_CHIP), theme.ts (readable dimmed and placeholder in both schemes), globals.css (Lightning CSS light-dark variables), AppMantineProvider/MantineColorSchemeScript (auto scheme), duration.ts (localized units); frontmatter gained display, brand-blue/violet, start-card-action, context-chip; rendered at 375x812 and 1280x800 in light and dark. -->
 
 ## Overview
 
@@ -193,7 +211,7 @@ The system is best described as **one product over four namespaces**. They coexi
 3. **Pascal editor and viewer** — the staff map editor and museum viewer, styled largely by `@pascal-app/*` module CSS and Tailwind `dark:` variants. Task-dense, dark-neutral, functionally layered.
 4. **Assistance layer** — the voice assistant's look. Its shipped identity is the ember **assistant orb** (React Bits `CrystalizedBall`, `src/components/assistant/`), which sits in the tour-navigation bar. The older LiveKit `agents-ui` shader visualizers (cyan aura) remain in the code, but no screen renders them any more: only their session provider is still mounted in the frontend layout. Either way this namespace has exactly one sanctioned expression per screen (see Components → Assistant orb), not a global motif.
 
-Playfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border and its reflection, the cycled hero word, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.
+Playfulness belongs in small key components. Existing examples include the purple-to-orange tour carousel, the animated search border (the navigator home's one moving accent), the brand name's gradient in the home title, and selected discovery accents. These establish permission for selective expression; they do not require every page or control to animate or become decorative. Future refinement can improve consistency, spacing, accessibility, and responsive behavior while keeping this approachable character.
 
 **Key Characteristics:**
 
