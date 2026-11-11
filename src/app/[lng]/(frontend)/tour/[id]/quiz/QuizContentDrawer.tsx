@@ -64,7 +64,7 @@ export function QuizContentDrawer({
       ) : 'error' in current ? (
         <Alert color="red">{t('This content could not be loaded.')}</Alert>
       ) : (
-        <ContentDetailsModalContent content={current.content} />
+        <ContentDetailsModalContent content={current.content} lng={lng} />
       )}
     </Drawer>
   )

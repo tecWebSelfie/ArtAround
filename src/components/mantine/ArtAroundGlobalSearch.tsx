@@ -339,7 +339,7 @@ const KIND_ICON = {
  * whole option is the action (it opens the detail page).
  */
 function ResultRow({ item }: { item: AutoCompleteItem }) {
-  const { t } = useTranslation('search')
+  const { t, i18n } = useTranslation('search')
   const { Icon, ...mark } = KIND_ICON[item.kind]
   const kindLabel = {
     tour: t('Tour'),
@@ -382,7 +382,13 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
           // The essentials for choosing: time and difficulty first.
           <Group gap={4}>
             {item.seconds !== undefined && (
-              <DurationBadge seconds={item.seconds} size="xs" variant="light" color="gray" />
+              <DurationBadge
+                seconds={item.seconds}
+                lng={i18n.language}
+                size="xs"
+                variant="light"
+                color="gray"
+              />
             )}
             {item.difficulty && (
               <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">

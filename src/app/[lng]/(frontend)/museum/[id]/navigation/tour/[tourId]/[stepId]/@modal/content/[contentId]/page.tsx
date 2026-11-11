@@ -34,7 +34,7 @@ export default async function Page({
       <TranslationNotice collection="contents" id={content.id} lng={lng} />
       {/* Simpler / Shorter / For children: swaps the body for another version. */}
       <ContentVersion content={content}>
-        <ContentDetailsModalContent content={content} />
+        <ContentDetailsModalContent content={content} lng={lng} />
       </ContentVersion>
       {/* Locked: buying comes right after the locked notice. */}
       <ContentUnlock content={content} lng={lng} next={path} />

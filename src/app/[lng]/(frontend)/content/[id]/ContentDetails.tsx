@@ -372,6 +372,7 @@ export async function ContentDetails({
                     {item.durationSeconds ? (
                       <DurationBadge
                         seconds={item.durationSeconds}
+                        lng={lng}
                         size="xs"
                         variant="light"
                         color="gray"

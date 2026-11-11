@@ -61,7 +61,7 @@ export function StepModal({
         />
       )}
       <ContentVersion content={content}>
-        <ContentDetailsModalContent content={content} />
+        <ContentDetailsModalContent content={content} lng={lng} />
       </ContentVersion>
       {unlock}
       <ContentExpansion target="contents" id={content.id} locked={!content.body} />

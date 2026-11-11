@@ -33,7 +33,7 @@ export const Default: Story = {
     await expect(canvas.findByText('Easy')).resolves.toBeTruthy()
     // Exact lengths in seconds, compact chip notation (src/lib/duration.ts).
     await expect(canvas.findByText('45"')).resolves.toBeTruthy()
-    await expect(canvas.findByText(`2'30"`)).resolves.toBeTruthy()
+    await expect(canvas.findByText('2 min 30 sec')).resolves.toBeTruthy()
   },
 }
 

@@ -138,6 +138,7 @@ export function TourProgress({
                       <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
                       <DurationBadge
                         seconds={content.durationSeconds ?? 0}
+                        lng={lng}
                         color="museum.8"
                         autoContrast
                       />

@@ -16,11 +16,13 @@ describe('item length', () => {
     expect(estimateSeconds(Array(150).fill('word').join(' '))).toBe(60)
   })
 
-  it('labels seconds and minutes compactly', () => {
-    expect(formatDuration(15)).toBe('15"')
-    expect(formatDuration(90)).toBe(`1'30"`)
-    expect(formatDuration(300)).toBe(`5'`)
-    expect(formatDuration(754)).toBe(`12'`)
+  it("labels seconds and minutes in the visitor's language", () => {
+    expect(formatDuration(15, 'en')).toBe('15 sec')
+    expect(formatDuration(90, 'en')).toBe('1 min 30 sec')
+    expect(formatDuration(300, 'en')).toBe('5 min')
+    expect(formatDuration(754, 'en')).toBe('12 min')
+    // Units follow the visitor's language.
+    expect(formatDuration(90, 'it')).toBe('1 min 30 s')
   })
 
   it('converts to whole minutes for tours and the planner', () => {

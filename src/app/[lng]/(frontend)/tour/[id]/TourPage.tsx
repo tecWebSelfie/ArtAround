@@ -507,6 +507,7 @@ function StopRow({
             {content.durationSeconds != null && (
               <DurationBadge
                 seconds={content.durationSeconds}
+                lng={lng}
                 size="xs"
                 variant="light"
                 color="gray"

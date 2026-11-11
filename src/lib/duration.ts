@@ -32,23 +32,26 @@ export const toMinutes = (seconds: number | null | undefined) =>
   seconds ? Math.max(1, Math.round(seconds / 60)) : 0
 
 /**
- * Compact, language-neutral label in the app's chip style (DESIGN.md →
- * Chips): minutes with a prime and seconds with a double prime, as on
- * timetables — `15"`, `1'30"`, `5'`. Lengths of ten minutes or more drop the
- * seconds, which nobody plans by.
+ * Duration label in the visitor's language, with short unit words ("15 sec",
+ * "1 min 30 sec", "12 min"; Italian "15 s", "1 min 30 s"), on chips
+ * (DESIGN.md → Chips), cards and lists. It used timetable primes (`15"`,
+ * `1'30"`) until visitors read them as cryptic. Lengths of ten minutes or
+ * more drop the seconds, which nobody plans by.
  */
-export function formatDuration(seconds: number): string {
+export function formatDuration(seconds: number, lng: string): string {
   const total = Math.max(0, Math.round(seconds))
-  if (total < 60) return `${total}"`
+  if (total < 60) return formatUnit(total, 'second', lng)
   const minutes = Math.floor(total / 60)
   const rest = total % 60
-  return rest && minutes < 10 ? `${minutes}'${String(rest).padStart(2, '0')}"` : `${minutes}'`
+  return rest && minutes < 10
+    ? `${formatUnit(minutes, 'minute', lng)} ${formatUnit(rest, 'second', lng)}`
+    : formatUnit(minutes, 'minute', lng)
 }
 
 /**
  * Localized measurements ("25 min", "320 m"): units follow the visitor's
- * language. Shared by the tour page and the navigation header.
+ * language. Shared by the tour page, the navigation header and `formatDuration`.
  */
-export function formatUnit(value: number, unit: 'minute' | 'meter', lng: string) {
+export function formatUnit(value: number, unit: 'second' | 'minute' | 'meter', lng: string) {
   return new Intl.NumberFormat(lng, { style: 'unit', unit, unitDisplay: 'short' }).format(value)
 }

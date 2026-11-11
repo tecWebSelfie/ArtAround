@@ -29,7 +29,7 @@ function task(request: ExpansionRequest) {
     'Rewrite the original text as a new version of it. Keep every fact; do not add new ones.',
     `Use ${DIFFICULTY_STYLE[request.difficulty]}.`,
     // Same read-aloud pace as the stored lengths, so a 15-second version is a sentence or two.
-    `It should take about ${formatDuration(request.seconds)} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
+    `It should take about ${formatDuration(request.seconds, 'en')} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
     request.audience === 'children'
       ? request.age === undefined
         ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'

@@ -8,11 +8,12 @@ import type { ReactNode } from 'react'
 
 export const ContentDetailsModal = ({
   content,
+  lng,
   ...props
-}: { content: Content } & Omit<ModalProps, 'content'>) => {
+}: { content: Content; lng: string } & Omit<ModalProps, 'content'>) => {
   return (
     <Modal {...props}>
-      <ContentDetailsModalContent content={content} />
+      <ContentDetailsModalContent content={content} lng={lng} />
     </Modal>
   )
 }
@@ -30,11 +31,14 @@ export const ContentDetailsModal = ({
  */
 export function ContentDetailsModalContent({
   content,
+  lng,
   lockedLabel = 'This content is paid. Unlock it to read the full text.',
   headingOrder = 2,
   glance,
 }: {
   content: Content
+  /** Page language, for the length label ("2 min 30 sec"). */
+  lng: string
   lockedLabel?: string
   /** `h1` on the content page; `h2` under a dialog's own title. */
   headingOrder?: 1 | 2
@@ -49,7 +53,12 @@ export function ContentDetailsModalContent({
       {content.durationSeconds || content.body ? (
         <Group gap="xs">
           {content.durationSeconds ? (
-            <DurationBadge seconds={content.durationSeconds} variant="light" color="gray" />
+            <DurationBadge
+              seconds={content.durationSeconds}
+              lng={lng}
+              variant="light"
+              color="gray"
+            />
           ) : null}
           {content.body ? <ContentAudioButton contentId={String(content.id)} /> : null}
         </Group>

@@ -290,6 +290,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
             form={canEdit && <ContentEditForm id={id} />}
           >
             <ContentDetailsModalContent
+              lng={lng}
               content={content}
               lockedLabel={t('This content is paid. Unlock it to read the full text.')}
               headingOrder={1}

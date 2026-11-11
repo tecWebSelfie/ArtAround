@@ -32,7 +32,7 @@ export const ContentsSearchResults = async ({
   /** Content id → price (cents) for contents locked to this visitor. */
   lockedPrices?: ReadonlyMap<string, number>
 }) => {
-  const { t } = await getT('search')
+  const { t, lng: language } = await getT('search')
 
   return (
     <SearchResultsGrid
@@ -59,7 +59,7 @@ export const ContentsSearchResults = async ({
                 <Group gap={4}>
                   <Clock size={14} aria-hidden />
                   <Text size="xs" c="dimmed">
-                    {formatDuration(content.durationSeconds)}
+                    {formatDuration(content.durationSeconds, language)}
                   </Text>
                 </Group>
               ) : null}

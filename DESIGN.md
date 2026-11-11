@@ -415,7 +415,7 @@ Each component below leads with its character, then shape, color assignment, sta
 ### Chips / Badges
 
 - **Difficulty:** label + icon + semantic color (see The Triplet Rule). Compact contexts may hide the label (`withLabel={false}`) while keeping the icon, or keep the label with a compact duration chip beside it in a stepper description.
-- **Duration:** a clock icon with a compact, language-neutral label in seconds and minutes (`15"`, `1'30"`, `12'`; `formatDuration` in `src/lib/duration.ts`). Contents carry their exact length in seconds; tours their visit length in minutes.
+- **Duration:** a clock icon with a label in the visitor's language and short unit words (`15 sec`, `1 min 30 sec`, `12 min`; Italian `15 s`, `1 min 30 s`; `formatDuration` in `src/lib/duration.ts`). Timetable primes (`1'30"`) were dropped: first-time visitors read them as cryptic. Unlike the other chips the label is not upper-cased, since unit symbols change meaning with case. Contents carry their exact length in seconds; tours their visit length in minutes.
 - **Private:** a gray `light` badge with `EyeOff` and "Private" among a private content's or tour's at-a-glance badges (only their author and group guests ever see them).
 - **Category pills:** white surfaces with colored or gradient text — `Badge variant="white"` with a teal border on contents, `variant="gradient"` for section labels. Category appearance and difficulty meaning are separate concerns.
 - **Locked price:** a `light` orange badge with a leading `Lock` and the formatted price, placed next to a locked content's title.

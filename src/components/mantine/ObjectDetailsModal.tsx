@@ -171,7 +171,7 @@ export async function ObjectDetailsContent({
                 </LinkAnchor>
                 {content.durationSeconds ? (
                   <Text span size="sm" c="dimmed">
-                    {` · ${formatDuration(content.durationSeconds)}`}
+                    {` · ${formatDuration(content.durationSeconds, lng)}`}
                   </Text>
                 ) : null}
               </ListItem>

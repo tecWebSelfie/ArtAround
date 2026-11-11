@@ -100,7 +100,7 @@ const ContentsCarouselCard = async ({
                   <Group gap={4}>
                     <Clock size={12} className="text-white" aria-hidden />
                     <Text size="xs" c="gray.3">
-                      {formatDuration(content.durationSeconds)}
+                      {formatDuration(content.durationSeconds, lng)}
                     </Text>
                   </Group>
                 ) : null}

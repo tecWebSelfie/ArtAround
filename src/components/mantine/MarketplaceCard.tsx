@@ -166,7 +166,7 @@ export function MarketplaceCard({
               <Group gap={4}>
                 <Clock size={14} aria-hidden />
                 <Text size="xs" c="dimmed">
-                  {formatDuration(item.durationSeconds)}
+                  {formatDuration(item.durationSeconds, locale)}
                 </Text>
               </Group>
             ) : null}

@@ -19,5 +19,6 @@ export const Default: Story = {
     opened: true,
     onClose: () => {},
     content: mockContentSecond,
+    lng: 'en',
   },
 }
