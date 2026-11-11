@@ -28,7 +28,11 @@
 @source "../../../../node_modules/@pascal-app/viewer/src";
 @source "../../../../node_modules/@pascal-app/nodes/src";
 
-@custom-variant dark (&:is(.dark *));
+/* `dark:` follows Mantine's scheme (`data-mantine-color-scheme` on <html>,
+   which is `auto`: the visitor's system setting), so Tailwind and shadcn
+   pieces turn dark together with the Mantine UI around them. `.dark` stays
+   for the Pascal editor, which puts it on <body> itself. */
+@custom-variant dark (&:is(.dark *, [data-mantine-color-scheme='dark'] *));
 
 /* Tailwind variants on Mantine's breakpoints (Tailwind's own `sm`/`md` are
    40rem/48rem, Mantine's 48em/62em; the Pascal editor relies on Tailwind's,

@@ -278,7 +278,8 @@ export async function ContentDetails({
                 {museum && (
                   <Link
                     href={`/${lng}/museum/${museum.id}` as Route}
-                    className="inline-flex w-fit items-center gap-1 text-sm text-(--mantine-primary-color-8) hover:underline"
+                    // Primary .8 on light, .4 on dark (.8 was 1.8:1 there).
+                    className="inline-flex w-fit items-center gap-1 text-sm text-[light-dark(var(--mantine-primary-color-8),var(--mantine-primary-color-4))] hover:underline"
                   >
                     <Landmark size={14} aria-hidden />
                     {museum.name}

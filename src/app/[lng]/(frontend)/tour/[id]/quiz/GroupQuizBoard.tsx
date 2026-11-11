@@ -161,7 +161,11 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                         </Anchor>
                       </Group>
                     ) : isQuizHandedIn(guest.attributes) ? (
-                      <Group gap={4} c="green.8" wrap="nowrap">
+                      <Group
+                        gap={4}
+                        c="light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))"
+                        wrap="nowrap"
+                      >
                         <Check size={14} aria-hidden />
                         <Text size="sm" inherit>
                           {t('Finished')}

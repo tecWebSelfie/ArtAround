@@ -109,8 +109,12 @@ const lightTextCache = new Map<string, string>()
  *   component's light, subtle and transparent variants follow without
  *   per-call `color="x.8"` patches.
  *
- * Dark keeps Mantine's own values except the placeholder, whose dark.3 is
- * about 2.5:1 on a dark field: a dark.2/dark.1 mix reaches about 4.6:1.
+ * Dark keeps Mantine's own values except two text tones that fall short on
+ * the dark page: `dimmed` (dark.2, about 4:1, 4.4:1 on a card) becomes a
+ * dark.2/dark.1 mix (about 4.8:1 on a card, 5.5:1 on the page), and the
+ * placeholder (dark.3, about 2.5:1 on a dark field) a dark.2/dark.1 mix
+ * (about 4.6:1). The app follows the system scheme, so dark is a
+ * first-class scheme, not a fallback.
  * Pass it to every MantineProvider that renders app UI.
  */
 export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
@@ -129,6 +133,8 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
     light[`--mantine-color-${name}-light-color`] = text
   }
   const dark = {
+    '--mantine-color-dimmed':
+      'color-mix(in srgb, var(--mantine-color-dark-2), var(--mantine-color-dark-1) 45%)',
     '--mantine-color-placeholder':
       'color-mix(in srgb, var(--mantine-color-dark-2), var(--mantine-color-dark-1) 40%)',
   }

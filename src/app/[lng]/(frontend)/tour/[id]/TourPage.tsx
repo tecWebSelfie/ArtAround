@@ -183,7 +183,7 @@ export default function TourPage({
                           component={Link}
                           href={`/${lng}/museum/${museum.id}` as Route}
                           size="sm"
-                          c="museum.8"
+                          c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
                           className="inline-flex items-center gap-1"
                         >
                           <Landmark size={14} aria-hidden />

@@ -43,6 +43,9 @@ export function AppMantineProvider({
 
   return (
     <MantineProvider
+      // Light or dark as the visitor's system says (DESIGN.md → Color
+      // scheme); must match `MantineColorSchemeScript`'s default.
+      defaultColorScheme="auto"
       {...props}
       theme={withDialogLabels}
       cssVariablesResolver={cssVariablesResolver}

@@ -99,7 +99,9 @@ export default function NavigatorHomePage({
       <Divider
         className="my-(--mantine-spacing-xs) from-md:my-(--mantine-spacing-md)"
         label={t('Or')}
-        styles={{ label: { color: 'var(--mantine-color-gray-7)' } }}
+        // The theme's readable supporting tone, in either scheme (a fixed
+        // gray.7 was 1.9:1 on the dark page).
+        styles={{ label: { color: 'var(--mantine-color-dimmed)' } }}
       />
       {/* The ways in: on phones a column (the QR/Plan pair, then the group
           form); from md one row of three peers divided by rules, the pair

@@ -20,5 +20,7 @@ export function MantineColorSchemeScript(props: Props) {
   if (typeof window !== 'undefined') {
     return null
   }
-  return <ColorSchemeScript suppressHydrationWarning {...props} />
+  // `auto`, like AppMantineProvider: the system's light or dark is set
+  // before the first paint, so a dark phone never flashes the light page.
+  return <ColorSchemeScript defaultColorScheme="auto" suppressHydrationWarning {...props} />
 }

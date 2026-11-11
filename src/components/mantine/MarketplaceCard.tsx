@@ -184,11 +184,23 @@ export function MarketplaceCard({
         <CardSection inheritPadding withBorder py="xs" mt="sm">
           <Group justify="space-between" wrap="nowrap">
             {isUser ? (
-              <Text fw={700} c="museum.8">
+              <Text
+                fw={700}
+                c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
+              >
                 {labels.viewProfile}
               </Text>
             ) : (
-              <Text fw={700} c={isPaid ? undefined : 'green.8'}>
+              <Text
+                fw={700}
+                // green.8 reads on the white card but is 3.9:1 on the dark
+                // one: green.4 there.
+                c={
+                  isPaid
+                    ? undefined
+                    : 'light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))'
+                }
+              >
                 {isPaid ? formatPrice(item.priceCents, item.currency, locale) : labels.free}
               </Text>
             )}

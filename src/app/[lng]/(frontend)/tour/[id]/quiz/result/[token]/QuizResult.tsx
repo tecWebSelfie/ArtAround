@@ -310,7 +310,11 @@ function ReviewEntry({
         <Group gap={6} wrap="nowrap" align="flex-start">
           <Check size={18} color="var(--mantine-color-green-7)" aria-hidden />
           <Text size="sm">
-            <Text span fw={600} c="green.8">
+            <Text
+              span
+              fw={600}
+              c="light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))"
+            >
               {t('Right answer:')}
             </Text>{' '}
             {item.correctAnswer}

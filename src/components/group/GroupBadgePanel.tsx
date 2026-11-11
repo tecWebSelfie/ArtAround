@@ -66,7 +66,11 @@ function GroupBadgeButton() {
       <Modal opened={opened} onClose={panel.close} title={t('Your group')} centered>
         <Stack gap="md">
           {warn && (
-            <Text size="sm" c="orange.8" role="status">
+            <Text
+              size="sm"
+              c="light-dark(var(--mantine-color-orange-8), var(--mantine-color-orange-4))"
+              role="status"
+            >
               {t('{{name}} is not connected right now', { name: hostName })}
             </Text>
           )}
