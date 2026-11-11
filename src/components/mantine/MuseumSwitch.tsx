@@ -15,6 +15,7 @@ import {
   Text,
   TextInput,
   ThemeIcon,
+  UnstyledButton,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Check, ChevronDown, FileUp, Globe, Landmark, Search } from 'lucide-react'
@@ -23,7 +24,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { setMuseumMode } from '@/lib/museum-cookie'
 import { ClearSearchButton } from './ClearSearchButton'
-import { CONTEXT_CHIP } from './LanguageSwitcher'
 
 /**
  * "Change museum": switches the whole app between global mode and one
@@ -31,9 +31,8 @@ import { CONTEXT_CHIP } from './LanguageSwitcher'
  * that `/api/museum-mode` sets, so after the switch every search, list and
  * suggestion holds only that museum (or every museum again).
  *
- * The trigger is a museum mark with the current scope and a chevron, the
- * same neutral chip as the language switch (it was a light-blue button with
- * a switch arrow, clashing with the gray language select beside it).
+ * The trigger is a place picker: the label "Museum" over the current scope,
+ * framed by nothing, beside the language pill (see the trigger below).
  *
  * The modal is one list, so the choice is always visible: "All museums"
  * first, then every museum (filtered as the visitor types), the current one
@@ -103,21 +102,15 @@ export function MuseumSwitch({
 
   return (
     <>
-      {/* The same context chip as the language switch beside it
-          (CONTEXT_CHIP): neutral, a chevron for "pick another". Museum mode
-          shows in the landmark, drawn in the primary color, which is the
+      {/* A place picker, not an action button: the small dimmed label
+          "Museum" over the current scope in bold, the landmark before them
+          and a chevron after, in a pill with the same hairline border as the
+          round language badge beside it (long where that one is round), and
+          no blue fill, so it can't pass for one of the page's actions. The
+          landmark takes the primary color, which in museum mode is the
           locked museum's own (DESIGN.md → Museum Primary Rule). The visible
           name is part of the accessible one (WCAG 2.5.3). */}
-      <Button
-        {...CONTEXT_CHIP}
-        leftSection={
-          <Landmark
-            size={14}
-            aria-hidden
-            color={current ? 'var(--mantine-primary-color-filled)' : undefined}
-          />
-        }
-        rightSection={<ChevronDown size={14} aria-hidden />}
+      <UnstyledButton
         onClick={open}
         aria-label={t('Museum: {{name}}', {
           name: current?.name ?? t('All museums'),
@@ -125,11 +118,34 @@ export function MuseumSwitch({
           interpolation: { escapeValue: false },
         })}
         title={t('Change museum')}
+        maw="100%"
+        miw={0}
+        mih={40}
+        className="mantine-focus-auto rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-[2px] ps-2 pe-2.5 transition-colors hover:bg-(--mantine-color-default-hover)"
       >
-        <Text span inherit truncate>
-          {current?.name ?? t('All museums')}
-        </Text>
-      </Button>
+        <Group gap={8} wrap="nowrap" miw={0}>
+          <Landmark
+            size={18}
+            aria-hidden
+            color="var(--mantine-primary-color-filled)"
+            className="shrink-0"
+          />
+          <Stack gap={0} miw={0}>
+            <Text size="xs" c="dimmed" lh={1.2}>
+              {t('Museum')}
+            </Text>
+            <Text size="sm" fw={700} lh={1.25} truncate>
+              {current?.name ?? t('All museums')}
+            </Text>
+          </Stack>
+          <ChevronDown
+            size={14}
+            aria-hidden
+            color="var(--mantine-color-dimmed)"
+            className="shrink-0"
+          />
+        </Group>
+      </UnstyledButton>
       <Modal opened={opened} onClose={close} title={t('Change museum')}>
         <Stack gap="sm">
           <TextInput

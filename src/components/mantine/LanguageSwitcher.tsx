@@ -1,8 +1,8 @@
 'use client'
 
-import { Badge, Button, Combobox, Group, Text, useCombobox } from '@mantine/core'
+import { Badge, Combobox, Group, Text, UnstyledButton, useCombobox } from '@mantine/core'
 import IsoCodes from 'iso-639-1'
-import { ChevronDown, Languages, Search } from 'lucide-react'
+import { Languages, Search } from 'lucide-react'
 import { usePathname, useRouter } from 'next/navigation'
 import { useT } from 'next-i18next/client'
 import type { Route } from 'next'
@@ -19,13 +19,10 @@ function languageName(code: string) {
  * re-renders in the chosen language (the i18n proxy then remembers it in its
  * cookie). Searchable, since the app speaks every official EU language.
  *
- * The trigger is the same context chip as the museum switch beside it
- * (`CONTEXT_CHIP` below, which MuseumSwitch shares: a `default` pill, leading icon, the current
- * value, a chevron), so the two read as one pair of settings. It used to be a
- * filled gray Select with an up/down chevron next to a light-blue button, two
- * different vocabularies side by side. The list opens below it with a search
- * field, and each option leads with its code tag (EN, FR, …), as visitors
- * often know a language by its tag better than by its own name.
+ * The trigger is a round badge showing the language's code, with a small
+ * translate mark on its corner (see the trigger below). The list opens below it with a search field, and each
+ * option leads with its code tag (EN, FR, …), as visitors often know a
+ * language by its tag better than by its own name.
  */
 export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] }) {
   const { i18n, t } = useT()
@@ -41,6 +38,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
   })
 
   const current = languageName(i18n.language)
+  const code = i18n.language.toUpperCase()
   const words = search.trim().toLowerCase()
   const options = supportedLngs
     .map((lng) => ({ value: lng, label: languageName(lng) }))
@@ -69,21 +67,32 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
       }}
     >
       <Combobox.Target targetType="button">
-        <Button
-          {...CONTEXT_CHIP}
-          leftSection={<Languages size={14} aria-hidden />}
-          rightSection={<ChevronDown size={14} aria-hidden />}
+        {/* A round badge whose content is the value, the language's code in
+            bold ("IT"); the translate mark sits small on its corner as a hint
+            of what the badge is (a soft gray disc with a darker ring, cut out
+            of the badge's edge by a page-colored halo). Same hairline border
+            as the museum pill beside it, but round where that one is long,
+            so the two settings tell apart at a glance. */}
+        <UnstyledButton
           onClick={() => combobox.toggleDropdown()}
-          // The visible name is part of the accessible one (WCAG 2.5.3).
+          // The visible code is part of the accessible name (WCAG 2.5.3).
           aria-label={t('Language: {{name}}', {
-            name: current,
+            name: `${current} (${code})`,
             interpolation: { escapeValue: false },
           })}
+          title={current}
+          className="mantine-focus-auto relative grid size-10 shrink-0 place-items-center rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) transition-colors hover:bg-(--mantine-color-default-hover)"
         >
-          <Text span inherit truncate>
-            {current}
+          <Text span size="sm" fw={700} className="tracking-[0.04em]">
+            {code}
           </Text>
-        </Button>
+          <span
+            aria-hidden
+            className="absolute -top-[5px] -right-[6px] grid size-[19px] place-items-center rounded-full border border-[light-dark(var(--mantine-color-gray-5),var(--mantine-color-dark-3))] bg-[light-dark(var(--mantine-color-gray-1),var(--mantine-color-dark-5))] text-[light-dark(var(--mantine-color-gray-8),var(--mantine-color-dark-0))] shadow-[0_0_0_2px_var(--mantine-color-body)]"
+          >
+            <Languages size={10} strokeWidth={2.5} />
+          </span>
+        </UnstyledButton>
       </Combobox.Target>
       <Combobox.Dropdown>
         <Combobox.Search
@@ -124,17 +133,3 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
     </Combobox>
   )
 }
-
-/**
- * The tabs' context chips (language, museum): one look for both settings.
- * `default` (the page's own surface with a hairline border and body text),
- * not a colored variant, so the chips stay quieter than the page's actions;
- * the same compact height, so they line up.
- */
-export const CONTEXT_CHIP = {
-  variant: 'default',
-  radius: 'xl',
-  size: 'compact-sm',
-  fw: 500,
-  maw: '100%',
-} as const
