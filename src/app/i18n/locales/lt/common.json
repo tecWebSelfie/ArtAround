@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Eiti į {{current}} nuotrauką",
   "Hide thumbnails": "Slėpti miniatiūras",
   "Import a config file": "Importuoti konfigūracijos failą",
-  "languageSwitcher": {
-    "label": "Pasirink kalbą"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Įkeliamas žemėlapis…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Paskyra",
     "Curator": "Kuratorius",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Kita nuotrauka",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Pagal „{{query}}“ muziejų nerasta.",
   "Not now": "Ne dabar",
   "Open photo {{current}}": "Atidaryti {{current}} nuotrauką",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Nuskaitykite, kad atidarytumėte šį objektą",
   "Scan to open this tour": "Nuskenuok, kad atidarytum šį turą",
   "Scan with your phone camera to open it in ArtAround.": "Nuskaitykite telefono kamera, kad atidarytumėte ArtAround.",
+  "Search a language": "",
   "Search a museum": "Ieškoti muziejaus",
   "Show QR code": "Rodyti QR kodą",
   "Show thumbnails": "Rodyti miniatiūras",

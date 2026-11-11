@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Přejít na fotografii {{current}}",
   "Hide thumbnails": "Skrýt náhledy",
   "Import a config file": "Importovat konfigurační soubor",
-  "languageSwitcher": {
-    "label": "Vyber jazyk"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Načítání mapy…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Účet",
     "Curator": "Kurátor",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Další fotografie",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Žádné muzeum neodpovídá „{{query}}“.",
   "Not now": "Teď ne",
   "Open photo {{current}}": "Otevřít fotografii {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Naskenujte a otevřete tento předmět",
   "Scan to open this tour": "Naskenuj a otevři tuto prohlídku",
   "Scan with your phone camera to open it in ArtAround.": "Naskenujte fotoaparátem telefonu a otevřete v ArtAround.",
+  "Search a language": "",
   "Search a museum": "Hledat muzeum",
   "Show QR code": "Zobrazit QR kód",
   "Show thumbnails": "Zobrazit náhledy",

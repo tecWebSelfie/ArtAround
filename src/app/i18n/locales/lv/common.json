@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Pāriet uz {{current}}. fotoattēlu",
   "Hide thumbnails": "Slēpt sīktēlus",
   "Import a config file": "Importēt konfigurācijas failu",
-  "languageSwitcher": {
-    "label": "Izvēlies valodu"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Ielādē karti…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Konts",
     "Curator": "Kurators",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Nākamais fotoattēls",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Neviens muzejs neatbilst “{{query}}”.",
   "Not now": "Ne tagad",
   "Open photo {{current}}": "Atvērt {{current}}. fotoattēlu",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skenējiet, lai atvērtu šo priekšmetu",
   "Scan to open this tour": "Skenē, lai atvērtu šo tūri",
   "Scan with your phone camera to open it in ArtAround.": "Skenējiet ar tālruņa kameru, lai atvērtu to ArtAround.",
+  "Search a language": "",
   "Search a museum": "Meklēt muzeju",
   "Show QR code": "Rādīt QR kodu",
   "Show thumbnails": "Rādīt sīktēlus",

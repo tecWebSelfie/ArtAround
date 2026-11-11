@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Mur għar-ritratt {{current}}",
   "Hide thumbnails": "Aħbi l-minjaturi",
   "Import a config file": "Importa fajl ta' konfigurazzjoni",
-  "languageSwitcher": {
-    "label": "Agħżel il-lingwa"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Il-mappa qed titgħabba…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Kont",
     "Curator": "Kuratur",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Ritratt li jmiss",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "L-ebda mużew ma jaqbel ma’ “{{query}}”.",
   "Not now": "Mhux issa",
   "Open photo {{current}}": "Iftaħ ir-ritratt {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skennja biex tiftaħ dan l-oġġett",
   "Scan to open this tour": "Skennja biex tiftaħ dan it-tour",
   "Scan with your phone camera to open it in ArtAround.": "Skennja bil-kamera tat-telefon biex tiftħu f’ArtAround.",
+  "Search a language": "",
   "Search a museum": "Fittex mużew",
   "Show QR code": "Uri l-kodiċi QR",
   "Show thumbnails": "Uri l-minjaturi",

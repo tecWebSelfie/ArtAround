@@ -17,12 +17,13 @@ import {
   ThemeIcon,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
-import { Check, FileUp, Globe, Landmark, RefreshCw, Search } from 'lucide-react'
+import { Check, ChevronDown, FileUp, Globe, Landmark, Search } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { setMuseumMode } from '@/lib/museum-cookie'
 import { ClearSearchButton } from './ClearSearchButton'
+import { CONTEXT_CHIP } from './LanguageSwitcher'
 
 /**
  * "Change museum": switches the whole app between global mode and one
@@ -30,8 +31,9 @@ import { ClearSearchButton } from './ClearSearchButton'
  * that `/api/museum-mode` sets, so after the switch every search, list and
  * suggestion holds only that museum (or every museum again).
  *
- * The trigger is a museum mark with a switch arrow, read as "change museum"
- * rather than the old globe, which read as "language" or "world".
+ * The trigger is a museum mark with the current scope and a chevron, the
+ * same neutral chip as the language switch (it was a light-blue button with
+ * a switch arrow, clashing with the gray language select beside it).
  *
  * The modal is one list, so the choice is always visible: "All museums"
  * first, then every museum (filtered as the visitor types), the current one
@@ -101,16 +103,28 @@ export function MuseumSwitch({
 
   return (
     <>
+      {/* The same context chip as the language switch beside it
+          (CONTEXT_CHIP): neutral, a chevron for "pick another". Museum mode
+          shows in the landmark, drawn in the primary color, which is the
+          locked museum's own (DESIGN.md → Museum Primary Rule). The visible
+          name is part of the accessible one (WCAG 2.5.3). */}
       <Button
-        variant="light"
-        radius="xl"
-        size="compact-sm"
-        leftSection={<Landmark size={14} aria-hidden />}
-        rightSection={<RefreshCw size={12} aria-hidden />}
+        {...CONTEXT_CHIP}
+        leftSection={
+          <Landmark
+            size={14}
+            aria-hidden
+            color={current ? 'var(--mantine-primary-color-filled)' : undefined}
+          />
+        }
+        rightSection={<ChevronDown size={14} aria-hidden />}
         onClick={open}
-        aria-label={t('Change museum')}
+        aria-label={t('Museum: {{name}}', {
+          name: current?.name ?? t('All museums'),
+          // A label, not HTML: "Sant'Anna" must not become "Sant&#39;Anna".
+          interpolation: { escapeValue: false },
+        })}
         title={t('Change museum')}
-        maw="100%"
       >
         <Text span inherit truncate>
           {current?.name ?? t('All museums')}

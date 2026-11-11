@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Gå til foto {{current}}",
   "Hide thumbnails": "Skjul miniaturer",
   "Import a config file": "Importér en konfigurationsfil",
-  "languageSwitcher": {
-    "label": "Vælg sprog"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Indlæser kortet…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Konto",
     "Curator": "Kurator",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Næste foto",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Intet museum matcher “{{query}}”.",
   "Not now": "Ikke nu",
   "Open photo {{current}}": "Åbn foto {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Scan for at åbne denne genstand",
   "Scan to open this tour": "Scan for at åbne turen",
   "Scan with your phone camera to open it in ArtAround.": "Scan med telefonens kamera for at åbne det i ArtAround.",
+  "Search a language": "",
   "Search a museum": "Søg efter et museum",
   "Show QR code": "Vis QR-kode",
   "Show thumbnails": "Vis miniaturer",

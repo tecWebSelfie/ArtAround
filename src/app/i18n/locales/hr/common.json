@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Idi na fotografiju {{current}}",
   "Hide thumbnails": "Sakrij sličice",
   "Import a config file": "Uvezi konfiguracijsku datoteku",
-  "languageSwitcher": {
-    "label": "Odaberi jezik"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Učitavanje karte…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Račun",
     "Curator": "Kustos",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Sljedeća fotografija",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Nijedan muzej ne odgovara upitu „{{query}}”.",
   "Not now": "Ne sada",
   "Open photo {{current}}": "Otvori fotografiju {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skenirajte za otvaranje ovog predmeta",
   "Scan to open this tour": "Skeniraj za otvaranje ove ture",
   "Scan with your phone camera to open it in ArtAround.": "Skenirajte kamerom telefona da ga otvorite u ArtAroundu.",
+  "Search a language": "",
   "Search a museum": "Pretraži muzeje",
   "Show QR code": "Prikaži QR kod",
   "Show thumbnails": "Prikaži sličice",

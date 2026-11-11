@@ -26,10 +26,8 @@ export const SearchFocus: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
 
-    // The title names the task; its accented phrase echoes the app's name.
-    await expect(
-      canvas.getByRole('heading', { level: 1, name: /find your way around art/i }),
-    ).toBeVisible()
+    // The brand pun, with the typographic apostrophe (’) the translation uses.
+    await expect(canvas.getByRole('heading', { level: 1, name: /everything’s/i })).toBeVisible()
     await expect(canvas.getByText('Scan a tour QR code to start')).toBeVisible()
     // The plan caption reads "Or plan a visit…" on phones and "Plan a visit…"
     // from md (the other is display:none), so check the card by its accessible

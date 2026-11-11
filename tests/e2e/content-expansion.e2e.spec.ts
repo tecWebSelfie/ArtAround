@@ -73,7 +73,7 @@ test('importing a museum config file locks the app to that museum', async ({ pag
   await page.goto(at('/en/navigator'), { waitUntil: 'domcontentloaded' })
   // A click before hydration opens nothing: retry until the dialog is up.
   await expect(async () => {
-    await page.getByRole('button', { name: 'Change museum' }).click()
+    await page.getByRole('button', { name: /^Museum: / }).click()
     await expect(page.getByRole('dialog')).toBeVisible({ timeout: 1_000 })
   }).toPass({ timeout: 120_000 })
   if (shots) await page.screenshot({ path: `${shots}/museum-switch.png` })
@@ -83,11 +83,11 @@ test('importing a museum config file locks the app to that museum', async ({ pag
     mimeType: 'application/json',
     buffer: Buffer.from(config),
   })
-  await expect(page.getByRole('button', { name: 'Change museum' })).toHaveText(
+  await expect(page.getByRole('button', { name: /^Museum: / })).toHaveText(
     /\[DEV\] Tour navigation/,
   )
   // Back to global mode: "All museums" is the first row of the switch's list.
-  await page.getByRole('button', { name: 'Change museum' }).click()
+  await page.getByRole('button', { name: /^Museum: / }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'All museums' }).click()
-  await expect(page.getByRole('button', { name: 'Change museum' })).toHaveText('All museums')
+  await expect(page.getByRole('button', { name: /^Museum: / })).toHaveText('All museums')
 })

@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Gå till foto {{current}}",
   "Hide thumbnails": "Dölj miniatyrer",
   "Import a config file": "Importera en konfigurationsfil",
-  "languageSwitcher": {
-    "label": "Välj språk"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Läser in kartan…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Konto",
     "Curator": "Intendent",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Nästa foto",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Inget museum matchar ”{{query}}”.",
   "Not now": "Inte nu",
   "Open photo {{current}}": "Öppna foto {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skanna för att öppna föremålet",
   "Scan to open this tour": "Skanna för att öppna turen",
   "Scan with your phone camera to open it in ArtAround.": "Skanna med mobilkameran för att öppna i ArtAround.",
+  "Search a language": "",
   "Search a museum": "Sök efter ett museum",
   "Show QR code": "Visa QR-kod",
   "Show thumbnails": "Visa miniatyrer",

@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Téigh go grianghraf {{current}}",
   "Hide thumbnails": "Folaigh mionsamhlacha",
   "Import a config file": "Iompórtáil comhad cumraíochta",
-  "languageSwitcher": {
-    "label": "Roghnaigh teanga"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "An léarscáil á lódáil…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Cuntas",
     "Curator": "Coimeádaí",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "An chéad ghrianghraf eile",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Níl aon mhúsaem ag teacht le “{{query}}”.",
   "Not now": "Ní anois",
   "Open photo {{current}}": "Oscail grianghraf {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Scan chun an réad seo a oscailt",
   "Scan to open this tour": "Scan chun an turas seo a oscailt",
   "Scan with your phone camera to open it in ArtAround.": "Scan le ceamara do ghutháin chun é a oscailt in ArtAround.",
+  "Search a language": "",
   "Search a museum": "Cuardaigh músaem",
   "Show QR code": "Taispeáin an cód QR",
   "Show thumbnails": "Taispeáin mionsamhlacha",

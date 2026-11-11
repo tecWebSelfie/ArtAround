@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Naar foto {{current}}",
   "Hide thumbnails": "Miniaturen verbergen",
   "Import a config file": "Een configuratiebestand importeren",
-  "languageSwitcher": {
-    "label": "Taal kiezen"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Kaart laden…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Account",
     "Curator": "Conservator",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Volgende foto",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Geen museum gevonden voor “{{query}}”.",
   "Not now": "Niet nu",
   "Open photo {{current}}": "Foto {{current}} openen",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Scan om dit object te openen",
   "Scan to open this tour": "Scan om deze tour te openen",
   "Scan with your phone camera to open it in ArtAround.": "Scan met de camera van je telefoon om het in ArtAround te openen.",
+  "Search a language": "",
   "Search a museum": "Zoek een museum",
   "Show QR code": "QR-code tonen",
   "Show thumbnails": "Miniaturen tonen",

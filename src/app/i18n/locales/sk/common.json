@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Prejsť na fotografiu {{current}}",
   "Hide thumbnails": "Skryť miniatúry",
   "Import a config file": "Importovať konfiguračný súbor",
-  "languageSwitcher": {
-    "label": "Vyber jazyk"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Načítava sa mapa…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Účet",
     "Curator": "Kurátor",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Nasledujúca fotografia",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Žiadne múzeum nezodpovedá „{{query}}“.",
   "Not now": "Teraz nie",
   "Open photo {{current}}": "Otvoriť fotografiu {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Naskenujte a otvorte tento predmet",
   "Scan to open this tour": "Naskenuj a otvor túto prehliadku",
   "Scan with your phone camera to open it in ArtAround.": "Naskenujte fotoaparátom telefónu a otvorte v ArtAround.",
+  "Search a language": "",
   "Search a museum": "Hľadať múzeum",
   "Show QR code": "Zobraziť QR kód",
   "Show thumbnails": "Zobraziť miniatúry",

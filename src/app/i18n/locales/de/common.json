@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Zu Foto {{current}}",
   "Hide thumbnails": "Miniaturen ausblenden",
   "Import a config file": "Konfigurationsdatei importieren",
-  "languageSwitcher": {
-    "label": "Sprache wählen"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Karte wird geladen…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Konto",
     "Curator": "Kurator",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Nächstes Foto",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Kein Museum passt zu „{{query}}“.",
   "Not now": "Nicht jetzt",
   "Open photo {{current}}": "Foto {{current}} öffnen",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Scannen, um dieses Objekt zu öffnen",
   "Scan to open this tour": "Scannen, um diese Tour zu öffnen",
   "Scan with your phone camera to open it in ArtAround.": "Scanne mit der Handykamera, um es in ArtAround zu öffnen.",
+  "Search a language": "",
   "Search a museum": "Museum suchen",
   "Show QR code": "QR-Code anzeigen",
   "Show thumbnails": "Miniaturen anzeigen",

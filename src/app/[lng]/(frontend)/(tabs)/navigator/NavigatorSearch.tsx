@@ -5,7 +5,7 @@ import {
   type AutoCompleteItem,
   type SearchStatus,
 } from '@/components/mantine/ArtAroundGlobalSearch'
-import { Text } from '@mantine/core'
+import { Box, Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -71,24 +71,32 @@ export function NavigatorSearch({
 
   return (
     <>
-      <ArtAroundGlobalSearch
-        items={items}
-        value={query}
-        onChange={setQuery}
-        status={status}
-        onRetry={() => {
-          setResult(null)
-          setAttempt((count) => count + 1)
-        }}
-        browse={{ label: t('Browse all tours'), href: `/${lng}/marketplace` }}
-        // Results are already filtered by Payload; do not apply the local
-        // title-only filter or a city/excerpt match would disappear.
-        filter={() => true}
-        onOptionSubmit={(value) => {
-          if (onNavigate) onNavigate(value)
-          else window.location.assign(value)
-        }}
-      />
+      {/* The field floats: a close soft shadow plus a wide one pushed down
+          under the pill give it the depth the former Reflection gave (its
+          shadow sat at 0.2 opacity), attached to the field instead of a
+          separate gray smudge below it, and without that component's hidden
+          copy of the search. Mantine's lg shadow (0.05) was too faint to
+          read. The radius matches the input's `xl` pill. */}
+      <Box className="rounded-[2rem] shadow-[0_2px_6px_rgb(0_0_0/0.06),0_22px_30px_-14px_rgb(0_0_0/0.3)]">
+        <ArtAroundGlobalSearch
+          items={items}
+          value={query}
+          onChange={setQuery}
+          status={status}
+          onRetry={() => {
+            setResult(null)
+            setAttempt((count) => count + 1)
+          }}
+          browse={{ label: t('Browse all tours'), href: `/${lng}/marketplace` }}
+          // Results are already filtered by Payload; do not apply the local
+          // title-only filter or a city/excerpt match would disappear.
+          filter={() => true}
+          onOptionSubmit={(value) => {
+            if (onNavigate) onNavigate(value)
+            else window.location.assign(value)
+          }}
+        />
+      </Box>
       {/* Always mounted, so screen readers hear the outcome even with the
           list closed. Visually hidden: the open list shows the same message
           with its hint and its way out. */}

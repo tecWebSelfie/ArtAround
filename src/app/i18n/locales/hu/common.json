@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Ugrás a(z) {{current}}. fotóra",
   "Hide thumbnails": "Bélyegképek elrejtése",
   "Import a config file": "Konfigurációs fájl importálása",
-  "languageSwitcher": {
-    "label": "Nyelv kiválasztása"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Térkép betöltése…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Fiók",
     "Curator": "Kurátor",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Következő fotó",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Egy múzeum sem felel meg ennek: „{{query}}”.",
   "Not now": "Most nem",
   "Open photo {{current}}": "{{current}}. fotó megnyitása",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Olvasd be a tárgy megnyitásához",
   "Scan to open this tour": "Olvasd be a túra megnyitásához",
   "Scan with your phone camera to open it in ArtAround.": "Olvasd be a telefon kamerájával, hogy megnyisd az ArtAroundban.",
+  "Search a language": "",
   "Search a museum": "Múzeum keresése",
   "Show QR code": "QR-kód megjelenítése",
   "Show thumbnails": "Bélyegképek megjelenítése",

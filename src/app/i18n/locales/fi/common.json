@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Siirry kuvaan {{current}}",
   "Hide thumbnails": "Piilota pikkukuvat",
   "Import a config file": "Tuo määritystiedosto",
-  "languageSwitcher": {
-    "label": "Valitse kieli"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Ladataan karttaa…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Tili",
     "Curator": "Kuraattori",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Seuraava kuva",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Mikään museo ei vastaa hakua ”{{query}}”.",
   "Not now": "Ei nyt",
   "Open photo {{current}}": "Avaa kuva {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skannaa avataksesi tämän esineen",
   "Scan to open this tour": "Avaa tämä kierros skannaamalla",
   "Scan with your phone camera to open it in ArtAround.": "Skannaa puhelimen kameralla avataksesi sen ArtAroundissa.",
+  "Search a language": "",
   "Search a museum": "Hae museota",
   "Show QR code": "Näytä QR-koodi",
   "Show thumbnails": "Näytä pikkukuvat",

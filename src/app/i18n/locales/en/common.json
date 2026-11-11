@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Go to photo {{current}}",
   "Hide thumbnails": "Hide thumbnails",
   "Import a config file": "Import a config file",
-  "languageSwitcher": {
-    "label": "Select Language"
-  },
+  "Language: {{name}}": "Language: {{name}}",
   "Last page": "Last page",
   "Loading map…": "Loading map…",
+  "Museum: {{name}}": "Museum: {{name}}",
   "navbar": {
     "Account": "Account",
     "Curator": "Curator",
@@ -71,6 +70,7 @@
   },
   "Next page": "Next page",
   "Next photo": "Next photo",
+  "No language matches.": "No language matches.",
   "No museum matches “{{query}}”.": "No museum matches “{{query}}”.",
   "Not now": "Not now",
   "Open photo {{current}}": "Open photo {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Scan to open this object",
   "Scan to open this tour": "Scan to open this tour",
   "Scan with your phone camera to open it in ArtAround.": "Scan with your phone camera to open it in ArtAround.",
+  "Search a language": "Search a language",
   "Search a museum": "Search a museum",
   "Show QR code": "Show QR code",
   "Show thumbnails": "Show thumbnails",

@@ -53,11 +53,10 @@
   "Go to photo {{current}}": "Mine fotole {{current}}",
   "Hide thumbnails": "Peida pisipildid",
   "Import a config file": "Impordi seadistusfail",
-  "languageSwitcher": {
-    "label": "Vali keel"
-  },
+  "Language: {{name}}": "",
   "Last page": "",
   "Loading map…": "Kaardi laadimine…",
+  "Museum: {{name}}": "",
   "navbar": {
     "Account": "Konto",
     "Curator": "Kuraator",
@@ -71,6 +70,7 @@
   },
   "Next page": "",
   "Next photo": "Järgmine foto",
+  "No language matches.": "",
   "No museum matches “{{query}}”.": "Päringule „{{query}}” ei vasta ükski muuseum.",
   "Not now": "Mitte praegu",
   "Open photo {{current}}": "Ava foto {{current}}",
@@ -89,6 +89,7 @@
   "Scan to open this object": "Skanni, et avada see ese",
   "Scan to open this tour": "Skanni, et see tuur avada",
   "Scan with your phone camera to open it in ArtAround.": "Skanni telefoni kaameraga, et avada see ArtAroundis.",
+  "Search a language": "",
   "Search a museum": "Otsi muuseumi",
   "Show QR code": "Näita QR-koodi",
   "Show thumbnails": "Näita pisipilte",
