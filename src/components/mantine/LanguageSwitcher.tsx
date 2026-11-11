@@ -72,7 +72,9 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
             of what the badge is (a soft gray disc with a darker ring, cut out
             of the badge's edge by a page-colored halo). Same hairline border
             as the museum pill beside it, but round where that one is long,
-            so the two settings tell apart at a glance. */}
+            so the two settings tell apart at a glance. Both are drawn at 36px,
+            close to the 20px wordmark beside them, and an `::after` 4px past
+            the edge keeps a 44px touch target. */}
         <UnstyledButton
           onClick={() => combobox.toggleDropdown()}
           // The visible code is part of the accessible name (WCAG 2.5.3).
@@ -81,16 +83,16 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
             interpolation: { escapeValue: false },
           })}
           title={current}
-          className="mantine-focus-auto relative grid size-10 shrink-0 place-items-center rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) transition-colors hover:bg-(--mantine-color-default-hover)"
+          className="mantine-focus-auto relative grid size-9 shrink-0 place-items-center rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) transition-colors hover:bg-(--mantine-color-default-hover) after:absolute after:-inset-1 after:content-['']"
         >
-          <Text span size="sm" fw={700} className="tracking-[0.04em]">
+          <Text span fz={13} fw={700} className="tracking-[0.04em]">
             {code}
           </Text>
           <span
             aria-hidden
-            className="absolute -top-[5px] -right-[6px] grid size-[19px] place-items-center rounded-full border border-[light-dark(var(--mantine-color-gray-5),var(--mantine-color-dark-3))] bg-[light-dark(var(--mantine-color-gray-1),var(--mantine-color-dark-5))] text-[light-dark(var(--mantine-color-gray-8),var(--mantine-color-dark-0))] shadow-[0_0_0_2px_var(--mantine-color-body)]"
+            className="absolute -top-[5px] -right-[6px] grid size-[17px] place-items-center rounded-full border border-[light-dark(var(--mantine-color-gray-5),var(--mantine-color-dark-3))] bg-[light-dark(var(--mantine-color-gray-1),var(--mantine-color-dark-5))] text-[light-dark(var(--mantine-color-gray-8),var(--mantine-color-dark-0))] shadow-[0_0_0_2px_var(--mantine-color-body)]"
           >
-            <Languages size={10} strokeWidth={2.5} />
+            <Languages size={9} strokeWidth={2.5} />
           </span>
         </UnstyledButton>
       </Combobox.Target>

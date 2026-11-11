@@ -120,21 +120,21 @@ export function MuseumSwitch({
         title={t('Change museum')}
         maw="100%"
         miw={0}
-        mih={40}
-        className="mantine-focus-auto rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-[2px] ps-2 pe-2.5 transition-colors hover:bg-(--mantine-color-default-hover)"
+        mih={36}
+        className="mantine-focus-auto relative rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-px ps-2 pe-2.5 transition-colors after:absolute after:-inset-1 after:content-[''] hover:bg-(--mantine-color-default-hover)"
       >
-        <Group gap={8} wrap="nowrap" miw={0}>
+        <Group gap={6} wrap="nowrap" miw={0}>
           <Landmark
-            size={18}
+            size={16}
             aria-hidden
             color="var(--mantine-primary-color-filled)"
             className="shrink-0"
           />
           <Stack gap={0} miw={0}>
-            <Text size="xs" c="dimmed" lh={1.2}>
+            <Text fz={11} c="dimmed" lh={1.15}>
               {t('Museum')}
             </Text>
-            <Text size="sm" fw={700} lh={1.25} truncate>
+            <Text size="sm" fw={700} lh={1.15} truncate>
               {current?.name ?? t('All museums')}
             </Text>
           </Stack>

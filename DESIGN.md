@@ -156,13 +156,13 @@ components:
     backgroundColor: '{colors.surface-light}'
     textColor: '{colors.editor-foreground}'
     rounded: '{rounded.xl}'
-    size: '40px'
+    size: '36px'
   museum-picker:
     backgroundColor: '{colors.surface-light}'
     textColor: '{colors.editor-foreground}'
     rounded: '{rounded.xl}'
-    height: '40px'
-    padding: '2px 10px 2px 8px'
+    height: '36px'
+    padding: '1px 10px 1px 8px'
   group-pill:
     textColor: '{colors.navigation-blue}'
     rounded: '{rounded.xl}'
@@ -599,7 +599,7 @@ Planner and reader descriptions use a relaxed line height (1.5) and pretty wrapp
 
 ### Museum switch
 
-The phone tabs' top row reads left to right: the **Artaround wordmark** (lg, weight 800, the brand gradient, linking to the navigator), then two settings with the same gray hairline (`--mantine-color-default-border`) on the page's surface but different shapes, so they tell apart at a glance and neither passes for a blue action. The **language badge** is a 40px circle whose content is the value, the language code in bold (sm, weight 700, tracking 0.04em); a 19px translate mark sits on its top-right corner (gray.1 disc, gray.8 icon, gray.5 ring; dark.5/dark.0/dark.3 in dark), cut out of the badge's edge by a 2px page-colored halo; it opens a searchable list (code tag + native name). Its accessible name is "Language: <name> (<code>)". The **museum picker** is a 40px-tall pill: the `Landmark` in the primary color (the locked museum's own in museum mode), a dimmed xs label "Museum" over the current scope in bold sm ("All museums" or the museum's name, truncated), and a dimmed chevron; hover tints the surface. Its accessible name is "Museum: <name>". Both were chosen in live mode against stacked chips, a merged bar and label tiles; an earlier light-blue museum button read as one of the page's actions. It opens a "Change museum" modal: a search `TextInput` (`Search` icon, autofocused, the shared clear X while it holds text) over one always-visible list of Mantine `NavLink` rows in a 360px `ScrollArea.Autosize`: "All museums" first (gray light `ThemeIcon` with `Globe`, hidden while searching), then every museum (light `ThemeIcon` with `Landmark` in that museum's own color, blue when it has none, name over the city as `description`). The current choice is `active` with a trailing `Check`; the switching row shows a 16px `Loader`. Below a `Divider` labelled "or", the developer path: a `subtle` gray `compact-sm` "Import a config file" (`FileUp`). Problems show as one orange `Alert` under the list. In museum mode every list in the app is scoped (search, marketplace, profile carousels, "tours with this content", Plan my visit); the tabs remount on a switch so client-side searches fetch again.
+The phone tabs' top row reads left to right: the **Artaround wordmark** (xl, weight 800, the brand gradient, linking to the navigator), then two settings with the same gray hairline (`--mantine-color-default-border`) on the page's surface but different shapes, so they tell apart at a glance and neither passes for a blue action. The **language badge** is a 36px circle whose content is the value, the language code in bold (13px, weight 700, tracking 0.04em); a 17px translate mark sits on its top-right corner (gray.1 disc, gray.8 icon, gray.5 ring; dark.5/dark.0/dark.3 in dark), cut out of the badge's edge by a 2px page-colored halo; it opens a searchable list (code tag + native name). Its accessible name is "Language: <name> (<code>)". The **museum picker** is a 36px-tall pill: the 16px `Landmark` in the primary color (the locked museum's own in museum mode), a dimmed 11px label "Museum" over the current scope in bold sm ("All museums" or the museum's name, truncated), and a dimmed chevron; hover tints the surface. Its accessible name is "Museum: <name>". Both keep a 44px touch target through a transparent `::after` 4px past their edge. The wordmark (20px) and the controls (36px) were sized toward each other in live mode, so the brand is no longer outweighed by its settings. Their shapes were chosen in live mode against stacked chips, a merged bar and label tiles; an earlier light-blue museum button read as one of the page's actions. It opens a "Change museum" modal: a search `TextInput` (`Search` icon, autofocused, the shared clear X while it holds text) over one always-visible list of Mantine `NavLink` rows in a 360px `ScrollArea.Autosize`: "All museums" first (gray light `ThemeIcon` with `Globe`, hidden while searching), then every museum (light `ThemeIcon` with `Landmark` in that museum's own color, blue when it has none, name over the city as `description`). The current choice is `active` with a trailing `Check`; the switching row shows a 16px `Loader`. Below a `Divider` labelled "or", the developer path: a `subtle` gray `compact-sm` "Import a config file" (`FileUp`). Problems show as one orange `Alert` under the list. In museum mode every list in the app is scoped (search, marketplace, profile carousels, "tours with this content", Plan my visit); the tabs remount on a switch so client-side searches fetch again.
 
 ### QR codes (`QrCodeButton`, printable sheets)
 

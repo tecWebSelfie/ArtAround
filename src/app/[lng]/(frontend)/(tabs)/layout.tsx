@@ -44,7 +44,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
         >
           <Text
             span
-            fz="lg"
+            fz="xl"
             fw={800}
             lh={1}
             className="tracking-[-0.01em]"
