@@ -136,7 +136,9 @@ asked or not.
 - **Shared artifacts** are committed: PRODUCT.md, DESIGN.md and
   `.impeccable/` (`config.json`, the `design.json` sidecar, `surfaces/`,
   `live/config.json`). Per-developer state (`hook.cache.json`, `review/`,
-  `config.local.json`) is excluded locally.
+  `config.local.json`) is excluded locally. Critique reports (`critique/`)
+  are ignored in `.gitignore`: a snapshot of one page that goes stale as
+  soon as the page changes, unlike `surfaces/`.
 - **Detector hook** (`.claude/settings.json`): fires only on `Edit`/`Write`,
   so UI edits made through Bash skip it. On source files it runs regex rules
   only; the full rule set (contrast, tiny text) needs the running page:
