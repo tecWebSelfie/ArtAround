@@ -328,9 +328,10 @@ e2e specs pass against it):
 - Build with the deploy's public env set: `NEXT_PUBLIC_PAYLOAD_URL=<https url>`,
   `NEXT_PUBLIC_GPS_SIMULATOR=true` (demo), then `pnpm build`. Don't run `next dev`
   at the same time: both write `.next/dev/types`, which the build typechecks.
-- `output: 'standalone'`: run `node .next/standalone/server.js` after
-  `cp -r public .next/standalone/ && cp -r .next/static .next/standalone/.next/`
-  (`public/` carries `public/vad`). `next start` also works locally but warns.
+- `output: 'standalone'`: run `node .next/standalone/server.js`. `pnpm build`
+  already copies `public/` (it carries `public/vad`) and `.next/static` into
+  `.next/standalone` (`scripts/copy-standalone-assets.mjs`); a bare `next build`
+  doesn't. `next start` also works locally but warns.
 - `next.config.ts` lists Payload's server packages in `serverExternalPackages`,
   as `withPayload` does in dev; bundling them broke `payload.config.ts` while
   collecting page data. `@pascal-app/editor` has a pnpm patch with typing fixes

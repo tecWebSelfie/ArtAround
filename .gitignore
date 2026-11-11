@@ -79,3 +79,7 @@ storybook-static
 
 # Draco decoder from the installed Three.js package (copied on postinstall).
 /public/draco
+
+
+#impeccable critique reports
+.impeccable/critique/
