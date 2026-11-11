@@ -34,6 +34,13 @@ const nextConfig: NextConfig = {
   // from disk by the QR sheet route; standalone output must ship it.
   outputFileTracingIncludes: {
     '/api/qr-sheet': ['./public/fonts/**'],
+    // sharp's native addon (`@img/sharp-<platform>/lib/*.node`) links libvips
+    // dynamically, so the tracer copies the `.node` but not the libraries the
+    // OS loader pulls in next to it (libvips-*.dll on Windows; the
+    // `@img/sharp-libvips-<platform>/lib` .so files on Linux). Without them
+    // `.next/standalone/server.js` fails with ERR_DLOPEN_FAILED as soon as
+    // Payload or next/image loads sharp. Ship every `@img` package's `lib`.
+    '/**': ['./node_modules/.pnpm/@img+sharp-*/node_modules/@img/sharp-*/lib/**'],
   },
   // Dev only: lets a phone on the same Wi-Fi load `/_next/*` and HMR from the
   // PC's LAN address (Next blocks non-localhost origins otherwise), and a
