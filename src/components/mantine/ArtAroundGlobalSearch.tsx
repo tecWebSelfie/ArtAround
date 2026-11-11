@@ -131,7 +131,18 @@ export function ArtAroundGlobalSearch({
     // input itself must be the combobox target, so it carries `aria-expanded`
     // and `aria-controls` and screen readers announce the result list. The
     // dropdown renders in a portal, so the border only frames the field.
-    <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
+    // `overflow-clip` on the border layer: its moving head is a blurred
+    // 128px glow that travels the outline. The layer's mask hides it outside
+    // the ring, but a mask doesn't shrink layout overflow, so at the right end
+    // the glow pushed the page past the viewport and scrollbars blinked in
+    // and out. Clipping to the layer's own box changes nothing visible.
+    <BorderAnimate
+      radius="xl"
+      borderWidth="sm"
+      size="sm"
+      duration={4}
+      classNames={{ border: 'overflow-clip' }}
+    >
       {/* The results float over the page (on the navigator, over the start
           cards): a medium shadow lifts the list off what lies beneath it. */}
       <Combobox
