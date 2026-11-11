@@ -64,6 +64,17 @@ export const ACCESSIBILITY_COLOR = 'blue'
  */
 export const TOUR_GRADIENT = { from: 'grape.8', to: 'orange.9' } satisfies MantineGradient
 
+/**
+ * The brand gradient (DESIGN.md → Gradient-Span Rule): blue into violet on
+ * the Artaround wordmark (desktop header, phone tabs' top row) and the brand
+ * word of the navigator title. Theme tokens per scheme: blue.7 → violet.7 on
+ * light, the .4 shades on dark, each end above the 3:1 large text needs.
+ */
+export const BRAND_GRADIENT = {
+  from: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))',
+  to: 'light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))',
+} satisfies MantineGradient
+
 const AA = 4.5
 
 const contrast = (a: string, b: string) => {

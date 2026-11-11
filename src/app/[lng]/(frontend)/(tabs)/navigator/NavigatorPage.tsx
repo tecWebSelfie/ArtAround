@@ -19,6 +19,7 @@ import { useParams } from 'next/navigation'
 import { Trans, useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { APP_NAME } from '@/lib/app-name'
+import { BRAND_GRADIENT } from '@/theme'
 import { NavigatorSearch } from './NavigatorSearch'
 
 /** The bordered card both ways to start a visit share. */
@@ -28,8 +29,9 @@ const START_CARD = {
   shadow: 'sm',
   radius: 'lg',
   // Phones: the card fills its half of the row, so a visual shrunk by a short
-  // screen leaves the caption its width. From md the visual sets the width
-  // (see the row below).
+  // screen leaves the caption its width. From md both cards share one width
+  // (15rem, a little wider than the largest visual), so the pair stays twin
+  // and a visual shrunk by a short window doesn't narrow its caption.
   maw: '100%',
   // Both cards take the row's height, so captions of different lengths
   // don't leave one card shorter than the other.
@@ -41,7 +43,7 @@ const START_CARD = {
   // none). Hover and focus lift it and turn its edge to the primary color:
   // the card is one big button and should answer like one.
   className:
-    'group/start mantine-focus-auto w-full from-md:w-min transition-[box-shadow,border-color] hover:shadow-md hover:border-(--mantine-primary-color-filled) focus-visible:shadow-md below-md:@container fit-screen:overflow-hidden',
+    'group/start mantine-focus-auto w-full from-md:w-[15rem] transition-[box-shadow,border-color] hover:shadow-md hover:border-(--mantine-primary-color-filled) focus-visible:shadow-md below-md:@container fit-screen:overflow-hidden',
 } as const
 
 /**
@@ -124,17 +126,20 @@ export default function NavigatorHomePage({
     <Stack
       component="main"
       // `--start-visual`: side of the QR and the Plan circle (smaller below
-      // md, see StartVisual).
-      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] fit-screen:[contain:size]"
+      // md, see StartVisual). From md it follows the window's height between
+      // 8rem and 12.5rem, so on a laptop (1280×720, 1024×768) the group form
+      // stays on the first screen with the cards.
+      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] from-md:[--start-visual:clamp(8rem,20dvh,12.5rem)] fit-screen:[contain:size]"
       flex={1}
       // Explicit: the spacer below cancels this gap (`--stack-gap`).
       gap="md"
     >
-      {/* Space above the title: 10dvh; in fit mode free height up to that.
-          A top margin that can flex, hence cancelling the gap after it. */}
+      {/* Space above the title: 10dvh (6dvh from md, under the site
+          header); in fit mode free height up to that. A top margin that can
+          flex, hence cancelling the gap after it. */}
       <Box
         aria-hidden
-        className="-mb-(--stack-gap) h-[10dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+        className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
       />
       {/* The search keeps a search-sized measure on wide screens. */}
       <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
@@ -150,9 +155,8 @@ export default function NavigatorHomePage({
       />
       {/* QR and Plan, the two primary ways in: twin cards either side of
           the divider, same border, shadow and size. Halves of the row on
-          phones; from md each takes its card's width (`w="min-content"`: the
-          square visual sets it and the action wraps under it), so the pair
-          sits together in the middle. */}
+          phones; from md both share one fixed width (START_CARD), so the
+          pair sits together in the middle. */}
       <Flex
         className="gap-(--mantine-spacing-xs) from-sm:gap-(--mantine-spacing-md) from-md:justify-center from-md:gap-(--mantine-spacing-lg)"
         miw={0}
@@ -221,18 +225,7 @@ export default function NavigatorHomePage({
 /** The app's name in the home title's gradient (DESIGN.md → Gradient-Span Rule). */
 function BrandName({ children }: { children?: ReactNode }) {
   return (
-    <Text
-      span
-      inherit
-      variant="gradient"
-      // Theme tokens per scheme: blue.7 → violet.7 on light, the .4 shades on
-      // dark, each end above the 3:1 large text needs.
-      gradient={{
-        from: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))',
-        to: 'light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))',
-      }}
-      className="whitespace-nowrap"
-    >
+    <Text span inherit variant="gradient" gradient={BRAND_GRADIENT} className="whitespace-nowrap">
       {children}
     </Text>
   )

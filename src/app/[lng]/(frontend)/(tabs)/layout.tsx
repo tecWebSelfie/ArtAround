@@ -3,6 +3,7 @@ import { MuseumSwitch } from '@/components/mantine/MuseumSwitch'
 import i18nConfig from '@/../i18n.config'
 import { getSiteChrome } from '@/lib/site-chrome'
 import { APP_NAME } from '@/lib/app-name'
+import { BRAND_GRADIENT } from '@/theme'
 import { AppShellFooter, Group, Stack, Text } from '@mantine/core'
 import type { Route } from 'next'
 import Link from 'next/link'
@@ -49,10 +50,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
             lh={1}
             className="tracking-[-0.01em]"
             variant="gradient"
-            gradient={{
-              from: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))',
-              to: 'light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))',
-            }}
+            gradient={BRAND_GRADIENT}
           >
             {APP_NAME}
           </Text>

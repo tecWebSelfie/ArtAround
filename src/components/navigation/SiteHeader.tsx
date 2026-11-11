@@ -13,6 +13,8 @@ import {
   type MyMuseum,
   type NavAccount,
 } from './nav-shared'
+import { APP_NAME } from '@/lib/app-name'
+import { BRAND_GRADIENT } from '@/theme'
 import classes from './SiteHeader.module.css'
 
 /**
@@ -70,15 +72,20 @@ export function SiteHeader({
     <Box component="header" id="site-header" visibleFrom="md" className={classes.root}>
       <Group h="100%" px="xl" gap="xl" wrap="nowrap" justify="space-between">
         <Group gap="lg" wrap="nowrap">
+          {/* The same wordmark as the phone tabs' top row: one spelling
+              (APP_NAME) and the brand gradient at every width. */}
           <Anchor
             component={Link}
             href={localize('/navigator')}
             underline="never"
-            c="var(--mantine-color-text)"
-            fw={700}
-            fz="lg"
+            variant="gradient"
+            gradient={BRAND_GRADIENT}
+            fw={800}
+            fz="xl"
+            lh={1}
+            className="tracking-[-0.01em]"
           >
-            ArtAround
+            {APP_NAME}
           </Anchor>
           <Group component="nav" aria-label={t('Main navigation')} gap={4} wrap="nowrap">
             {NAV_ITEMS.map((item) => {
