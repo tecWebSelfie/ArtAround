@@ -199,8 +199,10 @@ export default function NavigatorHomePage({
                 </ThemeIcon>
               </StartVisual>
               {/* One label at every size: an "Or …" lead-in (it echoed the
-                  divider on phones) reads wrong inside a button. */}
-              <StartAction>{t('Plan a visit around your time and interests')}</StartAction>
+                  divider on phones) reads wrong inside a button. Short, so
+                  it wraps to the QR action's two lines on a phone instead of
+                  three; the plan page asks about interests itself. */}
+              <StartAction>{t('Plan a visit around your time')}</StartAction>
             </Stack>
           </Paper>
         </Center>

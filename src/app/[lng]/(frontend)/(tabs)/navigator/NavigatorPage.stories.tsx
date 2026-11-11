@@ -32,9 +32,7 @@ export const SearchFocus: Story = {
     // The plan caption reads "Or plan a visit…" on phones and "Plan a visit…"
     // from md (the other is display:none), so check the card by its accessible
     // name, which is always the visible caption, at any viewport.
-    await expect(
-      canvas.getByRole('link', { name: /plan a visit around your time and interests/i }),
-    ).toBeVisible()
+    await expect(canvas.getByRole('link', { name: /plan a visit around your time/i })).toBeVisible()
 
     // One search field, and it is the combobox target itself: it carries
     // the popup state screen readers announce (no hidden duplicate).
