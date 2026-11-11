@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { validateBuildJson } from '@pascal-app/core'
 import { useParams, useRouter } from 'next/navigation'
 import type { Museum, Tour } from '@/payload-types'
@@ -33,6 +33,27 @@ const TourNavigationDataContext = createContext<TourNavigationData | null>(null)
 export const useTourNavigationData = () => useContext(TourNavigationDataContext)
 
 /**
+ * The same `museum` object for as long as the document is the same. The
+ * server re-renders this layout on every Server Function call and on many
+ * navigations, each time handing the shell an equal but new `museum`; without
+ * this the map (which reloads its scene for a new map object) would blank and
+ * refit the camera after almost every tap.
+ *
+ * Sameness is the document's identity and `updatedAt` (any save, including a
+ * stored translation, changes it), plus the name for the visitor's language:
+ * comparing or serializing the map and navmeshes themselves on every server
+ * render would stall the 3D view on a phone.
+ */
+function useStableMuseum(museum: Museum): Museum {
+  const key = (doc: Museum) => `${doc.id}:${doc.updatedAt}:${doc.name}`
+  const [stable, setStable] = useState(museum)
+  // Adjusting state while rendering: React re-renders at once with the new
+  // museum, and keeps the previous object for an unchanged document.
+  if (key(stable) !== key(museum)) setStable(museum)
+  return stable
+}
+
+/**
  * The current navigation scope and its map URL, for anything rendered over the
  * map (modals, object actions, scanner). `null` outside a navigation shell, or
  * on a tour URL whose cursor is invalid.
@@ -61,7 +82,7 @@ export function useNavigationScope() {
  * `TourNavigationPage` element, so the map is not remounted.
  */
 export function TourNavigationShell({
-  museum,
+  museum: museumProp,
   catalog,
   tours,
   summaries,
@@ -77,6 +98,8 @@ export function TourNavigationShell({
 }) {
   const { tourId, stepId } = useParams<{ tourId?: string; stepId?: string }>()
   const router = useRouter()
+  // Everything below (map scene, markers, navmesh) keys on this object.
+  const museum = useStableMuseum(museumProp)
   const tour = tourId ? (tours.find((candidate) => candidate.id === tourId) ?? null) : null
   // A tour created after this layout was rendered (e.g. just planned) is not
   // in `tours` yet: the tour layout has validated it, so refetch the layout.

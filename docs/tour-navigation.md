@@ -195,8 +195,14 @@ live under `tour/[tourId]/`.
 
 Other shared files:
 
-- `src/components/pascal/MapViewer.tsx`: plugin loading, scene readiness, fit bounds,
-  custom selection-manager option, and orbit enablement.
+- `src/components/pascal/MapViewer.tsx`: scene loading and readiness, fit bounds,
+  custom selection-manager option, and orbit enablement. Pascal's plugins are
+  loaded once per page by `loadMuseumPlugins()` (`src/lib/pascal/plugins.ts`),
+  shared with the map editor: outside its dev mode Pascal throws on a plugin
+  loaded twice, which blanked the map in production builds whenever the viewer
+  got a new `map` object. `TourNavigationShell` also keeps the `museum` object
+  stable while the document is unchanged (`useStableMuseum`: same id, `updatedAt` and name), because the server re-renders the
+  layout on every Server Function call and on many navigations.
 - `src/components/pascal/Avatar.tsx`: `AvatarMale.glb` (about 1.7 m, scale 1),
   cloned with `SkeletonUtils.clone` so it owns its bones; it turns to face the
   camera (`maath` `easing.dampAngle`), playing the in-place Walk clip slowed down

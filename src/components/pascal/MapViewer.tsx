@@ -5,15 +5,13 @@ import '@/lib/gltf-decoder'
 import { Box, BoxProps } from '@mantine/core'
 import {
   AnyNode,
-  loadPlugin,
   materializeRegisteredNodeDefaults,
   sceneRegistry,
   useScene,
   type AnyNodeId,
   type ParsedBuildJson,
 } from '@pascal-app/core'
-import { builtinPlugin } from '@pascal-app/nodes'
-import { museumPlugin } from '@/lib/pascal/museum-plugin'
+import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { Viewer } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -74,8 +72,9 @@ export function MapViewer({
   useEffect(() => {
     let cancelled = false
 
-    void loadPlugin(builtinPlugin)
-      .then(() => loadPlugin(museumPlugin))
+    // Once per page: this effect runs again for every new `map` object, and
+    // Pascal rejects a plugin loaded twice (src/lib/pascal/plugins.ts).
+    void loadMuseumPlugins()
       .then(() => {
         if (cancelled) return
         const nodes: Record<AnyNodeId, AnyNode> = {}

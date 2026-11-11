@@ -6,7 +6,7 @@ import { ObjectCatalogPanel, useObjectGeneration } from '@/components/pascal/Obj
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'
 import { MuseumServicesToolbar } from '@/components/pascal/MuseumServicesToolbar'
-import { museumPlugin } from '@/lib/pascal'
+import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { CREATE_PARAM, PLACE_PARAM } from '@/lib/museum-picker'
 import {
   EditorMuseumContext,
@@ -17,18 +17,14 @@ import { placeableObjectAsset } from '@/lib/pascal/object-assets'
 import { generateMuseumNavMeshesFromSceneRegistry, sceneMounted } from '@/lib/pascal/utils'
 import { payloadSdk } from '@/payload-sdk'
 import { Box } from '@mantine/core'
-import { loadPlugin, ParsedBuildJson } from '@pascal-app/core'
+import type { ParsedBuildJson } from '@pascal-app/core'
 import { activateCatalogItem, Editor } from '@pascal-app/editor'
-import { builtinPlugin } from '@pascal-app/nodes'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { Amphora, Toilet } from 'lucide-react'
 import { createNavMesh } from 'navcat'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-
-const registerPlugin = loadPlugin(builtinPlugin)
-const registerMuseumPlugin = loadPlugin(museumPlugin)
 
 export function MapEditor({
   museumId,
@@ -100,7 +96,8 @@ export function MapEditor({
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    Promise.all([registerPlugin, registerMuseumPlugin]).then(() => setReady(true))
+    // Shared with the map viewer: the registry accepts each plugin once.
+    void loadMuseumPlugins().then(() => setReady(true))
   }, [])
 
   // Reuse the hydrated query result: a fresh `findByID` here would duplicate
