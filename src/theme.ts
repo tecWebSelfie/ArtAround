@@ -99,16 +99,26 @@ const lightTextCache = new Map<string, string>()
  *   `dimmed` is gray.6, 3.3:1 on white, below WCAG AA for the help,
  *   descriptions and captions it colors. gray.7 (about 8:1) keeps it a step
  *   quieter than body text while passing AA.
+ * - Readable placeholders: Mantine's gray.5 is 2.1:1 on a white field, and
+ *   placeholders here carry real hints ("Search tours, museums, cities", the
+ *   group code example). No stock step sits between gray.6 (3.3:1) and gray.7
+ *   (8:1, reads as typed text), so a mix of the two reaches about 4.7:1 while
+ *   still looking like a hint.
  * - `--mantine-color-<c>-light-color` for every palette, museum palettes
  *   included: see `lightVariantText`. One variable per color, so every
  *   component's light, subtle and transparent variants follow without
  *   per-call `color="x.8"` patches.
  *
- * Dark keeps Mantine's own values. Pass it to every MantineProvider that
- * renders app UI.
+ * Dark keeps Mantine's own values except the placeholder, whose dark.3 is
+ * about 2.5:1 on a dark field: a dark.2/dark.1 mix reaches about 4.6:1.
+ * Pass it to every MantineProvider that renders app UI.
  */
 export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
-  const light: Record<string, string> = { '--mantine-color-dimmed': 'var(--mantine-color-gray-7)' }
+  const light: Record<string, string> = {
+    '--mantine-color-dimmed': 'var(--mantine-color-gray-7)',
+    '--mantine-color-placeholder':
+      'color-mix(in srgb, var(--mantine-color-gray-6), var(--mantine-color-gray-7) 40%)',
+  }
   for (const [name, shades] of Object.entries(theme.colors)) {
     const key = shades.join()
     let text = lightTextCache.get(key)
@@ -118,5 +128,9 @@ export const cssVariablesResolver: CSSVariablesResolver = (theme) => {
     }
     light[`--mantine-color-${name}-light-color`] = text
   }
-  return { variables: {}, light, dark: {} }
+  const dark = {
+    '--mantine-color-placeholder':
+      'color-mix(in srgb, var(--mantine-color-dark-2), var(--mantine-color-dark-1) 40%)',
+  }
+  return { variables: {}, light, dark }
 }

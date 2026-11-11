@@ -224,7 +224,13 @@ function TitleAccent({ children }: { children?: ReactNode }) {
       span
       inherit
       variant="gradient"
-      gradient={{ from: 'blue', to: 'purple' }}
+      // Theme tokens per scheme (it was blue → CSS `purple`, about 1.6:1 at
+      // its dark end on a dark page): blue.7 → violet.7 on light, the .4
+      // shades on dark, each end above the 3:1 large text needs.
+      gradient={{
+        from: 'light-dark(var(--mantine-color-blue-7), var(--mantine-color-blue-4))',
+        to: 'light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))',
+      }}
       className="whitespace-nowrap"
     >
       {children}

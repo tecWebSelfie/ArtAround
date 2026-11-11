@@ -173,7 +173,10 @@ export function ArtAroundGlobalSearch({
             // Search terms are names and places, not prose: no red squiggles.
             spellCheck={false}
             autoComplete="off"
-            bd="1px solid purple"
+            // The search's violet edge as theme tokens (it was CSS `purple`):
+            // violet.7 on the light field, violet.4 on the dark one, both
+            // above the 3:1 a control's boundary needs.
+            bd="1px solid light-dark(var(--mantine-color-violet-7), var(--mantine-color-violet-4))"
             bdrs="xl"
             size="lg"
             radius="xl"
