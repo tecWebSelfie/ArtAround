@@ -1,3 +1,4 @@
+import { TranslationNotice } from '@/components/TranslationNotice'
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
@@ -30,6 +31,7 @@ export default async function Page({
   const content = await getNavigationDocument('contents', contentId, lng)
   return (
     <NavigationModal kind="content">
+      <TranslationNotice collection="contents" id={content.id} lng={lng} />
       {/* Simpler / Shorter / For children: swaps the body for another version. */}
       <ContentVersion content={content}>
         <ContentDetailsModalContent content={content} />

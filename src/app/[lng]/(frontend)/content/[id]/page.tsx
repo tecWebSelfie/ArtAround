@@ -1,3 +1,5 @@
+import { LISTED_TOURS } from '@/lib/visibility'
+import { TranslationNotice } from '@/components/TranslationNotice'
 import { displayName } from '@/lib/display-name'
 import { PICTURE_SELECT, usablePictures } from '@/lib/picture'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
@@ -135,6 +137,7 @@ async function loadContentDetails(
         where: {
           contents: { contains: id },
           ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
+          ...LISTED_TOURS,
         },
         select: { title: true, thumbnail: true, museum: true },
         populate: {
@@ -252,6 +255,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
         <Stack gap="md">
           {offer && <MuseumModeOffer museum={offer} />}
           <DetailCover pictures={pictures} fallback="content" title={content.title} />
+          <TranslationNotice collection="contents" id={id} lng={lng} />
           <EditableSection
             title={t('Content')}
             canEdit={canEdit}

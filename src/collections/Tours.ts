@@ -228,8 +228,9 @@ export const Tour: CollectionConfig = {
             },
             {
               // Set only on tours planned from the visitor's form (`/api/plan-tour`).
-              // Metadata only: a planned tour looks like any other tour to visitors,
-              // and stays available to later visitors with the same needs.
+              // Metadata only: a planned tour reads like any other tour and is
+              // reused for later visitors with the same answers, but it is not
+              // listed or searched (`LISTED_TOURS`, src/lib/visibility.ts).
               name: 'generation',
               type: 'group',
               access: { update: ({ req }) => isSuperAdmin(req) },

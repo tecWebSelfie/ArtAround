@@ -1,3 +1,4 @@
+import { LISTED_TOURS } from '@/lib/visibility'
 import { subjectsOfWork } from '@/lib/subjects'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataForm'
@@ -7,6 +8,7 @@ import { getT } from '@/i18n.server'
 import { isPopulated } from '@/lib/isPopulated'
 import { pictureSrc } from '@/lib/picture'
 import { getLocalizedPageDocument } from '@/lib/localized-page'
+import { TranslationNotice } from '@/components/TranslationNotice'
 import { museumAffordances } from '@/lib/qr-museum'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import { asViewer, can, getSession } from '@/lib/session'
@@ -100,7 +102,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
         }),
         payload.find({
           collection: 'tours',
-          where: { contents: { in: ids } },
+          where: { contents: { in: ids }, ...LISTED_TOURS },
           select: { title: true, contents: true },
           depth: 0,
           limit: 6,
@@ -148,6 +150,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
               <MuseumModeOffer museum={offer} />
             </Box>
           )}
+          <TranslationNotice collection="objects" id={id} lng={lng} />
           <EditableSection
             title={t('Object')}
             canEdit={canEdit}

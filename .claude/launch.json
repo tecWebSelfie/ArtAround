@@ -12,6 +12,12 @@
       "port": 3000
     },
     {
+      "name": "start (production build)",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["run", "start"],
+      "port": 3000
+    },
+    {
       "name": "storybook",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["run", "storybook", "--no-open"],

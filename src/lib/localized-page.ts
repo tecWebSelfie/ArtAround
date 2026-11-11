@@ -1,6 +1,11 @@
 import { cache } from 'react'
 import { notFound } from 'next/navigation'
-import { normalizeLocale, resolveLocalized } from './localized'
+import {
+  normalizeLocale,
+  queueTranslations,
+  refreshTranslation,
+  resolveLocalized,
+} from './localized'
 import { PICTURE_SELECT } from './picture'
 import { getSession } from './session'
 import type { Content } from '@/payload-types'
@@ -21,8 +26,13 @@ const PUBLIC_MEDIA = { overrideAccess: true } as const
  * (with thumbnails), so the tour's step modal can show the artwork and the
  * content page needs no second read for either. Pictures are read in the
  * visitor's locale, so their `alt` text is translated.
+ *
+ * A document not yet translated into the visitor's language comes back in
+ * English and its translation is queued here (`pending`); a translation older
+ * than its source is served while a new one is queued. The views render
+ * `TranslationPending`, which refreshes the page until the translation shows.
  */
-export const getLocalizedPageDocument = cache(
+export const readLocalizedPage = cache(
   async <T extends 'objects' | 'contents'>(collection: T, id: string, lng: string) => {
     const { payload, user } = await getSession()
     const locale = normalizeLocale(lng) ?? 'en'
@@ -70,12 +80,34 @@ export const getLocalizedPageDocument = cache(
             .catch(() => null),
     ])
     if (result.kind === 'not-found') notFound()
-    if (!media) return result.doc
+    // Not awaited: the stored translation is served meanwhile.
+    if (result.kind === 'stale') void refreshTranslation(collection, id, locale)
+    const pending =
+      // `miss` already means "no receipt": queue without looking it up again.
+      result.kind === 'miss' &&
+      // The text on screen: translated right away, not in the background queue.
+      (await queueTranslations(payload, collection, [id], locale, { urgent: true }))
+    if (!media) return { doc: result.doc, pending }
     if (collection === 'objects') {
       const { thumbnail, model } = media as { thumbnail?: unknown; model?: unknown }
-      return { ...result.doc, thumbnail: thumbnail ?? null, model: model ?? null }
+      return {
+        doc: { ...result.doc, thumbnail: thumbnail ?? null, model: model ?? null },
+        pending,
+      }
     }
     const { images, objects } = media as Pick<Content, 'images' | 'objects'>
-    return { ...result.doc, images: images ?? (result.doc as Content).images, objects }
+    return {
+      doc: { ...result.doc, images: images ?? (result.doc as Content).images, objects },
+      pending,
+    }
   },
 )
+
+/** The document as the visitor reads it (see `readLocalizedPage`). */
+export async function getLocalizedPageDocument<T extends 'objects' | 'contents'>(
+  collection: T,
+  id: string,
+  lng: string,
+) {
+  return (await readLocalizedPage(collection, id, lng)).doc
+}

@@ -8,6 +8,7 @@ import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
+import type { ReactNode } from 'react'
 import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
 import { lexicalToHTML } from '@/lib/richtext'
@@ -77,9 +78,12 @@ export default async function MuseumPage({
   museum,
   editing,
   navigationHref,
+  translationNotice,
 }: {
   museum: Museum
   editing?: MuseumEditing
+  /** The "translating" line, while texts are on their English fallback. */
+  translationNotice?: ReactNode
   /** Free navigation of this museum, when its map is saved (`museumNavigationEntry`). */
   navigationHref?: Route | null
 }) {
@@ -233,6 +237,7 @@ export default async function MuseumPage({
               </Group>
             )}
             <Text>{museum.shortDescription}</Text>
+            {translationNotice}
           </Stack>
         </GridCol>
       </Grid>

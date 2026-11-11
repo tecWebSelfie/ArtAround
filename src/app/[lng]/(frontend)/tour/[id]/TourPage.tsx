@@ -58,7 +58,7 @@ import {
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 type TourPageProps = {
@@ -75,6 +75,8 @@ type TourPageProps = {
   printMuseumId?: string | null
   /** Opened from outside the app on another museum's tour: offer that museum's app. */
   museumOffer?: { id: string; name: string } | null
+  /** The server's "translating" line, while texts are on their English fallback. */
+  translationNotice?: ReactNode
 }
 
 /**
@@ -100,6 +102,7 @@ export default function TourPage({
   canDelete = false,
   printMuseumId = null,
   museumOffer = null,
+  translationNotice,
 }: TourPageProps) {
   const { t } = useTranslation('tour-page')
   const { lng } = useParams<{ lng: string }>()
@@ -192,6 +195,7 @@ export default function TourPage({
                     </Group>
                   )}
                   {tour.description && <Text c="dimmed">{tour.description}</Text>}
+                  {translationNotice}
                 </Stack>
 
                 {/* At a glance: what taking the tour asks of the visitor. Light

@@ -1,3 +1,4 @@
+import { LISTED_TOURS } from '@/lib/visibility'
 import {
   APIError,
   type CollectionAfterChangeHook,
@@ -429,11 +430,14 @@ export const Museums: CollectionConfig = {
       admin: { readOnly: true },
     },
     {
-      // Reverse of `tours.museum`.
+      // Reverse of `tours.museum`: the tours the museum page offers, without
+      // the visits planned for one visitor (`LISTED_TOURS`), which would fill
+      // the list with everyone's "30 minutes, only the highlights".
       name: 'tours',
       type: 'join',
       collection: 'tours',
       on: 'museum',
+      where: LISTED_TOURS,
     },
     {
       // Director, curators and verified creators of this museum.

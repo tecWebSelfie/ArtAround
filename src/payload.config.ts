@@ -74,6 +74,7 @@ import {
   SEARCH_PLUGIN_COLLECTIONS,
   SEARCH_PRIORITIES,
   type SearchPluginCollection,
+  isUnlistedInSearch,
 } from './lib/search-index'
 
 const filename = fileURLToPath(import.meta.url)
@@ -331,7 +332,8 @@ export default buildConfig({
       defaultPriorities: { ...SEARCH_PRIORITIES },
       // Private contents and tours are never indexed (src/lib/visibility.ts);
       // their `hideFromSearch` hooks remove rows saved while they were public.
-      skipSync: async ({ doc }) => (doc as { visibility?: string }).visibility === 'private',
+      // Nor are the visits planned for one visitor (`isUnlistedInSearch`).
+      skipSync: async ({ doc }) => isUnlistedInSearch(doc),
       beforeSync: async ({ collectionSlug, originalDoc, payload, req, searchDoc }) => {
         if (!SEARCH_PLUGIN_COLLECTIONS.includes(collectionSlug as SearchPluginCollection)) {
           return searchDoc

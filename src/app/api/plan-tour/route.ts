@@ -16,11 +16,10 @@ import {
   type PlanCandidate,
   type PlannedTour,
 } from '@/lib/tour-plan'
-import { normalizeLocale } from '@/lib/localized'
+import { languageName, normalizeLocale } from '@/lib/localized'
 import type { Tour } from '@/payload-types'
 import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { generateText, Output } from 'ai'
-import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
 import { getPayload } from 'payload'
@@ -50,7 +49,7 @@ export async function POST(request: Request) {
   if (!parsed.success) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   const answers = parsed.data
   const locale = normalizeLocale(answers.lng) ?? 'en'
-  const language = IsoCodes.getName(locale) || 'English'
+  const language = languageName(locale)
   const payload = await getPayload({ config })
   const viewer = await asViewer()
 

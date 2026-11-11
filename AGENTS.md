@@ -230,6 +230,20 @@ browser/client code uses `getLocalizedDoc()` from `src/payload-sdk.ts`
 (`src/endpoints/localized.ts`) is only the thin HTTP shell (validation, throttle,
 status codes) over `resolveLocalized()`.
 
+Server pages never go through that endpoint, so they queue the translation
+themselves: `requestTranslations(payload, collection, ids, locale)` in
+`src/lib/localized.ts` (once per document and window; `requestTourTranslations`
+for a tour with its stops and quiz) returns whether anything is
+still on its English fallback, and the page then renders `TranslationPending`
+(`src/components/TranslationPending.tsx`, or `TranslationNotice` for the documents
+read with `getLocalizedPageDocument`), which refreshes the route until the text
+arrives. The queue runs one document every 10 s on purpose (the provider's
+tokens-per-minute are shared with the live AI features); `{ urgent: true }` runs
+the job at once and is for the one text the visitor is reading. The translator's
+prompt names the target language in full (`languageName` in
+`src/plugins/autoTranslate.ts`): with the bare code, "into it" was read as a
+pronoun and other languages were stored under the Italian locale.
+
 Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in prod);
 `stale` freshness check fail-opens to HIT if the pinned internal route ever 404s.
 

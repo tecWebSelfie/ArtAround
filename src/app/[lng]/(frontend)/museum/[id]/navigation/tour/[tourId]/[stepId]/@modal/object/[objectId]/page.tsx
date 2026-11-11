@@ -1,3 +1,4 @@
+import { TranslationNotice } from '@/components/TranslationNotice'
 import { subjectsOfWork } from '@/lib/subjects'
 import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ObjectDetailsContent } from '@/components/mantine/ObjectDetailsModal'
@@ -19,6 +20,7 @@ export default async function Page({
   const object = await getNavigationDocument('objects', objectId, lng)
   return (
     <NavigationModal kind="work">
+      <TranslationNotice collection="objects" id={object.id} lng={lng} />
       <ObjectDetailsContent
         object={object}
         subjects={await subjectsOfWork(object, lng)}

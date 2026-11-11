@@ -1,7 +1,7 @@
 {
   "3D model of {{title}}": "Modello 3D di {{title}}",
   "All museums": "Tutti i musei",
-  "Are you at {{museum}}?": "Sei al {{museum}}?",
+  "Are you at {{museum}}?": "Ti trovi qui: {{museum}}?",
   "auth": {
     "confirmPassword": "Conferma password",
     "email": "Email",
@@ -97,5 +97,6 @@
   "The map could not load. Reload the page to try again.": "Non è stato possibile caricare la mappa. Ricarica la pagina per riprovare.",
   "This file is not a museum export.": "Questo file non è un'esportazione di un museo.",
   "This museum was not found here.": "Questo museo non è stato trovato qui.",
+  "Translating into your language…": "Traduzione nella tua lingua in corso…",
   "Use the museum's app": "Usa l’app del museo"
 }

@@ -1,3 +1,4 @@
+import { TranslationNotice } from '@/components/TranslationNotice'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
 import { StepModal } from './StepModal'
 import { getNavigationDocument, getNavigationTour } from '../../../../../data'
@@ -22,6 +23,7 @@ export default async function OpenStepModal({
 
   return (
     <NavigationModal kind="stop">
+      <TranslationNotice collection="contents" id={content.id} lng={lng} />
       <StepModal
         step={content}
         nextHref={tourNavigationPath(lng, museumId, tourId, step + 1)}

@@ -1,6 +1,8 @@
 import IsoCodes from 'iso-639-1'
+import { after } from 'next/server'
 import type { Payload, TypedLocale, TypedUser } from 'payload'
 import type { Config } from '@/payload-types'
+import { relationshipIds } from './search-index'
 
 /** Every collection slug in the generated config (incl. `translator-provenance`). */
 export type LocalizedSlug = keyof Config['collections']
@@ -145,7 +147,8 @@ export async function enqueueTranslation({
   locale,
 }: {
   collection: string
-  id: string | number
+  /** One document, or several of the same collection in one request. */
+  id: string | number | (string | number)[]
   locale: string
 }): Promise<{ queued: number | null; queueError: string | null }> {
   try {
@@ -156,7 +159,7 @@ export async function enqueueTranslation({
         source_lng: 'en',
         target_lng: locale,
         collection_slug: collection,
-        collection_id: [id],
+        collection_id: Array.isArray(id) ? id : [id],
         strategy: 'overwrite',
       }),
     })
@@ -167,4 +170,184 @@ export async function enqueueTranslation({
   } catch (err) {
     return { queued: null, queueError: err instanceof Error ? err.message : 'enqueue failed' }
   }
+}
+
+/** "it" → "Italian": the English name of a language, as the AI prompts name it. */
+export function languageName(code: string | null | undefined, fallback = 'English') {
+  return (code && IsoCodes.getName(code)) || fallback
+}
+
+/**
+ * Documents whose translation was just queued here, so a page polling for it
+ * (and every other visitor meanwhile) doesn't queue it again. Per server
+ * instance; a failed job is retried after the window.
+ */
+const requestedAt = new Map<string, number>()
+/** The translator plugin's Payload Jobs queue (its runner's default name). */
+const TRANSLATION_QUEUE = 'translations'
+const REQUEST_AGAIN_AFTER_MS = 3 * 60_000
+const requestKey = (collection: string, id: string, locale: string) =>
+  `${collection}:${id}:${locale}`
+
+/**
+ * The ids not requested within the window, now marked as requested. Entries
+ * past the window are dropped on the way, so the map stays as small as the
+ * work in progress.
+ */
+function claim(collection: string, ids: string[], locale: string): string[] {
+  const now = Date.now()
+  for (const [key, at] of requestedAt) {
+    if (now - at > REQUEST_AGAIN_AFTER_MS) requestedAt.delete(key)
+  }
+  const fresh = ids.filter((id) => !requestedAt.has(requestKey(collection, id, locale)))
+  for (const id of fresh) requestedAt.set(requestKey(collection, id, locale), now)
+  return fresh
+}
+
+/**
+ * Whether a translation into `locale` can arrive at all: not into English
+ * (the source language), and not without a provider key (CI, a deployment
+ * without AI), where nothing is queued and no page waits.
+ */
+const canTranslateInto = (locale: string) => locale !== 'en' && Boolean(process.env.GROQ_API_KEY)
+
+/**
+ * Queues the translation of documents known to have none in `locale` (once
+ * per window) and says whether the page showing them should wait for it.
+ * Never throws: a page must render even when the queue is down.
+ *
+ * Two speeds. The translation queue's own schedule is deliberately slow (one
+ * document every 10 s, src/plugins/autoTranslate.ts): a tour queues all its
+ * stops at once, and translating them together used up the provider's
+ * tokens-per-minute, so the visitor's own requests ("Shorter", the voice
+ * assistant) failed meanwhile. `urgent` is for the one text the visitor is
+ * reading right now: its job runs as soon as the response is sent, ahead of
+ * that background trickle.
+ */
+export async function queueTranslations(
+  payload: Payload,
+  collection: LocalizedSlug,
+  missing: (string | number)[],
+  locale: TypedLocale,
+  { urgent = false }: { urgent?: boolean } = {},
+): Promise<boolean> {
+  if (missing.length === 0 || !canTranslateInto(locale)) return false
+  try {
+    const ids = [...new Set(missing.map(String))]
+    const toQueue = claim(collection, ids, locale)
+    if (toQueue.length === 0) return true
+    const { queueError } = await enqueueTranslation({ collection, id: toQueue, locale })
+    if (queueError) {
+      // Not queued after all: let the next page view try again.
+      for (const id of toQueue) requestedAt.delete(requestKey(collection, id, locale))
+      // Pending only if an earlier request of these documents is still on its way.
+      return toQueue.length < ids.length
+    }
+    if (urgent) {
+      const runNow = () =>
+        payload.jobs
+          .run({
+            queue: TRANSLATION_QUEUE,
+            where: {
+              and: [
+                { 'input.collection_slug': { equals: collection } },
+                { 'input.collection_id': { in: toQueue } },
+              ],
+            },
+            limit: toQueue.length,
+          })
+          // The scheduled run picks the job up if this one could not.
+          .catch(() => undefined)
+      try {
+        // After the response: the visitor's page is not held back by the model.
+        after(runNow)
+      } catch {
+        // No request to run after (a script or a test): start it right away.
+        void runNow()
+      }
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Makes sure the given documents get translated into `locale`: the ones with
+ * no translation receipt yet are queued (`queueTranslations`), and the result
+ * says whether any is still missing, i.e. whether the page showing them is
+ * on its English fallback and should refresh shortly
+ * (`TranslationPending`, src/components/TranslationPending.tsx).
+ *
+ * This is what makes translation happen for visitors: the server pages read
+ * through the Local API (`resolveLocalized`, or `locale` with Payload's
+ * fallback), which never queues anything; only the HTTP endpoint did, and no
+ * page calls it.
+ */
+export async function requestTranslations(
+  payload: Payload,
+  collection: LocalizedSlug,
+  ids: (string | number)[],
+  locale: TypedLocale,
+  options: { urgent?: boolean } = {},
+): Promise<boolean> {
+  if (ids.length === 0 || !canTranslateInto(locale)) return false
+  try {
+    const wanted = [...new Set(ids.map(String))]
+    const receipts = await payload.find({
+      collection: PROVENANCE_COLLECTION,
+      where: {
+        and: [
+          { collectionSlug: { equals: collection } },
+          { documentId: { in: wanted } },
+          { targetLocale: { equals: locale } },
+        ],
+      },
+      pagination: false,
+      depth: 0,
+    })
+    const translated = new Set(receipts.docs.map((receipt) => receipt.documentId))
+    return queueTranslations(
+      payload,
+      collection,
+      wanted.filter((id) => !translated.has(id)),
+      locale,
+      options,
+    )
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Everything a tour shows in the visitor's language: the tour itself (title,
+ * directions: on screen now, so urgent), its stops and its final quiz, which
+ * are prepared in the background ahead of the visitor. One definition for the
+ * tour page and the tour's navigation.
+ */
+export async function requestTourTranslations(
+  payload: Payload,
+  tour: { id: string; contents?: unknown; quiz?: { questions?: unknown } | null },
+  locale: TypedLocale,
+): Promise<boolean> {
+  const pending = await Promise.all([
+    requestTranslations(payload, 'tours', [tour.id], locale, { urgent: true }),
+    requestTranslations(payload, 'contents', relationshipIds(tour.contents), locale),
+    requestTranslations(payload, 'quizQuestions', relationshipIds(tour.quiz?.questions), locale),
+  ])
+  return pending.some(Boolean)
+}
+
+/**
+ * Queues a fresh translation of a document whose stored one is older than its
+ * source text (`resolveLocalized` → `stale`). The stored translation keeps
+ * being served meanwhile, so nothing waits on this. Same once-per-window rule.
+ */
+export async function refreshTranslation(
+  collection: LocalizedSlug,
+  id: string | number,
+  locale: TypedLocale,
+): Promise<void> {
+  if (claim(collection, [String(id)], locale).length === 0) return
+  await enqueueTranslation({ collection, id, locale })
 }

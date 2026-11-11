@@ -10,7 +10,7 @@ import {
   translatorPlugin,
 } from '@focus-reactive/payload-plugin-translator'
 import { localizedReadEndpoint } from '@/endpoints/localized'
-import type { LocalizedSlug } from '@/lib/localized'
+import { languageName, type LocalizedSlug } from '@/lib/localized'
 
 /**
  * Demo wrapper around `@focus-reactive/payload-plugin-translator` (exact pin
@@ -88,13 +88,29 @@ export function autoTranslatePlugin({
           // for large museum docs on this model family.
           structuredOutput: 'json_object',
         }),
-        systemPrompt: ({ defaultPrompt }) =>
-          `${defaultPrompt}\nFormal museum register. Leave proper names, artwork titles and brand names untranslated.`,
+        // The plugin's default prompt names languages by ISO code only
+        // ("from en into it"): the model read "into it" as a pronoun and
+        // stored French, or the untouched English, under the Italian locale.
+        // The target is therefore spelled out by name and repeated as a rule.
+        // Artwork titles are translated too (a visitor expects the title
+        // used in their language); only names of people and brands stay.
+        systemPrompt: ({ defaultPrompt, sourceLang, targetLang }) =>
+          [
+            defaultPrompt,
+            `The source language is ${languageName(sourceLang)}. The target language is ${languageName(targetLang)} (ISO 639-1 code "${targetLang}"): write every translated value in ${languageName(targetLang)}, never in any other language, and never leave a sentence or a title untranslated.`,
+            'Formal museum register. Use the customary title of each artwork in the target language. Leave names of people and brand names as they are.',
+          ].join('\n'),
         capabilities: { inlineMarks: true },
       }),
       // Background Payload Jobs queue `translations` (async runner — pages never
-      // block on AI; the frontend polls until HIT).
-      runner: createPayloadJobsRunner(),
+      // block on AI; the frontend polls until HIT). One document every 10 s:
+      // a slow, steady background pace that leaves the provider's
+      // tokens-per-minute to what visitors ask for live (the runner's default,
+      // 50 documents at once every minute, exhausted it and made "Shorter" and
+      // the voice assistant fail). The text a visitor is reading does not wait
+      // for this schedule: `requestTranslations(..., { urgent: true })` runs
+      // its job at once (src/lib/localized.ts).
+      runner: createPayloadJobsRunner({ autoRun: { cron: '*/10 * * * * *', limit: 1 } }),
       // No fieldLevel(): its POST /translate/field returns field content (see `serverOnly`).
       levels: [documentLevel(), collectionLevel()],
       // Per-locale translation receipts (`translator-provenance` sidecar).

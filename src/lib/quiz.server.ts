@@ -99,6 +99,8 @@ export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<To
       collection: 'tours',
       id: tourId,
       depth: 0,
+      // The title heads the quiz and its result: in the visitor's language.
+      locale: normalizeLocale(lng) ?? 'en',
       select: { title: true, contents: true, quiz: true, museum: true },
     })
     .catch(() => null)

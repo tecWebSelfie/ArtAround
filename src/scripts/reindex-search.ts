@@ -10,7 +10,12 @@
  */
 import { getPayload } from 'payload'
 import config from '../payload.config'
-import { buildSearchDoc, SEARCH_PLUGIN_COLLECTIONS, SEARCH_PRIORITIES } from '../lib/search-index'
+import {
+  buildSearchDoc,
+  isUnlistedInSearch,
+  SEARCH_PLUGIN_COLLECTIONS,
+  SEARCH_PRIORITIES,
+} from '../lib/search-index'
 
 async function reindex() {
   const payload = await getPayload({ config })
@@ -31,6 +36,8 @@ async function reindex() {
 
     payload.logger.info(`Indexing ${result.docs.length} ${collection} document(s)...`)
     for (const doc of result.docs) {
+      // The same rule as live syncing: private and planned documents get no row.
+      if (isUnlistedInSearch(doc)) continue
       const id = String(doc.id)
       const data = await buildSearchDoc({ payload, collection, id })
       await payload.create({

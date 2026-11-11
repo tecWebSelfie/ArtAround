@@ -1,6 +1,7 @@
 import { PICTURE_SELECT } from '@/lib/picture'
 import { filterPopulated } from '@/lib/isPopulated'
-import { normalizeLocale } from '@/lib/localized'
+import { normalizeLocale, requestTourTranslations } from '@/lib/localized'
+import { TranslationPending } from '@/components/TranslationPending'
 import { isLocked, lockedTotal } from '@/lib/price'
 import { museumAffordances } from '@/lib/qr-museum'
 import { asViewer, can, getSession } from '@/lib/session'
@@ -70,7 +71,7 @@ const readTour = cache(async (id: string, lng: string) => {
  */
 export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
   const { lng, id } = await params
-  const { user } = await getSession()
+  const { user, payload } = await getSession()
   // The permissions and the museum affordances only need the id: they are
   // read together with the tour, not after it.
   const [tour, canEdit, canDelete, { printMuseumId, offer }] = await Promise.all([
@@ -80,10 +81,14 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
     museumAffordances('tour', id),
   ])
   const contents = filterPopulated(tour.contents)
+  // The read above falls back to English for whatever is not translated yet:
+  // queue the tour and its stops, and let the page refresh until they arrive.
+  const pending = await requestTourTranslations(payload, tour, normalizeLocale(lng) ?? 'en')
 
   return (
     <TourPage
       tour={tour}
+      translationNotice={pending && <TranslationPending />}
       price={lockedTotal(contents)}
       lockedContentIds={contents.filter(isLocked).map((content) => content.id)}
       isSignedIn={Boolean(user)}

@@ -172,3 +172,15 @@ export const hideFromSearch =
     })
     return doc
   }
+
+/**
+ * Tours that lists show. A visit planned for one visitor ("Plan my visit",
+ * `generation.generated`) is saved as a tour so that a group can follow it by
+ * its link, but it is that visitor's own answer: every list of tours (the
+ * museum page, a work's or a content's tours, search, the map's Spotlight)
+ * leaves it out with this one rule, as a query and as a predicate.
+ */
+export const LISTED_TOURS: Where = { 'generation.generated': { not_equals: true } }
+export const isPlannedVisit = (doc: unknown) =>
+  (doc as { generation?: { generated?: boolean | null } | null } | null)?.generation?.generated ===
+  true
