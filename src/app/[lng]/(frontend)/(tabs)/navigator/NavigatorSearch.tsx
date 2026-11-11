@@ -3,15 +3,18 @@
 import {
   ArtAroundGlobalSearch,
   type AutoCompleteItem,
+  type SearchStatus,
 } from '@/components/mantine/ArtAroundGlobalSearch'
 import { TypeWriterText } from '@/components/mantine/TypeWriterText'
-import { Reflection } from '@gfazioli/mantine-reflection'
 import { Box, Group, Stack, Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 const EMPTY_ITEMS: AutoCompleteItem[] = []
+
+/** The answer to one request, tagged with the text it answered. */
+type SearchResult = { query: string; items: AutoCompleteItem[]; failed: boolean }
 
 /**
  * Navigator search combobox.
@@ -34,8 +37,9 @@ export function NavigatorSearch({
 }) {
   const { t } = useTranslation('search')
   const [query, setQuery] = useState('')
-  const [items, setItems] = useState<AutoCompleteItem[]>(initialItems)
-  const [loading, setLoading] = useState(false)
+  const [result, setResult] = useState<SearchResult | null>(null)
+  // Bumped by "Try again" to repeat the request for the same text.
+  const [attempt, setAttempt] = useState(0)
   const [debouncedQuery] = useDebouncedValue(query, 180)
 
   useEffect(() => {
@@ -49,18 +53,22 @@ export function NavigatorSearch({
         if (!response.ok) throw new Error(`Search failed with ${response.status}`)
         return (await response.json()) as { items?: AutoCompleteItem[] }
       })
-      .then((data) => {
-        setItems(data.items ?? [])
-        setLoading(false)
-      })
+      .then((data) => setResult({ query: trimmed, items: data.items ?? [], failed: false }))
       .catch((error: unknown) => {
         if (error instanceof Error && error.name === 'AbortError') return
-        setItems(initialItems)
-        setLoading(false)
+        setResult({ query: trimmed, items: [], failed: true })
       })
 
     return () => controller.abort()
-  }, [debouncedQuery, initialItems, lng])
+  }, [debouncedQuery, lng, attempt])
+
+  // Derived, not stored: the search is loading whenever the last answer is
+  // not for the text in the field. A flag set on typing stayed stuck when the
+  // text went back to an already-fetched value before the debounce fired.
+  const trimmedQuery = query.trim()
+  const status: SearchStatus =
+    result === null || result.query !== trimmedQuery ? 'loading' : result.failed ? 'error' : 'idle'
+  const items = result?.items ?? initialItems
 
   return (
     <Stack>
@@ -75,42 +83,36 @@ export function NavigatorSearch({
           />
         </Box>
       </Group>
-      <Reflection
-        rippleStrength={30}
-        rippleFrequency={0.025}
-        reflectionDistance={-10}
-        reflectionOpacity={0}
-        reflectionStretch={0.33}
-        shadowOffset={-50}
-        shadowOpacity={0.2}
-        shadowBlur={5.51}
-        shadowSize={29}
-        shadowScaleX={1}
-        shadowScaleY={1.24}
-      >
-        <ArtAroundGlobalSearch
-          items={items}
-          value={query}
-          onChange={(value) => {
-            setQuery(value)
-            // Loading is an event-driven state (not an effect state) so the
-            // empty-state message does not flash while the request is in flight.
-            setLoading(true)
-          }}
-          // Results are already filtered by Payload; do not apply the local
-          // title-only filter or a city/excerpt match would disappear.
-          filter={() => true}
-          onOptionSubmit={(value) => {
-            if (onNavigate) onNavigate(value)
-            else window.location.assign(value)
-          }}
-        />
-      </Reflection>
-      {/* Always mounted, so screen readers hear when nothing matched. */}
-      <Text size="xs" c="dimmed" ta="center" role="status" aria-live="polite">
-        {!loading && query.trim().length >= 2 && items.length === 0
-          ? t('No matching tours, contents or museums.')
-          : ''}
+      <ArtAroundGlobalSearch
+        items={items}
+        value={query}
+        onChange={setQuery}
+        status={status}
+        onRetry={() => {
+          setResult(null)
+          setAttempt((count) => count + 1)
+        }}
+        browse={{ label: t('Browse all tours'), href: `/${lng}/marketplace` }}
+        // Results are already filtered by Payload; do not apply the local
+        // title-only filter or a city/excerpt match would disappear.
+        filter={() => true}
+        onOptionSubmit={(value) => {
+          if (onNavigate) onNavigate(value)
+          else window.location.assign(value)
+        }}
+      />
+      {/* Always mounted, so screen readers hear the outcome even with the
+          list closed. Visually hidden: the open list shows the same message
+          with its hint and its way out. */}
+      <Text className="sr-only" role="status" aria-live="polite">
+        {status === 'error'
+          ? t('Search is not reachable right now.')
+          : status === 'idle' && trimmedQuery && items.length === 0
+            ? t('Nothing matches “{{query}}”.', {
+                query: trimmedQuery,
+                interpolation: { escapeValue: false },
+              })
+            : ''}
       </Text>
     </Stack>
   )

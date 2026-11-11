@@ -36,9 +36,10 @@ export const SearchFocus: Story = {
       canvas.getByRole('link', { name: /plan a visit around your time and interests/i }),
     ).toBeVisible()
 
-    // Reflection renders an aria-hidden duplicate of the autocomplete below the
-    // real one; the first match in DOM order is the interactive input.
-    const search = canvas.getAllByPlaceholderText('Look for the next tour')[0]
+    // One search field, and it is the combobox target itself: it carries
+    // the popup state screen readers announce (no hidden duplicate).
+    const search = canvas.getByPlaceholderText('Look for the next tour')
+    await expect(search).toHaveAttribute('aria-haspopup', 'listbox')
     await userEvent.click(search)
     await userEvent.type(search, 'street art')
     await expect(search).toHaveValue('street art')

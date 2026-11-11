@@ -7,11 +7,13 @@ import {
   Badge,
   Combobox,
   ComboboxDropdown,
+  ComboboxEmpty,
   ComboboxOption,
   ComboboxOptions,
   ComboboxProps,
   ComboboxTarget,
   Group,
+  Loader,
   Stack,
   Text,
   TextInput,
@@ -19,7 +21,16 @@ import {
   useCombobox,
 } from '@mantine/core'
 import { useUncontrolled } from '@mantine/hooks'
-import { BookOpen, Landmark, Route as RouteIcon, Search, Shapes, UserRound } from 'lucide-react'
+import {
+  ArrowRight,
+  BookOpen,
+  Landmark,
+  RotateCw,
+  Route as RouteIcon,
+  Search,
+  Shapes,
+  UserRound,
+} from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ClearSearchButton } from './ClearSearchButton'
 import { PaidMark } from './PaidMark'
@@ -52,18 +63,43 @@ export type AutoCompleteItem = {
   priceCents?: number
 }
 
+/**
+ * Where the owner's request stands: `loading` while the results shown are not
+ * yet those of the current text (they stay visible, dimmed, so the list does
+ * not jump), `error` when the last request failed.
+ */
+export type SearchStatus = 'idle' | 'loading' | 'error'
+
+/**
+ * Option values that are actions rather than result pages. They live in the
+ * listbox, so a keyboard or screen-reader user reaches them like any result.
+ */
+const RETRY_VALUE = '__retry'
+
 export function ArtAroundGlobalSearch({
   items,
   onChange,
   value, // use it if you want to control the value of the input
   defaultValue, // use it if you want to set the initial value of the input (uncontrolled input)
   filter,
+  status = 'idle',
+  onRetry,
+  browse,
+  onOptionSubmit,
   ...props
 }: ComboboxProps & {
   value?: string
   defaultValue?: string
   onChange?: (value: string) => void
-} & { items: AutoCompleteItem[]; filter?: (item: AutoCompleteItem) => boolean }) {
+} & {
+  items: AutoCompleteItem[]
+  filter?: (item: AutoCompleteItem) => boolean
+  status?: SearchStatus
+  /** Called by the "Try again" option shown when `status` is `error`. */
+  onRetry?: () => void
+  /** A way out when nothing matches: the option opens `href` like a result. */
+  browse?: { label: string; href: string }
+}) {
   const { t } = useTranslation('search')
   const [_value, handleChange] = useUncontrolled({
     value,
@@ -71,24 +107,55 @@ export function ArtAroundGlobalSearch({
     onChange,
     finalValue: '',
   })
-  const filteredOptions = items.filter(
-    filter ??
-      ((item) => {
-        const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
-        return label.toLowerCase().includes(_value.toLowerCase())
-      }),
-  )
   const combobox = useCombobox()
+  const query = _value.trim()
+  const loading = status === 'loading'
+  // After a failure, whatever items the owner still passes belong to an
+  // earlier text: hide them, so the error and its retry are what the list says.
+  const filteredOptions =
+    status === 'error'
+      ? []
+      : items.filter(
+          filter ??
+            ((item) => {
+              const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
+              return label.toLowerCase().includes(_value.toLowerCase())
+            }),
+        )
+  // Nothing at all to say (no text, no suggestions, nothing pending): keep the
+  // dropdown hidden rather than open an empty bordered sliver.
+  const nothingToShow = filteredOptions.length === 0 && status === 'idle' && !query
 
   return (
-    // The results float over the page (on the navigator, over the start
-    // cards): a medium shadow lifts the list off what lies beneath it.
-    <Combobox shadow="md" {...props} store={combobox} offset={0}>
-      <ComboboxTarget>
-        <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
+    // The animated border wraps the whole combobox, not the input: the
+    // input itself must be the combobox target, so it carries `aria-expanded`
+    // and `aria-controls` and screen readers announce the result list. The
+    // dropdown renders in a portal, so the border only frames the field.
+    <BorderAnimate radius="xl" borderWidth="sm" size="sm" duration={4}>
+      {/* The results float over the page (on the navigator, over the start
+          cards): a medium shadow lifts the list off what lies beneath it. */}
+      <Combobox
+        shadow="md"
+        {...props}
+        store={combobox}
+        offset={0}
+        onOptionSubmit={(optionValue, optionProps) => {
+          if (optionValue === RETRY_VALUE) {
+            onRetry?.()
+            return
+          }
+          onOptionSubmit?.(optionValue, optionProps)
+        }}
+      >
+        {/* `aria-expanded` too (Mantine leaves it off by default), so a
+            screen reader says whether the result list is open. */}
+        <ComboboxTarget withExpandedAttribute>
           <TextInput
             leftSection={<Search size={16} />}
             rightSection={
+              // The clear button wins once there is text; with an empty field
+              // the spinner shows while the default suggestions load (first
+              // visit, or right after clearing).
               _value ? (
                 <ClearSearchButton
                   onClear={() => {
@@ -98,9 +165,14 @@ export function ArtAroundGlobalSearch({
                     combobox.openDropdown()
                   }}
                 />
+              ) : loading ? (
+                <Loader size="xs" aria-hidden />
               ) : null
             }
             rightSectionPointerEvents="all"
+            // Search terms are names and places, not prose: no red squiggles.
+            spellCheck={false}
+            autoComplete="off"
             bd="1px solid purple"
             bdrs="xl"
             size="lg"
@@ -118,32 +190,136 @@ export function ArtAroundGlobalSearch({
             onFocus={() => combobox.openDropdown()}
             onBlur={() => combobox.closeDropdown()}
           />
-        </BorderAnimate>
-      </ComboboxTarget>
-      {/* A darker border than Mantine's default gray-2, so the list edge reads
+        </ComboboxTarget>
+        {/* A darker border than Mantine's default gray-2, so the list edge reads
           clearly against white cards in light mode and the dark page in dark. */}
-      <ComboboxDropdown bd="1px solid light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3))">
-        <ComboboxOptions>
-          {filteredOptions.map((item) => {
-            if (item.kind === 'tour') {
-              // Tours keep the drawn-border accent (DESIGN.md → Inputs).
+        <ComboboxDropdown
+          hidden={nothingToShow}
+          bd="1px solid light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3))"
+        >
+          {/* Stale results stay in place while the new ones load, dimmed and
+              marked busy, so the visitor sees the request is under way and
+              the list does not collapse between keystrokes. */}
+          <ComboboxOptions
+            aria-busy={loading}
+            className="transition-opacity duration-150 data-[busy=true]:opacity-50"
+            data-busy={loading && filteredOptions.length > 0}
+          >
+            {filteredOptions.map((item) => {
+              if (item.kind === 'tour') {
+                // Tours keep the drawn-border accent (DESIGN.md → Inputs).
+                return (
+                  <BorderAnimate variant="draw" my="xs" key={item.href}>
+                    <ComboboxOption value={item.href}>
+                      <ResultRow item={item} />
+                    </ComboboxOption>
+                  </BorderAnimate>
+                )
+              }
               return (
-                <BorderAnimate variant="draw" my="xs" key={item.href}>
-                  <ComboboxOption value={item.href}>
-                    <ResultRow item={item} />
-                  </ComboboxOption>
-                </BorderAnimate>
+                <ComboboxOption value={item.href} key={item.href}>
+                  <ResultRow item={item} />
+                </ComboboxOption>
               )
-            }
-            return (
-              <ComboboxOption value={item.href} key={item.href}>
-                <ResultRow item={item} />
-              </ComboboxOption>
-            )
-          })}
-        </ComboboxOptions>
-      </ComboboxDropdown>
-    </Combobox>
+            })}
+            {filteredOptions.length === 0 && (
+              <SearchFallback
+                status={status}
+                query={query}
+                browse={browse}
+                canRetry={onRetry !== undefined}
+              />
+            )}
+          </ComboboxOptions>
+        </ComboboxDropdown>
+      </Combobox>
+    </BorderAnimate>
+  )
+}
+
+/**
+ * What the open list shows when it has no result to offer: a loading line,
+ * the failed request with a way to retry, or the empty search with a hint and
+ * a way out. Without it the open dropdown was an empty sliver, and an error
+ * looked exactly like "nothing matched".
+ */
+function SearchFallback({
+  status,
+  query,
+  browse,
+  canRetry,
+}: {
+  status: SearchStatus
+  query: string
+  browse?: { label: string; href: string }
+  canRetry: boolean
+}) {
+  const { t } = useTranslation('search')
+
+  if (status === 'loading') {
+    return (
+      <ComboboxEmpty>
+        <Group gap="xs" justify="center">
+          <Loader size="xs" aria-hidden />
+          <Text size="sm" c="dimmed">
+            {t('Searching…')}
+          </Text>
+        </Group>
+      </ComboboxEmpty>
+    )
+  }
+
+  if (status === 'error') {
+    return (
+      <>
+        <ComboboxEmpty>
+          <Text size="sm">{t('Search is not reachable right now.')}</Text>
+        </ComboboxEmpty>
+        {canRetry && (
+          <ComboboxOption value={RETRY_VALUE}>
+            <Group gap="xs" justify="center" c="var(--mantine-primary-color-filled)">
+              <RotateCw size={16} aria-hidden />
+              <Text size="sm" fw={600} c="inherit">
+                {t('Try again')}
+              </Text>
+            </Group>
+          </ComboboxOption>
+        )}
+      </>
+    )
+  }
+
+  // No text and no suggestions: the owner hides the dropdown in this case.
+  if (!query) return null
+
+  return (
+    <>
+      <ComboboxEmpty>
+        <Stack gap={2}>
+          <Text size="sm">
+            {t('Nothing matches “{{query}}”.', {
+              query,
+              // React escapes the text already; i18next's own escaping would
+              // show "Sant'Anna" as "Sant&#39;Anna".
+              interpolation: { escapeValue: false },
+            })}
+          </Text>
+          <Text size="sm" c="dimmed">
+            {t('Try a city, a museum or a shorter word.')}
+          </Text>
+        </Stack>
+      </ComboboxEmpty>
+      {browse && (
+        <ComboboxOption value={browse.href}>
+          <Group gap="xs" justify="center" c="var(--mantine-primary-color-filled)">
+            <Text size="sm" fw={600} c="inherit">
+              {browse.label}
+            </Text>
+            <ArrowRight size={16} aria-hidden />
+          </Group>
+        </ComboboxOption>
+      )}
+    </>
   )
 }
 
