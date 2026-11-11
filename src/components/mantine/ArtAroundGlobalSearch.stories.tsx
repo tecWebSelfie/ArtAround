@@ -73,7 +73,7 @@ export const Default: Story = {
 
 /** Opens the list the way a visitor does, by focusing the field. */
 const openList: Story['play'] = async ({ canvasElement }) => {
-  await userEvent.click(within(canvasElement).getByPlaceholderText('Look for the next tour'))
+  await userEvent.click(within(canvasElement).getByPlaceholderText('Search tours, museums, cities'))
 }
 
 /**

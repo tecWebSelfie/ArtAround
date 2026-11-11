@@ -27,8 +27,8 @@ import { z } from 'zod'
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 export const ROOM_CODE_LENGTH = 6
 /** A chosen name, once normalized, is 3 to 30 letters and digits. */
-const ROOM_CODE_MIN_LENGTH = 3
-const ROOM_CODE_MAX_LENGTH = 30
+export const ROOM_CODE_MIN_LENGTH = 3
+export const ROOM_CODE_MAX_LENGTH = 30
 /**
  * Any valid room code: a random one or a normalized chosen name. Letters and
  * digits of any alphabet, so a Greek or Bulgarian class can name its group too.

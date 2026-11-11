@@ -38,7 +38,7 @@ export const SearchFocus: Story = {
 
     // One search field, and it is the combobox target itself: it carries
     // the popup state screen readers announce (no hidden duplicate).
-    const search = canvas.getByPlaceholderText('Look for the next tour')
+    const search = canvas.getByPlaceholderText('Search tours, museums, cities')
     await expect(search).toHaveAttribute('aria-haspopup', 'listbox')
     await userEvent.click(search)
     await userEvent.type(search, 'street art')

@@ -58,7 +58,10 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
   // Typing before hydration is lost, so type until the code is accepted.
   const join = guest.getByRole('button', { name: 'Join', exact: true })
   await expect(async () => {
-    await guest.getByRole('textbox', { name: 'Group code' }).first().click()
+    await guest
+      .getByRole('textbox', { name: /joining a group\?/i })
+      .first()
+      .click()
     await guest.keyboard.type(code.toLowerCase())
     await expect(join).toBeEnabled({ timeout: 1_000 })
   }).toPass()

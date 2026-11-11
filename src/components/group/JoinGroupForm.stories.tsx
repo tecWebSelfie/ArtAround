@@ -17,13 +17,16 @@ type Story = StoryObj<typeof meta>
 export const Empty: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('button', { name: 'Join' })).toBeDisabled()
+    // The visible question labels the field, and the hint says what fits.
+    const field = canvas.getByRole('textbox', { name: /joining a group\?/i })
+    await expect(field).toHaveAccessibleDescription(/3 to 30 letters or numbers/)
   },
 }
 
 /** A code typed in lower case is accepted and opens its join page. */
 export const TypedCode: Story = {
   play: async ({ canvas }) => {
-    await userEvent.click(canvas.getAllByRole('textbox', { name: 'Group code' })[0])
+    await userEvent.click(canvas.getAllByRole('textbox', { name: /joining a group\?/i })[0])
     await userEvent.keyboard('ab3x9k')
     const join = canvas.getByRole('button', { name: 'Join' })
     await expect(join).toBeEnabled()
