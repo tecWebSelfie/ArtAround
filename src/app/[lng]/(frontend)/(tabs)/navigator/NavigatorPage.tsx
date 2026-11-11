@@ -80,9 +80,11 @@ function StartAction({ children }: { children: ReactNode }) {
  * row under it. With room the visual takes that maximum; squeezed (fit mode)
  * it gives way first and the caption keeps its lines. Spare height centres
  * the two; the column spans the card (not the caption's width).
+ * A phone held sideways has height to spare least: the visual (5rem there,
+ * see the page) sits beside the caption instead, so the card is a short row.
  */
 const CARD_BODY_CLASS =
-  'below-md:grid below-md:grid-rows-[minmax(0,min(100cqw,var(--start-visual)))_auto] below-md:content-center below-md:justify-stretch'
+  'below-md:grid below-md:grid-rows-[minmax(0,min(100cqw,var(--start-visual)))_auto] below-md:content-center below-md:justify-stretch phone-landscape:grid-rows-none phone-landscape:grid-cols-[var(--start-visual)_minmax(0,1fr)] phone-landscape:items-center phone-landscape:gap-(--mantine-spacing-sm)'
 
 /**
  * Holds a card's visual. Below md it fills its grid cell as a size container,
@@ -91,7 +93,7 @@ const CARD_BODY_CLASS =
  */
 function StartVisual({ children }: { children: React.ReactNode }) {
   return (
-    <Center className="below-md:size-full below-md:[--start-visual:100cqmin] below-md:[container-type:size]">
+    <Center className="below-md:size-full below-md:[--start-visual:100cqmin] below-md:[container-type:size] phone-landscape:size-auto phone-landscape:[--start-visual:inherit] phone-landscape:[container-type:normal]">
       {children}
     </Center>
   )
@@ -128,8 +130,9 @@ export default function NavigatorHomePage({
       // `--start-visual`: side of the QR and the Plan circle (smaller below
       // md, see StartVisual). From md it follows the window's height between
       // 8rem and 12.5rem, so on a laptop (1280×720, 1024×768) the group form
-      // stays on the first screen with the cards.
-      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] from-md:[--start-visual:clamp(8rem,20dvh,12.5rem)] fit-screen:[contain:size]"
+      // stays on the first screen with the cards. A phone held sideways
+      // draws it at 5rem, beside the caption (CARD_BODY_CLASS).
+      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] from-md:[--start-visual:clamp(8rem,20dvh,12.5rem)] phone-landscape:[--start-visual:5rem] fit-screen:[contain:size]"
       flex={1}
       // Explicit: the spacer below cancels this gap (`--stack-gap`).
       gap="md"
