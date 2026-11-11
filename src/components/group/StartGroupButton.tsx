@@ -1,7 +1,7 @@
 'use client'
 
-import { roomPath } from '@/lib/group'
-import { Button, Checkbox, Modal, Stack, Text } from '@mantine/core'
+import { GroupRoomName, roomPath } from '@/lib/group'
+import { Button, Checkbox, Modal, Stack, Text, TextInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { UsersRound } from 'lucide-react'
 import type { Route } from 'next'
@@ -15,6 +15,10 @@ import { GroupNameForm } from './GroupNameForm'
  * "Start with a group": asks the host's name (shown to the group), opens a
  * room for this tour (`/api/rooms`) and goes to its waiting room. This device
  * becomes the host and keeps the host key the server returned.
+ *
+ * The host can name the group ("Fenice rossa"): the others then join by typing
+ * that name instead of a random code. A name in use by another open group is
+ * refused by the server (409) and the host picks another.
  *
  * Seeing everyone's quiz score is the host's choice, off by default (friends
  * may not want it; a teacher will): guests are told on the join page.
@@ -32,8 +36,10 @@ export function StartGroupButton({
   const join = useJoinGroup()
   const [opened, modal] = useDisclosure(false)
   const [busy, setBusy] = useState(false)
-  const [failed, setFailed] = useState(false)
+  const [failed, setFailed] = useState<false | 'unavailable' | 'taken'>(false)
   const [showResults, setShowResults] = useState(false)
+  const [groupName, setGroupName] = useState('')
+  const groupNameValid = GroupRoomName.safeParse(groupName).success
 
   const openGroup = async (name: string) => {
     setBusy(true)
@@ -42,15 +48,16 @@ export function StartGroupButton({
       const response = await fetch('/api/rooms', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tourId, name, showResults }),
+        body: JSON.stringify({ tourId, name, showResults, groupName: groupName.trim() }),
       })
-      if (!response.ok) throw new Error(String(response.status))
+      // 409: another open group has this name. Anything else: not available.
+      if (!response.ok) throw new Error(response.status === 409 ? 'taken' : 'unavailable')
       const { code, hostKey } = (await response.json()) as { code: string; hostKey: string }
       join({ code, tourId, name, role: 'host', hostKey })
       // The invite remains language/profile-free; these choices belong only to the host.
       router.push(`${roomPath(lng, code)}${navigationQuery ? `?${navigationQuery}` : ''}` as Route)
-    } catch {
-      setFailed(true)
+    } catch (error) {
+      setFailed(error instanceof Error && error.message === 'taken' ? 'taken' : 'unavailable')
       setBusy(false)
     }
   }
@@ -74,9 +81,30 @@ export function StartGroupButton({
           <GroupNameForm
             submitLabel={t('Open the group')}
             busy={busy}
-            onSubmit={(name) => void openGroup(name)}
-            error={failed ? t('The group could not be opened. Try again in a minute.') : null}
+            onSubmit={(name) => {
+              if (groupNameValid) void openGroup(name)
+            }}
+            error={
+              failed === 'taken'
+                ? t('Another group is using this name. Choose a different one.')
+                : failed
+                  ? t('The group could not be opened. Try again in a minute.')
+                  : null
+            }
           >
+            <TextInput
+              label={t('Group name (optional)')}
+              description={t(
+                'An easy name such as "Red phoenix": the others join by typing it. Leave it empty to get a code.',
+              )}
+              maxLength={30}
+              value={groupName}
+              onChange={(event) => {
+                setGroupName(event.currentTarget.value)
+                setFailed(false)
+              }}
+              error={groupNameValid ? undefined : t('Use at least 3 letters or numbers')}
+            />
             <Checkbox
               label={t('See everyone’s quiz results')}
               description={t('Each person is told before joining.')}

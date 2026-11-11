@@ -12,10 +12,15 @@ import {
 // The group-tour follow rules (src/lib/group.ts): what the host shares and
 // where a guest goes, keeping the guest's own language and reading choices.
 describe('group tours', () => {
-  it('normalizes typed codes and rejects ambiguous letters', () => {
+  it('normalizes typed codes and group names', () => {
     expect(normalizeRoomCode(' ab3 x-9k ')).toBe('AB3X9K')
     expect(ROOM_CODE_PATTERN.test('AB3X9K')).toBe(true)
-    expect(ROOM_CODE_PATTERN.test('AB0X9K')).toBe(false)
+    // Chosen group names are codes too ("Fenice rossa" → FENICEROSSA); two characters are not.
+    expect(normalizeRoomCode('Fenice rossa')).toBe('FENICEROSSA')
+    // Any alphabet, accents dropped: a Greek class can name its group too.
+    expect(normalizeRoomCode('Κόκκινος φοίνικας')).toBe('ΚΟΚΚΙΝΟΣΦΟΙΝΙΚΑΣ')
+    expect(ROOM_CODE_PATTERN.test('ΚΟΚΚΙΝΟΣΦΟΙΝΙΚΑΣ')).toBe(true)
+    expect(ROOM_CODE_PATTERN.test('AB')).toBe(false)
   })
 
   it('shares only the position and destination, without the language', () => {

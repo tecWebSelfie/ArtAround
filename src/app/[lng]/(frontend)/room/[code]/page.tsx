@@ -37,6 +37,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
     <GroupRoomPage
       code={code}
       hostName={room?.hostName ?? ''}
+      groupName={room?.groupName ?? ''}
       showResults={room?.showResults ?? false}
       tour={
         tour

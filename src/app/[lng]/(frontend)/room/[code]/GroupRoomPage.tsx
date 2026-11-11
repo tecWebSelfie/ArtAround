@@ -52,11 +52,14 @@ type RoomTour = {
 export function GroupRoomPage({
   code,
   hostName,
+  groupName = '',
   showResults,
   tour,
 }: {
   code: string
   hostName: string
+  /** The name the host chose for the group; '' when it has a random code. */
+  groupName?: string
   /** The host chose to see everyone's quiz score; guests are told before joining. */
   showResults: boolean
   tour: RoomTour | null
@@ -84,7 +87,7 @@ export function GroupRoomPage({
             </Center>
           }
         >
-          <WaitingRoom code={code} tour={tour} />
+          <WaitingRoom code={code} groupName={groupName} tour={tour} />
         </GroupRoom>
       ) : (
         <JoinGroup code={code} hostName={hostName} showResults={showResults} tour={tour} />
@@ -171,7 +174,15 @@ function JoinGroup({
  * invite and the start button. Guests see who they are waiting for; once the
  * host starts, GroupProvider moves them into the tour.
  */
-function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
+function WaitingRoom({
+  code,
+  groupName,
+  tour,
+}: {
+  code: string
+  groupName: string
+  tour: RoomTour
+}) {
   const { t } = useTranslation('group')
   const group = useGroup()
   const router = useRouter()
@@ -189,12 +200,19 @@ function WaitingRoom({ code, tour }: { code: string; tour: RoomTour }) {
       <TourHeading tour={tour} />
       <Stack gap={4} align="center">
         <Text size="sm" c="dimmed">
-          {t('Group code')}
+          {groupName ? t('Group name') : t('Group code')}
         </Text>
-        {/* Monospace: the code is read aloud and copied letter by letter. */}
-        <Text ff="monospace" fz={40} fw={700} lh={1} style={{ letterSpacing: '0.12em' }}>
-          {code}
-        </Text>
+        {groupName ? (
+          // A chosen name is said and typed as words, exactly as the host wrote it.
+          <Text fz={32} fw={700} lh={1.15} ta="center" style={{ overflowWrap: 'anywhere' }}>
+            {groupName}
+          </Text>
+        ) : (
+          // Monospace: the code is read aloud and copied letter by letter.
+          <Text ff="monospace" fz={40} fw={700} lh={1} style={{ letterSpacing: '0.12em' }}>
+            {code}
+          </Text>
+        )}
       </Stack>
       {isHost && <ShareGroup code={code} />}
       <Divider />

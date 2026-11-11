@@ -1,6 +1,6 @@
 import config from '@/payload.config'
-import { GroupName } from '@/lib/group'
-import { createGroupRoom } from '@/lib/group-room'
+import { GroupName, GroupRoomName } from '@/lib/group'
+import { createGroupRoom, GroupNameTaken } from '@/lib/group-room'
 import { asViewer } from '@/lib/session'
 import { allowRequest } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
@@ -16,6 +16,8 @@ import { z } from 'zod'
 const Body = z.object({
   tourId: z.string().min(1).max(64),
   name: GroupName,
+  /** The easy name the host chose for the group; '' for a random code. */
+  groupName: GroupRoomName.default(''),
   /** The host sees each guest's quiz score; off unless the host asks for it. */
   showResults: z.boolean().default(false),
 })
@@ -41,9 +43,18 @@ export async function POST(request: Request) {
   if (!tour) return NextResponse.json({ error: 'tour' }, { status: 404 })
 
   try {
-    const room = await createGroupRoom(tour.id, body.data.name, body.data.showResults)
+    const room = await createGroupRoom(
+      tour.id,
+      body.data.name,
+      body.data.showResults,
+      body.data.groupName,
+    )
     return NextResponse.json(room, { headers: { 'Cache-Control': 'no-store' } })
   } catch (error) {
+    // Another open group has this name: the host picks a different one.
+    if (error instanceof GroupNameTaken) {
+      return NextResponse.json({ error: 'taken' }, { status: 409 })
+    }
     console.error('Could not open a group room', error)
     return NextResponse.json({ error: 'unavailable' }, { status: 503 })
   }

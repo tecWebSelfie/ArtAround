@@ -2,7 +2,13 @@ import 'server-only'
 
 import { AccessToken, RoomServiceClient } from 'livekit-server-sdk'
 import { createHash, randomBytes, randomInt, timingSafeEqual } from 'node:crypto'
-import { parseRoomMetadata, ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH, type RoomMetadata } from './group'
+import {
+  normalizeRoomCode,
+  parseRoomMetadata,
+  ROOM_CODE_ALPHABET,
+  ROOM_CODE_LENGTH,
+  type RoomMetadata,
+} from './group'
 
 /**
  * Server side of group tours (see `src/lib/group.ts` for the overview).
@@ -43,25 +49,50 @@ function newRoomCode() {
   return code
 }
 
-/** Opens a room for a tour. The host key is returned once and never stored in clear. */
-export async function createGroupRoom(tourId: string, hostName: string, showResults: boolean) {
+/** Thrown by `createGroupRoom` when the chosen group name is an open room already. */
+export class GroupNameTaken extends Error {}
+
+/**
+ * Opens a room for a tour. The host key is returned once and never stored in
+ * clear. With a `groupName` the room's code is that name normalized, so the
+ * group can type it; a name another open group uses is refused
+ * (`GroupNameTaken`).
+ */
+export async function createGroupRoom(
+  tourId: string,
+  hostName: string,
+  showResults: boolean,
+  groupName = '',
+) {
   const service = rooms()
-  // 32^6 ≈ 1 billion codes: a clash is very unlikely, but check anyway.
-  let code = newRoomCode()
-  while ((await service.listRooms([code])).length) code = newRoomCode()
+  let code = normalizeRoomCode(groupName)
+  if (code) {
+    if ((await service.listRooms([code])).length) throw new GroupNameTaken(code)
+  } else {
+    // 32^6 ≈ 1 billion codes: a clash is very unlikely, but check anyway.
+    code = newRoomCode()
+    while ((await service.listRooms([code])).length) code = newRoomCode()
+  }
   const hostKey = randomBytes(24).toString('base64url')
   const metadata: RoomMetadata = {
     tourId,
     hostKeyHash: sha256(hostKey).toString('hex'),
     hostName,
+    groupName,
     showResults,
   }
-  await service.createRoom({
+  const room = await service.createRoom({
     name: code,
     metadata: JSON.stringify(metadata),
     emptyTimeout: EMPTY_TIMEOUT_S,
     departureTimeout: DEPARTURE_TIMEOUT_S,
   })
+  // LiveKit answers `createRoom` for an open room with that room, unchanged:
+  // when two hosts pick the same name at the same moment, both pass the check
+  // above, and the one whose key is not in the room's metadata lost.
+  if (parseRoomMetadata(room.metadata)?.hostKeyHash !== metadata.hostKeyHash) {
+    throw new GroupNameTaken(code)
+  }
   return { code, hostKey }
 }
 

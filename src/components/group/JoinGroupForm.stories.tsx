@@ -3,7 +3,7 @@ import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
 import { expect, userEvent } from 'storybook/test'
 import { JoinGroupForm } from './JoinGroupForm'
 
-/** "Joining a group? Enter its code" on the navigator home and the tour start page. */
+/** "Joining a group? Enter its name or code" on the navigator home and the tour start page. */
 const meta = {
   title: 'Group/JoinGroupForm',
   component: JoinGroupForm,
@@ -13,7 +13,7 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Join stays disabled until all six characters are in. */
+/** Join stays disabled until a name or code of at least three characters is in. */
 export const Empty: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('button', { name: 'Join' })).toBeDisabled()

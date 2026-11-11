@@ -9,8 +9,14 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
 - **Start:** the tour's start page (`/[lng]/museum/{museumId}/navigation/tour/{id}`) offers "Start Tour"
   (alone) and "Start with a group". The group's creator is its **host** and gives a
   name shown to the group.
-- **Join:** a 6-character code (no 0/O/1/I), typed on the navigator home or the tour's
+- **Join:** the group's name or code, typed on the navigator home or the tour's
   start page, a shared link, or a QR code (the in-tour scanner accepts room links).
+  The host may name the group in "Start with a group" ("Fenice rossa", the course
+  specification's mnemonic name): the room's code is that name normalized
+  (`normalizeRoomCode`: letters and digits, upper case, so "fenice rossa" and
+  "Fenice-Rossa" are the same room), `RoomMetadata.groupName` keeps it as typed for
+  the waiting room, and a name another open group uses is refused (409). Left
+  empty, the server draws a 6-character code (no 0/O/1/I).
   All open `/[lng]/room/{code}`, which asks for a name (remembered on the device only).
 - **Waiting room:** the code in large type, "Share link" (system share sheet, copy as
   fallback), "Show QR code" (both language-free, `/room/CODE`: each guest joins, and

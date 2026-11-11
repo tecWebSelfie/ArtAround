@@ -63,9 +63,8 @@ describe('group room API', () => {
     expect((await tokenRequest({ room_name: 'ZZZZZZ', participant_name: 'M' }, guest)).status).toBe(
       404,
     )
-    expect((await tokenRequest({ room_name: 'AB0X9K', participant_name: 'M' }, guest)).status).toBe(
-      400,
-    )
+    // A chosen group name is a valid code too: only a too-short one is malformed.
+    expect((await tokenRequest({ room_name: 'AB', participant_name: 'M' }, guest)).status).toBe(400)
     expect((await tokenRequest({ room_name: 'AB3X9K', participant_name: '' }, guest)).status).toBe(
       400,
     )

@@ -17,10 +17,51 @@
 
 import { z } from 'zod'
 
-/** No 0/O or 1/I: codes are read aloud and typed from a screen. */
+/**
+ * A group is entered by its code. The host may choose it as an easy name to
+ * remember ("Fenice rossa", the course specification's mnemonic name: the
+ * class joins by typing it); otherwise the server draws a random one.
+ *
+ * Random codes avoid 0/O and 1/I: they are read aloud and typed from a screen.
+ */
 export const ROOM_CODE_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 export const ROOM_CODE_LENGTH = 6
-export const ROOM_CODE_PATTERN = new RegExp(`^[${ROOM_CODE_ALPHABET}]{${ROOM_CODE_LENGTH}}$`)
+/** A chosen name, once normalized, is 3 to 30 letters and digits. */
+const ROOM_CODE_MIN_LENGTH = 3
+const ROOM_CODE_MAX_LENGTH = 30
+/**
+ * Any valid room code: a random one or a normalized chosen name. Letters and
+ * digits of any alphabet, so a Greek or Bulgarian class can name its group too.
+ */
+export const ROOM_CODE_PATTERN = new RegExp(
+  `^[\\p{L}\\p{N}]{${ROOM_CODE_MIN_LENGTH},${ROOM_CODE_MAX_LENGTH}}$`,
+  'u',
+)
+
+/**
+ * Codes and group names are typed in any case, with or without spaces,
+ * accents and punctuation: "fenice rossa", "Fenice-Rossa" and "FENICEROSSA"
+ * are the same room.
+ */
+export function normalizeRoomCode(input: string) {
+  return (
+    input
+      // NFD splits accents off their letter; only letters and digits are kept.
+      .normalize('NFD')
+      .replace(/[^\p{L}\p{N}]/gu, '')
+      .toUpperCase()
+  )
+}
+
+/**
+ * The name a host gives the group, as typed ("Fenice rossa"). Optional; it
+ * must leave at least `ROOM_CODE_MIN_LENGTH` letters or digits once normalized.
+ */
+export const GroupRoomName = z
+  .string()
+  .trim()
+  .max(ROOM_CODE_MAX_LENGTH)
+  .refine((name) => name === '' || ROOM_CODE_PATTERN.test(normalizeRoomCode(name)))
 
 /** The name a visitor shows to the group; the forms and `/api/rooms` validate with the same schema. */
 export const GroupName = z.string().trim().min(1).max(30)
@@ -36,6 +77,8 @@ export const RoomMetadata = z.object({
   tourId: z.string(),
   hostKeyHash: z.string(),
   hostName: z.string().default(''),
+  /** The name the host chose for the group, as typed; '' for a random code. */
+  groupName: z.string().default(''),
   showResults: z.boolean().default(false),
 })
 export type RoomMetadata = z.infer<typeof RoomMetadata>
@@ -55,11 +98,6 @@ export const isQuizHandedIn = (attributes: Record<string, string> | undefined) =
 
 /** The host always joins with this identity, so guests can't pose as the host. */
 export const HOST_IDENTITY = 'host'
-
-/** Codes are typed in any case and with stray spaces. */
-export function normalizeRoomCode(input: string) {
-  return input.replace(/[\s-]/g, '').toUpperCase()
-}
 
 export const roomPath = (lng: string, code: string) => `/${lng}/room/${code}`
 
