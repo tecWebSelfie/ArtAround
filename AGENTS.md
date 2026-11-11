@@ -238,7 +238,8 @@ still on its English fallback, and the page then renders `TranslationPending`
 (`src/components/TranslationPending.tsx`, or `TranslationNotice` for the documents
 read with `getLocalizedPageDocument`), which refreshes the route until the text
 arrives. The queue runs one document every 10 s on purpose (the provider's
-tokens-per-minute are shared with the live AI features); `{ urgent: true }` runs
+tokens-per-minute are shared with the live AI features; `TRANSLATION_JOBS_PER_RUN`
+raises it where the quota allows, e.g. for a bulk translation from the admin); `{ urgent: true }` runs
 the job at once and is for the one text the visitor is reading. The translator's
 prompt names the target language in full (`languageName` in
 `src/plugins/autoTranslate.ts`): with the bare code, "into it" was read as a

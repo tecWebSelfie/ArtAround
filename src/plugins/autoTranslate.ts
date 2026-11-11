@@ -110,7 +110,15 @@ export function autoTranslatePlugin({
       // the voice assistant fail). The text a visitor is reading does not wait
       // for this schedule: `requestTranslations(..., { urgent: true })` runs
       // its job at once (src/lib/localized.ts).
-      runner: createPayloadJobsRunner({ autoRun: { cron: '*/10 * * * * *', limit: 1 } }),
+      // `TRANSLATION_JOBS_PER_RUN` raises the pace where the provider's quota
+      // allows it (a paid tier, or a bulk "translate all" from the admin
+      // panel, which at one per run takes about 50 minutes for 300 documents).
+      runner: createPayloadJobsRunner({
+        autoRun: {
+          cron: '*/10 * * * * *',
+          limit: Math.max(1, Number(process.env.TRANSLATION_JOBS_PER_RUN) || 1),
+        },
+      }),
       // No fieldLevel(): its POST /translate/field returns field content (see `serverOnly`).
       levels: [documentLevel(), collectionLevel()],
       // Per-locale translation receipts (`translator-provenance` sidecar).

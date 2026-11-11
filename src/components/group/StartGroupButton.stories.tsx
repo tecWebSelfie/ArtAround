@@ -45,7 +45,63 @@ export const OpensTheGroup: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
     await fillAndOpen('Anna', { showResults: true })
     await waitFor(() => expect(getRouter().push).toHaveBeenCalledWith('/en/room/AB3X9K'))
-    await expect(lastBody).toEqual({ tourId: 'tour-1', name: 'Anna', showResults: true })
+    // No group name typed: the server draws a random code.
+    await expect(lastBody).toEqual({
+      tourId: 'tour-1',
+      name: 'Anna',
+      showResults: true,
+      groupName: '',
+    })
+  },
+}
+
+/** A named group: the name goes to the server, whose code is that name normalized. */
+export const NamedGroup: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('*/api/rooms', async ({ request }) => {
+          lastBody = await request.json()
+          return HttpResponse.json({ code: 'REDPHOENIX', hostKey: 'key' })
+        }),
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
+    await userEvent.type(
+      await screen.findByRole('textbox', { name: 'Group name (optional)' }),
+      'Red phoenix',
+    )
+    await fillAndOpen('Anna')
+    await waitFor(() => expect(getRouter().push).toHaveBeenCalledWith('/en/room/REDPHOENIX'))
+    await expect(lastBody).toMatchObject({ groupName: 'Red phoenix' })
+  },
+}
+
+/** Another open group has that name (409): the host is asked for a different one. */
+export const NameTaken: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('*/api/rooms', () => HttpResponse.json({ error: 'taken' }, { status: 409 })),
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
+    await userEvent.type(
+      await screen.findByRole('textbox', { name: 'Group name (optional)' }),
+      'Red phoenix',
+    )
+    await fillAndOpen('Anna')
+    await expect(
+      await screen.findByText(
+        'Another group is using this name. Choose a different one.',
+        undefined,
+        { timeout: 5_000 },
+      ),
+    ).toBeVisible()
   },
 }
 
