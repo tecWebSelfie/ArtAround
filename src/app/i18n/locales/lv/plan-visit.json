@@ -32,7 +32,7 @@
   "Dictation did not work. Try again, or type instead.": "Diktēšana neizdevās. Mēģini vēlreiz vai raksti.",
   "Directions avoid stairs and steps. The stops stay the same.": "Norādes izvairās no kāpnēm un pakāpieniem. Pieturas paliek tās pašas.",
   "Enter each child's age, from 0 to 17.": "Ievadi katra bērna vecumu, no 0 līdz 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Meklēju muzeju un izvēlos pieturas…",
   "First visit": "Pirmais apmeklējums",
   "Have you been here before?": "Vai esi šeit bijis agrāk?",
@@ -62,6 +62,7 @@
   "Their ages choose easier contents and children's versions.": "Vecums izvēlas vieglāku saturu un versijas bērniem.",
   "This museum has no free contents to visit yet.": "Šajā muzejā vēl nav bezmaksas satura apmeklējumam.",
   "Too many visits planned in a short time. Try again in a minute.": "Īsā laikā ieplānots pārāk daudz apmeklējumu. Mēģini pēc minūtes.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Ratiņkrēslam piemērots maršruts",
   "Writing down your words…": "Pierakstu tavus vārdus…"
 }

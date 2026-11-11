@@ -1,9 +1,8 @@
-@layer theme, base, mantine, mantine-qr-code, mantine-text-animate, mantine-border-animate, mantine-depth-select, spotlight, dropzone, components, utilities;
+@layer theme, base, mantine, mantine-qr-code, mantine-border-animate, mantine-depth-select, spotlight, dropzone, components, utilities;
 
 @import 'tailwindcss';
 @import '@mantine/core/styles.layer.css';
 @import '@gfazioli/mantine-qr-code/styles.layer.css';
-@import '@gfazioli/mantine-text-animate/styles.layer.css';
 @import '@gfazioli/mantine-border-animate/styles.layer.css';
 @import '@mantine/carousel/styles.layer.css';
 /* Picture viewer (src/components/mantine/PictureLightboxDialog.tsx). */

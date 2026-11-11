@@ -65,9 +65,6 @@ importers:
       '@gfazioli/mantine-qr-code':
         specifier: ^2.0.10
         version: 2.0.10(@mantine/core@9.6.3(@mantine/hooks@9.6.3(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.6.3(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@gfazioli/mantine-text-animate':
-        specifier: ^4.0.10
-        version: 4.0.10(@mantine/core@9.6.3(@mantine/hooks@9.6.3(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.6.3(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@hey-api/client-next':
         specifier: ^0.5.1
         version: 0.5.1(@hey-api/openapi-ts@0.99.0(magicast@0.5.5))
@@ -1389,14 +1386,6 @@ packages:
 
   '@gfazioli/mantine-qr-code@2.0.10':
     resolution: {integrity: sha512-UD2P5buQR1hTEBVJ6ECIJXCVS0Y0nTP6Cy66QsW7XrdwdrkAyYmMMAhaM3IRqglzPo2E23fIb23uszMKZrxJEA==}
-    peerDependencies:
-      '@mantine/core': 9.6.3
-      '@mantine/hooks': 9.6.3
-      react: ^18.x || ^19.x
-      react-dom: ^18.x || ^19.x
-
-  '@gfazioli/mantine-text-animate@4.0.10':
-    resolution: {integrity: sha512-vGZksGPfd+amsuJGr4ekEVRxyxx4A2jHLca2MYX/rd3jlyMAw1NPdyodFZStBzmsbSwWCLhWd8tAUDOFgS0T4A==}
     peerDependencies:
       '@mantine/core': 9.6.3
       '@mantine/hooks': 9.6.3
@@ -11558,13 +11547,6 @@ snapshots:
       '@mantine/core': 9.6.3(@mantine/hooks@9.6.3(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@mantine/hooks': 9.6.3(react@19.2.6)
       qrcode: 1.5.4
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-
-  '@gfazioli/mantine-text-animate@4.0.10(@mantine/core@9.6.3(@mantine/hooks@9.6.3(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(@mantine/hooks@9.6.3(react@19.2.6))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)':
-    dependencies:
-      '@mantine/core': 9.6.3(@mantine/hooks@9.6.3(react@19.2.6))(@types/react@19.2.14)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@mantine/hooks': 9.6.3(react@19.2.6)
       react: 19.2.6
       react-dom: 19.2.6(react@19.2.6)
 

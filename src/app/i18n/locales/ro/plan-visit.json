@@ -32,7 +32,7 @@
   "Dictation did not work. Try again, or type instead.": "Dictarea nu a funcționat. Încearcă din nou sau scrie.",
   "Directions avoid stairs and steps. The stops stay the same.": "Indicațiile evită scările și treptele. Opririle rămân aceleași.",
   "Enter each child's age, from 0 to 17.": "Introdu vârsta fiecărui copil, de la 0 la 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Caut muzeul și aleg opririle…",
   "First visit": "Prima vizită",
   "Have you been here before?": "Ai mai fost aici?",
@@ -62,6 +62,7 @@
   "Their ages choose easier contents and children's versions.": "Vârsta alege conținuturi mai ușoare și versiuni pentru copii.",
   "This museum has no free contents to visit yet.": "Acest muzeu nu are încă conținuturi gratuite de vizitat.",
   "Too many visits planned in a short time. Try again in a minute.": "Prea multe vizite planificate în scurt timp. Încearcă peste un minut.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Traseu accesibil cu scaunul cu rotile",
   "Writing down your words…": "Scriu cuvintele tale…"
 }

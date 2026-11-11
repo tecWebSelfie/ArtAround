@@ -27,7 +27,7 @@
   "Dictation did not work. Try again, or type instead.": "Dikteerimine ei õnnestunud. Proovi uuesti või kirjuta.",
   "Directions avoid stairs and steps. The stops stay the same.": "Juhised väldivad treppe ja astmeid. Peatused jäävad samaks.",
   "Enter each child's age, from 0 to 17.": "Sisesta iga lapse vanus, 0–17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Otsin muuseumi ja valin peatusi…",
   "First visit": "Esimene külastus",
   "Have you been here before?": "Kas oled siin varem käinud?",
@@ -57,6 +57,7 @@
   "Their ages choose easier contents and children's versions.": "Vanus valib lihtsama sisu ja lasteversioonid.",
   "This museum has no free contents to visit yet.": "Selles muuseumis pole veel tasuta sisu, mida külastada.",
   "Too many visits planned in a short time. Try again in a minute.": "Lühikese ajaga planeeriti liiga palju külastusi. Proovi minuti pärast.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Ratastooliga ligipääsetav marsruut",
   "Writing down your words…": "Kirjutan su sõnu üles…"
 }

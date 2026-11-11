@@ -42,7 +42,7 @@
   "Dictation did not work. Try again, or type instead.": "Id-dettatura ma ħadmitx. Erġa’ pprova, jew ikteb.",
   "Directions avoid stairs and steps. The stops stay the same.": "L-indikazzjonijiet jevitaw it-taraġ u t-tarġiet. Il-waqfiet jibqgħu l-istess.",
   "Enter each child's age, from 0 to 17.": "Daħħal l-età ta’ kull tifel, minn 0 sa 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Qed infittex il-mużew u nagħżel il-waqfiet…",
   "First visit": "L-ewwel żjara",
   "Have you been here before?": "Qatt kont hawn qabel?",
@@ -72,6 +72,7 @@
   "Their ages choose easier contents and children's versions.": "L-età tagħhom tagħżel kontenut aktar faċli u verżjonijiet għat-tfal.",
   "This museum has no free contents to visit yet.": "Dan il-mużew għad m'għandux kontenuti b'xejn x'iżżur.",
   "Too many visits planned in a short time. Try again in a minute.": "Wisq żjarat ippjanati fi ftit ħin. Erġa’ pprova f’minuta.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Rotta aċċessibbli għas-siġġu tar-roti",
   "Writing down your words…": "Qed nikteb kliemek…"
 }

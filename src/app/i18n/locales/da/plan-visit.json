@@ -27,7 +27,7 @@
   "Dictation did not work. Try again, or type instead.": "Diktering virkede ikke. Prøv igen, eller skriv i stedet.",
   "Directions avoid stairs and steps. The stops stay the same.": "Vejvisningen undgår trapper og trin. Stoppene er de samme.",
   "Enter each child's age, from 0 to 17.": "Angiv hvert barns alder, fra 0 til 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Finder museet og vælger stop…",
   "First visit": "Første besøg",
   "Have you been here before?": "Har du været her før?",
@@ -57,6 +57,7 @@
   "Their ages choose easier contents and children's versions.": "Deres alder vælger lettere indhold og børneversioner.",
   "This museum has no free contents to visit yet.": "Dette museum har endnu intet gratis indhold at besøge.",
   "Too many visits planned in a short time. Try again in a minute.": "For mange besøg planlagt på kort tid. Prøv igen om et minut.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Kørestolsvenlig rute",
   "Writing down your words…": "Skriver dine ord ned…"
 }

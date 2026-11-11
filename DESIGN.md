@@ -266,7 +266,8 @@ A small semantic set that comes from one source: `SERVICE_META` / `EXIT_ENTRANCE
 
 ### Hierarchy
 
-- **Headline:** Mantine h1, 2.125rem, weight 700, line-height 1.3; currently on the navigator entry screen.
+- **Headline:** Mantine h1, 2.125rem, weight 700, line-height 1.3, on every page's subject.
+- **Display headline:** the navigator home's h1 only: fluid `clamp(2.25rem, 1.5rem + 3.2vw, 3.75rem)`, weight 800, line-height 1.08, tracking -0.02em. It names the visitor's task ("Find your way around art") over a dimmed one-line promise (who makes the tours, in your language and at your pace), hidden on screens under 700px tall so the start cards keep their height. The home's bold move is this scale, not effects.
 - **Section heading:** Mantine h2, 1.625rem.
 - **Title:** Mantine h3, 1.375rem; observed in object details.
 - **Compact heading:** Mantine h5, 1rem; used in the tour-navigation header.
@@ -284,7 +285,7 @@ These are inherited Mantine values, not a new custom scale. The prototype does n
 
 **The tour gradient** is one token, `TOUR_GRADIENT` in `src/theme.ts` (`grape.8` → `orange.9`), passed to every Mantine `variant="gradient"` tour mark; don't re-declare the pair inline.
 
-**The Gradient-Span Rule.** A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one word this way.
+**The Gradient-Span Rule.** A gradient is applied to a fragment of text (a single word or short label) with `inherit` sizing, never to a paragraph. The navigator hero colors exactly one short phrase this way ("around art", which echoes the app's name).
 
 ## Layout
 
@@ -367,7 +368,7 @@ Depth is functional: restrained shadows distinguish floating controls and overla
 - **Notifications:** Mantine notifications at `top-center` carry everything transient during navigation: nearby suggestions, the assistant's reply as a caption, and assistant errors. Top-center keeps them clear of both the bottom controls and the navigation bar.
 - **Tour card** (`var(--mantine-shadow-lg)`): supports the layered tour treatment.
 
-The animated search is a deliberate exception rather than an elevation step: a `BorderAnimate` wrapper runs a four-second border cycle around the input, and the navigator wraps the whole search in `Reflection` with a subtle ripple and a soft shadow (`shadowOpacity 0.2`, `shadowBlur 5.51`, `shadowSize 29`). Treat those as part of the discovery accent, not as a reusable depth token.
+The animated search is a deliberate exception rather than an elevation step: a `BorderAnimate` wrapper runs a four-second border cycle around the combobox (it wraps the whole `Combobox`, so the input itself stays the combobox target). Treat it as part of the discovery accent, not as a reusable depth token. The navigator's former `Reflection` wrapper was removed: it cloned the search into an invisible input that still took keyboard focus.
 
 ### Named Rules
 
@@ -442,8 +443,8 @@ Each component below leads with its character, then shape, color assignment, sta
 ### Inputs / Fields
 
 - **Ordinary forms:** Mantine `TextInput` and `Textarea` with labels, descriptions, required indicators, errors, and disabled states as documented in Storybook.
-- **Global search (the exception):** a large rounded input (`size="lg"`, `radius="xl"`) with a search icon, a hardcoded `1px solid purple` border, and an animated `BorderAnimate` surround on a four-second cycle. In the navigator it is additionally wrapped in `Reflection`. Its incumbent hardcoded copy and exact decoration remain eligible for refinement.
-- **Combobox results:** the home dropdown lists tours, contents and museums. Each row leads with a `ThemeIcon` naming its kind (tour: `grape → orange` gradient with `Route`, the tour identity; content: teal `BookOpen`; museum: blue `Landmark`), then the title over a dimmed subtitle/city, then `xs` badges: duration (light gray), difficulty (light), "{{count}} stops", and the locked price badge for a paid content. A paid content also carries the shared `PaidMark` right after its title (`src/components/mantine/PaidMark.tsx`: a small orange light `ThemeIcon` with the `Euro` icon of `PRICE_CURRENCY`, decorative because the price badge says the amount), so it reads as paid at a glance; the map Spotlight's paid results lead with the same component. Every visitor search field (home, marketplace, Spotlight, museum switch) ends with the shared `ClearSearchButton` (`src/components/mantine/ClearSearchButton.tsx`: a Mantine `CloseButton`, "Clear search") while it holds text; clearing a submitted marketplace query also drops `?q=`. Tour options stay wrapped in `BorderAnimate variant="draw"`; options hold no nested buttons. The input keeps a visible focus treatment for keyboard users.
+- **Global search (the exception):** a large rounded input (`size="lg"`, `radius="xl"`) with a search icon, a hardcoded `1px solid purple` border, and an animated `BorderAnimate` surround on a four-second cycle. Its incumbent hardcoded copy and exact decoration remain eligible for refinement.
+- **Combobox results:** the home dropdown lists tours, contents and museums. Each row leads with a `ThemeIcon` naming its kind (tour: `grape → orange` gradient with `Route`, the tour identity; content: teal `BookOpen`; museum: blue `Landmark`), then the title over a dimmed subtitle/city, then `xs` badges: duration (light gray), difficulty (light), "{{count}} stops", and the locked price badge for a paid content. A paid content also carries the shared `PaidMark` right after its title (`src/components/mantine/PaidMark.tsx`: a small orange light `ThemeIcon` with the `Euro` icon of `PRICE_CURRENCY`, decorative because the price badge says the amount), so it reads as paid at a glance; the map Spotlight's paid results lead with the same component. Every visitor search field (home, marketplace, Spotlight, museum switch) ends with the shared `ClearSearchButton` (`src/components/mantine/ClearSearchButton.tsx`: a Mantine `CloseButton`, "Clear search") while it holds text; clearing a submitted marketplace query also drops `?q=`. All rows are plain options (the tour gradient icon already marks a tour; the former drawn-border animation per tour row was removed); options hold no nested buttons. With no result to show, the list says why: a loading line, "Nothing matches" with a hint and a "Browse all tours" option, or the failed request with a "Try again" option. The input keeps a visible focus treatment for keyboard users.
 - **Rich text:** Mantine's TipTap `RichTextEditor` inside an `Input.Wrapper`, so it gets the same label, description and error as every other field. The toolbar is limited to formats that round-trip through Payload's Lexical storage: bold, italic, H2/H3, lists, quote, link, undo/redo. Every control has a translated label.
 - **Dictation:** a field that accepts speech (the planner's Interests) carries a round `ActionIcon` in its `rightSection`: `subtle` `Mic` at rest, filled red `Square` while recording, a 14px `Loader` while transcribing. The words land in the field for the visitor to edit; nothing runs on its own. Its `aria-label` names the next action ("Dictate", "Stop dictating").
 - **Domain inputs:** `PriceInput` is a euro `NumberInput` (`€ ` prefix, two fixed decimals, where empty means free). `ObjectPicker` is a searchable, clearable `Select` filtered on the server; `SubjectPicker` is the same field over subjects (artists, movements, events), both built on one `NamePicker`. Both carry a plain-language `description` that explains the rule behind the field.
@@ -629,9 +630,9 @@ The one way a document's pictures and 3D model are shown at the top of its detai
 
 ### Motion and small playful exceptions
 
-- **Global search:** a four-second `BorderAnimate` cycle, plus `Reflection` ripple.
+- **Global search:** a four-second `BorderAnimate` cycle around the field, the navigator home's one moving accent.
 - **Tour carousel:** stacked selection with a 500ms transition; a hover scale on the start action.
-- **Navigator hero:** `TypeWriterText` cycles one word (`creators` / `curators` / `museums`) with per-word color (`red.8` / `green.8` / `blue.8`) and a gray fallback.
+- **Navigator hero:** still. The title carries the page by size, not motion; the former `TypeWriterText` tagline (cycling colored words, a blinking cursor) was removed as a second competing effect.
 - **Tabs:** the active indicator moves rather than jumping.
 - **Added paragraphs:** each "Tell me more" or version paragraph settles in once, 420ms `cubic-bezier(0.16, 1, 0.3, 1)`, from 0 opacity and 4px lower; off under reduced motion. One entrance per paragraph, never per word.
 - **Assistant orb:** the only continuously animated element during navigation, and only while the assistant is on. Its motion encodes state (see Assistant orb) and stops under reduced motion.

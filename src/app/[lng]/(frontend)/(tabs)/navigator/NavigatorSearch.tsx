@@ -5,8 +5,7 @@ import {
   type AutoCompleteItem,
   type SearchStatus,
 } from '@/components/mantine/ArtAroundGlobalSearch'
-import { TypeWriterText } from '@/components/mantine/TypeWriterText'
-import { Box, Group, Stack, Text } from '@mantine/core'
+import { Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -71,18 +70,7 @@ export function NavigatorSearch({
   const items = result?.items ?? initialItems
 
   return (
-    <Stack>
-      <Group ta="center" gap="xs" display="inline-block">
-        <Text span>{t('Tours made by')}&nbsp;</Text>
-        <Box miw="9ch" display="inline-block" ta="left">
-          <TypeWriterText
-            fw="bolder"
-            loopColors={{ creators: 'red.8', curators: 'green.8', museums: 'blue.8' }}
-            value={['creators', 'curators', 'museums']}
-            fallbackColor="gray"
-          />
-        </Box>
-      </Group>
+    <>
       <ArtAroundGlobalSearch
         items={items}
         value={query}
@@ -114,6 +102,6 @@ export function NavigatorSearch({
               })
             : ''}
       </Text>
-    </Stack>
+    </>
   )
 }

@@ -27,7 +27,7 @@
   "Dictation did not work. Try again, or type instead.": "Диктуването не успя. Опитайте отново или пишете.",
   "Directions avoid stairs and steps. The stops stay the same.": "Указанията избягват стълби и стъпала. Спирките остават същите.",
   "Enter each child's age, from 0 to 17.": "Въведете възрастта на всяко дете, от 0 до 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Търся музея и избирам спирките…",
   "First visit": "Първо посещение",
   "Have you been here before?": "Бил ли си тук преди?",
@@ -57,6 +57,7 @@
   "Their ages choose easier contents and children's versions.": "Възрастта избира по-лесно съдържание и версии за деца.",
   "This museum has no free contents to visit yet.": "Този музей все още няма безплатни съдържания за разглеждане.",
   "Too many visits planned in a short time. Try again in a minute.": "Твърде много посещения за кратко време. Опитайте след минута.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Маршрут, достъпен за инвалидни колички",
   "Writing down your words…": "Записвам думите ви…"
 }

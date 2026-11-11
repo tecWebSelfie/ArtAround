@@ -207,23 +207,13 @@ export function ArtAroundGlobalSearch({
             className="transition-opacity duration-150 data-[busy=true]:opacity-50"
             data-busy={loading && filteredOptions.length > 0}
           >
-            {filteredOptions.map((item) => {
-              if (item.kind === 'tour') {
-                // Tours keep the drawn-border accent (DESIGN.md → Inputs).
-                return (
-                  <BorderAnimate variant="draw" my="xs" key={item.href}>
-                    <ComboboxOption value={item.href}>
-                      <ResultRow item={item} />
-                    </ComboboxOption>
-                  </BorderAnimate>
-                )
-              }
-              return (
-                <ComboboxOption value={item.href} key={item.href}>
-                  <ResultRow item={item} />
-                </ComboboxOption>
-              )
-            })}
+            {/* Every row alike: the kind icon already marks a tour (the tour
+                gradient), so tours no longer draw an animated border too. */}
+            {filteredOptions.map((item) => (
+              <ComboboxOption value={item.href} key={item.href}>
+                <ResultRow item={item} />
+              </ComboboxOption>
+            ))}
             {filteredOptions.length === 0 && (
               <SearchFallback
                 status={status}

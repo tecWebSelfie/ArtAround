@@ -32,7 +32,7 @@
   "Dictation did not work. Try again, or type instead.": "La dictée n'a pas fonctionné. Réessayez, ou tapez le texte.",
   "Directions avoid stairs and steps. The stops stay the same.": "Le parcours évite escaliers et marches. Les étapes restent les mêmes.",
   "Enter each child's age, from 0 to 17.": "Indiquez l'âge de chaque enfant, de 0 à 17 ans.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Recherche du musée et choix des étapes…",
   "First visit": "Première visite",
   "Have you been here before?": "Tu es déjà venu ici ?",
@@ -62,6 +62,7 @@
   "Their ages choose easier contents and children's versions.": "Leur âge oriente vers des contenus plus simples et des versions pour enfants.",
   "This museum has no free contents to visit yet.": "Ce musée n’a pas encore de contenus gratuits à visiter.",
   "Too many visits planned in a short time. Try again in a minute.": "Trop de visites planifiées en peu de temps. Réessayez dans une minute.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Parcours accessible en fauteuil roulant",
   "Writing down your words…": "Transcription de vos mots…"
 }

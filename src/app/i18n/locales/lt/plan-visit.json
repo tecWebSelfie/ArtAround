@@ -37,7 +37,7 @@
   "Dictation did not work. Try again, or type instead.": "Diktavimas nepavyko. Bandykite dar kartą arba rašykite.",
   "Directions avoid stairs and steps. The stops stay the same.": "Nuorodos vengia laiptų ir pakopų. Stotelės lieka tos pačios.",
   "Enter each child's age, from 0 to 17.": "Įveskite kiekvieno vaiko amžių nuo 0 iki 17.",
-  "Everything’s <brand>{{name}}</brand>": "",
+  "Find your way <accent>around art</accent>": "",
   "Finding the museum and choosing the stops…": "Ieškomas muziejus ir renkamos stotelės…",
   "First visit": "Pirmas apsilankymas",
   "Have you been here before?": "Ar jau esi čia buvęs?",
@@ -67,6 +67,7 @@
   "Their ages choose easier contents and children's versions.": "Pagal amžių parenkamas lengvesnis turinys ir versijos vaikams.",
   "This museum has no free contents to visit yet.": "Šiame muziejuje dar nėra nemokamo turinio lankymui.",
   "Too many visits planned in a short time. Try again in a minute.": "Per trumpą laiką suplanuota per daug apsilankymų. Bandykite po minutės.",
+  "Tours by museums, curators and creators, in your language and at your pace.": "",
   "Wheelchair-accessible route": "Neįgaliųjų vežimėliui pritaikytas maršrutas",
   "Writing down your words…": "Užrašomi jūsų žodžiai…"
 }

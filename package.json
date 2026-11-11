@@ -55,7 +55,6 @@
     "@gfazioli/mantine-border-animate": "^3.0.2",
     "@gfazioli/mantine-depth-select": "^2.0.13",
     "@gfazioli/mantine-qr-code": "^2.0.10",
-    "@gfazioli/mantine-text-animate": "^4.0.10",
     "@hey-api/client-next": "^0.5.1",
     "@livekit/components-react": "^2.0.0",
     "@livekit/components-styles": "^1.2.0",

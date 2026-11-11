@@ -7,7 +7,6 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { Trans, useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
-import { APP_NAME } from '@/lib/app-name'
 import { NavigatorSearch } from './NavigatorSearch'
 
 /** The bordered card both ways to start a visit share. */
@@ -214,8 +213,12 @@ export default function NavigatorHomePage({
   )
 }
 
-/** The app's name in the home title's gradient, kept on one line. */
-function BrandName({ children }: { children?: ReactNode }) {
+/**
+ * The title's one accented phrase (DESIGN.md → Gradient-Span Rule), kept on
+ * one line. "Around art" echoes the app's name, so the brand stays in the
+ * title without the title being only the brand.
+ */
+function TitleAccent({ children }: { children?: ReactNode }) {
   return (
     <Text
       span
@@ -230,24 +233,50 @@ function BrandName({ children }: { children?: ReactNode }) {
 }
 
 /**
- * The home's h1, translated with the brand kept whole and in its gradient.
- * It wraps between words (a non-breaking space here pushed the page to 406px
- * on a 390px phone) and balances its lines.
+ * The home's h1 and the line under it. The title names the visitor's task
+ * ("Find your way around art") instead of a slogan, and is the page's one
+ * bold move: display size, heavy weight, tight leading, fluid between phone
+ * and desktop (`clamp`), with no motion around it. The line under it says
+ * who makes the tours and the promise that sets ArtAround apart, the visit
+ * adapting to the visitor. Both wrap between words and balance their lines.
  */
 function NavigationHomeTitle() {
   const { t } = useTranslation('plan-visit')
   return (
-    <Title ta="center" order={1} textWrap="balance">
-      {/* Children: what renders without an i18next instance (Storybook);
-          with one, the translation of `i18nKey` replaces them. */}
-      <Trans
-        t={t}
-        i18nKey="Everything’s <brand>{{name}}</brand>"
-        values={{ name: APP_NAME }}
-        components={{ brand: <BrandName /> }}
+    <Stack gap="xs" align="center">
+      <Title
+        ta="center"
+        order={1}
+        textWrap="balance"
+        size="clamp(2.25rem, 1.5rem + 3.2vw, 3.75rem)"
+        fw={800}
+        lh={1.08}
+        className="tracking-[-0.02em]"
       >
-        Everything’s <BrandName>{APP_NAME}</BrandName>
-      </Trans>
-    </Title>
+        {/* Children: what renders without an i18next instance (Storybook);
+            with one, the translation of `i18nKey` replaces them. */}
+        <Trans
+          t={t}
+          i18nKey="Find your way <accent>around art</accent>"
+          // Named tags as the English value: from the children alone the
+          // extractor would write `<1>` placeholders into en.json.
+          defaults="Find your way <accent>around art</accent>"
+          components={{ accent: <TitleAccent /> }}
+        >
+          Find your way <TitleAccent>around art</TitleAccent>
+        </Trans>
+      </Title>
+      {/* Hidden on short screens: there the start cards need the height
+          (the phone home fits one screen), and the title already says it. */}
+      <Text
+        ta="center"
+        c="dimmed"
+        textWrap="balance"
+        maw="32rem"
+        className="[@media(max-height:700px)]:hidden"
+      >
+        {t('Tours by museums, curators and creators, in your language and at your pace.')}
+      </Text>
+    </Stack>
   )
 }
