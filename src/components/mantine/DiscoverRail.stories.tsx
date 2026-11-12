@@ -61,7 +61,8 @@ export const Tours: Story = {
       'href',
       '/en/tour/t1',
     )
-    await expect(canvas.getByText('6 stops')).toBeVisible()
+    // Figures: the minutes (formatted by Intl, so they show without i18next).
+    await expect(canvas.getByText('60 min')).toBeVisible()
     await expect(canvas.getAllByRole('heading', { level: 3 })).toHaveLength(tours.length)
   },
 }

@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Muuseumid",
+  "Museums near you": "Muuseumid sinu lähedal",
+  "New tours": "Uued tuurid",
+  "Next": "Järgmised",
+  "Previous": "Eelmised",
+  "Quick visits": "Kiired külastused",
+  "See all": "Vaata kõiki",
+  "Step-free tours": "Trepivabad tuurid",
+  "Tours at {{museum}}": "Tuurid: {{museum}}",
+  "Tours in {{category}}": "Tuurid: {{category}}",
+  "Tours with a final quiz": "Lõpuviktoriiniga tuurid",
+  "Use my location": "Kasuta minu asukohta"
 }

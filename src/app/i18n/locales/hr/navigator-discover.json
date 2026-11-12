@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Muzeji",
+  "Museums near you": "Muzeji u tvojoj blizini",
+  "New tours": "Nove ture",
+  "Next": "Sljedeće",
+  "Previous": "Prethodne",
+  "Quick visits": "Brzi posjeti",
+  "See all": "Prikaži sve",
+  "Step-free tours": "Ture bez stuba",
+  "Tours at {{museum}}": "Ture: {{museum}}",
+  "Tours in {{category}}": "Ture: {{category}}",
+  "Tours with a final quiz": "Ture sa završnim kvizom",
+  "Use my location": "Koristi moju lokaciju"
 }

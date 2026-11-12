@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Museer",
+  "Museums near you": "Museer nær dig",
+  "New tours": "Nye ture",
+  "Next": "Næste",
+  "Previous": "Forrige",
+  "Quick visits": "Hurtige besøg",
+  "See all": "Se alle",
+  "Step-free tours": "Trinfri ture",
+  "Tours at {{museum}}": "Ture: {{museum}}",
+  "Tours in {{category}}": "Ture: {{category}}",
+  "Tours with a final quiz": "Ture med afsluttende quiz",
+  "Use my location": "Brug min placering"
 }

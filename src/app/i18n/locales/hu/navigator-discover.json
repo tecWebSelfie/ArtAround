@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Múzeumok",
+  "Museums near you": "Múzeumok a közeledben",
+  "New tours": "Új túrák",
+  "Next": "Következők",
+  "Previous": "Előzők",
+  "Quick visits": "Rövid látogatások",
+  "See all": "Összes megtekintése",
+  "Step-free tours": "Akadálymentes túrák",
+  "Tours at {{museum}}": "Túrák: {{museum}}",
+  "Tours in {{category}}": "Túrák: {{category}}",
+  "Tours with a final quiz": "Túrák záró kvízzel",
+  "Use my location": "Saját helyzetem használata"
 }

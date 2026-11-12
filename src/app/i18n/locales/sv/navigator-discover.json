@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Museer",
+  "Museums near you": "Museer nära dig",
+  "New tours": "Nya turer",
+  "Next": "Nästa",
+  "Previous": "Föregående",
+  "Quick visits": "Korta besök",
+  "See all": "Visa alla",
+  "Step-free tours": "Steglösa turer",
+  "Tours at {{museum}}": "Turer: {{museum}}",
+  "Tours in {{category}}": "Turer: {{category}}",
+  "Tours with a final quiz": "Turer med slutquiz",
+  "Use my location": "Använd min plats"
 }

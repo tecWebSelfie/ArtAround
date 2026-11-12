@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Múzeá",
+  "Museums near you": "Múzeá v tvojom okolí",
+  "New tours": "Nové prehliadky",
+  "Next": "Ďalšie",
+  "Previous": "Predchádzajúce",
+  "Quick visits": "Rýchle návštevy",
+  "See all": "Zobraziť všetky",
+  "Step-free tours": "Bezbariérové prehliadky",
+  "Tours at {{museum}}": "Prehliadky: {{museum}}",
+  "Tours in {{category}}": "Prehliadky: {{category}}",
+  "Tours with a final quiz": "Prehliadky so záverečným kvízom",
+  "Use my location": "Použiť moju polohu"
 }

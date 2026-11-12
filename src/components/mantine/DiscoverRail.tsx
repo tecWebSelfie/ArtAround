@@ -3,11 +3,10 @@
 /**
  * The navigator home's discover rails (surface brief:
  * `.impeccable/surfaces/frontend-tabs-navigator-navigatorpage-tsx-*.md`): a
- * titled section holding one row of square cover cards scrolled by hand,
- * never auto-advancing. Same card language as `ContentsCarousel` and
- * `ObjectsCarousel` (cover photo, bottom scrim, white title and figures),
- * with the outline naming the kind: grape for tours (DESIGN.md → Colors),
- * the museum's own color for museums.
+ * titled section holding one row of square cover cards (`CoverCard`, as in
+ * `ContentsCarousel` and `ObjectsCarousel`) scrolled by hand, never
+ * auto-advancing. The outline names the kind: grape for tours (DESIGN.md →
+ * Colors), the museum's own color for museums.
  *
  * A client module taking serializable props, so the server rail
  * (`DiscoverSections`) and the client ones (`RotatingRail`, `MuseumsRail`)
@@ -15,10 +14,10 @@
  * stop counts), so callers pass only their data and title.
  */
 import { formatUnit } from '@/lib/duration'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import type { RailMuseum, RailTour } from '@/lib/discover'
-import { Carousel, CarouselSlide } from '@mantine/carousel'
-import { Anchor, AspectRatio, BackgroundImage, Group, Stack, Title } from '@mantine/core'
+import { Carousel } from '@mantine/carousel'
+import { Anchor, Group, Stack, Title } from '@mantine/core'
+import { CoverCard } from './CoverCard'
 import { Clock, MapPin, Navigation } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Route } from 'next'
@@ -39,7 +38,7 @@ export function DiscoverRail({
   title: string
   /** The header's trailing control: `SeeAllLink` or "Use my location". */
   action?: ReactNode
-  /** `RailCard`s (each is its own carousel slide). */
+  /** `CoverCard`s (each is its own carousel slide). */
   children: ReactNode
 }) {
   const { t } = useTranslation('navigator-discover')
@@ -83,52 +82,12 @@ export function SeeAllLink({ href }: { href: Route }) {
   )
 }
 
-/** One cover card: the whole card is one link, named by its title and figures. */
-export function RailCard({
-  href,
-  imageUrl,
-  title,
-  facts,
-  color,
-}: {
-  href: Route
-  imageUrl: string | null
-  title: string
-  facts: ReactNode
-  /** The outline's color (the kind's, or a museum's own); the default border without one. */
-  color: string | null
-}) {
+/** A card's figures: one line of icon-led facts in the scrim's white. */
+function RailFacts({ children }: { children: ReactNode }) {
   return (
-    <CarouselSlide>
-      <Link
-        href={href}
-        className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)"
-      >
-        <AspectRatio ratio={1 / 1}>
-          <BackgroundImage
-            src={imageUrl ?? PLACEHOLDER_IMAGE}
-            className="overflow-hidden rounded-xl border-2 border-solid border-(--mantine-color-default-border) transition-transform duration-300 hover:scale-[1.02]"
-            // A museum's color is data, not a token: the one inline value.
-            style={color ? { borderColor: color } : undefined}
-          >
-            {/* Bottom scrim: white type stays readable on any photograph. */}
-            <Stack
-              justify="flex-end"
-              gap={6}
-              className="h-full bg-linear-to-t from-black/75 via-black/15 to-transparent"
-              p="sm"
-            >
-              <Title order={3} size="h6" c="white" lineClamp={2}>
-                {title}
-              </Title>
-              <Group gap="sm" c="white" fz="xs" fw={500}>
-                {facts}
-              </Group>
-            </Stack>
-          </BackgroundImage>
-        </AspectRatio>
-      </Link>
-    </CarouselSlide>
+    <Group gap="sm" c="white" fz="xs" fw={500}>
+      {children}
+    </Group>
   )
 }
 
@@ -156,21 +115,20 @@ export function TourRail({
   return (
     <DiscoverRail title={title} action={<SeeAllLink href={seeAllHref} />}>
       {tours.map((tour) => (
-        <RailCard
+        <CoverCard
           key={tour.id}
           href={`/${lng}/tour/${tour.id}` as Route}
           imageUrl={tour.imageUrl}
           title={tour.title}
-          color={TOUR_OUTLINE}
-          facts={
-            <>
-              <RailFact icon={MapPin}>{t('{{count}} stops', { count: tour.stops })}</RailFact>
-              {tour.minutes != null && (
-                <RailFact icon={Clock}>{formatUnit(tour.minutes, 'minute', lng)}</RailFact>
-              )}
-            </>
-          }
-        />
+          outline={TOUR_OUTLINE}
+        >
+          <RailFacts>
+            <RailFact icon={MapPin}>{t('{{count}} stops', { count: tour.stops })}</RailFact>
+            {tour.minutes != null && (
+              <RailFact icon={Clock}>{formatUnit(tour.minutes, 'minute', lng)}</RailFact>
+            )}
+          </RailFacts>
+        </CoverCard>
       ))}
     </DiscoverRail>
   )
@@ -186,26 +144,25 @@ export function MuseumRailCard({
 }) {
   const { lng } = useParams<{ lng: string }>()
   return (
-    <RailCard
+    <CoverCard
       href={`/${lng}/museum/${museum.id}` as Route}
       imageUrl={museum.imageUrl}
       title={museum.name}
-      color={museum.color}
-      facts={
-        <>
-          {museum.city && <RailFact icon={MapPin}>{museum.city}</RailFact>}
-          {distanceKm != null && (
-            <RailFact icon={Navigation}>
-              {/* One decimal under 10 km, whole kilometres beyond. */}
-              {formatUnit(
-                distanceKm < 10 ? Math.round(distanceKm * 10) / 10 : Math.round(distanceKm),
-                'kilometer',
-                lng,
-              )}
-            </RailFact>
-          )}
-        </>
-      }
-    />
+      outline={museum.color}
+    >
+      <RailFacts>
+        {museum.city && <RailFact icon={MapPin}>{museum.city}</RailFact>}
+        {distanceKm != null && (
+          <RailFact icon={Navigation}>
+            {/* One decimal under 10 km, whole kilometres beyond. */}
+            {formatUnit(
+              distanceKm < 10 ? Math.round(distanceKm * 10) / 10 : Math.round(distanceKm),
+              'kilometer',
+              lng,
+            )}
+          </RailFact>
+        )}
+      </RailFacts>
+    </CoverCard>
   )
 }

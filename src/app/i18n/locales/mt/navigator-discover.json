@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Mużewijiet",
+  "Museums near you": "Mużewijiet qribek",
+  "New tours": "Tours ġodda",
+  "Next": "Li jmiss",
+  "Previous": "Ta’ qabel",
+  "Quick visits": "Żjarat qosra",
+  "See all": "Ara kollox",
+  "Step-free tours": "Tours mingħajr taraġ",
+  "Tours at {{museum}}": "Tours: {{museum}}",
+  "Tours in {{category}}": "Tours: {{category}}",
+  "Tours with a final quiz": "Tours b’kwiż finali",
+  "Use my location": "Uża l-post tiegħi"
 }

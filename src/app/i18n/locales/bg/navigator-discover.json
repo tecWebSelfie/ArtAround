@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Музеи",
+  "Museums near you": "Музеи близо до теб",
+  "New tours": "Нови обиколки",
+  "Next": "Следващи",
+  "Previous": "Предишни",
+  "Quick visits": "Кратки посещения",
+  "See all": "Виж всички",
+  "Step-free tours": "Обиколки без стъпала",
+  "Tours at {{museum}}": "Обиколки: {{museum}}",
+  "Tours in {{category}}": "Обиколки: {{category}}",
+  "Tours with a final quiz": "Обиколки с финален тест",
+  "Use my location": "Използвай местоположението ми"
 }

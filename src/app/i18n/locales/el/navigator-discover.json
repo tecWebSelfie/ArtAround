@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Μουσεία",
+  "Museums near you": "Μουσεία κοντά σου",
+  "New tours": "Νέες ξεναγήσεις",
+  "Next": "Επόμενα",
+  "Previous": "Προηγούμενα",
+  "Quick visits": "Σύντομες επισκέψεις",
+  "See all": "Δες όλα",
+  "Step-free tours": "Ξεναγήσεις χωρίς σκαλιά",
+  "Tours at {{museum}}": "Ξεναγήσεις: {{museum}}",
+  "Tours in {{category}}": "Ξεναγήσεις: {{category}}",
+  "Tours with a final quiz": "Ξεναγήσεις με τελικό κουίζ",
+  "Use my location": "Χρησιμοποίησε την τοποθεσία μου"
 }

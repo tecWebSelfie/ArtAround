@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Músaeim",
+  "Museums near you": "Músaeim in aice leat",
+  "New tours": "Turais nua",
+  "Next": "Ar aghaidh",
+  "Previous": "Siar",
+  "Quick visits": "Cuairteanna gasta",
+  "See all": "Féach orthu go léir",
+  "Step-free tours": "Turais gan chéimeanna",
+  "Tours at {{museum}}": "Turais: {{museum}}",
+  "Tours in {{category}}": "Turais: {{category}}",
+  "Tours with a final quiz": "Turais le tráth na gceist deiridh",
+  "Use my location": "Úsáid mo shuíomh"
 }

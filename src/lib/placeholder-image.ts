@@ -17,9 +17,9 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" vi
 </svg>`
 
 // Parentheses encoded too (`encodeURIComponent` keeps them): Mantine's
-// `BackgroundImage` writes `url(${src})` unquoted, and the SVG's own
-// `url(#g)` / `translate(…)` closed that `url(` early, so the carousels'
-// cards showed no picture at all.
+// `BackgroundImage` writes `url(${src})` unquoted (the tour deck still uses
+// it; `CoverCard` quotes its URL), and the SVG's own `url(#g)` /
+// `translate(…)` closed that `url(` early, so the card showed no picture.
 export const PLACEHOLDER_IMAGE = `data:image/svg+xml,${encodeURIComponent(svg)
   .replaceAll('(', '%28')
   .replaceAll(')', '%29')}`

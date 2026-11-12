@@ -22,10 +22,17 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
   ])
 
   // Phones and tablets: a column at least one screen tall, so a tab page can
-  // fill the height between the top controls and the tab bar (the navigator
-  // home fits one screen this way). From md the pages simply flow.
+  // fill the height between the top controls and the tab bar. From md the
+  // pages simply flow.
+  // `--tabs-first-screen` is that height: the screen minus the top row
+  // (`--tabs-top-row`, which the row keeps as its height) and the room the
+  // tab bar takes (`--tabs-bottom`). A page that scrolls past one screen
+  // (the navigator home, with its rails) sizes its first screen with it.
   return (
-    <Stack gap={0} className="below-md:min-h-dvh">
+    <Stack
+      gap={0}
+      className="below-md:min-h-dvh [--tabs-top-row:3rem] below-md:[--tabs-bottom:calc(var(--app-shell-footer-offset,0rem)+env(safe-area-inset-bottom)+var(--mantine-spacing-md))] [--tabs-first-screen:calc(100dvh-var(--tabs-top-row)-var(--tabs-bottom))]"
+    >
       {/* The app's name, then the context controls (language, museum scope):
           up here so the bottom bar keeps only the tabs and account entries.
           The wordmark gives the row (and the marketplace, which has no brand
@@ -36,7 +43,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
         justify="space-between"
         gap="xs"
         wrap="nowrap"
-        className="px-(--mantine-spacing-md) from-sm:px-(--mantine-spacing-xl)"
+        className="min-h-(--tabs-top-row) px-(--mantine-spacing-md) from-sm:px-(--mantine-spacing-xl)"
         pt="sm"
       >
         <Link
@@ -65,15 +72,9 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
           start over and fetch again within the new scope.
           Below md the tab bar is fixed over the page and these pages aren't in
           `AppShellMain`, so reserve its height (offset + safe area, as Mantine
-          sizes the footer) plus a gap: the last row stays reachable. */}
-      <Stack
-        key={currentMuseum?.id ?? 'all'}
-        flex={1}
-        pb={{
-          base: 'calc(var(--app-shell-footer-offset, 0rem) + env(safe-area-inset-bottom) + var(--mantine-spacing-md))',
-          md: 0,
-        }}
-      >
+          sizes the footer) plus a gap: the last row stays reachable
+          (`--tabs-bottom`). */}
+      <Stack key={currentMuseum?.id ?? 'all'} flex={1} className="below-md:pb-(--tabs-bottom)">
         {children}
       </Stack>
       <AppShellFooter component="nav" hiddenFrom="md">

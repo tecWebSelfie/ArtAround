@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Muzeji",
+  "Museums near you": "Muzeji tavā tuvumā",
+  "New tours": "Jaunas tūres",
+  "Next": "Nākamie",
+  "Previous": "Iepriekšējie",
+  "Quick visits": "Īsi apmeklējumi",
+  "See all": "Skatīt visus",
+  "Step-free tours": "Tūres bez pakāpieniem",
+  "Tours at {{museum}}": "Tūres: {{museum}}",
+  "Tours in {{category}}": "Tūres: {{category}}",
+  "Tours with a final quiz": "Tūres ar noslēguma viktorīnu",
+  "Use my location": "Izmantot manu atrašanās vietu"
 }

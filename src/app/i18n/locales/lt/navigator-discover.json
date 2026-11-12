@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Muziejai",
+  "Museums near you": "Muziejai netoli tavęs",
+  "New tours": "Nauji turai",
+  "Next": "Kiti",
+  "Previous": "Ankstesni",
+  "Quick visits": "Trumpi apsilankymai",
+  "See all": "Rodyti visus",
+  "Step-free tours": "Turai be laiptų",
+  "Tours at {{museum}}": "Turai: {{museum}}",
+  "Tours in {{category}}": "Turai: {{category}}",
+  "Tours with a final quiz": "Turai su baigiamąja viktorina",
+  "Use my location": "Naudoti mano vietą"
 }

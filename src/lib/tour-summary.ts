@@ -44,8 +44,12 @@ export function readingMinutes(stops: Tour['contents']): number | null {
  * has one, else the reading time of its stops. The tour page and the
  * navigator home's rails (`src/lib/discover.ts`) count it this one way.
  */
-export function visitMinutes(tour: Pick<Tour, 'durationMinutes' | 'contents'>): number | null {
-  return tour.durationMinutes ?? readingMinutes(tour.contents)
+export function visitMinutes(
+  tour: Pick<Tour, 'durationMinutes' | 'contents'>,
+  /** The stops' reading time, when the caller has it already. */
+  reading: () => number | null = () => readingMinutes(tour.contents),
+): number | null {
+  return tour.durationMinutes ?? reading()
 }
 
 export function summarizeTour(tour: Tour): TourSummary {
@@ -57,7 +61,7 @@ export function summarizeTour(tour: Tour): TourSummary {
     // Unpopulated relations still count as stops: the order is the tour.
     stops: tour.contents?.length ?? 0,
     readingMinutes: reading,
-    visitMinutes: visitMinutes(tour),
+    visitMinutes: visitMinutes(tour, () => reading),
     distanceMeters: tour.distanceMeters ?? null,
     wheelchairAccessible: Boolean(tour.wheelchairAccessible),
     quizQuestions: tour.quiz?.questions?.length ?? 0,

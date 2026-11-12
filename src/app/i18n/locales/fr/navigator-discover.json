@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Musées",
+  "Museums near you": "Musées près de toi",
+  "New tours": "Nouveaux parcours",
+  "Next": "Suivants",
+  "Previous": "Précédents",
+  "Quick visits": "Visites rapides",
+  "See all": "Tout voir",
+  "Step-free tours": "Parcours sans marches",
+  "Tours at {{museum}}": "Parcours : {{museum}}",
+  "Tours in {{category}}": "Parcours : {{category}}",
+  "Tours with a final quiz": "Parcours avec quiz final",
+  "Use my location": "Utiliser ma position"
 }

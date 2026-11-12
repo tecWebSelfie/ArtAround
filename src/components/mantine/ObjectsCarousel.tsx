@@ -1,13 +1,11 @@
 import type { Route } from 'next'
-import Link from 'next/link'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
-import { Carousel, CarouselProps, CarouselSlide } from '@mantine/carousel'
-import { AspectRatio, BackgroundImage, Stack, Text, Title } from '@mantine/core'
-import { ComponentProps } from 'react'
+import { Carousel, CarouselProps } from '@mantine/carousel'
+import { Stack, Text, Title } from '@mantine/core'
 
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
+import { CoverCard } from './CoverCard'
 
 /**
  * The museum's objects as a swipeable row of square cards. Each card is one
@@ -55,44 +53,22 @@ export const ObjectsCarousel = async ({
   )
 }
 
-const CarouselCard = async ({
-  object,
-  ...props
-}: ComponentProps<typeof CarouselSlide> & { object: PayloadObject }) => {
+const CarouselCard = async ({ object }: { object: PayloadObject }) => {
   const { lng } = await getT('objects-carousel')
   const thumbnail = isPopulated(object.thumbnail) ? object.thumbnail : null
   const facts = [object.artist, object.dating].filter(Boolean).join(' · ')
 
   return (
-    <CarouselSlide {...props}>
-      <Link
-        href={`/${lng}/object/${object.id}` as Route}
-        className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)"
-      >
-        <AspectRatio ratio={1 / 1}>
-          <BackgroundImage
-            className="overflow-hidden rounded-xl transition-transform duration-300 hover:scale-[1.02]"
-            src={thumbnail?.url ?? PLACEHOLDER_IMAGE}
-          >
-            {/* Bottom scrim: white type stays readable on any photograph. */}
-            <Stack
-              justify="flex-end"
-              gap={2}
-              className="h-full bg-linear-to-t from-black/75 via-black/15 to-transparent"
-              p="sm"
-            >
-              <Title order={3} size="h6" c="white" lineClamp={2}>
-                {object.name}
-              </Title>
-              {facts && (
-                <Text size="xs" c="gray.3" lineClamp={1}>
-                  {facts}
-                </Text>
-              )}
-            </Stack>
-          </BackgroundImage>
-        </AspectRatio>
-      </Link>
-    </CarouselSlide>
+    <CoverCard
+      href={`/${lng}/object/${object.id}` as Route}
+      imageUrl={thumbnail?.url}
+      title={object.name}
+    >
+      {facts && (
+        <Text size="xs" c="gray.3" lineClamp={1}>
+          {facts}
+        </Text>
+      )}
+    </CoverCard>
   )
 }

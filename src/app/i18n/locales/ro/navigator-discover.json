@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Muzee",
+  "Museums near you": "Muzee în apropiere",
+  "New tours": "Tururi noi",
+  "Next": "Următoarele",
+  "Previous": "Precedentele",
+  "Quick visits": "Vizite scurte",
+  "See all": "Vezi toate",
+  "Step-free tours": "Tururi fără trepte",
+  "Tours at {{museum}}": "Tururi: {{museum}}",
+  "Tours in {{category}}": "Tururi: {{category}}",
+  "Tours with a final quiz": "Tururi cu test final",
+  "Use my location": "Folosește locația mea"
 }

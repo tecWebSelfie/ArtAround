@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T01:43:45Z",
+  "generatedAt": "2026-11-12T19:23:59Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -827,6 +827,13 @@
       "css": ".ds-start{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-block{display:flex;min-width:0;flex-direction:column;gap:10px;padding:12px 16px;border-radius:16px;text-decoration:none;transition:background-color .15s ease,box-shadow .15s ease}.ds-start-head{display:flex;align-items:center;justify-content:space-between}.ds-start-title{font-weight:700;line-height:1.25;text-wrap:balance}.ds-start-line{font-size:14px;line-height:1.35}.ds-start-filled{background:#0077d1;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05)}.ds-start-filled:hover{background:#0065bd;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-light{background:#ddecfd;color:#0065bd}.ds-start-light:hover{background:#c0dcfa}.ds-start-block:focus-visible{outline:2px solid #0077d1;outline-offset:2px}"
     },
     {
+      "name": "Discover rails",
+      "kind": "card",
+      "description": "At most two titled rows under the navigator home ways in: the context rail (the locked museum tours, or museums, nearest first once a position is shared) and one rotating collection per visit, named by its criterion. Each rail: an h2 at h5 size with a trailing See all link, then square cover cards (CoverCard) scrolled by hand: photo under a bottom black scrim, white title and figures, a 2px outline naming the kind (grape tours, a museum own color).",
+      "html": "<section class=\"ds-rail\"><div class=\"ds-rail-head\"><h2>Quick visits</h2><a href=\"#\">See all</a></div><div class=\"ds-rail-row\"><a class=\"ds-cover\" href=\"#\" style=\"border-color:undefined\"><span class=\"ds-cover-scrim\"><span class=\"ds-cover-title\">Masterpieces in an hour</span><span class=\"ds-cover-facts\">6 stops · 60 min</span></span></a><a class=\"ds-cover\" href=\"#\" style=\"border-color:undefined\"><span class=\"ds-cover-scrim\"><span class=\"ds-cover-title\">Light and colour</span><span class=\"ds-cover-facts\">4 stops · 25 min</span></span></a><a class=\"ds-cover\" href=\"#\" style=\"border-color:undefined\"><span class=\"ds-cover-scrim\"><span class=\"ds-cover-title\">Faces of the Renaissance</span><span class=\"ds-cover-facts\">8 stops · 45 min</span></span></a></div></section>",
+      "css": ".ds-rail{max-width:520px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;overflow:hidden}.ds-rail-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.ds-rail-head h2{font-size:18px;margin:0}.ds-rail-head a{font-size:14px;font-weight:600;color:#0077d1;text-decoration:none}.ds-rail-row{display:flex;gap:10px}.ds-cover{flex:0 0 60%;aspect-ratio:1;border:2px solid;border-radius:16px;overflow:hidden;background:linear-gradient(135deg,#f1f3f5,#dee2e6);display:block;text-decoration:none}.ds-cover-scrim{display:flex;flex-direction:column;justify-content:flex-end;gap:6px;height:100%;padding:12px;box-sizing:border-box;background:linear-gradient(to top,rgba(0,0,0,.75),rgba(0,0,0,.15),transparent)}.ds-cover-title{color:#fff;font-weight:700;font-size:15px}.ds-cover-facts{color:#fff;font-size:12px;font-weight:500}"
+    },
+    {
       "name": "Group code field",
       "kind": "input",
       "refersTo": "join-code-field",
@@ -1039,7 +1046,8 @@
       "**Do** build sign-in, sign-up and checkout outcomes from the existing planner column and focused-task patterns rather than new chrome.",
       "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began.",
       "**Do** open a detail page with its `DetailCover`, and let it carry the pictures (lightbox) and the 3D model; draw pictures at a generated size (see The Generated Size Rule).",
-      "Do keep the navigator's three ways in (search, the two start blocks, the group form) on a phone's first screen; let the space above the title give way first, and scroll rather than shrink their text."
+      "Do keep the navigator's three ways in (search, the two start blocks, the group form) on a phone's first screen; let the space above the title give way first, and scroll rather than shrink their text.",
+      "Do keep the navigator home to at most two discover rails, each named by what it holds; browsing every collection is the marketplace job."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",

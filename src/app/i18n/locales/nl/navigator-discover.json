@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Musea",
+  "Museums near you": "Musea bij jou in de buurt",
+  "New tours": "Nieuwe tours",
+  "Next": "Volgende",
+  "Previous": "Vorige",
+  "Quick visits": "Korte bezoeken",
+  "See all": "Alles bekijken",
+  "Step-free tours": "Drempelvrije tours",
+  "Tours at {{museum}}": "Tours: {{museum}}",
+  "Tours in {{category}}": "Tours: {{category}}",
+  "Tours with a final quiz": "Tours met eindquiz",
+  "Use my location": "Mijn locatie gebruiken"
 }

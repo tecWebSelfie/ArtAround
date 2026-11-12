@@ -1,14 +1,14 @@
 {
-  "Museums": "",
-  "Museums near you": "",
-  "New tours": "",
-  "Next": "",
-  "Previous": "",
-  "Quick visits": "",
-  "See all": "",
-  "Step-free tours": "",
-  "Tours at {{museum}}": "",
-  "Tours in {{category}}": "",
-  "Tours with a final quiz": "",
-  "Use my location": ""
+  "Museums": "Museot",
+  "Museums near you": "Museot lähelläsi",
+  "New tours": "Uudet kierrokset",
+  "Next": "Seuraavat",
+  "Previous": "Edelliset",
+  "Quick visits": "Nopeat käynnit",
+  "See all": "Näytä kaikki",
+  "Step-free tours": "Esteettömät kierrokset",
+  "Tours at {{museum}}": "Kierrokset: {{museum}}",
+  "Tours in {{category}}": "Kierrokset: {{category}}",
+  "Tours with a final quiz": "Kierrokset loppuvisalla",
+  "Use my location": "Käytä sijaintiani"
 }

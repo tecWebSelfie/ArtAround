@@ -99,60 +99,66 @@ export default function NavigatorHomePage({
       component="main"
       className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl)"
       flex={1}
-      // Explicit: the spacer below cancels this gap (`--stack-gap`).
+      // Between the first screen and the rails.
       gap="md"
     >
-      {/* Space above the title: 10dvh (6dvh from md, under the site
-          header). On an upright phone it shrinks with the screen's height,
-          down to `sm` on short ones, so the ways in still land on the first
-          screen: the rails below make the page scroll, so free height can no
-          longer size it. It cancels the gap after it (a top margin). */}
-      <Box
-        aria-hidden
-        className="-mb-(--stack-gap) h-[10dvh] shrink-0 from-md:h-[6dvh] fit-screen:h-[clamp(var(--mantine-spacing-sm),30dvh-11rem,10dvh)]"
-      />
-      {/* The search keeps a search-sized measure on wide screens. */}
-      <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
-        <NavigationHomeTitle />
-        <NavigatorSearch lng={lng} onNavigate={(href) => router.push(href as Route)} />
-      </Stack>
-      <Divider
-        className="my-(--mantine-spacing-xs) from-md:my-(--mantine-spacing-md)"
-        label={t('Or')}
-        // The theme's readable supporting tone, in either scheme (a fixed
-        // gray.7 was 1.9:1 on the dark page).
-        styles={{ label: { color: 'var(--mantine-color-dimmed)' } }}
-      />
-      {/* The three ways in, as one group. `lg` between the blocks and the
+      {/* The first screen: on an upright phone at least the height between
+          the top row and the tab bar (`--tabs-first-screen`, tabs layout),
+          so the space above the title can take what the ways in leave free
+          even though the rails below make the page scroll. */}
+      <Stack gap="md" className="fit-screen:min-h-(--tabs-first-screen)">
+        {/* Space above the title: 10dvh (6dvh from md, under the site
+          header); in fit mode free height up to that. A top margin that can
+          flex, hence cancelling the gap after it. */}
+        <Box
+          aria-hidden
+          className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+        />
+        {/* The search keeps a search-sized measure on wide screens. */}
+        <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
+          <NavigationHomeTitle />
+          <NavigatorSearch lng={lng} onNavigate={(href) => router.push(href as Route)} />
+        </Stack>
+        <Divider
+          className="my-(--mantine-spacing-xs) from-md:my-(--mantine-spacing-md)"
+          label={t('Or')}
+          // The theme's readable supporting tone, in either scheme (a fixed
+          // gray.7 was 1.9:1 on the dark page).
+          styles={{ label: { color: 'var(--mantine-color-dimmed)' } }}
+        />
+        {/* The three ways in, as one group. `lg` between the blocks and the
           group form: wider than the blocks' own `xs` gap, so the form reads
           as a tier of its own, and still closer than the "Or" rule, so the
           three stay together. */}
-      <Stack gap="lg" w="100%" className="mx-auto max-w-[45rem]">
-        {/* Scan and Plan, the two primary ways in: halves of one row, within
+        <Stack gap="lg" w="100%" className="mx-auto max-w-[45rem]">
+          {/* Scan and Plan, the two primary ways in: halves of one row, within
             the search's measure on wide screens. Scan opens the camera scanner
             (/scan); Plan my visit is a short form that builds a tour for the
             visitor's time, group and interests (tour/plan, /api/plan-tour). */}
-        <div className="grid grid-cols-2 gap-(--mantine-spacing-xs)">
-          <StartBlock
-            href={`/${lng}/scan` as Route}
-            icon={ScanLine}
-            tone="filled"
-            title={t('Scan a tour QR code to start')}
-            description={t(
-              'At the museum? Point the camera at the code by the entrance or next to a work',
-            )}
-          />
-          <StartBlock
-            href={`/${lng}/tour/plan` as Route}
-            icon={RouteIcon}
-            tone="light"
-            title={t('Plan a visit around your time')}
-            description={t('Tell us how much time you have and what you like: we build the route')}
-          />
-        </div>
-        {/* Group tours, the secondary way in (the code a guide, teacher or
+          <div className="grid grid-cols-2 gap-(--mantine-spacing-xs)">
+            <StartBlock
+              href={`/${lng}/scan` as Route}
+              icon={ScanLine}
+              tone="filled"
+              title={t('Scan a tour QR code to start')}
+              description={t(
+                'At the museum? Point the camera at the code by the entrance or next to a work',
+              )}
+            />
+            <StartBlock
+              href={`/${lng}/tour/plan` as Route}
+              icon={RouteIcon}
+              tone="light"
+              title={t('Plan a visit around your time')}
+              description={t(
+                'Tell us how much time you have and what you like: we build the route',
+              )}
+            />
+          </div>
+          {/* Group tours, the secondary way in (the code a guide, teacher or
             friend gives out; JoinGroupForm → /room/{code}). */}
-        <JoinGroupForm />
+          <JoinGroupForm />
+        </Stack>
       </Stack>
       {/* The discover rails: a section of their own, so more space above
           them than the ways in keep between themselves, and room below the
