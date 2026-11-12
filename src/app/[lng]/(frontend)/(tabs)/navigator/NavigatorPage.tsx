@@ -1,10 +1,12 @@
+'use client'
+
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { Box, Divider, Stack, Text, Title } from '@mantine/core'
 import { ChevronRight, Route as RouteIcon, ScanLine } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { Trans, useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { APP_NAME } from '@/lib/app-name'
@@ -66,8 +68,8 @@ function StartBlock({
 /**
  * Navigator home: the site search (Payload `search` collection, see
  * docs/search.md), then the ways to begin a visit: scan a QR, plan a visit,
- * join a group by its code. `lng` defaults to the route's; `onNavigate` lets
- * the page keep client-side navigation and stories intercept it.
+ * join a group by its code. `lng` defaults to the route's; search results
+ * open with client-side navigation (no full page reload).
  *
  * The two primary ways (scan a QR, plan a visit) are two blocks side by side
  * on one row, at every size (StartBlock); joining a group is the secondary
@@ -77,16 +79,20 @@ function StartBlock({
  * screen is short (the `fit-screen` spacer), and a screen too short for all
  * of it scrolls rather than squeeze text. From md the page sits in a bounded
  * centered column.
+ *
+ * `discover` (the page's `DiscoverSections`, streamed) follows the ways in:
+ * the rails that hint at what the app holds, below the first screen.
  */
 export default function NavigatorHomePage({
   lng: lngProp,
-  onNavigate,
+  discover,
 }: {
   lng?: string
-  onNavigate?: (href: string) => void
+  discover?: ReactNode
 }) {
   const { t } = useTranslation('plan-visit')
   const params = useParams<{ lng: string }>()
+  const router = useRouter()
   const lng = lngProp ?? params.lng
   return (
     <Stack
@@ -97,16 +103,18 @@ export default function NavigatorHomePage({
       gap="md"
     >
       {/* Space above the title: 10dvh (6dvh from md, under the site
-          header); in fit mode free height up to that. A top margin that can
-          flex, hence cancelling the gap after it. */}
+          header). On an upright phone it shrinks with the screen's height,
+          down to `sm` on short ones, so the ways in still land on the first
+          screen: the rails below make the page scroll, so free height can no
+          longer size it. It cancels the gap after it (a top margin). */}
       <Box
         aria-hidden
-        className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+        className="-mb-(--stack-gap) h-[10dvh] shrink-0 from-md:h-[6dvh] fit-screen:h-[clamp(var(--mantine-spacing-sm),30dvh-11rem,10dvh)]"
       />
       {/* The search keeps a search-sized measure on wide screens. */}
       <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
         <NavigationHomeTitle />
-        <NavigatorSearch lng={lng} onNavigate={onNavigate} />
+        <NavigatorSearch lng={lng} onNavigate={(href) => router.push(href as Route)} />
       </Stack>
       <Divider
         className="my-(--mantine-spacing-xs) from-md:my-(--mantine-spacing-md)"
@@ -146,6 +154,15 @@ export default function NavigatorHomePage({
             friend gives out; JoinGroupForm → /room/{code}). */}
         <JoinGroupForm />
       </Stack>
+      {/* The discover rails: a section of their own, so more space above
+          them than the ways in keep between themselves, and room below the
+          last one before the tab bar. Full column width: the rails show
+          more cards per view on wide screens than the 720px measure would. */}
+      {discover && (
+        <Box w="100%" className="mt-(--mantine-spacing-xl) pb-(--mantine-spacing-xl)">
+          {discover}
+        </Box>
+      )}
     </Stack>
   )
 }

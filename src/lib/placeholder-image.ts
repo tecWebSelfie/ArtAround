@@ -16,4 +16,10 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" vi
 <rect x="3" y="3" width="66" height="66" rx="8"/><circle cx="24" cy="24" r="6"/><path d="m69 47-12-12a6 6 0 0 0-8 0L13 69"/></g>
 </svg>`
 
-export const PLACEHOLDER_IMAGE = `data:image/svg+xml,${encodeURIComponent(svg)}`
+// Parentheses encoded too (`encodeURIComponent` keeps them): Mantine's
+// `BackgroundImage` writes `url(${src})` unquoted, and the SVG's own
+// `url(#g)` / `translate(…)` closed that `url(` early, so the carousels'
+// cards showed no picture at all.
+export const PLACEHOLDER_IMAGE = `data:image/svg+xml,${encodeURIComponent(svg)
+  .replaceAll('(', '%28')
+  .replaceAll(')', '%29')}`

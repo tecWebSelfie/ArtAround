@@ -39,6 +39,15 @@ export function readingMinutes(stops: Tour['contents']): number | null {
     : null
 }
 
+/**
+ * How long the visit takes, in minutes: the planner's estimate when the tour
+ * has one, else the reading time of its stops. The tour page and the
+ * navigator home's rails (`src/lib/discover.ts`) count it this one way.
+ */
+export function visitMinutes(tour: Pick<Tour, 'durationMinutes' | 'contents'>): number | null {
+  return tour.durationMinutes ?? readingMinutes(tour.contents)
+}
+
 export function summarizeTour(tour: Tour): TourSummary {
   const contents = filterPopulated<Content>(tour.contents)
   const reading = readingMinutes(tour.contents)
@@ -48,7 +57,7 @@ export function summarizeTour(tour: Tour): TourSummary {
     // Unpopulated relations still count as stops: the order is the tour.
     stops: tour.contents?.length ?? 0,
     readingMinutes: reading,
-    visitMinutes: tour.durationMinutes ?? reading,
+    visitMinutes: visitMinutes(tour),
     distanceMeters: tour.distanceMeters ?? null,
     wheelchairAccessible: Boolean(tour.wheelchairAccessible),
     quizQuestions: tour.quiz?.questions?.length ?? 0,

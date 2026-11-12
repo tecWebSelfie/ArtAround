@@ -20,7 +20,7 @@ export type GpsFix = { latitude: number; longitude: number; accuracy: number }
 /** Fixes worse than this many metres are ignored instead of moving the estimate. */
 export const MAX_ACCURACY_METRES = 50
 
-const EARTH_RADIUS_METRES = 6_371_000
+export const EARTH_RADIUS_METRES = 6_371_000
 
 /**
  * East/north metres between two fixes. Over a building, the Earth is flat

@@ -1,8 +1,27 @@
 import type { MapPlace } from '@asammad48/react-map-place'
+import { EARTH_RADIUS_METRES } from '@/lib/gps'
 import type { Museum } from '@/payload-types'
 
 /** Geographic coordinates use Payload/GeoJSON longitude-first order, never Pascal's local metres. */
 export type MuseumPoint = [number, number]
+
+/**
+ * Great-circle (haversine) distance in kilometres from a position to a
+ * museum, for the "Museums near you" rail. `gpsOffsetMetres` (src/lib/gps.ts)
+ * is the flat approximation for metres inside a building; this one spans cities.
+ */
+export function distanceKm(
+  from: { latitude: number; longitude: number },
+  [longitude, latitude]: MuseumPoint,
+) {
+  const rad = Math.PI / 180
+  const dLat = (latitude - from.latitude) * rad
+  const dLng = (longitude - from.longitude) * rad
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(from.latitude * rad) * Math.cos(latitude * rad) * Math.sin(dLng / 2) ** 2
+  return (2 * EARTH_RADIUS_METRES * Math.asin(Math.sqrt(a))) / 1000
+}
 
 /** Preserve legacy street-only records while avoiding a second city in provider-formatted addresses. */
 export function formatMuseumAddress({

@@ -52,6 +52,10 @@ export function formatDuration(seconds: number, lng: string): string {
  * Localized measurements ("25 min", "320 m"): units follow the visitor's
  * language. Shared by the tour page, the navigation header and `formatDuration`.
  */
-export function formatUnit(value: number, unit: 'second' | 'minute' | 'meter', lng: string) {
+export function formatUnit(
+  value: number,
+  unit: 'second' | 'minute' | 'meter' | 'kilometer',
+  lng: string,
+) {
   return new Intl.NumberFormat(lng, { style: 'unit', unit, unitDisplay: 'short' }).format(value)
 }
