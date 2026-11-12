@@ -1,5 +1,24 @@
 import type { StorybookConfig } from '@storybook/nextjs-vite'
-import { mergeConfig } from 'vite'
+import { existsSync } from 'node:fs'
+import path from 'node:path'
+import { mergeConfig, type Plugin } from 'vite'
+
+/**
+ * Server Actions read Payload on the server, so a story must never load the
+ * real module: an import of `./actions` resolves to the `__mocks__/actions.ts`
+ * beside it when there is one. Resolving here (not with `sb.mock`) also keeps
+ * Vite's dependency scan from following the real module into Payload, whose
+ * server-only dependencies can't be bundled for the browser.
+ */
+const serverActionMocks: Plugin = {
+  name: 'server-action-mocks',
+  enforce: 'pre',
+  resolveId(source, importer) {
+    if (source !== './actions' || !importer) return null
+    const mock = path.join(path.dirname(importer.split('?')[0]), '__mocks__', 'actions.ts')
+    return existsSync(mock) ? mock : null
+  },
+}
 
 const config: StorybookConfig = {
   staticDirs: ['../public'],
@@ -20,6 +39,7 @@ const config: StorybookConfig = {
   },
   viteFinal: (viteConfig) =>
     mergeConfig(viteConfig, {
+      plugins: [serverActionMocks],
       // Stories can always offer the simulated GPS source (its D-pad); app
       // builds only do with NEXT_PUBLIC_GPS_SIMULATOR=true (see gps-source.ts).
       define: { 'process.env.NEXT_PUBLIC_GPS_SIMULATOR': JSON.stringify('true') },

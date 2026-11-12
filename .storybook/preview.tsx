@@ -7,11 +7,6 @@ import { ModalsProvider } from '@mantine/modals'
 import { cssVariablesResolver, theme } from '../src/theme'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 import { setStoryCanvas } from './story-canvas'
-import { sb } from 'storybook/test'
-
-// Server Actions read Payload on the server: stories get the `__mocks__`
-// file next to each module instead.
-sb.mock('../src/app/[lng]/(frontend)/(tabs)/navigator/actions.ts')
 
 const preview: Preview = {
   loaders: [mswLoader()],

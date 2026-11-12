@@ -2,8 +2,8 @@ import type { RailMuseum } from '@/lib/discover'
 import { fn } from 'storybook/test'
 
 /**
- * Storybook stand-in for the navigator's Server Actions (registered with
- * `sb.mock` in .storybook/preview.tsx): the real module reads Payload on
+ * Storybook stand-in for the navigator's Server Actions (stories resolve
+ * `./actions` here: `serverActionMocks` in .storybook/main.ts): the real module reads Payload on
  * the server. `museumsNear` answers two Bologna museums, nearest first.
  */
 export const NEAR_BOLOGNA: RailMuseum[] = [
