@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-11T21:27:34Z",
+  "generatedAt": "2026-11-12T01:43:45Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -458,12 +458,12 @@
       },
       "start-action-tint": {
         "role": "primary",
-        "displayName": "Start action tint (primary light)",
+        "displayName": "Start block tint (primary light)",
         "canonical": "var(--mantine-primary-color-light)"
       },
       "start-action-ink": {
         "role": "primary",
-        "displayName": "Start action ink (primary light-color)",
+        "displayName": "Start block ink (primary light text)",
         "canonical": "var(--mantine-primary-color-light-color)"
       },
       "chip-border": {
@@ -819,11 +819,20 @@
       "css": ".ds-dock{position:relative;height:280px;background:#dcdcdc;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;overflow:hidden}.ds-dock-panel{position:absolute;top:16px;right:16px;bottom:16px;width:clamp(260px,40%,30rem);padding:16px;background:var(--mantine-color-body,#fff);border-radius:var(--mantine-radius-sm,4px);box-shadow:var(--mantine-shadow-xl,0 12px 32px rgba(0,0,0,.15));animation:ds-slide .2s ease}.ds-dock-panel header{display:flex;justify-content:space-between;align-items:center;font-size:16px}.ds-dock-panel button{width:28px;height:28px;border:0;border-radius:4px;background:transparent;font-size:18px;cursor:pointer}.ds-dock-panel button:hover{background:#f1f3f5}.ds-dock-panel button:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-dock-panel h2{margin:12px 0 8px;font-size:22px;font-weight:700}.ds-dock-panel p{margin:0;font-size:16px;line-height:1.55}@keyframes ds-slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}@media (prefers-reduced-motion:reduce){.ds-dock-panel{animation:none}}"
     },
     {
-      "name": "Start visit cards",
+      "name": "Start blocks",
       "kind": "card",
-      "description": "The navigator home's two primary ways in: twin link cards (Paper withBorder, radius lg, shadow sm, p xs), the QR scan and Plan my visit, either side of a vertical divider; halves of the row on phones, a centered pair from md. Each holds a square visual over a StartAction bar (primary light tint, primary light ink, weight 600, md radius, trailing chevron) so the card reads as a button; hover lifts it and turns its edge to the primary color, keyboard focus shows Mantine's ring. Joining a group is the secondary way, set apart below.",
-      "html": "<div class=\"ds-start\"><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-qr\" aria-hidden=\"true\"></span><span class=\"ds-start-cap\">Scan a tour QR code to start</span></a><span class=\"ds-start-or\">Or</span><a class=\"ds-start-card\" href=\"#\"><span class=\"ds-start-plan\" aria-hidden=\"true\"><svg width=\"60\" height=\"60\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/></svg></span><span class=\"ds-start-cap\">Or plan a visit around your time and interests</span></a></div>",
-      "css": ".ds-start{display:flex;align-items:stretch;justify-content:center;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-or{align-self:center;font-size:12px;color:#495057}.ds-start-card{--v:min(140px,calc(50vw - 56px));flex:1 1 0;display:flex;flex-direction:column;align-items:center;gap:10px;padding:10px;border:1px solid #dee2e6;border-radius:16px;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05);text-decoration:none;transition:box-shadow .15s ease}.ds-start-card:hover{box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-card:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-start-qr{width:var(--v);height:var(--v);background:repeating-conic-gradient(#212529 0 25%,#fff 0 50%) 0 0/20% 20%}.ds-start-plan{display:grid;place-items:center;width:var(--v);height:var(--v);border-radius:50%;background:#228be6;color:#fff}.ds-start-cap{font-size:14px;text-align:center;text-wrap:balance;color:#000}.ds-start-cap{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;padding:6px 10px;border-radius:8px;background:#ddecfd;color:#0065bd;font-weight:600;font-size:12px;text-align:center;box-sizing:border-box}.ds-start-card:hover{border-color:#0077d1}.ds-start-card:focus-visible{outline:2px solid #0077d1;outline-offset:2px}"
+      "refersTo": "start-block-filled",
+      "description": "The navigator home's two primary ways in, halves of one row at every size, each one whole link: lg radius, a 32px icon and a chevron on the head line, a bold title and one sm line saying where it leads. One hue for both (both start a tour): Scan is the filled primary with white text and a hover lift, Plan its light tint; museum mode recolors both.",
+      "html": "<div class=\"ds-start\"><a class=\"ds-start-block ds-start-filled\" href=\"#\"><span class=\"ds-start-head\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M3 7V5a2 2 0 0 1 2-2h2\"/><path d=\"M17 3h2a2 2 0 0 1 2 2v2\"/><path d=\"M21 17v2a2 2 0 0 1-2 2h-2\"/><path d=\"M7 21H5a2 2 0 0 1-2-2v-2\"/><path d=\"M7 12h10\"/></svg><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></span><span class=\"ds-start-title\">Scan a tour QR code to start</span><span class=\"ds-start-line\">At the museum? Point the camera at the code by the entrance or next to a work</span></a><a class=\"ds-start-block ds-start-light\" href=\"#\"><span class=\"ds-start-head\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"6\" cy=\"19\" r=\"3\"/><path d=\"M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15\"/><circle cx=\"18\" cy=\"5\" r=\"3\"/></svg><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m9 18 6-6-6-6\"/></svg></span><span class=\"ds-start-title\">Plan a visit around your time</span><span class=\"ds-start-line\">Tell us how much time you have and what you like: we build the route</span></a></div>",
+      "css": ".ds-start{display:grid;grid-template-columns:1fr 1fr;gap:10px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-start-block{display:flex;min-width:0;flex-direction:column;gap:10px;padding:12px 16px;border-radius:16px;text-decoration:none;transition:background-color .15s ease,box-shadow .15s ease}.ds-start-head{display:flex;align-items:center;justify-content:space-between}.ds-start-title{font-weight:700;line-height:1.25;text-wrap:balance}.ds-start-line{font-size:14px;line-height:1.35}.ds-start-filled{background:#0077d1;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.05),0 10px 15px -5px rgba(0,0,0,.05)}.ds-start-filled:hover{background:#0065bd;box-shadow:0 1px 3px rgba(0,0,0,.05),0 20px 25px -5px rgba(0,0,0,.05)}.ds-start-light{background:#ddecfd;color:#0065bd}.ds-start-light:hover{background:#c0dcfa}.ds-start-block:focus-visible{outline:2px solid #0077d1;outline-offset:2px}"
+    },
+    {
+      "name": "Group code field",
+      "kind": "input",
+      "refersTo": "join-code-field",
+      "description": "Joining a group: an open form, the bold question as the label, the group icon inside the md field in the primary color, the text set like a code, the hint xs just under the field as its description. Join is light until the code fits and filled once it does, never disabled; an early press shows the length rule as the error.",
+      "html": "<form class=\"ds-join\"><label class=\"ds-join-label\" for=\"ds-join-code\">Joining a group?</label><div class=\"ds-join-row\"><div class=\"ds-join-field\"><span class=\"ds-join-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 21a8 8 0 0 0-16 0\"/><circle cx=\"10\" cy=\"8\" r=\"5\"/><path d=\"M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3\"/></svg></span><input id=\"ds-join-code\" class=\"ds-join-input\" placeholder=\"Red Phoenix or AB3X9K\" value=\"AB3X\"></div><button class=\"ds-join-btn\" type=\"button\">Join</button></div><p class=\"ds-join-hint\">Whoever leads the group gives it to you.</p></form>",
+      "css": ".ds-join{display:flex;flex-direction:column;gap:6px;max-width:480px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif}.ds-join-label{font-weight:700;line-height:1.25}.ds-join-row{display:flex;gap:10px}.ds-join-field{position:relative;flex:1}.ds-join-icon{position:absolute;left:11px;top:11px;color:#0077d1;display:flex}.ds-join-input{width:100%;height:42px;padding:0 12px 0 42px;border:1px solid #ced4da;border-radius:8px;font-size:16px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-variant-numeric:tabular-nums;box-sizing:border-box}.ds-join-input::placeholder{font-weight:400;letter-spacing:normal;text-transform:none}.ds-join-input:focus{outline:none;border-color:#0077d1}.ds-join-btn{height:42px;padding:0 22px;border:0;border-radius:8px;background:#ddecfd;color:#0065bd;font-weight:600;font-size:16px;cursor:pointer}.ds-join-btn:hover{background:#c0dcfa}.ds-join-btn:focus-visible{outline:2px solid #0077d1;outline-offset:2px}.ds-join-hint{margin:-2px 0 0;font-size:12px;color:#495057}"
     },
     {
       "name": "Media card",
@@ -1029,7 +1038,8 @@
       "**Do** state a chart's finding in a sentence first, and color only the viewer's own series (see The Highlight-One Rule).",
       "**Do** build sign-in, sign-up and checkout outcomes from the existing planner column and focused-task patterns rather than new chrome.",
       "**Do** show a checkout failure as text under the control that started it, and return the buyer to where the purchase began.",
-      "**Do** open a detail page with its `DetailCover`, and let it carry the pictures (lightbox) and the 3D model; draw pictures at a generated size (see The Generated Size Rule)."
+      "**Do** open a detail page with its `DetailCover`, and let it carry the pictures (lightbox) and the 3D model; draw pictures at a generated size (see The Generated Size Rule).",
+      "Do keep the navigator's three ways in (search, the two start blocks, the group form) on a phone's first screen; let the space above the title give way first, and scroll rather than shrink their text."
     ],
     "donts": [
       "**Don't** treat every prototype measurement, gradient, or animation in this file as an immutable brand requirement.",
