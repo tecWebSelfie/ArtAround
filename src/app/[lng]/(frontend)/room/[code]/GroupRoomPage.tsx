@@ -15,6 +15,7 @@ import { useConnectionState, useRemoteParticipant } from '@livekit/components-re
 import {
   Alert,
   AspectRatio,
+  Box,
   Button,
   Center,
   Container,
@@ -282,7 +283,11 @@ function GroupEnded() {
         </Title>
         <Text c="dimmed">{t('Ask for a new code, or visit the tour on your own.')}</Text>
       </Stack>
-      <JoinGroupForm />
+      {/* The form fills its slot; 24rem keeps it a field's width, and its
+          label and hint read left-aligned like any field. */}
+      <Box w="100%" maw="24rem" ta="start">
+        <JoinGroupForm />
+      </Box>
       <Button component={Link} href={`/${lng}/navigator` as Route} variant="subtle">
         {t('Back to the navigator')}
       </Button>

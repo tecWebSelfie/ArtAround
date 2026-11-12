@@ -8,6 +8,7 @@ import {
   roomPath,
 } from '@/lib/group'
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core'
+import { UsersRound } from 'lucide-react'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
 import { useId, useState } from 'react'
@@ -17,62 +18,92 @@ import { useTranslation } from 'react-i18next'
  * "Join a group": the name the teacher chose for it ("Fenice rossa") or the
  * 6-character code a friend gives out, in one field: both are room codes once
  * normalized (`normalizeRoomCode`). It only opens the join page
- * (`/room/{code}`), which checks the code and asks for a name.
+ * (`/room/{code}`), which checks the code and asks for a name. Shown on the
+ * navigator home (the secondary way in, under the start blocks), the tour
+ * start page and the room page.
  *
- * The visible question is the field's real label (so its accessible name is
- * what sighted visitors read), the placeholder is only an example, and a hint
- * under the field says who gives the code and what it looks like: it is also
- * why Join stays disabled until the text fits.
+ * Open, with no container: the question is the field's real label, the group
+ * icon sits at the field's left edge (it says what goes in it), and the text
+ * is set like a code (capitals, wide tracking, tabular figures; the example
+ * placeholder stays as written). The hint hangs just under the field, small,
+ * so it reads as the field's note.
+ *
+ * Join is never disabled: it stays light until the text fits the room-code
+ * pattern and turns filled once it does, so the change confirms the input.
+ * Pressed too early, it shows the length rule as the field's error (in place
+ * of the hint) instead of a gray button that gives no reason; the next edit
+ * clears it.
  */
 export function JoinGroupForm() {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
   const router = useRouter()
   const [code, setCode] = useState('')
+  const [tried, setTried] = useState(false)
   const room = normalizeRoomCode(code)
   const complete = ROOM_CODE_PATTERN.test(room)
   const inputId = useId()
-  const hintId = useId()
+  // The limits come from the same constants the pattern checks.
+  const error =
+    tried && !complete
+      ? t('Whoever leads the group shares it: {{min}} to {{max}} letters or numbers.', {
+          min: ROOM_CODE_MIN_LENGTH,
+          max: ROOM_CODE_MAX_LENGTH,
+        })
+      : undefined
 
   return (
     <Stack
       component="form"
       gap={6}
-      align="center"
+      // Full width of its slot: each page sets the measure (the navigator
+      // lines it up with the start blocks, the other pages cap it).
+      w="100%"
       onSubmit={(event) => {
         event.preventDefault()
         if (complete) router.push(roomPath(lng, room) as Route)
+        else setTried(true)
       }}
     >
-      <Text component="label" htmlFor={inputId} size="sm" fw={500} ta="center">
-        {t('Joining a group? Enter its name or code')}
+      <Text component="label" htmlFor={inputId} fw={700} lh={1.25}>
+        {t('Joining a group?')}
       </Text>
-      {/* The field takes the row's free width (a name is longer than a code). */}
-      <Group gap="xs" wrap="nowrap" w="100%" maw="24rem">
+      {/* The field takes the row's free width (a name is longer than a code).
+          The hint is the field's Mantine description, placed under the input
+          so Mantine wires it (and the error that replaces it) to the input's
+          aria-describedby. */}
+      <Group gap="xs" wrap="nowrap" align="flex-start">
         <TextInput
           id={inputId}
           flex={1}
-          size="sm"
+          size="md"
+          radius="md"
+          inputWrapperOrder={['input', 'description', 'error']}
+          leftSection={<UsersRound size={20} aria-hidden />}
+          classNames={{
+            input:
+              'font-semibold tracking-[0.08em] uppercase tabular-nums placeholder:font-normal placeholder:tracking-normal placeholder:normal-case',
+            section: 'text-(--mantine-primary-color-filled)',
+            description: 'mt-1 text-(length:--mantine-font-size-xs)',
+          }}
           value={code}
-          onChange={(event) => setCode(event.currentTarget.value)}
-          aria-describedby={hintId}
+          onChange={(event) => {
+            setCode(event.currentTarget.value)
+            // The error answers one press of Join; editing the text clears it.
+            setTried(false)
+          }}
+          description={error ? undefined : t('Whoever leads the group gives it to you.')}
+          error={error}
           placeholder={t('Red Phoenix or AB3X9K')}
           maxLength={40}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
         />
-        <Button type="submit" size="sm" disabled={!complete}>
+        <Button type="submit" size="md" radius="md" variant={complete ? 'filled' : 'light'}>
           {t('Join')}
         </Button>
       </Group>
-      <Text id={hintId} size="xs" c="dimmed" ta="center" maw="24rem">
-        {/* The limits come from the same constants the pattern checks. */}
-        {t('Whoever leads the group shares it: {{min}} to {{max}} letters or numbers.', {
-          min: ROOM_CODE_MIN_LENGTH,
-          max: ROOM_CODE_MAX_LENGTH,
-        })}
-      </Text>
     </Stack>
   )
 }

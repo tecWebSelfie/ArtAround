@@ -29,9 +29,7 @@ export const SearchFocus: Story = {
     // The brand pun, with the typographic apostrophe (’) the translation uses.
     await expect(canvas.getByRole('heading', { level: 1, name: /everything’s/i })).toBeVisible()
     await expect(canvas.getByText('Scan a tour QR code to start')).toBeVisible()
-    // The plan caption reads "Or plan a visit…" on phones and "Plan a visit…"
-    // from md (the other is display:none), so check the card by its accessible
-    // name, which is always the visible caption, at any viewport.
+    // Each start block is one link named by its title and description.
     await expect(canvas.getByRole('link', { name: /plan a visit around your time/i })).toBeVisible()
 
     // One search field, and it is the combobox target itself: it carries

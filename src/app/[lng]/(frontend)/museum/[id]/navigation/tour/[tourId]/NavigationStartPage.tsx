@@ -2,7 +2,7 @@ import { getT } from '@/i18n.server'
 import { Tour } from '@/payload-types'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
-import { AspectRatio, Divider, Group, Image, Stack, StackProps, Title } from '@mantine/core'
+import { AspectRatio, Box, Divider, Group, Image, Stack, StackProps, Title } from '@mantine/core'
 import { KIND_FALLBACK } from '@/components/mantine/kind-fallback'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { cn } from 'cn'
@@ -62,7 +62,10 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
           <StartGroupButton tourId={tour.id} />
         </Group>
         <Divider label={t('or')} w="100%" />
-        <JoinGroupForm />
+        {/* The form fills its slot; 24rem keeps it a field's width here. */}
+        <Box w="100%" maw="24rem">
+          <JoinGroupForm />
+        </Box>
       </Stack>
     </Stack>
   )

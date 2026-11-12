@@ -1,18 +1,7 @@
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
-import { QRCode } from '@gfazioli/mantine-qr-code'
-import {
-  Box,
-  Center,
-  Divider,
-  Flex,
-  Group,
-  Paper,
-  Stack,
-  Text,
-  ThemeIcon,
-  Title,
-} from '@mantine/core'
-import { ChevronRight, Route as RouteIcon } from 'lucide-react'
+import { Box, Divider, Stack, Text, Title } from '@mantine/core'
+import { ChevronRight, Route as RouteIcon, ScanLine } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -22,80 +11,55 @@ import { APP_NAME } from '@/lib/app-name'
 import { BRAND_GRADIENT } from '@/theme'
 import { NavigatorSearch } from './NavigatorSearch'
 
-/** The bordered card both ways to start a visit share. */
-const START_CARD = {
-  p: 'xs',
-  withBorder: true,
-  shadow: 'sm',
-  radius: 'lg',
-  // Phones: the card fills its half of the row, so a visual shrunk by a short
-  // screen leaves the caption its width. From md both cards share one width
-  // (15rem, a little wider than the largest visual), so the pair stays twin
-  // and a visual shrunk by a short window doesn't narrow its caption.
-  maw: '100%',
-  // Both cards take the row's height, so captions of different lengths
-  // don't leave one card shorter than the other.
-  h: '100%',
-  // Below md each card is a width container (`@container`) for its visual's
-  // size (StartVisual). In fit mode a card squeezed past its content clips
-  // rather than spill onto the group form. `mantine-focus-auto` gives the
-  // card link Mantine's keyboard focus ring (a Paper rendered as a Link had
-  // none). Hover and focus lift it and turn its edge to the primary color:
-  // the card is one big button and should answer like one.
-  className:
-    'group/start mantine-focus-auto w-full from-md:w-[15rem] transition-[box-shadow,border-color] hover:shadow-md hover:border-(--mantine-primary-color-filled) focus-visible:shadow-md below-md:@container fit-screen:overflow-hidden',
+/**
+ * Shape shared by both start blocks: icon and chevron on one line, then the
+ * title and the line saying where the block leads. The whole block is one
+ * link (its text is the accessible name); `mantine-focus-auto` gives it
+ * Mantine's keyboard focus ring.
+ */
+const START_BLOCK_CLASS =
+  'mantine-focus-auto flex min-w-0 flex-col gap-(--mantine-spacing-xs) rounded-(--mantine-radius-lg) px-(--mantine-spacing-md) py-(--mantine-spacing-sm) no-underline transition-[background-color,box-shadow]'
+
+/**
+ * One primary hue for both ways in: both start a tour, so color doesn't set
+ * them apart (the tour gradient on one alone read as a different kind of
+ * thing). The fill ranks them: Scan is the filled primary, Plan its light
+ * tint. Both follow the museum's color in museum mode.
+ */
+const START_BLOCK_TONE = {
+  filled:
+    'bg-(--mantine-primary-color-filled) text-(--mantine-color-white) shadow-(--mantine-shadow-sm) hover:bg-(--mantine-primary-color-filled-hover) hover:shadow-(--mantine-shadow-md)',
+  light:
+    'bg-(--mantine-primary-color-light) text-(--mantine-primary-color-light-color) hover:bg-(--mantine-primary-color-light-hover)',
 } as const
 
-/**
- * The card's call to action: a light-primary bar with a chevron, so the card
- * reads as a button at a glance (a plain caption under the picture read as a
- * label, not something to press). Not a nested control: the whole card is
- * the link, and this text is its accessible name.
- */
-function StartAction({ children }: { children: ReactNode }) {
+/** A way to start a visit, as a colored block on the start row. */
+function StartBlock({
+  href,
+  icon: Icon,
+  title,
+  description,
+  tone,
+}: {
+  href: Route
+  icon: LucideIcon
+  title: string
+  description: string
+  tone: keyof typeof START_BLOCK_TONE
+}) {
   return (
-    <Group
-      gap={4}
-      wrap="nowrap"
-      justify="center"
-      w="100%"
-      px="xs"
-      py={6}
-      bdrs="md"
-      bg="var(--mantine-primary-color-light)"
-      c="var(--mantine-primary-color-light-color)"
-      className="transition-colors group-hover/start:bg-(--mantine-primary-color-light-hover)"
-    >
-      <Text inherit ta="center" textWrap="balance" fw={600} fz={{ base: 'xs', sm: 'sm' }}>
-        {children}
+    <Link href={href} className={`${START_BLOCK_CLASS} ${START_BLOCK_TONE[tone]}`}>
+      <span className="flex items-center justify-between">
+        <Icon size={32} aria-hidden />
+        <ChevronRight size={20} aria-hidden />
+      </span>
+      <Text inherit fw={700} lh={1.25} textWrap="balance">
+        {title}
       </Text>
-      <ChevronRight size={16} aria-hidden className="shrink-0" />
-    </Group>
-  )
-}
-
-/**
- * Below md the card body is a grid: the visual's row is at most a square as
- * wide as the card (`--start-visual`, the page's 12.5rem cap), the caption
- * row under it. With room the visual takes that maximum; squeezed (fit mode)
- * it gives way first and the caption keeps its lines. Spare height centres
- * the two; the column spans the card (not the caption's width).
- * A phone held sideways has height to spare least: the visual (5rem there,
- * see the page) sits beside the caption instead, so the card is a short row.
- */
-const CARD_BODY_CLASS =
-  'below-md:grid below-md:grid-rows-[minmax(0,min(100cqw,var(--start-visual)))_auto] below-md:content-center below-md:justify-stretch phone-landscape:grid-rows-none phone-landscape:grid-cols-[var(--start-visual)_minmax(0,1fr)] phone-landscape:items-center phone-landscape:gap-(--mantine-spacing-sm)'
-
-/**
- * Holds a card's visual. Below md it fills its grid cell as a size container,
- * so the cell's height never depends on the visual, and the visual is the
- * largest square that fits (`100cqmin`). From md a plain centred box.
- */
-function StartVisual({ children }: { children: React.ReactNode }) {
-  return (
-    <Center className="below-md:size-full below-md:[--start-visual:100cqmin] below-md:[container-type:size] phone-landscape:size-auto phone-landscape:[--start-visual:inherit] phone-landscape:[container-type:normal]">
-      {children}
-    </Center>
+      <Text inherit fz="sm" lh={1.35}>
+        {description}
+      </Text>
+    </Link>
   )
 }
 
@@ -105,14 +69,14 @@ function StartVisual({ children }: { children: React.ReactNode }) {
  * join a group by its code. `lng` defaults to the route's; `onNavigate` lets
  * the page keep client-side navigation and stories intercept it.
  *
- * Two primary ways (scan a QR, plan a visit) are twin button cards; joining
- * a group is the secondary way, for the visitors a guide or teacher sent
- * here, so it sits apart at the bottom (`mt-auto`: any spare height goes
- * above it) with no picture of its own, at every size. Held upright (the
- * `fit-screen` variant, globals.css) the phone home takes exactly the height
- * between the top controls and the tab bar (size containment) and the
- * QR/Plan row shrinks to fit it; other screens scroll. From md the page sits
- * in a bounded centered column.
+ * The two primary ways (scan a QR, plan a visit) are two blocks side by side
+ * on one row, at every size (StartBlock); joining a group is the secondary
+ * way, for the visitors a guide or teacher sent here: a quieter form right
+ * under the blocks. Search, the blocks and the form are meant to land on a
+ * phone's first screen; the space above the title is what gives way when the
+ * screen is short (the `fit-screen` spacer), and a screen too short for all
+ * of it scrolls rather than squeeze text. From md the page sits in a bounded
+ * centered column.
  */
 export default function NavigatorHomePage({
   lng: lngProp,
@@ -127,12 +91,7 @@ export default function NavigatorHomePage({
   return (
     <Stack
       component="main"
-      // `--start-visual`: side of the QR and the Plan circle (smaller below
-      // md, see StartVisual). From md it follows the window's height between
-      // 8rem and 12.5rem, so on a laptop (1280×720, 1024×768) the group form
-      // stays on the first screen with the cards. A phone held sideways
-      // draws it at 5rem, beside the caption (CARD_BODY_CLASS).
-      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl) [--start-visual:12.5rem] from-md:[--start-visual:clamp(8rem,20dvh,12.5rem)] phone-landscape:[--start-visual:5rem] fit-screen:[contain:size]"
+      className="mx-(--mantine-spacing-md) from-sm:mx-(--mantine-spacing-xl) from-md:mx-auto from-md:w-full from-md:max-w-[70rem] from-md:px-(--mantine-spacing-xl)"
       flex={1}
       // Explicit: the spacer below cancels this gap (`--stack-gap`).
       gap="md"
@@ -156,71 +115,37 @@ export default function NavigatorHomePage({
         // gray.7 was 1.9:1 on the dark page).
         styles={{ label: { color: 'var(--mantine-color-dimmed)' } }}
       />
-      {/* QR and Plan, the two primary ways in: twin cards either side of
-          the divider, same border, shadow and size. Halves of the row on
-          phones; from md both share one fixed width (START_CARD), so the
-          pair sits together in the middle. */}
-      <Flex
-        className="gap-(--mantine-spacing-xs) from-sm:gap-(--mantine-spacing-md) from-md:justify-center from-md:gap-(--mantine-spacing-lg)"
-        miw={0}
-        // A block's automatic minimum height is its whole content: 0 lets
-        // the row shrink in fit mode (it never grows: flex 0 1 auto).
-        mih={0}
-        flex="0 1 auto"
-      >
-        <Center miw={0} className="flex-[1_1_0] from-md:flex-none">
-          {/* Opens the camera scanner (/scan). The QR drawn here is only an
-              illustration of what to look for, hidden from screen readers. */}
-          <Paper component={Link} href={`/${lng}/scan` as Route} {...START_CARD}>
-            <Stack gap="xs" align="center" justify="center" h="100%" className={CARD_BODY_CLASS}>
-              <StartVisual>
-                <QRCode
-                  aria-hidden
-                  color="museum"
-                  value="dw"
-                  image="/compass.svg"
-                  errorCorrectionLevel="H"
-                  size="var(--start-visual)"
-                />
-              </StartVisual>
-              <StartAction>{t('Scan a tour QR code to start')}</StartAction>
-            </Stack>
-          </Paper>
-        </Center>
-        <Divider orientation="vertical" />
-        <Center miw={0} className="flex-[1_1_0] from-md:flex-none">
-          {/* Plan my visit: a short form that builds a tour for the visitor's
-              time, group and interests (tour/plan, /api/plan-tour). The whole
-              card is the link; its caption is the accessible name. */}
-          <Paper component={Link} href={`/${lng}/tour/plan` as Route} {...START_CARD}>
-            <Stack gap="xs" align="center" justify="center" h="100%" className={CARD_BODY_CLASS}>
-              <StartVisual>
-                <ThemeIcon
-                  autoContrast
-                  size="var(--start-visual)"
-                  variant="filled"
-                  radius="100%"
-                  aria-hidden
-                >
-                  <RouteIcon size="60%" aria-hidden />
-                </ThemeIcon>
-              </StartVisual>
-              {/* One label at every size: an "Or …" lead-in (it echoed the
-                  divider on phones) reads wrong inside a button. Short, so
-                  it wraps to the QR action's two lines on a phone instead of
-                  three; the plan page asks about interests itself. */}
-              <StartAction>{t('Plan a visit around your time')}</StartAction>
-            </Stack>
-          </Paper>
-        </Center>
-      </Flex>
-      {/* Group tours, the secondary way in (the code a guide, teacher or
-          friend gives out; JoinGroupForm → /room/{code}): at the bottom,
-          separated from the cards by at least `xl`, plus whatever height the
-          cards leave. */}
-      <Center className="mt-auto pt-(--mantine-spacing-xl)">
+      {/* The three ways in, as one group. `lg` between the blocks and the
+          group form: wider than the blocks' own `xs` gap, so the form reads
+          as a tier of its own, and still closer than the "Or" rule, so the
+          three stay together. */}
+      <Stack gap="lg" w="100%" className="mx-auto max-w-[45rem]">
+        {/* Scan and Plan, the two primary ways in: halves of one row, within
+            the search's measure on wide screens. Scan opens the camera scanner
+            (/scan); Plan my visit is a short form that builds a tour for the
+            visitor's time, group and interests (tour/plan, /api/plan-tour). */}
+        <div className="grid grid-cols-2 gap-(--mantine-spacing-xs)">
+          <StartBlock
+            href={`/${lng}/scan` as Route}
+            icon={ScanLine}
+            tone="filled"
+            title={t('Scan a tour QR code to start')}
+            description={t(
+              'At the museum? Point the camera at the code by the entrance or next to a work',
+            )}
+          />
+          <StartBlock
+            href={`/${lng}/tour/plan` as Route}
+            icon={RouteIcon}
+            tone="light"
+            title={t('Plan a visit around your time')}
+            description={t('Tell us how much time you have and what you like: we build the route')}
+          />
+        </div>
+        {/* Group tours, the secondary way in (the code a guide, teacher or
+            friend gives out; JoinGroupForm → /room/{code}). */}
         <JoinGroupForm />
-      </Center>
+      </Stack>
     </Stack>
   )
 }

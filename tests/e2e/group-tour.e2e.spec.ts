@@ -63,7 +63,8 @@ test('a guest follows the host through the tour and the quiz', async ({ browser 
       .first()
       .click()
     await guest.keyboard.type(code.toLowerCase())
-    await expect(join).toBeEnabled({ timeout: 1_000 })
+    // Join is never disabled; it turns filled once the code fits.
+    await expect(join).toHaveAttribute('data-variant', 'filled', { timeout: 1_000 })
   }).toPass()
   await join.click()
   await expect(guest).toHaveURL(new RegExp(`/en/room/${code}$`))
