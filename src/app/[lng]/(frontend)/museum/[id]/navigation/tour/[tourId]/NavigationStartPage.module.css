@@ -34,9 +34,9 @@
   gap: var(--mantine-spacing-lg);
   max-width: 24rem;
   /* Title and cover sit centred in the space over the dock, a touch above
-     where an even split would put them (8dvh before): clear of the
+     where an even split would put them: clear of the
      controls, yet not reaching the museum badge in the top corner. */
-  padding-top: 3dvh;
+  padding-top: 5dvh;
 
   /* The page's one heading: a step past Mantine's h2 and heavier, in the
      full text colour, so it reads as the tour's name and not as a label. */
