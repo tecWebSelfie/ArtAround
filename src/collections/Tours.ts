@@ -54,10 +54,12 @@ const authorOrMuseumDirector: Access = async ({ req }) => {
 
 const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operation }) => {
   if (operation !== 'create' || !req.user) return data
-  // Super admins may author a tour for someone else from the admin, except a
-  // visit copy: that is always its creator's own (`existingVisitCopy` finds
-  // it by author to reopen it instead of copying again).
-  if (!isSuperAdmin(req) || data.visitCopyOf) data.author = req.user.id
+  // Clients cannot pick an author: it is always the caller (the `author` field
+  // also drops a non-admin's value on create). A super admin may author a tour
+  // for someone else from the admin; left empty, the tour is theirs, never
+  // ownerless. A visit copy is always its creator's own (`existingVisitCopy`
+  // finds it by author to reopen it instead of copying again).
+  if (!isSuperAdmin(req) || data.visitCopyOf || !data.author) data.author = req.user.id
   return data
 }
 
@@ -242,7 +244,11 @@ export const Tour: CollectionConfig = {
               relationTo: 'users',
               required: false,
               index: true,
-              access: { update: ({ req }) => isSuperAdmin(req) },
+              // Only a super admin picks an author (`assignAuthor`).
+              access: {
+                create: ({ req }) => isSuperAdmin(req),
+                update: ({ req }) => isSuperAdmin(req),
+              },
             },
             {
               // The tour this one copies for one visitor's visit ("Edit" on a

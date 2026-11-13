@@ -229,16 +229,38 @@ describe('visit copies', () => {
   it('belong to whoever made them, a super admin too', async () => {
     const assignAuthor = hook(Tour.hooks?.beforeChange, 'assignAuthor')
     const admin = fakeRequest({ user: { id: 'admin-1', isSuperAdmin: true } })
-    expect(await run(assignAuthor, { visitCopyOf: 'tour-1' }, admin)).toMatchObject({
+    // Even when they pick someone else: a copy someone else owns could not be reopened.
+    expect(await run(assignAuthor, { visitCopyOf: 'tour-1', author: 'u2' }, admin)).toMatchObject({
       author: 'admin-1',
     })
-    // Any other tour a super admin creates keeps the author they chose (or none).
-    expect(await run(assignAuthor, { title: 'Seeded' }, admin)).not.toHaveProperty('author')
   })
 
   it('are left out of lists, like planned visits', () => {
     expect(isPersonalTour({ visitCopyOf: 'tour-1' })).toBe(true)
     expect(isPersonalTour({ generation: { generated: true } })).toBe(true)
     expect(isPersonalTour({ visitCopyOf: null, generation: { generated: false } })).toBe(false)
+  })
+})
+
+/**
+ * Who a new tour or content belongs to (`assignAuthor`): the caller, except a
+ * super admin who picks someone else; never nobody.
+ */
+describe('authors of new documents', () => {
+  const hooks = {
+    tours: hook(Tour.hooks?.beforeChange, 'assignAuthor'),
+    contents: hook(Contents.hooks?.beforeChange, 'assignAuthor'),
+  }
+  const admin = fakeRequest({ user: { id: 'admin-1', isSuperAdmin: true } })
+  const visitor = fakeRequest({ user: { id: 'u1' } })
+
+  it.each(Object.entries(hooks))('%s: a super admin picks one, or owns it', async (_, fn) => {
+    expect(await run(fn, { author: 'u2' }, admin)).toMatchObject({ author: 'u2' })
+    expect(await run(fn, {}, admin)).toMatchObject({ author: 'admin-1' })
+    expect(await run(fn, { author: null }, admin)).toMatchObject({ author: 'admin-1' })
+  })
+
+  it.each(Object.entries(hooks))('%s: anyone else always authors their own', async (_, fn) => {
+    expect(await run(fn, { author: 'admin-1' }, visitor)).toMatchObject({ author: 'u1' })
   })
 })

@@ -112,9 +112,12 @@ const deleteContents: Access = async ({ req }) => {
 }
 
 const assignAuthor: CollectionBeforeChangeHook<Content> = ({ data, req, operation }) => {
-  // Clients cannot pick an author: it is always the caller. Trusted Local API
-  // calls without a user (seed, jobs) and super admins keep what they pass.
-  if (operation === 'create' && req.user && !isSuperAdmin(req)) data.author = req.user.id
+  // Clients cannot pick an author: it is always the caller (the `author` field
+  // also drops a non-admin's value on create). A super admin may author a
+  // content for someone else; left empty, it is theirs, never ownerless.
+  // Trusted Local API calls without a user (seed, jobs) keep what they pass.
+  if (operation !== 'create' || !req.user) return data
+  if (!isSuperAdmin(req) || !data.author) data.author = req.user.id
   return data
 }
 
@@ -501,7 +504,11 @@ export const Contents: CollectionConfig = {
       relationTo: 'users',
       required: false,
       index: true,
-      access: { update: ({ req }) => isSuperAdmin(req) },
+      // Only a super admin picks an author (`assignAuthor`).
+      access: {
+        create: ({ req }) => isSuperAdmin(req),
+        update: ({ req }) => isSuperAdmin(req),
+      },
     },
     {
       // Create-only input: the object this content is written about.

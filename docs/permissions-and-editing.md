@@ -53,7 +53,9 @@ Super admins bypass all of the above.
 
 - `tours.museum` (relationship) ⇄ `museums.tours` (join).
 - `contents.author` / `tours.author` (relationship, set from the caller on
-  create) ⇄ `users.authoredContents` / `users.authoredTours` (joins).
+  create by `assignAuthor`; only a super admin may pick another author, and
+  one left empty is theirs, so a signed-in create is never ownerless) ⇄
+  `users.authoredContents` / `users.authoredTours` (joins).
 - `museums.objects` is a **derived index** of the Pascal map: on every map
   save, `syncMuseumObjects` stores the ids of placed `museum-objects` items.
   `objects.museums` is its join. An object can exist without a museum and be
