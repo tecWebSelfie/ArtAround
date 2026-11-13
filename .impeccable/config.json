@@ -1,3 +1,16 @@
 {
-  "buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "side-tab",
+        "value": "*",
+        "files": ["src/components/mantine/ToursCarousel.module.css"],
+        "createdAt": "2026-11-13T02:00:41.752Z",
+        "reason": "user confirmed: asked to keep the gradient line on the card's bottom edge (live mode, 2026-11-13); it is a 5px foot line under a full-bleed photo card, not a side tab"
+      }
+    ]
+  }
 }
