@@ -27,7 +27,7 @@ const ModelViewer = lazy(() => import('./ModelViewer').then((m) => ({ default: m
  *   out of places already layered over the page (navigation modals).
  * - With a 3D `model`, a "3D" toggle swaps the picture for an orbitable
  *   `ModelViewer` in the same card, and "Photo" swaps it back.
- * - Without a picture the kind's identity stands in (`KIND_FALLBACK`), or the
+ * - Without a picture the shared placeholder stands in (`KIND_FALLBACK`), or the
  *   neutral placeholder for objects.
  *
  * `clamp(160px, 32dvh, 360px)`: about a third of the screen on any phone
@@ -151,15 +151,9 @@ export function DetailCover({
 /** Decorative: the title right below names what is missing a picture. */
 function CoverFallback({ kind }: { kind?: 'tour' | 'content' }) {
   if (!kind) return <Image src={PLACEHOLDER_IMAGE} alt="" h="100%" fit="cover" />
-  const { background, Icon } = KIND_FALLBACK[kind]
+  const { style, Icon } = KIND_FALLBACK[kind]
   return (
-    <Box
-      h="100%"
-      aria-hidden
-      c="white"
-      style={{ background }}
-      className="flex items-center justify-center"
-    >
+    <Box h="100%" aria-hidden style={style} className="flex items-center justify-center">
       <Icon size="30%" strokeWidth={1.5} />
     </Box>
   )

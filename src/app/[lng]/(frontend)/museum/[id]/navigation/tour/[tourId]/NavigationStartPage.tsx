@@ -44,11 +44,11 @@ export default async function NavigationPage({ tour, ...props }: { tour: Tour } 
               alt={tourThumbnail.alt ?? ''}
             />
           ) : (
-            // No cover yet: the tour's own brand gradient (`KIND_FALLBACK`, as
-            // on marketplace cards) instead of a grey "no thumbnail" image.
+            // No cover yet: the shared "image unavailable" placeholder
+            // (`KIND_FALLBACK`, as on marketplace cards and the tour deck).
             <div
-              className="flex items-center justify-center rounded-full text-white"
-              style={{ background: KIND_FALLBACK.tour.background }}
+              className="flex items-center justify-center rounded-full"
+              style={KIND_FALLBACK.tour.style}
               aria-hidden
             >
               <KIND_FALLBACK.tour.Icon size="35%" strokeWidth={1.5} />

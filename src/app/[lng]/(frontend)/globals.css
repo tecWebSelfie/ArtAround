@@ -98,6 +98,15 @@
   --tour-text-to: oklch(0.82 0.11 55);
 }
 
+/* The surface under a missing (or still loading) picture (KIND_FALLBACK). */
+:root {
+  --image-placeholder: var(--mantine-color-white);
+}
+
+[data-mantine-color-scheme='dark'] {
+  --image-placeholder: var(--mantine-color-dark-5);
+}
+
 @utility bg-tour {
   background-image: var(--tour-gradient);
 }

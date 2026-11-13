@@ -51,9 +51,9 @@
   height: 100%;
   overflow: hidden;
   border-radius: var(--mantine-radius-lg);
-  /* The placeholder surface (also under a loading cover): white on light,
-     the raised dark surface on dark (below). */
-  background: var(--mantine-color-white);
+  /* The shared placeholder surface (KIND_FALLBACK), also under a loading
+     cover: white on light, dark.5 on dark. */
+  background: var(--image-placeholder);
   color: var(--mantine-color-white);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.14),
@@ -66,10 +66,6 @@
     height: 5px;
     background: var(--tour-gradient);
   }
-}
-
-:global([data-mantine-color-scheme='dark']) .card {
-  background: var(--mantine-color-dark-5);
 }
 
 .cover {

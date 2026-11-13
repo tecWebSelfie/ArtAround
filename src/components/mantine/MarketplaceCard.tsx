@@ -114,17 +114,17 @@ export function MarketplaceCard({
             {item.imageUrl ? (
               <Image h={168} fit="cover" src={item.imageUrl} alt={item.imageAlt || item.title} />
             ) : (
-              // Branded fallback (`KIND_FALLBACK`): the kind's gradient and mark.
+              // The shared "image unavailable" placeholder (`KIND_FALLBACK`).
               <Box
                 h={168}
                 style={{
-                  background: KIND_FALLBACK[item.kind].background,
+                  ...KIND_FALLBACK[item.kind].style,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                 }}
               >
-                <FallbackIcon size={40} color="white" opacity={0.9} aria-hidden />
+                <FallbackIcon size={40} strokeWidth={1.5} aria-hidden />
               </Box>
             )}
             <Badge
