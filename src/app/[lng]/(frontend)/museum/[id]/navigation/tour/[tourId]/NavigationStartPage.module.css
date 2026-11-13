@@ -12,6 +12,8 @@
 .root {
   --sp-plum: var(--tour-strong-from);
   --sp-radius: var(--mantine-radius-md);
+  /* Seats a chip on an edge (Start Tour's icon, the cover's "Edit"). */
+  --sp-ring: 0 0 0 3px var(--mantine-color-body);
   min-height: calc(100dvh - var(--site-header-height, 0px));
   display: flex;
   flex-direction: column;
@@ -50,11 +52,33 @@
 }
 
 .cover {
+  position: relative;
   width: min(58vw, 15rem);
   aspect-ratio: 1;
   flex: none;
   border-radius: 50%;
   box-shadow: 0 14px 30px -18px rgb(0 0 0 / 0.55);
+}
+
+/* "Edit": centred on the circle's rim at 45° — (1 − cos 45°) / 2 = 14.6% in
+   from the box's edges — not on the box's empty corner. */
+.coverEdit {
+  position: absolute;
+  right: 14.6%;
+  bottom: 14.6%;
+  translate: 50% 50%;
+  white-space: nowrap;
+  box-shadow:
+    var(--sp-ring),
+    0 6px 14px -8px rgb(0 0 0 / 0.5);
+
+  /* The visible pill is Mantine's compact-sm (26px tall): the tap target
+     reaches 44px around it without making the badge itself any bigger. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -9px;
+  }
 }
 
 .controls {
@@ -213,7 +237,7 @@
   border-radius: 50%;
   background: var(--sp-plum);
   color: var(--mantine-color-white);
-  box-shadow: 0 0 0 3px var(--mantine-color-body);
+  box-shadow: var(--sp-ring);
   transition: translate 160ms cubic-bezier(0.16, 1, 0.3, 1);
 }
 

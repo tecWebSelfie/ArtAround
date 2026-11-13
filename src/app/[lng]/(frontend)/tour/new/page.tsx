@@ -3,23 +3,31 @@ import { getT } from '@/i18n.server'
 import { coverImage } from '@/lib/cover-image'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
+import { tourCopyPath, VISIT_COPY_PARAM } from '@/lib/tour-routes'
 import { Alert, Container } from '@mantine/core'
 import { directionsByStop } from '@/lib/tour-logistics'
 import { getTourEditorData } from '../tour-editing'
 
 /**
- * Create a tour (any signed-in user). Two entry points:
+ * Create a tour (any signed-in user). Entry points:
  * - `?museum=<id>` from a museum page ("Add tour");
  * - `?from=<tourId>` to customize someone else's tour: a new tour owned by
  *   the visitor, prefilled with the original's stops so locked (paid) ones
- *   can be replaced — the purchase modal's second option.
+ *   can be replaced — the purchase modal's second option;
+ * - `?from=<tourId>&visit=1` from the tour's start page ("Edit" on the
+ *   cover): the visitor's own copy for this visit (`tourCopyPath`),
+ *   private, opened on its start page once saved.
  */
 export default async function NewTourPage({ params, searchParams }: PageProps<'/[lng]/tour/new'>) {
   const { lng } = await params
   const query = await searchParams
   const from = typeof query.from === 'string' ? query.from : null
   const museumParam = typeof query.museum === 'string' ? query.museum : null
-  const returnTo = `/${lng}/tour/new?${from ? `from=${from}` : `museum=${museumParam ?? ''}`}`
+  const forVisit = query[VISIT_COPY_PARAM] === '1'
+  // Back here after signing in, with the same intent (a visit copy included).
+  const returnTo = from
+    ? tourCopyPath(lng, from, { visit: forVisit })
+    : `/${lng}/tour/new?museum=${museumParam ?? ''}`
   await requireUser(lng, returnTo)
 
   const { payload } = await getSession()
@@ -61,10 +69,15 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         museum={museum}
         candidates={candidates}
         thumbnail={thumbnail}
+        // Only once the original was read: an unreadable `from` leaves a
+        // blank form, which is a new tour, not a copy of anything.
+        visitCopy={forVisit && source != null}
         initial={
           source
             ? {
                 title: source.title,
+                // Private: out of others' lists, still readable by the group's guests.
+                ...(forVisit ? { visibility: 'private' as const } : {}),
                 description: source.description ?? '',
                 // The copy visits the same building: its directions still apply.
                 logistics: source.logistics ?? '',

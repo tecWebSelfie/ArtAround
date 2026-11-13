@@ -2,6 +2,8 @@
 
 import { formatPrice } from '@/lib/price'
 import { ADD_PARAM, DRAFT_PARAM, newStopHref, tourPickerHref } from '@/lib/tour-picker'
+// Not `tour-navigation`: that one pulls Pascal's map code into the editor.
+import { tourStartPath } from '@/lib/tour-routes'
 import { payloadSdk } from '@/payload-sdk'
 import { DragDropProvider } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable'
@@ -198,6 +200,7 @@ export function TourForm({
   candidates,
   initial,
   thumbnail,
+  visitCopy = false,
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -209,6 +212,11 @@ export function TourForm({
    * customizing a copy (the copy keeps it unless the author changes it).
    */
   thumbnail?: CurrentImage | null
+  /**
+   * A visit copy (`tourCopyPath` with `visit`): says the original stays as
+   * it is and, once saved, opens the copy's start page, not its detail page.
+   */
+  visitCopy?: boolean
 }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
@@ -311,7 +319,9 @@ export function TourForm({
     },
     (saved) => {
       clearDraft()
-      router.push(`/${lng}/tour/${saved.id}` as Route)
+      router.push(
+        visitCopy ? tourStartPath(lng, museum.id, saved.id) : (`/${lng}/tour/${saved.id}` as Route),
+      )
     },
   )
 
@@ -325,10 +335,17 @@ export function TourForm({
   return (
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
       <Stack gap="md">
-        <Title order={2}>{tourId ? t('Edit tour') : t('New tour')}</Title>
+        <Title order={2}>
+          {tourId ? t('Edit tour') : visitCopy ? t('Edit your copy') : t('New tour')}
+        </Title>
         <Text c="dimmed" size="sm">
           {t('Museum: {{name}}', { name: museum.name })}
         </Text>
+        {visitCopy && (
+          <Alert color="blue">
+            {t('You are editing your own copy for this visit: the original tour stays as it is.')}
+          </Alert>
+        )}
         <TextInput label={t('Title')} required {...form.getInputProps('title')} />
         <TextInput
           label={t('Short description')}

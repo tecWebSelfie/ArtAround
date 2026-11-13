@@ -3,11 +3,12 @@ import { Tour } from '@/payload-types'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
 import { Divider, Image, Title } from '@mantine/core'
-import { Clock, MapPin, Play } from 'lucide-react'
+import { Clock, MapPin, Pencil, Play } from 'lucide-react'
 import { summarizeTour } from '@/lib/tour-summary'
 import { formatUnit } from '@/lib/duration'
 import { KIND_FALLBACK } from '@/components/mantine/kind-fallback'
-import { tourMuseumId, tourNavigationPath } from '@/lib/tour-navigation'
+import { LinkButton } from '@/components/editing/LinkButton'
+import { tourCopyPath, tourMuseumId, tourNavigationPath } from '@/lib/tour-navigation'
 import Link from 'next/link'
 import classes from './NavigationStartPage.module.css'
 
@@ -17,12 +18,14 @@ import classes from './NavigationStartPage.module.css'
  * live mode (DESIGN.md → Components → Tour start page): title and cover
  * centred in the space above a bottom dock, under the thumb — Start Tour as
  * a tinted panel framed by the tour gradient, with its stops/minutes under
- * the title and a matching "Lead the group" tile beside it.
+ * the title and a matching "Lead the group" tile beside it. "Edit" on the
+ * cover's rim opens the visitor's own copy of the tour, never the original.
  */
 export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: string }) {
   const { t } = await getT('tour-navigation')
   const { t: tc } = await getT('tours-carousel')
   const { t: tg } = await getT('group')
+  const { t: te } = await getT('editing')
   const summary = summarizeTour(tour)
   const startHref = tourNavigationPath(lng, tourMuseumId(tour), tour.id, 0)
   const tourThumbnail = typeof tour.thumbnail === 'object' ? tour.thumbnail : null
@@ -52,7 +55,24 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
         <Title order={2} className="text-center text-balance">
           {tour.title}
         </Title>
-        <div className={classes.cover}>{cover}</div>
+        <div className={classes.cover}>
+          {cover}
+          {/* A visit copy, never this tour (`tourCopyPath`). Quiet Mantine
+              `default` variant: it must not compete with Start Tour. The
+              accessible name says it's a copy and contains the visible
+              label (WCAG 2.5.3). */}
+          <LinkButton
+            href={tourCopyPath(lng, tour.id, { visit: true })}
+            size="compact-sm"
+            variant="default"
+            radius="xl"
+            leftSection={<Pencil size={14} aria-hidden />}
+            aria-label={te('Edit your copy')}
+            className={classes.coverEdit}
+          >
+            {te('Edit')}
+          </LinkButton>
+        </div>
       </div>
       <div className={classes.controls}>
         <div className={classes.ctas}>
