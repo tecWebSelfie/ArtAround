@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-12T19:23:59Z",
+  "generatedAt": "2026-11-13T02:08:34Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -38,30 +38,30 @@
       },
       "tour-purple": {
         "role": "secondary",
-        "displayName": "Tour purple",
+        "displayName": "Tour purple (--tour-from, oklch 0.45 0.18 305)",
         "tonalRamp": [
-          "#3b0764",
-          "#581c87",
-          "#6b21a8",
-          "#7e22ce",
-          "#9333ea",
-          "#a855f7",
-          "#c084fc",
-          "#e9d5ff"
+          "#3e0069",
+          "#500c7f",
+          "#632895",
+          "#6c329f",
+          "#8951bf",
+          "#a870e1",
+          "#c78fff",
+          "#e2cdfc"
         ]
       },
       "tour-orange": {
         "role": "secondary",
-        "displayName": "Tour orange",
+        "displayName": "Tour orange (--tour-to, oklch 0.70 0.15 50)",
         "tonalRamp": [
-          "#7c2d12",
-          "#9a3412",
-          "#c2410c",
-          "#ea580c",
-          "#f97316",
-          "#fb923c",
-          "#fdba74",
-          "#fed7aa"
+          "#5b0000",
+          "#720d00",
+          "#882800",
+          "#923100",
+          "#b45000",
+          "#d56f2c",
+          "#f88f4f",
+          "#f9cdb5"
         ]
       },
       "grape": {
@@ -416,11 +416,11 @@
       },
       "tour-grape": {
         "role": "secondary",
-        "displayName": "Tour gradient start (grape.8)"
+        "displayName": "Tour gradient start, strong (--tour-strong-from)"
       },
       "tour-orange-deep": {
         "role": "secondary",
-        "displayName": "Tour gradient end (orange.9)"
+        "displayName": "Tour gradient end, strong (--tour-strong-to)"
       },
       "brand-blue": {
         "role": "secondary",

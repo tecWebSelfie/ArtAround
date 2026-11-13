@@ -68,28 +68,39 @@
 @custom-variant below-md (@media (width < 62em));
 @custom-variant fit-screen (@media (width < 62em) and (orientation: portrait) and (height >= 36em));
 
+@custom-variant phone-landscape (@media (width < 62em) and (orientation: landscape));
+
 /*
  * The tour identity (DESIGN.md → Colors): purple into orange, always blended
  * in OKLCH so the middle passes through magenta instead of a muddy brown.
- * Two pairs:
- *   --tour-from / --tour-to: the decorative pair (lines, dots, progress bars,
- *     light), with no text on it;
+ *   --tour-from / --tour-to and --tour-gradient: the decorative pair, with no
+ *     text on it (deck foot lines and page dot, quiz progress, kind fallback);
  *   --tour-strong-from / --tour-strong-to: deeper ends for surfaces that
- *     carry white text (start buttons, tour pills), at least 5.6:1 along the
- *     whole gradient. TOUR_GRADIENT (theme.ts) uses this pair.
- * `bg-tour` paints the decorative pair left to right.
+ *     carry white text, 5.6:1 or more along the gradient (TOUR_GRADIENT);
+ *   --tour-text-from / --tour-text-to: tour-coloured text on the page itself,
+ *     the strong pair on light and a light pair on dark (TOUR_TEXT_GRADIENT).
+ * `bg-tour` paints --tour-gradient.
  */
 :root {
   --tour-from: oklch(0.45 0.18 305);
   --tour-to: oklch(0.7 0.15 50);
+  --tour-gradient: linear-gradient(in oklch 90deg, var(--tour-from), var(--tour-to));
   --tour-strong-from: oklch(0.42 0.17 305);
   --tour-strong-to: oklch(0.53 0.16 42);
+  --tour-text-from: var(--tour-strong-from);
+  --tour-text-to: var(--tour-strong-to);
+}
+
+/* Mantine's scheme attribute, not light-dark(): the compiled light-dark()
+   fallback resolves on :root before the scheme is known. */
+[data-mantine-color-scheme='dark'] {
+  --tour-text-from: oklch(0.78 0.11 305);
+  --tour-text-to: oklch(0.82 0.11 55);
 }
 
 @utility bg-tour {
-  background-image: linear-gradient(in oklch 90deg, var(--tour-from), var(--tour-to));
+  background-image: var(--tour-gradient);
 }
-@custom-variant phone-landscape (@media (width < 62em) and (orientation: landscape));
 
 @theme inline {
   --font-heading: var(--font-sans);

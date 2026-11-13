@@ -136,9 +136,9 @@ input scale. Use the selected value as device-local reading state.
 
 [Official Select documentation](https://mantine.dev/core/select/)
 
-The existing tour-start `Button` uses `variant="gradient"` and
-`gradient={{ from, to }}`. Endpoints accept theme colors/shades (for example
-`grape.9` and `orange.9`) to retain the tour identity with readable white text.
+The tour-start `Button` uses `variant="gradient"` with `gradient={TOUR_GRADIENT}`
+(`src/theme.ts`, the strong pair of the `--tour-*` tokens in `globals.css`),
+which keeps white labels readable. Don't pass shades inline.
 [Button gradient](https://mantine.dev/core/button/#gradient)
 
 ## Address autocomplete

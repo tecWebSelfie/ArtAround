@@ -6,14 +6,18 @@ import { summarizeTour } from '@/lib/tour-summary'
 import { formatUnit } from '@/lib/duration'
 import type { Tour } from '@/payload-types'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
-import { ActionIcon, AspectRatio, Group, Image, Stack, Title } from '@mantine/core'
+import { ActionIcon, AspectRatio, Button, Group, Image, Stack, Title } from '@mantine/core'
 import { ArrowRight, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { KIND_FALLBACK } from './kind-fallback'
 import classes from './ToursCarousel.module.css'
+
+/** The pager's two chevrons share everything but direction. */
+const PAGER_BUTTON = { size: 'xl', radius: 'xl', variant: 'subtle', color: 'gray' } as const
 
 /**
  * A museum's (or an author's) tours as a stacked deck, the tour identity's
@@ -34,7 +38,13 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
   // the deck pointing past its end.
   const shown = Math.min(index, Math.max(tours.length - 1, 0))
   const current = tours[shown]
-  const single = tours.length < 2
+
+  // The cards only change with the tours: flipping the deck re-renders the
+  // section, not every card's figures.
+  const cards = useMemo(
+    () => tours.map((tour) => ({ value: tour.id, view: <TourCard tour={tour} lng={lng} /> })),
+    [tours, lng],
+  )
 
   const select = (tourId: string | number) => {
     const found = tours.findIndex((tour) => tour.id === tourId)
@@ -42,17 +52,24 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
   }
 
   return (
-    <Stack component="section" gap="md" className={classes.root}>
+    <Stack component="section" gap="md">
       <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
         {/* h2: the deck is a section of its page (museum, profile), right
             under the h1; the pager counts the tours, so the title doesn't. */}
         <Title order={2} size="h5">
           {t('Tours')}
         </Title>
-        <Link href={`/${lng}/search/tours` as Route} className={classes.seeAll}>
-          <span className={classes.seeAllLabel}>{t('See all')}</span>
-          <ChevronRight size={16} aria-hidden />
-        </Link>
+        {/* A hairline pill: a control at rest, secondary to the cards. */}
+        <Button
+          component={Link}
+          href={`/${lng}/search/tours` as Route}
+          variant="default"
+          radius="xl"
+          size="compact-sm"
+          rightSection={<ChevronRight size={16} aria-hidden />}
+        >
+          {t('See all')}
+        </Button>
       </Group>
       <div className={classes.stage}>
         <AspectRatio ratio={16 / 10}>
@@ -66,10 +83,7 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
             translateYStep={10}
             opacityStep={0.1}
             blurStep={0.7}
-            data={tours.map((tour) => ({
-              value: tour.id,
-              view: <TourCard tour={tour} lng={lng} />,
-            }))}
+            data={cards}
           />
         </AspectRatio>
         {current && (
@@ -80,13 +94,10 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
           />
         )}
       </div>
-      {!single && (
+      {tours.length > 1 && (
         <Group justify="center" gap={2} className={classes.pager}>
           <ActionIcon
-            size="xl"
-            radius="xl"
-            variant="subtle"
-            color="gray"
+            {...PAGER_BUTTON}
             aria-label={t('Show previous tour')}
             onClick={() => setIndex(shown - 1)}
             disabled={shown <= 0}
@@ -99,10 +110,7 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
             ))}
           </div>
           <ActionIcon
-            size="xl"
-            radius="xl"
-            variant="subtle"
-            color="gray"
+            {...PAGER_BUTTON}
             aria-label={t('Show next tour')}
             onClick={() => setIndex(shown + 1)}
             disabled={shown >= tours.length - 1}
@@ -120,21 +128,35 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
 }
 
 /**
- * One card of the deck: the cover (the tour colours with a pin mark without
- * one) under a plum scrim with the title and its figures, the gradient foot
- * line, and the "go" button that only the front card shows. Purely
- * presentational: it sits in a `role="option"`.
+ * One card of the deck: the cover (the tour's kind fallback without one, as
+ * on marketplace cards and detail covers) under a plum scrim with the title
+ * and its figures, the gradient foot line, and the "go" button that only the
+ * front card shows. Purely presentational: it sits in a `role="option"`.
  */
 const TourCard = ({ tour, lng }: { tour: Tour; lng: string }) => {
+  // Its own `t`: i18next-cli finds the namespace only on `useTranslation`.
   const { t } = useTranslation('tours-carousel')
   const summary = summarizeTour(tour)
   const cover = isPopulated(tour.thumbnail) ? pictureSrc(tour.thumbnail, 'card') : null
+  const Fallback = KIND_FALLBACK.tour.Icon
   return (
-    <div className={classes.card} data-cover={cover ? 'photo' : 'none'}>
+    <div
+      className={classes.card}
+      style={cover ? undefined : { background: KIND_FALLBACK.tour.background }}
+    >
       {cover ? (
-        <Image src={cover} alt="" fit="cover" h="100%" w="100%" className={classes.cover} />
+        <Image
+          src={cover}
+          alt=""
+          fit="cover"
+          h="100%"
+          w="100%"
+          loading="lazy"
+          decoding="async"
+          className={classes.cover}
+        />
       ) : (
-        <MapPin className={classes.mark} size={40} aria-hidden />
+        <Fallback className={classes.mark} size={40} aria-hidden />
       )}
       <div className={classes.caption}>
         <Stack gap={4} miw={0}>

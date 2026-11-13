@@ -8,8 +8,8 @@ import { BookOpen, Map, UserRound } from 'lucide-react'
  */
 export const KIND_FALLBACK = {
   tour: {
-    background:
-      'linear-gradient(135deg, var(--mantine-color-grape-6), var(--mantine-color-orange-4))',
+    // The shared tour tokens (globals.css), blended in OKLCH.
+    background: 'linear-gradient(in oklch 135deg, var(--tour-from), var(--tour-to))',
     Icon: Map,
   },
   content: {
