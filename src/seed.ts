@@ -8,10 +8,17 @@ import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-
 import { JSDOM } from 'jsdom'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { getPayload } from 'payload'
-import { ItemNode, LevelNode, type ParsedBuildJson, ZoneNode } from '@pascal-app/core'
+import {
+  ItemNode,
+  LevelNode,
+  type ParsedBuildJson,
+  validateBuildJson,
+  ZoneNode,
+} from '@pascal-app/core'
 import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
 import { PROJECT_ACCOUNTS } from './seed-accounts'
+import { placedObjectIds } from '@/lib/tour-navigation'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -799,7 +806,27 @@ try {
     const foundId = await findId('museums', 'name', museum.name)
     if (foundId) {
       museumIdByKey[museum.key] = foundId
-      console.log(`Museum "${museum.name}" already exists, skipping`)
+      // Museums created before the map field existed have none, and their tours
+      // show "Map not available". Backfill only a missing map: a map edited in
+      // the editor is staff work the seed must never overwrite.
+      const existing = await payload.findByID({
+        collection: 'museums',
+        id: foundId,
+        depth: 0,
+      })
+      if (!existing.map) {
+        // Raw write: Payload 3.89 throws while populating the join fields of the
+        // update response, after the write itself. Only `map` changes and these
+        // seed museums' derived `objects` index already matches the placed
+        // object, so the hooks have nothing to add here.
+        await payload.db.collections.museums.updateOne(
+          { _id: foundId },
+          { $set: { map: data.map } },
+        )
+        console.log(`Museum "${museum.name}" already exists, map backfilled`)
+      } else {
+        console.log(`Museum "${museum.name}" already exists, skipping`)
+      }
       continue
     }
     const created = await payload.create({ collection: 'museums', data })
@@ -844,7 +871,7 @@ try {
       difficulty: 'hard' as const,
     },
   ]
-  const seededStops: { objectId: string; contentId: string }[] = []
+  const seededStops: { objectId: string; objectName: string; contentId: string }[] = []
   for (const stop of tourStops) {
     const foundContent = await payload.find({
       collection: 'contents',
@@ -886,12 +913,37 @@ try {
           contents: [content.id],
         },
       }))
-    seededStops.push({ objectId: String(object.id), contentId: String(content.id) })
+    seededStops.push({
+      objectId: String(object.id),
+      objectName: stop.objectName,
+      contentId: String(content.id),
+    })
   }
 
   // Objects join a museum only by being placed on its map (museums.objects is
-  // derived from the saved scene), so the seeded stops stay catalog-only until
-  // staff position them in the map editor.
+  // derived from the saved scene). A tour stop whose work is not on the map is
+  // skipped by navigation (`unavailableStops`, src/lib/tour-navigation.ts), so
+  // place the stops now: a fresh seed would otherwise create tours nobody can
+  // visit. Existing placements are kept, so re-runs do not duplicate items.
+  const demoMap = validateBuildJson(demoMuseum.docs[0]!.map).parsed
+  if (demoMap) {
+    const placedStops = placedObjectIds(demoMap)
+    const unplacedStops = seededStops.filter((stop) => !placedStops.has(stop.objectId))
+    if (unplacedStops.length) {
+      await payload.update({
+        collection: 'museums',
+        id: demoMuseumId,
+        depth: 0,
+        data: {
+          map: placeObjects(
+            demoMap,
+            unplacedStops.map(({ objectId, objectName }) => ({ id: objectId, name: objectName })),
+          ),
+        },
+      })
+      console.log(`Placed ${unplacedStops.length} tour stops on the demo museum map`)
+    }
+  }
 
   console.log('Seeding demo tours of the example museum...')
   const tourSeeds = [
@@ -1010,7 +1062,24 @@ try {
     const foundId = await findId('tours', 'title', tour.data.title)
     if (foundId) {
       tourIdByTitle[tour.data.title] = foundId
-      console.log(`Tour "${tour.data.title}" already exists, skipping`)
+      // Records created before `museum`/`author` existed are left untouched by
+      // the skip, and a tour without its museum crashes the tour page
+      // (`tourMuseumId`). Backfill the missing relations on re-seed.
+      const existing = await payload.findByID({ collection: 'tours', id: foundId, depth: 0 })
+      if (!existing.museum || !existing.author) {
+        await payload.update({
+          collection: 'tours',
+          id: foundId,
+          depth: 0,
+          data: {
+            ...(existing.museum ? {} : { museum: museumIdByKey[tour.museumKey] }),
+            ...(existing.author ? {} : { author: userIdByEmail[tour.authorEmail] }),
+          },
+        })
+        console.log(`Tour "${tour.data.title}" already exists, museum/author backfilled`)
+      } else {
+        console.log(`Tour "${tour.data.title}" already exists, skipping`)
+      }
       continue
     }
     const created = await payload.create({
