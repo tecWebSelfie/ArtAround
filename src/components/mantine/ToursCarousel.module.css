@@ -44,13 +44,16 @@
   }
 }
 
-/* One tour card: the cover (or the tour's kind fallback) under a plum scrim
+/* One tour card: the cover (or a neutral placeholder) under a plum scrim
    holding the title and its figures, and the gradient foot line. */
 .card {
   position: relative;
   height: 100%;
   overflow: hidden;
   border-radius: var(--mantine-radius-lg);
+  /* The placeholder surface (also under a loading cover): white on light,
+     the raised dark surface on dark (below). */
+  background: var(--mantine-color-white);
   color: var(--mantine-color-white);
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.14),
@@ -65,18 +68,23 @@
   }
 }
 
+:global([data-mantine-color-scheme='dark']) .card {
+  background: var(--mantine-color-dark-5);
+}
+
 .cover {
   position: absolute;
   inset: 0;
   transition: scale 300ms ease-out;
 }
 
+/* The "image unavailable" mark, centred in the space above the caption. */
 .mark {
   position: absolute;
   top: 38%;
   left: 50%;
   translate: -50% -50%;
-  color: rgb(255 255 255 / 0.55);
+  color: var(--mantine-color-dimmed);
 }
 
 .caption {

@@ -7,13 +7,12 @@ import { formatUnit } from '@/lib/duration'
 import type { Tour } from '@/payload-types'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
 import { ActionIcon, AspectRatio, Button, Group, Image, Stack, Title } from '@mantine/core'
-import { ArrowRight, ChevronLeft, ChevronRight, Clock, MapPin } from 'lucide-react'
+import { ArrowRight, ChevronLeft, ChevronRight, Clock, ImageOff, MapPin } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { KIND_FALLBACK } from './kind-fallback'
 import classes from './ToursCarousel.module.css'
 
 /** The pager's two chevrons share everything but direction. */
@@ -128,24 +127,24 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
 }
 
 /**
- * One card of the deck: the cover (the tour's kind fallback without one, as
- * on marketplace cards and detail covers) under a plum scrim with the title
- * and its figures, the gradient foot line, and the "go" button that only the
- * front card shows. Purely presentational: it sits in a `role="option"`.
+ * One card of the deck: the cover under a plum scrim with the title and its
+ * figures, the gradient foot line, and the "go" button that only the front
+ * card shows. Without a cover, or when the photo fails to load, a quiet
+ * neutral surface with the "image unavailable" mark stands in: a muted,
+ * deliberate placeholder rather than a broken image. Purely presentational:
+ * it sits in a `role="option"`.
  */
 const TourCard = ({ tour, lng }: { tour: Tour; lng: string }) => {
   // Its own `t`: i18next-cli finds the namespace only on `useTranslation`.
   const { t } = useTranslation('tours-carousel')
   const summary = summarizeTour(tour)
-  const cover = isPopulated(tour.thumbnail) ? pictureSrc(tour.thumbnail, 'card') : null
-  const Fallback = KIND_FALLBACK.tour.Icon
+  const src = isPopulated(tour.thumbnail) ? pictureSrc(tour.thumbnail, 'card') : null
+  const [failed, setFailed] = useState(false)
+  const cover = failed ? null : src
   return (
-    <div
-      className={classes.card}
-      // Always under the cover too: until the photo loads (or if it fails)
-      // the card stays opaque instead of showing the cards behind it.
-      style={{ background: KIND_FALLBACK.tour.background }}
-    >
+    // The neutral surface is always under the cover, so the card stays
+    // opaque while the photo loads instead of showing the cards behind it.
+    <div className={classes.card}>
       {cover ? (
         <Image
           src={cover}
@@ -155,10 +154,11 @@ const TourCard = ({ tour, lng }: { tour: Tour; lng: string }) => {
           w="100%"
           loading="lazy"
           decoding="async"
+          onError={() => setFailed(true)}
           className={classes.cover}
         />
       ) : (
-        <Fallback className={classes.mark} size={40} aria-hidden />
+        <ImageOff className={classes.mark} size={36} strokeWidth={1.5} aria-hidden />
       )}
       <div className={classes.caption}>
         <Stack gap={4} miw={0}>
