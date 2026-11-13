@@ -7,6 +7,7 @@ import {
 } from '@/components/mantine/ArtAroundGlobalSearch'
 import { Box, Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
+import { useDevicePosition } from '@/lib/use-device-position'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -22,7 +23,8 @@ type SearchResult = { query: string; items: AutoCompleteItem[]; failed: boolean 
  * `/api/navigator-search`, limited to the home scope (tours first, then
  * contents and museums; only the locked museum in museum mode). The server
  * also matches museum cities, so typing "Roma" surfaces what is in Rome.
- * Choosing a result opens its detail page.
+ * Choosing a result opens its detail page. When the browser already shares
+ * the visitor's position, results near them say so.
  */
 export function NavigatorSearch({
   lng,
@@ -40,6 +42,9 @@ export function NavigatorSearch({
   // Bumped by "Try again" to repeat the request for the same text.
   const [attempt, setAttempt] = useState(0)
   const [debouncedQuery] = useDebouncedValue(query, 180)
+  // Only a position the visitor already shares (never asked from here): it
+  // marks the results near them, computed in the browser.
+  const { coords } = useDevicePosition()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -88,6 +93,7 @@ export function NavigatorSearch({
             setAttempt((count) => count + 1)
           }}
           browse={{ label: t('Browse all tours'), href: `/${lng}/marketplace` }}
+          origin={coords}
           // Results are already filtered by Payload; do not apply the local
           // title-only filter or a city/excerpt match would disappear.
           filter={() => true}

@@ -6,6 +6,7 @@ import { distanceKm } from '@/lib/museum-location'
 import { Button } from '@mantine/core'
 import { LocateFixed } from 'lucide-react'
 import { useParams } from 'next/navigation'
+import { useDevicePosition } from '@/lib/use-device-position'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { museumsNear } from './actions'
@@ -15,61 +16,43 @@ import { museumsNear } from './actions'
  * the visitor shares a position, then nearest first with their distance.
  *
  * Location is never asked for on load (surface brief): when the browser
- * already grants it, the rail orders itself; otherwise "Use my location" asks
- * once, on the visitor's tap. The server only ever sees the position rounded
- * to two decimals (about a kilometre); distances are computed here from the
- * exact one, which never leaves the device.
+ * already grants it, the rail orders itself (`useDevicePosition`); otherwise
+ * "Use my location" asks once, on the visitor's tap. The server only ever
+ * sees the position rounded to two decimals (about a kilometre); distances are
+ * computed here from the exact one, which never leaves the device.
  */
 
-type State =
-  | { kind: 'idle' | 'locating' | 'unavailable' }
-  | { kind: 'located'; origin: GeolocationCoordinates; museums: RailMuseum[] }
+type Near = { origin: GeolocationCoordinates; museums: RailMuseum[] } | 'failed' | null
 
 const round = (value: number) => Math.round(value * 100) / 100
 
 export function MuseumsRail({ museums }: { museums: RailMuseum[] }) {
   const { t } = useTranslation('navigator-discover')
   const { lng } = useParams<{ lng: string }>()
-  const [state, setState] = useState<State>({ kind: 'idle' })
+  const { status, coords, locate } = useDevicePosition()
+  const [near, setNear] = useState<Near>(null)
 
-  const locate = () => {
-    if (!('geolocation' in navigator)) return setState({ kind: 'unavailable' })
-    setState({ kind: 'locating' })
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords }) => {
-        const near = await museumsNear({
-          latitude: round(coords.latitude),
-          longitude: round(coords.longitude),
-          lng,
-        }).catch(() => null)
-        setState(
-          near?.length
-            ? { kind: 'located', origin: coords, museums: near }
-            : { kind: 'unavailable' },
-        )
-      },
-      () => setState({ kind: 'unavailable' }),
-      { maximumAge: 10 * 60_000, timeout: 15_000 },
-    )
-  }
-
-  // Already granted (an earlier visit, or the map's GPS): order the rail at once.
+  // A new position orders the rail around it (nearest museums from the server).
   useEffect(() => {
+    if (!coords) return
     let cancelled = false
-    navigator.permissions
-      ?.query({ name: 'geolocation' })
-      .then((permission) => {
-        if (!cancelled && permission.state === 'granted') locate()
+    museumsNear({ latitude: round(coords.latitude), longitude: round(coords.longitude), lng })
+      .catch(() => null)
+      .then((list) => {
+        if (!cancelled) setNear(list?.length ? { origin: coords, museums: list } : 'failed')
       })
-      .catch(() => {})
     return () => {
       cancelled = true
     }
-    // Once per mount: `locate` reads nothing that changes between renders but `lng`.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [coords, lng])
 
-  const located = state.kind === 'located' ? state : null
+  const located = near && near !== 'failed' ? near : null
+  // Asking the server for the nearest museums still counts as locating, so
+  // the button keeps its spinner until the rail is ordered.
+  const locating = status === 'locating' || (status === 'located' && near === null)
+  // Hidden once located, or once a position failed or was refused (the rail
+  // then stays by name).
+  const offerLocate = !located && status !== 'unavailable' && near !== 'failed'
   const shown = located?.museums ?? museums
   if (shown.length === 0) return null
 
@@ -77,14 +60,12 @@ export function MuseumsRail({ museums }: { museums: RailMuseum[] }) {
     <DiscoverRail
       title={located ? t('Museums near you') : t('Museums')}
       action={
-        // Hidden once located, or once a position failed or was refused
-        // (the rail then stays by name).
-        (state.kind === 'idle' || state.kind === 'locating') && (
+        offerLocate && (
           <Button
             variant="subtle"
             size="compact-sm"
             leftSection={<LocateFixed size={16} aria-hidden />}
-            loading={state.kind === 'locating'}
+            loading={locating}
             onClick={locate}
             className="shrink-0"
           >

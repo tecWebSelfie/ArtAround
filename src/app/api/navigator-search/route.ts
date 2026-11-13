@@ -1,4 +1,5 @@
 import config from '@/payload.config'
+import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
 import { museumSearchRestriction } from '@/lib/museum-mode'
 import type { SearchDocKind } from '@/lib/search-index'
 import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
@@ -25,6 +26,12 @@ export type NavigatorSearchItem = {
   stops?: number
   /** Content only: list price in euro cents when paid. */
   priceCents?: number
+  /**
+   * Museum, or a tour's museum: where it is ([longitude, latitude]), so the
+   * dropdown can mark what is near a visitor who shares their position. The
+   * distance is computed in the browser; the position never comes here.
+   */
+  point?: MuseumPoint
 }
 
 const DIFFICULTY_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 }
@@ -37,6 +44,11 @@ const MUSEUM_MODE_KINDS: SearchDocKind[] = ['tour', 'content', 'object']
 
 function joinParts(...parts: Array<string | null | undefined>) {
   return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ')
+}
+
+const pointOf = (museum: Pick<Museum, 'location'> | undefined) => {
+  const point = museum?.location?.latlng
+  return isMuseumPoint(point) ? point : undefined
 }
 
 const idOf = (value: unknown) =>
@@ -146,6 +158,7 @@ async function hydrateNavigatorHits({
       seconds: tour.durationMinutes ? tour.durationMinutes * 60 : length || undefined,
       difficulty: hardest,
       stops: tour.contents.length,
+      point: pointOf(museum),
     })
   }
   for (const content of (contents?.docs ?? []) as Content[]) {
@@ -167,6 +180,7 @@ async function hydrateNavigatorHits({
       href: `/${locale}/museum/${museum.id}`,
       subtitle: museum.shortDescription ?? undefined,
       city: museum.location?.city ?? undefined,
+      point: pointOf(museum),
     })
   }
   for (const object of objects?.docs ?? []) {
