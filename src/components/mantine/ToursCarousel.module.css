@@ -1,0 +1,248 @@
+/*
+ * The tour deck (ToursCarousel). A CSS module because the deck's look hangs
+ * on states Mantine and Tailwind can't reach cleanly: DepthSelect's own card
+ * nodes (`aria-selected`), the hover of the link laid over the deck
+ * (`:has()`), pseudo-element light and the foot line, and the hover gating
+ * by input type and reduced motion.
+ */
+
+.root {
+  /* The tour identity, blended in OKLCH so the middle never turns muddy.
+     Local for now: TOUR_GRADIENT (theme.ts) and the Tailwind purple-700 /
+     orange-400 frames elsewhere move to these values in the app-wide pass. */
+  --tour-from: oklch(0.45 0.18 305);
+  --tour-to: oklch(0.7 0.15 50);
+  /* The caption scrim: deep plum, warmer than black. */
+  --tour-plum: oklch(0.24 0.06 330);
+}
+
+/* "See all": a hairline pill, a control at rest but secondary to the cards. */
+.seeAll {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px 6px 12px;
+  border: 1px solid var(--mantine-color-default-border);
+  border-radius: 999px;
+  color: var(--mantine-color-text);
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  transition: background-color 160ms ease-out;
+
+  &:hover {
+    background: var(--mantine-color-default-hover);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mantine-primary-color-filled);
+    outline-offset: 3px;
+  }
+
+  & svg {
+    display: block;
+  }
+}
+
+/* Centre the chevron on the letters, not on the line box (whose descender
+   room pushed the text below the icon). */
+.seeAllLabel {
+  text-box: trim-both cap alphabetic;
+}
+
+/* The deck, grounded by a soft light in the tour colours just under it. */
+.stage {
+  position: relative;
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    inset: auto 10% 6px;
+    height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(closest-side, oklch(0.55 0.15 10 / 0.45), transparent);
+    filter: blur(10px);
+    pointer-events: none;
+  }
+}
+
+/* The front card's link, over the deck (outside its listbox, which may not
+   hold interactive children). Above DepthSelect's card z-indexes and exactly
+   the front card's box: the cards behind peek a few pixels above it, outside
+   the link, so they stay clickable to bring one forward. */
+.open {
+  position: absolute;
+  z-index: 10;
+  inset: 0;
+  border-radius: var(--mantine-radius-lg);
+
+  &:focus-visible {
+    outline: 3px solid var(--mantine-primary-color-filled);
+    outline-offset: 3px;
+  }
+}
+
+/* One tour card: the cover (or the tour colours without one) under a plum
+   scrim holding the title and its figures, and the gradient foot line. */
+.card {
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--mantine-radius-lg);
+  color: var(--mantine-color-white);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.14),
+    0 10px 22px -12px rgb(0 0 0 / 0.6);
+
+  &[data-cover='none'] {
+    background:
+      radial-gradient(90% 80% at 20% 10%, oklch(0.62 0.1 340 / 0.9), transparent 60%),
+      linear-gradient(in oklch 150deg, oklch(0.38 0.09 310), oklch(0.56 0.1 45));
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 5px;
+    background: linear-gradient(in oklch 90deg, var(--tour-from), var(--tour-to));
+  }
+}
+
+.cover {
+  position: absolute;
+  inset: 0;
+  transition: scale 300ms ease-out;
+}
+
+.mark {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  translate: -50% -50%;
+  color: rgb(255 255 255 / 0.5);
+}
+
+.caption {
+  position: absolute;
+  inset: auto 0 5px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 36px 14px 12px;
+  background: linear-gradient(
+    0deg,
+    color-mix(in oklch, var(--tour-plum) 88%, transparent),
+    transparent
+  );
+}
+
+.facts {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  font-weight: 600;
+
+  & > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+/* The small "go" button: only on the front card. */
+.go {
+  display: grid;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.95);
+  color: oklch(0.3 0.07 330);
+  box-shadow: 0 4px 12px -4px rgb(0 0 0 / 0.5);
+  transition:
+    translate 160ms ease-out,
+    scale 160ms ease-out;
+}
+
+:global(.mantine-DepthSelect-card)[aria-selected='false'] .go {
+  opacity: 0;
+}
+
+/* Hover (mouse only), keyboard focus or a press on the front card: the go
+   button moves a few pixels right, towards where the card leads, and the
+   picture leans in, slower. Quicker on the way back. */
+@media (hover: hover) and (pointer: fine) {
+  .stage:has(.open:hover) :global([aria-selected='true']) {
+    & .go {
+      translate: 4px 0;
+      transition-duration: 280ms;
+      transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    & .cover {
+      scale: 1.04;
+      transition: scale 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+  }
+}
+
+.stage:is(:has(.open:focus-visible), :has(.open:active)) :global([aria-selected='true']) .go {
+  translate: 4px 0;
+}
+
+.stage:has(.open:active) :global([aria-selected='true']) .go {
+  scale: 0.94;
+}
+
+/* Pager: light chevrons (44px targets, icon-only look) around the page dots;
+   pulled up because the targets bring their own air above the dots. */
+.pager {
+  margin-top: -16px;
+
+  & button {
+    color: var(--mantine-color-dimmed);
+  }
+
+  & button:hover {
+    color: var(--mantine-color-text);
+  }
+
+  & button:disabled {
+    visibility: hidden;
+  }
+}
+
+.dots {
+  display: flex;
+  gap: 6px;
+
+  & span {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: var(--mantine-color-default-border);
+    transition: width 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  & span[data-active] {
+    width: 22px;
+    background: linear-gradient(in oklch 90deg, var(--tour-from), var(--tour-to));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .go,
+  .cover,
+  .dots span {
+    transition: none !important;
+    translate: none !important;
+    scale: none !important;
+  }
+}

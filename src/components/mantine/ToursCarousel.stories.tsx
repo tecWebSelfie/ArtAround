@@ -19,19 +19,16 @@ const toursPresets = {
 // before render, so the arg is the preset key while ToursCarousel still gets Tour[].
 const toursPreset = (preset: keyof typeof toursPresets) => preset as unknown as Tour[]
 
-// Flat args keep one control per field in the addon panel: `tours` is the data
-// the carousel renders, the rest are the Paper props the component spreads.
 const meta = {
   title: 'Tours Carousel',
   component: ToursCarousel,
   parameters: {
-    layout: 'centered',
+    layout: 'padded',
+    nextjs: { appDirectory: true, navigation: { segments: [['lng', 'en']] } },
   },
   tags: ['autodocs'],
   args: {
     tours: toursPreset('3 tours'),
-    radius: 'md',
-    p: 'md',
   },
   argTypes: {
     tours: {
@@ -40,16 +37,6 @@ const meta = {
       mapping: toursPresets,
       description: 'Preset list of tour documents rendered by the carousel.',
     },
-    radius: {
-      control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
-      description: 'Paper: key of `theme.radius` (or any CSS border-radius).',
-    },
-    p: {
-      control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
-      description: 'Box shorthand for padding on the Paper root.',
-    },
   },
 } satisfies Meta<typeof ToursCarousel>
 
@@ -57,24 +44,34 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  play: async ({ canvasElement }) => {
-    // Smoke guard: the carousel must render its Paper shell without crashing.
-    // The shell is mounted asynchronously, so wait for it instead of asserting eagerly.
-    await waitFor(() => {
-      expect(canvasElement.childElementCount).toBeGreaterThan(0)
-    })
+  play: async ({ canvas, userEvent }) => {
+    await expect(canvas.getByRole('heading', { level: 2, name: 'Tours' })).toBeVisible()
+    await expect(canvas.getByRole('link', { name: /see all/i })).toHaveAttribute(
+      'href',
+      '/en/search/tours',
+    )
+    // The front card is one link into its tour.
+    const open = canvas.getByRole('link', { name: /open the tour/i })
+    const first = open.getAttribute('href')
+    await expect(first).toMatch(/^\/en\/tour\//)
+    // The pager flips the deck: the front link follows the selected tour.
+    await userEvent.click(canvas.getByRole('button', { name: 'Show next tour' }))
+    await waitFor(() => expect(open.getAttribute('href')).not.toBe(first))
+  },
+}
+
+/** One tour: no pager, the deck is just the card. */
+export const SingleTour: Story = {
+  args: {
+    tours: toursPreset('Single tour'),
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByRole('button', { name: 'Show next tour' })).toBeNull()
   },
 }
 
 export const Empty: Story = {
   args: {
     tours: toursPreset('Empty'),
-  },
-}
-
-export const Elevated: Story = {
-  args: {
-    radius: 'xl',
-    p: 'xl',
   },
 }
