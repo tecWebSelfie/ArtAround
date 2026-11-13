@@ -70,18 +70,6 @@ export const TOUR_GRADIENT = {
 } satisfies MantineGradient
 
 /**
- * The tour gradient for text on the page itself (the map's "Start Tour"):
- * the strong pair on light, a light pair on dark, so the label reads at
- * 5.6:1 or more on either page (the strong purple alone was about 2:1 on
- * the dark page).
- */
-export const TOUR_TEXT_GRADIENT = {
-  from: 'var(--tour-text-from)',
-  to: 'var(--tour-text-to)',
-  deg: 90,
-} satisfies MantineGradient
-
-/**
  * The brand gradient (DESIGN.md → Gradient-Span Rule): blue into violet on
  * the Artaround wordmark (desktop header, phone tabs' top row) and the brand
  * word of the navigator title. Theme tokens per scheme: blue.7 → violet.7 on

@@ -1,11 +1,12 @@
 'use client'
 
 import { GroupRoomName, roomPath } from '@/lib/group'
-import { Button, Checkbox, Modal, Stack, Text, TextInput } from '@mantine/core'
+import { Button, ButtonProps, Checkbox, Modal, Stack, Text, TextInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { UsersRound } from 'lucide-react'
 import type { Route } from 'next'
 import { useParams, useRouter } from 'next/navigation'
+import type { ReactNode } from 'react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useJoinGroup } from './GroupProvider'
@@ -26,9 +27,20 @@ import { GroupNameForm } from './GroupNameForm'
 export function StartGroupButton({
   tourId,
   navigationQuery = '',
+  label,
+  classNames,
 }: {
   tourId: string
   navigationQuery?: string
+  /** Overrides the button's own label (not the modal's); the default names
+   * the action alone, and a tighter layout can ask for the "you lead it"
+   * reading the modal already gives, spelled out up front instead. */
+  label?: ReactNode
+  /** Forwarded to the button's own Styles API (`inner`/`section`/`label`),
+   * so a caller that reshapes its layout (icon-over-label, a line clamp)
+   * can do it through Mantine's supported part names instead of reaching
+   * into `.mantine-Button-*` from outside. */
+  classNames?: ButtonProps['classNames']
 }) {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
@@ -64,8 +76,13 @@ export function StartGroupButton({
 
   return (
     <>
-      <Button variant="default" leftSection={<UsersRound size={16} />} onClick={modal.open}>
-        {t('Start with a group')}
+      <Button
+        variant="default"
+        leftSection={<UsersRound size={16} />}
+        onClick={modal.open}
+        classNames={classNames}
+      >
+        {label ?? t('Start with a group')}
       </Button>
       <Modal
         opened={opened}
