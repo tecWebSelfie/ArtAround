@@ -3,7 +3,7 @@ import { TourForm } from '@/components/editing/forms/TourForm'
 import { coverImage } from '@/lib/cover-image'
 import { asViewer, can, getSession, requireUser } from '@/lib/session'
 import { Container } from '@mantine/core'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { directionsByStop } from '@/lib/tour-logistics'
 import { tourCopyPath, tourEditPath } from '@/lib/tour-routes'
 import { getTourEditorData } from '../../tour-editing'
@@ -12,10 +12,21 @@ import { getTourEditorData } from '../../tour-editing'
 export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[id]/edit'>) {
   const { lng, id } = await params
   await requireUser(lng, tourEditPath(lng, id))
-  if (!(await can('tours', id, 'update'))) redirect(tourCopyPath(lng, id))
-
   const { payload } = await getSession()
-  const tour = await payload.findByID({ collection: 'tours', id, depth: 0, ...(await asViewer()) })
+  // Read as the visitor: a deleted tour, or someone else's private one, is a
+  // 404 rather than a copy of nothing.
+  const [tour, canEdit] = await Promise.all([
+    payload.findByID({
+      collection: 'tours',
+      id,
+      depth: 0,
+      disableErrors: true,
+      ...(await asViewer()),
+    }),
+    can('tours', id, 'update'),
+  ])
+  if (!tour) notFound()
+  if (!canEdit) redirect(tourCopyPath(lng, id))
   const stopIds = tour.contents.map((content) =>
     typeof content === 'string' ? content : content.id,
   )

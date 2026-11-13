@@ -6,7 +6,7 @@ import type { Route } from 'next'
 import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { docPermissions } from '@/lib/doc-access'
-import { createLocalReq, getPayload, type SanitizedCollectionPermission } from 'payload'
+import { createLocalReq, getPayload, NotFound, type SanitizedCollectionPermission } from 'payload'
 import { cache } from 'react'
 
 /**
@@ -55,7 +55,12 @@ export const getDocPermissions = cache(
     const { payload, user } = await getSession()
     if (!user) return null
     const req = await createLocalReq({ user }, payload)
-    return docPermissions(req, collection, id)
+    // A missing document grants nothing: callers render their own 404 instead
+    // of crashing on Payload's `NotFound` (e.g. a deleted tour's editor).
+    return docPermissions(req, collection, id).catch((error: unknown) => {
+      if (error instanceof NotFound) return null
+      throw error
+    })
   },
 )
 
