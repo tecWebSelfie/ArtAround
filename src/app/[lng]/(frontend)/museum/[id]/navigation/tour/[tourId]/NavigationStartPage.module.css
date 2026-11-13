@@ -29,7 +29,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--mantine-spacing-md);
+  /* A step wider than the dock's rhythm: the cover is a circle, so it meets
+     the title at a single point and 16px read as glued. */
+  gap: var(--mantine-spacing-lg);
   max-width: 24rem;
   /* Keeps the title and cover off the viewport's top edge; centered only
      in the space above the dock, they read a touch high otherwise. */
@@ -272,7 +274,7 @@
   }
 
   .identity {
-    gap: var(--mantine-spacing-xs);
+    gap: var(--mantine-spacing-sm);
     padding-top: 0;
   }
 
