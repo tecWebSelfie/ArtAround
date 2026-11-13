@@ -89,7 +89,15 @@
 .groupInner {
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+  /* Mantine's own `.mantine-Button-inner` sets `height: 100%` (it fills a
+     single-row button); unset, it stretches to the button's full content
+     height, and with no justify-content leaves icon and label pinned to
+     the top with the leftover room sitting below them instead of split
+     evenly. `justify-content: center` above covers the same case even if
+     Mantine's default ever changes. */
+  height: auto;
 }
 
 .groupSection {
@@ -107,6 +115,11 @@
   white-space: normal;
   text-align: center;
   line-height: 1.2;
+  /* Mantine's own `.mantine-Button-label` sets `height: 100%` (it fills a
+     single-row button); unset here, it stretched the label to the column's
+     full height, leaving the one line of text sitting above true centre
+     with dead space reserved below it. */
+  height: auto;
 }
 
 /* Start Tour: a tinted panel framed by the tour gradient — never a flat
