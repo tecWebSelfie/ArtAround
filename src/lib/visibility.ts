@@ -179,7 +179,8 @@ export const hideFromSearch =
  * them ("Plan my visit", `generation.generated`) and their own copy of a tour
  * for a visit (`visitCopyOf`, "Edit" on a start page). Every list of tours (the
  * museum page, a work's or a content's tours, search, the map's Spotlight)
- * leaves them out with this one rule, as a query and as a predicate.
+ * leaves them out with this one rule, as a query and as a predicate. Page
+ * queries apply it through `findListedTours` (`src/lib/listed-tours.ts`).
  */
 export const LISTED_TOURS: Where = {
   'generation.generated': { not_equals: true },

@@ -31,9 +31,7 @@ export async function DiscoverSections({ lng }: { lng: string }) {
 
   // The rotating candidates are read alongside the context rail; only their
   // final filter waits for it (`shown`).
-  const context = museumId
-    ? museumTours({ payload, locale, viewer, museumId })
-    : Promise.resolve([])
+  const context = museumId ? museumTours({ payload, locale, museumId }) : Promise.resolve([])
   const [contextTours, museums, candidates] = await Promise.all([
     context,
     museumId ? [] : railMuseums({ payload, locale, viewer }),

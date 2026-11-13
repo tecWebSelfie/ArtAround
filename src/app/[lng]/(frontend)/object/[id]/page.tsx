@@ -1,4 +1,4 @@
-import { LISTED_TOURS } from '@/lib/visibility'
+import { findListedTours } from '@/lib/listed-tours'
 import { subjectsOfWork } from '@/lib/subjects'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataForm'
@@ -100,15 +100,13 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
           locale,
           ...viewer,
         }),
-        payload.find({
-          collection: 'tours',
-          where: { contents: { in: ids }, ...LISTED_TOURS },
+        findListedTours(payload, {
+          where: { contents: { in: ids } },
           select: { title: true, contents: true },
           depth: 0,
           limit: 6,
           pagination: false,
           locale,
-          ...viewer,
         }),
       ])
       // `id in` comes back in the database's order: put the contents back in

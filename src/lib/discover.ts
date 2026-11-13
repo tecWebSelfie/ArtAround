@@ -5,7 +5,7 @@ import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
 import { PRIMARY_SHADE } from '@/lib/museum-color'
 import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
 import { visitMinutes } from '@/lib/tour-summary'
-import { LISTED_TOURS } from '@/lib/visibility'
+import { findListedTours } from '@/lib/listed-tours'
 import type { Museum, MuseumThumbnail, Tour } from '@/payload-types'
 import type { Payload, TypedLocale, TypedUser, Where } from 'payload'
 
@@ -55,8 +55,12 @@ export type RotatingCandidate = { id: string; title: string; tours: RailTour[] }
 
 type Viewer = { user: TypedUser | null; overrideAccess: false }
 
-/** Public, listed tours only: discovery never shows a private class visit or a planned one. */
-const DISCOVERABLE_TOURS: Where = { visibility: { equals: 'public' }, ...LISTED_TOURS }
+/**
+ * Public tours only: discovery never shows a private class visit, not even
+ * the visitor's own. `findListedTours` adds the list rule (no planned visits
+ * or visit copies) and reads as the visitor.
+ */
+const PUBLIC_TOURS: Where = { visibility: { equals: 'public' } }
 
 /**
  * What a rail card needs from a tour. Contents are populated with their length
@@ -105,18 +109,15 @@ function toRailTour(tour: CardTour): RailTour {
 export async function museumTours(options: {
   payload: Payload
   locale: TypedLocale
-  viewer: Viewer
   museumId: string
 }): Promise<RailTour[]> {
-  const { payload, locale, viewer, museumId } = options
-  const { docs } = await payload.find({
-    collection: 'tours',
-    where: { museum: { equals: museumId }, ...DISCOVERABLE_TOURS },
+  const { payload, locale, museumId } = options
+  const { docs } = await findListedTours(payload, {
+    where: { museum: { equals: museumId }, ...PUBLIC_TOURS },
     ...TOUR_CARD_READ,
     sort: '-updatedAt',
     limit: RAIL_LIMIT,
     locale,
-    ...viewer,
   })
   return docs.map(toRailTour)
 }
@@ -147,14 +148,12 @@ export async function rotatingCandidates(options: {
 }): Promise<RotatingCandidate[]> {
   const { payload, locale, viewer, museumId, shown, titles } = options
   const [tours, categories] = await Promise.all([
-    payload.find({
-      collection: 'tours',
-      where: { ...DISCOVERABLE_TOURS, ...(museumId && { museum: { equals: museumId } }) },
+    findListedTours(payload, {
+      where: { ...PUBLIC_TOURS, ...(museumId && { museum: { equals: museumId } }) },
       ...TOUR_CARD_READ,
       sort: '-createdAt',
       limit: CANDIDATE_POOL,
       locale,
-      ...viewer,
     }),
     payload.find({
       collection: 'museumCategories',

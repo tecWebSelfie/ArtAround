@@ -8,8 +8,7 @@ import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
-import { asViewer } from '@/lib/session'
-import { LISTED_TOURS } from '@/lib/visibility'
+import { findListedTours } from '@/lib/listed-tours'
 
 const PAGE_SIZE = 12
 
@@ -26,11 +25,11 @@ export default async function SearchToursPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumScope(), asViewer()])
+  const setup = Promise.all([getPayload({ config }), museumScope()])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
-  const [payload, scope, viewer] = await setup
+  const [payload, scope] = await setup
 
   const definitions: FilterDefinition[] = [
     {
@@ -50,13 +49,11 @@ export default async function SearchToursPage(props: {
   const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page
   const page = Math.max(1, Number(pageParam) || 1)
 
-  const result = await payload.find({
-    collection: 'tours',
+  // As the visitor and without one visitor's own tours (`findListedTours`).
+  const result = await findListedTours(payload, {
     where: {
       and: [
         activeFiltersToWhere(initialFilters, definitions),
-        // A list: never one visitor's own tours (planned visits, visit copies).
-        LISTED_TOURS,
         // Museum mode: only the locked museum's tours.
         ...(scope ? [{ museum: { equals: scope.museumId } }] : []),
       ],
@@ -64,8 +61,6 @@ export default async function SearchToursPage(props: {
     page,
     limit: PAGE_SIZE,
     depth: 1,
-    // As the visitor: others' private tours stay out (`readTours`).
-    ...viewer,
   })
 
   return (

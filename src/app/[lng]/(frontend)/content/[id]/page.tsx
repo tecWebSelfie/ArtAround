@@ -1,4 +1,4 @@
-import { LISTED_TOURS } from '@/lib/visibility'
+import { findListedTours } from '@/lib/listed-tours'
 import { TranslationNotice } from '@/components/TranslationNotice'
 import { displayName } from '@/lib/display-name'
 import { PICTURE_SELECT, usablePictures } from '@/lib/picture'
@@ -131,13 +131,11 @@ async function loadContentDetails(
             ...viewer,
           })
         : null,
-      payload.find({
-        collection: 'tours',
+      findListedTours(payload, {
         // Museum mode: only the locked museum's tours that include this content.
         where: {
           contents: { contains: id },
           ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
-          ...LISTED_TOURS,
         },
         select: { title: true, thumbnail: true, museum: true },
         populate: {
@@ -148,7 +146,6 @@ async function loadContentDetails(
         depth: 1,
         limit: 6,
         sort: '-updatedAt',
-        ...viewer,
       }),
       // The credit line's holder when it isn't the author (src/lib/content-rights.ts).
       rightsMuseumId
