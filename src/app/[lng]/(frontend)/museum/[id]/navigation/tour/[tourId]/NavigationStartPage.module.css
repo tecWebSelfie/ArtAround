@@ -36,7 +36,7 @@
   /* Title and cover sit centred in the space over the dock, a touch above
      where an even split would put them: clear of the
      controls, yet not reaching the museum badge in the top corner. */
-  padding-top: 5dvh;
+  padding-top: 7dvh;
 
   /* The page's one heading: a step past Mantine's h2 and heavier, in the
      full text colour, so it reads as the tour's name and not as a label. */
