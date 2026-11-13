@@ -65,13 +65,7 @@ export function ObjectMetadataForm({
       <Stack gap="sm">
         <TextInput label={t('Name')} required {...form.getInputProps('name')} />
         <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
-        <Textarea
-          label={t('Description')}
-          autosize
-          minRows={3}
-          maxLength={500}
-          {...form.getInputProps('description')}
-        />
+        <Textarea label={t('Description')} maxLength={500} {...form.getInputProps('description')} />
         <WikidataInput
           value={form.values.wikidataId}
           onChange={(value) => form.setFieldValue('wikidataId', value)}

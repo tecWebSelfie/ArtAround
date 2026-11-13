@@ -152,46 +152,51 @@ export default function TourPage({
                     view. */}
                 <DetailCover pictures={[cover]} fallback="tour" title={tour.title} />
 
-                <Stack gap="xs">
-                  <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
-                    <Title order={1} size="h2" textWrap="balance">
-                      {tour.title}
-                    </Title>
-                    <Group gap="xs" wrap="nowrap">
-                      <QrCodeButton
-                        kind="tour"
-                        id={tour.id}
-                        title={tour.title}
-                        printMuseumId={printMuseumId}
-                      />
-                      {canDelete && (
-                        <DeleteDocumentButton
-                          collection="tours"
+                {/* Two steps of spacing: the title and its byline (museum,
+                    author) read as one heading unit, tight; the description
+                    and the translation notice follow it as body text. */}
+                <Stack gap="sm">
+                  <Stack gap={4}>
+                    <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
+                      <Title order={1} size="h2" textWrap="balance">
+                        {tour.title}
+                      </Title>
+                      <Group gap="xs" wrap="nowrap">
+                        <QrCodeButton
+                          kind="tour"
                           id={tour.id}
-                          name={tour.title}
-                          redirectTo={`/${lng}/navigator` as Route}
+                          title={tour.title}
+                          printMuseumId={printMuseumId}
                         />
-                      )}
+                        {canDelete && (
+                          <DeleteDocumentButton
+                            collection="tours"
+                            id={tour.id}
+                            name={tour.title}
+                            redirectTo={`/${lng}/navigator` as Route}
+                          />
+                        )}
+                      </Group>
                     </Group>
-                  </Group>
-                  {(museum || author) && (
-                    <Group gap="xs" c="dimmed" fz="sm">
-                      {museum && (
-                        <Anchor
-                          component={Link}
-                          href={`/${lng}/museum/${museum.id}` as Route}
-                          size="sm"
-                          c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
-                          className="inline-flex items-center gap-1"
-                        >
-                          <Landmark size={14} aria-hidden />
-                          {museum.name}
-                        </Anchor>
-                      )}
-                      {museum && author && <span aria-hidden>·</span>}
-                      {author && <Text size="sm">{t('By {{name}}', { name: author })}</Text>}
-                    </Group>
-                  )}
+                    {(museum || author) && (
+                      <Group gap="xs" c="dimmed" fz="sm">
+                        {museum && (
+                          <Anchor
+                            component={Link}
+                            href={`/${lng}/museum/${museum.id}` as Route}
+                            size="sm"
+                            c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
+                            className="inline-flex items-center gap-1"
+                          >
+                            <Landmark size={14} aria-hidden />
+                            {museum.name}
+                          </Anchor>
+                        )}
+                        {museum && author && <span aria-hidden>·</span>}
+                        {author && <Text size="sm">{t('By {{name}}', { name: author })}</Text>}
+                      </Group>
+                    )}
+                  </Stack>
                   {tour.description && <Text c="dimmed">{tour.description}</Text>}
                   {translationNotice}
                 </Stack>
@@ -312,23 +317,6 @@ export default function TourPage({
                     </Text>
                   )}
                 </Group>
-                {/* The reading profile: how many stops ask for an easy, medium
-                  or hard read, with the Triplet Rule's icon + label + color. */}
-                {summary.difficulties.length > 0 && (
-                  <Group gap={6}>
-                    {summary.difficulties.map(({ difficulty, count }) => (
-                      <DifficultyBadge
-                        key={difficulty}
-                        difficulty={difficulty}
-                        variant="light"
-                        className="tabular-nums"
-                      >
-                        {`${count} · ${difficultyLabel[difficulty]}`}
-                      </DifficultyBadge>
-                    ))}
-                  </Group>
-                )}
-
                 <Timeline bulletSize={28} lineWidth={2} mt="xs">
                   {contents.map((content, index) => {
                     const directions = stopDirections(tour, content.id)

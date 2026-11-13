@@ -1,5 +1,6 @@
 import config from '@/payload.config'
 import { museumSearchRestriction } from '@/lib/museum-mode'
+import type { SearchDocKind } from '@/lib/search-index'
 import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
 import type { Content, Difficulty, Museum, Tour } from '@/payload-types'
 import { getPayload, type Payload, type TypedLocale } from 'payload'
@@ -30,6 +31,9 @@ const DIFFICULTY_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 
 
 /** How many index rows are ranked before keeping `limit` (see GET). */
 const RANK_POOL = 40
+
+/** Museum mode: what the selected museum holds, without the museum itself. */
+const MUSEUM_MODE_KINDS: SearchDocKind[] = ['tour', 'content', 'object']
 
 function joinParts(...parts: Array<string | null | undefined>) {
   return parts.filter((part): part is string => Boolean(part && part.trim())).join(' · ')
@@ -208,10 +212,12 @@ export async function GET(request: Request) {
     const { hits } = await querySearchIndex({
       payload,
       query,
-      // Works are results only in museum mode, where the visitor is in (or
+      // Museum mode searches inside the selected museum: its tours, contents and
+      // works, never the museum itself (already chosen, one tap away in the
+      // switch). Works are results only there, where the visitor is in (or
       // headed to) that museum and looks for a work to find; globally a work
       // finds the tours and contents that show it (docs/search.md).
-      kinds: restrictTo ? [...NAVIGATOR_SEARCH_KINDS, 'object'] : NAVIGATOR_SEARCH_KINDS,
+      kinds: restrictTo ? MUSEUM_MODE_KINDS : NAVIGATOR_SEARCH_KINDS,
       page: 1,
       // Rank a larger pool, then keep `limit`: taking `limit` rows by priority
       // first could drop an exact title match that ranks below them.

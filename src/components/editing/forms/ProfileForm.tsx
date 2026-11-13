@@ -43,7 +43,7 @@ export function ProfileForm({ user }: { user: Pick<User, 'id' | 'name' | 'bio'> 
       <Stack gap="sm">
         <TextInput label={t('First name')} required {...form.getInputProps('firstName')} />
         <TextInput label={t('Last name')} required {...form.getInputProps('lastName')} />
-        <Textarea label={t('Bio')} autosize minRows={2} {...form.getInputProps('bio')} />
+        <Textarea label={t('Bio')} {...form.getInputProps('bio')} />
         <FormActions saving={save.isPending} />
       </Stack>
     </form>

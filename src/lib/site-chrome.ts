@@ -3,6 +3,7 @@ import 'server-only'
 import { toNavAccount } from '@/components/navigation/nav-account'
 import type { MyMuseum } from '@/components/navigation/nav-shared'
 import type { MuseumOption } from '@/components/mantine/MuseumSwitch'
+import { MUSEUM_FUNCTION_RANK } from '@/fields/MuseumFunction'
 import { isPopulated } from '@/lib/isPopulated'
 import { museumScope } from '@/lib/museum-mode'
 import { PRIMARY_SHADE } from '@/lib/museum-color'
@@ -42,8 +43,11 @@ export const getSiteChrome = cache(async () => {
       select: { name: true, location: true, palette: true },
     }),
   ])
+  // Only roles the menu knows how to show: a membership stored with a missing
+  // or legacy role (older seeds, raw writes) would crash `MyMuseumsMenuItems`,
+  // which looks up an icon per role, so it is left out instead.
   const myMuseums: MyMuseum[] = (memberships?.docs ?? []).flatMap((membership) =>
-    isPopulated(membership.museum)
+    isPopulated(membership.museum) && Object.hasOwn(MUSEUM_FUNCTION_RANK, membership.role ?? '')
       ? [{ id: membership.museum.id, name: membership.museum.name, role: membership.role }]
       : [],
   )

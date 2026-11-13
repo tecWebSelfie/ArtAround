@@ -42,7 +42,7 @@ export const UserPage = async ({
   /** Owner-only actions (sign out), rendered by the route so stories stay server-action free. */
   accountActions?: ReactNode
 }) => {
-  const { t } = await getT('user-page')
+  const { t, lng } = await getT('user-page')
   const { t: te } = await getT('editing')
   // Authorship is a join (`contents.author` / `tours.author`), hence `.docs`.
   const populatedTours = filterPopulated(user.authoredTours?.docs)
@@ -157,7 +157,10 @@ export const UserPage = async ({
                       data={{
                         [t('Username')]: `@${user.username}`,
                         ...(user.email ? { [t('Email')]: user.email } : {}),
-                        [t('Member since')]: new Date(user.createdAt).toLocaleDateString(),
+                        // In the page's language, not the server's default locale.
+                        [t('Member since')]: new Intl.DateTimeFormat(lng, {
+                          dateStyle: 'medium',
+                        }).format(new Date(user.createdAt)),
                       }}
                     />
                   </Stack>

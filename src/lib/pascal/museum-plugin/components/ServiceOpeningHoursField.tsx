@@ -146,7 +146,7 @@ function OpeningHoursForm({
       <Textarea
         label={t('Notes')}
         maxLength={100}
-        minRows={2}
+        rows={2}
         value={notes}
         onChange={(event) => setNotes(event.currentTarget.value)}
       />

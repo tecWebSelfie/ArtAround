@@ -166,8 +166,7 @@ function SortableStop({
       <Textarea
         mt="xs"
         size="xs"
-        autosize
-        minRows={1}
+        rows={2}
         maxLength={500}
         label={
           first
@@ -366,8 +365,6 @@ export function TourForm({
         <Textarea
           label={t('Practical information')}
           description={t('Entrance, tickets, cloakroom: what visitors read before the first stop.')}
-          autosize
-          minRows={2}
           maxLength={1000}
           {...form.getInputProps('logistics')}
         />

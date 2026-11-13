@@ -79,8 +79,9 @@ Both scopes read the same `search` collection through
     8, museums 6, objects 5, users 4), then the route ranks a pool of
     `RANK_POOL` (40) rows by exact city, title and partial city match before
     keeping `limit`, so an exact match is never cut by priority.
-  - Museum mode (`museumScope()`): only the locked museum, its tours and the
-    contents on its map (`restrictTo` in `querySearchIndex()`). It also returns
+  - Museum mode (`museumScope()`): only what the locked museum holds, its tours
+    and the contents on its map (`restrictTo` in `querySearchIndex()`), never
+    the museum itself (`MUSEUM_MODE_KINDS`). It also returns
     the works on that map (`object` rows, restricted to `objectIds`) with their
     artist as subtitle, opening the work's page; in global mode works are not
     results.

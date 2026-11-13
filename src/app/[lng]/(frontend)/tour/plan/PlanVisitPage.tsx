@@ -504,8 +504,7 @@ export function PlanVisitPage({
                     description={t(
                       'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
                     )}
-                    autosize
-                    minRows={2}
+                    rows={3}
                     maxLength={500}
                     value={answers.interests}
                     onChange={(event) => update('interests', event.currentTarget.value)}

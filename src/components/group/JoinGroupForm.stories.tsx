@@ -14,36 +14,32 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
- * Join is light while the field is empty but never disabled: pressed too
- * early, the field shows the length rule as its error in place of the hint,
- * and typing again clears it.
+ * Join is disabled until the code fits: the hint under the field says where
+ * the code comes from, then the length rule once a too-short text is typed.
  */
 export const Empty: Story = {
   play: async ({ canvas }) => {
     const join = canvas.getByRole('button', { name: 'Join' })
-    await expect(join).toBeEnabled()
-    await expect(join).toHaveAttribute('data-variant', 'light')
+    await expect(join).toBeDisabled()
     // The visible question labels the field, and the hint says who gives it.
     const field = canvas.getByRole('textbox', { name: /joining a group\?/i })
     await expect(field).toHaveAccessibleDescription(/whoever leads the group gives it to you/i)
-
-    await userEvent.click(join)
-    await expect(field).toHaveAttribute('aria-invalid', 'true')
-    await expect(field).toHaveAccessibleDescription(/3 to 30 letters or numbers/)
     await expect(getRouter().push).not.toHaveBeenCalled()
 
-    await userEvent.type(field, 'a')
-    await expect(field).not.toHaveAttribute('aria-invalid', 'true')
+    // Text that doesn't fit yet: the hint states the length rule.
+    await userEvent.type(field, 'ab')
+    await expect(join).toBeDisabled()
+    await expect(field).toHaveAccessibleDescription(/3 to 30 letters or numbers/)
   },
 }
 
-/** A code typed in lower case turns Join filled and opens its join page. */
+/** A code typed in lower case enables Join, which opens its join page. */
 export const TypedCode: Story = {
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getAllByRole('textbox', { name: /joining a group\?/i })[0])
     await userEvent.keyboard('ab3x9k')
     const join = canvas.getByRole('button', { name: 'Join' })
-    await expect(join).toHaveAttribute('data-variant', 'filled')
+    await expect(join).toBeEnabled()
     await userEvent.click(join)
     await expect(getRouter().push).toHaveBeenCalledWith('/en/room/AB3X9K')
   },
