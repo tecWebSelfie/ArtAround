@@ -2275,6 +2275,7 @@ export interface Tour {
   thumbnail?: (string | null) | ToursThumbnail
   museum: string | Museum
   author?: (string | null) | User
+  visitCopyOf?: (string | null) | Tour
   generation?: {
     generated?: boolean | null
     model?: string | null
@@ -4573,6 +4574,7 @@ export interface ToursSelect<T extends boolean = true> {
   thumbnail?: T
   museum?: T
   author?: T
+  visitCopyOf?: T
   generation?:
     | T
     | {

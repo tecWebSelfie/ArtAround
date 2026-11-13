@@ -8,6 +8,8 @@ import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
+import { asViewer } from '@/lib/session'
+import { LISTED_TOURS } from '@/lib/visibility'
 
 const PAGE_SIZE = 12
 
@@ -24,11 +26,11 @@ export default async function SearchToursPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumScope()])
+  const setup = Promise.all([getPayload({ config }), museumScope(), asViewer()])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
-  const [payload, scope] = await setup
+  const [payload, scope, viewer] = await setup
 
   const definitions: FilterDefinition[] = [
     {
@@ -50,18 +52,20 @@ export default async function SearchToursPage(props: {
 
   const result = await payload.find({
     collection: 'tours',
-    // Museum mode: only the locked museum's tours.
-    where: scope
-      ? {
-          and: [
-            activeFiltersToWhere(initialFilters, definitions),
-            { museum: { equals: scope.museumId } },
-          ],
-        }
-      : activeFiltersToWhere(initialFilters, definitions),
+    where: {
+      and: [
+        activeFiltersToWhere(initialFilters, definitions),
+        // A list: never one visitor's own tours (planned visits, visit copies).
+        LISTED_TOURS,
+        // Museum mode: only the locked museum's tours.
+        ...(scope ? [{ museum: { equals: scope.museumId } }] : []),
+      ],
+    },
     page,
     limit: PAGE_SIZE,
     depth: 1,
+    // As the visitor: others' private tours stay out (`readTours`).
+    ...viewer,
   })
 
   return (

@@ -1,5 +1,5 @@
 import { displayName } from '@/lib/display-name'
-import { isPlannedVisit } from '@/lib/visibility'
+import { isPersonalTour } from '@/lib/visibility'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 
@@ -401,12 +401,13 @@ export function museumRelationIds(
 
 /**
  * Documents that never get a search row: private contents and tours and the
- * visits planned for one visitor (both rules in src/lib/visibility.ts). One
+ * tours of one visitor (planned visits, visit copies; both rules in
+ * src/lib/visibility.ts). One
  * predicate for the plugin's `skipSync` and for `pnpm search:reindex`, which
  * used to index every document it found.
  */
 export function isUnlistedInSearch(doc: unknown): boolean {
   return (
-    (doc as { visibility?: string | null } | null)?.visibility === 'private' || isPlannedVisit(doc)
+    (doc as { visibility?: string | null } | null)?.visibility === 'private' || isPersonalTour(doc)
   )
 }

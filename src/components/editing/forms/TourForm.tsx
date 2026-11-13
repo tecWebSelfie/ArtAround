@@ -200,7 +200,7 @@ export function TourForm({
   candidates,
   initial,
   thumbnail,
-  visitCopy = false,
+  visitCopyOf = null,
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -213,11 +213,12 @@ export function TourForm({
    */
   thumbnail?: CurrentImage | null
   /**
-   * A visit copy (`tourCopyPath` with `visit`): says the original stays as
-   * it is and, once saved, opens the copy's start page, not its detail page.
+   * Creating or editing a visit copy (`tours.visitCopyOf`): a notice, no
+   * visibility choice, and the copy's start page once saved.
    */
-  visitCopy?: boolean
+  visitCopyOf?: string | null
 }) {
+  const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
@@ -315,7 +316,7 @@ export function TourForm({
       }
       return tourId
         ? payloadSdk.update({ collection: 'tours', id: tourId, data })
-        : payloadSdk.create({ collection: 'tours', data })
+        : payloadSdk.create({ collection: 'tours', data: { ...data, visitCopyOf } })
     },
     (saved) => {
       clearDraft()
@@ -336,7 +337,7 @@ export function TourForm({
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
       <Stack gap="md">
         <Title order={2}>
-          {tourId ? t('Edit tour') : visitCopy ? t('Edit your copy') : t('New tour')}
+          {visitCopy ? t('Edit your copy') : tourId ? t('Edit tour') : t('New tour')}
         </Title>
         <Text c="dimmed" size="sm">
           {t('Museum: {{name}}', { name: museum.name })}
@@ -353,11 +354,14 @@ export function TourForm({
           {...form.getInputProps('description')}
         />
         <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
-        <VisibilityInput
-          kind="tour"
-          value={form.values.visibility}
-          onChange={(value) => form.setFieldValue('visibility', value)}
-        />
+        {/* A visit copy is always private (the server enforces it): no choice to offer. */}
+        {!visitCopy && (
+          <VisibilityInput
+            kind="tour"
+            value={form.values.visibility}
+            onChange={(value) => form.setFieldValue('visibility', value)}
+          />
+        )}
         {/* Logistic directions: not a stop, not part of one (src/lib/tour-logistics.ts). */}
         <Textarea
           label={t('Practical information')}
@@ -507,7 +511,8 @@ export function TourForm({
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            {tourId ? t('Save') : t('Create tour')}
+            {/* A visit copy reads as editing (it came from "Edit"), even when it's created. */}
+            {tourId || visitCopy ? t('Save') : t('Create tour')}
           </Button>
         </Group>
       </Stack>

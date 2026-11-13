@@ -175,11 +175,15 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      is edited inline there now).
    - `/[lng]/tour/new?museum=<id>` | `?from=<tourId>` (customize a copy) |
      `?from=<tourId>&visit=1` ("Edit" on the tour's start page,
-     `tourCopyPath(…, { visit: true })`: the visitor's own copy for this visit, never the
-     original — private by default, opened on its start page once saved.
-     Saved on the server rather than on the device so a group can follow
-     it: the room, the guests' cookie and every navigation page read tours
-     by id) and
+     `tourCopyPath(…, { visit: true })`: the visitor's own copy for this
+     visit, never the original. The copy records its provenance in
+     `tours.visitCopyOf` (set on create, never reassigned); the
+     `keepVisitCopyPrivate` hook keeps it private, `LISTED_TOURS` keeps it
+     out of every list like a planned visit, and the editor opens its start
+     page once saved. "Edit" again — on the original or on the copy — reopens
+     the visitor's copy (`existingVisitCopy`) instead of copying again. Saved
+     on the server rather than on the device so a group can follow it: the
+     room, the guests' cookie and every navigation page read tours by id) and
      `/[lng]/tour/[id]/edit` — `TourForm`: vertical timeline of stops,
      reordered by drag (grip handle, `@dnd-kit/react`, auto-scroll + keyboard)
      or up/down buttons (precise on long tours, WCAG 2.5.7 alternative);

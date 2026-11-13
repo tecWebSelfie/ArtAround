@@ -431,8 +431,8 @@ export const Museums: CollectionConfig = {
     },
     {
       // Reverse of `tours.museum`: the tours the museum page offers, without
-      // the visits planned for one visitor (`LISTED_TOURS`), which would fill
-      // the list with everyone's "30 minutes, only the highlights".
+      // one visitor's own tours (`LISTED_TOURS`: planned visits, visit copies),
+      // which would fill the list with everyone's "30 minutes, only the highlights".
       name: 'tours',
       type: 'join',
       collection: 'tours',

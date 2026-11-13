@@ -41,6 +41,7 @@ export function tourStepIndex(value: string, count: number): number | null {
 export {
   museumNavigationPath,
   tourCopyPath,
+  tourEditPath,
   tourNavigationPath,
   tourStartPath,
   VISIT_COPY_PARAM,

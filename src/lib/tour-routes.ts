@@ -31,19 +31,18 @@ export function tourNavigationPath(lng: string, museumId: string, tourId: string
   return `${tourStartPath(lng, museumId, tourId)}/${step}` as Route
 }
 
-/**
- * Query flag on `/tour/new?from=<id>`: the copy is the visitor's own instance
- * of the tour for this visit (copy-on-write — the original never changes).
- * It is saved on the server, not on the device, so a group can follow it: the
- * room, the guests' cookie and every navigation page read tours by id. The
- * editor starts it private and, once saved, opens its start page.
- */
+/** The editor of an existing tour (its author's). */
+export function tourEditPath(lng: string, tourId: string) {
+  return `/${lng}/tour/${tourId}/edit` as Route
+}
+
+/** Query flag on `/tour/new?from=<id>`: a visit copy (`tours.visitCopyOf`). */
 export const VISIT_COPY_PARAM = 'visit'
 
 /**
  * The editor for a new tour copied from `tourId` (the original never
  * changes): "Customize tour" on the tour page, or, with `visit`, the start
- * page's "Edit" — a private copy for this visit.
+ * page's "Edit".
  */
 export function tourCopyPath(lng: string, tourId: string, { visit = false } = {}) {
   return `/${lng}/tour/new?from=${tourId}${visit ? `&${VISIT_COPY_PARAM}=1` : ''}` as Route

@@ -14,7 +14,7 @@ import { formatRating } from '@/lib/rating'
 import { formatUnit } from '@/lib/duration'
 import { stopImage, stopPicture, summarizeTour } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
-import { tourCopyPath, tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
+import { tourCopyPath, tourEditPath, tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { QrCodeButton } from '@/components/QrCodeButton'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import type { Content, Difficulty, Tour } from '@/payload-types'
@@ -124,7 +124,7 @@ export default function TourPage({
     hard: t('Hard'),
   }
   // Authors edit their tour; anyone else customizes a copy of it.
-  const editHref = canEdit ? (`/${lng}/tour/${tour.id}/edit` as Route) : tourCopyPath(lng, tour.id)
+  const editHref = canEdit ? tourEditPath(lng, tour.id) : tourCopyPath(lng, tour.id)
   // The tour's start page, inside its museum's navigation.
   const startHref = tourStartPath(lng, tourMuseumId(tour), tour.id)
 

@@ -174,13 +174,22 @@ export const hideFromSearch =
   }
 
 /**
- * Tours that lists show. A visit planned for one visitor ("Plan my visit",
- * `generation.generated`) is saved as a tour so that a group can follow it by
- * its link, but it is that visitor's own answer: every list of tours (the
+ * Tours that lists show. Two kinds of tour belong to one visitor and are saved
+ * as tours only so that a group can follow them by link: a visit planned for
+ * them ("Plan my visit", `generation.generated`) and their own copy of a tour
+ * for a visit (`visitCopyOf`, "Edit" on a start page). Every list of tours (the
  * museum page, a work's or a content's tours, search, the map's Spotlight)
- * leaves it out with this one rule, as a query and as a predicate.
+ * leaves them out with this one rule, as a query and as a predicate.
  */
-export const LISTED_TOURS: Where = { 'generation.generated': { not_equals: true } }
-export const isPlannedVisit = (doc: unknown) =>
-  (doc as { generation?: { generated?: boolean | null } | null } | null)?.generation?.generated ===
-  true
+export const LISTED_TOURS: Where = {
+  'generation.generated': { not_equals: true },
+  // Payload's `exists: false` on a relationship also matches a stored null.
+  visitCopyOf: { exists: false },
+}
+export const isPersonalTour = (doc: unknown) => {
+  const tour = doc as {
+    generation?: { generated?: boolean | null } | null
+    visitCopyOf?: unknown
+  } | null
+  return tour?.generation?.generated === true || tour?.visitCopyOf != null
+}

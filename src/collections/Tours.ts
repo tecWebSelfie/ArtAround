@@ -53,7 +53,11 @@ const authorOrMuseumDirector: Access = async ({ req }) => {
 }
 
 const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operation }) => {
-  if (operation === 'create' && req.user && !isSuperAdmin(req)) data.author = req.user.id
+  if (operation !== 'create' || !req.user) return data
+  // Super admins may author a tour for someone else from the admin, except a
+  // visit copy: that is always its creator's own (`existingVisitCopy` finds
+  // it by author to reopen it instead of copying again).
+  if (!isSuperAdmin(req) || data.visitCopyOf) data.author = req.user.id
   return data
 }
 
@@ -117,8 +121,22 @@ const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalD
   return data
 }
 
+/**
+ * A visit copy (`visitCopyOf`) is one visitor's tour, followed at most by
+ * their group: always private, whatever the form sent. Before
+ * `guardTourContents`, so a copy of a tour with private stops saves.
+ */
+const keepVisitCopyPrivate: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
+  // The saved value wins over the stored one, a cleared (null) one included.
+  const copyOf = 'visitCopyOf' in data ? data.visitCopyOf : originalDoc?.visitCopyOf
+  if (copyOf) data.visibility = 'private'
+  return data
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
+  // `existingVisitCopy`: a visitor's latest copy of a tour, in one index seek.
+  indexes: [{ fields: ['author', 'visitCopyOf', 'updatedAt'] }],
   access: {
     // Private tours only for their author and the guests of their group visits.
     read: readTours,
@@ -127,7 +145,7 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, guardTourContents, pruneDirections],
+    beforeChange: [assignAuthor, keepVisitCopyPrivate, guardTourContents, pruneDirections],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
     afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
     afterDelete: [deleteQuestionsOfDeletedTour],
@@ -225,6 +243,22 @@ export const Tour: CollectionConfig = {
               required: false,
               index: true,
               access: { update: ({ req }) => isSuperAdmin(req) },
+            },
+            {
+              // The tour this one copies for one visitor's visit ("Edit" on a
+              // tour's start page; `/tour/new?from=<id>&visit=1`). Copy-on-write:
+              // the original never changes. Like a planned visit, the copy is
+              // that visitor's own tour: private (`keepVisitCopyPrivate`), never
+              // listed (`LISTED_TOURS`), and reopened by "Edit" instead of copied
+              // again. Set on create only; never reassigned.
+              name: 'visitCopyOf',
+              type: 'relationship',
+              relationTo: TOURS_COLLECTION_SLUG,
+              hasMany: false,
+              maxDepth: 0,
+              // Indexed with `author` (collection `indexes`), the one query on it.
+              access: { update: ({ req }) => isSuperAdmin(req) },
+              admin: { position: 'sidebar', readOnly: true },
             },
             {
               // Set only on tours planned from the visitor's form (`/api/plan-tour`).
