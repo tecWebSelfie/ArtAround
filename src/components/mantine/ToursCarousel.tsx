@@ -142,7 +142,9 @@ const TourCard = ({ tour, lng }: { tour: Tour; lng: string }) => {
   return (
     <div
       className={classes.card}
-      style={cover ? undefined : { background: KIND_FALLBACK.tour.background }}
+      // Always under the cover too: until the photo loads (or if it fails)
+      // the card stays opaque instead of showing the cards behind it.
+      style={{ background: KIND_FALLBACK.tour.background }}
     >
       {cover ? (
         <Image
