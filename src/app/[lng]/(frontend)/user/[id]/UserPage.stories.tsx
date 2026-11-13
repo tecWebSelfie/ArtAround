@@ -30,8 +30,8 @@ import { serverComponentStory } from '@/mocks/server-component'
 // so UserPage.tsx itself stays a correct App Router Server Component.
 type UserPageStoryProps = User & { curatedMuseums?: (string | Museum)[] | null }
 
-const UserPageStory = serverComponentStory(
-  ({ curatedMuseums, ...user }: UserPageStoryProps) => UserPage({ user, curatedMuseums }),
+const UserPageStory = serverComponentStory(({ curatedMuseums, ...user }: UserPageStoryProps) =>
+  UserPage({ user, curatedMuseums }),
 )
 
 const meta = {
@@ -142,7 +142,7 @@ export const UnpopulatedReferences: Story = {
   play: async ({ canvas }) => {
     // String IDs are un-populated relations: empty state instead of a crash.
     await expect(
-      canvas.findByText('No contents authored yet', undefined, { timeout: 5000 }),
+      canvas.findByRole('heading', { name: 'Contents' }, { timeout: 5000 }),
     ).resolves.toBeTruthy()
     expect(canvas.queryByText('Verified creator')).toBeNull()
   },

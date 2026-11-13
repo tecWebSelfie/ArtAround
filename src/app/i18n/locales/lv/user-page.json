@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "saturs",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Kurators",
   "Curator at": "Kurators:",
   "Email": "E-pasts",
   "info": "informācija",
   "Member since": "Dalībnieks kopš",
-  "No contents authored yet": "Vēl nav izveidota satura",
-  "No Tours authored yet": "Vēl nav izveidotu tūru",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Lietotājvārds",
   "Verified creator": "Verificēts autors",
-  "Verified creator tooltip": "Šī autora identitāte ir verificēta"
+  "Verified creator tooltip": "Šī autora identitāte ir verificēta",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

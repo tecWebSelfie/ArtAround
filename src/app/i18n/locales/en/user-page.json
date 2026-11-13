@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "{{name}} hasn’t created any tours yet",
+  "{{name}} hasn’t written any contents yet": "{{name}} hasn’t written any contents yet",
   "contents": "contents",
+  "Contents": "Contents",
+  "Create a tour": "Create a tour",
   "Curator": "Curator",
   "Curator at": "Curator at",
   "Email": "Email",
   "info": "info",
   "Member since": "Member since",
-  "No contents authored yet": "No contents authored yet",
-  "No Tours authored yet": "No Tours authored yet",
+  "Pick the works you love and put them in order: a route to take and share.": "Pick the works you love and put them in order: a route to take and share.",
+  "Tell the story of a work": "Tell the story of a work",
+  "Tours": "Tours",
   "Username": "Username",
   "Verified creator": "Verified creator",
-  "Verified creator tooltip": "Creator verified by ArtAround"
+  "Verified creator tooltip": "Creator verified by ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "What you write about a work shows up here, ready for the visitors who stop in front of it.",
+  "Write a content": "Write a content",
+  "Your first tour starts here": "Your first tour starts here"
 }

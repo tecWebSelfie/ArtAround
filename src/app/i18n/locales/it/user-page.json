@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "{{name}} non ha ancora creato tour",
+  "{{name}} hasn’t written any contents yet": "{{name}} non ha ancora scritto contenuti",
   "contents": "contenuti",
+  "Contents": "Contenuti",
+  "Create a tour": "Crea un tour",
   "Curator": "Curatore",
   "Curator at": "Curatore presso",
   "Email": "Email",
   "info": "info",
   "Member since": "Membro dal",
-  "No contents authored yet": "Nessun contenuto ancora scritto",
-  "No Tours authored yet": "Nessun tour ancora creato",
+  "Pick the works you love and put them in order: a route to take and share.": "Scegli le opere che ami e mettile in ordine: un percorso da fare e da condividere.",
+  "Tell the story of a work": "Racconta un’opera",
+  "Tours": "Tour",
   "Username": "Nome utente",
   "Verified creator": "Creatore verificato",
-  "Verified creator tooltip": "Creatore verificato da ArtAround"
+  "Verified creator tooltip": "Creatore verificato da ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Quello che scrivi su un’opera compare qui, pronto per chi si ferma a guardarla.",
+  "Write a content": "Scrivi un contenuto",
+  "Your first tour starts here": "Il tuo primo tour inizia qui"
 }

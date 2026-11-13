@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "content",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Curator",
   "Curator at": "Curator bij",
   "Email": "E-mail",
   "info": "info",
   "Member since": "Lid sinds",
-  "No contents authored yet": "Nog geen content geschreven",
-  "No Tours authored yet": "Nog geen tours gemaakt",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Gebruikersnaam",
   "Verified creator": "Geverifieerde maker",
-  "Verified creator tooltip": "Deze maker is geverifieerd door ArtAround"
+  "Verified creator tooltip": "Deze maker is geverifieerd door ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

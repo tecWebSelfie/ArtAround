@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "ábhar",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Coimeádaí",
   "Curator at": "Coimeádaí ag",
   "Email": "Ríomhphost",
   "info": "eolas",
   "Member since": "Ball ó",
-  "No contents authored yet": "Níl aon ábhar scríofa fós",
-  "No Tours authored yet": "Níl aon turas cruthaithe fós",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Ainm úsáideora",
   "Verified creator": "Cruthaitheoir fíoraithe",
-  "Verified creator tooltip": "Tá an cruthaitheoir seo fíoraithe"
+  "Verified creator tooltip": "Tá an cruthaitheoir seo fíoraithe",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "kontenuti",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Kuratur",
   "Curator at": "Kuratur ta'",
   "Email": "Email",
   "info": "info",
   "Member since": "Membru minn",
-  "No contents authored yet": "Għad m'hemmx kontenuti miktuba",
-  "No Tours authored yet": "Għad m'hemmx tours maħluqa",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Isem tal-utent",
   "Verified creator": "Kreatur ivverifikat",
-  "Verified creator tooltip": "Dan il-kreatur huwa vverifikat"
+  "Verified creator tooltip": "Dan il-kreatur huwa vverifikat",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

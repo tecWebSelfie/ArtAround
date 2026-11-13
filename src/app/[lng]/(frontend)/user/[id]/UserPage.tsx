@@ -1,12 +1,14 @@
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ProfileForm } from '@/components/editing/forms/ProfileForm'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
+import { ArtaroundEmptyState } from '@/components/mantine/ArtaroundEmptyState'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { ContentsCarousel } from '@/components/mantine/ContentsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Museum, User } from '@/payload-types'
+import type { Route } from 'next'
 import type { ReactNode } from 'react'
 import {
   Avatar,
@@ -47,6 +49,8 @@ export const UserPage = async ({
   // Authorship is a join (`contents.author` / `tours.author`), hence `.docs`.
   const populatedTours = filterPopulated(user.authoredTours?.docs)
   const populatedContents = filterPopulated(user.authoredContents?.docs)
+  // Empty sections address a visitor's profile by its owner's first name.
+  const firstName = user.name.firstName || user.name.fullName
 
   return (
     // Rhythm: tight inside the identity block (avatar, name, @handle,
@@ -131,17 +135,56 @@ export const UserPage = async ({
                 icon: <Amphora size={16} />,
                 panel: (
                   <Stack>
+                    {/* Empty: the section keeps its heading and place. The
+                        owner hears what goes there and gets the way to make
+                        the first one; a visitor reads a plain statement. */}
                     {populatedTours.length === 0 ? (
-                      <Text size="sm" c="dimmed">
-                        {t('No Tours authored yet')}
-                      </Text>
+                      <ArtaroundEmptyState
+                        kind="tour"
+                        heading={t('Tours')}
+                        title={
+                          isSelf
+                            ? t('Your first tour starts here')
+                            : t('{{name}} hasn’t created any tours yet', { name: firstName })
+                        }
+                        description={
+                          isSelf
+                            ? t(
+                                'Pick the works you love and put them in order: a route to take and share.',
+                              )
+                            : undefined
+                        }
+                        action={
+                          isSelf
+                            ? { label: t('Create a tour'), href: `/${lng}/tour/new` as Route }
+                            : undefined
+                        }
+                      />
                     ) : (
                       <ToursCarousel tours={populatedTours} />
                     )}
                     {populatedContents.length === 0 ? (
-                      <Text size="sm" c="dimmed">
-                        {t('No contents authored yet')}
-                      </Text>
+                      <ArtaroundEmptyState
+                        kind="content"
+                        heading={t('Contents')}
+                        title={
+                          isSelf
+                            ? t('Tell the story of a work')
+                            : t('{{name}} hasn’t written any contents yet', { name: firstName })
+                        }
+                        description={
+                          isSelf
+                            ? t(
+                                'What you write about a work shows up here, ready for the visitors who stop in front of it.',
+                              )
+                            : undefined
+                        }
+                        action={
+                          isSelf
+                            ? { label: t('Write a content'), href: `/${lng}/content/new` as Route }
+                            : undefined
+                        }
+                      />
                     ) : (
                       <ContentsCarousel contents={populatedContents} />
                     )}

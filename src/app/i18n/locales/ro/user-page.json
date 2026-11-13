@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "conținuturi",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Curator",
   "Curator at": "Curator la",
   "Email": "E-mail",
   "info": "info",
   "Member since": "Membru din",
-  "No contents authored yet": "Niciun conținut creat încă",
-  "No Tours authored yet": "Niciun tur creat încă",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Nume de utilizator",
   "Verified creator": "Creator verificat",
-  "Verified creator tooltip": "Acest creator a fost verificat de ArtAround"
+  "Verified creator tooltip": "Acest creator a fost verificat de ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

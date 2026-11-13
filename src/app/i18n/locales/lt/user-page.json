@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "turinys",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Kuratorius",
   "Curator at": "Kuratorius:",
   "Email": "El. paštas",
   "info": "informacija",
   "Member since": "Narys nuo",
-  "No contents authored yet": "Dar nesukurta turinio",
-  "No Tours authored yet": "Dar nesukurta turų",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Naudotojo vardas",
   "Verified creator": "Patvirtintas kūrėjas",
-  "Verified creator tooltip": "Šio kūrėjo tapatybė patvirtinta"
+  "Verified creator tooltip": "Šio kūrėjo tapatybė patvirtinta",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

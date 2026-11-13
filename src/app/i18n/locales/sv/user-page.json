@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "innehåll",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Intendent",
   "Curator at": "Intendent på",
   "Email": "E-post",
   "info": "info",
   "Member since": "Medlem sedan",
-  "No contents authored yet": "Inget innehåll skrivet än",
-  "No Tours authored yet": "Inga turer skapade än",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Användarnamn",
   "Verified creator": "Verifierad skapare",
-  "Verified creator tooltip": "Den här skaparen är verifierad av ArtAround"
+  "Verified creator tooltip": "Den här skaparen är verifierad av ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }

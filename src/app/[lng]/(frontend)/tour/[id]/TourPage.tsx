@@ -17,6 +17,7 @@ import { stopDirections } from '@/lib/tour-logistics'
 import { tourCopyPath, tourEditPath, tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { QrCodeButton } from '@/components/QrCodeButton'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
+import { BackButton } from '@/components/navigation/BackButton'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
@@ -133,6 +134,11 @@ export default function TourPage({
       <AppShellMain>
         {/* `maw` widens the `sm` container (720px) to 1140px from md only. */}
         <Container size="sm" px="md" py="md" maw={{ md: 1140 }}>
+          {/* Up a level: back where the visitor came from in the app, else
+              (a QR code, a shared link) the tour's museum. */}
+          <BackButton
+            href={(museum ? `/${lng}/museum/${museum.id}` : `/${lng}/navigator`) as Route}
+          />
           {/* Grid lays out with `gap`: below md (full-width columns, `lg`
               gap) it stacks exactly like the former single Stack. */}
           <Grid gap={{ base: 'lg', md: 48 }} align="flex-start">

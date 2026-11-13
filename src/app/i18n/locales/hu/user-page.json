@@ -1,13 +1,21 @@
 {
+  "{{name}} hasn’t created any tours yet": "",
+  "{{name}} hasn’t written any contents yet": "",
   "contents": "tartalmak",
+  "Contents": "",
+  "Create a tour": "",
   "Curator": "Kurátor",
   "Curator at": "Kurátor itt:",
   "Email": "E-mail",
   "info": "infó",
   "Member since": "Tagság kezdete:",
-  "No contents authored yet": "Még nincs saját tartalom",
-  "No Tours authored yet": "Még nincs saját túra",
+  "Pick the works you love and put them in order: a route to take and share.": "",
+  "Tell the story of a work": "",
+  "Tours": "",
   "Username": "Felhasználónév",
   "Verified creator": "Ellenőrzött alkotó",
-  "Verified creator tooltip": "Ezt az alkotót az ArtAround ellenőrizte"
+  "Verified creator tooltip": "Ezt az alkotót az ArtAround ellenőrizte",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "",
+  "Write a content": "",
+  "Your first tour starts here": ""
 }
