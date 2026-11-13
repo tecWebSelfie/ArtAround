@@ -152,11 +152,39 @@
   color: var(--tour-text-from);
   text-decoration: none;
   min-height: 56px;
-  transition: background-color 160ms ease-out;
+  transition:
+    background-color 200ms ease-out,
+    scale 120ms cubic-bezier(0.16, 1, 0.3, 1);
 
   &:focus-visible {
     outline: 3px solid var(--mantine-primary-color-filled);
     outline-offset: 3px;
+  }
+
+  /* The only CTA on the page that starts the visit: it earns its own
+     feedback rather than relying on a generic hover lift. The chip leans
+     into the tap (translate only, no scale) and the tint deepens, both
+     undone faster than they arrive; a press settles the whole panel back. */
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background:
+        linear-gradient(
+            color-mix(in oklch, var(--sp-plum) 15%, var(--mantine-color-body)),
+            color-mix(in oklch, var(--sp-plum) 15%, var(--mantine-color-body))
+          )
+          padding-box,
+        linear-gradient(in oklch 120deg, var(--tour-from), var(--tour-to)) border-box;
+      transition-duration: 260ms;
+
+      & .startIcon {
+        translate: 2px -50%;
+      }
+    }
+  }
+
+  &:active {
+    scale: 0.98;
+    transition-duration: 90ms;
   }
 }
 
@@ -176,6 +204,16 @@
   background: var(--sp-plum);
   color: var(--mantine-color-white);
   box-shadow: 0 0 0 3px var(--mantine-color-body);
+  transition: translate 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start,
+  .start .startIcon {
+    transition: background-color 200ms ease-out !important;
+    translate: 0 -50% !important;
+    scale: 1 !important;
+  }
 }
 
 .startText {
