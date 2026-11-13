@@ -813,16 +813,18 @@ try {
         collection: 'museums',
         id: foundId,
         depth: 0,
+        select: { map: true },
       })
       if (!existing.map) {
-        // Raw write: Payload 3.89 throws while populating the join fields of the
-        // update response, after the write itself. Only `map` changes and these
-        // seed museums' derived `objects` index already matches the placed
-        // object, so the hooks have nothing to add here.
-        await payload.db.collections.museums.updateOne(
-          { _id: foundId },
-          { $set: { map: data.map } },
-        )
+        // Through the Local API, like the stop placement below: its
+        // `syncMuseumObjects` hook derives `museums.objects` from the new map,
+        // which a raw database write would leave stale.
+        await payload.update({
+          collection: 'museums',
+          id: foundId,
+          depth: 0,
+          data: { map: data.map },
+        })
         console.log(`Museum "${museum.name}" already exists, map backfilled`)
       } else {
         console.log(`Museum "${museum.name}" already exists, skipping`)
