@@ -90,7 +90,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  /* Matches `.startText`'s own title-to-facts gap, so the two panels'
+     internal rhythm reads the same. */
+  gap: 2px;
   /* Mantine's own `.mantine-Button-inner` sets `height: 100%` (it fills a
      single-row button); unset, it stretches to the button's full content
      height, and with no justify-content leaves icon and label pinned to
@@ -115,6 +117,12 @@
   white-space: normal;
   text-align: center;
   line-height: 1.2;
+  /* Mantine's own `.mantine-Button-label` also trims the line box to the
+     cap-height-to-baseline region (`text-box-trim`, meant for its own
+     single, already-centred row); with our `overflow: hidden` that
+     clipped descenders ("gruppo", "Lead") instead of leaving them inside
+     a full line box. */
+  text-box-trim: none;
   /* Mantine's own `.mantine-Button-label` sets `height: 100%` (it fills a
      single-row button); unset here, it stretched the label to the column's
      full height, leaving the one line of text sitting above true centre
