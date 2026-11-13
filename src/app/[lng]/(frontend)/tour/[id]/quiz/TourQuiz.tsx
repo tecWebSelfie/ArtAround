@@ -270,7 +270,7 @@ export function TourQuiz({
                 value={(answered / questions.length) * 100}
                 aria-label={t('Quiz progress')}
                 // Tour identity (purple → orange) lives on the progress only.
-                classNames={{ section: 'bg-linear-to-r from-purple-700 to-orange-400' }}
+                classNames={{ section: 'bg-tour' }}
               />
             </Box>
 

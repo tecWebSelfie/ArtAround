@@ -130,7 +130,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                 size="sm"
                 value={guests.length ? (finished / guests.length) * 100 : 0}
                 aria-label={t('Quiz progress of the group')}
-                classNames={{ section: 'bg-linear-to-r from-purple-700 to-orange-400' }}
+                classNames={{ section: 'bg-tour' }}
               />
             </Stack>
             {guests.length === 0 && (

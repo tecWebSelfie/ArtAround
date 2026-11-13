@@ -407,8 +407,7 @@ export function PlanVisitPage({
               <Button
                 size="md"
                 variant="gradient"
-                // Deeper shades retain the tour gradient with readable white labels.
-                gradient={{ ...TOUR_GRADIENT, from: 'grape.9', to: 'orange.9' }}
+                gradient={TOUR_GRADIENT}
                 rightSection={<Play size={16} aria-hidden />}
                 onClick={start}
               >

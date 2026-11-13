@@ -1,5 +1,6 @@
 'use client'
 
+import { TOUR_GRADIENT } from '@/theme'
 import { BorderAnimate, BorderAnimateProps } from '@gfazioli/mantine-border-animate'
 import { Group, Text, UnstyledButton } from '@mantine/core'
 import { cn } from 'cn'
@@ -35,11 +36,7 @@ export const StartTourButton = ({
         className="p-2"
       >
         <Group align="center" gap="xs" justify="center">
-          <Text
-            className="font-semibold"
-            variant="gradient"
-            gradient={{ from: 'grape.8', to: 'orange.8' }}
-          >
+          <Text className="font-semibold" variant="gradient" gradient={TOUR_GRADIENT}>
             {t('Start Tour')}
           </Text>
           <PlayCircle size={24} />

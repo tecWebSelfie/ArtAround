@@ -67,6 +67,28 @@
 @custom-variant from-md (@media (width >= 62em));
 @custom-variant below-md (@media (width < 62em));
 @custom-variant fit-screen (@media (width < 62em) and (orientation: portrait) and (height >= 36em));
+
+/*
+ * The tour identity (DESIGN.md → Colors): purple into orange, always blended
+ * in OKLCH so the middle passes through magenta instead of a muddy brown.
+ * Two pairs:
+ *   --tour-from / --tour-to: the decorative pair (lines, dots, progress bars,
+ *     light), with no text on it;
+ *   --tour-strong-from / --tour-strong-to: deeper ends for surfaces that
+ *     carry white text (start buttons, tour pills), at least 5.6:1 along the
+ *     whole gradient. TOUR_GRADIENT (theme.ts) uses this pair.
+ * `bg-tour` paints the decorative pair left to right.
+ */
+:root {
+  --tour-from: oklch(0.45 0.18 305);
+  --tour-to: oklch(0.7 0.15 50);
+  --tour-strong-from: oklch(0.42 0.17 305);
+  --tour-strong-to: oklch(0.53 0.16 42);
+}
+
+@utility bg-tour {
+  background-image: linear-gradient(in oklch 90deg, var(--tour-from), var(--tour-to));
+}
 @custom-variant phone-landscape (@media (width < 62em) and (orientation: landscape));
 
 @theme inline {

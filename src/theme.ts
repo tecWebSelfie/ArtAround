@@ -56,13 +56,18 @@ export const theme = createTheme({
 export const ACCESSIBILITY_COLOR = 'blue'
 
 /**
- * The tour identity (DESIGN.md → Colors): grape into orange on every tour
- * mark drawn with Mantine's `gradient` variant (start buttons, tour pills,
- * the search result's tour icon, the deck's "Tours" label). Deep shades: the
- * white label sits mid-gradient, where grape.8 → orange.9 reads at about 5:1
- * (grape.6 → orange.6 gave 3.2:1).
+ * The tour identity (DESIGN.md → Colors) on every tour mark drawn with
+ * Mantine's `gradient` variant (start buttons, tour pills, the search
+ * result's tour icon): the strong pair of the `--tour-*` tokens in
+ * globals.css, deep enough that a white label reads at 5.6:1 or more at
+ * every point. Mantine draws it in sRGB; the ends are close enough in
+ * lightness that the middle stays clean.
  */
-export const TOUR_GRADIENT = { from: 'grape.8', to: 'orange.9' } satisfies MantineGradient
+export const TOUR_GRADIENT = {
+  from: 'var(--tour-strong-from)',
+  to: 'var(--tour-strong-to)',
+  deg: 135,
+} satisfies MantineGradient
 
 /**
  * The brand gradient (DESIGN.md → Gradient-Span Rule): blue into violet on

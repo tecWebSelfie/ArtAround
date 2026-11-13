@@ -7,12 +7,8 @@
  */
 
 .root {
-  /* The tour identity, blended in OKLCH so the middle never turns muddy.
-     Local for now: TOUR_GRADIENT (theme.ts) and the Tailwind purple-700 /
-     orange-400 frames elsewhere move to these values in the app-wide pass. */
-  --tour-from: oklch(0.45 0.18 305);
-  --tour-to: oklch(0.7 0.15 50);
-  /* The caption scrim: deep plum, warmer than black. */
+  /* The caption scrim: deep plum, warmer than black. The tour colours are
+     the shared --tour-from / --tour-to (globals.css). */
   --tour-plum: oklch(0.24 0.06 330);
 }
 
