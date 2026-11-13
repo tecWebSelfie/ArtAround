@@ -29,17 +29,23 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* Wider than the dock's rhythm: the cover is a circle, so it meets the
-     title at a single point and even 20px still read as glued. */
-  gap: var(--mantine-spacing-xl);
+  /* A step wider than the dock's rhythm: the cover is a circle, so it meets
+     the title at a single point and 16px read as glued. */
+  gap: var(--mantine-spacing-lg);
   max-width: 24rem;
-  /* Keeps the title and cover off the viewport's top edge; centered only
-     in the space above the dock, they read a touch high otherwise. */
-  padding-top: 8dvh;
+  /* Title and cover sit centred in the space over the dock, a touch above
+     where an even split would put them (8dvh before): clear of the
+     controls, yet not reaching the museum badge in the top corner. */
+  padding-top: 3dvh;
 
+  /* The page's one heading: a step past Mantine's h2 and heavier, in the
+     full text colour, so it reads as the tour's name and not as a label. */
   & h2 {
-    font-size: calc(var(--mantine-h2-font-size) * 1.2);
-    line-height: 1.2;
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--mantine-color-text);
   }
 }
 
@@ -261,7 +267,6 @@
 
   .identity {
     flex: none;
-    padding-top: 0;
   }
 }
 
@@ -274,8 +279,7 @@
   }
 
   .identity {
-    gap: var(--mantine-spacing-md);
-    padding-top: 0;
+    gap: var(--mantine-spacing-sm);
   }
 
   .cover {
