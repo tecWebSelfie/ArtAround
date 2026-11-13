@@ -29,9 +29,9 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  /* A step wider than the dock's rhythm: the cover is a circle, so it meets
-     the title at a single point and 16px read as glued. */
-  gap: var(--mantine-spacing-lg);
+  /* Wider than the dock's rhythm: the cover is a circle, so it meets the
+     title at a single point and 16px (then 20px) read as glued. */
+  gap: 1.5rem;
   max-width: 24rem;
   /* Title and cover sit centred in the space over the dock, a touch above
      where an even split would put them: clear of the
