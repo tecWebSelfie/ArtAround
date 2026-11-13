@@ -8,9 +8,10 @@ import {
 import { editorial } from '@/fields/editorial'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
 import { WIKIDATA_QUEUE } from '@/lib/wikidata'
+import { refreshSearchDocs, refreshToursIncluding, relationshipIds } from '@/lib/search-index'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
-import type { Access, Field, RelationshipFieldValidation } from 'payload'
+import type { Access, Field, PayloadRequest, RelationshipFieldValidation } from 'payload'
 import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { imageUpload } from '../fields/imageUpload'
@@ -67,6 +68,40 @@ const validateExclusiveContents: RelationshipFieldValidation = async (value, opt
   return other
     ? `A content can belong to one object only: one of these is already attached to "${other.name}".`
     : true
+}
+
+/**
+ * A work's name and artist are part of the search rows of its contents and of
+ * the tours that include them (`worksText` in src/lib/search-index.ts), so
+ * searching "Caravaggio" on the home finds the tours that show his works. The
+ * relation is authored here, so this object's save refreshes those rows: for
+ * the contents it has now and had before, so a detached content loses the work.
+ */
+async function refreshWorkSearchRows({
+  req,
+  doc,
+  previousDoc,
+}: {
+  req: PayloadRequest
+  doc: Object
+  previousDoc?: Object | null
+}) {
+  const contentIds = [
+    ...new Set([...relationshipIds(doc.contents), ...relationshipIds(previousDoc?.contents)]),
+  ]
+  if (!contentIds.length) return
+  try {
+    // One after the other: both write through `req`'s transaction, and a
+    // MongoDB session does not take concurrent operations reliably.
+    await refreshSearchDocs({ payload: req.payload, collection: 'contents', ids: contentIds, req })
+    await refreshToursIncluding({ payload: req.payload, contentIds, req })
+  } catch (error) {
+    // Search is derived data: never fail the object save over it.
+    req.payload.logger.error({
+      err: error,
+      msg: `Could not refresh work search rows for ${doc.id}`,
+    })
+  }
 }
 
 export const Objects: CollectionConfig = {
@@ -202,6 +237,17 @@ export const Objects: CollectionConfig = {
   hooks: {
     beforeValidate: [uniqueWikidataId('objects')],
     afterChange: [
+      // Only what the rows embed: the name, the artist and the contents.
+      async ({ req, doc, previousDoc }) => {
+        if (
+          doc.name === previousDoc?.name &&
+          doc.artist === previousDoc?.artist &&
+          relationshipIds(doc.contents).join() === relationshipIds(previousDoc?.contents).join()
+        ) {
+          return
+        }
+        await refreshWorkSearchRows({ req, doc, previousDoc })
+      },
       // A new or changed Wikidata id: link the author, movement and events.
       async ({ req, doc, previousDoc, context }) => {
         if (context.skipWikidataImport || !doc.wikidataId) return
@@ -240,6 +286,11 @@ export const Objects: CollectionConfig = {
         }
       },
     ] satisfies CollectionAfterChangeHook<Object>[],
+    // A deleted work leaves its contents' and tours' rows.
+    afterDelete: [
+      ({ req, doc }) =>
+        refreshWorkSearchRows({ req, doc: { ...doc, contents: [] }, previousDoc: doc }),
+    ],
   },
   endpoints: objectModelGenerationEndpoints,
 }

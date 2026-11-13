@@ -132,8 +132,10 @@ export async function querySearchIndex({
 
 /**
  * Home (navigator) search scope: what a visitor can go and see — tours (the
- * main way to use the app), contents and museums. Objects stay reachable from
- * QR codes and museum pages, people from the marketplace. City matching is
- * part of the query above, so a museum's city is searchable too.
+ * main way to use the app), contents and museums. Globally a work is found
+ * through the tours and contents that show it (their rows carry its name and
+ * artist); in museum mode the route adds the museum's works as results too.
+ * People stay in the marketplace. City matching is part of the query above, so
+ * a museum's city is searchable too.
  */
 export const NAVIGATOR_SEARCH_KINDS: SearchDocKind[] = ['tour', 'content', 'museum']

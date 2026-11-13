@@ -25,7 +25,7 @@ import {
 import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
-import { refreshSearchDocs } from '@/lib/search-index'
+import { refreshToursIncluding } from '@/lib/search-index'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -235,21 +235,7 @@ const attachTo = (
 const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
   if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
   try {
-    const tours = await req.payload.find({
-      collection: 'tours',
-      where: { contents: { contains: doc.id } },
-      select: {},
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      req,
-    })
-    await refreshSearchDocs({
-      payload: req.payload,
-      collection: 'tours',
-      ids: tours.docs.map((tour) => String(tour.id)),
-      req,
-    })
+    await refreshToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
   } catch (error) {
     // Search is derived data: never fail the content save over it.
     req.payload.logger.error({ err: error, msg: `Could not refresh tour prices for ${doc.id}` })

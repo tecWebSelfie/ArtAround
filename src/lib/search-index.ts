@@ -191,6 +191,41 @@ async function tourListPrice({
 }
 
 /**
+ * The works (objects) behind some contents, as search text: each work's name,
+ * then the distinct artists. A tour or content row carries it in its excerpt so
+ * searching a work ("Mona Lisa") or an artist ("Caravaggio") finds the tours
+ * and contents that show it, without objects becoming results of their own on
+ * the home (docs/search.md → Works in tour and content rows). Names and artists
+ * are catalog metadata, never paid text, so indexing them leaks nothing.
+ *
+ * The relation is authored on the object (`objects.contents`), so an object
+ * save refreshes these rows (`refreshWorkSearchRows` in `Objects.ts`).
+ */
+async function worksText({
+  payload,
+  contentIds,
+  req,
+}: {
+  payload: Payload
+  contentIds: string[]
+  req?: PayloadRequest
+}) {
+  if (!contentIds.length) return ''
+  const { docs } = await payload.find({
+    collection: 'objects',
+    where: { contents: { in: contentIds } },
+    select: { name: true, artist: true },
+    depth: 0,
+    pagination: false,
+    locale: 'en',
+    overrideAccess: true,
+    req,
+  })
+  const artists = [...new Set(docs.map((work) => work.artist?.trim()).filter(Boolean))]
+  return joinParts(...docs.map((work) => work.name), ...artists)
+}
+
+/**
  * Builds the searchable projection of one source document.
  *
  * This is used by the plugin `beforeSync` hook and by `pnpm search:reindex`, so
@@ -221,18 +256,19 @@ export async function buildSearchDoc({
         museumId: idOf(tour.museum),
         req,
       })
+      const contentIds = relationshipIds(tour.contents)
+      const [priceCents, works] = await Promise.all([
+        tourListPrice({ payload, contentIds, req }),
+        worksText({ payload, contentIds, req }),
+      ])
       return {
         title: tour.title,
-        // Descriptions are intentionally not indexed: search matches titles and
-        // museum/city metadata only.
-        excerpt: joinParts(museum?.name, museum?.city),
+        // Descriptions are intentionally not indexed: search matches titles,
+        // museum/city metadata and the works the tour shows.
+        excerpt: joinParts(museum?.name, museum?.city, works),
         kind,
         city: museum?.city ?? '',
-        priceCents: await tourListPrice({
-          payload,
-          contentIds: relationshipIds(tour.contents),
-          req,
-        }),
+        priceCents,
         sourceCreatedAt,
       }
     }
@@ -241,8 +277,9 @@ export async function buildSearchDoc({
       return {
         title: content.title,
         // Rich-text bodies are never indexed: a paid body would otherwise be
-        // matchable and shown as a subtitle to everyone. Contents match by title.
-        excerpt: '',
+        // matchable and shown as a subtitle to everyone. Contents match by
+        // title and by the work they are about.
+        excerpt: await worksText({ payload, contentIds: [id], req }),
         kind,
         city: '',
         priceCents: content.price ?? 0,
@@ -301,12 +338,13 @@ export async function buildSearchDoc({
 }
 
 /**
- * Refreshes search rows for tours/objects after a museum changes.
+ * Refreshes the search rows of documents whose search text embeds another one.
  *
  * The plugin only re-syncs the document that was saved, but a museum's name and
- * city are part of its tours/objects search text. The museum hooks call this for
- * both the new and previous relationship values so removed relations are
- * refreshed too.
+ * city are part of its tours/objects search text, a content's price part of its
+ * tours' rows, and a work's name and artist part of its contents' and tours'
+ * rows. The hooks of those collections call this for both the new and previous
+ * relationship values so removed relations are refreshed too.
  */
 export async function refreshSearchDocs({
   payload,
@@ -315,7 +353,7 @@ export async function refreshSearchDocs({
   req,
 }: {
   payload: Payload
-  collection: Extract<SearchPluginCollection, 'tours' | 'objects'>
+  collection: Extract<SearchPluginCollection, 'tours' | 'contents' | 'objects'>
   ids: string[]
   req?: PayloadRequest
 }) {
@@ -339,19 +377,23 @@ export async function refreshSearchDocs({
     if (relation?.value) bySourceId.set(String(relation.value), searchDoc)
   }
 
-  // Private tours stay out of the index (src/lib/visibility.ts).
+  // Unlisted tours and contents (private, or one visitor's tours) stay out of
+  // the index: the same rule as the plugin's `skipSync` (`isUnlistedInSearch`).
   const hidden = new Set<string>()
-  if (collection === 'tours') {
+  if (collection === 'tours' || collection === 'contents') {
     const { docs } = await payload.find({
-      collection: 'tours',
-      where: { and: [{ id: { in: uniqueIds } }, { visibility: { equals: 'private' } }] },
-      select: {},
+      collection,
+      where: { id: { in: uniqueIds } },
+      select:
+        collection === 'tours'
+          ? { visibility: true, generation: true, visitCopyOf: true }
+          : { visibility: true },
       depth: 0,
       pagination: false,
       overrideAccess: true,
       req,
     })
-    for (const doc of docs) hidden.add(String(doc.id))
+    for (const doc of docs) if (isUnlistedInSearch(doc)) hidden.add(String(doc.id))
   }
 
   for (const id of uniqueIds) {
@@ -389,6 +431,38 @@ export async function refreshSearchDocs({
       })
     }
   }
+}
+
+/**
+ * Refreshes the rows of the tours that include any of `contentIds`: a tour's
+ * row embeds what its contents carry (their prices, their works). Shared by
+ * the content hook (a price change) and the object hook (a work's change).
+ */
+export async function refreshToursIncluding({
+  payload,
+  contentIds,
+  req,
+}: {
+  payload: Payload
+  contentIds: string[]
+  req?: PayloadRequest
+}) {
+  if (!contentIds.length) return
+  const tours = await payload.find({
+    collection: 'tours',
+    where: { contents: { in: contentIds } },
+    select: {},
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  await refreshSearchDocs({
+    payload,
+    collection: 'tours',
+    ids: tours.docs.map((tour) => String(tour.id)),
+    req,
+  })
 }
 
 /** Collects relationship ids from a museum's `tours`/`objects` fields. */

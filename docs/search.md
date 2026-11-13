@@ -10,8 +10,8 @@ external search service.
 
 | Payload collection | Search kind | Searchable text                        | City        | Price |
 | ------------------ | ----------- | -------------------------------------- | ----------- | ----- |
-| `tours`            | `tour`      | title, museum name, museum city        | from museum | yes   |
-| `contents`         | `content`   | title                                  | –           | yes   |
+| `tours`            | `tour`      | title, museum name, museum city, works | from museum | yes   |
+| `contents`         | `content`   | title, works                           | –           | yes   |
 | `users`            | `user`      | full name, username                    | –           | –     |
 | `museums`          | `museum`    | name, city, region                     | yes         | –     |
 | `objects`          | `object`    | name, artist, museum name, museum city | from museum | –     |
@@ -37,6 +37,20 @@ Search hence matches titles and the metadata listed above only.
 - Museum changes refresh the search rows of their tours/objects, because those
   rows embed the museum name and city. A content's price change refreshes the
   rows of the tours that include it (`refreshTourPrices` in `Contents`).
+
+### Works in tour and content rows
+
+"works" in the table above: a tour's and a content's row also carry the name
+and the artist of the works (objects) behind its contents (`worksText()`), in
+the excerpt, which is searched but never shown. Searching a work ("Mona Lisa")
+or an artist ("Caravaggio") on the home therefore finds the tours and contents
+that show it. In all-museums mode that is the only way works are found: the
+home is for choosing a visit, not a catalog of works. In museum mode the
+museum's works are results of their own too (see Result scopes). The relation
+is authored on the object (`objects.contents`), so an object's save or deletion
+refreshes the rows of its contents and of their tours (`refreshWorkSearchRows`
+in `Objects`, `refreshToursIncluding()`); a tour's own save re-syncs it through
+the plugin.
 
 ## Access
 
@@ -66,7 +80,10 @@ Both scopes read the same `search` collection through
     `RANK_POOL` (40) rows by exact city, title and partial city match before
     keeping `limit`, so an exact match is never cut by priority.
   - Museum mode (`museumScope()`): only the locked museum, its tours and the
-    contents on its map (`restrictTo` in `querySearchIndex()`).
+    contents on its map (`restrictTo` in `querySearchIndex()`). It also returns
+    the works on that map (`object` rows, restricted to `objectIds`) with their
+    artist as subtitle, opening the work's page; in global mode works are not
+    results.
   - Rows are hydrated in the visitor's locale with what the dropdown shows:
     length in seconds (a tour's `durationMinutes`, else the sum of its
     contents' `durationSeconds`; `src/lib/duration.ts`), difficulty (a tour's hardest content), stops, and a paid

@@ -247,7 +247,11 @@ export function useNavigationCommands({
         {
           id: `object:${object.id}`,
           label: object.name,
-          description: t('Object'),
+          // The author too (Wikidata `creators`): the search matches the
+          // description, so "Caravaggio" finds his works on the map.
+          description: [t('Object'), ...(object.creators ?? []).map(({ name }) => name)].join(
+            ' · ',
+          ),
           group: 'object' as const,
           href: href(`${here}/object/${object.id}`),
           replace: false,

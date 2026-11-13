@@ -10,7 +10,7 @@ import { getPayload, type Payload, type TypedLocale } from 'payload'
  * difficulty (and, for a tour, its stops; for a paid content, its price).
  */
 export type NavigatorSearchItem = {
-  kind: 'tour' | 'content' | 'museum'
+  kind: 'tour' | 'content' | 'museum' | 'object'
   key: string
   title: string
   href: string
@@ -66,10 +66,24 @@ async function hydrateNavigatorHits({
         })
       : null
 
-  const [tours, contents, museums] = await Promise.all([
+  const objectIds = idsOf('objects')
+  const [tours, contents, museums, objects] = await Promise.all([
     find('tours', idsOf('tours')),
     find('contents', idsOf('contents')),
     find('museums', idsOf('museums')),
+    // Museum mode only (see GET): global mode never asks for objects. The row
+    // shows a work's name and artist only.
+    objectIds.length
+      ? payload.find({
+          collection: 'objects',
+          where: { id: { in: objectIds } },
+          select: { name: true, artist: true },
+          locale,
+          depth: 0,
+          pagination: false,
+          overrideAccess: true,
+        })
+      : null,
   ])
 
   // Tours' details come from their contents and museum: one read each.
@@ -151,6 +165,16 @@ async function hydrateNavigatorHits({
       city: museum.location?.city ?? undefined,
     })
   }
+  for (const object of objects?.docs ?? []) {
+    items.set(`objects:${object.id}`, {
+      kind: 'object',
+      key: `object:${object.id}`,
+      title: object.name,
+      // The work's page, which leads to it on the map.
+      href: `/${locale}/object/${object.id}`,
+      subtitle: object.artist ?? undefined,
+    })
+  }
 
   return hits.flatMap((hit) => {
     const item = items.get(`${hit.collection}:${hit.sourceId}`)
@@ -184,7 +208,10 @@ export async function GET(request: Request) {
     const { hits } = await querySearchIndex({
       payload,
       query,
-      kinds: NAVIGATOR_SEARCH_KINDS,
+      // Works are results only in museum mode, where the visitor is in (or
+      // headed to) that museum and looks for a work to find; globally a work
+      // finds the tours and contents that show it (docs/search.md).
+      kinds: restrictTo ? [...NAVIGATOR_SEARCH_KINDS, 'object'] : NAVIGATOR_SEARCH_KINDS,
       page: 1,
       // Rank a larger pool, then keep `limit`: taking `limit` rows by priority
       // first could drop an exact title match that ranks below them.
