@@ -93,7 +93,7 @@ Super admins bypass all of the above.
 - `body` read access (`canReadPaidBody`): free, or super admin, author,
   curator+ of one of its museums, or `ownsContent`.
 - Locked = `price > 0 && body == null` as returned to the viewer
-  (`src/lib/price.ts`). A tour's price = sum of its locked contents.
+  (`src/lib/price.ts`). A tour's price = sum of its locked visitable contents.
 - Display: `formatPrice(cents, lng)` (`Intl.NumberFormat`, EUR). Choosing and
   converting a local currency needs region + exchange rates → payments work.
 
@@ -117,19 +117,24 @@ access (`overrideAccess` defaults to true). Spec:
 - `POST /api/checkout { collection: 'contents' | 'tours', id }` prices the
   purchase for the signed-in buyer with `quoteCheckout`
   (`src/lib/checkout-quote.ts`), reading the document _as the buyer_: a
-  content costs its `price` while locked; a tour costs the sum of its contents
-  locked for the buyer. Nothing locked → 409. The quote's content ids travel in
-  the Checkout Session metadata (`unlocks`, at most 20).
+  content costs its `price` while locked; a tour costs the sum of its
+  **visitable** contents locked for the buyer (the stored
+  `tours.visitableContents` through `withVisitableStops`, the list the tour page
+  prices with: an unavailable stop is neither charged nor unlocked). Nothing
+  locked → 409, also when the tour's only locked stops are unavailable. The
+  quote's content ids travel in the Checkout Session metadata (`unlocks`, at
+  most 20, counted on visitable stops).
 - `checkout.session.completed` (webhook, `src/hooks/onCheckoutCompleted.ts`)
   and the success page (reconciliation) both call `recordPurchaseFromSession`,
   idempotent on `stripeSessionID`. The row stores `target` (what was bought)
-  and `unlockedContents` (a snapshot: paid contents added to a tour later are
-  not unlocked for free).
+  and `unlockedContents` (a snapshot of the visitable locked contents at
+  purchase time: paid contents added to a tour later, or a stop that becomes
+  available later, are not unlocked for free).
 - Ownership (`ownsContent`) = a `paid` purchase whose target is the content or
   whose `unlockedContents` contains it. Refunded/failed rows unlock nothing.
 - UI: the tour page's "Unlock" modal starts checkout for the tour; the sandbox
-  shop `/[lng]/stripe-test` lists every paid content and the tours containing
-  one. Success/cancel pages return to the tour (`?collection=&id=`).
+  shop `/[lng]/stripe-test` lists every paid content and the tours with a paid
+  visitable stop (priced like the checkout). Success/cancel pages return to the tour (`?collection=&id=`).
 
 ### Reading on behalf of a visitor
 

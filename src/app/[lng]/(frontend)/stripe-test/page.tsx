@@ -6,6 +6,7 @@ import { getPayload } from 'payload'
 import { BuyButton } from '@/components/payments/BuyButton'
 import { quoteCheckout } from '@/lib/checkout-quote'
 import { formatPrice } from '@/lib/price'
+import { withVisitableStops } from '@/lib/tour-summary'
 import type { User } from '@/payload-types'
 import { isStripeTestMode } from '@/lib/stripe'
 
@@ -59,7 +60,7 @@ export default async function StripeTestPage(props: { params: Promise<{ lng: str
     user ? (await quoteCheckout(payload, user as User, collection, id)).amountCents : listPrice
   const paidContents = new Map(contents.docs.map((doc) => [String(doc.id), doc.price ?? 0]))
 
-  const items: ShopItem[] = await Promise.all([
+  const candidates: ShopItem[] = await Promise.all([
     ...contents.docs.map(async (doc) => ({
       collection: 'contents' as const,
       id: String(doc.id),
@@ -72,10 +73,12 @@ export default async function StripeTestPage(props: { params: Promise<{ lng: str
         collection: 'tours',
         id: doc.id,
         depth: 0,
-        select: { contents: true },
+        select: { contents: true, visitableContents: true },
         overrideAccess: true,
       })
-      const listPrice = (full.contents ?? [])
+      // List price of what a buyer is charged for: the visitable stops only,
+      // like `quoteCheckout`.
+      const listPrice = (withVisitableStops(full).contents ?? [])
         .map((content) => paidContents.get(typeof content === 'string' ? content : content.id) ?? 0)
         .reduce((sum, cents) => sum + cents, 0)
       return {
@@ -87,6 +90,10 @@ export default async function StripeTestPage(props: { params: Promise<{ lng: str
       }
     }),
   ])
+
+  // A tour whose paid stops are all unavailable has nothing to sell (it would
+  // otherwise read as "Owned" at price 0).
+  const items = candidates.filter((item) => item.listPriceCents > 0)
 
   return (
     <Stack p="lg" maw={720} mx="auto">
