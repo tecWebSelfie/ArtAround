@@ -149,8 +149,11 @@ const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
   }
   const hidden = visibility === 'private' ? [] : docs.filter((doc) => doc.visibility === 'private')
   if (hidden.length) {
+    // Title only the author's own private contents: another author's title is
+    // exactly what a private content hides from this caller.
+    const own = hidden.filter((doc) => author && asId(doc.author) === asId(author))
     throw new APIError(
-      `A public tour can't include private contents: ${quote(hidden)}. Make the tour private or the contents public.`,
+      `A public tour can't include private contents${own.length ? `: ${quote(own)}` : ` (${hidden.length})`}. Make the tour private or the contents public.`,
       400,
     )
   }
@@ -163,8 +166,10 @@ const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
       (!author || asId(doc.author) !== asId(author)),
   )
   if (others.length) {
+    // No titles: they belong to private contents the caller can't read, and an
+    // error that quoted them would disclose exactly what the refusal protects.
     throw new APIError(
-      `A tour can't include private contents of other authors: ${quote(others)}. Only their author can read them: remove them or ask the author to make them public.`,
+      `A tour can't include private contents of other authors (${others.length}). Only their author can read them: remove them or ask the author to make them public.`,
       400,
     )
   }
