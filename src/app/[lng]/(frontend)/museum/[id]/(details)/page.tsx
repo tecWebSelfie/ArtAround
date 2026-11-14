@@ -5,7 +5,8 @@ import { lexicalToHTML } from '@/lib/richtext'
 import { museumNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
 import config from '@/payload.config'
-import { getPayload } from 'payload'
+import { getPayload, NotFound } from 'payload'
+import { notFound } from 'next/navigation'
 import MuseumPage from './MuseumPage'
 import type { Metadata } from 'next'
 import { cache } from 'react'
@@ -54,7 +55,11 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
   const locale = normalizeLocale(lng) ?? 'en'
   // The permissions only need the id, so they are read alongside the museum.
   const [museum, canEditDetails, canManageMap] = await Promise.all([
-    readMuseum(id, lng),
+    // A missing or malformed id makes Payload throw `NotFound`: answer 404, not 500.
+    readMuseum(id, lng).catch((error: unknown) => {
+      if (error instanceof NotFound) notFound()
+      throw error
+    }),
     can('museums', id, 'update', 'name'),
     can('museums', id, 'update', 'map'),
   ])
