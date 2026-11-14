@@ -8,6 +8,7 @@ import {
 } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
 import { minStopsFor } from '@/lib/tour-stops'
+import { requestLanguage } from '@/lib/request-language'
 import { relationship } from 'payload/shared'
 import type { Tour as TourType } from '@/payload-types'
 import {
@@ -60,7 +61,16 @@ const validateTourStops: RelationshipFieldValidation = async (value, options) =>
   if (stops >= min) return true
   const before = Array.isArray(options.previousValue) ? options.previousValue.length : 0
   if (options.operation === 'update' && stops >= before) return true
-  return `A tour needs at least ${min} stops.`
+  // In the visitor's language, with the form's own message (`editing`).
+  // Loaded only here, on a refused save; outside Next (seed, CLI) the
+  // translations may not load, and the English text stands in.
+  try {
+    const { getT } = await import('@/i18n.server')
+    const { t } = await getT('editing', { lng: requestLanguage(options.req) })
+    return t('A tour needs at least {{count}} stops', { count: min })
+  } catch {
+    return `A tour needs at least ${min} stops.`
+  }
 }
 
 const authorOrSuperAdmin: Access = ({ req }) => {
