@@ -9,6 +9,7 @@ import { editorial } from '@/fields/editorial'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
 import { WIKIDATA_QUEUE } from '@/lib/wikidata'
 import { refreshSearchDocs, refreshToursIncluding, relationshipIds } from '@/lib/search-index'
+import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
 import type { Access, Field, PayloadRequest, RelationshipFieldValidation } from 'payload'
@@ -237,6 +238,19 @@ export const Objects: CollectionConfig = {
   hooks: {
     beforeValidate: [uniqueWikidataId('objects')],
     afterChange: [
+      // Which contents the work lists decides whether a tour's stop is about
+      // an object at all: the tours of the contents added or removed
+      // recompute their visitable stops (src/lib/visitable-stops.ts).
+      async ({ req, doc, previousDoc }) => {
+        const before = relationshipIds(previousDoc?.contents)
+        const after = relationshipIds(doc.contents)
+        if (before.length === after.length && before.every((id) => after.includes(id))) return
+        await refreshVisitableStopsOfContents({
+          payload: req.payload,
+          req,
+          contentIds: [...before, ...after],
+        })
+      },
       // Only what the rows embed: the name, the artist and the contents.
       async ({ req, doc, previousDoc }) => {
         if (
@@ -288,6 +302,13 @@ export const Objects: CollectionConfig = {
     ] satisfies CollectionAfterChangeHook<Object>[],
     // A deleted work leaves its contents' and tours' rows.
     afterDelete: [
+      // Its contents are about no object any more: their tours drop those stops.
+      ({ req, doc }) =>
+        refreshVisitableStopsOfContents({
+          payload: req.payload,
+          req,
+          contentIds: relationshipIds(doc.contents),
+        }),
       ({ req, doc }) =>
         refreshWorkSearchRows({ req, doc: { ...doc, contents: [] }, previousDoc: doc }),
     ],

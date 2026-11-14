@@ -22,6 +22,7 @@ import {
 import { nonCommercialConflicts } from '@/lib/content-rights'
 import { hideFromSearch, readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { keptDirections } from '@/lib/tour-logistics'
+import { computeVisitableContentIds, visitableFields } from '@/lib/visitable-stops'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -182,6 +183,36 @@ const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalD
 }
 
 /**
+ * Keeps the stored visitable stops (`visitableStops`, `visitableContents`)
+ * true to the tour's own data: recomputed when the tour is created or its
+ * stops, museum or author change, or when it has none yet (saved before the
+ * field existed). Whatever a client sends for them is dropped first, so only
+ * the server writes them (the fields also deny create/update access). The
+ * other triggers (museum map, object contents, content visibility/deletion)
+ * live in their collections and call `refreshVisitableStops`
+ * (`src/lib/visitable-stops.ts`). Last in the chain, so it sees the stops
+ * `guardTourContents` accepted and the author `assignAuthor` set.
+ */
+const syncVisitableStops: CollectionBeforeChangeHook<TourType> = async ({
+  data,
+  req,
+  originalDoc,
+  operation,
+}) => {
+  delete data.visitableStops
+  delete data.visitableContents
+  const changes =
+    data.contents !== undefined || data.museum !== undefined || data.author !== undefined
+  if (operation === 'update' && !changes && originalDoc?.visitableStops != null) return data
+  const ids = await computeVisitableContentIds(req.payload, req, {
+    contents: data.contents ?? originalDoc?.contents ?? [],
+    museum: data.museum ?? originalDoc?.museum ?? '',
+    author: data.author ?? originalDoc?.author,
+  })
+  return { ...data, ...visitableFields(ids) }
+}
+
+/**
  * A visit copy (`visitCopyOf`) is one visitor's tour, followed at most by
  * their group: always private, whatever the form sent. Before
  * `guardTourContents`, so a copy of a tour whose own-author private stops
@@ -207,7 +238,13 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, keepVisitCopyPrivate, guardTourContents, pruneDirections],
+    beforeChange: [
+      assignAuthor,
+      keepVisitCopyPrivate,
+      guardTourContents,
+      pruneDirections,
+      syncVisitableStops,
+    ],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
     afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
     afterDelete: [deleteQuestionsOfDeletedTour],
@@ -281,6 +318,34 @@ export const Tour: CollectionConfig = {
               minRows: 1,
               required: true,
               validate: validateTourStops,
+            },
+            {
+              // How many of the stops a visitor can actually visit, and which:
+              // derived and server-written only (`syncVisitableStops`,
+              // `refreshVisitableStops`). A tour with none is never listed
+              // (`LISTED_TOURS`) and every count outside the editor reads
+              // these (`withVisitableStops`). See src/lib/visitable-stops.ts.
+              name: 'visitableStops',
+              type: 'number',
+              min: 0,
+              index: true,
+              access: { create: () => false, update: () => false },
+              admin: {
+                readOnly: true,
+                position: 'sidebar',
+                description:
+                  'Stops visitors can reach (content readable, about a work placed on the museum map). Maintained by the server.',
+              },
+            },
+            {
+              name: 'visitableContents',
+              type: 'relationship',
+              relationTo: 'contents',
+              hasMany: true,
+              // Only the ids: the stops themselves come from `contents`.
+              maxDepth: 0,
+              access: { create: () => false, update: () => false },
+              admin: { readOnly: true, position: 'sidebar' },
             },
             {
               name: 'thumbnail',

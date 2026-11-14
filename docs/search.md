@@ -95,11 +95,16 @@ Both scopes read the same `search` collection through
 `isUnlistedInSearch()` (`src/lib/search-index.ts`) is the one rule for the
 plugin's `skipSync` and for `pnpm search:reindex`: private contents and tours,
 and the visits planned for one visitor (`tours.generation.generated`, "Plan my
-visit") get no search row. The same rule for planned visits, `LISTED_TOURS`
-(a `where`) and `isPlannedVisit` (a predicate) in `src/lib/visibility.ts`, keeps
-them out of every list of tours: the museum page (`museums.tours` join), the
-tours of a work or a content, and the navigation Spotlight.
-They stay reachable by their link, which is how a group follows one.
+visit") get no search row, nor do tours with no visitable stop
+(`tours.visitableStops` is 0: see
+[permissions](permissions-and-editing.md#visitable-stops-derived-server-written)).
+A tour that loses its last visitable stop (the museum map changed, a content
+was deleted) has its row removed by `refreshSearchDocs`, and gets it back when a
+stop returns. The same rules, `LISTED_TOURS` (a `where`) and `isPersonalTour` /
+`isEmptyTour` (predicates) in `src/lib/visibility.ts`, keep them out of every
+list of tours: the museum page (`museums.tours` join), the tours of a work or a
+content, the navigator rails and the navigation Spotlight. Planned visits stay
+reachable by their link, which is how a group follows one.
 
 ## Reindex
 

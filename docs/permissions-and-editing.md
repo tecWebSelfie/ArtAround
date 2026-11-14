@@ -136,6 +136,61 @@ with the caller's `where` and reads as the visitor (`asViewer()`) unless the
 caller passes `overrideAccess` itself. The navigator rails, a work's and a
 content's tours and `/search/tours` use it; the museum page's `tours` join
 takes `LISTED_TOURS` directly, and in-memory filters use `isPersonalTour`.
+`LISTED_TOURS` also leaves out tours with no visitable stop (next section;
+in-memory: `isEmptyTour`), and the planned visits and visit copies stay
+reachable by link as before.
+
+### Visitable stops (derived, server-written)
+
+Product rule: a stop a visitor can't visit (its content is gone or unreadable,
+is about no object, or its object isn't placed on the museum map:
+`unavailableStops`) is never shown to visitors; only its author's editor lists
+it, flagged. Navigation applies the rule live (`visitableTour`); lists, cards,
+counts and search need it in a query or on tours read without the museum map,
+so tours store it: `tours.visitableStops` (count, indexed) and
+`tours.visitableContents` (the ids in tour order, `maxDepth: 0`). Both are
+read-only in the admin and denied to every client write (field access
+`create`/`update: false`, and the `syncVisitableStops` hook drops whatever a
+save carries first), so only the server writes them.
+
+- **One definition.** `computeVisitableContentIds`
+  (`src/lib/visitable-stops.ts`) builds navigation's own inputs (placed objects
+  `museumPlacedObjects`, the objects that list each stop, readable stops) and
+  calls `visitableTour`. Readable = public, or authored by the tour's author
+  (the group-cookie rule of `readContents`; other authors' private stops can't
+  be added since `guardTourContents`, and legacy ones count as unavailable).
+  Paid locked stops are visitable (only their body is withheld). A museum with
+  no usable map drops only the stops whose content is gone, as in navigation.
+- **When it is recomputed:** the tour's own save (`beforeChange`, only when its
+  stops, museum or author change, or it has no value yet); a museum's map save
+  when the placed objects changed (`Museums.ts`, that museum's tours); an
+  object's `contents` change or deletion (`Objects.ts`, the tours including
+  those contents); a content's deletion, or its visibility/author change
+  (`Contents.ts`, the tours including it).
+- **Cost and loops.** `refreshVisitableStops` reads the affected tours, writes
+  only the ones whose value actually changed, one after the other (a MongoDB
+  session doesn't take concurrent operations), through `req` so it joins the
+  caller's transaction and rolls back with it. The write is a direct adapter
+  `db.updateOne`: no tour hooks run (no validation of the whole tour, quiz
+  cleanup, `updatedAt` bump), so it can't loop back into the collections that
+  trigger it and needs no `context` flag. It then refreshes the search rows of
+  the changed tours. Derived data: a failure is logged, never fails the save.
+- **Lists.** `LISTED_TOURS` requires `visitableStops` missing (not backfilled
+  yet: fail open, so a database that hasn't run the backfill doesn't empty
+  every list) or greater than 0. Readers outside navigation read a tour through
+  `withVisitableStops` (`src/lib/tour-summary.ts`), which keeps only
+  `visitableContents`; `summarizeTour` does it itself.
+- **Backfill.** `pnpm tours:backfill-visitable`
+  (`src/scripts/backfill-visitable-stops.ts`, idempotent) fills tours saved
+  before the field; `pnpm seed` does it for the tours it finds again.
+- **Direct link to a tour with no visitable stop:** still opens (404 would
+  tell nothing the author doesn't already know, and a shared link shouldn't
+  turn into an error when a stop is removed from the map): its page shows a
+  notice instead of stops and has no "Start tour", and its start page sends
+  the visitor back to the tour page. Its author keeps the editor, which lists
+  every stop and flags the unavailable ones.
+
+Tests: `tests/int/visitable-stops.int.spec.ts`.
 
 ## Private contents and tours
 

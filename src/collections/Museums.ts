@@ -32,11 +32,12 @@ import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { HEX } from '@/lib/museum-color'
 import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
-import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
+import { museumRelationIds, refreshSearchDocs, relationshipIds } from '@/lib/search-index'
 // Import attribute: native ESM (Playwright's loader for e2e helpers that
 // import the Payload config) refuses a JSON module without it.
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json' }
-import { museumObjectId } from '@/lib/tour-navigation'
+import { museumObjectId, museumPlacedObjects } from '@/lib/tour-navigation'
+import { refreshVisitableStops } from '@/lib/visitable-stops'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 import { imageUpload } from '../fields/imageUpload'
@@ -240,6 +241,53 @@ async function refreshMuseumDependents({
   }
 }
 
+/**
+ * A museum's map decides which tour stops are visitable (a stop whose object
+ * is off the map is unavailable), so when the placed objects change its tours
+ * recompute their stored `visitableStops` (src/lib/visitable-stops.ts). Only
+ * when the placement actually changed (a rename or an opening-hours save
+ * costs nothing), and before `refreshSearchAfterChange` so the search rows it
+ * rebuilds already know which tours became (un)listed. Derived data: a
+ * failure is logged, never fails the museum save.
+ */
+const refreshToursVisitableStops: CollectionAfterChangeHook<Museum> = async ({
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
+  if (operation === 'create') return doc
+  // Cheap first: the derived `objects` index (set by `syncMuseumObjects` on a
+  // map save) and whether there is a map at all. Parsing both maps on every
+  // museum save would cost more than the unchanged placement is worth.
+  const indexOf = (museum: Museum) => relationshipIds(museum.objects).sort().join()
+  if (indexOf(doc) === indexOf(previousDoc) && Boolean(doc.map) === Boolean(previousDoc.map)) {
+    return doc
+  }
+  const before = museumPlacedObjects(previousDoc)
+  const after = museumPlacedObjects(doc)
+  const same =
+    before === after ||
+    (before !== null &&
+      after !== null &&
+      before.size === after.size &&
+      [...before].every((id) => after.has(id)))
+  if (same) return doc
+  try {
+    await refreshVisitableStops({
+      payload: req.payload,
+      req,
+      where: { museum: { equals: String(doc.id) } },
+    })
+  } catch (error) {
+    req.payload.logger.error({
+      err: error,
+      msg: `Could not refresh the visitable stops of the tours of museum ${doc.id}`,
+    })
+  }
+  return doc
+}
+
 const refreshSearchAfterChange: CollectionAfterChangeHook<Museum> = async (args) => {
   await refreshMuseumDependents(args)
   return args.doc
@@ -279,7 +327,7 @@ export const Museums: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['description'])],
     beforeChange: [guardCuratorMapEdits, syncMuseumObjects, syncMuseumPalette],
-    afterChange: [appointCreatorAsDirector, refreshSearchAfterChange],
+    afterChange: [appointCreatorAsDirector, refreshToursVisitableStops, refreshSearchAfterChange],
     afterDelete: [refreshSearchAfterDelete, deleteToursOfDeletedMuseum],
   },
   fields: [

@@ -2,13 +2,10 @@ import { isPersonalTour } from '@/lib/visibility'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import { cache } from 'react'
-import {
-  getNavigationCatalog,
-  museumPlacedObjects,
-  NAVIGATION_TOUR_POPULATE,
-} from '@/lib/navigation-tour.server'
+import { getNavigationCatalog, NAVIGATION_TOUR_POPULATE } from '@/lib/navigation-tour.server'
 import { notFound, redirect } from 'next/navigation'
 import {
+  museumPlacedObjects,
   tourNavigationPath,
   tourStepIndex,
   visitableTour,

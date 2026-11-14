@@ -11,6 +11,7 @@ import { isLocked } from '@/lib/price'
 import { normalizeLocale } from '@/lib/localized'
 import { asViewer } from '@/lib/session'
 import {
+  museumPlacedObjects,
   placedObjectIds,
   tourMuseumId,
   visitableTour,
@@ -116,15 +117,6 @@ export const getNavigationCatalog = cache(
     }))
   },
 )
-
-/**
- * The placed object ids of the museum's map, or `null` when it has no usable
- * map (then nothing counts as unavailable: see `visitableTour`).
- */
-export function museumPlacedObjects(museum: Museum) {
-  const parsed = validateBuildJson(museum.map).parsed
-  return parsed ? placedObjectIds(parsed) : null
-}
 
 /**
  * A tour as the visitor navigates it: read as the visitor, with its

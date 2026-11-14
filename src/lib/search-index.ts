@@ -1,5 +1,5 @@
 import { displayName } from '@/lib/display-name'
-import { isPersonalTour } from '@/lib/visibility'
+import { isEmptyTour, isPersonalTour } from '@/lib/visibility'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 
@@ -386,7 +386,7 @@ export async function refreshSearchDocs({
       where: { id: { in: uniqueIds } },
       select:
         collection === 'tours'
-          ? { visibility: true, generation: true, visitCopyOf: true }
+          ? { visibility: true, generation: true, visitCopyOf: true, visitableStops: true }
           : { visibility: true },
       depth: 0,
       pagination: false,
@@ -394,6 +394,20 @@ export async function refreshSearchDocs({
       req,
     })
     for (const doc of docs) if (isUnlistedInSearch(doc)) hidden.add(String(doc.id))
+  }
+
+  // A document that became unlisted (its last visitable stop went away)
+  // leaves the index: the row saved while it was listed is removed here.
+  const staleHidden = [...hidden].filter((id) => bySourceId.has(id))
+  if (staleHidden.length) {
+    await payload.delete({
+      collection: 'search',
+      where: {
+        and: [{ 'doc.relationTo': { equals: collection } }, { 'doc.value': { in: staleHidden } }],
+      },
+      overrideAccess: true,
+      req,
+    })
   }
 
   for (const id of uniqueIds) {
@@ -475,13 +489,16 @@ export function museumRelationIds(
 
 /**
  * Documents that never get a search row: private contents and tours and the
- * tours of one visitor (planned visits, visit copies; both rules in
- * src/lib/visibility.ts). One
+ * tours of one visitor (planned visits, visit copies) and tours with no
+ * visitable stop (all rules in src/lib/visibility.ts). One
  * predicate for the plugin's `skipSync` and for `pnpm search:reindex`, which
  * used to index every document it found.
  */
 export function isUnlistedInSearch(doc: unknown): boolean {
   return (
-    (doc as { visibility?: string | null } | null)?.visibility === 'private' || isPersonalTour(doc)
+    (doc as { visibility?: string | null } | null)?.visibility === 'private' ||
+    isPersonalTour(doc) ||
+    // A tour with no visitable stop is never offered (`LISTED_TOURS`).
+    isEmptyTour(doc)
   )
 }

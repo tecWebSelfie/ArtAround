@@ -48,12 +48,33 @@ export function visitMinutes(
   return tour.durationMinutes ?? reading()
 }
 
-export function summarizeTour(tour: Tour): TourSummary {
+/**
+ * The tour as visitors see it: only its stored visitable stops
+ * (`visitableContents`, kept by `src/lib/visitable-stops.ts`), in tour order.
+ * Product rule: a stop that is gone, about no object or off the museum map is
+ * never shown to a visitor (the author's editor still lists it, flagged), so
+ * every count, duration, price and list outside navigation reads the tour
+ * through this. A tour not backfilled yet (no stored list) keeps all its
+ * stops, so nothing disappears before `pnpm tours:backfill-visitable` ran.
+ * Pure and idempotent; the tour must have been read with `visitableContents`.
+ */
+export function withVisitableStops<T extends Pick<Tour, 'contents' | 'visitableContents'>>(
+  tour: T,
+): T {
+  if (!Array.isArray(tour.visitableContents) || !Array.isArray(tour.contents)) return tour
+  const idOf = (stop: string | { id: string }) => (typeof stop === 'string' ? stop : stop.id)
+  const visitable = new Set(tour.visitableContents.map(idOf))
+  const contents = tour.contents.filter((stop) => visitable.has(idOf(stop)))
+  return contents.length === tour.contents.length ? tour : { ...tour, contents }
+}
+
+export function summarizeTour(source: Tour): TourSummary {
+  const tour = withVisitableStops(source)
   const reading = readingMinutes(tour.contents)
   const ratingsCount = tour.lfrs?.ratingsCount ?? 0
 
   return {
-    // Unpopulated relations still count as stops: the order is the tour.
+    // Visitable stops only (`withVisitableStops`).
     stops: tour.contents?.length ?? 0,
     readingMinutes: reading,
     visitMinutes: visitMinutes(tour, () => reading),

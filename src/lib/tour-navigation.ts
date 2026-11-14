@@ -1,5 +1,5 @@
-import type { Content, Object as MuseumObject, Tour } from '@/payload-types'
-import { ItemNode } from '@pascal-app/core'
+import type { Content, Museum, Object as MuseumObject, Tour } from '@/payload-types'
+import { ItemNode, validateBuildJson } from '@pascal-app/core'
 import type { Route } from 'next'
 import { readingAge } from './reading-profile'
 import { museumNavigationPath, tourNavigationPath } from './tour-routes'
@@ -226,6 +226,17 @@ export function placedObjectIds(map: { nodes: Record<string, unknown> } | null |
     if (id) ids.add(id)
   }
   return ids
+}
+
+/**
+ * The placed object ids of the museum's map, or `null` when it has no usable
+ * map (then nothing counts as unavailable: see `visitableTour`). Shared by the
+ * navigation reads and by the stored visitable-stop count
+ * (`src/lib/visitable-stops.ts`), so both judge placement the same way.
+ */
+export function museumPlacedObjects(museum: Pick<Museum, 'map'>) {
+  const parsed = validateBuildJson(museum.map).parsed
+  return parsed ? placedObjectIds(parsed) : null
 }
 
 export function contentObjectId(content: Pick<Content, 'objects'>): string | null {

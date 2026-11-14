@@ -28,3 +28,12 @@ export const isPersonalTour = (doc: unknown) => {
 
 /** The stops a tour needs: one for a personal tour, `MIN_TOUR_STOPS` otherwise. */
 export const minStopsFor = (tour: unknown) => (isPersonalTour(tour) ? 1 : MIN_TOUR_STOPS)
+
+/**
+ * A tour with no visitable stop (`visitableStops` is 0, kept by
+ * `src/lib/visitable-stops.ts`): the predicate form of the `visitableStops`
+ * clause of `LISTED_TOURS`. A tour with no stored count yet (not backfilled)
+ * is not empty: lists fail open on a missing value.
+ */
+export const isEmptyTour = (doc: unknown) =>
+  (doc as { visitableStops?: number | null } | null)?.visitableStops === 0

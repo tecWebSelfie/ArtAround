@@ -34,6 +34,7 @@
     "seed:demo": "cross-env NODE_OPTIONS=--no-deprecation tsx scripts/seed-demo-museum.ts",
     "seed:e2e": "cross-env NODE_OPTIONS=--no-deprecation payload seed && tsx scripts/seed-tour-navigation.ts",
     "search:reindex": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/reindex-search.ts",
+    "tours:backfill-visitable": "cross-env NODE_OPTIONS=--no-deprecation payload run src/scripts/backfill-visitable-stops.ts",
     "agent:dev": "docker compose up -d && lk agent dev --dev ./my-agent/src/main.ts",
     "agent:console": "docker compose up -d && lk agent --dev console ./my-agent/src/main.ts",
     "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",

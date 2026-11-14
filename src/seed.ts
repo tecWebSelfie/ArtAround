@@ -19,6 +19,7 @@ import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
 import { PROJECT_ACCOUNTS } from './seed-accounts'
 import { placedObjectIds } from '@/lib/tour-navigation'
+import { refreshVisitableStops } from '@/lib/visitable-stops'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -1169,6 +1170,9 @@ try {
         })
         console.log(`Tour "${tour.data.title}" already exists, museum/author backfilled`)
       } else {
+        // Saved before the visitable-stops fields existed? Fill them (a no-op
+        // otherwise); every later change keeps them up to date (hooks).
+        await refreshVisitableStops({ payload, where: { id: { equals: foundId } } })
         console.log(`Tour "${tour.data.title}" already exists, skipping`)
       }
       continue

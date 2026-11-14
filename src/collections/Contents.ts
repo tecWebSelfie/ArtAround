@@ -26,6 +26,7 @@ import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibili
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { refreshToursIncluding } from '@/lib/search-index'
+import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -244,6 +245,29 @@ const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, prev
 }
 
 /**
+ * Whether a tour's stop is visitable depends on its content being readable
+ * (public, or its tour author's own): a content that turns private, or changes
+ * author, recomputes the stored visitable stops of the tours that include it
+ * (src/lib/visitable-stops.ts). Deletion does the same (`afterDelete`).
+ */
+const refreshTourVisitableStops: CollectionAfterChangeHook<Content> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
+  if (!previousDoc) return doc
+  if (doc.visibility === previousDoc.visibility && asId(doc.author) === asId(previousDoc.author)) {
+    return doc
+  }
+  await refreshVisitableStopsOfContents({
+    payload: req.payload,
+    req,
+    contentIds: [String(doc.id)],
+  })
+  return doc
+}
+
+/**
  * Read-aloud audio of the base text (`src/lib/content-audio.ts`): when the
  * English source (the language contents are written in) is created or its
  * title or text changes, a `generateContentAudio` job refreshes its MP3.
@@ -348,11 +372,22 @@ export const Contents: CollectionConfig = {
       attachTo('objects', 'attachToObject', { skipMintModelGeneration: true }),
       attachTo('subjects', 'attachToSubject'),
       refreshTourPrices,
+      refreshTourVisitableStops,
       queueContentAudio,
       hideFromSearch('contents'),
     ],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
-    afterDelete: [detachDeletedContentFromQuestions],
+    afterDelete: [
+      detachDeletedContentFromQuestions,
+      // The tours that listed it keep the dangling id: they stop counting it.
+      async ({ req, id }) => {
+        await refreshVisitableStopsOfContents({
+          payload: req.payload,
+          req,
+          contentIds: [String(id)],
+        })
+      },
+    ],
   },
   fields: [
     DifficultyField,

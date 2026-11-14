@@ -3,6 +3,7 @@ import { jwtVerify, SignJWT } from 'jose'
 import { createSecretKey } from 'node:crypto'
 import type { Access, CollectionAfterChangeHook, PayloadRequest, Where } from 'payload'
 import { parseCookies } from 'payload/shared'
+import { isEmptyTour } from '@/lib/tour-stops'
 import { cache } from 'react'
 
 /**
@@ -183,7 +184,7 @@ export const readContents = readVisible(async (req, tourId) => {
 export const hideFromSearch =
   (collection: 'contents' | 'tours'): CollectionAfterChangeHook =>
   async ({ doc, req }) => {
-    if (doc.visibility !== 'private') return doc
+    if (doc.visibility !== 'private' && !isEmptyTour(doc)) return doc
     await req.payload.delete({
       collection: 'search',
       where: {
@@ -199,7 +200,7 @@ export const hideFromSearch =
   }
 
 /**
- * Tours that lists show. Two kinds of tour belong to one visitor and are saved
+ * Tours that lists show. Tours with no visitable stop are left out (below). Two kinds of tour belong to one visitor and are saved
  * as tours only so that a group can follow them by link: a visit planned for
  * them ("Plan my visit", `generation.generated`) and their own copy of a tour
  * for a visit (`visitCopyOf`, "Edit" on a start page). Every list of tours (the
@@ -211,7 +212,12 @@ export const LISTED_TOURS: Where = {
   'generation.generated': { not_equals: true },
   // Payload's `exists: false` on a relationship also matches a stored null.
   visitCopyOf: { exists: false },
+  // A tour with no visitable stop is never offered (`visitableStops`, kept by
+  // src/lib/visitable-stops.ts). A tour that has no stored count yet (saved
+  // before the field, not backfilled) stays listed: failing open keeps a
+  // database that has not run the backfill from emptying every list.
+  or: [{ visitableStops: { exists: false } }, { visitableStops: { greater_than: 0 } }],
 }
 // The same rule as a predicate, defined with the stop minimum it also
 // drives (`src/lib/tour-stops.ts`, client-safe, unlike this module).
-export { isPersonalTour } from '@/lib/tour-stops'
+export { isEmptyTour, isPersonalTour } from '@/lib/tour-stops'
