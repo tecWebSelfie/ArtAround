@@ -32,15 +32,17 @@ export default async function NewContentPage({
   const ownQuery = new URLSearchParams({
     ...(objectId ? { object: objectId } : {}),
     ...(subjectId ? { subject: subjectId } : {}),
-    ...(museumId && returnTo ? { museum: museumId, returnTo } : {}),
+    ...(museumId ? { museum: museumId } : {}),
+    ...(museumId && returnTo ? { returnTo } : {}),
   })
   await requireUser(lng, `/${lng}/content/new${ownQuery.size ? `?${ownQuery}` : ''}`)
 
   const { payload } = await getSession()
-  // The object picker offers one museum's objects: the tour's in the tour
-  // flow, else the locked one in museum mode (like every list in the app).
+  // The object picker offers one museum's objects: the one the link names
+  // (the tour's in the tour flow, the row's on "Your museums"), else the
+  // locked one in museum mode (like every list in the app).
   const tourFlow = Boolean(museumId && returnTo)
-  const pickerMuseumId = tourFlow ? museumId : await lockedMuseumId()
+  const pickerMuseumId = museumId ?? (await lockedMuseumId())
   const [museum, object, subject] = await Promise.all([
     pickerMuseumId
       ? payload
