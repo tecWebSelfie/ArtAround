@@ -197,14 +197,100 @@ describe('saving private documents', () => {
 
   it('keeps private contents out of public tours', async () => {
     const req = fakeRequest({
-      docs: [{ id: 'c-private', title: 'Notes for my class', visibility: 'private' }],
+      docs: [{ id: 'c-private', title: 'Notes for my class', visibility: 'private', author: 'u1' }],
     })
     await expect(run(guardPrivateContents, { contents: ['c-private'] }, req)).rejects.toThrow(
       /"Notes for my class"/,
     )
     await expect(
-      run(guardPrivateContents, { visibility: 'private', contents: ['c-private'] }, req),
+      run(
+        guardPrivateContents,
+        { visibility: 'private', author: 'u1', contents: ['c-private'] },
+        req,
+      ),
     ).resolves.toMatchObject({ visibility: 'private' })
+  })
+
+  describe('other authors’ private stops', () => {
+    const docs = [
+      { id: 'c-mine', title: 'My notes', visibility: 'private', author: 'u1' },
+      { id: 'c-theirs', title: 'Their notes', visibility: 'private', author: 'u2' },
+      { id: 'c-open', title: 'Open', visibility: 'public', author: 'u2' },
+    ]
+    // Answers the way the hook asks: only the documents of the ids it names.
+    const requestFor = (user: Doc | null = null) => {
+      const request = fakeRequest({ user })
+      request.payload.find = (async ({ where }: { where: { id: { in: string[] } } }) => ({
+        docs: docs.filter((doc) => where.id.in.includes(doc.id)),
+      })) as never
+      return request
+    }
+    const req = requestFor()
+
+    it('are refused on create, whatever the tour’s visibility', async () => {
+      await expect(
+        run(
+          guardPrivateContents,
+          { visibility: 'private', author: 'u1', contents: ['c-theirs'] },
+          req,
+        ),
+      ).rejects.toThrow(/other authors: "Their notes"/)
+      // A public tour is refused too (by the public-tour rule, which comes first).
+      await expect(
+        run(
+          guardPrivateContents,
+          { visibility: 'public', author: 'u1', contents: ['c-theirs'] },
+          req,
+        ),
+      ).rejects.toThrow(/"Their notes"/)
+    })
+
+    it('are refused when a save adds them, and follow the tour’s author, not the caller', async () => {
+      const original = { id: 't1', author: 'u1', visibility: 'private', contents: ['c-mine'] }
+      await expect(
+        run(guardPrivateContents, { contents: ['c-mine', 'c-theirs'] }, req, original),
+      ).rejects.toThrow(/"Their notes"/)
+      // A super admin saving u1's tour: still u1's rule.
+      const asAdmin = requestFor({ id: 'admin', roles: ['super-admin'] })
+      await expect(
+        run(guardPrivateContents, { contents: ['c-mine', 'c-theirs'] }, asAdmin, original),
+      ).rejects.toThrow(/"Their notes"/)
+    })
+
+    it('stay on a legacy tour that already lists them', async () => {
+      const legacy = {
+        id: 't1',
+        author: 'u1',
+        visibility: 'private',
+        contents: ['c-theirs', 'c-mine'],
+      }
+      await expect(
+        run(guardPrivateContents, { title: 'Fixed typo' }, req, legacy),
+      ).resolves.toMatchObject({ title: 'Fixed typo' })
+      // Reordering or keeping them is not adding them.
+      await expect(
+        run(guardPrivateContents, { contents: ['c-mine', 'c-theirs'] }, req, legacy),
+      ).resolves.toBeTruthy()
+    })
+
+    it('are refused on a tour with no author, which owns nothing', async () => {
+      await expect(
+        run(guardPrivateContents, { visibility: 'private', contents: ['c-mine'] }, req),
+      ).rejects.toThrow(/"My notes"/)
+    })
+
+    it('allow the tour author’s own private stops, and anyone’s public ones', async () => {
+      await expect(
+        run(
+          guardPrivateContents,
+          { visibility: 'private', author: 'u1', contents: ['c-mine', 'c-open'] },
+          req,
+        ),
+      ).resolves.toBeTruthy()
+      await expect(
+        run(guardPrivateContents, { author: 'u1', contents: ['c-open'] }, req),
+      ).resolves.toBeTruthy()
+    })
   })
 })
 

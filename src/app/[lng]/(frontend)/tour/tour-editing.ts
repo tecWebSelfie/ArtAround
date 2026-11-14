@@ -3,6 +3,7 @@ import 'server-only'
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
 import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
+import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
 import type { Museum, Tour } from '@/payload-types'
 
@@ -121,4 +122,44 @@ async function getUnavailableStops(
       unavailable: true,
     }
   })
+}
+
+/**
+ * Editor data for a NEW tour (`/tour/new`), blank or a COPY of another one
+ * (`?from=<id>`, whose stops are `sourceStopIds`): the museum's
+ * candidates plus the original's stops the visitor can keep and visit, in
+ * order (`copyableStops`). Unlike the editor of an existing tour, nothing is
+ * flagged: the author fixes their own tour's unavailable stops there, a copy
+ * just starts without them. A stop is unavailable exactly when it is not a
+ * candidate (`getUnavailableStops`' own definition), so no stop ids are
+ * passed to `getTourEditorData`, which skips that lookup.
+ */
+export async function getNewTourEditorData(museumId: string, sourceStopIds: string[] = []) {
+  const { payload, user } = await getSession()
+  const data = await getTourEditorData(museumId)
+  const candidateIds = new Set(data.candidates.map((candidate) => candidate.id))
+  const ofCandidates = sourceStopIds.filter((id) => candidateIds.has(id))
+  // The visibility and author of the stops: read as the visitor, so contents
+  // they can't read are absent and drop out with the private ones of others.
+  const { docs } = ofCandidates.length
+    ? await payload.find({
+        collection: 'contents',
+        where: { id: { in: ofCandidates } },
+        depth: 0,
+        pagination: false,
+        select: { visibility: true, author: true },
+        ...(await asViewer()),
+      })
+    : { docs: [] }
+  const stops = copyableStops({
+    stopIds: sourceStopIds,
+    candidateIds,
+    contents: docs.map((doc) => ({
+      id: String(doc.id),
+      visibility: doc.visibility,
+      author: asId(doc.author) ?? '',
+    })),
+    viewerId: String(user?.id ?? ''),
+  })
+  return { ...data, stops }
 }

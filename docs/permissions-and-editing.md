@@ -148,7 +148,12 @@ the tour's author, never another user's private content the tour lists
 Private documents are never indexed (`skipSync`, `hideFromSearch` hooks,
 `refreshSearchDocs`). Save rules: a private content can't be sold
 (`guardVisibility`), nor made private once bought or used in another author's
-tour; a public tour can't include private contents (`guardPrivateContents`).
+tour; a public tour can't include private contents (`guardTourContents`), and
+no tour (public or private) can list another author's private content: only
+that author can read it, so everyone else would meet an unavailable stop. The
+rule follows the tour's author (a super admin gets no exception) and refuses
+only stops the save adds (not in `originalDoc.contents`), so a tour saved
+before it still saves and its author's editor flags the stops to fix.
 Tests: `tests/int/visibility.int.spec.ts`.
 
 ## Frontend editing
@@ -203,7 +208,13 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      locked stops are flagged so they can be replaced. Stops that can no longer
      be visited (object off the map, or content gone; `getTourEditorData(museumId, stopIds)`) stay
      in the list, flagged "No longer on show, visitors skip it", with a summary
-     alert offering to remove them all; they are never dropped on save.
+     alert offering to remove them all; they are never dropped on save. That
+     is the author's own tour. A copy (`?from=`, customize or visit) starts
+     with no such stops and no notice (`getNewTourEditorData`,
+     `src/lib/tour-copy.ts`): it drops stops that are unavailable, unreadable
+     by the visitor or another author's private content (the copy's author is
+     the visitor), and their directions. With none (or fewer than
+     `minStopsFor`) left, the form just asks for more stops.
      Adding stops: a quick select, or "Browse contents" → `/[lng]/search/contents`
      in picker mode (`?pick=tour&museum=&returnTo=&have=`: only the museum's
      exhibited contents, each with "Add to tour" or "In the tour", locked ones

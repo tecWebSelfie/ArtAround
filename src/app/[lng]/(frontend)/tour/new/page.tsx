@@ -8,8 +8,8 @@ import { asViewer, getSession, requireUser } from '@/lib/session'
 import { tourCopyPath, tourEditPath, VISIT_COPY_PARAM } from '@/lib/tour-routes'
 import { Alert, Container } from '@mantine/core'
 import { redirect } from 'next/navigation'
-import { directionsByStop } from '@/lib/tour-logistics'
-import { existingVisitCopy, getTourEditorData } from '../tour-editing'
+import { copiedDirections } from '@/lib/tour-copy'
+import { existingVisitCopy, getNewTourEditorData } from '../tour-editing'
 
 /**
  * Create a tour (any signed-in user). Entry points:
@@ -65,10 +65,12 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   const sourceStops = (source?.contents ?? []).map((content) =>
     typeof content === 'string' ? content : content.id,
   )
-  // A customized copy shows the original's unvisitable stops too (flagged),
-  // and starts with the original's cover.
-  const [{ museum, candidates }, thumbnail] = await Promise.all([
-    getTourEditorData(museumId, sourceStops),
+  // A copy starts with the stops its visitor can keep and visit only, with no
+  // notice about the others (`getNewTourEditorData`), and with the original's
+  // cover. If none (or too few) are left, the form asks for the missing stops
+  // like for any new tour.
+  const [{ museum, candidates, stops }, thumbnail] = await Promise.all([
+    getNewTourEditorData(museumId, sourceStops),
     coverImage(payload, 'toursThumbnails', source?.thumbnail),
   ])
   return (
@@ -92,8 +94,8 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
                 description: source.description ?? '',
                 // The copy visits the same building: its directions still apply.
                 logistics: source.logistics ?? '',
-                directions: directionsByStop(source),
-                contents: sourceStops,
+                directions: copiedDirections(source, stops),
+                contents: stops,
               }
             : undefined
         }

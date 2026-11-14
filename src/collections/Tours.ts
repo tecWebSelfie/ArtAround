@@ -105,7 +105,15 @@ const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operati
  * - a tour that sells contents is commercial use of everything in it, so it
  *   can't include an NC-licensed content of another author;
  * - a public tour can't include private contents: its visitors couldn't read
- *   them. Private tours (a class visit) may mix both.
+ *   them. Private tours (a class visit) may mix both;
+ * - whatever its visibility, a tour can't list another author's private
+ *   content: only that author can read it, so every other visitor (and a
+ *   group following the tour) would meet an unavailable stop. Refused at
+ *   save, the earliest point; copies drop such stops too (`tour/new`). Only
+ *   stops the save ADDS are refused (not in `originalDoc.contents`), like
+ *   `validateTourStops`: a tour saved before the rule keeps saving, and its
+ *   author's editor flags the stops to fix. The rule follows the tour's
+ *   author, not the caller, so a super admin gets no exception.
  * A later price change of a stop doesn't re-check its tours.
  */
 const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
@@ -145,6 +153,20 @@ const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
       400,
     )
   }
+  const before = new Set((originalDoc?.contents ?? []).map(asId))
+  const others = docs.filter(
+    (doc) =>
+      doc.visibility === 'private' &&
+      !before.has(String(doc.id)) &&
+      // A tour with no author can't own anything: its private stops are refused.
+      (!author || asId(doc.author) !== asId(author)),
+  )
+  if (others.length) {
+    throw new APIError(
+      `A tour can't include private contents of other authors: ${quote(others)}. Only their author can read them: remove them or ask the author to make them public.`,
+      400,
+    )
+  }
   return data
 }
 
@@ -162,7 +184,9 @@ const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalD
 /**
  * A visit copy (`visitCopyOf`) is one visitor's tour, followed at most by
  * their group: always private, whatever the form sent. Before
- * `guardTourContents`, so a copy of a tour with private stops saves.
+ * `guardTourContents`, so a copy of a tour whose own-author private stops
+ * the visitor can read still saves (other authors' private stops are refused
+ * whatever the visibility; copies leave them out before saving).
  */
 const keepVisitCopyPrivate: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
   // The saved value wins over the stored one, a cleared (null) one included.
