@@ -23,10 +23,23 @@ const i18nProxy = createProxy(i18nConfig)
  * `/{lng}/…` anyway: that redirect drops the parameter too, so a scan costs a
  * single redirect.
  */
+/**
+ * `/search/{contents,objects}?pick=…&museum=…` is a picker's round trip from
+ * an editor (`tour-picker.ts`, `museum-picker.ts`), not a printed code: its
+ * `museum` is the picker's own and must reach the page.
+ */
+function isPickerRoundTrip(url: URL) {
+  const pick = url.searchParams.get('pick')
+  return (
+    (pick === 'tour' && /\/search\/contents\/?$/.test(url.pathname)) ||
+    (pick === 'museum' && /\/search\/objects\/?$/.test(url.pathname))
+  )
+}
+
 export function proxy(request: NextRequest) {
   const response = i18nProxy(request)
   const museum = request.nextUrl.searchParams.get('museum')
-  if (museum === null) return response
+  if (museum === null || isPickerRoundTrip(request.nextUrl)) return response
 
   const location = response.headers.get('location')
   const target = new URL(location ?? request.nextUrl.href, request.url)
