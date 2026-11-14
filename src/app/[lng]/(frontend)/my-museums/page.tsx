@@ -12,20 +12,20 @@ import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
 import { getSession, requireUser } from '@/lib/session'
 import type { MuseumThumbnail } from '@/payload-types'
 import { museumAccent } from '@/lib/museum-color'
-import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
-import { Badge, Container, Group, Stack, Text, Title } from '@mantine/core'
+import { LinkButton } from '@/components/editing/LinkButton'
+import { LinkAnchor } from '@/components/mantine/LinkAnchor'
+import { Avatar, Button, Container, Group, Stack, Text, Title } from '@mantine/core'
 import {
+  Download,
   FilePlus,
   Landmark,
   Map as MapIcon,
-  MapPin,
   QrCode,
   Route as RouteIcon,
   Users,
 } from 'lucide-react'
 import type { Metadata, Route } from 'next'
 import Link from 'next/link'
-import { MuseumToolLink } from './MuseumToolLink'
 
 /**
  * "Your museums": the museums where the signed-in visitor holds a role, each
@@ -34,9 +34,9 @@ import { MuseumToolLink } from './MuseumToolLink'
  * this list (linked from the visitor's own profile) has room for the actions.
  *
  * A private page, not a profile tab: the profile is the person's public face,
- * this is where they go to work. Each museum wears its own photo and color,
- * so the list reads as places, and every tool is drawn the same way. Directors first, then curators, then
- * verified creators; by name within a role.
+ * this is where they go to work. One row per museum, in its own color;
+ * directors first, then curators, then verified creators; by name within a
+ * role.
  *
  * The actions only link to the existing tools, which keep their own guards
  * (`can()`, the membership access rules): this page grants nothing.
@@ -110,111 +110,120 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
           </Text>
         </Stack>
       ) : (
-        // One block per museum, each in its own colors: the museum's photo
-        // (its cover, outlined in the museum's color as on the rail cards)
-        // beside the tools its role opens, all drawn the same way
-        // (`MuseumToolLink`). Side by side from `md`, stacked on phones.
-        <Stack component="ul" gap={48} className="m-0 list-none p-0">
+        // A list, not a wall of covers: a curator may hold several museums,
+        // and every row keeps the same anatomy (picture, name, role and city,
+        // tools) in the same place, so the eye runs down one column and many
+        // museums still fit on a screen. The museum's own color marks its
+        // picture's ring and its tools; the tools are one set of compact
+        // `light` buttons, the primary text of each row is the museum.
+        <Stack component="ul" gap={0} className="m-0 list-none p-0">
           {museums.map(({ museum, role }) => {
             const Icon = MUSEUM_ROLE_ICON[role]
             const [cover] = filterPopulated<MuseumThumbnail>(museum.thumbnails)
             const accent = museumAccent(museum.palette)
             const base = `/${lng}/museum/${museum.id}`
+            const tool = {
+              variant: 'light',
+              size: 'compact-sm',
+              color: accent ?? undefined,
+            } as const
             return (
-              <li
+              <Group
                 key={museum.id}
-                className="grid items-start gap-(--mantine-spacing-lg) from-md:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]"
+                component="li"
+                wrap="nowrap"
+                align="flex-start"
+                gap="md"
+                py="md"
+                className="border-b border-(--mantine-color-default-border) last:border-b-0"
               >
-                {/* The cover is the way into the museum's page. */}
-                <Link
-                  href={base as Route}
-                  className="group block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)"
-                >
-                  <div
-                    className="aspect-video overflow-hidden rounded-xl border-2 border-solid border-(--mantine-color-default-border) bg-cover bg-center from-md:aspect-4/3"
-                    // The picture and the museum's color are data: inline
-                    // (the URL quoted, as in `CoverCard`).
-                    style={{
-                      backgroundImage: `url(${JSON.stringify(pictureSrc(cover, 'cover') ?? PLACEHOLDER_IMAGE)})`,
-                      ...(accent && { borderColor: accent }),
-                    }}
+                {/* The picture repeats the name's link: out of the tab order
+                    and hidden from screen readers, one stop per museum. */}
+                <Link href={base as Route} tabIndex={-1} aria-hidden className="shrink-0">
+                  <Avatar
+                    src={pictureSrc(cover, 'card')}
+                    size={56}
+                    radius="md"
+                    color={accent ?? undefined}
+                    className="border-2 border-solid border-(--mantine-color-default-border)"
+                    style={accent ? { borderColor: accent } : undefined}
                   >
-                    <Stack
-                      justify="space-between"
-                      align="flex-start"
-                      className="h-full bg-linear-to-t from-black/80 via-black/10 to-black/25 transition-colors duration-300 group-hover:from-black/70 motion-reduce:transition-none"
-                      p="md"
-                    >
-                      <Badge
-                        variant="white"
-                        color="dark"
-                        size="md"
-                        leftSection={<Icon size={14} aria-hidden />}
-                      >
-                        {roleLabel[role]}
-                      </Badge>
-                      <Stack gap={2}>
-                        <Title order={2} size="h3" c="white" lineClamp={2}>
-                          {museum.name}
-                        </Title>
-                        {museum.location?.city && (
-                          <Group gap={4} c="gray.3" fz="sm" wrap="nowrap">
-                            <MapPin size={14} aria-hidden />
-                            {museum.location.city}
-                          </Group>
-                        )}
-                      </Stack>
-                    </Stack>
-                  </div>
+                    <Landmark size={22} />
+                  </Avatar>
                 </Link>
-                {/* Curators and directors run the museum; a verified creator
-                    adds their own work to it. */}
-                <Stack gap={4} component="nav" aria-label={museum.name}>
-                  {hasRank(role, MUSEUM_FUNCTION_CURATOR) ? (
-                    <>
-                      <MuseumToolLink
-                        href={`${base}/edit/mapeditor`}
-                        label={t('Museum map')}
-                        description={t('Place the works and the services on the map')}
-                        icon={<MapIcon size={20} aria-hidden />}
-                        color={accent}
-                      />
-                      <MuseumToolLink
-                        href={`${base}/members`}
-                        label={t('Staff')}
-                        description={t('The museum’s curators and verified creators')}
-                        icon={<Users size={20} aria-hidden />}
-                        color={accent}
-                      />
-                      <MuseumToolLink
-                        href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${lng}`}
-                        download
-                        label={t('QR labels')}
-                        description={t('A PDF with one QR code for each work on the map')}
-                        icon={<QrCode size={20} aria-hidden />}
-                        color={accent}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <MuseumToolLink
-                        href={`/${lng}/tour/new?museum=${museum.id}`}
-                        label={t('New tour')}
-                        description={t('A route through the museum’s works')}
-                        icon={<RouteIcon size={20} aria-hidden />}
-                        color={accent}
-                      />
-                      <MuseumToolLink
-                        href={`/${lng}/content/new`}
-                        label={t('New content')}
-                        description={t('Tell visitors the story of a work')}
-                        icon={<FilePlus size={20} aria-hidden />}
-                        color={accent}
-                      />
-                    </>
-                  )}
+                <Stack gap="xs" miw={0} className="grow">
+                  <Stack gap={2}>
+                    <Title order={2} size="h5" lineClamp={2}>
+                      <LinkAnchor href={base as Route} inherit c="inherit">
+                        {museum.name}
+                      </LinkAnchor>
+                    </Title>
+                    <Group gap={6} c="dimmed" fz="sm" wrap="wrap">
+                      <Group gap={4} wrap="nowrap">
+                        <Icon size={14} aria-hidden />
+                        {roleLabel[role]}
+                      </Group>
+                      {museum.location?.city && (
+                        <>
+                          <span aria-hidden>·</span>
+                          <span>{museum.location.city}</span>
+                        </>
+                      )}
+                    </Group>
+                  </Stack>
+                  {/* Curators and directors run the museum; a verified
+                      creator adds their own work to it. */}
+                  <Group gap="xs" component="nav" aria-label={museum.name}>
+                    {hasRank(role, MUSEUM_FUNCTION_CURATOR) ? (
+                      <>
+                        <LinkButton
+                          href={`${base}/edit/mapeditor` as Route}
+                          leftSection={<MapIcon size={14} aria-hidden />}
+                          {...tool}
+                        >
+                          {t('Map')}
+                        </LinkButton>
+                        <LinkButton
+                          href={`${base}/members` as Route}
+                          leftSection={<Users size={14} aria-hidden />}
+                          {...tool}
+                        >
+                          {t('Staff')}
+                        </LinkButton>
+                        {/* The QR labels PDF (`/api/qr-sheet`): a file, so a
+                            plain download link with the download icon. */}
+                        <Button
+                          component="a"
+                          href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${lng}`}
+                          download
+                          leftSection={<QrCode size={14} aria-hidden />}
+                          rightSection={<Download size={12} aria-hidden />}
+                          {...tool}
+                        >
+                          {t('QR labels')}
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <LinkButton
+                          href={`/${lng}/tour/new?museum=${museum.id}` as Route}
+                          leftSection={<RouteIcon size={14} aria-hidden />}
+                          {...tool}
+                        >
+                          {t('New tour')}
+                        </LinkButton>
+                        <LinkButton
+                          href={`/${lng}/content/new` as Route}
+                          leftSection={<FilePlus size={14} aria-hidden />}
+                          {...tool}
+                        >
+                          {t('New content')}
+                        </LinkButton>
+                      </>
+                    )}
+                  </Group>
                 </Stack>
-              </li>
+              </Group>
             )
           })}
         </Stack>
