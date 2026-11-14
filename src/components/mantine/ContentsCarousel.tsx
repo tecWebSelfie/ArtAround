@@ -8,6 +8,7 @@ import { Group, Stack, Text, Title } from '@mantine/core'
 import { Clock } from 'lucide-react'
 
 import { CoverCard } from './CoverCard'
+import { SeeAllLink } from './SeeAllLink'
 import { DIFFICULTY_LABEL_KEY, DifficultyBadge } from './DifficultyBadge'
 import { formatDuration } from '@/lib/duration'
 
@@ -17,13 +18,18 @@ export { DIFFICULTY_LABEL_KEY, DIFFICULTY_META } from './DifficultyBadge'
  * A creator's contents as a swipeable row of square cards, the sibling of
  * `ObjectsCarousel`: each `CoverCard` is one link to the content page, titled
  * over a bottom scrim with its difficulty and reading time. The 2px teal outline is
- * the content identity (DESIGN.md → Colors). No "See more" controls: there is
- * no listing page behind them, and the row already holds every content.
+ * the content identity (DESIGN.md → Colors). `seeAllHref` adds the "See all"
+ * pill to the contents search, narrowed to the row's author.
  */
 export const ContentsCarousel = async ({
   contents,
+  seeAllHref,
   ...props
-}: CarouselProps & { contents: (string | Content)[] | null | undefined }) => {
+}: CarouselProps & {
+  /** The whole list as a scoped search (`scopedSearchHref`); no pill without it. */
+  seeAllHref?: Route
+  contents: (string | Content)[] | null | undefined
+}) => {
   const { t } = await getT('contents-carousel')
   const validContents = filterPopulated<Content>(contents)
 
@@ -38,12 +44,15 @@ export const ContentsCarousel = async ({
   return (
     <Stack>
       {/* h2: the carousel is a section of its page, right under the h1. */}
-      <Title order={2} size="h5">
-        {t('Contents')}{' '}
-        <Text span c="dimmed" fw={400} inherit className="tabular-nums">
-          {validContents.length}
-        </Text>
-      </Title>
+      <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+        <Title order={2} size="h5">
+          {t('Contents')}{' '}
+          <Text span c="dimmed" fw={400} inherit className="tabular-nums">
+            {validContents.length}
+          </Text>
+        </Title>
+        {seeAllHref && <SeeAllLink href={seeAllHref} />}
+      </Group>
       <Carousel
         {...props}
         emblaOptions={{

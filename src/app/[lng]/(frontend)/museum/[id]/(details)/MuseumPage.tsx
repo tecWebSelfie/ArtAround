@@ -8,6 +8,7 @@ import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import { ObjectsCarousel } from '@/components/mantine/ObjectsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
+import { scopedSearchHref } from '@/lib/search-url'
 import type { ReactNode } from 'react'
 import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
@@ -252,10 +253,16 @@ export default async function MuseumPage({
               <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start">
                 <GridCol span={{ base: 12, md: 5 }}>
                   {/* `tours` is the join over `tours.museum`. */}
-                  <ToursCarousel tours={tours} />
+                  <ToursCarousel
+                    tours={tours}
+                    seeAllHref={scopedSearchHref(lng, 'tours', 'at', museum.id) as Route}
+                  />
                 </GridCol>
                 <GridCol span={{ base: 12, md: 7 }}>
-                  <ObjectsCarousel objects={museum.objects} />
+                  <ObjectsCarousel
+                    objects={museum.objects}
+                    seeAllHref={scopedSearchHref(lng, 'objects', 'at', museum.id) as Route}
+                  />
                 </GridCol>
               </Grid>
             ),

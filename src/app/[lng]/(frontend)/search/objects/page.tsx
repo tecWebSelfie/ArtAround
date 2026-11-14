@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
 import { SearchShell } from '@/components/mantine/SearchShell'
+import { SearchHeading } from '@/components/mantine/SearchHeading'
+import { resolveSearchScopes, scopeParams } from '@/lib/search-scope'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
 import { Container, Stack, Title } from '@mantine/core'
@@ -38,8 +40,16 @@ export default async function SearchObjectsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumScope()])
+  const basePath = `/${lng}/search/objects`
+  // A picker request (`?pick=museum`) reads no URL scopes: it owns `museum`.
+  const requested = parseMuseumPicker(lng, searchParams)
+  // Independent setup reads: started together; the URL scopes (`?at=`,
+  // `?subject=`, a "See all" link's list) as soon as Payload is up.
+  const payloadReady = getPayload({ config })
+  const setup = Promise.all([payloadReady, museumScope()])
+  const scoping = requested
+    ? Promise.resolve({ where: null, scopes: [] })
+    : payloadReady.then((payload) => resolveSearchScopes(payload, 'objects', searchParams, lng))
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
@@ -63,7 +73,6 @@ export default async function SearchObjectsPage(props: {
   const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page
   const page = Math.max(1, Number(pageParam) || 1)
 
-  const requested = parseMuseumPicker(lng, searchParams)
   const picker =
     requested && (await can('museums', requested.museumId, 'update', 'map')) ? requested : null
   const museum = picker
@@ -78,19 +87,18 @@ export default async function SearchObjectsPage(props: {
     (museum?.objects ?? []).map((object) => (typeof object === 'string' ? object : object.id)),
   )
 
+  const { where: scopeWhere, scopes } = await scoping
   const result = await payload.find({
     collection: 'objects',
     // Museum mode: only the locked museum's objects. The picker browses the
     // whole catalog: any object can be placed on any map.
-    where:
-      scope && !picker
-        ? {
-            and: [
-              activeFiltersToWhere(initialFilters, definitions),
-              { id: { in: scope.objectIds } },
-            ],
-          }
-        : activeFiltersToWhere(initialFilters, definitions),
+    where: {
+      and: [
+        activeFiltersToWhere(initialFilters, definitions),
+        ...(scope && !picker ? [{ id: { in: scope.objectIds } }] : []),
+        ...(scopeWhere ? [scopeWhere] : []),
+      ],
+    },
     page,
     limit: PAGE_SIZE,
     depth: 1,
@@ -131,19 +139,24 @@ export default async function SearchObjectsPage(props: {
             </Group>
           </Stack>
         ) : (
-          <Title order={1} size="h2">
-            {t('Search objects')}
-          </Title>
+          <SearchHeading
+            title={t('Search objects')}
+            total={result.totalDocs}
+            scopes={scopes}
+            filtered={initialFilters.length > 0}
+            basePath={basePath}
+            searchParams={searchParams}
+          />
         )}
         <SearchShell
           definitions={definitions}
           initialFilters={initialFilters}
           page={result.page ?? page}
           totalPages={result.totalPages ?? 1}
-          basePath={`/${lng}/search/objects`}
+          basePath={basePath}
           storageKeyPrefix="search-objects"
           placeholder={t('Filter objects…')}
-          keepParams={picker ? museumPickerParams(picker) : undefined}
+          keepParams={picker ? museumPickerParams(picker) : scopeParams(scopes)}
         >
           <ObjectsSearchResults objects={result.docs} lng={lng} picker={picker} onShow={onShow} />
         </SearchShell>

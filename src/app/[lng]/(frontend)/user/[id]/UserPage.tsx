@@ -5,6 +5,7 @@ import { ArtaroundEmptyState } from '@/components/mantine/ArtaroundEmptyState'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { ContentsCarousel } from '@/components/mantine/ContentsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
+import { scopedSearchHref } from '@/lib/search-url'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Museum, User } from '@/payload-types'
@@ -179,7 +180,10 @@ export const UserPage = async ({
                         }
                       />
                     ) : (
-                      <ToursCarousel tours={populatedTours} />
+                      <ToursCarousel
+                        tours={populatedTours}
+                        seeAllHref={scopedSearchHref(lng, 'tours', 'author', user.id) as Route}
+                      />
                     )}
                     {populatedContents.length === 0 ? (
                       <ArtaroundEmptyState
@@ -206,7 +210,10 @@ export const UserPage = async ({
                         }
                       />
                     ) : (
-                      <ContentsCarousel contents={populatedContents} />
+                      <ContentsCarousel
+                        contents={populatedContents}
+                        seeAllHref={scopedSearchHref(lng, 'contents', 'author', user.id) as Route}
+                      />
                     )}
                   </Stack>
                 ),

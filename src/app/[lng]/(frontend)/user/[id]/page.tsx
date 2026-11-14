@@ -23,7 +23,6 @@ import { cache } from 'react'
 const readUser = cache(async (id: string, museumOnly: boolean) => {
   const [{ payload }, scope, viewer] = await Promise.all([getSession(), museumScope(), asViewer()])
   const inMuseum = museumOnly && scope
-  // An unknown or deleted id is a 404, not an error page.
   const user = await payload
     .findByID({
       id,
@@ -40,7 +39,11 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
       },
       ...viewer,
     })
-    .catch(() => notFound())
+    // Only a missing user is a 404; any other failure reaches the error boundary.
+    .catch((error: { status?: number }) => {
+      if (error?.status === 404) notFound()
+      throw error
+    })
   return { user, scope }
 })
 

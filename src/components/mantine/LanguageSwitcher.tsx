@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useT } from 'next-i18next/client'
 import type { Route } from 'next'
 import { useState } from 'react'
+import { ClearSearchButton } from './ClearSearchButton'
 
 /** A language by its own name ("Deutsch", "Ελληνικά"), so anyone finds theirs. */
 function languageName(code: string) {
@@ -101,6 +102,9 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
           value={search}
           onChange={(event) => setSearch(event.currentTarget.value)}
           leftSection={<Search size={14} aria-hidden />}
+          // The X empties the filter in one tap, as on every visitor search.
+          rightSection={search ? <ClearSearchButton onClear={() => setSearch('')} /> : null}
+          rightSectionPointerEvents="all"
           placeholder={t('Search a language')}
           aria-label={t('Search a language')}
         />

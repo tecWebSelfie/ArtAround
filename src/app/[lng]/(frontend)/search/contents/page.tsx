@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { ContentsSearchResults } from '@/components/mantine/ContentsSearchResults'
 import { SearchShell } from '@/components/mantine/SearchShell'
+import { SearchHeading } from '@/components/mantine/SearchHeading'
+import { resolveSearchScopes, scopeParams } from '@/lib/search-scope'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
 import config from '@/payload.config'
@@ -8,6 +10,7 @@ import { Container, Stack, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
 import { getPayload } from 'payload'
 import { museumScope } from '@/lib/museum-mode'
+import { asViewer } from '@/lib/session'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { getTourEditorData } from '../../tour/tour-editing'
 import { backToTourHref, newStopHref, parseTourPicker, tourPickerParams } from '@/lib/tour-picker'
@@ -38,13 +41,21 @@ export default async function SearchContentsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumScope()])
+  const basePath = `/${lng}/search/contents`
+  // Picker mode (`?pick=tour`) reads no URL scopes: it owns `museum`.
+  const picker = parseTourPicker(lng, searchParams)
+  // Independent setup reads: started together; the URL scopes (`?at=`,
+  // `?author=`, `?subject=`, a "See all" link's list) as soon as Payload is up.
+  const payloadReady = getPayload({ config })
+  const setup = Promise.all([payloadReady, museumScope(), asViewer()])
+  const scoping = picker
+    ? Promise.resolve({ where: null, scopes: [] })
+    : payloadReady.then((payload) => resolveSearchScopes(payload, 'contents', searchParams, lng))
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
   const { t: tCard } = await getT('contents-carousel-card')
-  const [payload, scope] = await setup
+  const [payload, scope, viewer] = await setup
 
   const definitions: FilterDefinition[] = [
     {
@@ -76,9 +87,11 @@ export default async function SearchContentsPage(props: {
   const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page
   const page = Math.max(1, Number(pageParam) || 1)
 
-  const picker = parseTourPicker(lng, searchParams)
   const editor = picker ? await getTourEditorData(picker.museumId) : null
-  const filtersWhere = activeFiltersToWhere(initialFilters, definitions)
+  const { where: scopeWhere, scopes } = await scoping
+  const filtersWhere: Where = scopeWhere
+    ? { and: [activeFiltersToWhere(initialFilters, definitions), scopeWhere] }
+    : activeFiltersToWhere(initialFilters, definitions)
   // Picker: the museum's tour candidates; else museum mode's locked museum.
   const allowedIds = editor
     ? editor.candidates.map((candidate) => candidate.id)
@@ -89,9 +102,12 @@ export default async function SearchContentsPage(props: {
 
   const result =
     allowedIds?.length === 0
-      ? { docs: [], page: 1, totalPages: 1 }
+      ? { docs: [], page: 1, totalPages: 1, totalDocs: 0 }
       : await payload.find({
           collection: 'contents',
+          // As the visitor: others' private contents stay out of the list. The
+          // picker's candidates are already the ones its tour may include.
+          ...(picker ? {} : viewer),
           where,
           page,
           limit: PAGE_SIZE,
@@ -142,19 +158,24 @@ export default async function SearchContentsPage(props: {
             </Group>
           </Stack>
         ) : (
-          <Title order={1} size="h2">
-            {t('Search contents')}
-          </Title>
+          <SearchHeading
+            title={t('Search contents')}
+            total={result.totalDocs}
+            scopes={scopes}
+            filtered={initialFilters.length > 0}
+            basePath={basePath}
+            searchParams={searchParams}
+          />
         )}
         <SearchShell
           definitions={definitions}
           initialFilters={initialFilters}
           page={result.page ?? page}
           totalPages={result.totalPages ?? 1}
-          basePath={`/${lng}/search/contents`}
+          basePath={basePath}
           storageKeyPrefix="search-contents"
           placeholder={t('Filter contents…')}
-          keepParams={picker ? tourPickerParams(picker) : undefined}
+          keepParams={picker ? tourPickerParams(picker) : scopeParams(scopes)}
         >
           <ContentsSearchResults
             contents={result.docs}

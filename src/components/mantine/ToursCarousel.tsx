@@ -6,8 +6,9 @@ import { summarizeTour } from '@/lib/tour-summary'
 import { formatUnit } from '@/lib/duration'
 import type { Tour } from '@/payload-types'
 import { DepthSelect } from '@gfazioli/mantine-depth-select'
-import { ActionIcon, AspectRatio, Button, Group, Image, Stack, Title } from '@mantine/core'
+import { ActionIcon, AspectRatio, Group, Image, Stack, Title } from '@mantine/core'
 import { ArrowRight, ChevronLeft, ChevronRight, Clock, ImageOff, MapPin } from 'lucide-react'
+import { SeeAllLink } from './SeeAllLink'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
@@ -22,13 +23,21 @@ const PAGER_BUTTON = { size: 'xl', radius: 'xl', variant: 'subtle', color: 'gray
  * A museum's (or an author's) tours as a stacked deck, the tour identity's
  * one playful discovery component (DESIGN.md → Components → Tour deck).
  *
- * The section reads "Tours" with a "See all" pill to the tour search. The
+ * The section reads "Tours" with a "See all" pill to the tour search,
+ * narrowed to the page's museum or author (`seeAllHref`). The
  * front card is the way into its tour: one link laid over the deck (cards in
  * the DepthSelect listbox stay non-interactive options), with a small "go"
  * button that nudges right on hover. A pager of light chevrons and page dots
  * flips through the deck; with a single tour it is left out.
  */
-export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
+export const ToursCarousel = ({
+  tours,
+  seeAllHref,
+}: {
+  tours: Tour[]
+  /** The whole list as a scoped search (`scopedSearchHref`); no pill without it. */
+  seeAllHref?: Route
+}) => {
   const [index, setIndex] = useState(0)
   const { t } = useTranslation('tours-carousel')
   const { lng } = useParams<{ lng: string }>()
@@ -58,17 +67,7 @@ export const ToursCarousel = ({ tours }: { tours: Tour[] }) => {
         <Title order={2} size="h5">
           {t('Tours')}
         </Title>
-        {/* A hairline pill: a control at rest, secondary to the cards. */}
-        <Button
-          component={Link}
-          href={`/${lng}/search/tours` as Route}
-          variant="default"
-          radius="xl"
-          size="compact-sm"
-          rightSection={<ChevronRight size={16} aria-hidden />}
-        >
-          {t('See all')}
-        </Button>
+        {seeAllHref && <SeeAllLink href={seeAllHref} />}
       </Group>
       <div className={classes.stage}>
         <AspectRatio ratio={16 / 10}>

@@ -2,7 +2,7 @@ import 'server-only'
 
 import config from '@/payload.config'
 import { cookies } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
 import { cache } from 'react'
 import { OBJECT_ID, MUSEUM_MODE_COOKIE } from '@/lib/museum-cookie'
 
@@ -43,16 +43,7 @@ export const museumScope = cache(async () => {
   const objectIds = (museum.objects ?? []).map((entry) =>
     typeof entry === 'string' ? entry : entry.id,
   )
-  const { docs } = await payload.find({
-    collection: 'objects',
-    where: { id: { in: objectIds } },
-    depth: 0,
-    pagination: false,
-    select: { contents: true },
-  })
-  const contentIds = docs.flatMap((object) =>
-    (object.contents ?? []).map((content) => (typeof content === 'string' ? content : content.id)),
-  )
+  const contentIds = await contentIdsOf(payload, objectIds)
   // `palette` themes the app for this museum (`museumTheme` decides if it is usable).
   return { museumId, name: museum.name, palette: museum.palette, objectIds, contentIds }
 })
@@ -98,3 +89,22 @@ export const museumSearchRestriction = cache(async () => {
     user: [...authors],
   }
 })
+
+/**
+ * The contents of a museum's objects: the link is stored on the object
+ * (`objects.contents`; `contents.objects` is only its join), so a museum's
+ * contents are read through its objects. Shared by museum mode and the
+ * search pages' `?at=` scope (`src/lib/search-scope.ts`).
+ */
+export async function contentIdsOf(payload: Payload, objectIds: string[]) {
+  const { docs } = await payload.find({
+    collection: 'objects',
+    where: { id: { in: objectIds } },
+    depth: 0,
+    pagination: false,
+    select: { contents: true },
+  })
+  return docs.flatMap((object) =>
+    (object.contents ?? []).map((content) => (typeof content === 'string' ? content : content.id)),
+  )
+}
