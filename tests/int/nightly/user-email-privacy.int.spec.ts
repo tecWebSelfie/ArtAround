@@ -4,10 +4,9 @@ import { call, Sandbox } from './helpers'
 /**
  * Companion of `email-enumeration.int.spec.ts` (finding F2): the `email` and
  * `sessions` fields of `users` carry field-level read access
- * (`selfOrAdminField` in src/collections/Users.ts) and `confineEmailFilters`
- * keeps a visitor's own-email filter working. This spec pins what must stay
+ * (`selfOrAdminField` in src/collections/Users.ts). This spec pins what must stay
  * possible (own email, super admin, login, sign-up) next to what must not
- * (reading or filtering by someone else's email, on any path).
+ * (reading or filtering by an email without being a super admin, on any path).
  */
 const sandbox = new Sandbox()
 afterAll(() => sandbox.cleanup())
@@ -48,38 +47,12 @@ describe('reading the email', () => {
 })
 
 describe('filtering by email', () => {
-  it('only ever matches the visitor themselves', async () => {
-    const [me, other] = await Promise.all([sandbox.user('conf'), sandbox.user('victimb')])
-    // OR-ing another address into the filter must not widen it to their row.
-    const either = await call(
-      'GET',
-      `/api/users?depth=0&where[or][0][email][equals]=${q(me.email)}&where[or][1][email][equals]=${q(other.email)}`,
-      { token: me.token },
-    )
-    expect(either.json.docs.map((d: { id: string }) => d.id)).toEqual([me.id])
-    // Negations and prefixes of the others' addresses reveal nothing either.
-    const not = await call('GET', `/api/users?depth=0&where[email][not_equals]=${q(other.email)}`, {
+  it('is refused to a visitor, even on their own address, and so is sorting', async () => {
+    const me = await sandbox.user('conf')
+    const own = await call('GET', `/api/users?depth=0&where[email][equals]=${q(me.email)}`, {
       token: me.token,
     })
-    expect(not.json.docs.map((d: { id: string }) => d.id)).toEqual([me.id])
-  })
-
-  it('keeps its own-email confinement next to a sibling `and` and for `like`', async () => {
-    const [me, other] = await Promise.all([sandbox.user('sib'), sandbox.user('sibother')])
-    const sibling = await call(
-      'GET',
-      `/api/users?depth=0&where[email][like]=${q(other.email)}&where[and][0][username][exists]=true`,
-      { token: me.token },
-    )
-    expect(total(sibling)).toBe(0)
-    const own = await call(
-      'GET',
-      `/api/users?depth=0&where[email][like]=${q(me.email.slice(0, 6))}`,
-      {
-        token: me.token,
-      },
-    )
-    expect(own.json.docs.map((d: { id: string }) => d.id)).toEqual([me.id])
+    expect(own.status).toBe(400)
     const sorted = await call('GET', '/api/users?depth=0&limit=1&sort=email', { token: me.token })
     expect(sorted.status).toBe(400)
   })

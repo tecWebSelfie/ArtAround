@@ -106,8 +106,8 @@ index and the lowercase/trim hook stay. Field access removes the value from
 every access-checked response and makes Payload reject `where`/`sort` on it
 (REST, GraphQL, count, relation paths), which closes the "does this address
 have an account" oracle. Because that validation has no document to compare
-with, a signed-in visitor's own-email filter is answered by the
-`confineEmailFilters` `beforeOperation` hook (it can only match their own row).
+with, only super admins may filter by email; a visitor reads their own address
+from `/api/users/me` or their own document.
 `hidePrivateFields` stays as a second layer for Local API reads that skip field
 access (`overrideAccess` defaults to true). Spec:
 `tests/int/nightly/email-enumeration.int.spec.ts`, `user-email-privacy.int.spec.ts`.

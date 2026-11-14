@@ -38,13 +38,17 @@ describe("filtering users by another user's email", () => {
     expect(found(prefix)).toBe(0)
   })
 
-  it('still lets users find themselves by email', async () => {
+  it('still shows users their own email, and lets a super admin filter by it', async () => {
     const me = await sandbox.user('self')
-    const res = await call(
+    const meRoute = await call('GET', '/api/users/me', { token: me.token })
+    expect(meRoute.json.user.email).toBe(me.email)
+    const byId = await call('GET', `/api/users/${me.id}?depth=0`, { token: me.token })
+    expect(byId.json.email).toBe(me.email)
+    const admin = await call(
       'GET',
       `/api/users?depth=0&where[email][equals]=${encodeURIComponent(me.email)}`,
-      { token: me.token },
+      { token: await sandbox.admin() },
     )
-    expect(found(res)).toBe(1)
+    expect(found(admin)).toBe(1)
   })
 })

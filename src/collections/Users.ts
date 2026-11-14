@@ -21,7 +21,6 @@ import type {
   CollectionAfterChangeHook,
   CollectionAfterReadHook,
   CollectionBeforeChangeHook,
-  CollectionBeforeOperationHook,
   CollectionConfig,
   FieldAccess,
   FieldHook,
@@ -90,106 +89,12 @@ const sameUser = (req: PayloadRequest, id: unknown) =>
  * to validate `where` / `sort` paths, which is what makes a filter on an
  * unreadable field a 400 on every API (REST, GraphQL, count, relation paths such
  * as `author.email`). A filter reveals the value as much as a response does, so
- * without a document only a super admin passes; a signed-in visitor filtering
- * on their own email is handled by `confineEmailFilters` instead, because
- * field access can only answer yes or no, never "only for my own row".
+ * without a document only a super admin passes. Field access can only answer
+ * yes or no, never "only for my own row", so not even a signed-in visitor may
+ * filter on their own email (they read it from `/users/me` instead).
  */
 const selfOrAdminField: FieldAccess = ({ req, doc }) =>
   isSuperAdmin(req) || (doc != null && sameUser(req, (doc as { id?: unknown }).id))
-
-/** Does the visitor's own email satisfy one `where` operator? Unknown operators never match. */
-const matchesOwnEmail = (own: string, operator: string, value: unknown): boolean => {
-  const mine = own.toLowerCase()
-  const asText = (v: unknown) => String(v ?? '').toLowerCase()
-  switch (operator) {
-    case 'equals':
-      return mine === asText(value)
-    case 'not_equals':
-      return mine !== asText(value)
-    case 'in':
-      return Array.isArray(value) && value.some((v) => asText(v) === mine)
-    case 'not_in':
-      return Array.isArray(value) && !value.some((v) => asText(v) === mine)
-    case 'like':
-      // Payload's `like` matches every whitespace-separated word, in any order.
-      return asText(value)
-        .split(/\s+/)
-        .filter(Boolean)
-        .every((word) => mine.includes(word))
-    case 'contains':
-      return mine.includes(asText(value))
-    default:
-      return false
-  }
-}
-
-type Where = Record<string, unknown>
-
-/**
- * A signed-in visitor may still filter users by THEIR OWN email (the
- * `selfOrAdminField` rule rejects every `email` path without a document, so
- * this is the only way in). Every condition on `email` is answered here against
- * the caller's own address and replaced by a condition on their id: it can match
- * their row and nobody else's, so it tells them nothing they didn't know.
- * Anonymous callers and unknown operators fall through to the field access,
- * which refuses the query. Super admins are left alone.
- */
-const confineEmailFilters = async (
-  where: unknown,
-  req: PayloadRequest,
-  ownEmail: () => Promise<string | undefined>,
-): Promise<unknown> => {
-  if (!where || typeof where !== 'object' || !req.user || isSuperAdmin(req)) return where
-  const out: Where = {}
-  // Collected and appended after the loop: a sibling `and` key must not overwrite them.
-  const confined: unknown[] = []
-  for (const [key, constraint] of Object.entries(where as Where)) {
-    const lowered = key.toLowerCase()
-    if ((lowered === 'and' || lowered === 'or') && Array.isArray(constraint)) {
-      out[key] = await Promise.all(
-        constraint.map((item) => confineEmailFilters(item, req, ownEmail)),
-      )
-    } else if (key === 'email' && constraint && typeof constraint === 'object') {
-      const own = await ownEmail()
-      const holds =
-        own !== undefined &&
-        Object.entries(constraint as Where).every(([op, v]) => matchesOwnEmail(own, op, v))
-      // `in: []` for a miss: a condition no row satisfies.
-      const replacement = holds ? { id: { equals: req.user.id } } : { id: { in: [] } }
-      confined.push(replacement)
-    } else {
-      out[key] = constraint
-    }
-  }
-  if (confined.length) out.and = [...(Array.isArray(out.and) ? out.and : []), ...confined]
-  return out
-}
-
-const confineEmailFiltersHook: CollectionBeforeOperationHook = async ({ args, operation }) => {
-  const a = args as { where?: unknown; req: PayloadRequest; overrideAccess?: boolean }
-  // Only access-checked calls (REST and GraphQL leave `overrideAccess` unset, the
-  // Local API sets it to true unless the caller passes false):
-  // trusted server code that bypasses access keeps its exact filters.
-  if (!a.overrideAccess && a.where && ['read', 'count', 'update', 'delete'].includes(operation)) {
-    // `req.user` was loaded before it could be authenticated, so its `email`
-    // went through `hidePrivateFields` without a user and is missing: read the
-    // caller's own address from the database once, only if a filter needs it.
-    let own: Promise<string | undefined> | undefined
-    const ownEmail = () =>
-      (own ??= a.req.payload
-        .findByID({
-          collection: USERS_COLLECTION_SLUG,
-          id: a.req.user!.id,
-          depth: 0,
-          select: { email: true },
-          req: a.req,
-        })
-        .then((doc) => doc.email ?? undefined)
-        .catch(() => undefined))
-    a.where = await confineEmailFilters(a.where, a.req, ownEmail)
-  }
-  return args
-}
 
 // Defence in depth for the email. Field access (`selfOrAdminField` on the
 // redeclared `email` below) already strips it from every access-checked read,
@@ -244,7 +149,6 @@ export const Users: CollectionConfig = {
     delete: selfOrSuperAdmin,
   },
   hooks: {
-    beforeOperation: [confineEmailFiltersHook],
     beforeValidate: [sanitizePublicSignup],
     beforeChange: [protectPrivilegedFields],
     afterRead: [hidePrivateFields],
