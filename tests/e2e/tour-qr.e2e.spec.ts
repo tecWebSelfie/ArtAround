@@ -58,10 +58,21 @@ for (const target of ['object', 'content'] as const) {
 
     await page.goto(base.toString(), { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
-    // A click before hydration opens nothing: retry until the scanner is up.
+    // A click before hydration opens nothing, so the click is retried, but only
+    // while the scanner has not opened: once `/scan` is up its overlay covers the
+    // button, and a second click would be intercepted (the flake under load).
+    // The wait after each click is long enough for a loaded machine to navigate;
+    // a fast decode may already have moved past `/scan`, which counts as opened.
+    const scannerOpened = () => {
+      // The tour's own step URL is where the click starts: any other path is
+      // the scanner or the modal a quick decode already navigated to.
+      return new URL(page.url()).pathname !== base.pathname
+    }
     await expect(async () => {
-      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 10_000 })
-      await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
+      if (!scannerOpened()) {
+        await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 10_000 })
+      }
+      await expect.poll(scannerOpened, { timeout: 15_000 }).toBe(true)
     }).toPass({ timeout: 60_000 })
     await expect
       .poll(decoded, {
