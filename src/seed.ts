@@ -532,6 +532,65 @@ try {
         price: 299,
       },
     },
+    // A second content on each museum's signature work, so a freshly seeded
+    // demo tour has the two stops a tour needs (`MIN_TOUR_STOPS`, `Tours.ts`).
+    // Tours an older seed already created keep their single stop: the rule
+    // lets updates through that leave the stops as they were.
+    {
+      authorEmail: 'davide@example.com',
+      data: {
+        title: 'Le mani di Plutone',
+        difficulty: 'easy',
+        body: htmlToRichText(
+          '<p>Avvicinati alla coscia di Proserpina: le dita di Plutone affondano nella carne come se il marmo cedesse. Bernini aveva poco più di vent\u2019anni e lavorava il blocco con raspe e pomice fino a renderlo morbido alla vista.</p>',
+        ),
+        categories: [categoryIdBySlug['arte-moderna']],
+      },
+    },
+    {
+      authorEmail: 'chiara@example.com',
+      data: {
+        title: 'Il divisionismo da vicino',
+        difficulty: 'medium',
+        body: htmlToRichText(
+          '<p>Da vicino la tela si scompone in piccoli tratti di colore puro, accostati senza mescolarli: è l\u2019occhio a ricomporli a distanza. Pellizza scelse questa tecnica per dare alla folla una luce viva e vibrante.</p>',
+        ),
+        categories: [categoryIdBySlug['arte-contemporanea']],
+      },
+    },
+    {
+      authorEmail: 'luca@example.com',
+      data: {
+        title: 'Guardare il cielo nel 1610',
+        difficulty: 'easy',
+        body: htmlToRichText(
+          '<p>Con un tubo di legno e due lenti Galileo vide le montagne della Luna e quattro satelliti attorno a Giove. Il <em>Sidereus Nuncius</em>, pubblicato nel 1610, cambiò in poche pagine il modo di pensare l\u2019universo.</p>',
+        ),
+        categories: [categoryIdBySlug['scienza']],
+      },
+    },
+    {
+      authorEmail: 'anna@example.com',
+      data: {
+        title: 'Ercole a riposo',
+        difficulty: 'easy',
+        body: htmlToRichText(
+          '<p>Ercole non combatte: si appoggia alla clava, stanco dopo le fatiche. Gira intorno alla statua: dietro la schiena nasconde i pomi delle Esperidi, il premio dell\u2019ultima impresa.</p>',
+        ),
+        categories: [categoryIdBySlug['archeologia']],
+      },
+    },
+    {
+      authorEmail: 'paolo@example.com',
+      data: {
+        title: 'Il leone e il libro',
+        difficulty: 'easy',
+        body: htmlToRichText(
+          '<p>Il leone alato di San Marco tiene una zampa sul libro aperto: <em>Pax tibi Marce</em>. Sui monumenti veneziani il libro aperto parla di pace, quello chiuso di guerra.</p>',
+        ),
+        categories: [categoryIdBySlug['arte-moderna']],
+      },
+    },
   ] satisfies {
     authorEmail: string
     data: Omit<RequiredDataFromCollectionSlug<'contents'>, 'objects'>
@@ -566,7 +625,10 @@ try {
       creditLine: 'Galleria Borghese, Roma',
       rights: 'Immagine e testo: riproduzione consentita per uso didattico.',
       categories: [categoryIdBySlug['arte-antica'], categoryIdBySlug['arte-moderna']],
-      contents: [contentIdByTitle['La scultura barocca del Bernini']],
+      contents: [
+        contentIdByTitle['La scultura barocca del Bernini'],
+        contentIdByTitle['Le mani di Plutone'],
+      ],
     },
     {
       name: 'Il Quarto Stato',
@@ -582,7 +644,10 @@ try {
       creditLine: 'Museo del Novecento, Milano',
       rights: 'Pubblico dominio.',
       categories: [categoryIdBySlug['arte-contemporanea']],
-      contents: [contentIdByTitle['Il Quarto Stato e la pittura sociale']],
+      contents: [
+        contentIdByTitle['Il Quarto Stato e la pittura sociale'],
+        contentIdByTitle['Il divisionismo da vicino'],
+      ],
     },
     {
       name: 'Cannocchiale galileiano',
@@ -598,7 +663,10 @@ try {
       creditLine: 'Museo Galileo, Firenze',
       rights: 'CC BY-SA 4.0',
       categories: [categoryIdBySlug['scienza']],
-      contents: [contentIdByTitle['Galileo e la nascita della scienza moderna']],
+      contents: [
+        contentIdByTitle['Galileo e la nascita della scienza moderna'],
+        contentIdByTitle['Guardare il cielo nel 1610'],
+      ],
     },
     {
       name: 'Ercole Farnese',
@@ -611,7 +679,10 @@ try {
       creditLine: 'Museo Archeologico Nazionale di Napoli',
       rights: 'Pubblico dominio.',
       categories: [categoryIdBySlug['archeologia'], categoryIdBySlug['arte-antica']],
-      contents: [contentIdByTitle['Il marmo Farnese: dal mito al museo']],
+      contents: [
+        contentIdByTitle['Il marmo Farnese: dal mito al museo'],
+        contentIdByTitle['Ercole a riposo'],
+      ],
     },
     {
       name: 'Leone di San Marco',
@@ -627,7 +698,10 @@ try {
       creditLine: 'Fondazione Musei Civici di Venezia',
       rights: 'Immagine su concessione del museo.',
       categories: [categoryIdBySlug['arte-moderna']],
-      contents: [contentIdByTitle['Venezia e il mito della Serenissima']],
+      contents: [
+        contentIdByTitle['Venezia e il mito della Serenissima'],
+        contentIdByTitle['Il leone e il libro'],
+      ],
     },
   ] satisfies RequiredDataFromCollectionSlug<'objects'>[]
   const objectIdByName: Record<string, string> = {}
@@ -957,12 +1031,12 @@ try {
     {
       title: '[DEV] Il restauro del bronzo',
       description: 'Una visita breve dedicata alle tecniche di restauro.',
-      contents: [seededStops[1]!.contentId],
+      contents: [seededStops[1]!.contentId, seededStops[2]!.contentId],
     },
     {
       title: '[DEV] Mosaici e geometrie antiche',
       description: 'Motivi geometrici e tecniche dell’arte antica.',
-      contents: [seededStops[2]!.contentId],
+      contents: [seededStops[2]!.contentId, seededStops[0]!.contentId],
     },
   ]
   for (const tour of tourSeeds) {
@@ -995,7 +1069,10 @@ try {
       data: {
         title: 'Capolavori della Galleria Borghese',
         description: 'Bernini, Caravaggio e Canova in un unico percorso.',
-        contents: [contentIdByTitle['La scultura barocca del Bernini']],
+        contents: [
+          contentIdByTitle['La scultura barocca del Bernini'],
+          contentIdByTitle['Le mani di Plutone'],
+        ],
         categories: [categoryIdBySlug['arte-antica'], categoryIdBySlug['arte-moderna']],
         durationMinutes: 60,
         distanceMeters: 800,
@@ -1008,7 +1085,10 @@ try {
       data: {
         title: 'Palazzo Reale tra Ottocento e Avanguardia',
         description: 'Dalle sale storiche alle mostre temporanee.',
-        contents: [contentIdByTitle['Il Quarto Stato e la pittura sociale']],
+        contents: [
+          contentIdByTitle['Il Quarto Stato e la pittura sociale'],
+          contentIdByTitle['Il divisionismo da vicino'],
+        ],
         categories: [categoryIdBySlug['arte-contemporanea']],
         durationMinutes: 45,
         distanceMeters: 600,
@@ -1021,7 +1101,10 @@ try {
       data: {
         title: 'Galileo: strumenti e scoperte',
         description: 'Un percorso tra cannocchiali, globi e macchine.',
-        contents: [contentIdByTitle['Galileo e la nascita della scienza moderna']],
+        contents: [
+          contentIdByTitle['Galileo e la nascita della scienza moderna'],
+          contentIdByTitle['Guardare il cielo nel 1610'],
+        ],
         categories: [categoryIdBySlug['scienza']],
         durationMinutes: 75,
         distanceMeters: 950,
@@ -1034,7 +1117,10 @@ try {
       data: {
         title: 'Pompei al MANN',
         description: 'Affreschi, mosaici e sculture dalla città sepolta.',
-        contents: [contentIdByTitle['Il marmo Farnese: dal mito al museo']],
+        contents: [
+          contentIdByTitle['Il marmo Farnese: dal mito al museo'],
+          contentIdByTitle['Ercole a riposo'],
+        ],
         categories: [categoryIdBySlug['archeologia'], categoryIdBySlug['arte-antica']],
         durationMinutes: 90,
         distanceMeters: 1200,
@@ -1047,7 +1133,10 @@ try {
       data: {
         title: 'Itinerario del potere a Palazzo Ducale',
         description: 'Sale istituzionali, Tintoretto e Ponte dei Sospiri.',
-        contents: [contentIdByTitle['Venezia e il mito della Serenissima']],
+        contents: [
+          contentIdByTitle['Venezia e il mito della Serenissima'],
+          contentIdByTitle['Il leone e il libro'],
+        ],
         categories: [categoryIdBySlug['arte-moderna']],
         durationMinutes: 60,
         distanceMeters: 700,

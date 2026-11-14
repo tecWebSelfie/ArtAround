@@ -7,6 +7,8 @@
   "{{count}} stops have no directions yet: visitors only see the route on the map_one": "",
   "{{count}} stops have no directions yet: visitors only see the route on the map_other": "",
   "A content that no longer exists": "Már nem létező tartalom",
+  "A tour needs at least {{count}} stops_one": "",
+  "A tour needs at least {{count}} stops_other": "",
   "A work": "Egy mű",
   "About me": "Rólam",
   "About this museum": "A múzeumról",

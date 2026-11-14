@@ -7,12 +7,15 @@ import {
   superAdminOnly,
 } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
+import { minStopsFor } from '@/lib/tour-stops'
+import { relationship } from 'payload/shared'
 import type { Tour as TourType } from '@/payload-types'
 import {
   APIError,
   type Access,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
+  type RelationshipFieldValidation,
   type Where,
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
@@ -36,6 +39,29 @@ export const TOURS_COLLECTION_SLUG = 'tours'
  * Its price is not stored: it is the sum of the contents the viewer doesn't
  * own yet (`src/lib/price.ts`), so it is computed per viewer.
  */
+
+/**
+ * A tour composed by hand needs `MIN_TOUR_STOPS` stops; a planned visit or a
+ * visit copy may keep one (`minStopsFor`, `src/lib/tour-stops.ts`). Payload's
+ * own relationship checks (required, `minRows`, ids) run first. `data` is
+ * the whole tour on update too, so its personal flags are always there.
+ *
+ * Tours saved before the rule may hold a single stop. Payload validates the
+ * whole document on every update (a stored translation, a quiz question's
+ * cleanup, a title fix), so the rule only refuses a save that creates such a
+ * tour or removes stops from one; an update that leaves the stops as they
+ * were goes through, and the editor asks for the second stop next time.
+ */
+const validateTourStops: RelationshipFieldValidation = async (value, options) => {
+  const base = await relationship(value, options)
+  if (base !== true) return base
+  const stops = Array.isArray(value) ? value.length : 0
+  const min = minStopsFor((options.data ?? {}) as Parameters<typeof minStopsFor>[0])
+  if (stops >= min) return true
+  const before = Array.isArray(options.previousValue) ? options.previousValue.length : 0
+  if (options.operation === 'update' && stops >= before) return true
+  return `A tour needs at least ${min} stops.`
+}
 
 const authorOrSuperAdmin: Access = ({ req }) => {
   if (!req.user) return false
@@ -220,6 +246,7 @@ export const Tour: CollectionConfig = {
               hasMany: true,
               minRows: 1,
               required: true,
+              validate: validateTourStops,
             },
             {
               name: 'thumbnail',

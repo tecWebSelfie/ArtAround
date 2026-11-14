@@ -48,10 +48,20 @@ export function MapViewer({
   // The map whose load failed: an error for an earlier map clears itself
   // when `map` changes, with no reset inside the effect.
   const [failedMap, setFailedMap] = useState<ParsedBuildJson | null>(null)
+  // The map framed by the camera below. Until then the canvas stays hidden:
+  // the scene draws as it streams in, from the camera's default spot next to
+  // the origin, so the first frames were a close-up of one room (or the
+  // visitor's character) that jumped to the whole museum once ready.
+  const [framedMap, setFramedMap] = useState<ParsedBuildJson | null>(null)
   const handleSceneReadyChange = useCallback(
     (ready: boolean) => {
       onSceneReadyChange?.(ready)
-      if (!ready || !controls.current) return
+      if (!ready) return
+      // Shown once ready, framed or not: without camera controls (no WebGL,
+      // the viewer's own fallback) there is nothing to frame, and a canvas
+      // kept hidden would hide that fallback too.
+      setFramedMap(map)
+      if (!controls.current) return
       const bounds = new Box3()
       // The site's horizon is presentation scenery, not the museum's bounds.
       for (const node of Object.values(useScene.getState().nodes)) {
@@ -66,7 +76,7 @@ export function MapViewer({
         void controls.current.fitToSphere(sphere, false)
       }
     },
-    [onSceneReadyChange],
+    [onSceneReadyChange, map],
   )
 
   useEffect(() => {
@@ -111,14 +121,20 @@ export function MapViewer({
 
   return (
     <Box {...props}>
-      <Viewer
-        selectionManager={selectionManager}
-        onSceneReadyChange={handleSceneReadyChange}
-        renderPaused={renderPaused}
+      {/* Hidden, not unmounted, until framed; then a short fade (none when
+          the visitor asks for reduced motion). */}
+      <Box
+        className={`size-full motion-safe:transition-opacity motion-safe:duration-300 ${framedMap === map ? 'opacity-100' : 'opacity-0'}`}
       >
-        <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
-        {children}
-      </Viewer>
+        <Viewer
+          selectionManager={selectionManager}
+          onSceneReadyChange={handleSceneReadyChange}
+          renderPaused={renderPaused}
+        >
+          <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
+          {children}
+        </Viewer>
+      </Box>
     </Box>
   )
 }

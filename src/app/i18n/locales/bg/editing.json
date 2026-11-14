@@ -7,6 +7,8 @@
   "{{count}} stops have no directions yet: visitors only see the route on the map_one": "",
   "{{count}} stops have no directions yet: visitors only see the route on the map_other": "",
   "A content that no longer exists": "Съдържание, което вече не съществува",
+  "A tour needs at least {{count}} stops_one": "",
+  "A tour needs at least {{count}} stops_other": "",
   "A work": "Произведение",
   "About me": "За мен",
   "About this museum": "За този музей",

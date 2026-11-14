@@ -4,6 +4,8 @@
   "{{count}} stops have no directions yet: visitors only see the route on the map_one": "{{count}} stop has no directions yet: visitors only see the route on the map",
   "{{count}} stops have no directions yet: visitors only see the route on the map_other": "{{count}} stops have no directions yet: visitors only see the route on the map",
   "A content that no longer exists": "A content that no longer exists",
+  "A tour needs at least {{count}} stops_one": "A tour needs at least {{count}} stop",
+  "A tour needs at least {{count}} stops_other": "A tour needs at least {{count}} stops",
   "A work": "A work",
   "About me": "About me",
   "About this museum": "About this museum",

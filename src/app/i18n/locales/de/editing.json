@@ -7,6 +7,8 @@
   "{{count}} stops have no directions yet: visitors only see the route on the map_one": "",
   "{{count}} stops have no directions yet: visitors only see the route on the map_other": "",
   "A content that no longer exists": "Ein Inhalt, den es nicht mehr gibt",
+  "A tour needs at least {{count}} stops_one": "",
+  "A tour needs at least {{count}} stops_other": "",
   "A work": "Ein Werk",
   "About me": "Über mich",
   "About this museum": "Über dieses Museum",

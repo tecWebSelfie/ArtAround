@@ -7,6 +7,8 @@
   "{{count}} stops have no directions yet: visitors only see the route on the map_one": "",
   "{{count}} stops have no directions yet: visitors only see the route on the map_other": "",
   "A content that no longer exists": "Sisältö, jota ei enää ole",
+  "A tour needs at least {{count}} stops_one": "",
+  "A tour needs at least {{count}} stops_other": "",
   "A work": "Teos",
   "About me": "Tietoa minusta",
   "About this museum": "Tietoa tästä museosta",

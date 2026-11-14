@@ -46,6 +46,8 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         // A visit copy reopened ("Edit" on its start page) edits like the
         // first time: same notice, same return to its start page.
         visitCopyOf={asId(tour.visitCopyOf)}
+        // A planned visit may keep a single stop (`src/lib/tour-stops.ts`).
+        generated={tour.generation?.generated === true}
         initial={{
           title: tour.title,
           description: tour.description ?? '',

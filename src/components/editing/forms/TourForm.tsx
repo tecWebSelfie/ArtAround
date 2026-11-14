@@ -38,6 +38,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
@@ -200,6 +201,7 @@ export function TourForm({
   initial,
   thumbnail,
   visitCopyOf = null,
+  generated = false,
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -216,8 +218,12 @@ export function TourForm({
    * visibility choice, and the copy's start page once saved.
    */
   visitCopyOf?: string | null
+  /** A planned visit (`generation.generated`) being edited: it may keep one stop. */
+  generated?: boolean
 }) {
   const visitCopy = Boolean(visitCopyOf)
+  // The same rule the collection validates (`src/lib/tour-stops.ts`).
+  const minStops = minStopsFor({ visitCopyOf, generation: { generated } })
   const { t } = useTranslation('editing')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
@@ -244,7 +250,12 @@ export function TourForm({
     },
     validate: {
       title: (value) => (value.trim() ? null : t('Required')),
-      contents: (value) => (value.length ? null : t('Add at least one content')),
+      contents: (value) =>
+        value.length >= minStops
+          ? null
+          : minStops === 1
+            ? t('Add at least one content')
+            : t('A tour needs at least {{count}} stops', { count: minStops }),
     },
   })
   const selected = form.values.contents

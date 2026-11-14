@@ -627,7 +627,7 @@ The PDF is quiet and printable, not branded: Noto Sans (every app language, Gree
 
 ### Museum-mode offer (`MuseumModeOffer`)
 
-When a visitor arrives from outside the app (a code on someone's screen, a shared link) on a tour, object or content of a museum the app isn't locked to, a `light` primary `Alert` with `Landmark` leads the page: "Are you at {museum}?", a `subtle` gray "Not now" and a `compact-sm` "Use the museum's app". It is an offer, never a switch: only printed codes switch by themselves. It never shows while browsing inside the app, and "Not now" hides it for that museum for the session.
+When a visitor arrives from outside the app (a code on someone's screen, a shared link) on a tour, object or content of a museum the app isn't locked to, one quiet hairline row (`Paper withBorder`, `md` radius) leads the page: a dimmed `Landmark`, "Are you at {museum}?", a `light` `compact-sm` "Use the museum's app" that wraps under the question when the row is narrow, and a small X ("Not now"). It is an offer, never a switch: only printed codes switch by themselves. It never shows while browsing inside the app, and "Not now" hides it for that museum for 30 days (`localStorage`).
 
 ### Group tours (waiting room, group pill, locked modal, quiz board)
 
