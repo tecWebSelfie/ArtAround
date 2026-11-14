@@ -53,6 +53,19 @@ and cached build artifacts are not reliable handoff state.
   (`/{count}`), keeping `at`, so a shifted index can neither crash nor loop. The
   URL holds no stop identity, so a removal _before_ the cursor can make the
   visitor skip the stop that was next; accepted for an event this rare.
+- **Outside navigation the same rule is stored on the tour**
+  (`tours.visitableStops`, `tours.visitableContents`, kept by hooks with the
+  same `visitableTour` definition: see
+  [permissions](permissions-and-editing.md#visitable-stops-derived-server-written)).
+  The tour page (stop list, count, reading time, price, locked list), the tour
+  cards and navigator rails, the marketplace price, the home search and a work's
+  "Tours that stop here" all read the tour through `withVisitableStops`
+  (`src/lib/tour-summary.ts`), so a count never disagrees with "Stop N of M". A
+  tour with no visitable stop is listed nowhere (museum page, profile, rails,
+  search, marketplace, Spotlight). Its direct link still opens the tour page,
+  which says "This tour has no stops to visit right now" and has no "Start
+  tour"; its start page redirects there. Only the author's tour editor lists
+  every stop, flagged "Visitors don't see this stop: replace or remove it".
 - Map interaction opens only museum object items, not walls or other geometry.
 - Canonical QR values are ordinary Next.js paths such as `/object/ID`,
   `/content/ID` or `/tour/ID`. Printed and shared codes are **language-free**: a

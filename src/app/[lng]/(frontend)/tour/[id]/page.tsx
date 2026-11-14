@@ -6,6 +6,7 @@ import { isLocked, lockedTotal } from '@/lib/price'
 import { museumAffordances } from '@/lib/qr-museum'
 import { asViewer, can, getSession } from '@/lib/session'
 import { withStopObjects } from '@/lib/stop-objects'
+import { withVisitableStops } from '@/lib/tour-summary'
 import TourPage from './TourPage'
 import type { Metadata } from 'next'
 import { cache } from 'react'
@@ -88,14 +89,16 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
     can('tours', id, 'delete'),
     museumAffordances('tour', id),
   ])
-  const contents = filterPopulated(tour.contents)
+  // Visitors only see (and pay for) the stops they can visit.
+  const visible = withVisitableStops(tour)
+  const contents = filterPopulated(visible.contents)
   // The read above falls back to English for whatever is not translated yet:
   // queue the tour and its stops, and let the page refresh until they arrive.
   const pending = await requestTourTranslations(payload, tour, normalizeLocale(lng) ?? 'en')
 
   return (
     <TourPage
-      tour={tour}
+      tour={visible}
       translationNotice={pending && <TranslationPending />}
       price={lockedTotal(contents)}
       lockedContentIds={contents.filter(isLocked).map((content) => content.id)}

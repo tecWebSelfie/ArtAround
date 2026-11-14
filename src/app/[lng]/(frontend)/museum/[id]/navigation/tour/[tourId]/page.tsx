@@ -4,6 +4,7 @@ import { normalizeLocale } from '@/lib/localized'
 import { asViewer } from '@/lib/session'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
+import { redirect } from 'next/navigation'
 
 /** Entry page before a tour starts (no map yet); the URL cursor begins after this screen. */
 export default async function NavigationStart({
@@ -27,5 +28,8 @@ export default async function NavigationStart({
       })
       .catch(() => null),
   ])
+  // Nothing to visit (every stop is unavailable): the tour page explains it
+  // and offers no start, so a stale link or bookmark lands there.
+  if (tour.contents.length === 0) redirect(`/${lng}/tour/${tourId}`)
   return <NavigationStartPage tour={{ ...tour, title: localized?.title ?? tour.title }} lng={lng} />
 }

@@ -20,6 +20,8 @@ export type TourFixture = {
    * object): navigation must show only the two visitable stops around it.
    */
   unavailableTourId?: string
+  /** A tour of the same museum with no visitable stop: listed nowhere, no "Start tour". */
+  emptyTourId?: string
   /** Object 1 is in the West hall; Objects 2 and 3 are in the East hall. */
   objectIds: string[]
   /** The tour's first step: `…/museum/[id]/navigation/tour/[tourId]/0`. */

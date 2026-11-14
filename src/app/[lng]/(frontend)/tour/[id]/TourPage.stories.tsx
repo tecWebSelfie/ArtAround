@@ -102,3 +102,31 @@ export const Rich: Story = {
     )
   },
 }
+
+// Only the stored visitable stops are shown and counted: here the last stop is
+// unavailable (`visitableContents`), so two of three appear.
+export const WithUnavailableStop: Story = {
+  args: {
+    tour: {
+      ...mockTourWithContents,
+      visitableContents: mockTourWithContents.contents
+        .slice(0, 2)
+        .map((content) => (typeof content === 'string' ? content : content.id)),
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findAllByRole('link', { name: /See more about/ })).resolves.toHaveLength(2)
+  },
+}
+
+// Nothing to visit: the page says so and offers no way to start.
+export const NoVisitableStops: Story = {
+  args: { tour: { ...mockTourWithContents, visitableContents: [] } },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(
+      canvas.findByText('This tour has no stops to visit right now.'),
+    ).resolves.toBeTruthy()
+    const page = within(canvasElement.ownerDocument.body)
+    await expect(page.queryByRole('link', { name: /Start tour/ })).toBeNull()
+  },
+}

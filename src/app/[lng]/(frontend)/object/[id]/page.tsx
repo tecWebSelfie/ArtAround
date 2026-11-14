@@ -1,5 +1,6 @@
 import { BackButton } from '@/components/navigation/BackButton'
 import { findListedTours } from '@/lib/listed-tours'
+import { withVisitableStops } from '@/lib/tour-summary'
 import { subjectsOfWork } from '@/lib/subjects'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ObjectMetadataForm } from '@/components/editing/forms/ObjectMetadataForm'
@@ -103,7 +104,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
         }),
         findListedTours(payload, {
           where: { contents: { in: ids } },
-          select: { title: true, contents: true },
+          select: { title: true, contents: true, visitableContents: true },
           depth: 0,
           limit: 6,
           pagination: false,
@@ -115,7 +116,8 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
       const byId = new Map(contents.docs.map((content) => [content.id, content as Content]))
       return {
         contents: ids.flatMap((contentId) => byId.get(contentId) ?? []),
-        tours: tours.docs,
+        // Visitable stops only, as every count of a tour.
+        tours: tours.docs.map(withVisitableStops),
       }
     }),
   ])

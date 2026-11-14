@@ -61,6 +61,35 @@ test('shows and counts only the visitable stops of a tour with an unavailable on
   await expect(page.getByText('All 2 stops visited')).toBeVisible()
 })
 
+// A tour whose every stop is unavailable (seeded: two contents about no
+// object) is listed nowhere, and its own link still opens a page that offers
+// no "Start tour" (src/lib/visitable-stops.ts).
+test('hides a tour with no visitable stop from the museum page and never offers to start it', async ({
+  page,
+}) => {
+  const fixture = requireTourFixture()
+  if (!fixture.emptyTourId) {
+    if (process.env.CI) throw new Error('Fixture without the empty tour: pnpm seed:e2e')
+    test.skip(true, 'Fixture without the empty tour: run `pnpm seed:e2e` again.')
+  }
+  const origin = new URL(fixture.url).origin
+  await page.goto(`${origin}/en/museum/${fixture.museumId}`, { waitUntil: 'domcontentloaded' })
+  await expect(page.getByText('with an unavailable stop').first()).toBeVisible()
+  await expect(page.getByText('with no visitable stop')).toHaveCount(0)
+
+  await page.goto(`${origin}/en/tour/${fixture.emptyTourId}`, { waitUntil: 'domcontentloaded' })
+  await expect(page.getByText('This tour has no stops to visit right now.')).toBeVisible()
+  await expect(page.getByRole('link', { name: /Start tour/ })).toHaveCount(0)
+  // Its start page sends the visitor back to the tour page.
+  await page.goto(
+    `${origin}/en/museum/${fixture.museumId}/navigation/tour/${fixture.emptyTourId}`,
+    {
+      waitUntil: 'domcontentloaded',
+    },
+  )
+  await expect(page).toHaveURL(`${origin}/en/tour/${fixture.emptyTourId}`)
+})
+
 test('keeps side exploration separate, shares position through reload, and completes both stops', async ({
   page,
 }) => {

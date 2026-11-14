@@ -12,7 +12,7 @@ import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
 import { formatRating } from '@/lib/rating'
 import { formatUnit } from '@/lib/duration'
-import { stopImage, stopPicture, summarizeTour } from '@/lib/tour-summary'
+import { stopImage, stopPicture, summarizeTour, withVisitableStops } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
 import { tourCopyPath, tourEditPath, tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { QrCodeButton } from '@/components/QrCodeButton'
@@ -95,7 +95,7 @@ type TourPageProps = {
  * timeline on the right.
  */
 export default function TourPage({
-  tour,
+  tour: source,
   price,
   lockedContentIds,
   isSignedIn,
@@ -108,6 +108,8 @@ export default function TourPage({
   const { t } = useTranslation('tour-page')
   const { lng } = useParams<{ lng: string }>()
   const [purchaseOpen, setPurchaseOpen] = useState(false)
+  // Only the stops a visitor can visit are shown (the author's editor lists all).
+  const tour = withVisitableStops(source)
   const contents = filterPopulated<Content>(tour.contents)
   const locked = new Set(lockedContentIds)
   const summary = summarizeTour(tour)
@@ -289,7 +291,7 @@ export default function TourPage({
                     price={price}
                     editHref={editHref}
                     canEdit={canEdit}
-                    startHref={startHref}
+                    startHref={summary.stops > 0 ? startHref : null}
                     onUnlock={() => setPurchaseOpen(true)}
                   />
                 </ActionFooter>
@@ -323,6 +325,11 @@ export default function TourPage({
                     </Text>
                   )}
                 </Group>
+                {summary.stops === 0 && (
+                  <Text size="sm" c="dimmed">
+                    {t('This tour has no stops to visit right now.')}
+                  </Text>
+                )}
                 <Timeline bulletSize={28} lineWidth={2} mt="xs">
                   {contents.map((content, index) => {
                     const directions = stopDirections(tour, content.id)
@@ -414,8 +421,8 @@ function TourActions({
   price: number
   editHref: Route
   canEdit: boolean
-  /** `tourStartPath(…)`: the tour's start page inside its museum's navigation. */
-  startHref: Route
+  /** `tourStartPath(…)`: the tour's start page inside its museum's navigation; null when no stop can be visited. */
+  startHref: Route | null
   onUnlock: () => void
 }) {
   const { t } = useTranslation('tour-page')
@@ -448,18 +455,31 @@ function TourActions({
           {canEdit ? t('Edit tour') : t('Customize tour')}
         </Button>
       )}
-      <Button
-        {...FOOTER_BUTTON}
-        component={Link}
-        href={startHref}
-        // The tour gradient: starting a tour is the app's main way in
-        // (DESIGN.md → Colors, tour identity); moving freely stays blue.
-        variant="gradient"
-        gradient={TOUR_GRADIENT}
-        rightSection={<Play size={16} />}
-      >
-        {t('Start tour')}
-      </Button>
+      {startHref ? (
+        <Button
+          {...FOOTER_BUTTON}
+          component={Link}
+          href={startHref}
+          // The tour gradient: starting a tour is the app's main way in
+          // (DESIGN.md → Colors, tour identity); moving freely stays blue.
+          variant="gradient"
+          gradient={TOUR_GRADIENT}
+          rightSection={<Play size={16} />}
+        >
+          {t('Start tour')}
+        </Button>
+      ) : (
+        // No visitable stop (the tour page says so): nothing to start.
+        <Button
+          {...FOOTER_BUTTON}
+          disabled
+          variant="gradient"
+          gradient={TOUR_GRADIENT}
+          rightSection={<Play size={16} />}
+        >
+          {t('Start tour')}
+        </Button>
+      )}
     </Group>
   )
 }

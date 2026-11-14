@@ -296,6 +296,7 @@ const stopByTitle = async (title: string) =>
     })
   ).docs[0]
 let gapTourId: string | undefined
+let emptyTourId: string | undefined
 const first = await stopByTitle('First stop')
 const second = await stopByTitle('Second stop')
 if (first && second) {
@@ -341,6 +342,35 @@ if (first && second) {
       data: { title: gapTourTitle, contents: gapContents, museum: museum.id },
     }))
   ).id
+  // A third tour whose every stop is unavailable (two contents about no
+  // object): it has no visitable stop, so no list offers it, its page has no
+  // "Start tour" and its link keeps working (tests/e2e/tour-page.e2e.spec.ts).
+  const emptyTourTitle = `${label}: with no visitable stop`
+  const secondGap =
+    (await stopByTitle('Unavailable stop 2')) ??
+    (await payload.create({
+      collection: 'contents',
+      locale: 'en',
+      data: {
+        title: `${label}: Unavailable stop 2`,
+        difficulty: 'easy',
+        objects: {},
+        body: gap.body,
+      },
+    }))
+  const existingEmpty = await payload.find({
+    collection: 'tours',
+    where: { title: { equals: emptyTourTitle } },
+    limit: 1,
+    depth: 0,
+  })
+  emptyTourId = (
+    existingEmpty.docs[0] ??
+    (await payload.create({
+      collection: 'tours',
+      data: { title: emptyTourTitle, contents: [gap.id, secondGap.id], museum: museum.id },
+    }))
+  ).id
   // A reused tour keeps its stops in this exact order, whatever earlier runs left.
   const kept = (gapTour?.contents ?? []).map((stop) => (typeof stop === 'string' ? stop : stop.id))
   if (gapTour && kept.join() !== gapContents.join()) {
@@ -362,6 +392,8 @@ await writeFile(
       tourId,
       // The tour with an unavailable stop between its two real ones.
       unavailableTourId: gapTourId,
+      // A tour whose every stop is unavailable: listed nowhere, no "Start tour".
+      emptyTourId,
       // Object 1 is in the West hall; Objects 2 and 3 are in the East hall.
       objectIds: fixtureObjects.docs.map(({ id }) => id),
       // Tours open inside their museum's navigation (tourNavigationPath).
