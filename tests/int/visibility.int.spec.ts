@@ -62,7 +62,13 @@ function fakeRequest({
     context: {},
     headers: new Headers(cookie ? { cookie } : {}),
     payload: {
-      findByID: async () => ({ id: 'tour-private', contents: ['c-private', 'c-public'] }),
+      // The tour's author matters: the cookie unlocks only the contents the
+      // author may share, which `find` (answering from `docs`) stands in for.
+      findByID: async () => ({
+        id: 'tour-private',
+        author: 'u-host',
+        contents: ['c-private', 'c-public'],
+      }),
       find: async () => ({ docs }),
       count: async ({ collection }: { collection: string }) => ({
         totalDocs: counts[collection] ?? 0,
@@ -115,7 +121,11 @@ describe('who reads private documents', () => {
       or: [{ visibility: { not_equals: 'private' } }, { author: { equals: 'u1' } }],
     })
     const token = await signGroupTourToken('tour-private', 'AB3X9K')
-    const guest = fakeRequest({ cookie: `${GROUP_TOUR_COOKIE}=${encodeURIComponent(token!)}` })
+    const guest = fakeRequest({
+      cookie: `${GROUP_TOUR_COOKIE}=${encodeURIComponent(token!)}`,
+      // What the shareable-contents query returns for the tour.
+      docs: [{ id: 'c-private' }, { id: 'c-public' }],
+    })
     expect(await readTours({ req: guest } as never)).toMatchObject({
       or: expect.arrayContaining([{ id: { equals: 'tour-private' } }]),
     })

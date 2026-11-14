@@ -142,7 +142,9 @@ takes `LISTED_TOURS` directly, and in-memory filters use `isPersonalTour`.
 `visibility` (`public` | `private`) on contents and tours (`src/lib/visibility.ts`,
 `VisibilityInput` in the forms). Read access returns a query: public documents,
 the caller's own, and — for group-visit guests — the tour named by the signed
-`aa-group-tour` cookie and its contents (see [group tours](group-tours.md)).
+`aa-group-tour` cookie and those of its contents that are public or authored by
+the tour's author, never another user's private content the tour lists
+(see [group tours](group-tours.md)).
 Private documents are never indexed (`skipSync`, `hideFromSearch` hooks,
 `refreshSearchDocs`). Save rules: a private content can't be sold
 (`guardVisibility`), nor made private once bought or used in another author's

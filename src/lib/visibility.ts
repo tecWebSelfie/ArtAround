@@ -15,7 +15,9 @@ import { cache } from 'react'
  * - the guests of a group visit of a tour, who hold the group cookie: a
  *   short-lived token, signed by the server with the LiveKit secret when they
  *   joined the room (`/api/rooms/token`), naming the room's tour. It lets them
- *   read that tour and its contents, nothing else.
+ *   read that tour and the contents the tour's author may share: public ones
+ *   and the author's own private ones. A private content of someone else that
+ *   the tour merely lists stays locked, whatever the tour says.
  *
  * The access functions return query constraints, so every Local API, REST
  * and page read applies the same rule.
@@ -104,8 +106,12 @@ export function groupTourOf(req: PayloadRequest): Promise<string | null> {
 }
 
 /**
- * The contents of the group cookie's tour, read once per request: a page
- * runs `contents.read` for every find, count and join it makes.
+ * The contents the group cookie's tour may unlock, read once per request: a
+ * page runs `contents.read` for every find, count and join it makes. Only
+ * what the tour's author may share: contents that are public or authored by
+ * the tour's author. A tour can list another user's private content (the
+ * save guard only refuses private stops in public tours), so unlocking every
+ * listed id would let anyone with the cookie read it.
  */
 function groupTourContentIds(req: PayloadRequest, tourId: string): Promise<string[]> {
   const cached = req.context[CONTENTS_CACHE] as Promise<string[]> | undefined
@@ -115,11 +121,30 @@ function groupTourContentIds(req: PayloadRequest, tourId: string): Promise<strin
       collection: 'tours',
       id: tourId,
       depth: 0,
-      select: { contents: true },
+      select: { contents: true, author: true },
       overrideAccess: true,
       req,
     })
-    .then((tour) => (tour.contents ?? []).map(asId).filter((id): id is string => Boolean(id)))
+    .then(async (tour) => {
+      const listed = (tour.contents ?? []).map(asId).filter((id): id is string => Boolean(id))
+      const author = asId(tour.author)
+      if (!listed.length || !author) return []
+      const { docs } = await req.payload.find({
+        collection: 'contents',
+        where: {
+          and: [
+            { id: { in: listed } },
+            { or: [{ visibility: { not_equals: 'private' } }, { author: { equals: author } }] },
+          ],
+        },
+        depth: 0,
+        select: {},
+        pagination: false,
+        overrideAccess: true,
+        req,
+      })
+      return docs.map((doc) => String(doc.id))
+    })
     .catch(() => [])
   req.context[CONTENTS_CACHE] = pending
   return pending
