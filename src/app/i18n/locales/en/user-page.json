@@ -1,6 +1,7 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} hasn’t created any tours yet",
   "{{name}} hasn’t written any contents yet": "{{name}} hasn’t written any contents yet",
+  "All museums": "All museums",
   "contents": "contents",
   "Contents": "Contents",
   "Create a tour": "Create a tour",
@@ -9,7 +10,10 @@
   "Email": "Email",
   "info": "info",
   "Member since": "Member since",
+  "No contents at {{museum}}": "No contents at {{museum}}",
+  "No tours at {{museum}}": "No tours at {{museum}}",
   "Pick the works you love and put them in order: a route to take and share.": "Pick the works you love and put them in order: a route to take and share.",
+  "Show work from": "Show work from",
   "Tell the story of a work": "Tell the story of a work",
   "Tours": "Tours",
   "Username": "Username",

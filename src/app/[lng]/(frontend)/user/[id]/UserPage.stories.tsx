@@ -28,10 +28,15 @@ import { serverComponentStory } from '@/mocks/server-component'
 // `curatedMuseums` control for the curator-for-specific-museums states.
 // The wrapper maps them back to the component's { user, curatedMuseums } props,
 // so UserPage.tsx itself stays a correct App Router Server Component.
-type UserPageStoryProps = User & { curatedMuseums?: (string | Museum)[] | null }
+type UserPageStoryProps = User & {
+  curatedMuseums?: (string | Museum)[] | null
+  /** Museum mode: the profile's "This museum / All museums" filter. */
+  museumFilter?: { name: string; museumOnly: boolean }
+}
 
-const UserPageStory = serverComponentStory(({ curatedMuseums, ...user }: UserPageStoryProps) =>
-  UserPage({ user, curatedMuseums }),
+const UserPageStory = serverComponentStory(
+  ({ curatedMuseums, museumFilter, ...user }: UserPageStoryProps) =>
+    UserPage({ user, curatedMuseums, museumFilter }),
 )
 
 const meta = {
@@ -155,5 +160,21 @@ export const ManyContents: Story = {
     await expect(canvas.findByText(mockContentMinimal.title)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentSecond.title)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentThird.title)).resolves.toBeTruthy()
+  },
+}
+
+/**
+ * Museum mode with the filter on and nothing made at this museum: the
+ * visible filter, and empty sections that name the museum instead of
+ * claiming the person has made nothing.
+ */
+export const MuseumFilterEmpty: Story = {
+  args: {
+    ...mockUserMinimal,
+    museumFilter: { name: mockMuseumBrera.name, museumOnly: true },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByRole('radiogroup')).resolves.toBeTruthy()
+    await expect(canvas.findByText(`No tours at ${mockMuseumBrera.name}`)).resolves.toBeTruthy()
   },
 }

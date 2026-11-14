@@ -1,6 +1,7 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} non ha ancora creato tour",
   "{{name}} hasn’t written any contents yet": "{{name}} non ha ancora scritto contenuti",
+  "All museums": "Tutti i musei",
   "contents": "contenuti",
   "Contents": "Contenuti",
   "Create a tour": "Crea un tour",
@@ -9,7 +10,10 @@
   "Email": "Email",
   "info": "info",
   "Member since": "Membro dal",
+  "No contents at {{museum}}": "Nessun contenuto in {{museum}}",
+  "No tours at {{museum}}": "Nessun tour in {{museum}}",
   "Pick the works you love and put them in order: a route to take and share.": "Scegli le opere che ami e mettile in ordine: un percorso da fare e da condividere.",
+  "Show work from": "Mostra opere da",
   "Tell the story of a work": "Racconta un’opera",
   "Tours": "Tour",
   "Username": "Nome utente",

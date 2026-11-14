@@ -10,6 +10,7 @@ import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Museum, User } from '@/payload-types'
 import type { Route } from 'next'
 import type { ReactNode } from 'react'
+import { ProfileMuseumFilter } from './ProfileMuseumFilter'
 import {
   Avatar,
   Badge,
@@ -35,12 +36,18 @@ export const UserPage = async ({
   user,
   curatedMuseums,
   isSelf = false,
+  museumFilter,
   accountActions,
 }: {
   user: User
   curatedMuseums?: (string | Museum)[] | null
   /** The visitor's own profile: inline profile editing. */
   isSelf?: boolean
+  /**
+   * Museum mode only: the locked museum's name and whether the tours and
+   * contents passed in are narrowed to it (`?scope=all` lifts it).
+   */
+  museumFilter?: { name: string; museumOnly: boolean }
   /** Owner-only actions (sign out), rendered by the route so stories stay server-action free. */
   accountActions?: ReactNode
 }) => {
@@ -51,6 +58,9 @@ export const UserPage = async ({
   const populatedContents = filterPopulated(user.authoredContents?.docs)
   // Empty sections address a visitor's profile by its owner's first name.
   const firstName = user.name.firstName || user.name.fullName
+  // An empty section under the museum filter says so, instead of claiming
+  // the person has made nothing at all.
+  const filteredTo = museumFilter?.museumOnly ? museumFilter.name : null
 
   return (
     // Rhythm: tight inside the identity block (avatar, name, @handle,
@@ -135,6 +145,12 @@ export const UserPage = async ({
                 icon: <Amphora size={16} />,
                 panel: (
                   <Stack>
+                    {museumFilter && (
+                      <ProfileMuseumFilter
+                        museumName={museumFilter.name}
+                        museumOnly={museumFilter.museumOnly}
+                      />
+                    )}
                     {/* Empty: the section keeps its heading and place. The
                         owner hears what goes there and gets the way to make
                         the first one; a visitor reads a plain statement. */}
@@ -143,12 +159,14 @@ export const UserPage = async ({
                         kind="tour"
                         heading={t('Tours')}
                         title={
-                          isSelf
-                            ? t('Your first tour starts here')
-                            : t('{{name}} hasn’t created any tours yet', { name: firstName })
+                          filteredTo
+                            ? t('No tours at {{museum}}', { museum: filteredTo })
+                            : isSelf
+                              ? t('Your first tour starts here')
+                              : t('{{name}} hasn’t created any tours yet', { name: firstName })
                         }
                         description={
-                          isSelf
+                          !filteredTo && isSelf
                             ? t(
                                 'Pick the works you love and put them in order: a route to take and share.',
                               )
@@ -168,12 +186,14 @@ export const UserPage = async ({
                         kind="content"
                         heading={t('Contents')}
                         title={
-                          isSelf
-                            ? t('Tell the story of a work')
-                            : t('{{name}} hasn’t written any contents yet', { name: firstName })
+                          filteredTo
+                            ? t('No contents at {{museum}}', { museum: filteredTo })
+                            : isSelf
+                              ? t('Tell the story of a work')
+                              : t('{{name}} hasn’t written any contents yet', { name: firstName })
                         }
                         description={
-                          isSelf
+                          !filteredTo && isSelf
                             ? t(
                                 'What you write about a work shows up here, ready for the visitors who stop in front of it.',
                               )

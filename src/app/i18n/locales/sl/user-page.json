@@ -1,6 +1,7 @@
 {
   "{{name}} hasn’t created any tours yet": "",
   "{{name}} hasn’t written any contents yet": "",
+  "All museums": "",
   "contents": "vsebine",
   "Contents": "",
   "Create a tour": "",
@@ -9,7 +10,10 @@
   "Email": "E-pošta",
   "info": "informacije",
   "Member since": "Član od",
+  "No contents at {{museum}}": "",
+  "No tours at {{museum}}": "",
   "Pick the works you love and put them in order: a route to take and share.": "",
+  "Show work from": "",
   "Tell the story of a work": "",
   "Tours": "",
   "Username": "Uporabniško ime",

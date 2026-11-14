@@ -17,8 +17,9 @@ import type { FindOptions, Payload, SelectType, TypedCollectionSelect } from 'pa
  *   (`readTours`). A caller that passes `overrideAccess` itself (a system
  *   read, or its own `user`) opts out of this one, never of the list rule.
  *
- * Not covered here: the museum page's `tours` join (`Museums.ts`, a field
- * config that takes `LISTED_TOURS` directly) and in-memory filters over tours
+ * Not covered here: the museum page's `tours` join (`Museums.ts`) and the
+ * profile's `authoredTours` join (`Users.ts`), field configs that take
+ * `LISTED_TOURS` directly, and in-memory filters over tours
  * read some other way (`isPersonalTour`, same rule as a predicate).
  */
 export async function findListedTours<

@@ -1,3 +1,4 @@
+import { LISTED_TOURS } from '@/lib/visibility'
 import {
   anyone,
   asId,
@@ -144,10 +145,14 @@ export const Users: CollectionConfig = {
       on: 'author',
     },
     {
+      // Reverse of `tours.author`, without one visitor's own tours
+      // (`LISTED_TOURS`: planned visits, visit copies), like `museums.tours`:
+      // a profile lists what its person made to share, on every read of it.
       name: 'authoredTours',
       type: 'join',
       collection: 'tours',
       on: 'author',
+      where: LISTED_TOURS,
     },
     {
       name: 'avatar',
