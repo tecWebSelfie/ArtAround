@@ -386,6 +386,19 @@ export default function TourPage({
 }
 
 /**
+ * The two exit buttons (`TourActions`): `md` height at least, tight padding, `sm` text,
+ * and a label that may wrap (centred, tighter leading) where a translation
+ * is longer than half a phone, so it grows a line instead of being cut.
+ */
+const FOOTER_BUTTON = {
+  size: 'md',
+  px: 'xs',
+  fz: 'sm',
+  className: 'h-auto min-h-(--button-height) py-1',
+  classNames: { label: 'whitespace-normal text-center leading-tight' },
+} as const
+
+/**
  * The tour's two exits, shared by the phone footer and the desktop summary
  * pane: the paid-orange unlock (opens the purchase modal) or the light orange
  * edit/customize link, and the tour-gradient "Start tour". Always both:
@@ -409,14 +422,13 @@ function TourActions({
   const { lng } = useParams<{ lng: string }>()
   return (
     // Two equal halves of a 390px phone leave ~170px per button: tighter
-    // padding and sm text keep "Customize tour" / "Unlock for €4.99" (and
-    // their longer translations) whole instead of "Customize to…".
-    <Group grow gap="xs" wrap="nowrap">
+    // padding and sm text keep "Customize tour" / "Unlock for €4.99" whole,
+    // and a longer translation ("Muokkaa kierrosta itsellesi") wraps onto a
+    // second line (`FOOTER_BUTTON`) instead of ending in "…".
+    <Group grow gap="xs" wrap="nowrap" align="stretch">
       {price > 0 ? (
         <Button
-          size="md"
-          px="xs"
-          fz="sm"
+          {...FOOTER_BUTTON}
           color="orange"
           autoContrast
           rightSection={<ShoppingBag size={16} />}
@@ -426,9 +438,7 @@ function TourActions({
         </Button>
       ) : (
         <Button
-          size="md"
-          px="xs"
-          fz="sm"
+          {...FOOTER_BUTTON}
           component={Link}
           href={editHref}
           color="orange"
@@ -439,9 +449,7 @@ function TourActions({
         </Button>
       )}
       <Button
-        size="md"
-        px="xs"
-        fz="sm"
+        {...FOOTER_BUTTON}
         component={Link}
         href={startHref}
         // The tour gradient: starting a tour is the app's main way in

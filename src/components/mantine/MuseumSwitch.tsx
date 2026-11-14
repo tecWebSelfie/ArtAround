@@ -134,8 +134,11 @@ export function MuseumSwitch({
             <Text fz={11} c="dimmed" lh={1.15}>
               {t('Museum')}
             </Text>
+            {/* Under the "Museum" eyebrow, global mode reads just "All": the
+                long form ("Összes múzeum") was cut on narrow phones. The list
+                and the accessible name keep "All museums". */}
             <Text size="sm" fw={700} lh={1.15} truncate>
-              {current?.name ?? t('All museums')}
+              {current?.name ?? t('All (museums)')}
             </Text>
           </Stack>
           <ChevronDown
