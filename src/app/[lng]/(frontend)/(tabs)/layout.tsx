@@ -16,7 +16,7 @@ import { NavBar } from './NavBar'
  * entries and controls, so both are hidden there.
  */
 export default async function TabsLayout({ children, params }: LayoutProps<'/[lng]'>) {
-  const [{ lng }, { account, myMuseums, currentMuseum, museums }] = await Promise.all([
+  const [{ lng }, { account, currentMuseum, museums }] = await Promise.all([
     params,
     getSiteChrome(),
   ])
@@ -78,7 +78,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
         {children}
       </Stack>
       <AppShellFooter component="nav" hiddenFrom="md">
-        <NavBar account={account} myMuseums={myMuseums} />
+        <NavBar account={account} />
       </AppShellFooter>
     </Stack>
   )

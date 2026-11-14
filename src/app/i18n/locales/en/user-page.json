@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} hasn’t created any tours yet",
   "{{name}} hasn’t written any contents yet": "{{name}} hasn’t written any contents yet",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "A museum’s director or curators add you to its staff from the museum’s page.",
   "All museums": "All museums",
   "contents": "contents",
   "Contents": "Contents",
   "Create a tour": "Create a tour",
   "Curator": "Curator",
-  "Curator at": "Curator at",
+  "Curator at {{museum}}": "Curator at {{museum}}",
+  "Director": "Director",
+  "Director at {{museum}}": "Director at {{museum}}",
   "Email": "Email",
   "info": "info",
   "Member since": "Member since",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Pick the works you love and put them in order: a route to take and share.",
   "Show work from": "Show work from",
   "Tell the story of a work": "Tell the story of a work",
+  "The museums where you have a role, and what you can do in each.": "The museums where you have a role, and what you can do in each.",
   "Tours": "Tours",
   "Username": "Username",
   "Verified creator": "Verified creator",
   "Verified creator tooltip": "Creator verified by ArtAround",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "What you write about a work shows up here, ready for the visitors who stop in front of it.",
   "Write a content": "Write a content",
-  "Your first tour starts here": "Your first tour starts here"
+  "You have no role in a museum yet": "You have no role in a museum yet",
+  "Your first tour starts here": "Your first tour starts here",
+  "Your museums": "Your museums"
 }

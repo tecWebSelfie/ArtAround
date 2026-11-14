@@ -2,17 +2,11 @@
 
 import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import { MuseumSwitch, type MuseumOption } from '@/components/mantine/MuseumSwitch'
-import { Anchor, Avatar, Box, Button, Group, Menu, Text } from '@mantine/core'
-import { ChevronDown, Landmark, LogIn } from 'lucide-react'
+import { Anchor, Avatar, Box, Button, Group, Text } from '@mantine/core'
+import { LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from 'next-i18next/client'
-import {
-  MyMuseumsMenuItems,
-  NAV_ITEMS,
-  useNavState,
-  type MyMuseum,
-  type NavAccount,
-} from './nav-shared'
+import { NAV_ITEMS, useNavState, type NavAccount } from './nav-shared'
 import { APP_NAME } from '@/lib/app-name'
 import { BRAND_GRADIENT } from '@/theme'
 import classes from './SiteHeader.module.css'
@@ -41,28 +35,17 @@ const IMMERSIVE =
  */
 export function SiteHeader({
   account,
-  myMuseums,
   currentMuseum,
   museums,
   supportedLngs,
 }: {
   account: NavAccount | null
-  myMuseums: MyMuseum[]
   currentMuseum: { id: string; name: string } | null
   museums: MuseumOption[]
   supportedLngs: string[]
 }) {
-  const {
-    lng,
-    pathname,
-    signedIn,
-    profileHref,
-    displayName,
-    inMyMuseum,
-    signInHref,
-    localize,
-    isActive,
-  } = useNavState(account, myMuseums)
+  const { pathname, signedIn, profileHref, displayName, signInHref, localize, isActive } =
+    useNavState(account)
   // Here, not from `useNavState`: `i18next-cli extract` reads the prefix only at the call.
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
 
@@ -105,24 +88,6 @@ export function SiteHeader({
                 </Button>
               )
             })}
-            {myMuseums.length > 0 && (
-              <Menu position="bottom-start" withArrow shadow="md">
-                <Menu.Target>
-                  <Button
-                    color="grape"
-                    variant={inMyMuseum ? 'light' : 'subtle'}
-                    autoContrast
-                    leftSection={<Landmark size={16} aria-hidden />}
-                    rightSection={<ChevronDown size={14} aria-hidden />}
-                  >
-                    {t('My museums')}
-                  </Button>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <MyMuseumsMenuItems lng={lng} myMuseums={myMuseums} />
-                </Menu.Dropdown>
-              </Menu>
-            )}
           </Group>
         </Group>
         <Group gap="xs" wrap="nowrap" miw={0}>

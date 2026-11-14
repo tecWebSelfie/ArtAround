@@ -4,6 +4,8 @@ import { ProfileForm } from '@/components/editing/forms/ProfileForm'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
 import { ArtaroundEmptyState } from '@/components/mantine/ArtaroundEmptyState'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
+import { LinkButton } from '@/components/editing/LinkButton'
+import { MUSEUM_ROLE_ICON } from '@/lib/museum-role-meta'
 import { ContentsCarousel } from '@/components/mantine/ContentsCarousel'
 import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { scopedSearchHref } from '@/lib/search-url'
@@ -26,7 +28,15 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core'
-import { Amphora, BadgeCheck, BadgeInfo, Landmark, Palette, Verified } from 'lucide-react'
+import {
+  Amphora,
+  BadgeCheck,
+  BadgeInfo,
+  ChevronRight,
+  Landmark,
+  Palette,
+  Verified,
+} from 'lucide-react'
 
 /**
  * A visitor's public profile. Phones: one column (identity with the account
@@ -40,6 +50,7 @@ export const UserPage = async ({
   isSelf = false,
   museumFilter,
   accountActions,
+  museumsHref,
 }: {
   user: User
   curatedMuseums?: (string | Museum)[] | null
@@ -52,6 +63,11 @@ export const UserPage = async ({
   museumFilter?: { name: string; museumOnly: boolean }
   /** Owner-only actions (sign out), rendered by the route so stories stay server-action free. */
   accountActions?: ReactNode
+  /**
+   * Owner-only, when they hold a role in a museum: their "Your museums" page
+   * (`/[lng]/my-museums`), the one way in now that the bars have no museums menu.
+   */
+  museumsHref?: Route
 }) => {
   const { t, lng } = await getT('user-page')
   const { t: te } = await getT('editing')
@@ -127,6 +143,19 @@ export const UserPage = async ({
                 {accountActions}
               </Group>
               <UserBadges user={user} curatedMuseums={curatedMuseums} />
+              {museumsHref && (
+                <LinkButton
+                  href={museumsHref}
+                  variant="light"
+                  color="grape"
+                  size="sm"
+                  leftSection={<Landmark size={16} aria-hidden />}
+                  rightSection={<ChevronRight size={16} aria-hidden />}
+                  className="self-start"
+                >
+                  {t('Your museums')}
+                </LinkButton>
+              )}
             </Stack>
             <EditableSection
               title={te('About me')}
@@ -249,9 +278,10 @@ export const UserPage = async ({
 }
 
 // Mirrors MuseumBadges: a Group of Tooltip-wrapped Badges. Renders the
-// verified-creator badge and one curator badge per museum (or a generic
-// curator badge when no museum list was provided). Returns null when neither
-// applies so no empty row is rendered.
+// verified-creator badge and one staff badge per museum, director and
+// curator alike, each with its role's icon and its role in the tooltip (a
+// generic role badge when the memberships came back unpopulated). Returns
+// null when neither applies so no empty row is rendered.
 export async function UserBadges({
   user,
 }: {
@@ -259,29 +289,34 @@ export async function UserBadges({
   curatedMuseums?: (string | Museum)[] | null
 }) {
   const { t } = await getT('user-page')
+  const museumsOf = (docs: (string | { museum: string | Museum })[] | undefined) =>
+    filterPopulated(
+      (docs ?? []).map((membership) =>
+        typeof membership === 'object' ? membership.museum : membership,
+      ),
+    )
   // Museums where the user holds the verified-creator badge (verified memberships).
-  const verifiedMuseums = filterPopulated(
-    (user.verifiedAt?.docs ?? []).map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
+  const verifiedMuseums = museumsOf(user.verifiedAt?.docs)
   const curatorDocs = user.curatorOf?.docs ?? []
   const directorDocs = user.directorOf?.docs ?? []
-  const curatedMuseums = filterPopulated(
-    curatorDocs.map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
-  const directedMuseums = filterPopulated(
-    directorDocs.map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
+  // Directors first (the higher role), then curators: both are staff.
+  const staff = [
+    ...museumsOf(directorDocs).map((museum) => ({
+      museum,
+      role: 'director' as const,
+      tooltip: t('Director at {{museum}}', { museum: museum.name }),
+    })),
+    ...museumsOf(curatorDocs).map((museum) => ({
+      museum,
+      role: 'curator' as const,
+      tooltip: t('Curator at {{museum}}', { museum: museum.name }),
+    })),
+  ]
 
   // Note: filterPopulated returns [] (truthy) when empty, so length checks are
   // required here — a bare truthiness check would render badges for everyone.
-  // The generic Curator badge covers join rows whose memberships are not
-  // populated (IDs only): the user holds the role but nothing resolved.
+  // The generic role badge covers join rows whose memberships are not
+  // populated (IDs only): the user holds the role but no museum resolved.
   const hasStaffRows = curatorDocs.length > 0 || directorDocs.length > 0
 
   if (verifiedMuseums.length === 0 && !hasStaffRows) return null
@@ -296,28 +331,26 @@ export async function UserBadges({
         </Tooltip>
       )}
       {hasStaffRows &&
-        (curatedMuseums.length > 0 ? (
-          curatedMuseums.map((museum) => (
-            <Tooltip key={museum.id} label={`${t('Curator at')} ${museum.name}`} withArrow>
-              <Badge color="green" size="sm" leftSection={<Landmark size={14} />}>
-                {museum.name}
-              </Badge>
-            </Tooltip>
-          ))
-        ) : directedMuseums.length > 0 ? (
-          directedMuseums.map((museum) => (
-            <Tooltip key={museum.id} label={`${t('Curator at')} ${museum.name}`} withArrow>
-              <Badge color="green" size="sm" leftSection={<Landmark size={14} />}>
-                {museum.name}
-              </Badge>
-            </Tooltip>
-          ))
+        (staff.length > 0 ? (
+          staff.map(({ museum, role, tooltip }) => {
+            const Icon = MUSEUM_ROLE_ICON[role]
+            return (
+              <Tooltip key={`${role}-${museum.id}`} label={tooltip} withArrow>
+                <Badge color="green" size="sm" leftSection={<Icon size={14} aria-hidden />}>
+                  {museum.name}
+                </Badge>
+              </Tooltip>
+            )
+          })
         ) : (
-          <Tooltip label={t('Curator')} withArrow>
-            <Badge color="green" size="sm" leftSection={<Landmark size={14} />}>
-              {t('Curator')}
-            </Badge>
-          </Tooltip>
+          // Unpopulated rows: the role is known from the join it came from.
+          <Badge
+            color="green"
+            size="sm"
+            leftSection={directorDocs.length > 0 ? <Landmark size={14} /> : <Palette size={14} />}
+          >
+            {directorDocs.length > 0 ? t('Director') : t('Curator')}
+          </Badge>
         ))}
     </Group>
   )

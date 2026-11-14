@@ -4,7 +4,7 @@ import { asViewer, getSession } from '@/lib/session'
 import { SignOutButton } from '@/components/auth/SignOutButton'
 import { UserPage } from './UserPage'
 import { displayName } from '@/lib/display-name'
-import type { Metadata } from 'next'
+import type { Metadata, Route } from 'next'
 import { notFound } from 'next/navigation'
 import { cache } from 'react'
 
@@ -66,9 +66,14 @@ export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) 
   const museumOnly = museumOnlyParam(scopeParam)
   // Started before the translations, so the two loads overlap.
   const read = readUser(id, museumOnly)
-  const { t } = await getT('editing')
+  const { t, lng } = await getT('editing')
   const { user, scope } = await read
   const isSelf = String(viewer?.id) === String(user.id)
+  // Any per-museum role (the user's membership joins): their own profile then
+  // links to "Your museums", where that work starts.
+  const holdsRole = [user.directorOf, user.curatorOf, user.verifiedAt].some(
+    (join) => (join?.docs?.length ?? 0) > 0,
+  )
 
   return (
     <UserPage
@@ -76,6 +81,7 @@ export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) 
       isSelf={isSelf}
       // Only in museum mode: the filter the carousels below follow.
       museumFilter={scope ? { name: scope.name, museumOnly } : undefined}
+      museumsHref={isSelf && holdsRole ? (`/${lng}/my-museums` as Route) : undefined}
       accountActions={
         // Client-side, so the NavBar's session mirror clears together with the cookie.
         isSelf && <SignOutButton label={t('Sign out')} />

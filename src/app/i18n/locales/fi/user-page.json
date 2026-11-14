@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} ei ole vielä luonut kierroksia",
   "{{name}} hasn’t written any contents yet": "{{name}} ei ole vielä kirjoittanut sisältöjä",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Kaikki museot",
   "contents": "sisällöt",
   "Contents": "Sisällöt",
   "Create a tour": "Luo kierros",
   "Curator": "Kuraattori",
-  "Curator at": "Kuraattorina museossa",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "Sähköposti",
   "info": "tiedot",
   "Member since": "Jäsen alkaen",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Valitse rakastamasi teokset ja järjestä ne: reitti kuljettavaksi ja jaettavaksi.",
   "Show work from": "Näytä teokset museosta",
   "Tell the story of a work": "Kerro teoksen tarina",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Kierrokset",
   "Username": "Käyttäjänimi",
   "Verified creator": "Vahvistettu tekijä",
   "Verified creator tooltip": "ArtAround on vahvistanut tämän tekijän",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Se, mitä kirjoitat teoksesta, näkyy täällä valmiina kävijöille, jotka pysähtyvät sen eteen.",
   "Write a content": "Kirjoita sisältö",
-  "Your first tour starts here": "Ensimmäinen kierroksesi alkaa tästä"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Ensimmäinen kierroksesi alkaa tästä",
+  "Your museums": ""
 }

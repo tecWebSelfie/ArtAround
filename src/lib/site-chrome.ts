@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { toNavAccount } from '@/components/navigation/nav-account'
-import type { MyMuseum } from '@/components/navigation/nav-shared'
+import type { MyMuseum } from '@/lib/museum-role-meta'
 import type { MuseumOption } from '@/components/mantine/MuseumSwitch'
 import { MUSEUM_FUNCTION_RANK } from '@/fields/MuseumFunction'
 import { isPopulated } from '@/lib/isPopulated'
@@ -12,14 +12,14 @@ import { cache } from 'react'
 
 /**
  * Everything the app's navigation chrome shows about the visitor and the
- * museum scope: the account entry, the "My museums" shortcut and the museum
- * switch. Two places render it from the same data: the phone's bottom bar
+ * museum scope: the account entry and the museum switch, plus the museums
+ * where the visitor holds a role (`myMuseums`, read by the rights form). Two places render it from the same data: the phone's bottom bar
  * (tabs layout) and the desktop top bar (`SiteHeader`, frontend layout).
  * `cache` makes both share one round of Local API reads per request.
  */
 export const getSiteChrome = cache(async () => {
-  // Local API session (cookie): decides the account entry and the "My museums"
-  // shortcut for directors, curators and verified creators.
+  // Local API session (cookie): decides the account entry and the visitor's
+  // museums (directors, curators and verified creators).
   const { payload, user } = await getSession()
   // The three reads are independent once the session is known: run them in
   // one round instead of waiting on the memberships first. Museum mode: the
@@ -43,9 +43,9 @@ export const getSiteChrome = cache(async () => {
       select: { name: true, location: true, palette: true },
     }),
   ])
-  // Only roles the menu knows how to show: a membership stored with a missing
-  // or legacy role (older seeds, raw writes) would crash `MyMuseumsMenuItems`,
-  // which looks up an icon per role, so it is left out instead.
+  // Only roles the app knows how to name: a membership stored with a missing
+  // or legacy role (older seeds, raw writes) has no `MUSEUM_ROLE_ICON` entry,
+  // so it is left out instead.
   const myMuseums: MyMuseum[] = (memberships?.docs ?? []).flatMap((membership) =>
     isPopulated(membership.museum) && Object.hasOwn(MUSEUM_FUNCTION_RANK, membership.role ?? '')
       ? [{ id: membership.museum.id, name: membership.museum.name, role: membership.role }]

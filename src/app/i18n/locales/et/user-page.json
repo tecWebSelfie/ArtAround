@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} pole veel ühtegi tuuri loonud",
   "{{name}} hasn’t written any contents yet": "{{name}} pole veel sisu kirjutanud",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Kõik muuseumid",
   "contents": "sisu",
   "Contents": "Sisu",
   "Create a tour": "Loo tuur",
   "Curator": "Kuraator",
-  "Curator at": "Kuraator:",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "E-post",
   "info": "info",
   "Member since": "Liige alates",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Vali teosed, mis sulle meeldivad, ja pane need järjekorda: marsruut, mida läbida ja jagada.",
   "Show work from": "Näita teoseid muuseumist",
   "Tell the story of a work": "Räägi teose lugu",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Tuurid",
   "Username": "Kasutajanimi",
   "Verified creator": "Kinnitatud looja",
   "Verified creator tooltip": "Selle looja isik on kinnitatud",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "See, mida teose kohta kirjutad, ilmub siia, valmis külastajatele, kes selle ees peatuvad.",
   "Write a content": "Kirjuta sisu",
-  "Your first tour starts here": "Sinu esimene tuur algab siit"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Sinu esimene tuur algab siit",
+  "Your museums": ""
 }

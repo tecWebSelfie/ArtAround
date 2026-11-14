@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} zatím nemá žádné prohlídky",
   "{{name}} hasn’t written any contents yet": "{{name}} zatím nemá žádný obsah",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Všechna muzea",
   "contents": "obsahy",
   "Contents": "Obsahy",
   "Create a tour": "Vytvořit prohlídku",
   "Curator": "Kurátor",
-  "Curator at": "Kurátor v",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "E-mail",
   "info": "informace",
   "Member since": "Členem od",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Vyber oblíbená díla a seřaď je: trasa, kterou projdeš a můžeš sdílet.",
   "Show work from": "Zobrazit díla z",
   "Tell the story of a work": "Vyprávěj příběh díla",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Prohlídky",
   "Username": "Uživatelské jméno",
   "Verified creator": "Ověřený tvůrce",
   "Verified creator tooltip": "Tento tvůrce je ověřený platformou ArtAround",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "To, co napíšeš o díle, se objeví tady, připravené pro návštěvníky, kteří se u něj zastaví.",
   "Write a content": "Napsat obsah",
-  "Your first tour starts here": "Tvoje první prohlídka začíná tady"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Tvoje první prohlídka začíná tady",
+  "Your museums": ""
 }

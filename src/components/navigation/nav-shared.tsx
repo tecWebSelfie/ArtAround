@@ -2,20 +2,20 @@
 
 import { useAuth } from '@/components/auth/AuthProvider'
 import { type NavAccount, toNavAccount } from '@/components/navigation/nav-account'
-import type { MuseumRole } from '@/fields/MuseumFunction'
-import { Menu, Stack, Text } from '@mantine/core'
-import { BadgeCheck, Compass, Landmark, Palette, Store } from 'lucide-react'
+import { Compass, Store } from 'lucide-react'
 import type { Route } from 'next'
 import { useT } from 'next-i18next/client'
-import Link from 'next/link'
 import { useParams, usePathname } from 'next/navigation'
 
 /**
  * What the two navigation bars share: the phone's bottom bar (`NavBar`, tabs
  * layout) and the desktop top bar (`SiteHeader`, frontend layout) show the
- * same entries, account and museums from the same logic, only laid out
- * differently. Keep entries, colors and menu contents here so the two never
- * drift apart.
+ * same entries and account from the same logic, only laid out differently.
+ * Keep entries and colors here so the two never drift apart.
+ *
+ * The museums a visitor works on are not a bar entry: they live on a page of
+ * their own (`/[lng]/my-museums`), linked from the visitor's profile, so the
+ * bars stay the same for visitors and staff.
  */
 
 /**
@@ -31,19 +31,6 @@ export const NAV_ITEMS = [
 
 export type { NavAccount }
 
-/** A museum where the signed-in visitor holds a per-museum role. */
-export type MyMuseum = { id: string; name: string; role: MuseumRole }
-
-// Same icon per role as the profile badges (UserPage): icon + label, never color alone.
-// Role labels, `navbar` keys listed for `i18next-cli extract`:
-// t('navbar.Director', 'Director') t('navbar.Curator', 'Curator')
-// t('navbar.Verified creator', 'Verified creator')
-const ROLE_META: Record<MuseumRole, { Icon: typeof Landmark; label: string }> = {
-  director: { Icon: Landmark, label: 'Director' },
-  curator: { Icon: Palette, label: 'Curator' },
-  verified: { Icon: BadgeCheck, label: 'Verified creator' },
-}
-
 /**
  * Navigation state for either bar.
  * - The client session (`AuthProvider`) drives the account entry so it reacts
@@ -55,7 +42,7 @@ const ROLE_META: Record<MuseumRole, { Icon: typeof Landmark; label: string }> = 
  * - No sign out here: in both bars the account entry links to the profile,
  *   which carries `SignOutButton`.
  */
-export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
+export function useNavState(account: NavAccount | null) {
   const pathname = usePathname()
   const { lng } = useParams<{ lng: string }>()
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
@@ -77,32 +64,8 @@ export function useNavState(account: NavAccount | null, myMuseums: MyMuseum[]) {
     // Both bars link the account entry to the profile (it carries sign out).
     profileHref: signedIn ? (`/${lng}/user/${signedIn.id}` as Route) : null,
     displayName: signedIn?.name || t('Account'),
-    inMyMuseum: myMuseums.some((museum) => pathname.startsWith(`/${lng}/museum/${museum.id}`)),
     signInHref: `/${lng}/login?next=${encodeURIComponent(pathname)}` as Route,
     localize,
     isActive,
   }
-}
-
-/** One row per museum where the visitor holds a role: name over its dimmed role label. */
-export function MyMuseumsMenuItems({ lng, myMuseums }: { lng: string; myMuseums: MyMuseum[] }) {
-  const { t } = useT(undefined, { keyPrefix: 'navbar' })
-  return myMuseums.map((museum) => {
-    const { Icon, label } = ROLE_META[museum.role]
-    return (
-      <Menu.Item
-        key={museum.id}
-        component={Link}
-        href={`/${lng}/museum/${museum.id}` as Route}
-        leftSection={<Icon size={16} aria-hidden />}
-      >
-        <Stack gap={0}>
-          <Text size="sm">{museum.name}</Text>
-          <Text size="xs" c="dimmed">
-            {t(label)}
-          </Text>
-        </Stack>
-      </Menu.Item>
-    )
-  })
 }

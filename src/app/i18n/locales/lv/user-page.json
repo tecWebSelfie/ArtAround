@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} vēl nav izveidojis nevienu tūri",
   "{{name}} hasn’t written any contents yet": "{{name}} vēl nav uzrakstījis nekādu saturu",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Visi muzeji",
   "contents": "saturs",
   "Contents": "Saturs",
   "Create a tour": "Izveidot tūri",
   "Curator": "Kurators",
-  "Curator at": "Kurators:",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "E-pasts",
   "info": "informācija",
   "Member since": "Dalībnieks kopš",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Izvēlies darbus, kas tev patīk, un sakārto tos: maršruts, ko iziet un kopīgot.",
   "Show work from": "Rādīt darbus no",
   "Tell the story of a work": "Pastāsti par darbu",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Tūres",
   "Username": "Lietotājvārds",
   "Verified creator": "Verificēts autors",
   "Verified creator tooltip": "Šī autora identitāte ir verificēta",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Tas, ko raksti par darbu, parādās šeit, gatavs apmeklētājiem, kas apstājas tā priekšā.",
   "Write a content": "Rakstīt saturu",
-  "Your first tour starts here": "Tava pirmā tūre sākas šeit"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Tava pirmā tūre sākas šeit",
+  "Your museums": ""
 }

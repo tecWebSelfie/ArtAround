@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} għadu ma ħoloq l-ebda tour",
   "{{name}} hasn’t written any contents yet": "{{name}} għadu ma kiteb l-ebda kontenut",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Il-mużewijiet kollha",
   "contents": "kontenuti",
   "Contents": "Kontenuti",
   "Create a tour": "Oħloq tour",
   "Curator": "Kuratur",
-  "Curator at": "Kuratur ta'",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "Email",
   "info": "info",
   "Member since": "Membru minn",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Agħżel ix-xogħlijiet li tħobb u poġġihom f’ordni: rotta biex tagħmilha u taqsamha.",
   "Show work from": "Uri xogħlijiet minn",
   "Tell the story of a work": "Irrakkonta l-istorja ta’ xogħol",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Tours",
   "Username": "Isem tal-utent",
   "Verified creator": "Kreatur ivverifikat",
   "Verified creator tooltip": "Dan il-kreatur huwa vverifikat",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Dak li tikteb dwar xogħol jidher hawn, lest għall-viżitaturi li jieqfu quddiemu.",
   "Write a content": "Ikteb kontenut",
-  "Your first tour starts here": "L-ewwel tour tiegħek jibda hawn"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "L-ewwel tour tiegħek jibda hawn",
+  "Your museums": ""
 }

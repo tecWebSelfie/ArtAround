@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} još nema nijednu turu",
   "{{name}} hasn’t written any contents yet": "{{name}} još nema nijedan sadržaj",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Svi muzeji",
   "contents": "sadržaji",
   "Contents": "Sadržaji",
   "Create a tour": "Izradi turu",
   "Curator": "Kustos",
-  "Curator at": "Kustos u",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "E-pošta",
   "info": "info",
   "Member since": "Član od",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Odaberi omiljena djela i složi ih po redu: ruta koju ćeš proći i podijeliti.",
   "Show work from": "Prikaži djela iz",
   "Tell the story of a work": "Ispričaj priču o djelu",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Ture",
   "Username": "Korisničko ime",
   "Verified creator": "Verificirani autor",
   "Verified creator tooltip": "ArtAround je potvrdio identitet ovog autora",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Ono što napišeš o djelu pojavit će se ovdje, spremno za posjetitelje koji zastanu pred njim.",
   "Write a content": "Napiši sadržaj",
-  "Your first tour starts here": "Tvoja prva tura počinje ovdje"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Tvoja prva tura počinje ovdje",
+  "Your museums": ""
 }

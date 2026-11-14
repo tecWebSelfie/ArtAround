@@ -1,12 +1,15 @@
 {
   "{{name}} hasn’t created any tours yet": "{{name}} aún no ha creado ningún tour",
   "{{name}} hasn’t written any contents yet": "{{name}} aún no ha escrito ningún contenido",
+  "A museum’s director or curators add you to its staff from the museum’s page.": "",
   "All museums": "Todos los museos",
   "contents": "contenidos",
   "Contents": "Contenidos",
   "Create a tour": "Crear un tour",
   "Curator": "Curador",
-  "Curator at": "Curador en",
+  "Curator at {{museum}}": "",
+  "Director": "",
+  "Director at {{museum}}": "",
   "Email": "Correo electrónico",
   "info": "info",
   "Member since": "Miembro desde",
@@ -15,11 +18,14 @@
   "Pick the works you love and put them in order: a route to take and share.": "Elige las obras que te encantan y ponlas en orden: un recorrido para hacer y compartir.",
   "Show work from": "Mostrar obras de",
   "Tell the story of a work": "Cuenta la historia de una obra",
+  "The museums where you have a role, and what you can do in each.": "",
   "Tours": "Tours",
   "Username": "Nombre de usuario",
   "Verified creator": "Creador verificado",
   "Verified creator tooltip": "Creador verificado por ArtAround",
   "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Lo que escribes sobre una obra aparece aquí, listo para quien se detenga a mirarla.",
   "Write a content": "Escribir un contenido",
-  "Your first tour starts here": "Tu primer tour empieza aquí"
+  "You have no role in a museum yet": "",
+  "Your first tour starts here": "Tu primer tour empieza aquí",
+  "Your museums": ""
 }
