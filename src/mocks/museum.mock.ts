@@ -88,9 +88,9 @@ function baseMuseum(): Museum {
         id: 'thumb-1',
         updatedAt: TIMESTAMP,
         createdAt: TIMESTAMP,
-        // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
-        // which breaks the visual-regression baselines.
-        url: 'https://picsum.photos/seed/thumb-1/200/300',
+        // Local asset served from public/: remote photos would break offline and make
+        // the visual-regression baselines depend on the network.
+        url: '/icons/collection.webp',
       },
     ] satisfies MuseumThumbnail[],
     // Map-derived index of exhibited objects (see `syncMuseumObjects`).
@@ -168,7 +168,7 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Facciata del museo',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: 'https://picsum.photos/seed/thumb-1/200/300',
+      url: '/icons/collection.webp',
       filename: 'museum-facade.jpg',
       mimeType: 'image/jpeg',
       width: 1200,
@@ -179,7 +179,7 @@ export const mockMuseumFull: Museum = createMuseum({
       alt: 'Sala espositiva principale',
       updatedAt: TIMESTAMP,
       createdAt: TIMESTAMP,
-      url: 'https://picsum.photos/seed/thumb-2/200/300',
+      url: '/icons/collection.webp',
       filename: 'museum-hall.jpg',
       mimeType: 'image/jpeg',
       width: 1200,
