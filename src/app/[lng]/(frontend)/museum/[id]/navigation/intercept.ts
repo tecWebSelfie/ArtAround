@@ -38,7 +38,8 @@ export async function navigationModalTarget(
   const { lng, museumId, tourId, step: rawStep } = here
   // A tour at a valid cursor, else the free map (also for a tour's start
   // page, which has no map yet).
-  const tour = tourId && rawStep !== null ? await getNavigationTour(tourId).catch(() => null) : null
+  const tour =
+    tourId && rawStep !== null ? await getNavigationTour(tourId, here.lng).catch(() => null) : null
   const step = tour && rawStep !== null ? tourStepIndex(rawStep, tour.contents.length) : null
   const scope: NavigationScope =
     tour && step !== null ? { kind: 'tour', tour, step } : { kind: 'free', museumId }

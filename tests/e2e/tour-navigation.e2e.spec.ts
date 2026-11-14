@@ -23,6 +23,44 @@ test('shows the map on desktop and mobile', async ({ page }) => {
   await expect(mapCanvas(page)).toBeVisible()
 })
 
+// Product rule: an unavailable stop is intercepted before navigation and never
+// shown (no "Skipped" badge, no blocking modal). The fixture's second tour has
+// a stop about no object between its two real ones (scripts/seed-tour-navigation.ts):
+// the visitor sees a two-stop tour, and every cursor counts those two.
+test('shows and counts only the visitable stops of a tour with an unavailable one', async ({
+  page,
+}) => {
+  const fixture = requireTourFixture()
+  if (!fixture.unavailableTourId) {
+    if (process.env.CI) throw new Error('Fixture without the unavailable-stop tour: pnpm seed:e2e')
+    test.skip(true, 'Fixture without the unavailable-stop tour: run `pnpm seed:e2e` again.')
+  }
+  const base = `${new URL(fixture.url).origin}/en/museum/${fixture.museumId}/navigation/tour/${fixture.unavailableTourId}`
+  await page.goto(`${base}/0`, { waitUntil: 'domcontentloaded' })
+  await expect(mapCanvas(page)).toBeVisible({ timeout: 60_000 })
+  await expect(page.getByText(/Stop 1 of 2/)).toBeVisible()
+  // Both visitable stops are in the stepper; the unavailable one is nowhere,
+  // and nothing announces it (no badge, no modal).
+  await expect(page.getByText('[DEV] Tour navigation: First stop', { exact: true })).toBeVisible()
+  await expect(page.getByText('[DEV] Tour navigation: Second stop', { exact: true })).toBeVisible()
+  await expect(
+    page.getByText('[DEV] Tour navigation: Unavailable stop', { exact: true }),
+  ).toHaveCount(0)
+  await expect(page.getByText('Skipped')).toHaveCount(0)
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  // The cursor indexes the visitable list: step 1 is the second real stop.
+  await page.goto(`${base}/1`, { waitUntil: 'domcontentloaded' })
+  await expect(page.getByText(/Stop 2 of 2/)).toBeVisible()
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await page.goto(`${base}/2`, { waitUntil: 'domcontentloaded' })
+  await expect(page.getByText('All 2 stops visited')).toBeVisible()
+  // A stale cursor (a bookmark from before a stop was removed, or the old
+  // three-stop numbering) lands on the completed step instead of an error.
+  await page.goto(`${base}/3?at=${fixture.objectIds[0]}`, { waitUntil: 'domcontentloaded' })
+  await expect(page).toHaveURL(`${base}/2?at=${fixture.objectIds[0]}`)
+  await expect(page.getByText('All 2 stops visited')).toBeVisible()
+})
+
 test('keeps side exploration separate, shares position through reload, and completes both stops', async ({
   page,
 }) => {

@@ -18,7 +18,7 @@ export default async function TourBranchLayout({
   children,
 }: LayoutProps<'/[lng]/museum/[id]/navigation/tour/[tourId]'>) {
   const { lng, id, tourId } = await params
-  const tour = await getNavigationTour(tourId).catch(() => null)
+  const tour = await getNavigationTour(tourId, lng).catch(() => null)
   if (!tour || tourMuseumId(tour) !== id) notFound()
   // The shell shows this tour's title, directions and stop titles in the
   // visitor's language, falling back to English: queue what is missing and

@@ -8,6 +8,7 @@ import { getPayload, type Where } from 'payload'
 import { cache } from 'react'
 import { enqueueTranslation, normalizeLocale, resolveLocalized } from './localized'
 import { tourQuizQuestionIds } from './quiz-ownership'
+import { getNavigationTour } from './navigation-tour.server'
 import { tourMuseumId } from './tour-navigation'
 import {
   CORRECT_ANSWER,
@@ -35,7 +36,11 @@ function secret() {
 export type ServerQuizQuestion = Omit<QuizQuestion, 'image'> & { image: ContentImage | null }
 
 export type TourQuiz = {
-  /** `contentIds` in tour order: index < stepsCompleted means "visited". */
+  /**
+   * `contentIds` in tour order: index < stepsCompleted means "visited". Only
+   * the visitable stops (`visitableTour`): the cursor `stepsCompleted` counts
+   * those, so `stopCount` and `contentIds` must index the same list.
+   */
   /** `museumId`: "back to the map" opens the tour inside its museum's navigation. */
   tour: { id: string; museumId: string; title: string; stopCount: number; contentIds: string[] }
   questions: ServerQuizQuestion[]
@@ -105,13 +110,19 @@ export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<To
     })
     .catch(() => null)
   if (!tour) return null
+  // The stops the visitor navigated: unavailable ones are not part of "stops
+  // still ahead" or of what the cursor counted. A tour this visitor can't
+  // read as such (quiz links are public) keeps its stored list.
+  const stops = await getNavigationTour(tourId, lng)
+    .then((visitable) => visitable.contents)
+    .catch(() => tour.contents ?? [])
   return {
     tour: {
       id: tour.id,
       museumId: tourMuseumId(tour),
       title: tour.title,
-      stopCount: tour.contents?.length ?? 0,
-      contentIds: (tour.contents ?? []).map((c) => (typeof c === 'string' ? c : c.id)),
+      stopCount: stops.length,
+      contentIds: stops.map((c) => (typeof c === 'string' ? c : c.id)),
     },
     questions: await loadQuizQuestions(tourQuizQuestionIds(tour), lng),
   }

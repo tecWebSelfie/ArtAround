@@ -279,6 +279,79 @@ if (tourId && !fixtureTour.docs[0].quiz?.questions?.length) {
   })
   console.info('Added a two-question quiz to the fixture tour.')
 }
+// A second tour with a stop nobody can visit: its content is about no object
+// (like a work taken off the map), between the two real stops. Navigation must
+// drop it before the visitor sees anything: "Stop 1 of 2", no placeholder in the
+// stepper (tests/e2e/tour-navigation.e2e.spec.ts). Found by title, so re-runs
+// reuse it.
+const gapTourTitle = `${label}: with an unavailable stop`
+const stopByTitle = async (title: string) =>
+  (
+    await payload.find({
+      collection: 'contents',
+      where: { title: { equals: `${label}: ${title}` } },
+      locale: 'en',
+      limit: 1,
+      depth: 0,
+    })
+  ).docs[0]
+let gapTourId: string | undefined
+const first = await stopByTitle('First stop')
+const second = await stopByTitle('Second stop')
+if (first && second) {
+  const gap =
+    (await stopByTitle('Unavailable stop')) ??
+    (await payload.create({
+      collection: 'contents',
+      locale: 'en',
+      data: {
+        title: `${label}: Unavailable stop`,
+        difficulty: 'easy',
+        objects: {},
+        body: {
+          root: {
+            type: 'root',
+            version: 1,
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            children: [
+              {
+                type: 'paragraph',
+                version: 1,
+                children: [{ type: 'text', version: 1, text: 'Development fixture: no object.' }],
+              },
+            ],
+          },
+        },
+      },
+    }))
+  const existingGapTour = await payload.find({
+    collection: 'tours',
+    where: { title: { equals: gapTourTitle } },
+    limit: 1,
+    depth: 0,
+  })
+  const gapContents = [first.id, gap.id, second.id]
+  const gapTour = existingGapTour.docs[0]
+  gapTourId = (
+    gapTour ??
+    (await payload.create({
+      collection: 'tours',
+      data: { title: gapTourTitle, contents: gapContents, museum: museum.id },
+    }))
+  ).id
+  // A reused tour keeps its stops in this exact order, whatever earlier runs left.
+  const kept = (gapTour?.contents ?? []).map((stop) => (typeof stop === 'string' ? stop : stop.id))
+  if (gapTour && kept.join() !== gapContents.join()) {
+    await payload.update({
+      collection: 'tours',
+      id: gapTour.id,
+      data: { contents: gapContents },
+      depth: 0,
+    })
+  }
+}
 // Not under test-results/: Playwright empties that folder when a run starts.
 await mkdir('.e2e-fixtures', { recursive: true })
 await writeFile(
@@ -287,6 +360,8 @@ await writeFile(
     {
       museumId: museum.id,
       tourId,
+      // The tour with an unavailable stop between its two real ones.
+      unavailableTourId: gapTourId,
       // Object 1 is in the West hall; Objects 2 and 3 are in the East hall.
       objectIds: fixtureObjects.docs.map(({ id }) => id),
       // Tours open inside their museum's navigation (tourNavigationPath).

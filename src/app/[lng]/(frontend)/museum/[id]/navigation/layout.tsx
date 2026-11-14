@@ -21,7 +21,7 @@ export default async function MuseumNavigationLayout({
   const museum = await getNavigationMuseum(id, lng)
   const [catalog, { tours, summaries }] = await Promise.all([
     getNavigationCatalog(museum, lng),
-    getMuseumNavigationTours(museum.id, lng),
+    getMuseumNavigationTours(museum, lng),
   ])
   return (
     <Suspense>

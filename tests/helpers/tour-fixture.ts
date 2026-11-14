@@ -15,6 +15,11 @@ import { resolve } from 'node:path'
 export type TourFixture = {
   museumId: string
   tourId: string
+  /**
+   * A tour of the same museum whose middle stop is unavailable (about no
+   * object): navigation must show only the two visitable stops around it.
+   */
+  unavailableTourId?: string
   /** Object 1 is in the West hall; Objects 2 and 3 are in the East hall. */
   objectIds: string[]
   /** The tour's first step: `…/museum/[id]/navigation/tour/[tourId]/0`. */

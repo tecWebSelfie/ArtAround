@@ -998,7 +998,7 @@ try {
 
   // Objects join a museum only by being placed on its map (museums.objects is
   // derived from the saved scene). A tour stop whose work is not on the map is
-  // skipped by navigation (`unavailableStops`, src/lib/tour-navigation.ts), so
+  // dropped from navigation (`visitableTour`, src/lib/tour-navigation.ts), so
   // place the stops now: a fresh seed would otherwise create tours nobody can
   // visit. Existing placements are kept, so re-runs do not duplicate items.
   const demoMap = validateBuildJson(demoMuseum.docs[0]!.map).parsed

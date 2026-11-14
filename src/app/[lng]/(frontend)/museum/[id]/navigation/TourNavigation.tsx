@@ -43,7 +43,6 @@ import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { TourProgress } from './TourProgress'
 import { LogisticNotes } from './LogisticNotes'
 import { logisticNotes } from '@/lib/tour-logistics'
-import { SkippedStopModal } from './SkippedStopModal'
 import { DirectionsBar, useStepSentence, type DirectionsStatus } from './DirectionsBar'
 import { GroupBadge } from '@/components/group/GroupBadge'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -62,13 +61,9 @@ import { useRouteGuidance } from './use-route-guidance'
 import {
   navigationBasePath,
   navigationDestination,
-  nextVisitableStep,
-  placedObjectIds,
   stopObjectId,
-  tourAdvanceHref,
   tourHasQuiz as hasQuiz,
   tourQuizPath,
-  unavailableStops,
   withNavigationValue,
   type NavigationCatalogObject,
   type NavigationDestination,
@@ -152,20 +147,11 @@ export const TourNavigationPage = ({
   const next = tour?.contents[step]
   // Route guidance follows the next ordered content unless the visitor chose `to`.
   const defaultDestination = stopObjectId(next, catalog)
-  // Stops the visitor can no longer reach (content gone, or its object left
-  // the map): flagged in the progress bar, and skipped through a modal when
-  // the cursor reaches them (see `unavailableStops`).
+  // `tour` already holds only the stops the visitor can reach: the server
+  // dropped the unavailable ones where the navigation data is built
+  // (`visitableTour`), so the cursor, "Stop N of M", the progress bar and the
+  // stepper below all count the same list, and there is nothing to skip here.
   const tourContents = tour?.contents
-  const skipped = useMemo(
-    () =>
-      // No map at all is its own state ("Map not available"): nothing to skip.
-      tourContents && museumMap.parsed
-        ? unavailableStops(tourContents, catalog, placedObjectIds(museumMap.parsed))
-        : new Set<number>(),
-    [tourContents, catalog, museumMap.parsed],
-  )
-  const skipTo = tour ? nextVisitableStep(step, tour.contents.length, skipped) : step
-  const stepSkipped = skipTo > step
   const destination = useMemo<NavigationDestination | null>(
     () =>
       navigationDestination(search) ??
@@ -231,7 +217,7 @@ export const TourNavigationPage = ({
     startPoint: confirmedPoint,
     anchorScope: positionScope,
   })
-  const { commands: allCommands, run } = useNavigationCommands({
+  const { commands, run } = useNavigationCommands({
     museum,
     scope,
     tours,
@@ -239,11 +225,6 @@ export const TourNavigationPage = ({
     services: markers.services,
     exits: markers.exitEntrances,
   })
-  // "Open next stop" would open a stop that can't be visited: the skip modal
-  // is the way on instead.
-  const commands = stepSkipped
-    ? allCommands.filter((command) => command.id !== 'next-stop')
-    : allCommands
   const destinationName = useDestinationName(
     destination,
     catalog,
@@ -367,25 +348,6 @@ export const TourNavigationPage = ({
 
   return (
     <>
-      {tour && stepSkipped && (
-        <SkippedStopModal
-          titles={tour.contents
-            .slice(step, skipTo)
-            .map((content, index) =>
-              typeof content === 'object'
-                ? content.title
-                : t('Stop {{number}}', { number: step + index + 1 }),
-            )}
-          completes={skipTo === tour.contents.length}
-          guest={guest}
-          onSkip={() => {
-            // Same advance as the step modal: the quiz when it ends the tour.
-            const { href, quiz } = tourAdvanceHref(lng, tour, skipTo, search.toString())
-            if (quiz) router.push(href)
-            else router.replace(href, { scroll: false })
-          }}
-        />
-      )}
       <AppShellHeader ref={headerRef} px="xs" pb="xs" className="rounded-b-xl">
         {tour ? (
           // Desktop: one centred column (the brief's 1200px container) so the
@@ -430,7 +392,6 @@ export const TourNavigationPage = ({
             <TourProgress
               contents={tour.contents}
               step={step}
-              skipped={skipped}
               entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
               hasQuiz={hasQuiz(tour)}
             />

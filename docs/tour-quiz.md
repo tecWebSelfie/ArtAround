@@ -66,7 +66,11 @@ Invariants enforced by hooks and validation:
   `quizFrom`), the final "Quiz" step of `TourProgress` (selectable any time: early
   quiz), and "Take the quiz" in the completed-tour footer. All use `tourQuizPath()`,
   which carries `at`/`mobility`, drops `to` and adds `from` (the cursor left). The
-  tour cursor keeps its meaning; the quiz is not a step.
+  tour cursor keeps its meaning; the quiz is not a step. `from`, `stopCount` (the
+  "stops still ahead" warning), `contentIds` and `stepsCompleted` all count the
+  tour's _visitable_ stops (`getTourQuiz` reads them through `getNavigationTour`,
+  see [tour navigation](tour-navigation.md)): an unavailable stop is neither ahead
+  nor visited.
 - Quiz pages live outside the map layout. "Back to the map" returns to
   `/[lng]/museum/{museumId}/navigation/tour/{id}/{from}` (`tourNavigationPath`; the
   quiz reads the tour's museum for it) with the same position.

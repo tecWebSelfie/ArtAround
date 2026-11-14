@@ -3,14 +3,9 @@ import { ContentExpansion } from '@/components/expansion/ContentExpansion'
 import { ContentVersion } from '@/components/expansion/ContentVersion'
 import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsModal'
 import { ContentUnlock } from '@/components/payments/ContentUnlock'
-import {
-  contentObjectId,
-  tourContentPath,
-  tourStepIndex,
-  withNavigationPosition,
-} from '@/lib/tour-navigation'
-import { notFound, redirect } from 'next/navigation'
-import { getNavigationDocument, getNavigationTour } from '../../../../../../data'
+import { contentObjectId, tourContentPath, withNavigationPosition } from '@/lib/tour-navigation'
+import { redirect } from 'next/navigation'
+import { getNavigationDocument, getNavigationTour, requireTourStep } from '../../../../../../data'
 import { NavigationObjectActions } from '../../../../../../NavigationObjectActions'
 import { NavigationModal } from '../../../../../../NavigationModal'
 
@@ -19,13 +14,12 @@ export default async function Page({
   params,
   searchParams,
 }: {
-  params: Promise<{ lng: string; tourId: string; stepId: string; contentId: string }>
+  params: Promise<{ lng: string; id: string; tourId: string; stepId: string; contentId: string }>
   searchParams: Promise<{ at?: string | string[]; to?: string | string[] }>
 }) {
-  const { lng, tourId, stepId, contentId } = await params
-  const tour = await getNavigationTour(tourId)
-  const step = tourStepIndex(stepId, tour.contents.length)
-  if (step === null) notFound()
+  const { lng, id, tourId, stepId, contentId } = await params
+  const tour = await getNavigationTour(tourId, lng)
+  const step = requireTourStep(tour, stepId, { lng, museumId: id }, await searchParams)
   const path = tourContentPath(lng, tour, step, contentId)
   if (path.endsWith('/open')) redirect(withNavigationPosition(path, await searchParams))
   const content = await getNavigationDocument('contents', contentId, lng)

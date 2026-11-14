@@ -24,18 +24,35 @@ and cached build artifacts are not reliable handoff state.
   object) as their position or as an alternative destination.
 - Advancing confirms the completed stop as the position (`at` becomes its object,
   so heading to stop 5 shows the avatar at stop 4) and clears the alternative
-  destination; a stop about no object keeps the previous position. Skipping
-  unavailable stops keeps position. Resuming the tour route also clears that
+  destination; a stop about no object keeps the previous position. Resuming the tour route also clears that
   destination without advancing the cursor.
-- A stop that can no longer be visited (its content is gone, is about no object,
-  or its object is no longer placed on the map; `unavailableStops` in
-  `src/lib/tour-navigation.ts`) stays in the tour. The stepper shows it greyed,
-  struck through and "Skipped", not selectable. When the cursor reaches it,
-  `SkippedStopModal` lists the consecutive unavailable stops and its one action
-  moves the cursor past them (`nextVisitableStep`), keeping position and clearing
-  `to`; skipping the last ones completes the tour. Group guests see the modal
-  without the action (the host's skip moves them). "Open next stop" is withdrawn
-  meanwhile. A museum with no map at all flags nothing ("Map not available").
+- **Navigation shows only visitable stops** (product rule: an unavailable
+  element is intercepted as early as possible and never shown to a visitor, who
+  gains nothing from knowing it exists). A stop that can no longer be visited
+  (its content is gone, is about no object, or its object is no longer placed
+  on the map; `unavailableStops`) stays in the tour for its author, whose editor
+  flags it, but `visitableTour` (`src/lib/tour-navigation.ts`) drops it once,
+  where the navigation data is built: `getNavigationTour` (one tour, as the
+  visitor reads it) and `getMuseumNavigationTours` (the shell's tours and the
+  Spotlight's summaries) in `src/lib/navigation-tour.server.ts`, and the quiz's
+  `getTourQuiz` (`stopCount`, `contentIds`). Every consumer therefore indexes
+  the same filtered list: the URL cursor (`stepId` is an index into the visitable
+  stops), "Stop N of M", the progress bar, the stepper, the start page's stop
+  count and reading time, the logistic notes, the quiz's `from` and its
+  "unvisited stops" warning, the result page's "visited" set, and group sync
+  (host and guests read the same stops, so a shared `.../tour/T/3` means the same
+  stop to both; paid locked stops are visitable and stay). There is no skip
+  logic, badge or modal in navigation. A museum with no map at all drops nothing
+  ("Map not available"). Stored cursors (`quizAttempts.stepsCompleted`) counted
+  all stops before this rule and are not migrated.
+- **Dynamic case** (a content deleted or an object removed from the map while a
+  visit is under way): the next server render of the tour reads the shorter list
+  and the cursor now points at the following visitable stop, silently: no
+  modal, nothing announced. A cursor that falls beyond the new end (a bookmark,
+  a host's link) is redirected by `requireTourStep` to the completed step
+  (`/{count}`), keeping `at`, so a shifted index can neither crash nor loop. The
+  URL holds no stop identity, so a removal _before_ the cursor can make the
+  visitor skip the stop that was next; accepted for an event this rare.
 - Map interaction opens only museum object items, not walls or other geometry.
 - Canonical QR values are ordinary Next.js paths such as `/object/ID`,
   `/content/ID` or `/tour/ID`. Printed and shared codes are **language-free**: a
@@ -57,7 +74,7 @@ the same routes and close/guest rules, recomposed. Contextual content, object an
 modals (`NavigationModal`) dock as a right-side panel between the header (its height is
 published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
 with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
-draggable; `SkippedStopModal` stays centered. Controls cluster bottom-left on desktop
+draggable. Controls cluster bottom-left on desktop
 and centre on phones. The directions strip is capped at 40rem and the header
 column at 75rem with the stepper centered. Spotlight opens with mod+K or `/`.
 The site header hides on map URLs but stays on a tour's start page.
@@ -101,8 +118,8 @@ a tour from the free map only changes the URL and the map stays mounted.
 next-content routing, and museum object identification. Build tour URLs with
 `tourStartPath(lng, museumId, tourId)` / `tourNavigationPath(lng, museumId, tourId, step)`
 (`tourMuseumId(tour)` reads the id from a populated or unpopulated relationship);
-`navigationBasePath`, `navigationContentPath`, `tourContentPath` and
-`tourAdvanceHref` take tours with their `museum`. `at`, `to`, and the optional
+`navigationBasePath`, `navigationContentPath` and `tourContentPath` take tours
+with their `museum`. `at`, `to`, and the optional
 wheelchair profile are forwarded between canonical and contextual routes.
 
 **Old URLs.** The pre-phase-2 shape `/[lng]/tour/[id]/navigation[/...]` (printed
