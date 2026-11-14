@@ -15,8 +15,6 @@ After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/
 
 ## Working with the maintainer
 
-- Commit and push freely to the branch the session works on. Ask first before
-  pushing to any other branch, merging, or opening a PR.
 - Never ask for secrets, keys or tokens in chat: they live in the
   environment's variables or in `.env.local`.
 - Keep the git hooks on: no `--no-verify` or `HUSKY=0` unless the maintainer
