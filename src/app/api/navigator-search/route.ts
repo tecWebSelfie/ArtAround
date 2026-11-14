@@ -1,6 +1,8 @@
 import config from '@/payload.config'
 import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
+import { museumAccent } from '@/lib/museum-color'
 import { museumSearchRestriction } from '@/lib/museum-mode'
+import { PICTURE_SELECT, pictureSrc, type Picture } from '@/lib/picture'
 import type { SearchDocKind } from '@/lib/search-index'
 import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
 import type { Content, Difficulty, Museum, Tour } from '@/payload-types'
@@ -32,7 +34,19 @@ export type NavigatorSearchItem = {
    * distance is computed in the browser; the position never comes here.
    */
   point?: MuseumPoint
+  /**
+   * The row's thumbnail (the `card` size of the document's first picture):
+   * the tour's cover, a content's first image, a museum's first photo, a
+   * work's thumbnail. Missing when the document has none.
+   */
+  imageUrl?: string
+  /** Museum only: shade 6 of its palette, the ring around its thumbnail. */
+  color?: string
 }
+
+/** The upload collection each kind draws its row thumbnail from. */
+type ThumbnailCollection =
+  'toursThumbnails' | 'contentImages' | 'museumThumbnails' | 'objectsThumbnails'
 
 const DIFFICULTY_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 }
 
@@ -93,7 +107,7 @@ async function hydrateNavigatorHits({
       ? payload.find({
           collection: 'objects',
           where: { id: { in: objectIds } },
-          select: { name: true, artist: true },
+          select: { name: true, artist: true, thumbnail: true },
           locale,
           depth: 0,
           pagination: false,
@@ -104,35 +118,85 @@ async function hydrateNavigatorHits({
 
   // Tours' details come from their contents and museum: one read each.
   const tourDocs = (tours?.docs ?? []) as Tour[]
+  const contentDocs = (contents?.docs ?? []) as Content[]
+  const museumDocs = (museums?.docs ?? []) as Museum[]
+  const objectDocs = objects?.docs ?? []
+
+  // Row thumbnails: one read per upload collection, only the URL fields, in
+  // the same round as the tours' stops and museums. Keyed by picture id.
+  const findPictures = (collection: ThumbnailCollection, values: unknown[]) => {
+    const ids = [...new Set(values.map(idOf))].filter((id): id is string => Boolean(id))
+    if (!ids.length) return Promise.resolve(new Map<string, string>())
+    return payload
+      .find({
+        collection,
+        where: { id: { in: ids } },
+        select: PICTURE_SELECT,
+        depth: 0,
+        pagination: false,
+        overrideAccess: true,
+      })
+      .then(
+        ({ docs }) =>
+          new Map(
+            docs.flatMap((doc) => {
+              const src = pictureSrc(doc as Picture, 'card')
+              return src ? [[String(doc.id), src] as const] : []
+            }),
+          ),
+      )
+  }
+  const picturesPromise = Promise.all([
+    findPictures(
+      'toursThumbnails',
+      tourDocs.map((tour) => tour.thumbnail),
+    ),
+    findPictures(
+      'contentImages',
+      contentDocs.map((content) => content.images?.[0]),
+    ),
+    findPictures(
+      'museumThumbnails',
+      museumDocs.map((museum) => museum.thumbnails?.[0]),
+    ),
+    findPictures(
+      'objectsThumbnails',
+      objectDocs.map((object) => object.thumbnail),
+    ),
+  ])
   const stopIds = [...new Set(tourDocs.flatMap((tour) => tour.contents.map(idOf)))].filter(
     (id): id is string => Boolean(id),
   )
   const tourMuseumIds = [...new Set(tourDocs.map((tour) => idOf(tour.museum)))].filter(
     (id): id is string => Boolean(id),
   )
-  const [stops, tourMuseums] = await Promise.all([
-    stopIds.length
-      ? payload.find({
-          collection: 'contents',
-          where: { id: { in: stopIds } },
-          select: { difficulty: true, durationSeconds: true },
-          depth: 0,
-          pagination: false,
-          overrideAccess: true,
-        })
-      : null,
-    tourMuseumIds.length
-      ? payload.find({
-          collection: 'museums',
-          where: { id: { in: tourMuseumIds } },
-          select: { name: true, location: true },
-          locale,
-          depth: 0,
-          pagination: false,
-          overrideAccess: true,
-        })
-      : null,
-  ])
+  const [stops, tourMuseums, [tourPictures, contentPictures, museumPictures, objectPictures]] =
+    await Promise.all([
+      stopIds.length
+        ? payload.find({
+            collection: 'contents',
+            where: { id: { in: stopIds } },
+            select: { difficulty: true, durationSeconds: true },
+            depth: 0,
+            pagination: false,
+            overrideAccess: true,
+          })
+        : null,
+      tourMuseumIds.length
+        ? payload.find({
+            collection: 'museums',
+            where: { id: { in: tourMuseumIds } },
+            select: { name: true, location: true },
+            locale,
+            depth: 0,
+            pagination: false,
+            overrideAccess: true,
+          })
+        : null,
+      picturesPromise,
+    ])
+  const pictureOf = (pictures: Map<string, string>, value: unknown) =>
+    pictures.get(idOf(value) ?? '')
   const stopById = new Map((stops?.docs ?? []).map((stop) => [String(stop.id), stop]))
   const museumById = new Map(
     (tourMuseums?.docs ?? []).map((museum) => [String(museum.id), museum as Museum]),
@@ -159,9 +223,10 @@ async function hydrateNavigatorHits({
       difficulty: hardest,
       stops: tour.contents.length,
       point: pointOf(museum),
+      imageUrl: pictureOf(tourPictures, tour.thumbnail),
     })
   }
-  for (const content of (contents?.docs ?? []) as Content[]) {
+  for (const content of contentDocs) {
     items.set(`contents:${content.id}`, {
       kind: 'content',
       key: `content:${content.id}`,
@@ -170,9 +235,10 @@ async function hydrateNavigatorHits({
       seconds: content.durationSeconds ?? undefined,
       difficulty: content.difficulty,
       priceCents: content.price && content.price > 0 ? content.price : undefined,
+      imageUrl: pictureOf(contentPictures, content.images?.[0]),
     })
   }
-  for (const museum of (museums?.docs ?? []) as Museum[]) {
+  for (const museum of museumDocs) {
     items.set(`museums:${museum.id}`, {
       kind: 'museum',
       key: `museum:${museum.id}`,
@@ -181,9 +247,11 @@ async function hydrateNavigatorHits({
       subtitle: museum.shortDescription ?? undefined,
       city: museum.location?.city ?? undefined,
       point: pointOf(museum),
+      imageUrl: pictureOf(museumPictures, museum.thumbnails?.[0]),
+      color: museumAccent(museum.palette) ?? undefined,
     })
   }
-  for (const object of objects?.docs ?? []) {
+  for (const object of objectDocs) {
     items.set(`objects:${object.id}`, {
       kind: 'object',
       key: `object:${object.id}`,
@@ -191,6 +259,7 @@ async function hydrateNavigatorHits({
       // The work's page, which leads to it on the map.
       href: `/${locale}/object/${object.id}`,
       subtitle: object.artist ?? undefined,
+      imageUrl: pictureOf(objectPictures, object.thumbnail),
     })
   }
 

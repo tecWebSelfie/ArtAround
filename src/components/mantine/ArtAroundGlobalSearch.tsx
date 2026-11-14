@@ -2,8 +2,9 @@
 
 import { formatUnit } from '@/lib/duration'
 import { distanceKm, type MuseumPoint } from '@/lib/museum-location'
-import { TOUR_GRADIENT } from '@/theme'
 import type { Difficulty } from '@/payload-types'
+import { Fragment, useState } from 'react'
+import { PLACEHOLDER_SURFACE } from './kind-fallback'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
 import {
   Badge,
@@ -14,12 +15,13 @@ import {
   ComboboxOptions,
   ComboboxProps,
   ComboboxTarget,
+  Divider,
   Group,
+  Image,
   Loader,
   Stack,
   Text,
   TextInput,
-  ThemeIcon,
   useCombobox,
 } from '@mantine/core'
 import { useUncontrolled } from '@mantine/hooks'
@@ -66,6 +68,10 @@ export type AutoCompleteItem = {
   priceCents?: number
   /** Museum, or a tour's museum: [longitude, latitude], for the "near you" mark. */
   point?: MuseumPoint
+  /** The row's thumbnail; without it the kind's placeholder tile stands in. */
+  imageUrl?: string
+  /** Museum: its palette color, the ring around its thumbnail. */
+  color?: string
 }
 
 /** Within this many kilometres of the visitor, a result is marked as near them. */
@@ -256,15 +262,21 @@ export function ArtAroundGlobalSearch({
             className="transition-opacity duration-150 data-[busy=true]:opacity-50"
             data-busy={loading && filteredOptions.length > 0}
           >
-            {/* Every row alike: the kind icon already marks a tour (the tour
-                gradient), so tours no longer draw an animated border too. */}
-            {filteredOptions.map((item) => (
-              <ComboboxOption value={item.href} key={item.href}>
-                <ResultRow
-                  item={item}
-                  nearKm={origin && item.point ? nearKm(origin, item.point) : null}
-                />
-              </ComboboxOption>
+            {/* Rows split by hairline dividers (decorative, hidden from screen
+                readers: the listbox already counts its options). `group` lets
+                the row's arrow show on hover and on the keyboard-selected
+                option alike. The order is the server's relevance order: no
+                grouping by kind, which would push a better match down. */}
+            {filteredOptions.map((item, index) => (
+              <Fragment key={item.href}>
+                {index > 0 && <Divider aria-hidden />}
+                <ComboboxOption value={item.href} className="group py-(--mantine-spacing-xs)">
+                  <ResultRow
+                    item={item}
+                    nearKm={origin && item.point ? nearKm(origin, item.point) : null}
+                  />
+                </ComboboxOption>
+              </Fragment>
             ))}
             {filteredOptions.length === 0 && (
               <SearchFallback
@@ -367,28 +379,93 @@ function SearchFallback({
   )
 }
 
-/** Leading mark per kind: the tour gradient, content teal, a plain museum. */
-const KIND_ICON = {
-  tour: { Icon: RouteIcon, variant: 'gradient', gradient: TOUR_GRADIENT },
-  content: { Icon: BookOpen, variant: 'light', color: 'teal' },
-  museum: { Icon: Landmark, variant: 'light', color: 'museum' },
-  object: { Icon: Shapes, variant: 'light', color: 'gray' },
-  user: { Icon: UserRound, variant: 'light', color: 'gray' },
+/**
+ * How each kind's thumbnail is cut, so the type reads from the picture's
+ * shape before any text (as music apps tell artists from albums): a museum
+ * is a round seal ringed in its own color, a work a sharp-cornered canvas,
+ * a tour and a content soft tiles, the tour with the deck's gradient foot
+ * line. The icon only shows on the placeholder tile of a document without
+ * a picture, where it keeps the kind readable.
+ */
+const KIND_THUMB = {
+  tour: { shape: 'rounded-md', Icon: RouteIcon },
+  content: { shape: 'rounded-md', Icon: BookOpen },
+  museum: { shape: 'rounded-full', Icon: Landmark },
+  object: { shape: 'rounded-none', Icon: Shapes },
+  user: { shape: 'rounded-full', Icon: UserRound },
 } as const
 
-/**
- * One result. Everything is plain text and badges, no nested controls: the
- * whole option is the action (it opens the detail page).
- */
 /** The distance to a point when it is within `NEAR_KM`, else null. */
 function nearKm(origin: { latitude: number; longitude: number }, point: MuseumPoint) {
   const km = distanceKm(origin, point)
   return km <= NEAR_KM ? km : null
 }
 
+/**
+ * The row's leading picture, 48px, cut per kind (`KIND_THUMB`). Decorative:
+ * the kind is also written in the row's meta line. A missing or broken
+ * picture falls back to the shared placeholder surface (`PLACEHOLDER_SURFACE`)
+ * with the kind's icon, so rows never change height or lose their type.
+ */
+function ResultThumb({ item }: { item: AutoCompleteItem }) {
+  const { shape, Icon } = KIND_THUMB[item.kind]
+  const [failed, setFailed] = useState(false)
+  const src = failed ? undefined : item.imageUrl
+  return (
+    <div
+      aria-hidden
+      className={`relative size-12 shrink-0 overflow-hidden ${shape}`}
+      // A museum's ring in its palette color, as its outline in the museum
+      // switch and on the museums rail; detached by a 2px gap.
+      style={
+        item.kind === 'museum' && item.color
+          ? { outline: `2px solid ${item.color}`, outlineOffset: 2 }
+          : undefined
+      }
+    >
+      {src ? (
+        // Mantine's Image, as on the tour deck's covers (already the `card` size).
+        <Image
+          src={src}
+          alt=""
+          fit="cover"
+          h="100%"
+          w="100%"
+          loading="lazy"
+          decoding="async"
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <div style={PLACEHOLDER_SURFACE} className="flex size-full items-center justify-center">
+          <Icon size={20} strokeWidth={1.5} />
+        </div>
+      )}
+      {/* The tour deck's gradient foot line, scaled to the tile: a tour
+          reads as a tour here as it does in the carousels. */}
+      {item.kind === 'tour' && <span className="bg-tour absolute inset-x-0 bottom-0 h-[3px]" />}
+    </div>
+  )
+}
+
+/**
+ * The "where it goes" arrow: shown only on the hovered or keyboard-selected
+ * row (`group` on the option), nudging in from the left. In the row's own
+ * text color: the selected option is filled with the primary color, where a
+ * primary-colored arrow would vanish. Chosen in live mode
+ * over a worded hint ("Open the tour"), which crowded the row.
+ */
+const GO_ARROW_CLASS =
+  'shrink-0 text-current opacity-0 -translate-x-1 transition-[opacity,translate] duration-150 ease-out group-hover:translate-x-0 group-hover:opacity-100 group-data-combobox-selected:translate-x-0 group-data-combobox-selected:opacity-100 motion-reduce:translate-x-0 motion-reduce:transition-none'
+
+/**
+ * One result (its look chosen in a live-mode session). Everything
+ * is plain text and badges, no nested controls: the whole option is the
+ * action (it opens the detail page), so no row carries an "open" label. The
+ * kind leads the meta line in full-strength bold, readable at a glance in
+ * every language, while the thumbnail's cut repeats it visually.
+ */
 function ResultRow({ item, nearKm }: { item: AutoCompleteItem; nearKm: number | null }) {
   const { t, i18n } = useTranslation('search')
-  const { Icon, ...mark } = KIND_ICON[item.kind]
   const kindLabel = {
     tour: t('Tour'),
     content: t('Content'),
@@ -405,11 +482,10 @@ function ResultRow({ item, nearKm }: { item: AutoCompleteItem; nearKm: number | 
     item.stops !== undefined ||
     item.priceCents !== undefined
   return (
-    <Group gap="sm" wrap="nowrap" align="flex-start">
-      <ThemeIcon {...mark} radius="xl" size="md" aria-label={kindLabel} role="img">
-        <Icon size={14} aria-hidden />
-      </ThemeIcon>
-      <Stack gap={4} miw={0}>
+    <Group gap="sm" wrap="nowrap" align="center" className="relative">
+      <ResultThumb item={item} />
+      {/* Without badges the arrow sits over the row's end: keep text clear of it. */}
+      <Stack gap={4} miw={0} flex={1} className={hasDetails ? undefined : 'pe-5'}>
         <Group gap={6} wrap="nowrap" align="flex-start">
           <Text fw={600} lh={1.3}>
             {item.title}
@@ -417,56 +493,73 @@ function ResultRow({ item, nearKm }: { item: AutoCompleteItem; nearKm: number | 
           {/* Paid at a glance, beside the title; the price badge below says how much. */}
           {item.priceCents !== undefined && <PaidMark />}
         </Group>
-        {item.subtitle ? (
-          <Text size="xs" c="dimmed" lineClamp={1}>
-            {item.subtitle}
+        {/* The meta line opens with the kind in words (the thumbnail's shape
+            only hints at it), then where it is: "Tour · Pinacoteca · Bologna".
+            The kind in the title's color, not dimmed, so it reads first. A
+            museum's city comes before its description: the line is clamped,
+            and the city (often what was searched) must not be cut off. */}
+        <Text size="xs" c="dimmed" lineClamp={1}>
+          <Text span inherit fw={700} c="bright">
+            {kindLabel}
           </Text>
-        ) : null}
-        {item.city && !item.subtitle?.includes(item.city) ? (
-          <Text size="xs" c="dimmed">
-            {item.city}
-          </Text>
-        ) : null}
+          {[item.city && !item.subtitle?.includes(item.city) ? item.city : null, item.subtitle]
+            .filter(Boolean)
+            .map((part) => ` · ${part}`)
+            .join('')}
+        </Text>
         {hasDetails && (
           // The essentials for choosing: near you first (it can decide the
-          // visit on its own), then time and difficulty.
-          <Group gap={4}>
-            {nearKm !== null && (
-              // Icon + words + distance, never color alone; the navigation
-              // icon and rounding of the museums rail's distance
-              // (`MuseumRailCard`), in the primary color of a way to go.
-              <Badge size="xs" variant="light" leftSection={<Navigation size={10} aria-hidden />}>
-                {t('Near you · {{distance}}', {
-                  // One decimal: within NEAR_KM, whole kilometres say too little.
-                  distance: formatUnit(Math.round(nearKm * 10) / 10, 'kilometer', i18n.language),
-                })}
-              </Badge>
-            )}
-            {item.seconds !== undefined && (
-              <DurationBadge
-                seconds={item.seconds}
-                lng={i18n.language}
-                size="xs"
-                variant="light"
-                color="gray"
-              />
-            )}
-            {item.difficulty && (
-              <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">
-                {difficultyLabel[item.difficulty]}
-              </DifficultyBadge>
-            )}
-            {item.stops !== undefined && (
-              <Badge size="xs" variant="light" color="gray">
-                {t('{{count}} stops', { count: item.stops })}
-              </Badge>
-            )}
-            {item.priceCents !== undefined && (
-              <LockedPriceBadge price={item.priceCents} size="xs" />
-            )}
+          // visit on its own), then time and difficulty; the arrow closes
+          // this line, so it never squeezes the title or the meta line.
+          <Group gap={4} wrap="nowrap" align="center">
+            <Group gap={4}>
+              {nearKm !== null && (
+                // Icon + words + distance, never color alone; the navigation
+                // icon and rounding of the museums rail's distance
+                // (`MuseumRailCard`), in the primary color of a way to go.
+                <Badge size="xs" variant="light" leftSection={<Navigation size={10} aria-hidden />}>
+                  {t('Near you · {{distance}}', {
+                    // One decimal: within NEAR_KM, whole kilometres say too little.
+                    distance: formatUnit(Math.round(nearKm * 10) / 10, 'kilometer', i18n.language),
+                  })}
+                </Badge>
+              )}
+              {item.seconds !== undefined && (
+                <DurationBadge
+                  seconds={item.seconds}
+                  lng={i18n.language}
+                  size="xs"
+                  variant="light"
+                  color="gray"
+                />
+              )}
+              {item.difficulty && (
+                <DifficultyBadge difficulty={item.difficulty} size="xs" variant="light">
+                  {difficultyLabel[item.difficulty]}
+                </DifficultyBadge>
+              )}
+              {item.stops !== undefined && (
+                <Badge size="xs" variant="light" color="gray">
+                  {t('{{count}} stops', { count: item.stops })}
+                </Badge>
+              )}
+              {item.priceCents !== undefined && (
+                <LockedPriceBadge price={item.priceCents} size="xs" />
+              )}
+            </Group>
+            <ArrowRight size={14} aria-hidden className={`ms-auto ${GO_ARROW_CLASS}`} />
           </Group>
         )}
       </Stack>
+      {/* No badges (a museum, a work): no extra line just for the arrow,
+          which sits at the row's end instead, centred. */}
+      {!hasDetails && (
+        <ArrowRight
+          size={14}
+          aria-hidden
+          className={`absolute inset-y-0 end-0 my-auto ${GO_ARROW_CLASS}`}
+        />
+      )}
     </Group>
   )
 }

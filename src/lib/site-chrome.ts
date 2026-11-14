@@ -6,7 +6,7 @@ import type { MuseumOption } from '@/components/mantine/MuseumSwitch'
 import { MUSEUM_FUNCTION_RANK } from '@/fields/MuseumFunction'
 import { isPopulated } from '@/lib/isPopulated'
 import { museumScope } from '@/lib/museum-mode'
-import { PRIMARY_SHADE } from '@/lib/museum-color'
+import { museumAccent } from '@/lib/museum-color'
 import { getSession } from '@/lib/session'
 import { cache } from 'react'
 
@@ -61,7 +61,7 @@ export const getSiteChrome = cache(async () => {
       name: museum.name,
       city: museum.location?.city,
       // Shade 6 of the museum's palette: its swatch in the museum switch.
-      color: museum.palette?.[PRIMARY_SHADE] ?? null,
+      color: museumAccent(museum.palette),
     })),
   }
 })

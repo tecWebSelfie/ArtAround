@@ -12,14 +12,14 @@ import type { CSSProperties } from 'react'
  * covers, the tour start page and the tour deck, so a missing picture looks
  * the same everywhere.
  */
-const SURFACE: CSSProperties = {
+export const PLACEHOLDER_SURFACE: CSSProperties = {
   background: 'var(--image-placeholder)',
   color: 'var(--mantine-color-dimmed)',
   boxShadow: 'inset 0 0 0 1px var(--mantine-color-default-border)',
 }
 
 export const KIND_FALLBACK = {
-  tour: { style: SURFACE, Icon: ImageOff },
-  content: { style: SURFACE, Icon: ImageOff },
-  user: { style: SURFACE, Icon: UserRound },
+  tour: { style: PLACEHOLDER_SURFACE, Icon: ImageOff },
+  content: { style: PLACEHOLDER_SURFACE, Icon: ImageOff },
+  user: { style: PLACEHOLDER_SURFACE, Icon: UserRound },
 } as const
