@@ -30,6 +30,8 @@ vi.mock('payload', async (importOriginal) => ({
 const { quoteCheckout } = await import('@/lib/checkout-quote')
 const { POST } = await import('@/app/api/checkout/route')
 
+const BUYER_EMAIL = 'buyer@example.test'
+// As `payload.auth` returns it: `hidePrivateFields` has already removed the email.
 const buyer = { id: 'u1', collection: 'users' } as unknown as User
 
 /** A paid content as the buyer reads it: `body` is withheld (null) while locked. */
@@ -42,6 +44,9 @@ const paid = (id: string, price: number, locked = true) => ({
 
 function fakeFor(tour: Record<string, unknown>) {
   const findByID = vi.fn(async ({ collection }: { collection: string }) => {
+    // The buyer's own document, read as themselves: the only read that carries
+    // the email (`payload.auth` returns the user with it already stripped).
+    if (collection === 'users') return { id: buyer.id, email: BUYER_EMAIL }
     if (collection !== 'tours') throw new Error(`unexpected read of ${collection}`)
     return tour
   })
@@ -105,6 +110,21 @@ describe('POST /api/checkout for a tour', () => {
     }
     expect(params.metadata.unlocks).toBe('a')
     expect(params.line_items[0]!.price_data.unit_amount).toBe(300)
+  })
+
+  it("prefills the buyer's email, read as the buyer and not through the auth user", async () => {
+    const findByID = fakeFor(tour([paid('a', 300)], ['a']))
+    expect((await POST(request())).status).toBe(200)
+    expect(createSession.mock.calls[0]![0]).toMatchObject({ customer_email: BUYER_EMAIL })
+    // Access checks stay on and the read is scoped to the caller's own id.
+    expect(findByID).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'users',
+        id: buyer.id,
+        user: buyer,
+        overrideAccess: false,
+      }),
+    )
   })
 
   it('answers 409 when only unavailable stops are locked, without calling Stripe', async () => {
