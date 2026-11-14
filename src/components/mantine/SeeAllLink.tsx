@@ -1,9 +1,8 @@
 'use client'
 
-import { Button } from '@mantine/core'
+import { LinkButton } from '@/components/editing/LinkButton'
 import { ChevronRight } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -17,8 +16,7 @@ import { useTranslation } from 'react-i18next'
 export function SeeAllLink({ href }: { href: Route }) {
   const { t } = useTranslation('common')
   return (
-    <Button
-      component={Link}
+    <LinkButton
       href={href}
       variant="default"
       radius="xl"
@@ -27,6 +25,6 @@ export function SeeAllLink({ href }: { href: Route }) {
       rightSection={<ChevronRight size={16} aria-hidden />}
     >
       {t('See all')}
-    </Button>
+    </LinkButton>
   )
 }

@@ -11,35 +11,30 @@ import { MUSEUM_COOKIE_OPTIONS, MUSEUM_MODE_COOKIE, OBJECT_ID } from './lib/muse
 const i18nProxy = createProxy(i18nConfig)
 
 /**
+ * The pages a printed code opens (`printedCodeUrl`, `src/lib/qr-museum.ts`):
+ * a tour, a work or a content, language-free or already localized. Other
+ * pages carry their own `?museum=` (the tour editor's `/tour/new?museum=`,
+ * the pickers' `/search/contents?pick=tour&museum=`), which must reach them.
+ */
+const PRINTED_CODE_PATH = /^(?:\/[a-z]{2})?\/(?:tour|object|content)\/[a-f0-9]{24}\/?$/
+
+/**
  * Printed QR codes (downloaded by museum staff, `QrCodeButton`) end with
  * `?museum=<id>`: whoever scans one is standing in that museum, so the app
  * opens in museum mode (cookie `aa-museum`, as the museum switch sets it).
  * The parameter is dropped with a redirect, so the address bar and any link
  * shared from there are the plain URL: museum mode is never forced on someone
  * who only received a link. An unknown id behaves like global mode
- * (`museumScope`).
+ * (`museumScope`). Only on the pages printed codes open (`PRINTED_CODE_PATH`).
  *
  * Printed codes are language-free, so the i18n proxy redirects them to
  * `/{lng}/…` anyway: that redirect drops the parameter too, so a scan costs a
  * single redirect.
  */
-/**
- * `/search/{contents,objects}?pick=…&museum=…` is a picker's round trip from
- * an editor (`tour-picker.ts`, `museum-picker.ts`), not a printed code: its
- * `museum` is the picker's own and must reach the page.
- */
-function isPickerRoundTrip(url: URL) {
-  const pick = url.searchParams.get('pick')
-  return (
-    (pick === 'tour' && /\/search\/contents\/?$/.test(url.pathname)) ||
-    (pick === 'museum' && /\/search\/objects\/?$/.test(url.pathname))
-  )
-}
-
 export function proxy(request: NextRequest) {
   const response = i18nProxy(request)
   const museum = request.nextUrl.searchParams.get('museum')
-  if (museum === null || isPickerRoundTrip(request.nextUrl)) return response
+  if (museum === null || !PRINTED_CODE_PATH.test(request.nextUrl.pathname)) return response
 
   const location = response.headers.get('location')
   const target = new URL(location ?? request.nextUrl.href, request.url)

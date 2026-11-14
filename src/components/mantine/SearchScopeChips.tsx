@@ -1,6 +1,7 @@
 import { LinkButton } from '@/components/editing/LinkButton'
 import { getT } from '@/i18n.server'
-import type { ScopeParam, SearchScope } from '@/lib/search-scope'
+import type { SearchScope } from '@/lib/search-scope'
+import type { ScopeParam } from '@/lib/search-url'
 import { Group } from '@mantine/core'
 import { Landmark, Tag, UserRound, X } from 'lucide-react'
 import type { Route } from 'next'

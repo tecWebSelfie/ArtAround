@@ -201,7 +201,7 @@ export function TourForm({
   initial,
   thumbnail,
   visitCopyOf = null,
-  generated = false,
+  minStops = minStopsFor({ visitCopyOf }),
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -218,12 +218,14 @@ export function TourForm({
    * visibility choice, and the copy's start page once saved.
    */
   visitCopyOf?: string | null
-  /** A planned visit (`generation.generated`) being edited: it may keep one stop. */
-  generated?: boolean
+  /**
+   * The stops this tour needs (`minStopsFor`, the rule the collection
+   * validates): the edit page passes the stored tour's; a new tour needs
+   * two unless it is a visit copy.
+   */
+  minStops?: number
 }) {
   const visitCopy = Boolean(visitCopyOf)
-  // The same rule the collection validates (`src/lib/tour-stops.ts`).
-  const minStops = minStopsFor({ visitCopyOf, generation: { generated } })
   const { t } = useTranslation('editing')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
@@ -253,9 +255,7 @@ export function TourForm({
       contents: (value) =>
         value.length >= minStops
           ? null
-          : minStops === 1
-            ? t('Add at least one content')
-            : t('A tour needs at least {{count}} stops', { count: minStops }),
+          : t('A tour needs at least {{count}} stops', { count: minStops }),
     },
   })
   const selected = form.values.contents

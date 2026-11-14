@@ -42,15 +42,14 @@ export default async function SearchContentsPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   const basePath = `/${lng}/search/contents`
-  // Picker mode (`?pick=tour`) reads no URL scopes: it owns `museum`.
   const picker = parseTourPicker(lng, searchParams)
   // Independent setup reads: started together; the URL scopes (`?at=`,
   // `?author=`, `?subject=`, a "See all" link's list) as soon as Payload is up.
   const payloadReady = getPayload({ config })
   const setup = Promise.all([payloadReady, museumScope(), asViewer()])
-  const scoping = picker
-    ? Promise.resolve({ where: null, scopes: [] })
-    : payloadReady.then((payload) => resolveSearchScopes(payload, 'contents', searchParams, lng))
+  const scoping = payloadReady.then((payload) =>
+    resolveSearchScopes(payload, 'contents', searchParams, lng),
+  )
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
@@ -89,9 +88,9 @@ export default async function SearchContentsPage(props: {
 
   const editor = picker ? await getTourEditorData(picker.museumId) : null
   const { where: scopeWhere, scopes } = await scoping
-  const filtersWhere: Where = scopeWhere
-    ? { and: [activeFiltersToWhere(initialFilters, definitions), scopeWhere] }
-    : activeFiltersToWhere(initialFilters, definitions)
+  const filtersWhere: Where = {
+    and: [activeFiltersToWhere(initialFilters, definitions), ...(scopeWhere ? [scopeWhere] : [])],
+  }
   // Picker: the museum's tour candidates; else museum mode's locked museum.
   const allowedIds = editor
     ? editor.candidates.map((candidate) => candidate.id)

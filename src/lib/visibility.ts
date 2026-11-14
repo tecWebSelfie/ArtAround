@@ -187,10 +187,6 @@ export const LISTED_TOURS: Where = {
   // Payload's `exists: false` on a relationship also matches a stored null.
   visitCopyOf: { exists: false },
 }
-export const isPersonalTour = (doc: unknown) => {
-  const tour = doc as {
-    generation?: { generated?: boolean | null } | null
-    visitCopyOf?: unknown
-  } | null
-  return tour?.generation?.generated === true || tour?.visitCopyOf != null
-}
+// The same rule as a predicate, defined with the stop minimum it also
+// drives (`src/lib/tour-stops.ts`, client-safe, unlike this module).
+export { isPersonalTour } from '@/lib/tour-stops'

@@ -41,15 +41,14 @@ export default async function SearchObjectsPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   const basePath = `/${lng}/search/objects`
-  // A picker request (`?pick=museum`) reads no URL scopes: it owns `museum`.
   const requested = parseMuseumPicker(lng, searchParams)
   // Independent setup reads: started together; the URL scopes (`?at=`,
   // `?subject=`, a "See all" link's list) as soon as Payload is up.
   const payloadReady = getPayload({ config })
   const setup = Promise.all([payloadReady, museumScope()])
-  const scoping = requested
-    ? Promise.resolve({ where: null, scopes: [] })
-    : payloadReady.then((payload) => resolveSearchScopes(payload, 'objects', searchParams, lng))
+  const scoping = payloadReady.then((payload) =>
+    resolveSearchScopes(payload, 'objects', searchParams, lng),
+  )
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')

@@ -1,6 +1,7 @@
 import 'server-only'
 
 import { displayName } from '@/lib/display-name'
+import type { ScopeParam, SearchKind } from '@/lib/search-url'
 import { OBJECT_ID } from '@/lib/museum-cookie'
 import { contentIdsOf } from '@/lib/museum-mode'
 import { normalizeLocale } from '@/lib/localized'
@@ -22,10 +23,6 @@ import type { Payload, TypedLocale, Where } from 'payload'
  * A page in picker mode (`?pick=…`, `tour-picker.ts`, `museum-picker.ts`)
  * does not read scopes.
  */
-
-import type { ScopeParam, SearchKind } from '@/lib/search-url'
-
-export type { ScopeParam, SearchKind } from '@/lib/search-url'
 
 /** Which scopes each kind supports: objects have no author on the site. */
 const KIND_SCOPES: Record<SearchKind, ScopeParam[]> = {
@@ -53,6 +50,9 @@ export async function resolveSearchScopes(
   params: Params,
   lng: string,
 ): Promise<{ where: Where | null; scopes: SearchScope[] }> {
+  // A picker round trip (`?pick=…`) is its own mode: it reads no scopes.
+  if (params.pick !== undefined) return { where: null, scopes: [] }
+  const locale = normalizeLocale(lng) ?? 'en'
   const requested = KIND_SCOPES[kind]
     .map((param) => ({ param, id: first(params[param]) }))
     .filter((scope): scope is { param: ScopeParam; id: string } =>
@@ -60,7 +60,7 @@ export async function resolveSearchScopes(
     )
   const resolved = await Promise.all(
     requested.map(async ({ param, id }) => {
-      const found = await resolveOne(payload, kind, param, id, normalizeLocale(lng) ?? 'en')
+      const found = await resolveOne(payload, kind, param, id, locale)
       return found ? { scope: { param, id, name: found.name }, where: found.where } : null
     }),
   )

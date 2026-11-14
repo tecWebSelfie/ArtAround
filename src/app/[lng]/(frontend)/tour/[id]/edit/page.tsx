@@ -1,3 +1,4 @@
+import { minStopsFor } from '@/lib/tour-stops'
 import { asId } from '@/access/museumRoles'
 import { TourForm } from '@/components/editing/forms/TourForm'
 import { coverImage } from '@/lib/cover-image'
@@ -46,8 +47,8 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         // A visit copy reopened ("Edit" on its start page) edits like the
         // first time: same notice, same return to its start page.
         visitCopyOf={asId(tour.visitCopyOf)}
-        // A planned visit may keep a single stop (`src/lib/tour-stops.ts`).
-        generated={tour.generation?.generated === true}
+        // A planned visit or a visit copy may keep a single stop.
+        minStops={minStopsFor(tour)}
         initial={{
           title: tour.title,
           description: tour.description ?? '',

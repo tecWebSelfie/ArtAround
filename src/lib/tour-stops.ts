@@ -13,11 +13,18 @@
  */
 export const MIN_TOUR_STOPS = 2
 
-/** The stops a tour needs: one for a personal tour, `MIN_TOUR_STOPS` otherwise. */
-export function minStopsFor(tour: {
-  generation?: { generated?: boolean | null } | null
-  visitCopyOf?: unknown
-}) {
-  const personal = tour.generation?.generated === true || tour.visitCopyOf != null
-  return personal ? 1 : MIN_TOUR_STOPS
+/**
+ * One visitor's own tour: a planned visit or a visit copy. The predicate form
+ * of `LISTED_TOURS` (`src/lib/visibility.ts`, which re-exports it): such tours
+ * are never listed, and may keep a single stop.
+ */
+export const isPersonalTour = (doc: unknown) => {
+  const tour = doc as {
+    generation?: { generated?: boolean | null } | null
+    visitCopyOf?: unknown
+  } | null
+  return tour?.generation?.generated === true || tour?.visitCopyOf != null
 }
+
+/** The stops a tour needs: one for a personal tour, `MIN_TOUR_STOPS` otherwise. */
+export const minStopsFor = (tour: unknown) => (isPersonalTour(tour) ? 1 : MIN_TOUR_STOPS)

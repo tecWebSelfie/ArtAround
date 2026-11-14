@@ -56,7 +56,7 @@ const validateTourStops: RelationshipFieldValidation = async (value, options) =>
   const base = await relationship(value, options)
   if (base !== true) return base
   const stops = Array.isArray(value) ? value.length : 0
-  const min = minStopsFor((options.data ?? {}) as Parameters<typeof minStopsFor>[0])
+  const min = minStopsFor(options.data)
   if (stops >= min) return true
   const before = Array.isArray(options.previousValue) ? options.previousValue.length : 0
   if (options.operation === 'update' && stops >= before) return true
