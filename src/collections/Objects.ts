@@ -248,7 +248,11 @@ export const Objects: CollectionConfig = {
         await refreshVisitableStopsOfContents({
           payload: req.payload,
           req,
-          contentIds: [...before, ...after],
+          // Only the added or removed contents can change a tour's stops.
+          contentIds: [
+            ...before.filter((id) => !after.includes(id)),
+            ...after.filter((id) => !before.includes(id)),
+          ],
         })
       },
       // Only what the rows embed: the name, the artist and the contents.

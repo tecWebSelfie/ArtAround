@@ -51,44 +51,45 @@ export async function computeVisitableContentIds(
   if (!stopIds.length || !museumId) return []
   const authorId = asId(tour.author)
 
-  const [museum, stops, owners] = await Promise.all([
-    museums.get(museumId) ??
-      (() => {
-        const read = payload
-          .findByID({
-            collection: 'museums',
-            id: museumId,
-            select: { map: true },
-            depth: 0,
-            overrideAccess: true,
-            req,
-          })
-          .catch(() => null)
-        museums.set(museumId, read)
-        return read
-      })(),
-    payload.find({
-      collection: 'contents',
-      where: { id: { in: stopIds } },
-      select: { visibility: true, author: true },
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      req,
-    }),
-    // The authored relation `objects.contents` is what the content's `objects`
-    // join and the navigation catalog both read: a content belongs to at most
-    // one object (`validateExclusiveContents`).
-    payload.find({
-      collection: 'objects',
-      where: { contents: { in: stopIds } },
-      select: { name: true, contents: true },
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      req,
-    }),
-  ])
+  // One read after the other: all three go through the caller's `req`, and a
+  // MongoDB session does not take concurrent operations reliably (see
+  // `Objects.ts`). The museum read is shared by the tours of one run.
+  let museumRead = museums.get(museumId)
+  if (!museumRead) {
+    museumRead = payload
+      .findByID({
+        collection: 'museums',
+        id: museumId,
+        select: { map: true },
+        depth: 0,
+        overrideAccess: true,
+        req,
+      })
+      .catch(() => null)
+    museums.set(museumId, museumRead)
+  }
+  const museum = await museumRead
+  const stops = await payload.find({
+    collection: 'contents',
+    where: { id: { in: stopIds } },
+    select: { visibility: true, author: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  // The authored relation `objects.contents` is what the content's `objects`
+  // join and the navigation catalog both read: a content belongs to at most
+  // one object (`validateExclusiveContents`).
+  const owners = await payload.find({
+    collection: 'objects',
+    where: { contents: { in: stopIds } },
+    select: { name: true, contents: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
   // A museum that is gone leaves nothing to visit.
   if (!museum) return []
 
