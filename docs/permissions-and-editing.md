@@ -37,15 +37,15 @@ Code map:
 
 ## Rules per collection
 
-| Collection  | Read                           | Create                                | Update                                                                                                       | Delete                                                              |
-| ----------- | ------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `museums`   | anyone                         | any signed-in user (becomes director) | curator+ of it; non-map fields director-only (field access); curators' map saves limited to object placement | director                                                            |
-| `objects`   | anyone                         | curator+ of any museum                | owner (creator) only — museums manage objects through their map, not the object                              | super admin only (the catalog is a lasting object database)         |
-| `contents`  | anyone; paid `body` restricted | any signed-in user                    | author                                                                                                       | author, or staff above the author's rank in a museum of the content |
-| `tours`     | anyone                         | any signed-in user                    | author                                                                                                       | author, or director of `tour.museum`                                |
-| `users`     | anyone (email only to self)    | anyone (sign-up)                      | self                                                                                                         | self                                                                |
-| `purchases` | own rows; super admin all      | super admin (rows come from Stripe)   | super admin                                                                                                  | super admin                                                         |
-| memberships | anyone                         | roles below the actor's rank          | roles below the actor's rank, never own row                                                                  | roles below the actor's rank, never own row                         |
+| Collection  | Read                                                  | Create                                | Update                                                                                                       | Delete                                                              |
+| ----------- | ----------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `museums`   | anyone                                                | any signed-in user (becomes director) | curator+ of it; non-map fields director-only (field access); curators' map saves limited to object placement | director                                                            |
+| `objects`   | anyone                                                | curator+ of any museum                | owner (creator) only — museums manage objects through their map, not the object                              | super admin only (the catalog is a lasting object database)         |
+| `contents`  | anyone; paid `body` restricted                        | any signed-in user                    | author                                                                                                       | author, or staff above the author's rank in a museum of the content |
+| `tours`     | anyone                                                | any signed-in user                    | author                                                                                                       | author, or director of `tour.museum`                                |
+| `users`     | anyone (email only to self or super admin, see below) | anyone (sign-up)                      | self                                                                                                         | self                                                                |
+| `purchases` | own rows; super admin all                             | super admin (rows come from Stripe)   | super admin                                                                                                  | super admin                                                         |
+| memberships | anyone                                                | roles below the actor's rank          | roles below the actor's rank, never own row                                                                  | roles below the actor's rank, never own row                         |
 
 Super admins bypass all of the above.
 
@@ -96,6 +96,21 @@ Super admins bypass all of the above.
   (`src/lib/price.ts`). A tour's price = sum of its locked contents.
 - Display: `formatPrice(cents, lng)` (`Intl.NumberFormat`, EUR). Choosing and
   converting a local currency needs region + exchange rates → payments work.
+
+### User emails (private to self and super admins)
+
+The auth-injected `email` (and `sessions`) is redeclared in
+`src/collections/Users.ts` with field-level `read` access
+(`selfOrAdminField`). Payload merges it with its base field, so `unique`, the
+index and the lowercase/trim hook stay. Field access removes the value from
+every access-checked response and makes Payload reject `where`/`sort` on it
+(REST, GraphQL, count, relation paths), which closes the "does this address
+have an account" oracle. Because that validation has no document to compare
+with, a signed-in visitor's own-email filter is answered by the
+`confineEmailFilters` `beforeOperation` hook (it can only match their own row).
+`hidePrivateFields` stays as a second layer for Local API reads that skip field
+access (`overrideAccess` defaults to true). Spec:
+`tests/int/nightly/email-enumeration.int.spec.ts`, `user-email-privacy.int.spec.ts`.
 
 ### Purchases (Stripe, sandbox)
 
@@ -354,7 +369,9 @@ allowed, any other node change rejected). Not yet run against a database:
 7. Objects: non-owner update and `generate-model` → 403; delete by anyone but
    a super admin → 403; removing an object from a map un-exhibits it
    (`museums.objects`) without deleting it.
-8. Users: another user's profile has no `email`; self-update cannot set
+8. Users: another user's profile has no `email` and a `where`/`sort` on it is
+   refused (400), also through relations (`author.email`); a signed-in user
+   may still filter by their own; self-update cannot set
    `isSuperAdmin`/`roles`.
 9. Purchases: anonymous → 401 at checkout; a tour whose contents the buyer can
    already read → 409; a paid tour purchase makes its contents' `body` readable

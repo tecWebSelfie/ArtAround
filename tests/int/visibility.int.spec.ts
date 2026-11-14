@@ -200,7 +200,7 @@ describe('saving private documents', () => {
       docs: [{ id: 'c-private', title: 'Notes for my class', visibility: 'private', author: 'u1' }],
     })
     await expect(run(guardPrivateContents, { contents: ['c-private'] }, req)).rejects.toThrow(
-      /"Notes for my class"/,
+      /public tour can't include private contents \(1\)/,
     )
     await expect(
       run(
@@ -234,7 +234,7 @@ describe('saving private documents', () => {
           { visibility: 'private', author: 'u1', contents: ['c-theirs'] },
           req,
         ),
-      ).rejects.toThrow(/other authors: "Their notes"/)
+      ).rejects.toThrow(/private contents of other authors \(1\)/)
       // A public tour is refused too (by the public-tour rule, which comes first).
       await expect(
         run(
@@ -242,19 +242,19 @@ describe('saving private documents', () => {
           { visibility: 'public', author: 'u1', contents: ['c-theirs'] },
           req,
         ),
-      ).rejects.toThrow(/"Their notes"/)
+      ).rejects.toThrow(/public tour can't include private contents \(1\)/)
     })
 
     it('are refused when a save adds them, and follow the tour’s author, not the caller', async () => {
       const original = { id: 't1', author: 'u1', visibility: 'private', contents: ['c-mine'] }
       await expect(
         run(guardPrivateContents, { contents: ['c-mine', 'c-theirs'] }, req, original),
-      ).rejects.toThrow(/"Their notes"/)
+      ).rejects.toThrow(/private contents of other authors \(1\)/)
       // A super admin saving u1's tour: still u1's rule.
       const asAdmin = requestFor({ id: 'admin', roles: ['super-admin'] })
       await expect(
         run(guardPrivateContents, { contents: ['c-mine', 'c-theirs'] }, asAdmin, original),
-      ).rejects.toThrow(/"Their notes"/)
+      ).rejects.toThrow(/private contents of other authors \(1\)/)
     })
 
     it('stay on a legacy tour that already lists them', async () => {
@@ -276,7 +276,7 @@ describe('saving private documents', () => {
     it('are refused on a tour with no author, which owns nothing', async () => {
       await expect(
         run(guardPrivateContents, { visibility: 'private', contents: ['c-mine'] }, req),
-      ).rejects.toThrow(/"My notes"/)
+      ).rejects.toThrow(/private contents of other authors \(1\)/)
     })
 
     it('allow the tour author’s own private stops, and anyone’s public ones', async () => {
