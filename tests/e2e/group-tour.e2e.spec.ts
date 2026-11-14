@@ -180,7 +180,7 @@ async function confirmGroupEnd(page: Page, code: string, status = 204) {
   }
 }
 
-/** "Start with a group" on the tour's start page; returns the room code. */
+/** "Lead the group" on the tour's start page (it opens the "Start with a group" modal); returns the room code. */
 async function openGroup(page: Page, name: string, { showResults = false } = {}) {
   await page.goto(at(`/en/museum/${fixture!.museumId}/navigation/tour/${fixture!.tourId}`), {
     waitUntil: 'domcontentloaded',
@@ -188,7 +188,7 @@ async function openGroup(page: Page, name: string, { showResults = false } = {})
   const nameField = page.getByRole('textbox', { name: 'Your name' })
   await expect(async () => {
     if (!(await nameField.isVisible())) {
-      await page.getByRole('button', { name: 'Start with a group' }).click({ timeout: 1_500 })
+      await page.getByRole('button', { name: 'Lead the group' }).click({ timeout: 1_500 })
     }
     await expect(nameField).toBeVisible({ timeout: 1_500 })
   }).toPass({ timeout: 90_000 })
