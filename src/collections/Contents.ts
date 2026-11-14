@@ -284,12 +284,19 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
  * someone bought, put in their own tour, or that a public tour shows can't be
  * made private afterwards: it would disappear from under them.
  */
-const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req, originalDoc }) => {
+const guardVisibility: CollectionBeforeChangeHook<Content> = async ({
+  data,
+  req,
+  originalDoc,
+  operation,
+}) => {
   const visibility = data.visibility ?? originalDoc?.visibility
   const price = data.price !== undefined ? data.price : originalDoc?.price
   if (visibility !== 'private') return data
   if (price && price > 0) throw new APIError('A private content cannot be sold.', 400)
-  if (!originalDoc || originalDoc.visibility === 'private') return data
+  // On create Payload passes an empty (truthy) `originalDoc`, so check the
+  // operation: a brand-new content has no buyers or tours to protect.
+  if (operation === 'create' || !originalDoc || originalDoc.visibility === 'private') return data
   const id = String(originalDoc.id)
   const author = asId(originalDoc.author)
   const [bought, adopted] = await Promise.all([
