@@ -1,5 +1,5 @@
 {
-  "“{{title}}” is now unlocked on your account.": "",
+  "“{{title}}” is now unlocked on your account.": "„{{title}}” este acum deblocat în contul tău.",
   "Back to the content": "Înapoi la conținut",
   "Back to the navigator": "Înapoi la navigator",
   "Back to the tour": "Înapoi la tur",
@@ -12,7 +12,7 @@
   "Sign in": "Conectează-te",
   "Sign in to see your purchase": "Conectează-te ca să-ți vezi achiziția",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe nu ne-a confirmat încă această plată. Se deblochează în contul tău imediat ce o face; nu mai trebuie să faci nimic.",
-  "The paid contents of “{{title}}” are now unlocked on your account.": "",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "Conținuturile plătite din „{{title}}” sunt acum deblocate în contul tău.",
   "The paid contents of this tour are now unlocked on your account.": "Conținuturile plătite ale acestui tur sunt acum deblocate în contul tău.",
   "Your purchase is now unlocked on your account.": "Achiziția ta este acum deblocată în contul tău."
 }

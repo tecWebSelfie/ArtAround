@@ -1,5 +1,5 @@
 {
-  "“{{title}}” is now unlocked on your account.": "",
+  "“{{title}}” is now unlocked on your account.": "“{{title}}” tagad ir atbloķēts tavā kontā.",
   "Back to the content": "Atpakaļ uz saturu",
   "Back to the navigator": "Atpakaļ uz navigatoru",
   "Back to the tour": "Atpakaļ uz tūri",
@@ -12,7 +12,7 @@
   "Sign in": "Pieslēgties",
   "Sign in to see your purchase": "Pieslēdzies, lai redzētu savu pirkumu",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe mums vēl nav apstiprinājis šo maksājumu. Tiklīdz tas notiks, pirkums tavā kontā atbloķēsies; nekas cits nav jādara.",
-  "The paid contents of “{{title}}” are now unlocked on your account.": "",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "“{{title}}” maksas saturs tagad ir atbloķēts tavā kontā.",
   "The paid contents of this tour are now unlocked on your account.": "Šīs tūres maksas saturs tagad ir atbloķēts tavā kontā.",
   "Your purchase is now unlocked on your account.": "Tavs pirkums tagad ir atbloķēts tavā kontā."
 }

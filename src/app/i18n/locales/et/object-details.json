@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} peatus",
+  "{{count}} stops_other": "{{count}} peatust",
   "Contents about it": "Sisu selle kohta",
-  "Credit line": "",
+  "Credit line": "Allikaviide",
   "Event": "Sündmus",
-  "Inventory number": "",
+  "Inventory number": "Inventarinumber",
   "Movement or style": "Suund või stiil",
   "On Wikidata": "Wikidatas",
   "Person": "Isik",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Päritolu",
+  "Rights": "Õigused",
+  "Tours that stop here": "Tuurid, mis siin peatuvad",
   "Works in the collection": "Teosed kogus",
   "Write a content about it": "Kirjuta sellest sisu"
 }
