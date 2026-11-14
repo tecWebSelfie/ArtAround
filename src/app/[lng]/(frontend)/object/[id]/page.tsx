@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { findListedTours } from '@/lib/listed-tours'
 import { subjectsOfWork } from '@/lib/subjects'
 import { EditableSection } from '@/components/editing/EditableSection'
@@ -122,7 +123,8 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('editing')
   const { t: tObject } = await getT('object-details')
-  const [object, subjects, canEdit, source, { printMuseumId, offer }, related] = await reads
+  const [object, subjects, canEdit, source, { printMuseumId, offer, museumId }, related] =
+    await reads
   // The form's preview reuses the populated photo.
   const photo = isPopulated(object.thumbnail) ? object.thumbnail : null
   const thumbnail = photo && { id: photo.id, url: pictureSrc(photo, 'card') }
@@ -130,6 +132,9 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
   return (
     // `maw` widens Mantine's `md` container (960px) to 1140px from md only.
     <Container component="main" size="md" py="md" maw={{ md: 1140 }}>
+      {/* Up a level: back where the visitor came from in the app, else (a QR
+          code, a shared link) the work's museum. */}
+      <BackButton href={(museumId ? `/${lng}/museum/${museumId}` : `/${lng}/navigator`) as Route} />
       <Grid gap={{ base: 0, md: 48 }} align="flex-start">
         {/* Desktop media pane: the cover fills the viewport's height under the
             site header (capped, so it stays a picture beside the text, not a

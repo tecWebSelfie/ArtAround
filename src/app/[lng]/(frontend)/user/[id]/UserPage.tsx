@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { ProfileForm } from '@/components/editing/forms/ProfileForm'
 import { ArtaroundDataList } from '@/components/mantine/ArtaroundDataList'
@@ -74,6 +75,9 @@ export const UserPage = async ({
       maw={{ md: 1204 }}
       mt="sm"
     >
+      {/* Up a level: back where the visitor came from (a tour's author, the
+          marketplace), else the navigator. */}
+      <BackButton href={`/${lng}/navigator` as Route} />
       {/* Grid lays out with `gap`: below md (full-width columns, `xl` gap)
           it stacks exactly like a single Stack with the same rhythm. */}
       <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">

@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { getT } from '@/i18n.server'
 import type { SearchScope } from '@/lib/search-scope'
@@ -33,9 +34,12 @@ export async function SearchHeading({
   basePath: string
   searchParams: Record<string, string | string[] | undefined>
 }) {
-  const { t } = await getT('search')
+  const { t, lng } = await getT('search')
   return (
     <Stack gap="xs">
+      {/* Up a level: back where the visitor came from (a "See all"), else
+          the navigator, the search's home. */}
+      <BackButton href={`/${lng}/navigator` as Route} />
       <Stack gap={2}>
         <Title order={1} size="h2">
           {title}

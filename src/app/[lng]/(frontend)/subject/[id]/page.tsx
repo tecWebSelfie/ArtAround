@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { getT } from '@/i18n.server'
 import { normalizeLocale } from '@/lib/localized'
 import { asViewer, getSession } from '@/lib/session'
@@ -111,6 +112,9 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   return (
     <Container component="main" size="sm" py="md">
       <Stack gap="lg">
+        {/* Up a level: back where the visitor came from (a work, a command),
+            else the navigator. */}
+        <BackButton href={`/${lng}/navigator` as Route} />
         <Stack gap="xs">
           <Badge variant="light" color="gray">
             {kindLabel}

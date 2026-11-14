@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { MuseumLocationMap } from '@/components/location/MuseumLocationMap'
 import { EditableSection } from '@/components/editing/EditableSection'
 import { MuseumAppearanceForm } from '@/components/editing/forms/MuseumAppearanceForm'
@@ -137,6 +138,8 @@ export default async function MuseumPage({
       mt="sm"
       pb="xl"
     >
+      {/* Up a level: back where the visitor came from, else the navigator. */}
+      <BackButton href={`/${lng}/navigator` as Route} />
       {/* Hero. Mantine's Grid lays out with `gap`, so below md (both columns
           full width, `md` gap) it stacks exactly like the page's Stack. */}
       <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start" pb={{ md: 'md' }}>

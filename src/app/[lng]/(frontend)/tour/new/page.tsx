@@ -1,3 +1,5 @@
+import type { Route } from 'next'
+import { BackButton } from '@/components/navigation/BackButton'
 import { TourForm } from '@/components/editing/forms/TourForm'
 import { getT } from '@/i18n.server'
 import { coverImage } from '@/lib/cover-image'
@@ -71,6 +73,11 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   ])
   return (
     <Container size="md" py="md">
+      {/* Up a level: back where the editor was opened from, else the tour it
+          copies or the museum it is for. */}
+      <BackButton
+        href={(source ? `/${lng}/tour/${source.id}` : `/${lng}/museum/${museumId}`) as Route}
+      />
       <TourForm
         museum={museum}
         candidates={candidates}

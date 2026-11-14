@@ -93,7 +93,8 @@ export async function staffMuseumId(museumIds: readonly string[]): Promise<strin
  * - `printMuseumId`: the staff's museum, which enables the printable codes in
  *   `QrCodeButton`;
  * - `offer`: the museum to propose (`MuseumModeOffer`) when the app is not
- *   locked to it yet.
+ *   locked to it yet;
+ * - `museumId`: the item's (first) museum, the parent its back button opens.
  */
 export async function museumAffordances(kind: QrKind, id: string) {
   const museums = await itemMuseums(kind, id)
@@ -102,7 +103,11 @@ export async function museumAffordances(kind: QrKind, id: string) {
     lockedMuseumId(),
   ])
   const [first] = museums
-  return { printMuseumId, offer: first && first.id !== locked ? first : null }
+  return {
+    printMuseumId,
+    offer: first && first.id !== locked ? first : null,
+    museumId: first?.id ?? null,
+  }
 }
 
 /**

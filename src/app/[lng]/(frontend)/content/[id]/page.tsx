@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { findListedTours } from '@/lib/listed-tours'
 import { TranslationNotice } from '@/components/TranslationNotice'
 import { displayName } from '@/lib/display-name'
@@ -219,7 +220,8 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('editing')
   const { t: tn } = await getT('tour-navigation')
-  const [canEdit, canDelete, navigationHref, details, { printMuseumId, offer }] = await reads
+  const [canEdit, canDelete, navigationHref, details, { printMuseumId, offer, museumId }] =
+    await reads
 
   // The cover pictures: the content's own, else its object's photo (the piece
   // the text is about); with neither, the content teal stands in.
@@ -250,6 +252,17 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
     <AppShellMain>
       <Container size="md" py="md">
         <Stack gap="md">
+          {/* Up a level: back where the visitor came from in the app, else
+              (a QR code, a shared link) the work it is about, or its museum. */}
+          <BackButton
+            href={
+              (details.object
+                ? `/${lng}/object/${details.object.id}`
+                : museumId
+                  ? `/${lng}/museum/${museumId}`
+                  : `/${lng}/navigator`) as Route
+            }
+          />
           {offer && <MuseumModeOffer museum={offer} />}
           <DetailCover pictures={pictures} fallback="content" title={content.title} />
           <TranslationNotice collection="contents" id={id} lng={lng} />

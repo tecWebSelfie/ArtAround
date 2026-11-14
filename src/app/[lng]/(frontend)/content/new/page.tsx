@@ -1,3 +1,6 @@
+import { backToTourHref } from '@/lib/tour-picker'
+import type { Route } from 'next'
+import { BackButton } from '@/components/navigation/BackButton'
 import { ContentForm } from '@/components/editing/forms/ContentForm'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { getSession, requireUser } from '@/lib/session'
@@ -63,6 +66,19 @@ export default async function NewContentPage({
 
   return (
     <Container size="md" py="md">
+      {/* Up a level: back where the editor was opened from, else the tour
+          being built (its draft restored), the work or the subject. */}
+      <BackButton
+        href={
+          (tourFlow && returnTo
+            ? backToTourHref(returnTo)
+            : object
+              ? `/${lng}/object/${object.id}`
+              : subject
+                ? `/${lng}/subject/${subject.id}`
+                : `/${lng}/navigator`) as Route
+        }
+      />
       <ContentForm
         initialObject={object ? { id: object.id, name: object.name } : null}
         initialSubject={subject ? { id: subject.id, name: subject.name } : null}

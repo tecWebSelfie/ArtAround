@@ -1,3 +1,5 @@
+import type { Route } from 'next'
+import { BackButton } from '@/components/navigation/BackButton'
 import { minStopsFor } from '@/lib/tour-stops'
 import { asId } from '@/access/museumRoles'
 import { TourForm } from '@/components/editing/forms/TourForm'
@@ -39,6 +41,8 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
 
   return (
     <Container size="md" py="md">
+      {/* Up a level: back where the editor was opened from, else the tour. */}
+      <BackButton href={`/${lng}/tour/${tour.id}` as Route} />
       <TourForm
         tourId={tour.id}
         museum={museum}

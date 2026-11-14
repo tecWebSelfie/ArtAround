@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { MembersManager, type StaffMember } from '@/components/editing/MembersManager'
 import {
   MUSEUM_FUNCTION_CURATOR,
@@ -57,6 +58,8 @@ export default async function MembersPage({ params }: PageProps<'/[lng]/museum/[
 
   return (
     <Container component="main" size="md" py="md">
+      {/* Up a level: back where the staff came from, else the museum. */}
+      <BackButton href={`/${lng}/museum/${id}` as Route} />
       <MembersManager
         museumId={id}
         members={members}
