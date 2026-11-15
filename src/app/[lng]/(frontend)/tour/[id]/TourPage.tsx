@@ -54,13 +54,13 @@ type TourPageProps = {
  * museum, author, description), what it asks of the visitor (time, stops,
  * walking, access, reading difficulty, quiz) and the stops in their authored
  * order. Every figure comes from `summarizeTour`, so nothing shown here is
- * estimated by the page itself. The two exits (`TourActions`): start
- * navigating right away, or deal with the locked contents (buy them, or swap
- * them for others in the tour editor).
+ * estimated by the page itself. The actions (`TourActions`): start navigating
+ * when entitled, or deal with locked contents (buy them, or swap them in the
+ * tour editor).
  *
- * Phones: one column, the exits in the footer within thumb reach. From `md`:
+ * Phones: one column, the actions in the footer within thumb reach. From `md`:
  * two panes in a 1140px container, a sticky summary on the left (cover,
- * identity, badges and the exits inline, the footer hidden) and "The stops"
+ * identity, badges and the actions inline, the footer hidden) and "The stops"
  * timeline on the right.
  */
 export default function TourPage({
@@ -195,7 +195,7 @@ export default function TourPage({
 }
 
 /**
- * The two exit buttons (`TourActions`): `md` height at least, tight padding, `sm` text,
+ * The action buttons (`TourActions`): `md` height at least, tight padding, `sm` text,
  * and a label that may wrap (centred, tighter leading) where a translation
  * is longer than half a phone, so it grows a line instead of being cut.
  */
@@ -208,10 +208,9 @@ const FOOTER_BUTTON = {
 } as const
 
 /**
- * The tour's two exits, shared by the phone footer and the desktop summary
- * pane: the paid-orange unlock (opens the purchase modal) or the light orange
- * edit/customize link, and the tour-gradient "Start tour". Always both:
- * locked contents simply stay locked while navigating.
+ * The tour's actions, shared by the phone footer and desktop summary pane:
+ * unlock or edit/customize, plus "Start tour" only for entitled readers or
+ * the tour owner.
  */
 function TourActions({
   price,
@@ -257,18 +256,20 @@ function TourActions({
           {canEdit ? t('Edit tour') : t('Customize tour')}
         </Button>
       )}
-      <Button
-        {...FOOTER_BUTTON}
-        component={Link}
-        href={startHref}
-        // The tour gradient: starting a tour is the app's main way in
-        // (DESIGN.md → Colors, tour identity); moving freely stays blue.
-        variant="gradient"
-        gradient={TOUR_GRADIENT}
-        rightSection={<Play size={16} />}
-      >
-        {t('Start tour')}
-      </Button>
+      {(price === 0 || canEdit) && (
+        <Button
+          {...FOOTER_BUTTON}
+          component={Link}
+          href={startHref}
+          // The tour gradient: starting a tour is the app's main way in
+          // (DESIGN.md → Colors, tour identity); moving freely stays blue.
+          variant="gradient"
+          gradient={TOUR_GRADIENT}
+          rightSection={<Play size={16} />}
+        >
+          {t('Start tour')}
+        </Button>
+      )}
     </Group>
   )
 }
