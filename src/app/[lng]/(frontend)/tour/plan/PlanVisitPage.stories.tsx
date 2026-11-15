@@ -84,6 +84,14 @@ export const FamilyPreview: Story = {
 export const Form: Story = {
   parameters: { nextjs: { navigation: { query: {} } } },
   beforeEach: () => sessionStorage.removeItem('aa-plan-visit'),
+  play: async ({ canvas }) => {
+    const interests = await canvas.findByRole('textbox', { name: 'Interests' })
+    const dictate = canvas.getByRole('button', { name: 'Dictate' })
+    await expect(dictate).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(canvas.getByRole('button', { name: 'Caravaggio and the 17th century' }))
+    await expect(interests).toHaveValue('Caravaggio and the 17th century')
+    await expect(canvas.getByText('Usually takes a few seconds.')).toBeVisible()
+  },
 }
 
 /** Incomplete ages stay in the form; an invalid family never reaches the API. */
@@ -108,6 +116,9 @@ export const MissingChildAge: Story = {
     ),
   play: async ({ canvas }) => {
     await userEvent.click(await canvas.findByRole('button', { name: /^Plan my visit$/ }))
-    await expect(await canvas.findByText("Enter each child's age, from 0 to 17.")).toBeVisible()
+    await expect(await canvas.findByRole('alert')).toHaveTextContent(
+      "Enter each child's age, from 0 to 17.",
+    )
+    await expect(canvas.getByRole('spinbutton', { name: 'Age of child 1' })).toHaveFocus()
   },
 }

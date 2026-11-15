@@ -8,8 +8,8 @@ import { readerFor, setReadingProfile } from '@/lib/reading-profile'
 import { ReadingProfile } from '@/components/group/ReadingProfile'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
 import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
+import { PlanVisitDictationButton, type PlanVisitDictationState } from './PlanVisitDictationButton'
 import {
-  ActionIcon,
   Alert,
   Badge,
   Button,
@@ -18,7 +18,6 @@ import {
   Container,
   Group,
   Input,
-  Loader,
   NumberInput,
   SegmentedControl,
   Select,
@@ -39,9 +38,7 @@ import {
   Footprints,
   MapPin,
   MapPinCheck,
-  Mic,
   Play,
-  Square,
 } from 'lucide-react'
 import type { Route } from 'next'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
@@ -122,26 +119,127 @@ const COUNT_INPUT = {
   inputMode: 'numeric',
 } as const
 
-type DictationState = 'idle' | 'recording' | 'transcribing'
 type DictationError = 'microphone' | 'transcription' | null
 
-/** Tap to record, tap again to stop; the words land in the field for editing. */
-function useDictation(onText: (text: string) => void) {
-  const [state, setState] = useState<DictationState>('idle')
+type BrowserSpeechAlternative = { transcript: string }
+type BrowserSpeechResult = {
+  isFinal: boolean
+  [index: number]: BrowserSpeechAlternative
+}
+type BrowserSpeechEvent = { results: ArrayLike<BrowserSpeechResult> }
+type BrowserSpeechRecognition = {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onresult: ((event: BrowserSpeechEvent) => void) | null
+  onerror: ((event: { error: string }) => void) | null
+  onend: (() => void) | null
+  start: () => void
+  stop: () => void
+  abort: () => void
+}
+type BrowserSpeechWindow = Window & {
+  SpeechRecognition?: new () => BrowserSpeechRecognition
+  webkitSpeechRecognition?: new () => BrowserSpeechRecognition
+}
+
+/**
+ * Uses interim browser speech when available and the existing server
+ * transcription otherwise; both paths return editable text to the same field.
+ */
+function useDictation(onText: (text: string) => void, language: string) {
+  const [state, setState] = useState<PlanVisitDictationState>('idle')
   const [error, setError] = useState<DictationError>(null)
+  const [interimText, setInterimText] = useState('')
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [completed, setCompleted] = useState(false)
   const recorder = useRef<MediaRecorder | null>(null)
+  const recognition = useRef<BrowserSpeechRecognition | null>(null)
+  const stream = useRef<MediaStream | null>(null)
+  const elapsedTimer = useRef<number | null>(null)
+
+  const startTimer = () => {
+    const startedAt = Date.now()
+    setElapsedSeconds(0)
+    elapsedTimer.current = window.setInterval(
+      () => setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000)),
+      1000,
+    )
+  }
+  const stopTimer = () => {
+    if (elapsedTimer.current !== null) window.clearInterval(elapsedTimer.current)
+    elapsedTimer.current = null
+  }
 
   const toggle = async () => {
-    if (state === 'recording') return recorder.current?.stop()
+    if (state === 'recording') {
+      if (recognition.current) recognition.current.stop()
+      else if (recorder.current?.state === 'recording') recorder.current.stop()
+      return
+    }
     if (state !== 'idle') return
     setError(null)
+    setCompleted(false)
+    setInterimText('')
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const speechWindow = window as BrowserSpeechWindow
+      const SpeechRecognition =
+        speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition
+
+      if (SpeechRecognition) {
+        const instance = new SpeechRecognition()
+        let finalTranscript = ''
+        instance.lang = language
+        instance.continuous = true
+        instance.interimResults = true
+        instance.onresult = (event) => {
+          let nextFinal = ''
+          let nextInterim = ''
+          for (let index = 0; index < event.results.length; index += 1) {
+            const result = event.results[index]
+            const transcript = result?.[0]?.transcript ?? ''
+            if (result?.isFinal) nextFinal += transcript
+            else nextInterim += transcript
+          }
+          finalTranscript = nextFinal
+          setInterimText(nextInterim.trim())
+        }
+        instance.onerror = (event) => {
+          setError(
+            event.error === 'not-allowed' ||
+              event.error === 'service-not-allowed' ||
+              event.error === 'audio-capture'
+              ? 'microphone'
+              : 'transcription',
+          )
+        }
+        instance.onend = () => {
+          stopTimer()
+          if (finalTranscript.trim()) {
+            onText(finalTranscript.trim())
+            setCompleted(true)
+          }
+          setInterimText('')
+          setState('idle')
+          recognition.current = null
+        }
+        recognition.current = instance
+        instance.start()
+        startTimer()
+        setState('recording')
+        return
+      }
+
+      const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.current = mediaStream
       const chunks: Blob[] = []
-      const media = new MediaRecorder(stream)
+      const media = new MediaRecorder(mediaStream)
       media.ondataavailable = (event) => chunks.push(event.data)
       media.onstop = async () => {
-        stream.getTracks().forEach((track) => track.stop())
+        mediaStream.getTracks().forEach((track) => track.stop())
+        stream.current = null
+        recorder.current = null
+        stopTimer()
         setState('transcribing')
         try {
           const form = new FormData()
@@ -149,7 +247,10 @@ function useDictation(onText: (text: string) => void) {
           const response = await fetch('/api/transcribe', { method: 'POST', body: form })
           if (!response.ok) throw new Error('transcription')
           const { text } = (await response.json()) as { text?: string }
-          if (text) onText(text)
+          if (text) {
+            onText(text)
+            setCompleted(true)
+          }
         } catch {
           setError('transcription')
         } finally {
@@ -158,14 +259,29 @@ function useDictation(onText: (text: string) => void) {
       }
       recorder.current = media
       media.start()
+      startTimer()
       setState('recording')
     } catch {
       // Permission denied, no microphone, or no MediaRecorder: typing still works.
+      stream.current?.getTracks().forEach((track) => track.stop())
+      stream.current = null
+      recognition.current = null
+      stopTimer()
       setError('microphone')
       setState('idle')
     }
   }
-  return { state, error, toggle }
+
+  useEffect(
+    () => () => {
+      if (elapsedTimer.current !== null) window.clearInterval(elapsedTimer.current)
+      recognition.current?.abort()
+      stream.current?.getTracks().forEach((track) => track.stop())
+    },
+    [],
+  )
+
+  return { state, error, interimText, elapsedSeconds, completed, toggle }
 }
 
 export function PlanVisitPage({
@@ -200,6 +316,7 @@ export function PlanVisitPage({
   // Whether this page pushed the `?tour=` entry, so "Change" can pop it.
   const pushedPreview = useRef(false)
   const previewHeading = useRef<HTMLHeadingElement>(null)
+  const ageErrorMessage = useRef<HTMLParagraphElement>(null)
 
   // Updaters read the latest stored answers, so an async one (dictation)
   // never overwrites what was typed meanwhile.
@@ -210,11 +327,13 @@ export function PlanVisitPage({
   const update = <K extends keyof Answers>(key: K, value: Answers[K]) =>
     setAnswers((current) => ({ ...current, [key]: value }))
 
-  const dictation = useDictation((text) =>
-    setAnswers((current) => ({
-      ...current,
-      interests: (current.interests ? `${current.interests} ${text}` : text).slice(0, 500),
-    })),
+  const dictation = useDictation(
+    (text) =>
+      setAnswers((current) => ({
+        ...current,
+        interests: (current.interests ? `${current.interests} ${text}` : text).slice(0, 500),
+      })),
+    lng,
   )
 
   const showPreview = Boolean(plan && tourParam && plan.id === tourParam)
@@ -252,9 +371,31 @@ export function PlanVisitPage({
     }))
 
   const submit = async () => {
-    if (answers.childrenAges.some((age) => age === '')) {
+    // Dictation must finish before its current words can be planned.
+    if (dictation.state !== 'idle') return
+    const firstMissingAge = answers.childrenAges.findIndex((age) => age === '')
+    if (firstMissingAge >= 0) {
       setAgeError(true)
       setMoreOpen(true)
+      // Wait for the disclosure's measured height to finish expanding before
+      // focusing its first invalid input; two animation frames can still be clipped.
+      const focusWhenExpanded = (attempt = 0) => {
+        const panel = document.getElementById('plan-more')
+        if (
+          panel &&
+          panel.scrollHeight > 0 &&
+          panel.getBoundingClientRect().height >= panel.scrollHeight - 1
+        ) {
+          document.getElementById(`plan-age-${firstMissingAge}`)?.focus()
+          return
+        }
+        if (attempt < 120) {
+          requestAnimationFrame(() => focusWhenExpanded(attempt + 1))
+        } else {
+          ageErrorMessage.current?.focus()
+        }
+      }
+      requestAnimationFrame(() => focusWhenExpanded())
       return
     }
     setAgeError(false)
@@ -429,19 +570,41 @@ export function PlanVisitPage({
     .filter(Boolean)
     .join(' · ')
 
-  const recording = dictation.state === 'recording'
-  const dictateLabel = recording ? t('Stop dictating') : t('Dictate')
   const dictationHelp = {
     idle: null,
-    recording: t('Listening… Tap the square to stop.'),
+    recording: t('Listening… Tap the button to stop.'),
     transcribing: t('Writing down your words…'),
   }[dictation.state]
+  const dictationMessage = dictation.completed
+    ? t('Dictation added to your interests.')
+    : dictationHelp
   const dictationError =
     dictation.error &&
     {
       microphone: t('The microphone is not available. You can type instead.'),
       transcription: t('Dictation did not work. Try again, or type instead.'),
     }[dictation.error]
+  const showAgeError = ageError && answers.childrenAges.some((age) => age === '')
+
+  const insertInterest = (suggestion: string) => {
+    const field = document.getElementById('plan-interests') as HTMLTextAreaElement | null
+    const current = answers.interests
+    const start = field?.selectionStart ?? current.length
+    const end = field?.selectionEnd ?? current.length
+    const before = current.slice(0, start)
+    const after = current.slice(end)
+    const separatorBefore = before && !/\s$/.test(before) ? ' ' : ''
+    const separatorAfter = after && !/^\s/.test(after) ? ' ' : ''
+    const available = Math.max(500 - before.length - after.length, 0)
+    const inserted = `${separatorBefore}${suggestion}${separatorAfter}`.slice(0, available)
+
+    update('interests', `${before}${inserted}${after}`)
+    requestAnimationFrame(() => {
+      field?.focus()
+      const caret = before.length + inserted.length
+      field?.setSelectionRange(caret, caret)
+    })
+  }
 
   return (
     <main className="text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]">
@@ -467,82 +630,124 @@ export function PlanVisitPage({
             {/* Disabled while planning: the answers being planned can't change under it. */}
             <fieldset disabled={planning} className="m-0 min-w-0 border-0 p-0">
               <Stack gap="lg">
-                {!lockedMuseum && (
-                  <Select
-                    size="md"
-                    label={t('Museum')}
-                    description={t('Pick one from the list, or name it in your interests.')}
-                    data={museums}
-                    value={answers.museumId}
-                    onChange={(value) => update('museumId', value)}
-                    searchable
-                    clearable
-                  />
-                )}
-                <Stack gap={6}>
-                  <Text size="md" fw={500} id="plan-time">
-                    {t('How much time do you have?')}
+                {/* The visit starts with the visitor's own words; constraints follow. */}
+                <Stack gap="sm">
+                  <Stack gap={4}>
+                    <Text size="md" fw={600} id="plan-interests-label">
+                      {t('Interests')}
+                    </Text>
+                    <Text size="sm" c="dimmed" id="plan-interests-help">
+                      {t(
+                        'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
+                      )}
+                    </Text>
+                  </Stack>
+                  {/* Live variants replace only the hero field shell; the actual
+                    form, chips and constraints remain visible as the comparison frame. */}
+                  {/* Variant 1 keeps the ember edge, counter and mic pill inside the same large field. */}
+                  <div className="plan-visit-interest" data-state={dictation.state}>
+                    <Textarea
+                      id="plan-interests"
+                      size="lg"
+                      autosize
+                      minRows={5}
+                      maxRows={10}
+                      aria-labelledby="plan-interests-label"
+                      aria-describedby="plan-interests-help"
+                      maxLength={500}
+                      value={answers.interests}
+                      onChange={(event) => update('interests', event.currentTarget.value)}
+                      error={dictationError}
+                      bottomSection={
+                        <Stack gap="xs" className="plan-visit-hero-bottom">
+                          {dictation.interimText && (
+                            <Text size="sm" className="plan-visit-interim" aria-hidden="true">
+                              {dictation.interimText}
+                            </Text>
+                          )}
+                          <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                            <Text size="xs" c="dimmed" className="plan-visit-character-count">
+                              {answers.interests.length}/500
+                            </Text>
+                            <PlanVisitDictationButton
+                              state={dictation.state}
+                              elapsedSeconds={dictation.elapsedSeconds}
+                              labels={{
+                                dictate: t('Dictate'),
+                                idleText: t('Dictation'),
+                                stop: t('Stop dictating'),
+                                transcribing: t('Writing down your words…'),
+                              }}
+                              onToggle={() => void dictation.toggle()}
+                            />
+                          </Group>
+                        </Stack>
+                      }
+                    />
+                  </div>
+                  {/* Interim words are visual only; this polite line announces state changes. */}
+                  <Text size="sm" c="dimmed" aria-live="polite" role="status">
+                    {dictationMessage}
                   </Text>
-                  <SegmentedControl
-                    size="md"
-                    aria-labelledby="plan-time"
-                    value={answers.minutes}
-                    onChange={(value) => update('minutes', value)}
-                    data={VISIT_MINUTES.map((value) => ({
-                      value: String(value),
-                      label:
-                        value < 60
-                          ? t('{{count}} min', { count: value })
-                          : t('{{count}} h', { count: value / 60 }),
-                    }))}
-                  />
-                </Stack>
-                <Stack gap={4}>
-                  <Textarea
-                    size="md"
-                    label={t('Interests')}
-                    description={t(
-                      'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
-                    )}
-                    rows={3}
-                    maxLength={500}
-                    value={answers.interests}
-                    onChange={(event) => update('interests', event.currentTarget.value)}
-                    error={dictationError}
-                    rightSectionWidth={52}
-                    rightSection={
-                      <ActionIcon
-                        size="xl"
-                        variant={recording ? 'filled' : 'subtle'}
-                        color={recording ? 'red' : undefined}
-                        radius="xl"
-                        aria-label={dictateLabel}
-                        title={dictateLabel}
-                        onClick={() => void dictation.toggle()}
-                        disabled={dictation.state === 'transcribing'}
+                  <Group gap="xs" className="plan-visit-suggestions">
+                    {[
+                      t('Must-see masterpieces'),
+                      t('Caravaggio and the 17th century'),
+                      t('A visit with children'),
+                    ].map((suggestion) => (
+                      <UnstyledButton
+                        key={suggestion}
+                        type="button"
+                        className="plan-visit-interest-chip"
+                        onClick={() => insertInterest(suggestion)}
                       >
-                        {dictation.state === 'transcribing' ? (
-                          <Loader size={16} />
-                        ) : recording ? (
-                          <Square size={16} />
-                        ) : (
-                          <Mic size={20} />
-                        )}
-                      </ActionIcon>
-                    }
-                  />
-                  {/* Recording and transcribing are announced, and shown under the field. */}
-                  <Text size="sm" c="dimmed" aria-live="polite">
-                    {dictationHelp}
-                  </Text>
+                        {suggestion}
+                      </UnstyledButton>
+                    ))}
+                  </Group>
                 </Stack>
-                <Checkbox
-                  size="md"
-                  label={t('Wheelchair-accessible route')}
-                  description={t('Directions avoid stairs and steps. The stops stay the same.')}
-                  checked={answers.wheelchair}
-                  onChange={(event) => update('wheelchair', event.currentTarget.checked)}
-                />
+
+                {/* Secondary constraints stay close, but cannot compete with the description. */}
+                <Stack gap="md" className="plan-visit-constraints">
+                  <Stack gap={6} className="plan-visit-time-control">
+                    <Text size="sm" fw={500} id="plan-time">
+                      {t('How much time do you have?')}
+                    </Text>
+                    <SegmentedControl
+                      className="plan-visit-segmented"
+                      size="md"
+                      aria-labelledby="plan-time"
+                      value={answers.minutes}
+                      onChange={(value) => update('minutes', value)}
+                      data={VISIT_MINUTES.map((value) => ({
+                        value: String(value),
+                        label:
+                          value < 60
+                            ? t('{{count}} min', { count: value })
+                            : t('{{count}} h', { count: value / 60 }),
+                      }))}
+                    />
+                  </Stack>
+                  {!lockedMuseum && (
+                    <Select
+                      size="md"
+                      label={t('Museum')}
+                      description={t('Pick one from the list, or name it in your interests.')}
+                      data={museums}
+                      value={answers.museumId}
+                      onChange={(value) => update('museumId', value)}
+                      searchable
+                      clearable
+                    />
+                  )}
+                  <Checkbox
+                    size="md"
+                    label={t('Wheelchair-accessible route')}
+                    description={t('Directions avoid stairs and steps. The stops stay the same.')}
+                    checked={answers.wheelchair}
+                    onChange={(event) => update('wheelchair', event.currentTarget.checked)}
+                  />
+                </Stack>
                 {/* The rest is optional: closed, the toggle still says what is set. */}
                 <Stack gap="sm">
                   {/* Two lines (title + summary) don't fit a fixed-height Button,
@@ -576,6 +781,7 @@ export function PlanVisitPage({
                           {t('Have you been here before?')}
                         </Text>
                         <SegmentedControl
+                          className="plan-visit-segmented"
                           size="md"
                           aria-labelledby="plan-returning"
                           aria-describedby="plan-returning-help"
@@ -623,7 +829,6 @@ export function PlanVisitPage({
                           description={t(
                             "Their ages choose easier contents and children's versions.",
                           )}
-                          error={ageError ? t("Enter each child's age, from 0 to 17.") : undefined}
                         >
                           <SimpleGrid cols={{ base: 3, xs: 4 }} spacing="xs" mt={6}>
                             {answers.childrenAges.map((age, index) => (
@@ -632,16 +837,33 @@ export function PlanVisitPage({
                                 key={index}
                                 {...COUNT_INPUT}
                                 aria-label={t('Age of child {{n}}', { n: index + 1 })}
+                                aria-invalid={showAgeError && age === '' ? true : undefined}
+                                aria-describedby={
+                                  showAgeError && age === '' ? 'plan-age-error' : undefined
+                                }
+                                id={`plan-age-${index}`}
                                 min={0}
                                 max={17}
                                 value={age}
-                                error={ageError && age === ''}
+                                error={showAgeError && age === ''}
                                 onChange={(value) =>
                                   setAge(index, typeof value === 'number' ? value : '')
                                 }
                               />
                             ))}
                           </SimpleGrid>
+                          {showAgeError && (
+                            <Text
+                              ref={ageErrorMessage}
+                              id="plan-age-error"
+                              size="sm"
+                              c="red"
+                              tabIndex={-1}
+                              mt="xs"
+                            >
+                              {t("Enter each child's age, from 0 to 17.")}
+                            </Text>
+                          )}
                         </Input.Wrapper>
                       )}
                     </Stack>
@@ -649,8 +871,20 @@ export function PlanVisitPage({
                 </Stack>
               </Stack>
             </fieldset>
+            {/* Announce validation as soon as the disclosure opens, even while
+              its height transition is still revealing the visible field error. */}
+            {showAgeError && (
+              <Text size="sm" role="alert" className="sr-only">
+                {t("Enter each child's age, from 0 to 17.")}
+              </Text>
+            )}
             {error && (
-              <Alert color="red" variant="light" icon={<CircleAlert size={18} aria-hidden />}>
+              <Alert
+                color="red"
+                variant="light"
+                icon={<CircleAlert size={18} aria-hidden />}
+                role="alert"
+              >
                 {error}
               </Alert>
             )}
@@ -672,7 +906,7 @@ export function PlanVisitPage({
                   ? chosenName
                     ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
                     : t('Finding the museum and choosing the stops…')
-                  : null}
+                  : t('Usually takes a few seconds.')}
               </Text>
             </Stack>
           </Stack>

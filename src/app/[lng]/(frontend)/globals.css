@@ -299,4 +299,269 @@
     --badge-height-xs: 1.125rem;
     --badge-height-sm: 1.25rem;
   }
+
+  /* The approved ember motion belongs only to the plan's focused voice field. */
+  .plan-visit-interest {
+    --plan-visit-ember: #ff8a2a;
+    position: relative;
+    isolation: isolate;
+    border-radius: 1.125rem;
+    box-shadow:
+      0 2px 12px -4px color-mix(in srgb, var(--plan-visit-ember) 50%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--plan-visit-ember) 32%, transparent);
+  }
+
+  .plan-visit-interest::before {
+    position: absolute;
+    z-index: 2;
+    inset: -2px;
+    padding: 2px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--plan-visit-angle),
+      transparent 0deg 38deg,
+      color-mix(in srgb, var(--plan-visit-ember) 92%, transparent) 68deg,
+      transparent 118deg 238deg,
+      color-mix(in srgb, var(--plan-visit-ember) 64%, transparent) 288deg,
+      transparent 330deg
+    );
+    content: '';
+    opacity: 0.62;
+    pointer-events: none;
+    animation: plan-visit-ember-orbit 7s linear infinite;
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
+
+  .plan-visit-interest::after {
+    position: absolute;
+    z-index: -1;
+    inset: -4px -2px -1px;
+    border-radius: inherit;
+    background: conic-gradient(
+      from var(--plan-visit-angle),
+      transparent 0deg 42deg,
+      color-mix(in srgb, var(--plan-visit-ember) 55%, transparent) 76deg,
+      transparent 132deg 252deg,
+      color-mix(in srgb, var(--plan-visit-ember) 38%, transparent) 300deg,
+      transparent 344deg
+    );
+    content: '';
+    filter: blur(9px);
+    opacity: 0.34;
+    pointer-events: none;
+    animation: plan-visit-ember-orbit 7s linear infinite;
+  }
+
+  .plan-visit-interest:focus-within::before,
+  .plan-visit-interest[data-state='recording']::before {
+    animation: plan-visit-ember-orbit 7s linear infinite;
+    opacity: 1;
+  }
+
+  .plan-visit-interest:focus-within::after,
+  .plan-visit-interest[data-state='recording']::after {
+    animation: plan-visit-ember-orbit 7s linear infinite;
+    opacity: 0.42;
+  }
+
+  .plan-visit-interest:focus-within,
+  .plan-visit-interest[data-state='recording'] {
+    box-shadow:
+      0 3px 16px -3px color-mix(in srgb, var(--plan-visit-ember) 72%, transparent),
+      0 0 0 1px color-mix(in srgb, var(--plan-visit-ember) 46%, transparent);
+  }
+
+  .plan-visit-interest .mantine-Textarea-input {
+    border: 0;
+    border-radius: 1rem;
+    background: transparent;
+    caret-color: var(--plan-visit-ember);
+    font-size: 1.125rem;
+    line-height: 1.55;
+  }
+
+  .plan-visit-interest .mantine-Textarea-wrapper {
+    overflow: visible;
+    border: 0;
+    border-radius: 1rem;
+    background: var(--mantine-color-body);
+  }
+
+  .plan-visit-interest .mantine-Textarea-bottomSection {
+    border-top: 0;
+  }
+
+  .plan-visit-hero-bottom {
+    width: 100%;
+    padding: 0 0.9rem 0.6rem;
+  }
+
+  .plan-visit-interim {
+    overflow-wrap: anywhere;
+    color: var(--mantine-color-text);
+    font-style: italic;
+    opacity: 0.72;
+  }
+
+  .plan-visit-character-count,
+  .plan-visit-dictation-time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The idle pill stays recognizable; recording adds only the mic's live state. */
+  .plan-visit-dictation {
+    --plan-visit-ember: #ff8a2a;
+    min-height: 2.25rem;
+    height: 2.25rem;
+    min-width: 7rem;
+    flex: 0 0 auto;
+    padding-inline: 0.8rem;
+    background-color: color-mix(in srgb, var(--plan-visit-ember) 10%, var(--mantine-color-body));
+    border-color: color-mix(
+      in srgb,
+      var(--plan-visit-ember) 48%,
+      var(--mantine-color-default-border)
+    );
+    color: light-dark(#b44200, #ffb36b);
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease;
+  }
+
+  .plan-visit-dictation:hover {
+    background-color: color-mix(in srgb, var(--plan-visit-ember) 17%, var(--mantine-color-body));
+  }
+
+  .plan-visit-dictation[data-recording='true'] {
+    border-color: color-mix(
+      in srgb,
+      var(--plan-visit-ember) 72%,
+      var(--mantine-color-default-border)
+    );
+    background-color: color-mix(in srgb, var(--plan-visit-ember) 13%, var(--mantine-color-body));
+    color: var(--mantine-color-text);
+  }
+
+  .plan-visit-dictation[data-recording='true']:hover {
+    background-color: color-mix(in srgb, var(--plan-visit-ember) 20%, var(--mantine-color-body));
+  }
+
+  .plan-visit-dictation[data-recording='true'] .mantine-Button-section {
+    color: var(--plan-visit-ember);
+  }
+
+  .plan-visit-dictation-copy,
+  .plan-visit-dictation-time {
+    white-space: nowrap;
+  }
+
+  .plan-visit-dictation .mantine-Button-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .plan-visit-voice-bars {
+    display: inline-flex;
+    height: 1rem;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .plan-visit-voice-bars i {
+    width: 2px;
+    height: 0.9rem;
+    border-radius: 2px;
+    background: var(--plan-visit-ember);
+    animation: plan-visit-voice-level 680ms ease-in-out infinite alternate;
+  }
+
+  .plan-visit-voice-bars i:nth-child(2) {
+    animation-delay: 90ms;
+  }
+
+  .plan-visit-voice-bars i:nth-child(3) {
+    animation-delay: 180ms;
+  }
+
+  .plan-visit-voice-bars i:nth-child(4) {
+    animation-delay: 270ms;
+  }
+
+  .plan-visit-voice-bars i:nth-child(5) {
+    animation-delay: 360ms;
+  }
+
+  .plan-visit-suggestions {
+    --plan-visit-ember: #ff8a2a;
+    align-items: center;
+  }
+
+  .plan-visit-interest-chip {
+    min-height: 2.5rem;
+    padding: 0 var(--mantine-spacing-sm);
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-xl);
+    color: var(--mantine-color-text);
+    font-size: var(--mantine-font-size-sm);
+    transition:
+      border-color 140ms ease,
+      background-color 140ms ease;
+  }
+
+  .plan-visit-interest-chip:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--plan-visit-ember) 54%,
+      var(--mantine-color-default-border)
+    );
+    background-color: color-mix(in srgb, var(--plan-visit-ember) 8%, var(--mantine-color-body));
+  }
+
+  .plan-visit-constraints {
+    padding-top: var(--mantine-spacing-md);
+    border-top: 1px solid var(--mantine-color-default-border);
+  }
+
+  .plan-visit-segmented .mantine-SegmentedControl-label[data-active] {
+    color: var(--mantine-color-white);
+  }
+}
+
+@property --plan-visit-angle {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes plan-visit-ember-orbit {
+  to {
+    --plan-visit-angle: 360deg;
+  }
+}
+
+@keyframes plan-visit-voice-level {
+  from {
+    transform: scaleY(0.32);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plan-visit-interest:focus-within::before,
+  .plan-visit-interest[data-state='recording']::before,
+  .plan-visit-interest:focus-within::after,
+  .plan-visit-interest[data-state='recording']::after,
+  .plan-visit-voice-bars i {
+    animation: none;
+  }
 }
