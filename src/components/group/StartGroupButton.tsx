@@ -102,11 +102,10 @@ export function StartGroupButton({
               if (groupNameValid) void openGroup(name)
             }}
             error={
-              failed === 'taken'
+              failed &&
+              (failed === 'taken'
                 ? t('Another group is using this name. Choose a different one.')
-                : failed
-                  ? t('The group could not be opened. Try again in a minute.')
-                  : null
+                : t('The group could not be opened. Try again in a minute.'))
             }
           >
             <TextInput

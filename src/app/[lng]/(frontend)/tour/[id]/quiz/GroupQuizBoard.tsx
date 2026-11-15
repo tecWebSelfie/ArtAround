@@ -80,6 +80,8 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
   const group = useGroup()
   const ended = group?.membership.attributes?.quiz === 'ended'
   const { showResults } = useGroupSettings()
+  let heading = t('Your group is taking the quiz')
+  if (ended) heading = showResults ? t('Quiz results') : t('The quiz is over')
   const finished = guests.filter((guest) => isQuizHandedIn(guest.attributes)).length
   const scores = useScores(
     tour.id,
@@ -106,11 +108,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
           <Stack gap="lg">
             <Stack gap={4}>
               <Title order={1} size="h2">
-                {ended
-                  ? showResults
-                    ? t('Quiz results')
-                    : t('The quiz is over')
-                  : t('Your group is taking the quiz')}
+                {heading}
               </Title>
               <Text c="dimmed">{tour.title}</Text>
               {!showResults && (
@@ -141,6 +139,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                 const token = guest.attributes.quizToken
                 const score = token ? scoreByToken.get(token) : undefined
                 const answered = Number(guest.attributes.quizAnswered ?? 0)
+                const handedIn = isQuizHandedIn(guest.attributes)
                 return (
                   <Group key={guest.identity} gap="sm" wrap="nowrap">
                     <Avatar name={guest.name} color="initials" size="sm" />
@@ -160,7 +159,8 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                           {t('Answers')}
                         </Anchor>
                       </Group>
-                    ) : isQuizHandedIn(guest.attributes) ? (
+                    ) : null}
+                    {!score && handedIn && (
                       <Group
                         gap={4}
                         c="light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))"
@@ -171,7 +171,8 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
                           {t('Finished')}
                         </Text>
                       </Group>
-                    ) : (
+                    )}
+                    {!score && !handedIn && (
                       <Text size="sm" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
                         {t('{{answered}} of {{total}} answered', {
                           answered,

@@ -46,7 +46,7 @@ export function NavigationModal({
   return (
     <Modal
       opened
-      title={kind === 'work' ? t('Artwork') : kind === 'stop' ? t('Next stop') : t('Content')}
+      title={{ work: t('Artwork'), stop: t('Next stop'), content: t('Content') }[kind]}
       closeButtonProps={{ 'aria-label': t('Close') }}
       withCloseButton={!guest}
       closeOnEscape={!guest}

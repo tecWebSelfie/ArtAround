@@ -22,14 +22,16 @@ export function VisibilityInput({
   kind: 'content' | 'tour'
 }) {
   const { t } = useTranslation('editing')
+  const privateDescription = {
+    tour: t('Only you and the guests of your group visits can see this tour'),
+    content: t('Only you and the guests of your group visits can read this content'),
+  }
   return (
     <Input.Wrapper
       label={t('Visibility')}
       description={
         value === 'private'
-          ? kind === 'tour'
-            ? t('Only you and the guests of your group visits can see this tour')
-            : t('Only you and the guests of your group visits can read this content')
+          ? privateDescription[kind]
           : t('Everyone can find it in the marketplace and in search')
       }
     >

@@ -4,6 +4,7 @@ import { useSharedSpeech } from '@/components/assistant/speech-context'
 import {
   finishedParagraphs,
   inlineParts,
+  type InlinePart,
   linkedIds,
   LINKS_HEADER,
   speakableText,
@@ -163,6 +164,21 @@ export function ExpansionText({
     return withNavigationPosition(`${base}/${kind}/${linkId}`, search.toString()) as Route
   }
   const known = new Set(expansion.links.map((link) => link.id))
+  // A link to a known entity, bold text, or plain text (an unknown link
+  // reads as text: the model may name an id it wasn't given).
+  const renderPart = (part: InlinePart, key: number) => {
+    if (part.type === 'link' && known.has(part.id)) {
+      // Real links (not buttons + router.push), so Cmd/Ctrl+click and
+      // middle-click open the entity in a new tab.
+      return (
+        <Anchor key={key} component={Link} href={hrefFor(part.kind, part.id)} inherit>
+          {part.text}
+        </Anchor>
+      )
+    }
+    if (part.type === 'text' && part.bold) return <strong key={key}>{part.text}</strong>
+    return <span key={key}>{part.text}</span>
+  }
   const linked = expansion.done
     ? linkedIds(expansion.text).flatMap((linkId) => {
         const link = expansion.links.find((candidate) => candidate.id === linkId)
@@ -174,19 +190,7 @@ export function ExpansionText({
     <div aria-live="polite" aria-busy={!expansion.done}>
       {paragraphs.map((paragraph, index) => (
         <p key={index} className={classes.paragraph}>
-          {inlineParts(paragraph).map((part, partIndex) =>
-            part.type === 'link' && known.has(part.id) ? (
-              // Real links (not buttons + router.push), so Cmd/Ctrl+click and
-              // middle-click open the entity in a new tab.
-              <Anchor key={partIndex} component={Link} href={hrefFor(part.kind, part.id)} inherit>
-                {part.text}
-              </Anchor>
-            ) : part.type === 'text' && part.bold ? (
-              <strong key={partIndex}>{part.text}</strong>
-            ) : (
-              <span key={partIndex}>{part.text}</span>
-            ),
-          )}
+          {inlineParts(paragraph).map(renderPart)}
         </p>
       ))}
       {/* Until the first paragraph is finished, the page shows it is loading. */}

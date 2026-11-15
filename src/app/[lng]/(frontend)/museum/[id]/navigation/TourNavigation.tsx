@@ -324,17 +324,13 @@ export const TourNavigationPage = ({
 
   // Without a confirmed position the strip asks for one instead of giving
   // directions: a route from a guessed entrance would read as real guidance.
-  const status: DirectionsStatus | null = complete
-    ? 'complete'
-    : !currentObjectId
-      ? 'no-position'
-      : routeUnavailable
-        ? 'unavailable'
-        : !destination
-          ? 'no-destination'
-          : guidance.steps.length === 0
-            ? 'loading'
-            : null
+  // The first that holds, in this order; none while there are steps to show.
+  let status: DirectionsStatus | null = null
+  if (complete) status = 'complete'
+  else if (!currentObjectId) status = 'no-position'
+  else if (routeUnavailable) status = 'unavailable'
+  else if (!destination) status = 'no-destination'
+  else if (guidance.steps.length === 0) status = 'loading'
 
   // Active guidance shares its lower control row with the assistant, leaving
   // the entire footer width for the sentence when text is enlarged.

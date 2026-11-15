@@ -39,7 +39,13 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { checkQuizAnswer, submitQuizAttempt } from './actions'
 import { QuizContentDrawer } from './QuizContentDrawer'
-import { emptyQuizSession, type QuizSession, saveQuizSession, useQuizSession } from './quiz-session'
+import {
+  emptyQuizSession,
+  type QuizFeedback,
+  type QuizSession,
+  saveQuizSession,
+  useQuizSession,
+} from './quiz-session'
 import { useGroupQuizGuest } from './group-quiz'
 
 /** `museumId` builds "back to the map" (the tour's map lives in its museum's navigation). */
@@ -288,19 +294,7 @@ export function TourQuiz({
               {question.options.map((option) => (
                 <AnswerButton
                   key={option.key}
-                  state={
-                    !feedback
-                      ? pendingKey === option.key
-                        ? 'pending'
-                        : pendingKey
-                          ? 'locked'
-                          : 'idle'
-                      : option.key === feedback.correctKey
-                        ? 'correct'
-                        : option.key === chosen
-                          ? 'wrong'
-                          : 'other'
-                  }
+                  state={answerState(option.key, { feedback, chosen, pendingKey })}
                   onClick={() => answer(question.id, option.key)}
                 >
                   {option.text}
@@ -385,6 +379,27 @@ export function TourQuiz({
 }
 
 type AnswerState = 'idle' | 'pending' | 'locked' | 'correct' | 'wrong' | 'other'
+
+/**
+ * One option's state. Before the feedback: the one being sent, the others
+ * locked meanwhile. After it: the right answer, the visitor's wrong one, and
+ * the rest.
+ */
+function answerState(
+  key: string,
+  {
+    feedback,
+    chosen,
+    pendingKey,
+  }: { feedback?: QuizFeedback; chosen?: string; pendingKey: string | null },
+): AnswerState {
+  if (feedback) {
+    if (key === feedback.correctKey) return 'correct'
+    return key === chosen ? 'wrong' : 'other'
+  }
+  if (pendingKey === key) return 'pending'
+  return pendingKey ? 'locked' : 'idle'
+}
 
 /**
  * One large, wrapping answer button. After answering, meaning is carried by

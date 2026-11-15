@@ -15,6 +15,13 @@ import type { Where } from 'payload'
 
 const FILTER_PARAM = /^filter\[(.+?)\]\[(.+?)\]$/
 const RANGE_PARAM = /^(.+)_(start|end)$/
+/** The composite filters' comparison operators as Payload's `where` ones. */
+const RANGE_OPERATOR = {
+  '>': 'greater_than',
+  '>=': 'greater_than_equal',
+  '<': 'less_than',
+  '<=': 'less_than_equal',
+} as const
 
 const DEFAULT_OPERATORS: Record<FilterDefinition['type'], FilterOperator[]> = {
   text: ['contains', 'starts_with', 'ends_with', '='],
@@ -141,14 +148,7 @@ function singleFilterToWhere(filter: ActiveFilter, def: FilterDefinition): Where
     case '>=':
     case '<':
     case '<=': {
-      const fieldOperator =
-        operator === '>'
-          ? 'greater_than'
-          : operator === '>='
-            ? 'greater_than_equal'
-            : operator === '<'
-              ? 'less_than'
-              : 'less_than_equal'
+      const fieldOperator = RANGE_OPERATOR[operator]
       const value = def.type === 'number' ? coerceNumber(raw) : String(raw)
       return value === null || value === '' ? null : { [key]: { [fieldOperator]: value } }
     }

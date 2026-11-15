@@ -62,10 +62,8 @@ async function previousAdditions(
   payload: Awaited<ReturnType<typeof getPayload>>,
   target: 'contents' | 'objects',
   id: string,
-  angle: ExpansionAngle,
-  step: number,
   locale: NonNullable<ReturnType<typeof normalizeLocale>>,
-  age?: number,
+  { angle, step, age }: { angle: ExpansionAngle; step: number; age?: number },
 ): Promise<string[]> {
   const { docs } = await payload.find({
     collection: 'contentVariants',
@@ -224,7 +222,11 @@ export async function POST(request: Request) {
   // angle: the model gets them too, as text the visitor has already read.
   const alreadyRead =
     ask.kind === 'more' && (ask.step ?? 1) > 1
-      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale, ask.age)
+      ? await previousAdditions(payload, target, id, locale, {
+          angle: ask.angle,
+          step: ask.step ?? 1,
+          age: ask.age,
+        })
       : []
   const sources: ExternalSource[] = await externalSources(
     subject.object?.name ?? subject.name,

@@ -521,13 +521,9 @@ export function PlanVisitPage({
                         onClick={() => void dictation.toggle()}
                         disabled={dictation.state === 'transcribing'}
                       >
-                        {dictation.state === 'transcribing' ? (
-                          <Loader size={16} />
-                        ) : recording ? (
-                          <Square size={16} />
-                        ) : (
-                          <Mic size={20} />
-                        )}
+                        {dictation.state === 'transcribing' && <Loader size={16} />}
+                        {dictation.state !== 'transcribing' &&
+                          (recording ? <Square size={16} /> : <Mic size={20} />)}
                       </ActionIcon>
                     }
                   />
@@ -668,11 +664,10 @@ export function PlanVisitPage({
               </Button>
               {/* The wait can take a few seconds: say what is happening. */}
               <Text size="sm" c="dimmed" ta="center" role="status">
-                {planning
-                  ? chosenName
-                    ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
-                    : t('Finding the museum and choosing the stops…')
+                {planning && chosenName
+                  ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
                   : null}
+                {planning && !chosenName ? t('Finding the museum and choosing the stops…') : null}
               </Text>
             </Stack>
           </Stack>

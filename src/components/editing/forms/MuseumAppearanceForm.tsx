@@ -96,13 +96,16 @@ export function MuseumAppearanceForm({ museum }: { museum: Pick<Museum, 'id' | '
     close,
   )
 
+  // The semantic colors a museum can't take, and why.
+  const reserved = {
+    destructive: t(
+      'Red marks the actions that delete something, so it cannot be the museum color.',
+    ),
+    paid: t('Orange marks paid contents, so it cannot be the museum color.'),
+  }
   const error = invalid
     ? t('Enter a color like #1b2a4a.')
-    : analysis?.reserved === 'destructive'
-      ? t('Red marks the actions that delete something, so it cannot be the museum color.')
-      : analysis?.reserved === 'paid'
-        ? t('Orange marks paid contents, so it cannot be the museum color.')
-        : null
+    : analysis?.reserved && reserved[analysis.reserved]
 
   return (
     <form

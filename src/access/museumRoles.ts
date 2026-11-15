@@ -28,12 +28,11 @@ export const anyone: Access = () => true
 
 export const superAdminOnly: Access = ({ req }) => isSuperAdmin(req)
 
-const asId = (value: unknown): string | null =>
-  typeof value === 'string'
-    ? value
-    : value && typeof value === 'object' && 'id' in value
-      ? String((value as { id: unknown }).id)
-      : null
+const asId = (value: unknown): string | null => {
+  if (typeof value === 'string') return value
+  if (value && typeof value === 'object' && 'id' in value) return String(value.id)
+  return null
+}
 
 /** museumId → the caller's function there (absent = no membership). */
 export async function getMuseumRoles(req: PayloadRequest): Promise<Map<string, MuseumRole>> {

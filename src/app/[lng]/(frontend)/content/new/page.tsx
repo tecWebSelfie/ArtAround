@@ -64,21 +64,16 @@ export default async function NewContentPage({
       : null,
   ])
 
+  // Up a level: the tour being built (its draft restored) when the editor
+  // was opened from it, else the work or the subject, else the navigator.
+  let backHref = `/${lng}/navigator`
+  if (tourFlow && returnTo) backHref = backToTourHref(returnTo)
+  else if (object) backHref = `/${lng}/object/${object.id}`
+  else if (subject) backHref = `/${lng}/subject/${subject.id}`
+
   return (
     <Container size="md" py="md">
-      {/* Up a level: back where the editor was opened from, else the tour
-          being built (its draft restored), the work or the subject. */}
-      <BackButton
-        href={
-          (tourFlow && returnTo
-            ? backToTourHref(returnTo)
-            : object
-              ? `/${lng}/object/${object.id}`
-              : subject
-                ? `/${lng}/subject/${subject.id}`
-                : `/${lng}/navigator`) as Route
-        }
-      />
+      <BackButton href={backHref as Route} />
       <ContentForm
         initialObject={object ? { id: object.id, name: object.name } : null}
         initialSubject={subject ? { id: subject.id, name: subject.name } : null}

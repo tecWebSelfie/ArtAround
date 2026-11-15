@@ -19,6 +19,7 @@ import {
   MapPinCheck,
   MapPinOff,
   Navigation,
+  type LucideIcon,
 } from 'lucide-react'
 import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -93,6 +94,11 @@ function DirectionsLayout({
 export type DirectionsStatus =
   'complete' | 'no-position' | 'unavailable' | 'no-destination' | 'loading'
 
+const STATUS_ICON: Partial<Record<DirectionsStatus, LucideIcon>> = {
+  complete: MapPinCheck,
+  unavailable: MapPinOff,
+}
+
 /**
  * The navbar's directions space (most of its width, beside the assistant
  * orb). It shows one step at a time; arrows move between steps, GPS progress
@@ -160,16 +166,14 @@ export function DirectionsBar({
   }
 
   if (status || !step) {
-    const message =
-      status === 'complete'
-        ? t('Tour completed')
-        : status === 'unavailable'
-          ? t('No route available between these objects')
-          : status === 'loading'
-            ? t('Finding your route')
-            : t('Choose where to go from search')
-    const Icon =
-      status === 'complete' ? MapPinCheck : status === 'unavailable' ? MapPinOff : Navigation
+    // Any other status (or none, without a step) asks for a destination.
+    const messages: Partial<Record<DirectionsStatus, string>> = {
+      complete: t('Tour completed'),
+      unavailable: t('No route available between these objects'),
+      loading: t('Finding your route'),
+    }
+    const message = (status && messages[status]) ?? t('Choose where to go from search')
+    const Icon = (status && STATUS_ICON[status]) ?? Navigation
     return (
       <DirectionsLayout trailingControl={trailingControl}>
         <Group gap="xs" wrap="nowrap" role="status" aria-live="polite" className="min-h-12 px-1">

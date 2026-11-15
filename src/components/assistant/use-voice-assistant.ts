@@ -110,15 +110,12 @@ export function useVoiceAssistant({
     [],
   )
 
-  const state: AssistantState = starting
-    ? 'loading'
-    : listening
-      ? 'listening'
-      : thinking
-        ? 'thinking'
-        : speech.speaking
-          ? 'speaking'
-          : 'ready'
+  // The first that holds, in this order: starting up, then the turn's phases.
+  let state: AssistantState = 'ready'
+  if (starting) state = 'loading'
+  else if (listening) state = 'listening'
+  else if (thinking) state = 'thinking'
+  else if (speech.speaking) state = 'speaking'
 
   /** The orb's tap: talk, or stop whatever is happening now. */
   const press = useCallback(async () => {

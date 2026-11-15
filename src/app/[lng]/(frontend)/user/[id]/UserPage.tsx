@@ -28,6 +28,16 @@ import {
 } from '@mantine/core'
 import { Amphora, BadgeCheck, BadgeInfo, Landmark, Palette, Verified } from 'lucide-react'
 
+const STATUS_ICON = { verified: Verified, director: Landmark, curator: Palette, none: null }
+
+/** The populated museums of membership join rows (ids alone are dropped). */
+const museumsOf = (memberships: (string | { museum: string | Museum })[] = []) =>
+  filterPopulated(
+    memberships.map((membership) =>
+      typeof membership === 'object' ? membership.museum : membership,
+    ),
+  )
+
 /**
  * A visitor's public profile. Phones: one column (identity with the account
  * actions at its top-right, badges, bio, then the tabs). From `md`: a 1140px
@@ -63,6 +73,19 @@ export const UserPage = async ({
   // An empty section under the museum filter says so, instead of claiming
   // the person has made nothing at all.
   const filteredTo = museumFilter?.museumOnly ? museumFilter.name : null
+  const StatusIcon = user.highestStatus ? STATUS_ICON[user.highestStatus] : undefined
+  // Empty lists: filtered to a museum, the owner's invitation to start, or a
+  // plain statement for a visitor.
+  let noToursTitle = isSelf
+    ? t('Your first tour starts here')
+    : t('{{name}} hasn’t created any tours yet', { name: firstName })
+  let noContentsTitle = isSelf
+    ? t('Tell the story of a work')
+    : t('{{name}} hasn’t written any contents yet', { name: firstName })
+  if (filteredTo) {
+    noToursTitle = t('No tours at {{museum}}', { museum: filteredTo })
+    noContentsTitle = t('No contents at {{museum}}', { museum: filteredTo })
+  }
 
   return (
     // Rhythm: tight inside the identity block (avatar, name, @handle,
@@ -96,13 +119,7 @@ export const UserPage = async ({
                     disabled={!user.highestStatus || user.highestStatus === 'none'}
                     label={
                       <ThemeIcon size="1.3em" radius="xl" variant="filled">
-                        {user.highestStatus === 'verified' ? (
-                          <Verified size="80%" />
-                        ) : user.highestStatus === 'director' ? (
-                          <Landmark size="80%" />
-                        ) : user.highestStatus === 'curator' ? (
-                          <Palette size="80%" />
-                        ) : null}
+                        {StatusIcon && <StatusIcon size="80%" />}
                       </ThemeIcon>
                     }
                   >
@@ -163,13 +180,7 @@ export const UserPage = async ({
                       <ArtaroundEmptyState
                         kind="tour"
                         heading={t('Tours')}
-                        title={
-                          filteredTo
-                            ? t('No tours at {{museum}}', { museum: filteredTo })
-                            : isSelf
-                              ? t('Your first tour starts here')
-                              : t('{{name}} hasn’t created any tours yet', { name: firstName })
-                        }
+                        title={noToursTitle}
                         description={
                           !filteredTo && isSelf
                             ? t(
@@ -193,13 +204,7 @@ export const UserPage = async ({
                       <ArtaroundEmptyState
                         kind="content"
                         heading={t('Contents')}
-                        title={
-                          filteredTo
-                            ? t('No contents at {{museum}}', { museum: filteredTo })
-                            : isSelf
-                              ? t('Tell the story of a work')
-                              : t('{{name}} hasn’t written any contents yet', { name: firstName })
-                        }
+                        title={noContentsTitle}
                         description={
                           !filteredTo && isSelf
                             ? t(
@@ -260,23 +265,12 @@ export async function UserBadges({
 }) {
   const { t } = await getT('user-page')
   // Museums where the user holds the verified-creator badge (verified memberships).
-  const verifiedMuseums = filterPopulated(
-    (user.verifiedAt?.docs ?? []).map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
+  const verifiedMuseums = museumsOf(user.verifiedAt?.docs)
   const curatorDocs = user.curatorOf?.docs ?? []
   const directorDocs = user.directorOf?.docs ?? []
-  const curatedMuseums = filterPopulated(
-    curatorDocs.map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
-  const directedMuseums = filterPopulated(
-    directorDocs.map((membership) =>
-      typeof membership === 'object' ? membership.museum : membership,
-    ),
-  )
+  // Curated museums first; a director's museums when there are none.
+  const curatedMuseums = museumsOf(curatorDocs)
+  const staffMuseums = curatedMuseums.length > 0 ? curatedMuseums : museumsOf(directorDocs)
 
   // Note: filterPopulated returns [] (truthy) when empty, so length checks are
   // required here — a bare truthiness check would render badges for everyone.
@@ -296,16 +290,8 @@ export async function UserBadges({
         </Tooltip>
       )}
       {hasStaffRows &&
-        (curatedMuseums.length > 0 ? (
-          curatedMuseums.map((museum) => (
-            <Tooltip key={museum.id} label={`${t('Curator at')} ${museum.name}`} withArrow>
-              <Badge color="green" size="sm" leftSection={<Landmark size={14} />}>
-                {museum.name}
-              </Badge>
-            </Tooltip>
-          ))
-        ) : directedMuseums.length > 0 ? (
-          directedMuseums.map((museum) => (
+        (staffMuseums.length > 0 ? (
+          staffMuseums.map((museum) => (
             <Tooltip key={museum.id} label={`${t('Curator at')} ${museum.name}`} withArrow>
               <Badge color="green" size="sm" leftSection={<Landmark size={14} />}>
                 {museum.name}

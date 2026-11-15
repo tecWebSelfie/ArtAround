@@ -137,25 +137,26 @@ export function MuseumMap({
     const reference = point(currentObjectId)
     // A service button routes to the closest instance of that type; spotlight
     // entries carry the exact node id and win over the "closest" fallback.
-    const end = !destination
-      ? null
-      : destination.kind === 'object'
-        ? point(destination.id)
-        : destination.kind === 'service'
-          ? placedServices.some((node) => node.id === destination.target)
-            ? toPoint({ id: destination.target })
-            : (nearest(
-                placedServices
-                  .filter((node) => node.service === destination.target)
-                  .map((node) => node.id),
-                reference,
-              )?.point ?? null)
-          : placedExits.some((node) => node.id === destination.target)
-            ? toPoint({ id: destination.target })
-            : (nearest(
-                placedExits.map((node) => node.id),
-                reference,
-              )?.point ?? null)
+    // An exit is any placed exit.
+    const routeEnd = () => {
+      if (!destination) return null
+      if (destination.kind === 'object') return point(destination.id)
+      const placed = destination.kind === 'service' ? placedServices : placedExits
+      if (placed.some((node) => node.id === destination.target)) {
+        return toPoint({ id: destination.target })
+      }
+      const candidates =
+        destination.kind === 'service'
+          ? placedServices.filter((node) => node.service === destination.target)
+          : placedExits
+      return (
+        nearest(
+          candidates.map((node) => node.id),
+          reference,
+        )?.point ?? null
+      )
+    }
+    const end = routeEnd()
 
     // Without a confirmed `at`, the tour starts at an entrance: the closest one
     // to where the visitor is heading, so shared links stay as short as

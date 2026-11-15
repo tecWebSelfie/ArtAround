@@ -3,6 +3,7 @@ import { config as loadEnv } from 'dotenv'
 import { mkdir, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { getPayload } from 'payload'
+import { extractID } from 'payload/shared'
 import { ItemNode, LevelNode, SlabNode, ZoneNode } from '@pascal-app/core'
 import { generateSoloNavMesh } from 'navcat/blocks'
 import { getPositionsAndIndices } from 'navcat/three'
@@ -105,9 +106,7 @@ if (!museum) {
   })
   const existingModel = existingObject.docs[0]?.model
   const modelId = existingModel
-    ? typeof existingModel === 'string'
-      ? existingModel
-      : existingModel.id
+    ? extractID(existingModel)
     : (
         await payload.create({
           collection: 'objectsModels',

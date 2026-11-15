@@ -4,6 +4,10 @@
 src/components/agents-ui/
 src/hooks/agents-ui/
 
+# React Bits `CrystalizedBall`, kept as published (lint exceptions in
+# .oxlintrc.json too).
+src/components/assistant/CrystalizedBall.tsx
+
 # Nested git worktrees of Claude sessions: full copies of the project, not
 # source of this checkout (`prettier --check .` would format them too).
 .claude/worktrees/

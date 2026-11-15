@@ -77,12 +77,9 @@ export function QuizResult({
   const [drawerContent, setDrawerContent] = useState<string | null>(null)
   const [needsLogin, setNeedsLogin] = useState(false)
 
-  const verdict =
-    percent >= 80
-      ? t('Excellent work!')
-      : percent >= 50
-        ? t('Well done!')
-        : t('Some stops deserve a second look.')
+  let verdict = t('Some stops deserve a second look.')
+  if (percent >= 80) verdict = t('Excellent work!')
+  else if (percent >= 50) verdict = t('Well done!')
 
   const share = async () => {
     const url = window.location.href

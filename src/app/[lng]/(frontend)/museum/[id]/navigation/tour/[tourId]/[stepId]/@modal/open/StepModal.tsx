@@ -46,6 +46,9 @@ export function StepModal({
   const { lng, tourId } = useParams<{ lng: string; tourId: string }>()
   const { t } = useTranslation('tour-navigation')
   const toQuiz = lastStep && quizFrom !== undefined
+  let nextLabel = t('Go to next step')
+  if (toQuiz) nextLabel = t('Complete and go to the quiz')
+  else if (lastStep) nextLabel = t('Complete tour')
   const guest = useIsGroupGuest()
   // The work this stop talks about, so the visitor can recognise it on the
   // wall before reading (the content's own image, else the work's photo).
@@ -83,11 +86,7 @@ export function StepModal({
             router.replace(withNavigationPosition(nextHref, params.toString()) as Route)
           }}
         >
-          {toQuiz
-            ? t('Complete and go to the quiz')
-            : lastStep
-              ? t('Complete tour')
-              : t('Go to next step')}
+          {nextLabel}
         </Button>
       )}
     </Stack>

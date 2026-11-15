@@ -97,8 +97,10 @@ export function MuseumSwitch({
   ]
   const busy = pending !== null
   /** Trailing mark of a row: its loader while switching, a check when current. */
-  const status = (row: string, active: boolean) =>
-    pending === row ? <Loader size={16} /> : active ? <Check size={16} aria-hidden /> : null
+  const status = (row: string, active: boolean) => {
+    if (pending === row) return <Loader size={16} />
+    return active ? <Check size={16} aria-hidden /> : null
+  }
 
   return (
     <>

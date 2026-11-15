@@ -227,6 +227,8 @@ export function TourForm({
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
+  let heading = tourId ? t('Edit tour') : t('New tour')
+  if (visitCopy) heading = t('Edit your copy')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
   const pathname = usePathname()
@@ -346,9 +348,7 @@ export function TourForm({
   return (
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
       <Stack gap="md">
-        <Title order={2}>
-          {visitCopy ? t('Edit your copy') : tourId ? t('Edit tour') : t('New tour')}
-        </Title>
+        <Title order={2}>{heading}</Title>
         <Text c="dimmed" size="sm">
           {t('Museum: {{name}}', { name: museum.name })}
         </Text>

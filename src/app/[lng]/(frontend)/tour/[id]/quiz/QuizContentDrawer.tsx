@@ -57,14 +57,16 @@ export function QuizContentDrawer({
       title={t('Read the content again')}
       closeButtonProps={{ 'aria-label': t('Close') }}
     >
-      {!current ? (
+      {current && 'error' in current && (
+        <Alert color="red">{t('This content could not be loaded.')}</Alert>
+      )}
+      {current && 'content' in current && (
+        <ContentDetailsModalContent content={current.content} lng={lng} />
+      )}
+      {!current && (
         <Stack align="center" py="xl">
           <Loader aria-label={t('Loading content')} />
         </Stack>
-      ) : 'error' in current ? (
-        <Alert color="red">{t('This content could not be loaded.')}</Alert>
-      ) : (
-        <ContentDetailsModalContent content={current.content} lng={lng} />
       )}
     </Drawer>
   )

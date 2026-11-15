@@ -108,14 +108,7 @@ export default async function MuseumPage({
   // Planning the visit: when it's open, what it costs, how to reach the
   // museum, what's new. All optional museum fields; empty ones say nothing.
   const hours = openingHoursRows(museum.openingHours, lng)
-  // Shown in international notation; dialled as E.164, the form the phone
-  // field stores for `tel:` links.
-  const phone =
-    typeof museum.phone === 'string'
-      ? { shown: museum.phone, dial: museum.phone.replace(/[^\d+]/g, '') }
-      : museum.phone?.international
-        ? { shown: museum.phone.international, dial: museum.phone.e164 }
-        : null
+  const phone = phoneLink(museum.phone)
   const socials = museum.socials ?? []
   const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
   // A news date is a day, which Payload's date picker stores as 12:00 UTC of
@@ -460,6 +453,17 @@ export default async function MuseumPage({
       />
     </Stack>
   )
+}
+
+/**
+ * The museum's phone, shown in international notation and dialled as E.164
+ * (the form the phone field stores for `tel:` links). Older documents hold a
+ * plain string: shown as typed, dialled with only its digits and `+`.
+ */
+function phoneLink(phone: Museum['phone']) {
+  if (typeof phone === 'string') return { shown: phone, dial: phone.replace(/[^\d+]/g, '') }
+  if (!phone?.international) return null
+  return { shown: phone.international, dial: phone.e164 }
 }
 
 export async function MuseumBadges(props: { museum: Museum; accessibleLabel: string }) {

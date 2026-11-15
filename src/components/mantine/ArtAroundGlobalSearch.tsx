@@ -34,6 +34,7 @@ import {
   Shapes,
   UserRound,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ClearSearchButton } from './ClearSearchButton'
 import { PaidMark } from './PaidMark'
@@ -141,6 +142,23 @@ export function ArtAroundGlobalSearch({
   // dropdown hidden rather than open an empty bordered sliver.
   const nothingToShow = filteredOptions.length === 0 && status === 'idle' && !query
 
+  // The clear button wins once there is text; with an empty field the
+  // spinner shows while the default suggestions load (first visit, or right
+  // after clearing).
+  let rightSection: ReactNode = loading ? <Loader size="xs" aria-hidden /> : null
+  if (_value) {
+    rightSection = (
+      <ClearSearchButton
+        onClear={() => {
+          // Through `handleChange`, so the owner's query resets too and the
+          // default results come back.
+          handleChange('')
+          combobox.openDropdown()
+        }}
+      />
+    )
+  }
+
   return (
     // The animated border wraps the whole combobox, not the input: the
     // input itself must be the combobox target, so it carries `aria-expanded`
@@ -192,23 +210,7 @@ export function ArtAroundGlobalSearch({
         <ComboboxTarget withExpandedAttribute>
           <TextInput
             leftSection={<Search size={16} />}
-            rightSection={
-              // The clear button wins once there is text; with an empty field
-              // the spinner shows while the default suggestions load (first
-              // visit, or right after clearing).
-              _value ? (
-                <ClearSearchButton
-                  onClear={() => {
-                    // Through `handleChange`, so the owner's query resets too
-                    // and the default results come back.
-                    handleChange('')
-                    combobox.openDropdown()
-                  }}
-                />
-              ) : loading ? (
-                <Loader size="xs" aria-hidden />
-              ) : null
-            }
+            rightSection={rightSection}
             rightSectionPointerEvents="all"
             // Search terms are names and places, not prose: no red squiggles.
             spellCheck={false}

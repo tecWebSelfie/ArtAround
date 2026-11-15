@@ -109,14 +109,13 @@ function AudioControl({ url }: { url: string }) {
     }
   }
 
-  const label =
-    state === 'preparing'
-      ? t('Preparing the audio')
-      : state === 'unavailable'
-        ? t('Audio not available')
-        : state === 'playing'
-          ? t('Pause')
-          : t('Listen')
+  const label = {
+    preparing: t('Preparing the audio'),
+    unavailable: t('Audio not available'),
+    playing: t('Pause'),
+    idle: t('Listen'),
+    paused: t('Listen'),
+  }[state]
 
   return (
     <Button

@@ -151,13 +151,12 @@ export async function ContentGlance({
       )}
       {/* A paid content shows its price while locked; once readable (bought,
           or the visitor is its author or museum staff) it says so instead. */}
-      {isLocked(content) ? (
-        <LockedPriceBadge price={content.price ?? 0} size="lg" />
-      ) : isPaid(content) ? (
+      {isLocked(content) && <LockedPriceBadge price={content.price ?? 0} size="lg" />}
+      {!isLocked(content) && isPaid(content) && (
         <Badge size="lg" variant="light" color="teal" leftSection={<LockOpen size={14} />}>
           {t('Unlocked')}
         </Badge>
-      ) : null}
+      )}
       {/* `default`: a bordered neutral chip with body-colored text (the gray
           outline variant drew its label at 3.3:1). */}
       {categories.map((category) => (

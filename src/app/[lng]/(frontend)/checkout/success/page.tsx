@@ -89,29 +89,26 @@ export default async function CheckoutSuccess(props: {
         purchasedTitle(payload, back.target, lng),
       ])
     : [false, null]
-  const action = {
-    label: back.isTour
-      ? t('Back to the tour')
-      : back.target?.collection === 'contents'
-        ? t('Back to the content')
-        : t('Back to the navigator'),
-    href: back.href,
+  let label = t('Back to the navigator')
+  if (back.isTour) label = t('Back to the tour')
+  else if (back.target?.collection === 'contents') label = t('Back to the content')
+  const action = { label, href: back.href }
+
+  // What was unlocked: named when its title is known, a whole tour's paid
+  // contents or a single purchase.
+  let unlocked = back.isTour
+    ? t('The paid contents of this tour are now unlocked on your account.')
+    : t('Your purchase is now unlocked on your account.')
+  if (item) {
+    unlocked = back.isTour
+      ? t('The paid contents of “{{title}}” are now unlocked on your account.', { title: item })
+      : t('“{{title}}” is now unlocked on your account.', { title: item })
   }
 
   return owned ? (
     <CheckoutOutcome
       title={t('Payment received')}
-      description={
-        item
-          ? back.isTour
-            ? t('The paid contents of “{{title}}” are now unlocked on your account.', {
-                title: item,
-              })
-            : t('“{{title}}” is now unlocked on your account.', { title: item })
-          : back.isTour
-            ? t('The paid contents of this tour are now unlocked on your account.')
-            : t('Your purchase is now unlocked on your account.')
-      }
+      description={unlocked}
       detail={reference}
       action={action}
     />

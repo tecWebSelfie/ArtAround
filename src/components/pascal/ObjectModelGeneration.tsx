@@ -14,13 +14,19 @@ import { zGenerateModelBody, zReviseOperationBody } from '@/lib/pascal/mint/clie
 import type { Object as MuseumObject } from '@/payload-types'
 import type { AssetInput } from '@pascal-app/core'
 import { useForm } from '@mantine/form'
-import { Button, TextInput, Textarea } from '@mantine/core'
+import { Button, Image, TextInput, Textarea } from '@mantine/core'
 import { Dropzone } from '@mantine/dropzone'
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './object-catalog.module.css'
+
+/** One reference image is the model's main view; several are its sources. */
+function referenceGuidance(urls: string[]) {
+  if (urls.length === 1) return { imageUrl: urls[0] }
+  return urls.length > 1 ? { sourceImages: urls } : {}
+}
 
 /** A job's or a request's error: an Error, a Payload `{ message }` or a string. */
 function errorMessage(error: unknown) {
@@ -75,11 +81,8 @@ export function ObjectModelGeneration({
   const previewImage = assets?.previewImageUrl ?? assets?.thumbnailUrl
   // A brand-new object is created by (hence owned by) the viewer.
   const canSteer = !objectId || canSteerObject(viewer, (currentObject.data ?? object)?.createdBy)
-  const asset = currentObject.data
-    ? objectAsset(currentObject.data)
-    : object
-      ? objectAsset(object)
-      : null
+  const savedObject = currentObject.data ?? object
+  const asset = savedObject ? objectAsset(savedObject) : null
   const form = useForm({
     initialValues: {
       name: object?.name ?? '',
@@ -128,8 +131,7 @@ export function ObjectModelGeneration({
             references.map(({ file, requestId }) => uploadModelReference(file, requestId)),
           )
         : []
-      const guidance =
-        urls.length === 1 ? { imageUrl: urls[0] } : urls.length > 1 ? { sourceImages: urls } : {}
+      const guidance = referenceGuidance(urls)
       const queued = await command.mutateAsync({
         objectId: targetId,
         command: {
@@ -149,12 +151,10 @@ export function ObjectModelGeneration({
   async function review(action: 'approve' | 'revise') {
     if (!job) return
     try {
-      const previewJobId =
-        job.workflowSlug === 'interactiveObjectModel'
-          ? String(job.id)
-          : 'previewJobId' in job.input
-            ? String(job.input.previewJobId)
-            : ''
+      // The preview job itself, or the one a finalize job was started from.
+      let previewJobId = ''
+      if (job.workflowSlug === 'interactiveObjectModel') previewJobId = String(job.id)
+      else if ('previewJobId' in job.input) previewJobId = String(job.input.previewJobId)
       const next = await command.mutateAsync({
         objectId,
         command:
@@ -209,7 +209,7 @@ export function ObjectModelGeneration({
           {/* Square box sized up front (`.preview img`), so the text and the
               button below don't jump when the picture arrives. */}
           {asset.thumbnail ? (
-            <img alt={asset.name} src={asset.thumbnail} width={512} height={512} />
+            <Image alt={asset.name} src={asset.thumbnail} width={512} height={512} />
           ) : null}
           <p>{t('Your object is ready to position on the map.')}</p>
           <Button onClick={() => onPosition(asset)} type="button">
@@ -221,7 +221,12 @@ export function ObjectModelGeneration({
       {previewReady ? (
         <section className={styles.preview} aria-label={t('Model preview')}>
           {previewImage ? (
-            <img alt={t('Generated object preview')} src={previewImage} width={512} height={512} />
+            <Image
+              alt={t('Generated object preview')}
+              src={previewImage}
+              width={512}
+              height={512}
+            />
           ) : (
             <p role="status">
               {operation.isError

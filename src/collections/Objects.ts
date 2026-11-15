@@ -50,7 +50,8 @@ const validateExclusiveContents: RelationshipFieldValidation = async (value, opt
   const base = await relationship(value, options)
   if (base !== true) return base
   const { req, id } = options
-  const selected = (Array.isArray(value) ? value : value ? [value] : [])
+  const selected = [value ?? []]
+    .flat()
     .map((entry) => String(extractID(entry as never)))
     .filter(Boolean)
   if (!selected.length || !req?.payload) return true

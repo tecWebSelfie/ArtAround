@@ -8,6 +8,7 @@ import { asViewer, getSession, requireUser } from '@/lib/session'
 import { tourCopyPath, tourEditPath, VISIT_COPY_PARAM } from '@/lib/tour-routes'
 import { Alert, Container } from '@mantine/core'
 import { redirect } from 'next/navigation'
+import { extractID } from 'payload/shared'
 import { directionsByStop } from '@/lib/tour-logistics'
 import { existingVisitCopy, getTourEditorData } from '../tour-editing'
 
@@ -45,11 +46,7 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
     if (copyId) redirect(tourEditPath(lng, copyId))
   }
   // Museum mode: with no museum in the URL, a new tour is for the locked museum.
-  const museumId = source
-    ? typeof source.museum === 'string'
-      ? source.museum
-      : source.museum.id
-    : (museumParam ?? (await lockedMuseumId()))
+  const museumId = source ? extractID(source.museum) : (museumParam ?? (await lockedMuseumId()))
 
   if (!museumId) {
     const { t } = await getT('editing')

@@ -68,6 +68,8 @@ function formatPrice(cents: number, currency: string, locale: string) {
  * elements), and the footer always shows either the price, a "Free" badge, or
  * the profile action so every result type is distinguishable at a glance.
  */
+const KIND_COLOR = { tour: 'grape', content: 'teal', user: 'blue' } as const
+
 export function MarketplaceCard({
   item,
   locale,
@@ -82,16 +84,9 @@ export function MarketplaceCard({
   const isUser = item.kind === 'user'
   const isPaid = !isUser && item.priceCents > 0
 
-  const href = (
-    isTour
-      ? `/${locale}/tour/${item.id}`
-      : isContent
-        ? `/${locale}/content/${item.id}`
-        : `/${locale}/user/${item.id}`
-  ) as Route
-
-  const kindLabel = isTour ? labels.tour : isContent ? labels.content : labels.user
-  const kindColor = isTour ? 'grape' : isContent ? 'teal' : 'blue'
+  const href = `/${locale}/${item.kind}/${item.id}` as Route
+  const kindLabel = labels[item.kind]
+  const kindColor = KIND_COLOR[item.kind]
   const FallbackIcon = KIND_FALLBACK[item.kind].Icon
 
   // `Link` wraps the card instead of being passed as Mantine's `component`:
