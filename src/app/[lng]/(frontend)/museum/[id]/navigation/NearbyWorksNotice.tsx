@@ -25,8 +25,9 @@ export function NearbyWorksNotice({
   if (!works.length) return null
   const next = works.some((work) => work.next)
   const Icon = next ? FlagTriangleRight : Compass
-  let heading = next ? t('Your next stop is nearby') : t('Discover a nearby work')
-  if (works.length > 1) heading = t('Which work is in front of you?')
+  let heading = t('Which work is in front of you?')
+  if (works.length <= 1)
+    heading = next ? t('Your next stop is nearby') : t('Discover a nearby work')
   return (
     <Paper
       className="pointer-events-auto max-h-[45dvh] w-full max-w-sm overflow-auto rounded-md border border-(--mantine-color-default-border) bg-(--mantine-color-body) p-3 shadow-md"

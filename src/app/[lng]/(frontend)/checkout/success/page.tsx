@@ -89,20 +89,24 @@ export default async function CheckoutSuccess(props: {
         purchasedTitle(payload, back.target, lng),
       ])
     : [false, null]
-  let label = t('Back to the navigator')
-  if (back.isTour) label = t('Back to the tour')
-  else if (back.target?.collection === 'contents') label = t('Back to the content')
+  const label = {
+    tour: t('Back to the tour'),
+    content: t('Back to the content'),
+    navigator: t('Back to the navigator'),
+  }[back.kind]
   const action = { label, href: back.href }
 
-  // What was unlocked: named when its title is known, a whole tour's paid
-  // contents or a single purchase.
-  let unlocked = back.isTour
-    ? t('The paid contents of this tour are now unlocked on your account.')
-    : t('Your purchase is now unlocked on your account.')
-  if (item) {
-    unlocked = back.isTour
+  // What was unlocked: a whole tour's paid contents or a single purchase,
+  // named when its title is known.
+  let unlocked: string
+  if (back.kind === 'tour') {
+    unlocked = item
       ? t('The paid contents of “{{title}}” are now unlocked on your account.', { title: item })
-      : t('“{{title}}” is now unlocked on your account.', { title: item })
+      : t('The paid contents of this tour are now unlocked on your account.')
+  } else {
+    unlocked = item
+      ? t('“{{title}}” is now unlocked on your account.', { title: item })
+      : t('Your purchase is now unlocked on your account.')
   }
 
   return owned ? (

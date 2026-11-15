@@ -1,5 +1,6 @@
 import { allowRequest } from '@/lib/rate-limit'
 import { matchControlledCommand } from '@/lib/voice-vocabulary'
+import { parseJson } from '@/lib/parse-json'
 import { textModel, transcriptionModel } from '@/lib/ai-models'
 import { generateText, Output, transcribe } from 'ai'
 import { NextResponse } from 'next/server'
@@ -29,15 +30,6 @@ const MAX_AUDIO_BYTES = 1_000_000
 const CommandList = z
   .array(z.object({ id: z.string(), label: z.string(), description: z.string() }))
   .max(500)
-
-/** Malformed JSON reads as `null`, so it fails validation (400), not the route (500). */
-function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text)
-  } catch {
-    return null
-  }
-}
 
 export async function POST(request: Request) {
   if (!allowRequest(request, 20)) {

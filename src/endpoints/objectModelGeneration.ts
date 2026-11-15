@@ -94,7 +94,10 @@ export const objectModelGenerationEndpoints: Endpoint[] = [
     method: 'post',
     handler: async (req) => {
       if (!req.user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-      const objectId = typeof req.routeParams?.id === 'string' ? req.routeParams.id : ''
+      const objectId = req.routeParams?.id
+      if (typeof objectId !== 'string') {
+        return Response.json({ error: 'Missing object id' }, { status: 400 })
+      }
       const object = await req.payload.findByID({
         collection: 'objects',
         id: objectId,

@@ -72,9 +72,9 @@ export function ObjectModelGeneration({
   )
   const assets = operation.data?.assets ?? previewTask?.operation.assets
   const previewImage = assets?.previewImageUrl ?? assets?.thumbnailUrl
-  // A brand-new object is created by (hence owned by) the viewer.
-  const canSteer = !objectId || canSteerObject(viewer, (currentObject.data ?? object)?.createdBy)
   const savedObject = currentObject.data ?? object
+  // A brand-new object is created by (hence owned by) the viewer.
+  const canSteer = !objectId || canSteerObject(viewer, savedObject?.createdBy)
   const asset = savedObject ? objectAsset(savedObject) : null
   const form = useForm({
     initialValues: {
@@ -176,7 +176,7 @@ export function ObjectModelGeneration({
       {generation.isError ? (
         <p className={styles.error} role="alert">
           {t('Could not load generation status.')}{' '}
-          <Button variant="default" onClick={() => void generation.refetch()} type="button">
+          <Button variant="default" onClick={() => generation.refetch()} type="button">
             {t('Retry')}
           </Button>
         </p>
@@ -239,18 +239,14 @@ export function ObjectModelGeneration({
             />
           ) : null}
           <div className={styles.actions}>
-            <Button
-              loading={command.isPending}
-              onClick={() => void review('approve')}
-              type="button"
-            >
+            <Button loading={command.isPending} onClick={() => review('approve')} type="button">
               {t('Approve and create model')}
             </Button>
             {canSteer ? (
               <Button
                 variant="default"
                 disabled={command.isPending || !form.values.feedback.trim()}
-                onClick={() => void review('revise')}
+                onClick={() => review('revise')}
                 type="button"
               >
                 {t('Revise preview')}
@@ -265,7 +261,7 @@ export function ObjectModelGeneration({
         <Button
           variant="default"
           loading={command.isPending}
-          onClick={() => void review('approve')}
+          onClick={() => review('approve')}
           type="button"
         >
           {t('Retry saving model')}

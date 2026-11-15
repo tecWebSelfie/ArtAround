@@ -51,7 +51,7 @@ describe('progressive "Tell me more"', async () => {
     expect(JSON.stringify(first)).toContain('"exists":false')
     const third = variantWhere('contents', 'c1', { kind: 'more', angle: 'story', step: 3 })
     expect(third.and).toContainEqual({ step: { equals: 3 } })
-    expect(previousStepsWhere('contents', 'c1', 'story', 3).and).toContainEqual({
+    expect(previousStepsWhere('contents', 'c1', { angle: 'story', step: 3 }).and).toContainEqual({
       or: [{ step: { less_than: 3 } }, { step: { exists: false } }],
     })
   })

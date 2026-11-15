@@ -10,9 +10,11 @@ export default async function CheckoutCancel(props: {
   const { lng } = await props.params
   const back = checkoutReturn(lng, await props.searchParams)
   const { t } = await getT('checkout')
-  let backLabel = t('Back to the navigator')
-  if (back.isTour) backLabel = t('Back to the tour')
-  else if (back.target?.collection === 'contents') backLabel = t('Back to the content')
+  const backLabel = {
+    tour: t('Back to the tour'),
+    content: t('Back to the content'),
+    navigator: t('Back to the navigator'),
+  }[back.kind]
   return (
     <CheckoutOutcome
       title={t('Checkout cancelled')}

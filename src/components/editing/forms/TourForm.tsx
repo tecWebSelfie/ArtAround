@@ -227,8 +227,8 @@ export function TourForm({
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
-  let heading = tourId ? t('Edit tour') : t('New tour')
-  if (visitCopy) heading = t('Edit your copy')
+  let heading = t('Edit your copy')
+  if (!visitCopy) heading = tourId ? t('Edit tour') : t('New tour')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
   const pathname = usePathname()

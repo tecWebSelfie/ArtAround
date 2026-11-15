@@ -78,21 +78,22 @@ export function GroupRoomPage({
   // No tour: the group has ended. Already a member: the waiting room.
   // Otherwise: the invitation to join.
   let body = <GroupEnded />
-  if (tour && group?.membership.code === code) {
-    body = (
-      // LiveKit's hooks need the room, which GroupProvider creates lazily.
-      <GroupRoom
-        fallback={
-          <Center py="xl">
-            <Loader />
-          </Center>
-        }
-      >
-        <WaitingRoom code={code} groupName={groupName} tour={tour} />
-      </GroupRoom>
-    )
-  } else if (tour) {
-    body = <JoinGroup code={code} hostName={hostName} showResults={showResults} tour={tour} />
+  if (tour) {
+    body =
+      group?.membership.code === code ? (
+        // LiveKit's hooks need the room, which GroupProvider creates lazily.
+        <GroupRoom
+          fallback={
+            <Center py="xl">
+              <Loader />
+            </Center>
+          }
+        >
+          <WaitingRoom code={code} groupName={groupName} tour={tour} />
+        </GroupRoom>
+      ) : (
+        <JoinGroup code={code} hostName={hostName} showResults={showResults} tour={tour} />
+      )
   }
   return (
     <Container component="main" size="xs" py="xl">

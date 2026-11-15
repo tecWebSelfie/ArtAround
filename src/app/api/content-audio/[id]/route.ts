@@ -5,6 +5,7 @@ import {
   contentAudioWhere,
 } from '@/lib/content-audio'
 import { speechAvailable } from '@/lib/ai-models'
+import { parseJson } from '@/lib/parse-json'
 import { VersionRequest } from '@/lib/expansion-request'
 import { variantWhere } from '@/lib/expansion-variants'
 import { normalizeLocale } from '@/lib/localized'
@@ -41,15 +42,6 @@ const REQUEUE_AFTER_MS = 2 * 60_000
 
 const json = (status: string, code: number) =>
   NextResponse.json({ status }, { status: code, headers: { 'Cache-Control': 'no-store' } })
-
-/** The `version` query parameter as JSON, or null when it isn't JSON at all. */
-function parseJson(text: string): unknown {
-  try {
-    return JSON.parse(text)
-  } catch {
-    return null
-  }
-}
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   if (!allowRequest(request, 60)) return json('busy', 429)

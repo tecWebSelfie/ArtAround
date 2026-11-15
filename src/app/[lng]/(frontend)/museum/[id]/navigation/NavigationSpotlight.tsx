@@ -89,6 +89,20 @@ export function NavigationSpotlight({
       </Stack>
     )
 
+  const searchResults = () => {
+    if (results.length === 0) return <Spotlight.Empty>{t('No results found')}</Spotlight.Empty>
+    return results.map((command) => (
+      <Spotlight.Action
+        key={command.id}
+        label={command.label}
+        description={command.description}
+        leftSection={commandIcon(command)}
+        rightSection={command.lockedPrice ? <LockedPriceBadge price={command.lockedPrice} /> : null}
+        onClick={() => onRun(command)}
+      />
+    ))
+  }
+
   return (
     <Spotlight.Root shortcut={NAVIGATION_SEARCH_SHORTCUTS} query={query} onQueryChange={setQuery}>
       <Spotlight.Search
@@ -111,21 +125,9 @@ export function NavigationSpotlight({
         }}
       />
       <Spotlight.ActionsList>
-        {text && results.length === 0 && <Spotlight.Empty>{t('No results found')}</Spotlight.Empty>}
-        {text &&
-          results.map((command) => (
-            <Spotlight.Action
-              key={command.id}
-              label={command.label}
-              description={command.description}
-              leftSection={commandIcon(command)}
-              rightSection={
-                command.lockedPrice ? <LockedPriceBadge price={command.lockedPrice} /> : null
-              }
-              onClick={() => onRun(command)}
-            />
-          ))}
-        {!text && (
+        {text ? (
+          searchResults()
+        ) : (
           <Stack gap="md" p="sm">
             {pills(t('Tours in this museum'), tours, true)}
             {pills(t('Nearby'), nearby)}

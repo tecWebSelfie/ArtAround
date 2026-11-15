@@ -73,18 +73,20 @@ export const UserPage = async ({
   // An empty section under the museum filter says so, instead of claiming
   // the person has made nothing at all.
   const filteredTo = museumFilter?.museumOnly ? museumFilter.name : null
-  const StatusIcon = user.highestStatus ? STATUS_ICON[user.highestStatus] : undefined
+  const StatusIcon = STATUS_ICON[user.highestStatus ?? 'none']
   // Empty lists: filtered to a museum, the owner's invitation to start, or a
   // plain statement for a visitor.
-  let noToursTitle = isSelf
-    ? t('Your first tour starts here')
-    : t('{{name}} hasn’t created any tours yet', { name: firstName })
-  let noContentsTitle = isSelf
-    ? t('Tell the story of a work')
-    : t('{{name}} hasn’t written any contents yet', { name: firstName })
+  let noToursTitle: string
+  let noContentsTitle: string
   if (filteredTo) {
     noToursTitle = t('No tours at {{museum}}', { museum: filteredTo })
     noContentsTitle = t('No contents at {{museum}}', { museum: filteredTo })
+  } else if (isSelf) {
+    noToursTitle = t('Your first tour starts here')
+    noContentsTitle = t('Tell the story of a work')
+  } else {
+    noToursTitle = t('{{name}} hasn’t created any tours yet', { name: firstName })
+    noContentsTitle = t('{{name}} hasn’t written any contents yet', { name: firstName })
   }
 
   return (
@@ -116,7 +118,7 @@ export const UserPage = async ({
                     color="transparent"
                     offset={6}
                     position="bottom-end"
-                    disabled={!user.highestStatus || user.highestStatus === 'none'}
+                    disabled={!StatusIcon}
                     label={
                       <ThemeIcon size="1.3em" radius="xl" variant="filled">
                         {StatusIcon && <StatusIcon size="80%" />}

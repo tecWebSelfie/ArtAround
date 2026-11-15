@@ -70,9 +70,10 @@ export function NavigatorSearch({
   // not for the text in the field. A flag set on typing stayed stuck when the
   // text went back to an already-fetched value before the debounce fired.
   const trimmedQuery = query.trim()
-  let status: SearchStatus = result?.failed ? 'error' : 'idle'
+  let status: SearchStatus = 'idle'
   // No answer yet, or one for an older query.
   if (result === null || result.query !== trimmedQuery) status = 'loading'
+  else if (result.failed) status = 'error'
   const items = result?.items ?? initialItems
 
   return (

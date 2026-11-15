@@ -1,12 +1,7 @@
 import config from '@/payload.config'
-import {
-  keepKnownLinks,
-  LINKS_HEADER,
-  type ExpansionAngle,
-  type ExpansionLink,
-} from '@/lib/expansion'
+import { keepKnownLinks, LINKS_HEADER, type ExpansionLink } from '@/lib/expansion'
 import { expansionPrompt } from '@/lib/expansion-prompt'
-import { previousStepsWhere, variantWhere } from '@/lib/expansion-variants'
+import { type MoreStep, previousStepsWhere, variantWhere } from '@/lib/expansion-variants'
 import { externalSources, type ExternalSource } from '@/lib/expansion-sources'
 import { normalizeLocale } from '@/lib/localized'
 import { lockedMuseumId } from '@/lib/museum-mode'
@@ -63,11 +58,11 @@ async function previousAdditions(
   target: 'contents' | 'objects',
   id: string,
   locale: NonNullable<ReturnType<typeof normalizeLocale>>,
-  { angle, step, age }: { angle: ExpansionAngle; step: number; age?: number },
+  more: MoreStep,
 ): Promise<string[]> {
   const { docs } = await payload.find({
     collection: 'contentVariants',
-    where: previousStepsWhere(target, id, angle, step, age),
+    where: previousStepsWhere(target, id, more),
     locale,
     fallbackLocale: false,
     sort: 'step',

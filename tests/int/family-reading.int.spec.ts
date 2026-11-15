@@ -49,8 +49,8 @@ describe('synchronized family reading', () => {
     expect(variantWhere('contents', 'c', version)).not.toEqual(
       variantWhere('contents', 'c', { ...version, age: 5 }),
     )
-    expect(previousStepsWhere('contents', 'c', 'more', 2, 5)).not.toEqual(
-      previousStepsWhere('contents', 'c', 'more', 2, 8),
+    expect(previousStepsWhere('contents', 'c', { angle: 'more', step: 2, age: 5 })).not.toEqual(
+      previousStepsWhere('contents', 'c', { angle: 'more', step: 2, age: 8 }),
     )
   })
   it('validates ages and removes child parameters when choosing an adult reader', () => {

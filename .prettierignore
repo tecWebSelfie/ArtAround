@@ -1,11 +1,9 @@
 # Vendored LiveKit agents-ui components: kept exactly as published, so they
-# can be re-copied from the registry (their lint exceptions are in
-# .oxlintrc.json).
+# can be re-copied from the registry (oxlint ignores them too).
 src/components/agents-ui/
 src/hooks/agents-ui/
 
-# React Bits `CrystalizedBall`, kept as published (lint exceptions in
-# .oxlintrc.json too).
+# React Bits `CrystalizedBall`, kept as published (oxlint ignores it too).
 src/components/assistant/CrystalizedBall.tsx
 
 # Nested git worktrees of Claude sessions: full copies of the project, not

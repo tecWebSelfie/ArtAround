@@ -96,7 +96,7 @@ export function ObjectCatalogPanel() {
       {library.isError ? (
         <p className={styles.header} role="alert">
           {t('Could not load objects.')}{' '}
-          <Button variant="default" onClick={() => void library.refetch()} type="button">
+          <Button variant="default" onClick={() => library.refetch()} type="button">
             {t('Retry')}
           </Button>
         </p>
