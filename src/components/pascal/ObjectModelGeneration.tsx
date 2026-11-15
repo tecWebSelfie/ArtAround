@@ -174,7 +174,6 @@ function useModelGeneration({ object, viewer }: { object?: MuseumObject; viewer:
   }
 
   return {
-    t,
     view,
     objectId,
     generation,
@@ -211,8 +210,8 @@ export function ObjectModelGeneration({
   viewer: EditorViewer
 }) {
   const id = useId()
+  const { t } = useTranslation('map-editor')
   const {
-    t,
     view,
     objectId,
     generation,
@@ -285,13 +284,17 @@ export function ObjectModelGeneration({
           busy={form.submitting || command.isPending}
         />
       ) : null}
-      {[form.errors.prompt, form.errors.feedback, command.error && errorMessage(command.error)]
-        .filter(Boolean)
-        .map((message) => (
-          <p key={String(message)} className={styles.error} role="alert">
+      {Object.entries({
+        prompt: form.errors.prompt,
+        feedback: form.errors.feedback,
+        command: command.error && errorMessage(command.error),
+      }).map(([slot, message]) =>
+        message ? (
+          <p key={slot} className={styles.error} role="alert">
             {message}
           </p>
-        ))}
+        ) : null,
+      )}
     </div>
   )
 }

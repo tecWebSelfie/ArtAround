@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next'
 import { PlanPreview } from './PlanPreview'
 import { usePlanVisit } from './use-plan-visit'
 import { MoreAboutVisit } from './MoreAboutVisit'
-import { useDictation, type DictationState, type Museum } from './plan-visit-state'
+import { useDictation, type DictationState, type Museum, PLAN_PAGE_CLASS } from './plan-visit-state'
 
 /**
  * The "Plan my visit" form and its preview. Only form controls: the visitor
@@ -93,7 +93,7 @@ export function PlanVisitPage({
   }
 
   return (
-    <main className="text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]">
+    <main className={PLAN_PAGE_CLASS}>
       <Container size="xs" py="xl">
         <form
           onSubmit={(event) => {

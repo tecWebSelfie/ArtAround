@@ -213,8 +213,6 @@ function ProfileIdentity({
   const StatusIcon = STATUS_ICON[user.highestStatus ?? 'none']
   return (
     <Stack gap="sm">
-      {/* Identity on the left; account actions (sign out) at the top-right
-          corner, where account utilities live, out of the profile's flow. */}
       <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
         <Group align="center" gap="xs" wrap="nowrap" miw={0}>
           <Indicator
@@ -316,9 +314,6 @@ async function AuthoredWork({
       {museumFilter && (
         <ProfileMuseumFilter museumName={museumFilter.name} museumOnly={museumFilter.museumOnly} />
       )}
-      {/* Empty: the section keeps its heading and place. The
-          owner hears what goes there and gets the way to make
-          the first one; a visitor reads a plain statement. */}
       {populatedTours.length === 0 ? (
         <ArtaroundEmptyState
           kind="tour"

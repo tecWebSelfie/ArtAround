@@ -214,13 +214,13 @@ export async function ContentDetails({
 
       {object && (
         <Section title={t('About the object')}>
-          <ObjectCard object={object} museum={museum} />
+          <ObjectCard object={object} museum={museum} image={objectImage} />
         </Section>
       )}
 
       {author && (
         <Section title={t('Written by')}>
-          <AuthorLink author={author} />
+          <AuthorLink author={author} lng={lng} />
         </Section>
       )}
 
@@ -396,12 +396,15 @@ function LinkRow({
 async function ObjectCard({
   object,
   museum,
+  image,
 }: {
   object: NonNullable<ContentDetailsProps['object']>
   museum: ContentDetailsProps['museum']
+  /** The object's populated thumbnail (the page computes it once). */
+  image: Extract<NonNullable<ContentDetailsProps['object']>['thumbnail'], object> | null
 }) {
   const { t, lng } = await getT('content-page')
-  const objectImage = isPopulated(object.thumbnail) ? object.thumbnail : null
+  const objectImage = image
   const objectHref = `/${lng}/object/${object.id}` as Route
   return (
     <Card withBorder radius="md" padding="sm">
@@ -466,8 +469,13 @@ async function ObjectCard({
 }
 
 /** The author's profile link: avatar, name and the start of their bio. */
-async function AuthorLink({ author }: { author: NonNullable<ContentDetailsProps['author']> }) {
-  const { lng } = await getT('content-page')
+function AuthorLink({
+  author,
+  lng,
+}: {
+  author: NonNullable<ContentDetailsProps['author']>
+  lng: string
+}) {
   const authorAvatar = isPopulated(author.avatar) ? author.avatar : null
   return (
     <Link

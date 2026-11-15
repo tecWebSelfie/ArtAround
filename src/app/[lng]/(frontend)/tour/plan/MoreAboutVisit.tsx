@@ -49,8 +49,6 @@ export function MoreAboutVisit({
     .join(' · ')
   return (
     <Stack gap="sm">
-      {/* Two lines (title + summary) don't fit a fixed-height Button,
-        so this is an UnstyledButton with Mantine's focus ring. */}
       <UnstyledButton
         aria-expanded={open}
         aria-controls="plan-more"

@@ -9,6 +9,7 @@ import { Badge, Button, Container, Group, Stack, Text, Timeline, Title } from '@
 import { Accessibility, Baby, Clock, Footprints, MapPin, MapPinCheck, Play } from 'lucide-react'
 import type { ComponentProps, Ref } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PLAN_PAGE_CLASS } from './plan-visit-state'
 
 /**
  * The planned visit, before it starts: its stops and time, the answers the
@@ -40,7 +41,7 @@ export function PlanPreview({
 }) {
   const { t } = useTranslation('plan-visit')
   return (
-    <div className="text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]">
+    <div className={PLAN_PAGE_CLASS}>
       <Container size="xs" py="xl">
         <Stack gap="lg">
           <BackToNavigator />

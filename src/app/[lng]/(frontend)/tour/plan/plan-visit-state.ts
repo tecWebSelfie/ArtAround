@@ -52,6 +52,13 @@ export const EMPTY: Stored = { answers: DEFAULT_ANSWERS, plan: null }
 
 export const MAX_CHILDREN = 10
 
+/**
+ * The form's and the preview's page: balanced wrapping, and readable error,
+ * dimmed and description text (darker in light mode, lighter in dark).
+ */
+export const PLAN_PAGE_CLASS =
+  'text-pretty [--mantine-color-error:light-dark(var(--mantine-color-red-8),var(--mantine-color-red-4))] [&_.mantine-InputWrapper-description]:leading-normal [--mantine-color-dimmed:light-dark(var(--mantine-color-gray-7),var(--mantine-color-gray-5))]'
+
 /** Props of every count field: whole numbers in range, a numeric keypad, no steppers. */
 export const COUNT_INPUT = {
   size: 'md',
