@@ -55,7 +55,9 @@ tours/contents/museums plus museum city matching. See
 [Search](docs/search.md) for the indexed fields, scopes, and reindex command.
 
 For fast iteration, run focused checks for the affected behavior rather than the
-entire test suite. Run memory-heavy checks sequentially and state which checks
+entire test suite: `pnpm test:int --changed` (only the specs that import a
+changed file) or one spec file; one e2e spec with `-g "<test>" --trace off`
+against the running `next dev`. Full suites run before a delivery. Run memory-heavy checks sequentially and state which checks
 passed and which remain open. Build on existing worktree changes, preserving
 unrelated edits.
 
@@ -291,11 +293,22 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   to the tsconfig.
 - `pnpm lint`: oxlint (`.oxlintrc.json`), the same rule set the former ESLint
   config had (eslint-config-next, the React Compiler rules of
-  eslint-plugin-react-hooks, eslint-plugin-storybook as a JS plugin), in about a
-  second on the whole project (ESLint took ~25 s). `oxlint` is pinned to
+  eslint-plugin-react-hooks, eslint-plugin-storybook as a JS plugin), in a few
+  seconds on the whole project (ESLint took ~25 s). `oxlint` is pinned to
   **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
   `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
   the release after it. It reads `// eslint-disable-next-line` comments too.
+  Readability rules (native size, nesting and complexity rules, plus
+  `eslint-plugin-sonarjs` as a JS plugin, pinned exactly, for cognitive
+  complexity and duplicated code) are **warnings**: lint-staged shows them on
+  the files a commit touches. Simplify what they flag in the code you are
+  changing anyway; they never block a commit.
+- `pnpm lint:type-aware`: the same config with `--type-aware`
+  (`oxlint-tsgolint`, pinned exactly; ~20 s, whole program), which adds the
+  type-aware rules: unawaited promises, async callbacks where a void one is
+  expected, non-exhaustive switches. Run by hand, not in a hook or CI, e.g.
+  before a delivery. It also type-checks a wider file set than `tsc`, so
+  `pnpm typecheck` stays the only type check: don't add `--type-check`.
 - Writing tests: before mocking or faking a library, check whether it ships
   its own test module or API and use that (e.g. the AI SDK's `ai/test`
   mock models, Playwright's `page.route`, MSW handlers in `src/mocks/`).
@@ -328,12 +341,12 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
   hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
   tests stay out of the hooks: they need the database and take too long.
-- Before every commit, run `/code-review` on the diff about to be committed
-  and fix what it finds; commit only once it comes back clean (or the
-  remaining findings are explained to the maintainer).
+- Before every push, run `/code-review` on the unpushed changes and fix what
+  it finds; push only once it comes back clean (or the remaining findings are
+  explained to the maintainer). Push often, so that diff stays small.
 - Before opening a PR, run `/simplify` (reuse, simplification, efficiency) and
   `/code-review` (correctness) by hand on the whole PR diff, as a final pass
-  over the commits already reviewed one by one. They are deliberately not
+  over the pushes already reviewed one by one. They are deliberately not
   wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
   the working tree after staging, and a commit hook could loop on them.
 - Before pushing, run `/simplify` on the unpushed changes. When they touch the
@@ -347,7 +360,7 @@ getT('ns')` stays its own statement (start the data reads before it, so they
   start can exceed the 30 s connect timeout on Windows; a PC can switch off the
   ones it doesn't use in `.claude/settings.local.json` (`disabledMcpjsonServers`).
 - Keep iterations short. Measured on the Windows PC over `src` (473 TS/TSX
-  files): `pnpm lint` ~1 s (whole project), `prettier --check` ~8 s (0.3 s on a
+  files): `pnpm lint` ~3 s (whole project, with the SonarJS plugin), `prettier --check` ~8 s (0.3 s on a
   few files, as in a commit), `pnpm typecheck` ~8–28 s. `npx` adds ~9 s to every
   start: run tools from `node_modules/.bin` or `pnpm exec`. The lint ignores
   generated output and `.claude/**` (nested worktrees with their own copy of the
