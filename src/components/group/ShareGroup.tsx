@@ -35,7 +35,7 @@ export function ShareGroup({ code }: { code: string }) {
       {/* `grow` forces one row and cut "Show QR code" short at 375px in
           longer languages: equal columns that wrap onto two rows instead. */}
       <Group grow preventGrowOverflow={false} wrap="wrap">
-        <Button variant="default" leftSection={<Share2 size={16} />} onClick={share}>
+        <Button variant="default" leftSection={<Share2 size={16} />} onClick={() => void share()}>
           {t('Share link')}
         </Button>
         <Button variant="default" leftSection={<QrCode size={16} />} onClick={qr.open}>

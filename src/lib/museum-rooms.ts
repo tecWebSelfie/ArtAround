@@ -42,7 +42,11 @@ export function museumRooms(nodes: Record<string, unknown> | null | undefined): 
       Array.isArray(node.polygon) &&
       node.polygon.every(isPoint)
     ) {
-      rooms.push({ id: node.id, name: String(node.name ?? ''), polygon: node.polygon })
+      rooms.push({
+        id: node.id,
+        name: typeof node.name === 'string' ? node.name : '',
+        polygon: node.polygon,
+      })
     }
   }
   // A door stores its distance along its host wall (`position[0]`), so its
@@ -55,14 +59,16 @@ export function museumRooms(nodes: Record<string, unknown> | null | undefined): 
     ),
   )
   for (const node of all) {
-    if (node.type !== 'door' || typeof node.id !== 'string' || !node.name) continue
+    // Only named doors: the name is what directions read out.
+    if (node.type !== 'door' || typeof node.id !== 'string') continue
+    if (typeof node.name !== 'string' || !node.name) continue
     const wall = walls.get(node.wallId)
     const along = Array.isArray(node.position) ? Number(node.position[0]) : NaN
     if (!wall || !Number.isFinite(along)) continue
     const length = Math.hypot(wall.end[0] - wall.start[0], wall.end[1] - wall.start[1]) || 1
     doors.push({
       id: node.id,
-      name: String(node.name),
+      name: node.name,
       point: [
         wall.start[0] + ((wall.end[0] - wall.start[0]) * along) / length,
         wall.start[1] + ((wall.end[1] - wall.start[1]) * along) / length,

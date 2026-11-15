@@ -30,7 +30,8 @@ export function errorMessage(error: unknown): string {
     const field = (first?.data as { errors?: { message?: string }[] } | undefined)?.errors?.[0]
     return field?.message ?? first?.message ?? error.message
   }
-  return error instanceof Error ? error.message : String(error ?? '')
+  if (error instanceof Error) return error.message
+  return typeof error === 'string' ? error : ''
 }
 
 /**

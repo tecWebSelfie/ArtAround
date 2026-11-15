@@ -94,8 +94,11 @@ function joinParts(...parts: Array<string | null | undefined>) {
 }
 
 function createdAt(value: unknown): string | undefined {
-  if (!value) return undefined
-  const date = new Date(String(value))
+  // Payload stores dates as ISO strings; a Date or a timestamp also reads.
+  if (typeof value !== 'string' && typeof value !== 'number' && !(value instanceof Date)) {
+    return undefined
+  }
+  const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
 }
 

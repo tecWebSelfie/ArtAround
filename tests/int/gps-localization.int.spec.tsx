@@ -59,7 +59,9 @@ describe('GPS identification without an active route', () => {
     act(() => receive(position(4)))
     // The OS reports again only when the device moves: a visitor standing in
     // front of a work for minutes keeps their fix (and the nearby-work notice).
-    act(() => vi.advanceTimersByTime(5 * 60_000))
+    act(() => {
+      vi.advanceTimersByTime(5 * 60_000)
+    })
     expect(result.current.fix).not.toBeNull()
     act(() => fail({ code: 1, PERMISSION_DENIED: 1 } as GeolocationPositionError))
     expect(result.current.error).toBe('denied')

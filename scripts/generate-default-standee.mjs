@@ -117,13 +117,14 @@ standee.add(box('bracket', [0.08, 0.04, 0.08], frameMaterial, [0, POST.top, 0]))
 
 const glb = await new GLTFExporter().parseAsync(standee, { binary: true })
 await mkdir(dirname(OUTPUT), { recursive: true })
-await writeFile(OUTPUT, Buffer.from(glb))
+const bytes = Buffer.from(glb)
+await writeFile(OUTPUT, bytes)
 
 // Round-trip check: the file parses and has the intended real-world size.
 const loaded = await new GLTFLoader().parseAsync(glb, '')
 const size = new THREE.Box3().setFromObject(loaded.scene).getSize(new THREE.Vector3())
 const min = new THREE.Box3().setFromObject(loaded.scene).min
-console.log(`Wrote ${OUTPUT} (${glb.byteLength} bytes)`)
+console.log(`Wrote ${OUTPUT} (${bytes.byteLength} bytes)`)
 console.log(
   `Bounding box (m): ${size.x.toFixed(3)} × ${size.y.toFixed(3)} × ${size.z.toFixed(3)}; floor at y=${min.y.toFixed(3)}`,
 )

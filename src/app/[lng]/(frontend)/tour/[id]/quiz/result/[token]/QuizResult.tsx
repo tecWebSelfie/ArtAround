@@ -195,7 +195,11 @@ export function QuizResult({
             </Stack>
 
             <Group grow>
-              <Button variant="default" leftSection={<Share2 size={18} />} onClick={share}>
+              <Button
+                variant="default"
+                leftSection={<Share2 size={18} />}
+                onClick={() => void share()}
+              >
                 {t('Share')}
               </Button>
               <Button

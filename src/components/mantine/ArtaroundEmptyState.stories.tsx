@@ -19,7 +19,7 @@ export default meta
 export const Visitor: Story = {
   play: async ({ canvas }) => {
     await expect(canvas.findByRole('heading', { name: 'Tours' })).resolves.toBeTruthy()
-    expect(canvas.queryByRole('link')).toBeNull()
+    await expect(canvas.queryByRole('link')).toBeNull()
   },
 }
 

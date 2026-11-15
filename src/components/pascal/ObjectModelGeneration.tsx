@@ -22,10 +22,12 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './object-catalog.module.css'
 
+/** A job's or a request's error: an Error, a Payload `{ message }` or a string. */
 function errorMessage(error: unknown) {
-  return error && typeof error === 'object' && 'message' in error
-    ? String(error.message)
-    : String(error ?? '')
+  if (error && typeof error === 'object' && 'message' in error) {
+    return typeof error.message === 'string' ? error.message : ''
+  }
+  return typeof error === 'string' ? error : ''
 }
 
 /**
@@ -181,7 +183,7 @@ export function ObjectModelGeneration({
       {generation.isError ? (
         <p className={styles.error} role="alert">
           {t('Could not load generation status.')}{' '}
-          <Button variant="default" onClick={() => generation.refetch()} type="button">
+          <Button variant="default" onClick={() => void generation.refetch()} type="button">
             {t('Retry')}
           </Button>
         </p>
@@ -239,14 +241,18 @@ export function ObjectModelGeneration({
             />
           ) : null}
           <div className={styles.actions}>
-            <Button loading={command.isPending} onClick={() => review('approve')} type="button">
+            <Button
+              loading={command.isPending}
+              onClick={() => void review('approve')}
+              type="button"
+            >
               {t('Approve and create model')}
             </Button>
             {canSteer ? (
               <Button
                 variant="default"
                 disabled={command.isPending || !form.values.feedback.trim()}
-                onClick={() => review('revise')}
+                onClick={() => void review('revise')}
                 type="button"
               >
                 {t('Revise preview')}
@@ -261,7 +267,7 @@ export function ObjectModelGeneration({
         <Button
           variant="default"
           loading={command.isPending}
-          onClick={() => review('approve')}
+          onClick={() => void review('approve')}
           type="button"
         >
           {t('Retry saving model')}
