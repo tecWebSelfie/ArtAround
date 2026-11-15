@@ -96,7 +96,7 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
   return docs.map((q) => ({ ...q, image: images.find((image) => image.id === q.image) ?? null }))
 }
 
-/** The tour's current quiz in the visitor's language; `null` for an unknown tour. */
+/** The tour's current quiz in the visitor's language; `null` for an unknown tour or one with no visitable stop. */
 export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<TourQuiz | null> => {
   const payload = await getPayload({ config })
   const tour = await payload
@@ -116,6 +116,9 @@ export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<To
   const stops = await getNavigationTour(tourId, lng)
     .then((visitable) => visitable.contents)
     .catch(() => tour.contents ?? [])
+  // A tour with nothing to visit has no quiz to offer (its page, results and
+  // answers all read it from here): same "unknown tour" outcome.
+  if (!stops.length) return null
   return {
     tour: {
       id: tour.id,

@@ -223,7 +223,13 @@ save carries first), so only the server writes them.
   turn into an error when a stop is removed from the map): its page shows a
   notice instead of stops and has no "Start tour", and its start page sends
   the visitor back to the tour page. Its author keeps the editor, which lists
-  every stop and flags the unavailable ones.
+  every stop and flags the unavailable ones (it opens even with `contents: []`
+  and asks for stops on save). Nothing else is offered either (`hasNoStopsToVisit`,
+  `src/lib/tour-stops.ts`): every page of the tour's navigation branch
+  redirects to the tour page (its layout), the quiz and its results are a 404
+  (`getTourQuiz`), `POST /api/rooms` answers 422 `empty`, a room whose tour
+  emptied afterwards shows as ended, and checkout has nothing to unlock (409).
+  Spec: `tests/e2e/empty-tour.e2e.spec.ts`.
 
 Tests: `tests/int/visitable-stops.int.spec.ts`, `tests/int/tour-stop-cleanup.int.spec.ts`.
 

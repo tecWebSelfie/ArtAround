@@ -2,6 +2,7 @@ import config from '@/payload.config'
 import { GroupName, GroupRoomName } from '@/lib/group'
 import { createGroupRoom, GroupNameTaken } from '@/lib/group-room'
 import { asViewer } from '@/lib/session'
+import { hasNoStopsToVisit } from '@/lib/tour-stops'
 import { allowRequest } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
@@ -36,11 +37,14 @@ export async function POST(request: Request) {
       collection: 'tours',
       id: body.data.tourId,
       depth: 0,
-      select: { title: true },
+      select: { title: true, contents: true, visitableStops: true },
       ...(await asViewer()),
     })
     .catch(() => null)
   if (!tour) return NextResponse.json({ error: 'tour' }, { status: 404 })
+  // A tour with nothing to visit is never offered, so nobody leads a group
+  // through it: refused with its own status (409 means "name taken" to the form).
+  if (hasNoStopsToVisit(tour)) return NextResponse.json({ error: 'empty' }, { status: 422 })
 
   try {
     const room = await createGroupRoom(

@@ -33,7 +33,19 @@ export const minStopsFor = (tour: unknown) => (isPersonalTour(tour) ? 1 : MIN_TO
  * A tour with no visitable stop (`visitableStops` is 0, kept by
  * `src/lib/visitable-stops.ts`): the predicate form of the `visitableStops`
  * clause of `LISTED_TOURS`. A tour with no stored count yet (not backfilled)
- * is not empty: lists fail open on a missing value.
+ * is not empty: lists fail open on a missing value. Generic on purpose (the
+ * search index asks it of any document), so it only reads `visitableStops`.
  */
 export const isEmptyTour = (doc: unknown) =>
   (doc as { visitableStops?: number | null } | null)?.visitableStops === 0
+
+/**
+ * A TOUR that has nothing to visit: `isEmptyTour`, or no stop at all
+ * (`contents: []`, which deleting its last content leaves behind:
+ * `tour-stop-cleanup.ts`, possibly before the count was ever stored). What
+ * every action on a tour (group room, ...) checks before offering itself.
+ */
+export const hasNoStopsToVisit = (tour: {
+  contents?: unknown[] | null
+  visitableStops?: number | null
+}) => isEmptyTour(tour) || (Array.isArray(tour.contents) && tour.contents.length === 0)
