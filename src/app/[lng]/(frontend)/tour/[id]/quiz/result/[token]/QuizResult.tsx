@@ -77,10 +77,6 @@ export function QuizResult({
   const [drawerContent, setDrawerContent] = useState<string | null>(null)
   const [needsLogin, setNeedsLogin] = useState(false)
 
-  let verdict = t('Some stops deserve a second look.')
-  if (percent >= 80) verdict = t('Excellent work!')
-  else if (percent >= 50) verdict = t('Well done!')
-
   const share = async () => {
     const url = window.location.href
     const text = t('I scored {{score}}/{{total}} on the “{{tour}}” quiz.', {
@@ -111,32 +107,7 @@ export function QuizResult({
       <AppShellMain>
         <Container size="xs" px="md" py="xl">
           <Stack gap="xl">
-            <Stack gap="md" align="center" ta="center">
-              <Title order={1} size="h2" style={{ textWrap: 'balance' }}>
-                {tour.title}
-              </Title>
-              {/* The ring is the score itself, not decoration: label and value agree. */}
-              <RingProgress
-                size={160}
-                thickness={14}
-                roundCaps
-                sections={[{ value: percent, color: percent >= 50 ? 'green' : 'orange' }]}
-                aria-label={t('{{score}} correct answers out of {{total}}', { score, total })}
-                label={
-                  <Center>
-                    <Text fw={800} fz={36} lh={1} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                      {score}
-                      <Text span c="dimmed" fz={20} fw={600}>
-                        /{total}
-                      </Text>
-                    </Text>
-                  </Center>
-                }
-              />
-              <Text size="lg" fw={600}>
-                {verdict}
-              </Text>
-            </Stack>
+            <ScoreSummary title={tour.title} score={score} total={total} percent={percent} />
 
             <Stack gap="sm" component="section" aria-labelledby="quiz-comparison">
               <Title order={2} size="h4" id="quiz-comparison">
@@ -226,6 +197,53 @@ export function QuizResult({
         onClose={() => setDrawerContent(null)}
       />
     </>
+  )
+}
+
+/** The tour, the score as a ring (label and value agree) and a verdict. */
+function ScoreSummary({
+  title,
+  score,
+  total,
+  percent,
+}: {
+  title: string
+  score: number
+  total: number
+  percent: number
+}) {
+  const { t } = useTranslation('tour-quiz')
+  let verdict = t('Some stops deserve a second look.')
+  if (percent >= 80) verdict = t('Excellent work!')
+  else if (percent >= 50) verdict = t('Well done!')
+
+  return (
+    <Stack gap="md" align="center" ta="center">
+      <Title order={1} size="h2" style={{ textWrap: 'balance' }}>
+        {title}
+      </Title>
+      {/* The ring is the score itself, not decoration: label and value agree. */}
+      <RingProgress
+        size={160}
+        thickness={14}
+        roundCaps
+        sections={[{ value: percent, color: percent >= 50 ? 'green' : 'orange' }]}
+        aria-label={t('{{score}} correct answers out of {{total}}', { score, total })}
+        label={
+          <Center>
+            <Text fw={800} fz={36} lh={1} style={{ fontVariantNumeric: 'tabular-nums' }}>
+              {score}
+              <Text span c="dimmed" fz={20} fw={600}>
+                /{total}
+              </Text>
+            </Text>
+          </Center>
+        }
+      />
+      <Text size="lg" fw={600}>
+        {verdict}
+      </Text>
+    </Stack>
   )
 }
 

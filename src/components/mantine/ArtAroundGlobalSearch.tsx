@@ -85,6 +85,12 @@ export type SearchStatus = 'idle' | 'loading' | 'error'
  */
 const RETRY_VALUE = '__retry'
 
+/** The default filter: the text in the item's title, subtitle or city. */
+const matchesText = (text: string) => (item: AutoCompleteItem) =>
+  `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
+    .toLowerCase()
+    .includes(text.toLowerCase())
+
 export function ArtAroundGlobalSearch({
   items,
   onChange,
@@ -128,16 +134,7 @@ export function ArtAroundGlobalSearch({
   const loading = status === 'loading'
   // After a failure, whatever items the owner still passes belong to an
   // earlier text: hide them, so the error and its retry are what the list says.
-  const filteredOptions =
-    status === 'error'
-      ? []
-      : items.filter(
-          filter ??
-            ((item) => {
-              const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
-              return label.toLowerCase().includes(_value.toLowerCase())
-            }),
-        )
+  const filteredOptions = status === 'error' ? [] : items.filter(filter ?? matchesText(_value))
   // Nothing at all to say (no text, no suggestions, nothing pending): keep the
   // dropdown hidden rather than open an empty bordered sliver.
   const nothingToShow = filteredOptions.length === 0 && status === 'idle' && !query
