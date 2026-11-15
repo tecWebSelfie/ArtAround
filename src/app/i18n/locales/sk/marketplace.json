@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Nič sa nenašlo",
   "noResultsHint": "Skús iné hľadanie alebo vymaž filtre.",
+  "object": "",
+  "objects": "",
   "paid": "Platené",
   "price": "Cena",
   "results_one": "{{count}} výsledok",
@@ -24,5 +26,6 @@
   "user": "Používateľ",
   "users": "Používatelia",
   "usersNoPrice": "Profily nemajú cenu.",
+  "viewObject": "",
   "viewProfile": "Zobraziť profil"
 }

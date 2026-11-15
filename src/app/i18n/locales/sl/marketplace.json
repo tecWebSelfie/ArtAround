@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Ni rezultatov",
   "noResultsHint": "Poskusi z drugim iskanjem ali počisti filtre.",
+  "object": "",
+  "objects": "",
   "paid": "Plačljivo",
   "price": "Cena",
   "results_one": "{{count}} rezultat",
@@ -24,5 +26,6 @@
   "user": "Uporabnik",
   "users": "Uporabniki",
   "usersNoPrice": "Profili nimajo cene.",
+  "viewObject": "",
   "viewProfile": "Oglej si profil"
 }

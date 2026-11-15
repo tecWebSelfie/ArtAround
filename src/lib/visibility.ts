@@ -1,7 +1,7 @@
 import { asId, isSuperAdmin } from '@/access/museumRoles'
 import { jwtVerify, SignJWT } from 'jose'
 import { createSecretKey } from 'node:crypto'
-import type { Access, CollectionAfterChangeHook, PayloadRequest, Where } from 'payload'
+import type { Access, PayloadRequest, Where } from 'payload'
 import { parseCookies } from 'payload/shared'
 import { cache } from 'react'
 
@@ -149,29 +149,6 @@ export const readContents = readVisible(async (req, tourId) => {
   const ids = await groupTourContentIds(req, tourId)
   return ids.length ? { id: { in: ids } } : null
 })
-
-/**
- * `afterChange` hook: a document that is (or became) private leaves the
- * search index. The search plugin's `skipSync` only skips indexing, it never
- * removes a row saved while the document was public.
- */
-export const hideFromSearch =
-  (collection: 'contents' | 'tours'): CollectionAfterChangeHook =>
-  async ({ doc, req }) => {
-    if (doc.visibility !== 'private') return doc
-    await req.payload.delete({
-      collection: 'search',
-      where: {
-        and: [
-          { 'doc.relationTo': { equals: collection } },
-          { 'doc.value': { equals: String(doc.id) } },
-        ],
-      },
-      overrideAccess: true,
-      req,
-    })
-    return doc
-  }
 
 /**
  * Tours that lists show. A visit planned for one visitor ("Plan my visit",

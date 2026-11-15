@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Nema rezultata",
   "noResultsHint": "Pokušaj s drugim pojmom ili očisti filtre.",
+  "object": "",
+  "objects": "",
   "paid": "Plaćeno",
   "price": "Cijena",
   "results_one": "{{count}} rezultat",
@@ -23,5 +25,6 @@
   "user": "Korisnik",
   "users": "Korisnici",
   "usersNoPrice": "Profili nemaju cijenu.",
+  "viewObject": "",
   "viewProfile": "Pogledaj profil"
 }

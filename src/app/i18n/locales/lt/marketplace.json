@@ -10,6 +10,8 @@
   "min": "min.",
   "noResults": "Rezultatų nerasta",
   "noResultsHint": "Pabandyk kitą paiešką arba išvalyk filtrus.",
+  "object": "",
+  "objects": "",
   "paid": "Mokama",
   "price": "Kaina",
   "results_one": "{{count}} rezultatas",
@@ -24,5 +26,6 @@
   "user": "Naudotojas",
   "users": "Naudotojai",
   "usersNoPrice": "Profiliai neturi kainos.",
+  "viewObject": "",
   "viewProfile": "Žiūrėti profilį"
 }

@@ -2,7 +2,7 @@ import IsoCodes from 'iso-639-1'
 import { after } from 'next/server'
 import type { Payload, TypedLocale, TypedUser } from 'payload'
 import type { Config } from '@/payload-types'
-import { relationshipIds } from './search-index'
+import { relationshipIds } from './search/documents'
 
 /** Every collection slug in the generated config (incl. `translator-provenance`). */
 export type LocalizedSlug = keyof Config['collections']

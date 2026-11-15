@@ -1,16 +1,18 @@
 import config from '@/payload.config'
-import { museumSearchRestriction } from '@/lib/museum-mode'
-import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
-import type { Content, Difficulty, Museum, Tour } from '@/payload-types'
+import { museumSearchMuseumId } from '@/lib/museum-mode'
+import { fallbackSearchItems, searchItems } from '@/lib/search/query'
+import type { SearchHit } from '@/lib/search/types'
+import type { Content, Difficulty, Museum, Object as ArtObject, Tour } from '@/payload-types'
 import { getPayload, type Payload, type TypedLocale } from 'payload'
 
 /**
  * One home-search result, with only what the dropdown shows. Tours and
  * contents carry the essentials for choosing one at a glance: time and
  * difficulty (and, for a tour, its stops; for a paid content, its price).
+ * Objects appear when the app is locked to a museum.
  */
 export type NavigatorSearchItem = {
-  kind: 'tour' | 'content' | 'museum'
+  kind: 'tour' | 'content' | 'museum' | 'object'
   key: string
   title: string
   href: string
@@ -28,7 +30,7 @@ export type NavigatorSearchItem = {
 
 const DIFFICULTY_RANK: Record<Difficulty, number> = { easy: 0, medium: 1, hard: 2 }
 
-/** How many index rows are ranked before keeping `limit` (see GET). */
+/** How many index hits are ranked before keeping `limit` (see GET). */
 const RANK_POOL = 40
 
 function joinParts(...parts: Array<string | null | undefined>) {
@@ -54,7 +56,10 @@ async function hydrateNavigatorHits({
 }): Promise<NavigatorSearchItem[]> {
   const idsOf = (collection: string) =>
     hits.filter((hit) => hit.collection === collection).map((hit) => hit.sourceId)
-  const find = <T extends 'tours' | 'contents' | 'museums'>(collection: T, ids: string[]) =>
+  const find = <T extends 'tours' | 'contents' | 'museums' | 'objects'>(
+    collection: T,
+    ids: string[],
+  ) =>
     ids.length
       ? payload.find({
           collection,
@@ -66,10 +71,11 @@ async function hydrateNavigatorHits({
         })
       : null
 
-  const [tours, contents, museums] = await Promise.all([
+  const [tours, contents, museums, objects] = await Promise.all([
     find('tours', idsOf('tours')),
     find('contents', idsOf('contents')),
     find('museums', idsOf('museums')),
+    find('objects', idsOf('objects')),
   ])
 
   // Tours' details come from their contents and museum: one read each.
@@ -151,6 +157,17 @@ async function hydrateNavigatorHits({
       city: museum.location?.city ?? undefined,
     })
   }
+  for (const object of (objects?.docs ?? []) as ArtObject[]) {
+    items.set(`objects:${object.id}`, {
+      kind: 'object',
+      key: `object:${object.id}`,
+      title: object.name,
+      href: `/${locale}/object/${object.id}`,
+      subtitle: object.artist ?? undefined,
+      city: hits.find((hit) => hit.collection === 'objects' && hit.sourceId === String(object.id))
+        ?.city,
+    })
+  }
 
   return hits.flatMap((hit) => {
     const item = items.get(`${hit.collection}:${hit.sourceId}`)
@@ -159,13 +176,21 @@ async function hydrateNavigatorHits({
 }
 
 /**
- * Browser-facing search for the home dropdown (`NavigatorSearch`).
- *
- * Marketplace search is server-rendered and reads the same `search` collection
- * directly. The home needs an endpoint because its combobox queries as the
- * visitor types; this route keeps Payload access on the server and returns only
- * display fields. In museum mode only the locked museum, its tours and the
- * contents on its map are returned.
+ * The navigator's search scope. In global mode a visitor can go and see tours
+ * (the main way to use the app), contents and museums; objects stay reachable
+ * from QR codes and museum pages. With a museum selected, only that museum's
+ * tours, contents and objects are meaningful, so museums and people drop out.
+ */
+function navigatorKinds(museumId: string | null): SearchHit['kind'][] {
+  return museumId ? ['tour', 'content', 'object'] : ['tour', 'content', 'museum']
+}
+
+/**
+ * Browser-facing search for the home dropdown (`NavigatorSearch`), backed by
+ * Typesense (`search_items`). The marketplace is server-rendered and reads the
+ * same collection directly. The home needs an endpoint because its combobox
+ * queries as the visitor types; this route keeps every search key on the
+ * server and returns only display fields.
  */
 export async function GET(request: Request) {
   const url = new URL(request.url)
@@ -175,28 +200,38 @@ export async function GET(request: Request) {
   const limit = Math.min(20, Math.max(1, Number.isFinite(limitParam) ? limitParam : 8))
 
   try {
-    // The museum-mode restriction (cookie + reads) does not need the search:
-    // resolve it together with Payload.
-    const [payload, restrictTo] = await Promise.all([
-      getPayload({ config }),
-      museumSearchRestriction(),
-    ])
-    const { hits } = await querySearchIndex({
-      payload,
-      query,
-      kinds: NAVIGATOR_SEARCH_KINDS,
-      page: 1,
-      // Rank a larger pool, then keep `limit`: taking `limit` rows by priority
-      // first could drop an exact title match that ranks below them.
-      limit: Math.max(limit, RANK_POOL),
-      sort: ['-priority', '-sourceCreatedAt'],
-      locale,
-      restrictTo,
-    })
+    // The museum-mode cookie does not need the search: resolve it together
+    // with Payload.
+    const [payload, museumId] = await Promise.all([getPayload({ config }), museumSearchMuseumId()])
 
-    // Payload has no relevance score. When the visitor types, exact city
-    // matches come first, then title matches, then everything else; within
-    // each band the index priority (tours first) is kept (Array#sort is stable).
+    let hits: SearchHit[]
+    try {
+      const result = await searchItems({
+        q: query,
+        kinds: navigatorKinds(museumId),
+        museumId,
+        page: 1,
+        // Rank a larger pool, then keep `limit`: an exact city match may rank
+        // below the priority-ordered rows.
+        limit: Math.max(limit, RANK_POOL),
+      })
+      hits = result.hits
+    } catch (error) {
+      // Typesense unreachable: keep the dropdown working with a degraded read.
+      console.error('[search] Typesense navigator search failed, falling back', error)
+      const result = await fallbackSearchItems({
+        payload,
+        q: query,
+        kinds: navigatorKinds(museumId),
+        museumId,
+        limit: Math.max(limit, RANK_POOL),
+      })
+      hits = result.hits
+    }
+
+    // Exact city matches come first, then title matches, then the rest;
+    // within each band Typesense's relevance and priority order is kept
+    // (Array#sort is stable).
     const needle = query.toLowerCase()
     const score = (hit: SearchHit) => {
       if (!needle) return 0

@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Geen resultaten gevonden",
   "noResultsHint": "Probeer een andere zoekopdracht, of wis de filters.",
+  "object": "",
+  "objects": "",
   "paid": "Betaald",
   "price": "Prijs",
   "results_one": "{{count}} resultaat",
@@ -22,5 +24,6 @@
   "user": "Gebruiker",
   "users": "Gebruikers",
   "usersNoPrice": "Profielen hebben geen prijs.",
+  "viewObject": "",
   "viewProfile": "Profiel bekijken"
 }

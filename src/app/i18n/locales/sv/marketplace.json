@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Inga resultat hittades",
   "noResultsHint": "Testa en annan sökning, eller rensa filtren.",
+  "object": "",
+  "objects": "",
   "paid": "Betalt",
   "price": "Pris",
   "results_one": "{{count}} resultat",
@@ -22,5 +24,6 @@
   "user": "Användare",
   "users": "Användare",
   "usersNoPrice": "Profiler har inget pris.",
+  "viewObject": "",
   "viewProfile": "Visa profil"
 }

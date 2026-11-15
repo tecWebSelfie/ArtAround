@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Nekas netika atrasts",
   "noResultsHint": "Mēģini citu meklējumu vai notīri filtrus.",
+  "object": "",
+  "objects": "",
   "paid": "Maksas",
   "price": "Cena",
   "results_zero": "{{count}} rezultāti",
@@ -23,5 +25,6 @@
   "user": "Lietotājs",
   "users": "Lietotāji",
   "usersNoPrice": "Profiliem nav cenas.",
+  "viewObject": "",
   "viewProfile": "Skatīt profilu"
 }

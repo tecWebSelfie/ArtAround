@@ -22,7 +22,7 @@ import { useState, type FormEvent } from 'react'
 
 /** Values accepted by the marketplace URL. Kept in one place so the server
  *  page and the client controls cannot drift apart. */
-export type MarketplaceKind = 'all' | 'tours' | 'contents' | 'users'
+export type MarketplaceKind = 'all' | 'tours' | 'contents' | 'objects' | 'users'
 export type MarketplacePrice = 'all' | 'free' | 'paid'
 
 export type MarketplaceLabels = {
@@ -34,6 +34,7 @@ export type MarketplaceLabels = {
   all: string
   tours: string
   contents: string
+  objects: string
   users: string
   usersNoPrice: string
   price: string
@@ -101,7 +102,8 @@ export function MarketplaceSearch({
     setPrice(initialPrice)
   }
 
-  const activeFilterCount = (kind !== 'all' ? 1 : 0) + (kind !== 'users' && price !== 'all' ? 1 : 0)
+  const activeFilterCount =
+    (kind !== 'all' ? 1 : 0) + (kind !== 'users' && kind !== 'objects' && price !== 'all' ? 1 : 0)
 
   const navigate = (next: SearchState) => {
     // Any filter/search change starts again from page 1.
@@ -209,9 +211,10 @@ export function MarketplaceSearch({
                     aria-label={labels.type}
                     onChange={(value) => {
                       const next = value as MarketplaceKind
-                      // Profiles are free-form directory entries, not sellable
-                      // documents, so a price filter must not survive this switch.
-                      const nextPrice = next === 'users' ? 'all' : price
+                      // Profiles and catalog objects are free-form directory
+                      // entries, not sellable documents, so a price filter must
+                      // not survive this switch.
+                      const nextPrice = next === 'users' || next === 'objects' ? 'all' : price
                       setKind(next)
                       setPrice(nextPrice)
                       navigate({ query, kind: next, price: nextPrice })
@@ -220,6 +223,7 @@ export function MarketplaceSearch({
                       { value: 'all', label: labels.all },
                       { value: 'tours', label: labels.tours },
                       { value: 'contents', label: labels.contents },
+                      { value: 'objects', label: labels.objects },
                       { value: 'users', label: labels.users },
                     ]}
                   />
@@ -232,8 +236,8 @@ export function MarketplaceSearch({
                   <SegmentedControl
                     fullWidth
                     size="xs"
-                    value={kind === 'users' ? 'all' : price}
-                    disabled={kind === 'users'}
+                    value={kind === 'users' || kind === 'objects' ? 'all' : price}
+                    disabled={kind === 'users' || kind === 'objects'}
                     aria-label={labels.price}
                     onChange={(value) => {
                       const next = value as MarketplacePrice
@@ -246,7 +250,7 @@ export function MarketplaceSearch({
                       { value: 'paid', label: labels.paid },
                     ]}
                   />
-                  {kind === 'users' ? (
+                  {kind === 'users' || kind === 'objects' ? (
                     <Text size="xs" c="dimmed">
                       {labels.usersNoPrice}
                     </Text>

@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Tulemusi ei leitud",
   "noResultsHint": "Proovi teist otsingut või tühjenda filtrid.",
+  "object": "",
+  "objects": "",
   "paid": "Tasuline",
   "price": "Hind",
   "results_one": "{{count}} tulemus",
@@ -22,5 +24,6 @@
   "user": "Kasutaja",
   "users": "Kasutajad",
   "usersNoPrice": "Profiilidel pole hinda.",
+  "viewObject": "",
   "viewProfile": "Vaata profiili"
 }

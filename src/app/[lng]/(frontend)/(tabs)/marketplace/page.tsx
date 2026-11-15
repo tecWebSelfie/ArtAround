@@ -7,7 +7,7 @@ import {
 } from '@/components/mantine/MarketplaceControls'
 import { getT } from '@/i18n.server'
 import { getMarketplaceResults, MARKETPLACE_PAGE_SIZE } from '@/lib/marketplace'
-import { museumSearchRestriction } from '@/lib/museum-mode'
+import { museumSearchMuseumId } from '@/lib/museum-mode'
 import config from '@/payload.config'
 import { Button, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
 import { SearchX } from 'lucide-react'
@@ -20,7 +20,9 @@ function firstValue(value: string | string[] | undefined) {
 }
 
 function parseKind(value: string | undefined): MarketplaceKind {
-  return value === 'tours' || value === 'contents' || value === 'users' ? value : 'all'
+  return value === 'tours' || value === 'contents' || value === 'objects' || value === 'users'
+    ? value
+    : 'all'
 }
 
 function parsePrice(value: string | undefined): MarketplacePrice {
@@ -33,29 +35,30 @@ export default async function Marketplace(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Payload and the museum-mode restriction are independent: started together.
-  const setup = Promise.all([getPayload({ config }), museumSearchRestriction()])
+  // Payload and the museum-mode cookie are independent: started together.
+  const setup = Promise.all([getPayload({ config }), museumSearchMuseumId()])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   // Difficulty names are shared with search (search.json), not duplicated here.
   const { t } = await getT('marketplace')
   const { t: ts } = await getT('search')
-  const [payload, restrictTo] = await setup
+  const [payload, museumId] = await setup
 
   const query = (firstValue(searchParams.q) ?? '').trim()
   const kind = parseKind(firstValue(searchParams.kind))
-  // Profiles do not carry a price. Normalise the URL state so `?kind=users&price=free`
-  // behaves the same as the Users tab in the UI.
-  const price = kind === 'users' ? 'all' : parsePrice(firstValue(searchParams.price))
+  // Profiles and catalog objects do not carry a price. Normalise the URL state
+  // so `?kind=users&price=free` behaves the same as the Users tab in the UI.
+  const price =
+    kind === 'users' || kind === 'objects' ? 'all' : parsePrice(firstValue(searchParams.price))
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
 
   const basePath = `/${lng}/marketplace`
 
-  // The Payload search collection owns the result set for both text searches
-  // and empty-query browsing. The matched IDs are hydrated into localized cards
-  // from their source collections below.
+  // The Typesense `search_items` collection owns the result set for both text
+  // searches and empty-query browsing. The matched IDs are hydrated into
+  // localized cards from their source collections below.
   // Museum mode: browsing and searching both list only the locked museum's
-  // tours, contents and their authors.
+  // tours, contents, objects and their authors.
   const { items, total } = await getMarketplaceResults({
     payload,
     locale: lng as TypedLocale,
@@ -63,7 +66,7 @@ export default async function Marketplace(props: {
     kind,
     price,
     page,
-    restrictTo,
+    museumId,
   })
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))
@@ -89,6 +92,7 @@ export default async function Marketplace(props: {
           all: t('all'),
           tours: t('tours'),
           contents: t('contents'),
+          objects: t('objects'),
           users: t('users'),
           usersNoPrice: t('usersNoPrice'),
           price: t('price'),
@@ -119,7 +123,9 @@ export default async function Marketplace(props: {
                 tour: t('tour'),
                 content: t('content'),
                 user: t('user'),
+                object: t('object'),
                 viewProfile: t('viewProfile'),
+                viewObject: t('viewObject'),
                 min: t('min'),
                 difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
               }}

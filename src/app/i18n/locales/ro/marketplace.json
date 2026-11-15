@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Niciun rezultat găsit",
   "noResultsHint": "Încearcă altă căutare sau șterge filtrele.",
+  "object": "",
+  "objects": "",
   "paid": "Plătit",
   "price": "Preț",
   "results_one": "{{count}} rezultat",
@@ -23,5 +25,6 @@
   "user": "Utilizator",
   "users": "Utilizatori",
   "usersNoPrice": "Profilurile nu au preț.",
+  "viewObject": "",
   "viewProfile": "Vezi profilul"
 }

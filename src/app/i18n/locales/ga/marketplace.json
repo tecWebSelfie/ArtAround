@@ -10,6 +10,8 @@
   "min": "nóim.",
   "noResults": "Níor aimsíodh aon torthaí",
   "noResultsHint": "Bain triail as cuardach eile, nó glan na scagairí.",
+  "object": "",
+  "objects": "",
   "paid": "Íoctha",
   "price": "Praghas",
   "results_one": "{{count}} toradh",
@@ -25,5 +27,6 @@
   "user": "Úsáideoir",
   "users": "Úsáideoirí",
   "usersNoPrice": "Níl praghas ar phróifílí.",
+  "viewObject": "",
   "viewProfile": "Féach ar an bpróifíl"
 }

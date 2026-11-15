@@ -32,7 +32,12 @@ import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { HEX } from '@/lib/museum-color'
 import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
-import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
+import { relationshipIds } from '@/lib/search/documents'
+import {
+  resyncSearchDocuments,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
 // Import attribute: native ESM (Playwright's loader for e2e helpers that
 // import the Payload config) refuses a JSON module without it.
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json' }
@@ -192,12 +197,12 @@ const appointCreatorAsDirector: CollectionAfterChangeHook<Museum> = async ({
 }
 
 /**
- * Refreshes the search rows of a museum's tours and objects (docs/search.md):
- * the search plugin re-indexes the museum itself, but its name and city are
- * also part of the search text of its tours and exhibited objects. Tours point
- * at their museum (`tours.museum`), so they are looked up; objects come from
- * the map-derived `museums.objects`, old and new values together so an object
- * removed from the map loses the museum's city too.
+ * Refreshes the search documents of a museum's tours and objects (docs/search.md):
+ * the museum has its own document, but its name and city are also part of the
+ * search text of its tours and exhibited objects. Tours point at their museum
+ * (`tours.museum`), so they are looked up; objects come from the map-derived
+ * `museums.objects`, old and new values together so an object removed from the
+ * map loses the museum's city too.
  */
 async function refreshMuseumDependents({
   doc,
@@ -218,18 +223,15 @@ async function refreshMuseumDependents({
       overrideAccess: true,
       req,
     })
-    const objectIds = [
-      ...museumRelationIds(doc, 'objects'),
-      ...museumRelationIds(previousDoc, 'objects'),
-    ]
+    const objectIds = [...relationshipIds(doc.objects), ...relationshipIds(previousDoc?.objects)]
     await Promise.all([
-      refreshSearchDocs({
+      resyncSearchDocuments({
         payload: req.payload,
         collection: 'tours',
         ids: tours.docs.map((tour) => String(tour.id)),
         req,
       }),
-      refreshSearchDocs({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
+      resyncSearchDocuments({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
     ])
   } catch (error) {
     // Search is derived data: a failure here must not roll back the museum save.
@@ -263,8 +265,14 @@ export const Museums: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['description'])],
     beforeChange: [guardCuratorMapEdits, syncMuseumObjects, syncMuseumPalette],
-    afterChange: [appointCreatorAsDirector, refreshSearchAfterChange],
-    afterDelete: [refreshSearchAfterDelete],
+    afterChange: [
+      appointCreatorAsDirector,
+      // The museum's own row, then its tours and objects (name and city are
+      // part of their search text).
+      searchSyncAfterChange('museums'),
+      refreshSearchAfterChange,
+    ],
+    afterDelete: [searchSyncAfterDelete('museums'), refreshSearchAfterDelete],
   },
   fields: [
     ...[

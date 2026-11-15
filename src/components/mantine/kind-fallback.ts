@@ -22,4 +22,5 @@ export const KIND_FALLBACK = {
   tour: { style: SURFACE, Icon: ImageOff },
   content: { style: SURFACE, Icon: ImageOff },
   user: { style: SURFACE, Icon: UserRound },
+  object: { style: SURFACE, Icon: ImageOff },
 } as const

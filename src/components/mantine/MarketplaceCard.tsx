@@ -40,13 +40,20 @@ export type MarketplaceItem =
       kind: 'user'
       username: string
     })
+  | (MarketplaceBaseItem & {
+      kind: 'object'
+      /** Artist, when known: shown under the title. */
+      artist?: string | null
+    })
 
 export type MarketplaceCardLabels = {
   free: string
   tour: string
   content: string
   user: string
+  object: string
   viewProfile: string
+  viewObject: string
   min: string
   /** Translated difficulty names (the badge's own labels are English keys). */
   difficulty: Record<Difficulty, string>
@@ -80,18 +87,28 @@ export function MarketplaceCard({
   const isTour = item.kind === 'tour'
   const isContent = item.kind === 'content'
   const isUser = item.kind === 'user'
-  const isPaid = !isUser && item.priceCents > 0
+  const isObject = item.kind === 'object'
+  // Only tours and contents are sellable: objects are catalog entries.
+  const isPaid = (isTour || isContent) && item.priceCents > 0
 
   const href = (
     isTour
       ? `/${locale}/tour/${item.id}`
       : isContent
         ? `/${locale}/content/${item.id}`
-        : `/${locale}/user/${item.id}`
+        : isObject
+          ? `/${locale}/object/${item.id}`
+          : `/${locale}/user/${item.id}`
   ) as Route
 
-  const kindLabel = isTour ? labels.tour : isContent ? labels.content : labels.user
-  const kindColor = isTour ? 'grape' : isContent ? 'teal' : 'blue'
+  const kindLabel = isTour
+    ? labels.tour
+    : isContent
+      ? labels.content
+      : isObject
+        ? labels.object
+        : labels.user
+  const kindColor = isTour ? 'grape' : isContent ? 'teal' : isObject ? 'orange' : 'blue'
   const FallbackIcon = KIND_FALLBACK[item.kind].Icon
 
   // `Link` wraps the card instead of being passed as Mantine's `component`:
@@ -178,17 +195,22 @@ export function MarketplaceCard({
                 </Text>
               </Group>
             ) : null}
+            {isObject && item.artist ? (
+              <Text size="xs" c="dimmed" lineClamp={1}>
+                {item.artist}
+              </Text>
+            ) : null}
           </Group>
         </Stack>
 
         <CardSection inheritPadding withBorder py="xs" mt="sm">
           <Group justify="space-between" wrap="nowrap">
-            {isUser ? (
+            {isUser || isObject ? (
               <Text
                 fw={700}
                 c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
               >
-                {labels.viewProfile}
+                {isUser ? labels.viewProfile : labels.viewObject}
               </Text>
             ) : (
               <Text

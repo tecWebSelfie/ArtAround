@@ -16,8 +16,9 @@ import {
   type Where,
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
-import { hideFromSearch, readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { keptDirections } from '@/lib/tour-logistics'
+import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
 import {
   deleteQuestionsOfDeletedTour,
   deleteQuestionsRemovedFromQuiz,
@@ -129,8 +130,12 @@ export const Tour: CollectionConfig = {
   hooks: {
     beforeChange: [assignAuthor, guardTourContents, pruneDirections],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
-    afterChange: [deleteQuestionsRemovedFromQuiz, hideFromSearch('tours')],
-    afterDelete: [deleteQuestionsOfDeletedTour],
+    afterChange: [
+      deleteQuestionsRemovedFromQuiz,
+      // Upserts the tour, or removes it when it became private/planned.
+      searchSyncAfterChange('tours'),
+    ],
+    afterDelete: [deleteQuestionsOfDeletedTour, searchSyncAfterDelete('tours')],
   },
   fields: [
     {

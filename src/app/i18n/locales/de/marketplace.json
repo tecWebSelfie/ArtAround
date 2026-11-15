@@ -10,6 +10,8 @@
   "min": "Min.",
   "noResults": "Keine Ergebnisse gefunden",
   "noResultsHint": "Versuch eine andere Suche oder setze die Filter zurück.",
+  "object": "",
+  "objects": "",
   "paid": "Kostenpflichtig",
   "price": "Preis",
   "results_one": "{{count}} Ergebnis",
@@ -22,5 +24,6 @@
   "user": "Nutzer",
   "users": "Nutzer",
   "usersNoPrice": "Profile haben keinen Preis.",
+  "viewObject": "",
   "viewProfile": "Profil ansehen"
 }

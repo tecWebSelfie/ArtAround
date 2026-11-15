@@ -10,6 +10,8 @@
   "min": "perc",
   "noResults": "Nincs találat",
   "noResultsHint": "Próbálj más keresést, vagy töröld a szűrőket.",
+  "object": "",
+  "objects": "",
   "paid": "Fizetős",
   "price": "Ár",
   "results_one": "{{count}} találat",
@@ -22,5 +24,6 @@
   "user": "Felhasználó",
   "users": "Felhasználók",
   "usersNoPrice": "A profiloknak nincs ára.",
+  "viewObject": "",
   "viewProfile": "Profil megtekintése"
 }

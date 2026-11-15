@@ -1,13 +1,14 @@
 import type { Metadata } from 'next'
 import config from '@/payload.config'
-import { SearchShell } from '@/components/mantine/SearchShell'
+import { EntitySearch } from '@/components/mantine/EntitySearch'
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
 import { getT } from '@/i18n.server'
-import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
+import { docsInHitOrder } from '@/lib/search/hydrate'
+import { searchItemsWithFallback } from '@/lib/search/query'
+import type { Tour } from '@/payload-types'
 import { Container, Stack, Title } from '@mantine/core'
-import type { FilterDefinition } from 'mantine-composite-filters'
-import { getPayload } from 'payload'
-import { museumScope } from '@/lib/museum-mode'
+import { getPayload, type TypedLocale } from 'payload'
+import { museumSearchMuseumId } from '@/lib/museum-mode'
 
 const PAGE_SIZE = 12
 
@@ -24,66 +25,54 @@ export default async function SearchToursPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumScope()])
+  const setup = Promise.all([getPayload({ config }), museumSearchMuseumId()])
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
-  const [payload, scope] = await setup
+  const [payload, museumId] = await setup
 
-  const definitions: FilterDefinition[] = [
-    {
-      key: 'title',
-      label: t('Title'),
-      type: 'text',
-      operators: ['contains', 'starts_with', 'ends_with', '='],
-    },
-    {
-      key: 'description',
-      label: t('Description'),
-      type: 'text',
-      operators: ['contains', 'starts_with', 'ends_with', '='],
-    },
-  ]
-  const initialFilters = parseFilterSearchParams(searchParams, definitions)
-  const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page
-  const page = Math.max(1, Number(pageParam) || 1)
+  const firstValue = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value
+  const query = (firstValue(searchParams.q) ?? '').trim()
+  const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
 
-  const result = await payload.find({
-    collection: 'tours',
-    // Museum mode: only the locked museum's tours.
-    where: scope
-      ? {
-          and: [
-            activeFiltersToWhere(initialFilters, definitions),
-            { museum: { equals: scope.museumId } },
-          ],
-        }
-      : activeFiltersToWhere(initialFilters, definitions),
+  // Tours only: this page's own bar. Museum mode scopes it through `museum_id`.
+  const { hits, total } = await searchItemsWithFallback({
+    payload,
+    q: query,
+    kinds: ['tour'],
+    museumId,
     page,
     limit: PAGE_SIZE,
-    depth: 1,
+    queryBy: ['title', 'description', 'excerpt'],
+    queryByWeights: '5,3,2',
   })
+  const tours = await docsInHitOrder<Tour>({
+    payload,
+    collection: 'tours',
+    hits,
+    locale: lng as TypedLocale,
+  })
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   return (
     // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
-    // centered) so title, filter and the 3-column grid stop stretching across
+    // centered) so title, search and the 3-column grid stop stretching across
     // wide screens. Below md the padding equals the old side margins: no change.
     <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
         <Title order={1} size="h2">
           {t('Search visits')}
         </Title>
-        <SearchShell
-          definitions={definitions}
-          initialFilters={initialFilters}
-          page={result.page ?? page}
-          totalPages={result.totalPages ?? 1}
+        <EntitySearch
           basePath={`/${lng}/search/tours`}
-          storageKeyPrefix="search-tours"
-          placeholder={t('Filter visits…')}
-        >
-          <ToursSearchResults tours={result.docs} lng={lng} />
-        </SearchShell>
+          initialQuery={query}
+          page={page}
+          totalPages={totalPages}
+          placeholder={t('Search visits…')}
+          labels={{ search: t('Search') }}
+        />
+        <ToursSearchResults tours={tours} lng={lng} />
       </Stack>
     </Container>
   )

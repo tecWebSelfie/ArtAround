@@ -46,11 +46,14 @@ libraries or abstractions when they make the solution simpler.
 
 ## Search
 
-Marketplace and navigator search use the official Payload search plugin
-(`@payloadcms/plugin-search`) and its generated `search` collection. The
-marketplace scope is tours/contents/users; the navigator (home) scope is
-tours/contents/museums plus museum city matching. See
-[Search](docs/search.md) for the indexed fields, scopes, and reindex command.
+Marketplace, navigator and the `/search/*` pages use Typesense: one collection,
+`search_items`, written by Payload hooks through the Next server
+(`src/lib/search/*`). The old `@payloadcms/plugin-search` and its `search`
+collection are gone; the browser never holds a Typesense key. The marketplace
+scope is tours/contents/objects/users; the navigator (home) scope is
+tours/contents/museums, and in museum mode tours/contents/objects of the locked
+museum. See [Search](docs/search.md) for the indexed fields, scopes, local
+Docker service and the `pnpm search:reindex` command.
 
 For fast iteration, run focused checks for the affected behavior rather than the
 entire test suite. Run memory-heavy checks sequentially and state which checks

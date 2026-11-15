@@ -3,11 +3,13 @@ import type { MarketplaceItem } from '@/components/mantine/MarketplaceCard'
 import type { MarketplaceKind, MarketplacePrice } from '@/components/mantine/MarketplaceControls'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PRICE_CURRENCY } from '@/lib/price'
-import { querySearchIndex, type SearchHit } from '@/lib/search-query'
-import type { SearchDocKind } from '@/lib/search-index'
+import { fallbackSearchItems, searchItems } from '@/lib/search/query'
+import type { SearchDocKind, SearchHit } from '@/lib/search/types'
 import type {
   Content,
   ContentImage,
+  Object as ArtObject,
+  ObjectsThumbnail,
   Tour,
   ToursThumbnail,
   User,
@@ -79,12 +81,28 @@ function mapUser(user: User): MarketplaceItem {
   }
 }
 
+function mapObject(object: ArtObject): MarketplaceItem {
+  const thumbnail = isPopulated<ObjectsThumbnail>(object.thumbnail) ? object.thumbnail : null
+  return {
+    key: `object:${object.id}`,
+    kind: 'object',
+    id: object.id,
+    title: object.name,
+    description: object.description,
+    imageUrl: thumbnail?.url,
+    imageAlt: thumbnail?.alt ?? object.name,
+    createdAt: object.createdAt,
+    artist: object.artist,
+  }
+}
+
 /**
  * Which indexed kinds the marketplace searches for a given filter combination.
  *
- * Users are only included in "all" when there is an actual text query, so the
- * default marketplace still reads as a catalog of things to visit/read. Price
- * filters apply only to tours and contents, which are the sellable documents.
+ * Searchable things are tours, contents and objects; people join the default
+ * catalog only when there is an actual text query, so browsing still reads as
+ * a catalog of what to visit and read. Price filters apply only to tours and
+ * contents, the sellable documents.
  */
 export function marketplaceKindsFor(
   kind: MarketplaceKind,
@@ -93,17 +111,18 @@ export function marketplaceKindsFor(
 ): SearchDocKind[] {
   if (kind === 'tours') return ['tour']
   if (kind === 'contents') return ['content']
+  if (kind === 'objects') return ['object']
   if (kind === 'users') return ['user']
   if (price !== 'all') return ['tour', 'content']
-  return hasQuery ? ['tour', 'content', 'user'] : ['tour', 'content']
+  return hasQuery ? ['tour', 'content', 'object', 'user'] : ['tour', 'content', 'object']
 }
 
 /**
- * Hydrates search rows with localized Payload documents.
+ * Hydrates search hits with localized Payload documents.
  *
- * The search collection owns which documents match, their order and the
- * marketplace filters. Payload is the presentation source for translated
- * titles, prices, images and profile data.
+ * Typesense owns which documents match, their order and the filters; Payload
+ * is the presentation source for translated titles, prices, images and
+ * profile data.
  */
 async function hydrateSearchHits({
   payload,
@@ -118,15 +137,16 @@ async function hydrateSearchHits({
     tours: [] as string[],
     contents: [] as string[],
     users: [] as string[],
+    objects: [] as string[],
   }
 
   for (const hit of hits) {
-    if (hit.collection === 'tours' || hit.collection === 'contents' || hit.collection === 'users') {
-      idsByCollection[hit.collection].push(hit.sourceId)
+    if (hit.collection in idsByCollection) {
+      idsByCollection[hit.collection as keyof typeof idsByCollection].push(hit.sourceId)
     }
   }
 
-  const [toursResult, contentsResult, usersResult] = await Promise.all([
+  const [toursResult, contentsResult, usersResult, objectsResult] = await Promise.all([
     idsByCollection.tours.length > 0
       ? payload.find({
           collection: 'tours',
@@ -157,6 +177,15 @@ async function hydrateSearchHits({
           overrideAccess: true,
         })
       : Promise.resolve(null),
+    idsByCollection.objects.length > 0
+      ? payload.find({
+          collection: 'objects',
+          where: { id: { in: idsByCollection.objects } },
+          locale,
+          depth: 1,
+          limit: idsByCollection.objects.length,
+        })
+      : Promise.resolve(null),
   ])
 
   const byKey = new Map<string, MarketplaceItem>()
@@ -169,6 +198,9 @@ async function hydrateSearchHits({
   for (const user of usersResult?.docs ?? []) {
     byKey.set(`users:${user.id}`, mapUser(user))
   }
+  for (const object of objectsResult?.docs ?? []) {
+    byKey.set(`objects:${object.id}`, mapObject(object))
+  }
 
   return hits
     .map((hit) => byKey.get(`${hit.collection}:${hit.sourceId}`))
@@ -176,10 +208,11 @@ async function hydrateSearchHits({
 }
 
 /**
- * Marketplace listing is backed by the Payload search collection.
+ * Marketplace listing is backed by the Typesense `search_items` collection.
  *
- * Empty-query browsing uses the same index (`where` without a text condition),
- * so the displayed set cannot diverge between browsing and searching.
+ * Empty-query browsing uses the same index (a wildcard query), so the displayed
+ * set cannot diverge between browsing and searching. In museum mode every kind
+ * is scoped to the locked museum through `museum_id`.
  */
 export async function getMarketplaceResults(options: {
   payload: Payload
@@ -188,22 +221,35 @@ export async function getMarketplaceResults(options: {
   kind: MarketplaceKind
   price: MarketplacePrice
   page: number
-  /** Museum mode: per kind, the ids the locked museum allows (`museumSearchRestriction`). */
-  restrictTo?: Parameters<typeof querySearchIndex>[0]['restrictTo']
+  /** Museum mode: only documents belonging to this museum. */
+  museumId?: string | null
 }): Promise<MarketplaceResults> {
-  const { payload, locale, query, kind, price, page, restrictTo } = options
+  const { payload, locale, query, kind, price, page, museumId } = options
+  const kinds = marketplaceKindsFor(kind, price, Boolean(query.trim()))
+  const effectivePrice = kind === 'users' || kind === 'objects' ? 'all' : price
 
-  const result = await querySearchIndex({
-    payload,
-    query,
-    kinds: marketplaceKindsFor(kind, price, Boolean(query.trim())),
-    price: kind === 'users' ? 'all' : price,
-    page,
-    limit: MARKETPLACE_PAGE_SIZE,
-    sort: '-sourceCreatedAt',
-    locale,
-    restrictTo,
-  })
+  let result: { hits: SearchHit[]; total: number }
+  try {
+    result = await searchItems({
+      q: query,
+      kinds,
+      price: effectivePrice,
+      page,
+      limit: MARKETPLACE_PAGE_SIZE,
+      museumId,
+    })
+  } catch (error) {
+    // Typesense unreachable: log and keep the catalog browsable.
+    console.error('[search] Typesense marketplace search failed, falling back', error)
+    result = await fallbackSearchItems({
+      payload,
+      q: query,
+      kinds,
+      page,
+      limit: MARKETPLACE_PAGE_SIZE,
+      museumId,
+    })
+  }
 
   const items = await hydrateSearchHits({ payload, locale, hits: result.hits })
   return { items, total: result.total }

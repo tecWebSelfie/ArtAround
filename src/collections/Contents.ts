@@ -22,10 +22,14 @@ import {
   LICENSE_NAME,
   LICENSES,
 } from '@/lib/content-rights'
-import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
-import { refreshSearchDocs } from '@/lib/search-index'
+import {
+  resyncSearchDocuments,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -225,9 +229,9 @@ const attachTo = (
   }
 
 /**
- * A tour's search row carries its list price, the sum of its contents' prices
- * (docs/search.md). The search plugin re-indexes this content on save; when the
- * price changed, the rows of the tours that include it are refreshed too.
+ * A tour's search document carries its list price, the sum of its contents'
+ * prices (docs/search.md). A content save re-indexes this content; when the
+ * price changed, the documents of the tours that include it are refreshed too.
  */
 const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
   if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
@@ -241,7 +245,7 @@ const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, prev
       overrideAccess: true,
       req,
     })
-    await refreshSearchDocs({
+    await resyncSearchDocuments({
       payload: req.payload,
       collection: 'tours',
       ids: tours.docs.map((tour) => String(tour.id)),
@@ -353,10 +357,11 @@ export const Contents: CollectionConfig = {
       attachTo('subjects', 'attachToSubject'),
       refreshTourPrices,
       queueContentAudio,
-      hideFromSearch('contents'),
+      // Indexes the content (or removes it when it became private/planned).
+      searchSyncAfterChange('contents'),
     ],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
-    afterDelete: [detachDeletedContentFromQuestions],
+    afterDelete: [detachDeletedContentFromQuestions, searchSyncAfterDelete('contents')],
   },
   fields: [
     DifficultyField,

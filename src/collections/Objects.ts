@@ -8,6 +8,7 @@ import {
 import { editorial } from '@/fields/editorial'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
 import { WIKIDATA_QUEUE } from '@/lib/wikidata'
+import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
 import type { Access, Field, RelationshipFieldValidation } from 'payload'
@@ -239,7 +240,10 @@ export const Objects: CollectionConfig = {
           })
         }
       },
+      // Indexes the work (name, artist, description, the museums showing it).
+      searchSyncAfterChange('objects'),
     ] satisfies CollectionAfterChangeHook<Object>[],
+    afterDelete: [searchSyncAfterDelete('objects')],
   },
   endpoints: objectModelGenerationEndpoints,
 }

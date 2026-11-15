@@ -10,6 +10,8 @@
   "min": "min",
   "noResults": "Ma nstabu l-ebda riżultati",
   "noResultsHint": "Ipprova tfittxija oħra, jew neħħi l-filtri.",
+  "object": "",
+  "objects": "",
   "paid": "Bi ħlas",
   "price": "Prezz",
   "results_one": "{{count}} riżultat",
@@ -25,5 +27,6 @@
   "user": "Utent",
   "users": "Utenti",
   "usersNoPrice": "Il-profili m'għandhomx prezz.",
+  "viewObject": "",
   "viewProfile": "Ara l-profil"
 }
