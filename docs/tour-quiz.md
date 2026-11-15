@@ -31,7 +31,10 @@ Invariants enforced by hooks and validation:
   validation rejects API attempts).
 - Removing a tour-owned question from its quiz, or deleting the tour, deletes it.
 - Deleting a content unlinks it; a question left with no content is deleted (an
-  empty `relatedTo` would otherwise silently make it tour-owned).
+  empty `relatedTo` would otherwise silently make it tour-owned). The content also
+  leaves the tours listing it (`src/lib/tour-stop-cleanup.ts`), which drops from
+  their quiz the questions that no longer concern any stop (a question about
+  several contents stays while one of them is a stop); tour-owned ones stay.
 - Deleting a question removes it from every quiz.
 
 ### Answers never reach the browser before answering

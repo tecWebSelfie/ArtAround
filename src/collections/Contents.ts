@@ -26,6 +26,7 @@ import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibili
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import { refreshToursIncluding } from '@/lib/search-index'
+import { removeContentsFromTours } from '@/lib/tour-stop-cleanup'
 import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
@@ -248,7 +249,8 @@ const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, prev
  * Whether a tour's stop is visitable depends on its content being readable
  * (public, or its tour author's own): a content that turns private, or changes
  * author, recomputes the stored visitable stops of the tours that include it
- * (src/lib/visitable-stops.ts). Deletion does the same (`afterDelete`).
+ * (src/lib/visitable-stops.ts). Deletion removes the content from its tours
+ * instead (`afterDelete`, src/lib/tour-stop-cleanup.ts).
  */
 const refreshTourVisitableStops: CollectionAfterChangeHook<Content> = async ({
   doc,
@@ -379,9 +381,11 @@ export const Contents: CollectionConfig = {
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [
       detachDeletedContentFromQuestions,
-      // The tours that listed it keep the dangling id: they stop counting it.
+      // Then it leaves every tour that lists it (stops, directions, quiz, derived
+      // stops and search row), in this same transaction. After the question
+      // cleanup above, so the tours' quizzes are already free of its questions.
       async ({ req, id }) => {
-        await refreshVisitableStopsOfContents({
+        await removeContentsFromTours({
           payload: req.payload,
           req,
           contentIds: [String(id)],

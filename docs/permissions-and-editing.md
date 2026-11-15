@@ -185,8 +185,22 @@ save carries first), so only the server writes them.
   stops, museum or author change, or it has no value yet); a museum's map save
   when the placed objects changed (`Museums.ts`, that museum's tours); an
   object's `contents` change or deletion (`Objects.ts`, the tours including
-  those contents); a content's deletion, or its visibility/author change
-  (`Contents.ts`, the tours including it).
+  those contents); a content's visibility/author change (`Contents.ts`, the
+  tours including it). A content's deletion removes it from its tours instead
+  (next bullet), which recomputes them in the same write.
+- **A deleted content leaves its tours** (`removeContentsFromTours`,
+  `src/lib/tour-stop-cleanup.ts`, from `Contents.afterDelete` after
+  `detachDeletedContentFromQuestions`, same transaction). Only a hard delete:
+  an object leaving the map or a detached content stays derived and
+  reversible. Per tour it drops the id from `contents`, the stop's `directions`
+  and the `quiz.questions` that no longer concern a stop, recomputes the
+  visitable stops and the search row (price included), and leaves purchases
+  alone. It writes through the adapter (`db.updateOne`, no hooks), which is how
+  it passes `validateTourStops` (minimum stops), `required`/`minRows` and
+  `validateQuizQuestions`: a system cleanup must not be refused. A tour whose
+  last stop is deleted is KEPT with empty `contents` (never deleted
+  automatically): 0 visitable stops, hidden by `LISTED_TOURS`, still readable
+  by its author, whose next save asks for stops again.
 - **Cost and loops.** `refreshVisitableStops` reads the affected tours, writes
   only the ones whose value actually changed, one after the other (a MongoDB
   session doesn't take concurrent operations), through `req` so it joins the
@@ -201,8 +215,9 @@ save carries first), so only the server writes them.
   `withVisitableStops` (`src/lib/tour-summary.ts`), which keeps only
   `visitableContents`; `summarizeTour` does it itself.
 - **Backfill.** `pnpm tours:backfill-visitable`
-  (`src/scripts/backfill-visitable-stops.ts`, idempotent) fills tours saved
-  before the field; `pnpm seed` does it for the tours it finds again.
+  (`src/scripts/backfill-visitable-stops.ts`, idempotent) first drops ids of
+  contents that no longer exist from the tours listing them (deleted before the
+  cleanup above), then fills tours saved before the field; `pnpm seed` does it for the tours it finds again.
 - **Direct link to a tour with no visitable stop:** still opens (404 would
   tell nothing the author doesn't already know, and a shared link shouldn't
   turn into an error when a stop is removed from the map): its page shows a
@@ -210,7 +225,7 @@ save carries first), so only the server writes them.
   the visitor back to the tour page. Its author keeps the editor, which lists
   every stop and flags the unavailable ones.
 
-Tests: `tests/int/visitable-stops.int.spec.ts`.
+Tests: `tests/int/visitable-stops.int.spec.ts`, `tests/int/tour-stop-cleanup.int.spec.ts`.
 
 ## Private contents and tours
 

@@ -204,6 +204,12 @@ actions, scanner and commands derive "here" from it through
 
 ## Code map and reuse boundaries
 
+A hard-deleted content also leaves every tour that listed it (stop, directions,
+quiz questions, derived stops: `src/lib/tour-stop-cleanup.ts`, see
+[permissions-and-editing](permissions-and-editing.md) → Visitable stops); a tour
+left with no stop is kept, empty and unlisted. Map or detach changes never do
+this: they stay derived and reversible.
+
 All navigation paths below are relative to
 `src/app/[lng]/(frontend)/museum/[id]/navigation/`. Map components live at its
 root because free navigation and tours share them; the tour-only route files
