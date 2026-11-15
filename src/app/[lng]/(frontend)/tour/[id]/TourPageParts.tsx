@@ -7,7 +7,7 @@ import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { formatRating } from '@/lib/rating'
 import { formatUnit } from '@/lib/duration'
-import { stopImage, summarizeTour } from '@/lib/tour-summary'
+import { stopImage, type summarizeTour } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
 import { QrCodeButton } from '@/components/QrCodeButton'
 import type { Content, Difficulty, Tour } from '@/payload-types'
@@ -161,7 +161,6 @@ export function TourFigures({
           {t('Step-free route')}
         </Badge>
       )}
-      {/* Private: a class visit only its author and group guests see. */}
       {isPrivate && (
         <Badge size="lg" variant="light" color="gray" leftSection={<EyeOff size={14} />}>
           {t('Private')}

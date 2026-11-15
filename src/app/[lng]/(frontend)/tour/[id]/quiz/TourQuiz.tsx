@@ -16,7 +16,7 @@ import { useEffect, useMemo, useRef, useState, useTransition } from 'react'
 import { useTranslation } from 'react-i18next'
 import { checkQuizAnswer, submitQuizAttempt } from './actions'
 import { QuizContentDrawer } from './QuizContentDrawer'
-import { answerState, QuizHeader, QuizIntro, QuizQuestion } from './QuizParts'
+import { QuizHeader, QuizIntro, QuizQuestion } from './QuizParts'
 import { emptyQuizSession, type QuizSession, saveQuizSession, useQuizSession } from './quiz-session'
 import { useGroupQuizGuest } from './group-quiz'
 
@@ -150,7 +150,8 @@ export function TourQuiz({
             <QuizQuestion
               question={question}
               feedback={feedback}
-              stateOf={(key) => answerState(key, { feedback, chosen, pendingKey })}
+              chosen={chosen}
+              pendingKey={pendingKey}
               onAnswer={(key) => answer(question.id, key)}
               onReadContent={setDrawerContent}
             />

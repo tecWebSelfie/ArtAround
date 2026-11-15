@@ -252,7 +252,6 @@ export function TourForm({
           : t('A tour needs at least {{count}} stops', { count: minStops }),
     },
   })
-  const selected = form.values.contents
 
   const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id))
 
@@ -325,7 +324,9 @@ export function TourForm({
         <TourStopsEditor
           form={form}
           candidates={candidates}
-          picker={{ museumId: museum.id, returnTo: editorUrl, have: selected }}
+          byId={byId}
+          museumId={museum.id}
+          returnTo={editorUrl}
         />
 
         <Group justify="end">
@@ -425,15 +426,19 @@ function useTourDraft(
 function TourStopsEditor({
   form,
   candidates,
-  picker,
+  byId,
+  museumId,
+  returnTo,
 }: {
   form: UseFormReturnType<TourValues>
   candidates: TourCandidate[]
-  picker: { museumId: string; returnTo: string; have: string[] }
+  byId: Map<string, TourCandidate>
+  museumId: string
+  /** The editor's own URL, where the contents picker comes back. */
+  returnTo: string
 }) {
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
-  const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
   const selected = form.values.contents
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
@@ -553,7 +558,7 @@ function TourStopsEditor({
       <Group gap="xs">
         <Button
           component={Link}
-          href={tourPickerHref(lng, picker) as Route}
+          href={tourPickerHref(lng, { museumId, returnTo, have: selected }) as Route}
           variant="light"
           leftSection={<Search size={16} aria-hidden />}
         >
@@ -561,7 +566,7 @@ function TourStopsEditor({
         </Button>
         <Button
           component={Link}
-          href={newStopHref(lng, picker) as Route}
+          href={newStopHref(lng, { museumId, returnTo }) as Route}
           variant="light"
           color="teal"
           autoContrast

@@ -36,10 +36,6 @@ import {
 import type { Route } from 'next'
 import type { ReactNode } from 'react'
 
-/**
- * What the visitor may do on this museum, computed server-side with `can()`
- * (Payload's own access rules) by `page.tsx`. Absent = read-only (stories).
- */
 import type { MuseumEditing } from './MuseumPage'
 
 /** Parts of the museum page (`MuseumPage.tsx`): its edit actions and its Info tab. */
@@ -56,17 +52,15 @@ export async function MuseumEditActions({
   museumId: string
   editing: MuseumEditing
 }) {
+  if (!editing.isSignedIn && !editing.canManageMap) return null
   const { t: te } = await getT('editing')
   const { t: tc } = await getT('common')
-  if (!editing.isSignedIn && !editing.canManageMap) return null
   const base = `/${editing.lng}`
-  const museum = { id: museumId }
   return (
-    // Complex relations get dedicated pages; metadata is edited in place (Info tab).
     <Group gap="xs">
       {editing.canManageMap && (
         <LinkButton
-          href={`${base}/museum/${museum.id}/edit/mapeditor` as Route}
+          href={`${base}/museum/${museumId}/edit/mapeditor` as Route}
           variant="light"
           size="xs"
           leftSection={<MapIcon size={14} />}
@@ -76,7 +70,7 @@ export async function MuseumEditActions({
       )}
       {editing.isSignedIn && (
         <LinkButton
-          href={`${base}/tour/new?museum=${museum.id}` as Route}
+          href={`${base}/tour/new?museum=${museumId}` as Route}
           variant="light"
           size="xs"
           leftSection={<Route_ size={14} />}
@@ -96,7 +90,7 @@ export async function MuseumEditActions({
       )}
       {editing.canManageMap && (
         <LinkButton
-          href={`${base}/museum/${museum.id}/members` as Route}
+          href={`${base}/museum/${museumId}/members` as Route}
           variant="subtle"
           size="xs"
           leftSection={<Users size={14} />}
@@ -110,7 +104,7 @@ export async function MuseumEditActions({
         // opens the app in this museum. A plain download link.
         <Button
           component="a"
-          href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${editing.lng}`}
+          href={`/api/qr-sheet?kind=museum&id=${museumId}&lng=${editing.lng}`}
           download
           variant="subtle"
           size="xs"
@@ -187,48 +181,42 @@ export async function MuseumInfo({ museum, editing }: { museum: Museum; editing?
                 <MuseumLocationMap point={museum.location.latlng} />
               </Stack>
             ),
-            ...(hours.length || museum.openingHours?.notes
-              ? {
-                  [t('Opening hours')]: (
-                    <HoursList
-                      hours={hours}
-                      notes={museum.openingHours?.notes}
-                      closed={t('Closed')}
-                      localTime={t('Local time at the museum')}
-                    />
-                  ),
-                }
-              : {}),
-            ...(museum.ticketInfo?.label
-              ? {
-                  [t('Tickets')]: (
-                    <Stack gap={4}>
-                      <Text size="sm">{museum.ticketInfo.label}</Text>
-                      {museum.ticketInfo.url && (
-                        <Anchor
-                          href={museum.ticketInfo.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          size="sm"
-                          className="inline-flex items-center gap-1 self-start"
-                        >
-                          {t('Tickets and prices on the museum’s site')}
-                          <ExternalLink size={14} aria-hidden />
-                        </Anchor>
-                      )}
-                    </Stack>
-                  ),
-                }
-              : {}),
-            ...(phone
-              ? {
-                  [t('Phone')]: (
-                    <Anchor href={`tel:${phone.dial}`} size="sm">
-                      {phone.shown}
-                    </Anchor>
-                  ),
-                }
-              : {}),
+            ...row(
+              hours.length || museum.openingHours?.notes,
+              t('Opening hours'),
+              <HoursList
+                hours={hours}
+                notes={museum.openingHours?.notes}
+                closed={t('Closed')}
+                localTime={t('Local time at the museum')}
+              />,
+            ),
+            ...row(
+              museum.ticketInfo?.label,
+              t('Tickets'),
+              <Stack gap={4}>
+                <Text size="sm">{museum.ticketInfo?.label}</Text>
+                {museum.ticketInfo?.url && (
+                  <Anchor
+                    href={museum.ticketInfo?.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    size="sm"
+                    className="inline-flex items-center gap-1 self-start"
+                  >
+                    {t('Tickets and prices on the museum’s site')}
+                    <ExternalLink size={14} aria-hidden />
+                  </Anchor>
+                )}
+              </Stack>,
+            ),
+            ...row(
+              phone,
+              t('Phone'),
+              <Anchor href={`tel:${phone?.dial}`} size="sm">
+                {phone?.shown}
+              </Anchor>,
+            ),
             ...row(museum.email, t('Email'), museum.email),
             ...row(socials.length, t('Follow the museum'), <SocialLinks socials={socials} />),
             ...row(news.length, t('News'), <NewsList news={news} lng={lng} />),

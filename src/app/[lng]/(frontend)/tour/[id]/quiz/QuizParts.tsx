@@ -39,7 +39,7 @@ type AnswerState = 'idle' | 'pending' | 'locked' | 'correct' | 'wrong' | 'other'
  * locked meanwhile. After it: the right answer, the visitor's wrong one, and
  * the rest.
  */
-export function answerState(
+function answerState(
   key: string,
   {
     feedback,
@@ -60,7 +60,7 @@ export function answerState(
  * color + icon + label together (DESIGN.md Triplet Rule), never color alone.
  * Answered buttons stay readable (not grayed out) and are only aria-disabled.
  */
-export function AnswerButton({
+function AnswerButton({
   state,
   onClick,
   children,
@@ -245,9 +245,6 @@ export function QuizHeader({
     <Box
       component="header"
       pos="sticky"
-      // Sticks under the desktop top bar (≥ md, set by the frontend
-      // layout); the variable is 0px on phones, so the header still
-      // sticks to the very top there.
       top="var(--site-header-height, 0px)"
       py="xs"
       bg="var(--mantine-color-body)"
@@ -292,7 +289,7 @@ export function QuizHeader({
  * Whether the answer was right (the right one read out to screen readers
  * when it wasn't), the explanation, and the contents to read again.
  */
-export function AnswerFeedback({
+function AnswerFeedback({
   feedback,
   question,
   onReadContent,
@@ -346,13 +343,17 @@ export function AnswerFeedback({
 export function QuizQuestion({
   question,
   feedback,
-  stateOf,
+  chosen,
+  pendingKey,
   onAnswer,
   onReadContent,
 }: {
   question: QuizQuestionView
   feedback: QuizFeedback | undefined
-  stateOf: (key: string) => AnswerState
+  /** The option the visitor picked, once answered. */
+  chosen: string | undefined
+  /** The option being checked right now, if any. */
+  pendingKey: string | null
   onAnswer: (key: string) => void
   onReadContent: (contentId: string) => void
 }) {
@@ -373,7 +374,7 @@ export function QuizQuestion({
         {question.options.map((option) => (
           <AnswerButton
             key={option.key}
-            state={stateOf(option.key)}
+            state={answerState(option.key, { feedback, chosen, pendingKey })}
             onClick={() => onAnswer(option.key)}
           >
             {option.text}
