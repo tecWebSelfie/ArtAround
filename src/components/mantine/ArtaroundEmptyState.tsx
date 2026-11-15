@@ -1,8 +1,8 @@
 import { TOUR_GRADIENT } from '@/theme'
-import { Button, EmptyState, EmptyStateActions, Stack, ThemeIcon, Title } from '@mantine/core'
+import { LinkButton } from '@/components/editing/LinkButton'
+import { EmptyState, EmptyStateActions, Stack, ThemeIcon, Title } from '@mantine/core'
 import { Amphora, Plus, Route as RouteIcon } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
 
 /**
  * An empty tours or contents section (a profile with nothing authored yet).
@@ -80,15 +80,17 @@ export function ArtaroundEmptyState({
       >
         {action && (
           <EmptyStateActions>
-            <Button
-              component={Link}
+            {/* LinkButton: `component={Link}` can't cross from this Server
+                Component to Mantine's client Button (it crashed the owner's own
+                profile whenever a section was empty). */}
+            <LinkButton
               href={action.href}
               radius="xl"
               leftSection={<Plus size={16} aria-hidden />}
               {...button}
             >
               {action.label}
-            </Button>
+            </LinkButton>
           </EmptyStateActions>
         )}
       </EmptyState>

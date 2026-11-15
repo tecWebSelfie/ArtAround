@@ -5,7 +5,7 @@ import { expect, waitFor } from 'storybook/test'
 import { mockContentMinimal, mockContentSecond, mockContentThird } from '@/mocks/content.mock'
 import { mockMuseumBrera, mockMuseumMinimal, mockMuseumUffizi } from '@/mocks/museum.mock'
 import { mockTourMinimal } from '@/mocks/tour.mock'
-import type { Museum, User } from '@/payload-types'
+import type { Museum, Tour, User } from '@/payload-types'
 import {
   mockUserAuthor,
   mockUserCurator,
@@ -32,11 +32,14 @@ type UserPageStoryProps = User & {
   curatedMuseums?: (string | Museum)[] | null
   /** Museum mode: the profile's "This museum / All museums" filter. */
   museumFilter?: { name: string; museumOnly: boolean }
+  /** The owner's own profile, with their tours that have no visitable stop. */
+  isSelf?: boolean
+  needsFixingTours?: Tour[]
 }
 
 const UserPageStory = serverComponentStory(
-  ({ curatedMuseums, museumFilter, ...user }: UserPageStoryProps) =>
-    UserPage({ user, curatedMuseums, museumFilter }),
+  ({ curatedMuseums, museumFilter, isSelf, needsFixingTours, ...user }: UserPageStoryProps) =>
+    UserPage({ user, curatedMuseums, museumFilter, isSelf, needsFixingTours }),
 )
 
 const meta = {
@@ -70,6 +73,24 @@ export const Full: Story = {
     await expect(canvas.findByText('I segreti del Colosseo')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentMinimal.title)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentThird.title)).resolves.toBeTruthy()
+  },
+}
+
+/** The owner's profile lists their tours with no visitable stop, flagged for fixing. */
+export const OwnToursNeedFixing: Story = {
+  args: {
+    ...mockUserFull,
+    isSelf: true,
+    needsFixingTours: [{ ...mockTourMinimal, id: 'tour-empty', title: 'Tour senza tappe' }],
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByText('Tour senza tappe')).resolves.toBeTruthy()
+    // The badge names the state; the card leads to the editor.
+    await expect(canvas.findAllByText('Needs fixing')).resolves.toHaveLength(2)
+    await expect(canvas.findByRole('link', { name: /Tour senza tappe/ })).resolves.toHaveAttribute(
+      'href',
+      expect.stringMatching(/\/tour\/tour-empty\/edit$/),
+    )
   },
 }
 
