@@ -91,13 +91,19 @@ export async function POST(request: Request) {
   const payload = await getPayload({ config })
   const viewer = await asViewer()
 
+  // The museum-mode cookie, read alongside the subject (step 2 needs it).
+  const locked = lockedMuseumId()
   // 1. The original, read as the visitor: a paid body they may not read is absent.
   const subject = await readSubject(payload, { target, id, locale, viewer }).catch(() => null)
   if (!subject) return NextResponse.json({ error: 'Not found' }, { status: 404 })
   if (subject === 'locked') return NextResponse.json({ error: 'Locked' }, { status: 403 })
 
   // 2. Entities of the same museum the text may link to.
-  const links = await museumLinks(payload, subject.object, { locale, viewer })
+  const links = await museumLinks(payload, subject.object, {
+    locale,
+    viewer,
+    locked: await locked,
+  })
   const known = new Set(links.map((link) => link.id))
   const headers = { [LINKS_HEADER]: encodeURIComponent(JSON.stringify(links)) }
 
@@ -224,9 +230,8 @@ async function readSubject(
 async function museumLinks(
   payload: Payload,
   object: MuseumObject | null,
-  { locale, viewer }: { locale: Locale; viewer: Viewer },
+  { locale, viewer, locked }: { locale: Locale; viewer: Viewer; locked: string | null },
 ): Promise<ExpansionLink[]> {
-  const locked = await lockedMuseumId()
   const museumIds = (object?.museums?.docs ?? []).map(extractID)
   const museumId = museumIds.find((museum) => museum === locked) ?? museumIds[0]
   if (!museumId) return []

@@ -75,7 +75,6 @@ export const TourNavigationPage = ({
   const tour = scope.kind === 'tour' ? scope.tour : null
   const step = scope.kind === 'tour' ? scope.step : 0
   // URL state stays in the URL; this component reads it where map behavior needs it.
-
   const search = useSearchParams()
   // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
   const scanning = /\/scan$/.test(usePathname())

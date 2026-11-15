@@ -17,6 +17,7 @@ import { EXPANSION_ANGLES, MAX_EXPANSION_STEPS } from '@/lib/expansion'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { guestCommands } from '@/lib/group'
 import type { Route } from 'next'
+import { extractID } from 'payload/shared'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -124,6 +125,7 @@ export function useNavigationCommands({
       placedServices: services.filter((node) => node.placed),
       placedExits: exits.filter((node) => node.placed && node.direction === 'exit'),
       labels,
+      focus: navigationFocus({ scope, search, pathname, catalog }),
     }
     const all = [
       ...modalCommands(context),
@@ -207,14 +209,20 @@ type CommandContext = {
   placedServices: ServiceMarker[]
   placedExits: ExitEntranceMarker[]
   labels: CommandLabels
+  /** The tour's stops around the cursor and the work in front (`navigationFocus`). */
+  focus: ReturnType<typeof navigationFocus>
 }
 
-const idOf = (entry: string | { id: string } | null | undefined) =>
-  typeof entry === 'string' ? entry : entry?.id
-
-/** A one-command list when `when` holds, else none: the optional quick pills. */
-const only = (when: unknown, command: NavigationCommand): NavigationCommand[] =>
-  when ? [command] : []
+/**
+ * A one-command list built from `value` when it is set, else none: the
+ * optional quick pills (a command is only built when it will be shown).
+ */
+function only<T>(
+  value: T | null | undefined | false | 0,
+  build: (value: T) => NavigationCommand,
+): NavigationCommand[] {
+  return value ? [build(value)] : []
+}
 
 /**
  * The tour's stops around the current one, and the work in front of the
@@ -222,11 +230,18 @@ const only = (when: unknown, command: NavigationCommand): NavigationCommand[] =>
  * confirmed position's. Its author and movement (Wikidata subjects) answer
  * "who's the author?" and "what style is it?".
  */
-function navigationFocus({ scope, search, pathname, catalog }: CommandContext) {
+function navigationFocus({
+  scope,
+  search,
+  pathname,
+  catalog,
+}: Pick<CommandContext, 'scope' | 'search' | 'pathname' | 'catalog'>) {
   const tour = scope.kind === 'tour' ? scope.tour : null
   const step = scope.kind === 'tour' ? scope.step : 0
-  const nextId = idOf(tour?.contents[step])
-  const previousId = tour && step > 0 ? idOf(tour.contents[step - 1]) : undefined
+  const next = tour?.contents[step]
+  const nextId = next && extractID(next)
+  const previous = step > 0 ? tour?.contents[step - 1] : undefined
+  const previousId = previous && extractID(previous)
   const openContentId =
     /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
   const objectOf = (contentId: string | null | undefined) =>
@@ -248,47 +263,47 @@ function navigationFocus({ scope, search, pathname, catalog }: CommandContext) {
 /** The empty Spotlight's pills: tour steps, "what is this?", services, exits, route. */
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
   const { lng, scope, search, here, href, destination, labels } = context
-  const { tour, nextId, previousId, inFront } = navigationFocus(context)
+  const { tour, nextId, previousId, inFront } = context.focus
   const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
   const quick = 'quick' as const
   return [
-    ...only(nextId, {
+    ...only(nextId, (id) => ({
       id: 'next-stop',
       label: labels.openNextStop,
       description: labels.tour,
       group: quick,
-      href: href(navigationContentPath(lng, scope, nextId ?? '')),
+      href: href(navigationContentPath(lng, scope, id)),
       replace: false,
-    }),
+    })),
     // "Indietro": the previous stop's content again (group guests can't,
     // see guestCommands: the host leads).
-    ...only(previousId, {
+    ...only(previousId, (id) => ({
       id: 'previous-stop',
       label: labels.previousStop,
       description: labels.tour,
       group: quick,
-      href: href(navigationContentPath(lng, scope, previousId ?? '')),
+      href: href(navigationContentPath(lng, scope, id)),
       replace: false,
-    }),
-    ...only(inFront, {
+    })),
+    ...only(inFront, (work) => ({
       id: 'what-is-this',
       label: labels.whatIsThis,
-      description: inFront?.name ?? '',
+      description: work.name,
       group: quick,
-      href: href(`${here}/object/${inFront?.id}`),
+      href: href(`${here}/object/${work.id}`),
       replace: false,
-    }),
+    })),
     // Same id in both modes (the overlay toggles services off with it): a
     // tour resumes its route, free navigation clears the target.
-    ...only(hasDestination, {
+    ...only(hasDestination, () => ({
       id: 'resume-tour',
       label: tour ? labels.resumeTour : labels.clearDestination,
       description: tour ? labels.tour : labels.route,
       group: quick,
       href: destination('to', null),
       replace: true,
-    }),
+    })),
     // One "nearest" pill per service type present; the map picks the closest.
     ...SERVICE_TYPES.filter((type) =>
       context.placedServices.some((node) => node.service === type),
@@ -300,15 +315,15 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: destination('service', type),
       replace: true,
     })),
-    ...only(context.placedExits.length, {
+    ...only(context.placedExits.length, () => ({
       id: 'exit:nearest',
       label: labels.nearestExit,
       description: labels.exit,
       group: quick,
       href: destination('exit', 'nearest'),
       replace: true,
-    }),
-    ...only(wheelchairAvailable, {
+    })),
+    ...only(wheelchairAvailable, () => ({
       id: 'wheelchair',
       label: wheelchairOn ? labels.standardRoute : labels.wheelchairRoute,
       description: labels.route,
@@ -320,7 +335,7 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
         wheelchairOn ? null : 'wheelchair',
       ),
       replace: true,
-    }),
+    })),
     {
       id: 'scan',
       label: labels.scan,
@@ -413,18 +428,18 @@ function searchableCommands(context: CommandContext): NavigationCommand[] {
  */
 function modalCommands(context: CommandContext): NavigationCommand[] {
   const { pathname, labels } = context
-  const { work } = navigationFocus(context)
+  const { work } = context.focus
   const modalOpen = /\/(content|object)\/[^/]+$|\/open$/.test(pathname)
   const contentOpen = /\/content\/[^/]+$|\/open$/.test(pathname)
   const about = (id: string, label: string, subject?: { id: string; name: string }) =>
-    only(subject, {
+    only(subject, (about) => ({
       id,
       label,
-      description: subject?.name ?? '',
+      description: about.name,
       group: 'quick',
-      href: `/${context.lng}/subject/${subject?.id}` as Route,
+      href: `/${context.lng}/subject/${about.id}` as Route,
       replace: false,
-    })
+    }))
   return [
     ...(modalOpen ? expansionCommands(context) : []),
     ...(contentOpen ? versionCommands(context) : []),

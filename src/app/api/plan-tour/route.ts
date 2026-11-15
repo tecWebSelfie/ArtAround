@@ -59,8 +59,9 @@ export async function POST(request: Request) {
     // museum's app, whatever the request body says); else the chosen one, or
     // the one named in the interests.
     const museumId =
-      (await lockedMuseumId()) ??
-      answers.museumId ??
+      // `||`: an empty id in the body falls through to the interests.
+      (await lockedMuseumId()) ||
+      answers.museumId ||
       (await museumNamedIn(payload, answers.interests, locale))
     if (!museumId) return NextResponse.json({ error: 'museum' }, { status: 422 })
 
