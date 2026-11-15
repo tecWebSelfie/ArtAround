@@ -14,12 +14,12 @@ import { objectAsset } from '@/lib/pascal/object-assets'
 import { zGenerateModelBody, zReviseOperationBody } from '@/lib/pascal/mint/client/zod.gen'
 import type { Object as MuseumObject } from '@/payload-types'
 import type { AssetInput } from '@pascal-app/core'
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { Button, Image, TextInput, Textarea } from '@mantine/core'
 import { Dropzone } from '@mantine/dropzone'
 import { notifications } from '@mantine/notifications'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import styles from './object-catalog.module.css'
 
@@ -30,24 +30,12 @@ function referenceGuidance(urls: string[]) {
 }
 
 /**
- * The UI observes Payload jobs; server workflows own all generation and saving.
- *
- * Anyone may generate a missing model, but only the object's owner steers it
- * (prompt, reference images, revision feedback). For everyone else the form
- * offers a plain "generate from the object's data" action; the endpoint
- * enforces the same rule (`src/endpoints/objectModelGeneration.ts`).
+ * The generation's state and actions: the object (created on first submit),
+ * the job the endpoint queued, its Mint preview, the form, and the two
+ * actions (start a preview; approve or revise it).
  */
-export function ObjectModelGeneration({
-  object,
-  onPosition,
-  viewer,
-}: {
-  object?: MuseumObject
-  onPosition: (asset: AssetInput) => void
-  viewer: EditorViewer
-}) {
+function useModelGeneration({ object, viewer }: { object?: MuseumObject; viewer: EditorViewer }) {
   const { t } = useTranslation('map-editor')
-  const id = useId()
   const client = useQueryClient()
   const [objectId, setObjectId] = useState(object?.id ?? '')
   const [jobId, setJobId] = useState<string>()
@@ -105,6 +93,12 @@ export function ObjectModelGeneration({
         message: t('Your object is ready to position on the map.'),
       })
   }, [finished, job?.id, t])
+
+  // New reference images make a new request (a new id for the endpoint's dedupe).
+  const chooseReferences = (files: File[]) => {
+    setReferences(files.map((file) => ({ file, requestId: crypto.randomUUID() })))
+    submissionId.current = crypto.randomUUID()
+  }
 
   async function submit(values: typeof form.values) {
     try {
@@ -168,15 +162,163 @@ export function ObjectModelGeneration({
     }
   }
 
+  // Which part of the flow shows: the saved model, the preview to review,
+  // a retry for a failed save, or the form that starts a generation.
+  const finalizing = job?.workflowSlug === 'finalizeObjectModel'
+  const view = {
+    asset: asset && (!pending || finished) ? asset : null,
+    savingModel: finished && !asset,
+    retrySave: Boolean(job?.hasError && finalizing),
+    form: !asset && !pending && !previewReady && !finalizing,
+    existingName: objectId ? (currentObject.data?.name ?? object?.name ?? '') : null,
+  }
+
+  return {
+    t,
+    view,
+    objectId,
+    generation,
+    job,
+    pending,
+    previewReady,
+    operation,
+    previewImage,
+    canSteer,
+    form,
+    command,
+    references,
+    chooseReferences,
+    submit,
+    review,
+  }
+}
+
+/**
+ * The UI observes Payload jobs; server workflows own all generation and saving.
+ *
+ * Anyone may generate a missing model, but only the object's owner steers it
+ * (prompt, reference images, revision feedback). For everyone else the form
+ * offers a plain "generate from the object's data" action; the endpoint
+ * enforces the same rule (`src/endpoints/objectModelGeneration.ts`).
+ */
+export function ObjectModelGeneration({
+  object,
+  onPosition,
+  viewer,
+}: {
+  object?: MuseumObject
+  onPosition: (asset: AssetInput) => void
+  viewer: EditorViewer
+}) {
+  const id = useId()
+  const {
+    t,
+    view,
+    objectId,
+    generation,
+    job,
+    pending,
+    previewReady,
+    operation,
+    previewImage,
+    canSteer,
+    form,
+    command,
+    references,
+    chooseReferences,
+    submit,
+    review,
+  } = useModelGeneration({ object, viewer })
   return (
     <div className={styles.form}>
-      {generation.isLoading && objectId ? (
-        <p role="status">{t('Checking generation status…')}</p>
+      <GenerationStatus
+        loading={generation.isLoading && Boolean(objectId)}
+        failed={generation.isError}
+        onRetry={() => generation.refetch()}
+        job={job}
+        pending={pending}
+      />
+
+      {view.asset && <ReadyModel asset={view.asset} onPosition={onPosition} />}
+
+      {previewReady ? (
+        <PreviewReview
+          image={previewImage}
+          imageFailed={operation.isError}
+          feedback={
+            canSteer ? (
+              <Textarea
+                id={`${id}-feedback`}
+                label={t('What would you like to change?')}
+                maxLength={2000}
+                {...form.getInputProps('feedback')}
+              />
+            ) : null
+          }
+          busy={command.isPending}
+          onApprove={() => review('approve')}
+          onRevise={canSteer ? () => review('revise') : undefined}
+          canRevise={Boolean(form.values.feedback.trim())}
+        />
       ) : null}
-      {generation.isError ? (
+
+      {view.savingModel && <p role="status">{t('Loading saved model…')}</p>}
+      {view.retrySave ? (
+        <Button
+          variant="default"
+          loading={command.isPending}
+          onClick={() => review('approve')}
+          type="button"
+        >
+          {t('Retry saving model')}
+        </Button>
+      ) : null}
+      {view.form ? (
+        <GenerationForm
+          idPrefix={id}
+          existingName={view.existingName}
+          canSteer={canSteer}
+          form={form}
+          onSubmit={submit}
+          references={references}
+          onReferences={chooseReferences}
+          busy={form.submitting || command.isPending}
+        />
+      ) : null}
+      {[form.errors.prompt, form.errors.feedback, command.error && errorMessage(command.error)]
+        .filter(Boolean)
+        .map((message) => (
+          <p key={String(message)} className={styles.error} role="alert">
+            {message}
+          </p>
+        ))}
+    </div>
+  )
+}
+
+/** Where the generation job stands: loading, unreachable, failed, or running. */
+function GenerationStatus({
+  loading,
+  failed,
+  onRetry,
+  job,
+  pending,
+}: {
+  loading: boolean
+  failed: boolean
+  onRetry: () => void
+  job:
+    { hasError?: boolean | null; error?: unknown; workflowSlug?: string | null } | null | undefined
+  pending: boolean
+}) {
+  const { t } = useTranslation('map-editor')
+  return (
+    <>
+      {loading ? <p role="status">{t('Checking generation status…')}</p> : null}
+      {failed ? (
         <p className={styles.error} role="alert">
           {t('Could not load generation status.')}{' '}
-          <Button variant="default" onClick={() => generation.refetch()} type="button">
+          <Button variant="default" onClick={onRetry} type="button">
             {t('Retry')}
           </Button>
         </p>
@@ -196,157 +338,196 @@ export function ObjectModelGeneration({
           <p className={styles.hint}>{t('You can close this window. Processing will continue.')}</p>
         </div>
       ) : null}
+    </>
+  )
+}
 
-      {asset && (!pending || finished) ? (
-        <div className={styles.preview}>
-          {/* Square box sized up front (`.preview img`), so the text and the
-              button below don't jump when the picture arrives. */}
-          {asset.thumbnail ? (
-            <Image alt={asset.name} src={asset.thumbnail} width={512} height={512} />
-          ) : null}
-          <p>{t('Your object is ready to position on the map.')}</p>
-          <Button onClick={() => onPosition(asset)} type="button">
-            {t('Position')}
-          </Button>
-        </div>
-      ) : null}
-
-      {previewReady ? (
-        <section className={styles.preview} aria-label={t('Model preview')}>
-          {previewImage ? (
-            <Image
-              alt={t('Generated object preview')}
-              src={previewImage}
-              width={512}
-              height={512}
-            />
-          ) : (
-            <p role="status">
-              {operation.isError
-                ? t('Could not load the preview image. Try reopening this window.')
-                : t('Loading preview…')}
-            </p>
-          )}
-          <p className={styles.hint}>
-            {t('Review this preview before creating the final 3D model.')}
-          </p>
-          {canSteer ? (
-            <Textarea
-              id={`${id}-feedback`}
-              label={t('What would you like to change?')}
-              maxLength={2000}
-              {...form.getInputProps('feedback')}
-            />
-          ) : null}
-          <div className={styles.actions}>
-            <Button loading={command.isPending} onClick={() => review('approve')} type="button">
-              {t('Approve and create model')}
-            </Button>
-            {canSteer ? (
-              <Button
-                variant="default"
-                disabled={command.isPending || !form.values.feedback.trim()}
-                onClick={() => review('revise')}
-                type="button"
-              >
-                {t('Revise preview')}
-              </Button>
-            ) : null}
-          </div>
-        </section>
-      ) : null}
-
-      {finished && !asset ? <p role="status">{t('Loading saved model…')}</p> : null}
-      {job?.hasError && job.workflowSlug === 'finalizeObjectModel' ? (
-        <Button
-          variant="default"
-          loading={command.isPending}
-          onClick={() => review('approve')}
-          type="button"
-        >
-          {t('Retry saving model')}
+/**
+ * The preview to review before the final model: approve it, or (the owner
+ * only) describe a change and revise it.
+ */
+function PreviewReview({
+  image,
+  imageFailed,
+  feedback,
+  busy,
+  onApprove,
+  onRevise,
+  canRevise,
+}: {
+  image: string | null | undefined
+  imageFailed: boolean
+  feedback: ReactNode
+  busy: boolean
+  onApprove: () => void
+  onRevise?: () => void
+  canRevise: boolean
+}) {
+  const { t } = useTranslation('map-editor')
+  return (
+    <section className={styles.preview} aria-label={t('Model preview')}>
+      {image ? (
+        <Image alt={t('Generated object preview')} src={image} width={512} height={512} />
+      ) : (
+        <p role="status">
+          {imageFailed
+            ? t('Could not load the preview image. Try reopening this window.')
+            : t('Loading preview…')}
+        </p>
+      )}
+      <p className={styles.hint}>{t('Review this preview before creating the final 3D model.')}</p>
+      {feedback}
+      <div className={styles.actions}>
+        <Button loading={busy} onClick={onApprove} type="button">
+          {t('Approve and create model')}
         </Button>
+        {onRevise ? (
+          <Button variant="default" disabled={busy || !canRevise} onClick={onRevise} type="button">
+            {t('Revise preview')}
+          </Button>
+        ) : null}
+      </div>
+    </section>
+  )
+}
+
+/** The owner's own description and reference images for the generation. */
+function SteeringFields({
+  prompt,
+  references,
+  disabled,
+  onDrop,
+  onReject,
+}: {
+  prompt: ReactNode
+  references: { file: File; requestId: string }[]
+  disabled: boolean
+  onDrop: (files: File[]) => void
+  onReject: () => void
+}) {
+  const { t } = useTranslation('map-editor')
+  return (
+    <>
+      {prompt}
+      <Dropzone
+        aria-label={t('Reference images (optional)')}
+        accept={['image/png', 'image/jpeg', 'image/webp']}
+        maxSize={5 * 1024 * 1024}
+        maxFiles={8}
+        disabled={disabled}
+        onDrop={onDrop}
+        onReject={onReject}
+      >
+        <p>{t('Drop reference images here or click to choose files')}</p>
+      </Dropzone>
+      {references.length > 0 ? (
+        <ul>
+          {references.map(({ file, requestId }) => (
+            <li key={requestId}>{file.name}</li>
+          ))}
+        </ul>
       ) : null}
-      {!asset && !pending && !previewReady && job?.workflowSlug !== 'finalizeObjectModel' ? (
-        <details open>
-          <summary>{objectId ? t('Generate a model') : t('Create a new object')}</summary>
-          <form className={styles.form} onSubmit={(event) => form.onSubmit(submit)(event)}>
-            {!objectId ? (
-              <TextInput
-                id={`${id}-name`}
-                label={t('Object title')}
+      <p className={styles.hint}>{t('PNG, JPEG or WebP. Up to 8 images, 5 MB each.')}</p>
+    </>
+  )
+}
+
+type GenerationValues = { name: string; prompt: string; feedback: string }
+
+/**
+ * Starts a generation: a new object's title (or the existing object's name),
+ * then the owner's description and reference images, or for anyone else a
+ * note that the model comes from the object's own data.
+ */
+function GenerationForm({
+  idPrefix,
+  existingName,
+  canSteer,
+  form,
+  onSubmit,
+  references,
+  onReferences,
+  busy,
+}: {
+  idPrefix: string
+  /** The object's name, or null for a new object (its title is asked). */
+  existingName: string | null
+  canSteer: boolean
+  form: UseFormReturnType<GenerationValues>
+  onSubmit: (values: GenerationValues) => Promise<void>
+  references: { file: File; requestId: string }[]
+  onReferences: (files: File[]) => void
+  busy: boolean
+}) {
+  const { t } = useTranslation('map-editor')
+  return (
+    <details open>
+      <summary>{existingName === null ? t('Create a new object') : t('Generate a model')}</summary>
+      <form className={styles.form} onSubmit={(event) => form.onSubmit(onSubmit)(event)}>
+        {existingName === null ? (
+          <TextInput
+            id={`${idPrefix}-name`}
+            label={t('Object title')}
+            required
+            maxLength={200}
+            {...form.getInputProps('name')}
+          />
+        ) : (
+          <strong>{existingName}</strong>
+        )}
+        {canSteer ? (
+          <SteeringFields
+            prompt={
+              <Textarea
+                id={`${idPrefix}-prompt`}
+                label={t('Describe the object')}
                 required
-                maxLength={200}
-                {...form.getInputProps('name')}
+                maxLength={8000}
+                {...form.getInputProps('prompt')}
               />
-            ) : (
-              <strong>{currentObject.data?.name ?? object?.name}</strong>
+            }
+            references={references}
+            disabled={form.submitting}
+            onDrop={onReferences}
+            onReject={() =>
+              form.setFieldError('prompt', t('Choose up to 8 images, each no larger than 5 MB.'))
+            }
+          />
+        ) : (
+          <p className={styles.hint}>
+            {t(
+              "The model will be generated from the object's name, description and image. Only the object's owner can describe it differently.",
             )}
-            {canSteer ? (
-              <>
-                <Textarea
-                  id={`${id}-prompt`}
-                  label={t('Describe the object')}
-                  required
-                  maxLength={8000}
-                  {...form.getInputProps('prompt')}
-                />
-                <Dropzone
-                  aria-label={t('Reference images (optional)')}
-                  accept={['image/png', 'image/jpeg', 'image/webp']}
-                  maxSize={5 * 1024 * 1024}
-                  maxFiles={8}
-                  disabled={form.submitting}
-                  onDrop={(files) => {
-                    setReferences(files.map((file) => ({ file, requestId: crypto.randomUUID() })))
-                    submissionId.current = crypto.randomUUID()
-                  }}
-                  onReject={() =>
-                    form.setFieldError(
-                      'prompt',
-                      t('Choose up to 8 images, each no larger than 5 MB.'),
-                    )
-                  }
-                >
-                  <p>{t('Drop reference images here or click to choose files')}</p>
-                </Dropzone>
-                {references.length > 0 ? (
-                  <ul>
-                    {references.map(({ file, requestId }) => (
-                      <li key={requestId}>{file.name}</li>
-                    ))}
-                  </ul>
-                ) : null}
-                <p className={styles.hint}>{t('PNG, JPEG or WebP. Up to 8 images, 5 MB each.')}</p>
-              </>
-            ) : (
-              <p className={styles.hint}>
-                {t(
-                  "The model will be generated from the object's name, description and image. Only the object's owner can describe it differently.",
-                )}
-              </p>
-            )}
-            <Button loading={form.submitting || command.isPending} type="submit">
-              {t('Generate preview')}
-            </Button>
-          </form>
-        </details>
+          </p>
+        )}
+        <Button loading={busy} type="submit">
+          {t('Generate preview')}
+        </Button>
+      </form>
+    </details>
+  )
+}
+
+/** The saved model, ready to place: its thumbnail and the "Position" action. */
+function ReadyModel({
+  asset,
+  onPosition,
+}: {
+  asset: AssetInput
+  onPosition: (asset: AssetInput) => void
+}) {
+  const { t } = useTranslation('map-editor')
+  return (
+    <div className={styles.preview}>
+      {/* Square box sized up front (`.preview img`), so the text and the
+          button below don't jump when the picture arrives. */}
+      {asset.thumbnail ? (
+        <Image alt={asset.name} src={asset.thumbnail} width={512} height={512} />
       ) : null}
-      {form.errors.prompt ? (
-        <p className={styles.error} role="alert">
-          {form.errors.prompt}
-        </p>
-      ) : null}
-      {form.errors.feedback ? (
-        <p className={styles.error} role="alert">
-          {form.errors.feedback}
-        </p>
-      ) : null}
-      {command.error ? (
-        <p className={styles.error} role="alert">
-          {errorMessage(command.error)}
-        </p>
-      ) : null}
+      <p>{t('Your object is ready to position on the map.')}</p>
+      <Button onClick={() => onPosition(asset)} type="button">
+        {t('Position')}
+      </Button>
     </div>
   )
 }
