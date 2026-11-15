@@ -1,4 +1,5 @@
 import { displayName } from '@/lib/display-name'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { isPlannedVisit } from '@/lib/visibility'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
@@ -34,10 +35,6 @@ function idOf(value: unknown): string | null {
 }
 
 /** The ids of a relationship array, whether its entries are ids or documents. */
-export function relationshipIds(value: unknown): string[] {
-  if (!Array.isArray(value)) return []
-  return value.map(idOf).filter((id): id is string => Boolean(id))
-}
 
 function joinParts(...parts: Array<string | null | undefined>) {
   return parts

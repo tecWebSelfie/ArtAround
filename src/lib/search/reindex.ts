@@ -7,10 +7,11 @@ import { SEARCH_COLLECTIONS, type SearchDocument } from './types'
 /**
  * Full rebuild of the Typesense index from Payload (`pnpm search:reindex`).
  *
- * Hooks keep the index in step on normal saves; this script repairs drift,
- * applies a schema change and seeds the collection (and the local Docker
- * Typesense) for the first time. It drops the collection, so it is safe to run
- * whenever: every document is rebuilt from its source.
+ * Hooks keep the index in step on normal saves and the collection is created
+ * automatically on first use, so `pnpm seed` alone fills a fresh cluster. This
+ * script repairs drift, applies a schema change, or repopulates the index after
+ * a database restore (which does not fire the hooks). It drops the collection,
+ * so it is safe to run whenever: every document is rebuilt from its source.
  *
  * The projection is the same `buildSearchDocument` the hooks use, so a rebuilt
  * row and a hook-written row always have the same shape.

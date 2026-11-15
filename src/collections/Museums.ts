@@ -32,7 +32,7 @@ import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { HEX } from '@/lib/museum-color'
 import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
-import { relationshipIds } from '@/lib/search/documents'
+import { relationshipIds } from '@/lib/relationship-ids'
 import {
   resyncSearchDocuments,
   searchSyncAfterChange,

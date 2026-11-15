@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { EntitySearch } from '@/components/mantine/EntitySearch'
+import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
 import { getT } from '@/i18n.server'
 import { docsInHitOrder } from '@/lib/search/hydrate'
-import { searchItemsWithFallback } from '@/lib/search/query'
+import { searchItems } from '@/lib/search/query'
+import type { SearchHit } from '@/lib/search/types'
 import type { Tour } from '@/payload-types'
 import { Container, Stack, Title } from '@mantine/core'
 import { getPayload, type TypedLocale } from 'payload'
@@ -37,16 +39,24 @@ export default async function SearchToursPage(props: {
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
 
   // Tours only: this page's own bar. Museum mode scopes it through `museum_id`.
-  const { hits, total } = await searchItemsWithFallback({
-    payload,
-    q: query,
-    kinds: ['tour'],
-    museumId,
-    page,
-    limit: PAGE_SIZE,
-    queryBy: ['title', 'description', 'excerpt'],
-    queryByWeights: '5,3,2',
-  })
+  // No Payload fallback: an outage is shown, not replaced by other results.
+  let hits: SearchHit[] = []
+  let total = 0
+  let searchFailed = false
+  try {
+    ;({ hits, total } = await searchItems({
+      q: query,
+      kinds: ['tour'],
+      museumId,
+      page,
+      limit: PAGE_SIZE,
+      queryBy: ['title', 'description', 'excerpt'],
+      queryByWeights: '5,3,2',
+    }))
+  } catch (error) {
+    console.error('[search] Typesense tours search failed', error)
+    searchFailed = true
+  }
   const tours = await docsInHitOrder<Tour>({
     payload,
     collection: 'tours',
@@ -68,11 +78,15 @@ export default async function SearchToursPage(props: {
           basePath={`/${lng}/search/tours`}
           initialQuery={query}
           page={page}
-          totalPages={totalPages}
+          totalPages={searchFailed ? 1 : totalPages}
           placeholder={t('Search visits…')}
           labels={{ search: t('Search') }}
         />
-        <ToursSearchResults tours={tours} lng={lng} />
+        {searchFailed ? (
+          <SearchUnavailableAlert message={t('Search is not reachable right now.')} />
+        ) : (
+          <ToursSearchResults tours={tours} lng={lng} />
+        )}
       </Stack>
     </Container>
   )

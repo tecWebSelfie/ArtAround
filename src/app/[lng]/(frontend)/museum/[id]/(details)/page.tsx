@@ -1,4 +1,4 @@
-import { relationshipIds } from '@/lib/search/documents'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { TranslationPending } from '@/components/TranslationPending'
 import { normalizeLocale, requestTranslations } from '@/lib/localized'
 import { lexicalToHTML } from '@/lib/richtext'

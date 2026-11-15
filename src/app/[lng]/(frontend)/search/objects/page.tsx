@@ -3,6 +3,7 @@ import config from '@/payload.config'
 import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
 import { EntitySearch } from '@/components/mantine/EntitySearch'
 import { SearchShell } from '@/components/mantine/SearchShell'
+import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
 import { Container, Group, Stack, Text, Title } from '@mantine/core'
@@ -13,7 +14,7 @@ import { LinkButton } from '@/components/editing/LinkButton'
 import { createObjectHref, museumPickerParams, parseMuseumPicker } from '@/lib/museum-picker'
 import { can } from '@/lib/session'
 import { docsInHitOrder } from '@/lib/search/hydrate'
-import { searchItemsWithFallback } from '@/lib/search/query'
+import { searchItems } from '@/lib/search/query'
 import type { Object as ArtObject } from '@/payload-types'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import type { Route } from 'next'
@@ -91,6 +92,7 @@ export default async function SearchObjectsPage(props: {
 
   let objects: ArtObject[] = []
   let totalPages = 1
+  let searchFailed = false
   if (picker) {
     const result = await payload.find({
       collection: 'objects',
@@ -103,23 +105,28 @@ export default async function SearchObjectsPage(props: {
     totalPages = result.totalPages ?? 1
   } else {
     // Objects only: this page's own bar. Museum mode scopes through `museum_id`.
-    const { hits, total } = await searchItemsWithFallback({
-      payload,
-      q: query,
-      kinds: ['object'],
-      museumId,
-      page,
-      limit: PAGE_SIZE,
-      queryBy: ['title', 'artist', 'description'],
-      queryByWeights: '5,3,2',
-    })
-    objects = await docsInHitOrder<ArtObject>({
-      payload,
-      collection: 'objects',
-      hits,
-      locale: lng as TypedLocale,
-    })
-    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    // No Payload fallback: an outage is shown, not replaced by other results.
+    try {
+      const { hits, total } = await searchItems({
+        q: query,
+        kinds: ['object'],
+        museumId,
+        page,
+        limit: PAGE_SIZE,
+        queryBy: ['title', 'artist', 'description'],
+        queryByWeights: '5,3,2',
+      })
+      objects = await docsInHitOrder<ArtObject>({
+        payload,
+        collection: 'objects',
+        hits,
+        locale: lng as TypedLocale,
+      })
+      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    } catch (error) {
+      console.error('[search] Typesense objects search failed', error)
+      searchFailed = true
+    }
   }
 
   return (
@@ -181,11 +188,15 @@ export default async function SearchObjectsPage(props: {
               basePath={`/${lng}/search/objects`}
               initialQuery={query}
               page={page}
-              totalPages={totalPages}
+              totalPages={searchFailed ? 1 : totalPages}
               placeholder={t('Search objects…')}
               labels={{ search: t('Search') }}
             />
-            <ObjectsSearchResults objects={objects} lng={lng} picker={null} onShow={onShow} />
+            {searchFailed ? (
+              <SearchUnavailableAlert message={t('Search is not reachable right now.')} />
+            ) : (
+              <ObjectsSearchResults objects={objects} lng={lng} picker={null} onShow={onShow} />
+            )}
           </>
         )}
       </Stack>

@@ -3,7 +3,7 @@ import type { MarketplaceItem } from '@/components/mantine/MarketplaceCard'
 import type { MarketplaceKind, MarketplacePrice } from '@/components/mantine/MarketplaceControls'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PRICE_CURRENCY } from '@/lib/price'
-import { fallbackSearchItems, searchItems } from '@/lib/search/query'
+import { searchItems } from '@/lib/search/query'
 import type { SearchDocKind, SearchHit } from '@/lib/search/types'
 import type {
   Content,
@@ -213,6 +213,9 @@ async function hydrateSearchHits({
  * Empty-query browsing uses the same index (a wildcard query), so the displayed
  * set cannot diverge between browsing and searching. In museum mode every kind
  * is scoped to the locked museum through `museum_id`.
+ *
+ * A cluster failure is thrown to the page, which renders the "search not
+ * reachable" state: there is no Payload fallback.
  */
 export async function getMarketplaceResults(options: {
   payload: Payload
@@ -228,28 +231,14 @@ export async function getMarketplaceResults(options: {
   const kinds = marketplaceKindsFor(kind, price, Boolean(query.trim()))
   const effectivePrice = kind === 'users' || kind === 'objects' ? 'all' : price
 
-  let result: { hits: SearchHit[]; total: number }
-  try {
-    result = await searchItems({
-      q: query,
-      kinds,
-      price: effectivePrice,
-      page,
-      limit: MARKETPLACE_PAGE_SIZE,
-      museumId,
-    })
-  } catch (error) {
-    // Typesense unreachable: log and keep the catalog browsable.
-    console.error('[search] Typesense marketplace search failed, falling back', error)
-    result = await fallbackSearchItems({
-      payload,
-      q: query,
-      kinds,
-      page,
-      limit: MARKETPLACE_PAGE_SIZE,
-      museumId,
-    })
-  }
+  const result = await searchItems({
+    q: query,
+    kinds,
+    price: effectivePrice,
+    page,
+    limit: MARKETPLACE_PAGE_SIZE,
+    museumId,
+  })
 
   const items = await hydrateSearchHits({ payload, locale, hits: result.hits })
   return { items, total: result.total }

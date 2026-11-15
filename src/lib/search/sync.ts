@@ -1,20 +1,37 @@
+import { Errors } from 'typesense'
 import type {
   CollectionAfterChangeHook,
   CollectionAfterDeleteHook,
   Payload,
   PayloadRequest,
 } from 'payload'
-import { searchCollection } from './client'
+import { isTypesenseConfigured, searchCollection } from './client'
 import { buildSearchDocument, isUnlistedInSearch } from './documents'
+import { ensureSearchCollection } from './schema'
 import { SEARCH_KIND_BY_COLLECTION, type SearchCollection, type SearchDocument } from './types'
 
 /**
- * Keeps Typesense in step with Payload.
+ * Keeps Typesense in Cloud in step with Payload.
  *
  * Every hook is fail-soft: search is derived data, so a Typesense outage logs
- * and never rolls back a save. A full rebuild (`pnpm search:reindex`) repairs
- * anything a failed write missed.
+ * and never rolls back a save. `pnpm search:reindex` repairs anything a failed
+ * write missed. Without a configured cluster there is nothing to write to: the
+ * hook warns once and leaves the save untouched (a local seed or an offline
+ * environment still works).
  */
+
+let warnedMissingConfig = false
+
+function skipWithoutConfig(payload: Payload) {
+  if (isTypesenseConfigured()) return false
+  if (!warnedMissingConfig) {
+    warnedMissingConfig = true
+    payload.logger.warn(
+      'Typesense is not configured (TYPESENSE_HOST / TYPESENSE_API_KEY): search documents are not indexed.',
+    )
+  }
+  return true
+}
 
 function documentId(collection: SearchCollection, id: string) {
   return `${SEARCH_KIND_BY_COLLECTION[collection]}_${id}`
@@ -25,9 +42,16 @@ export async function removeSearchDocument(
   collection: SearchCollection,
   id: string,
 ) {
+  if (skipWithoutConfig(payload)) return
   try {
+    // The collection is created on first use, so a delete against a fresh
+    // cluster fails only when the row is genuinely gone.
+    await ensureSearchCollection()
     await searchCollection().documents(documentId(collection, id)).delete()
   } catch (error) {
+    // A document that was never indexed (private from the start, or a failed
+    // earlier write) has nothing to remove.
+    if (error instanceof Errors.ObjectNotFound) return
     payload.logger.error({
       err: error,
       msg: `Could not delete the search document for ${collection}:${id}`,
@@ -36,7 +60,9 @@ export async function removeSearchDocument(
 }
 
 async function upsert(payload: Payload, document: SearchDocument) {
+  if (skipWithoutConfig(payload)) return
   try {
+    await ensureSearchCollection()
     await searchCollection().documents().upsert(document)
   } catch (error) {
     payload.logger.error({

@@ -1,4 +1,5 @@
 import { MarketplaceCard } from '@/components/mantine/MarketplaceCard'
+import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import {
   MarketplacePagination,
   MarketplaceSearch,
@@ -59,15 +60,25 @@ export default async function Marketplace(props: {
   // localized cards from their source collections below.
   // Museum mode: browsing and searching both list only the locked museum's
   // tours, contents, objects and their authors.
-  const { items, total } = await getMarketplaceResults({
-    payload,
-    locale: lng as TypedLocale,
-    query,
-    kind,
-    price,
-    page,
-    museumId,
-  })
+  // There is no Payload fallback: a Typesense failure is shown as such.
+  let results: Awaited<ReturnType<typeof getMarketplaceResults>> | null = null
+  let searchFailed = false
+  try {
+    results = await getMarketplaceResults({
+      payload,
+      locale: lng as TypedLocale,
+      query,
+      kind,
+      price,
+      page,
+      museumId,
+    })
+  } catch (error) {
+    console.error('[marketplace] Typesense search failed', error)
+    searchFailed = true
+  }
+  const items = results?.items ?? []
+  const total = results?.total ?? 0
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))
   const hasFilters = Boolean(query) || kind !== 'all' || price !== 'all'
@@ -102,16 +113,20 @@ export default async function Marketplace(props: {
         }}
       />
 
-      <Group justify="space-between" align="center">
-        <Text fw={600}>{t('results', { count: total })}</Text>
-        {hasFilters && items.length > 0 && (
-          <Button component="a" href={basePath} variant="subtle" size="xs">
-            {t('clearFilters')}
-          </Button>
-        )}
-      </Group>
+      {searchFailed ? (
+        <SearchUnavailableAlert message={ts('Search is not reachable right now.')} />
+      ) : (
+        <Group justify="space-between" align="center">
+          <Text fw={600}>{t('results', { count: total })}</Text>
+          {hasFilters && items.length > 0 && (
+            <Button component="a" href={basePath} variant="subtle" size="xs">
+              {t('clearFilters')}
+            </Button>
+          )}
+        </Group>
+      )}
 
-      {items.length > 0 ? (
+      {searchFailed ? null : items.length > 0 ? (
         <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
           {items.map((item) => (
             <MarketplaceCard
@@ -159,7 +174,7 @@ export default async function Marketplace(props: {
         kind={kind}
         price={price}
         page={page}
-        totalPages={totalPages}
+        totalPages={searchFailed ? 1 : totalPages}
       />
     </Stack>
   )

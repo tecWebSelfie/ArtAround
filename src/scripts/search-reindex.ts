@@ -5,10 +5,12 @@
  * Usage:
  *   pnpm search:reindex
  *
- * The Payload hooks keep the index up to date on normal saves. A full rebuild
- * is needed after the first setup, after changing the schema or the fields
- * stored by `buildSearchDocument()` (src/lib/search/documents.ts), or to repair
- * rows missed while Typesense was unreachable (docs/search.md).
+ * The Payload hooks keep the index up to date on normal saves, and the
+ * collection is created automatically on first use, so a normal `pnpm seed`
+ * fills it. A full rebuild is only needed after a schema or projection change
+ * (`src/lib/search/documents.ts`), after a database restore (which does not fire
+ * the hooks), or to repair rows missed while Typesense was unreachable
+ * (docs/search.md).
  */
 import { getPayload } from 'payload'
 import config from '../payload.config'

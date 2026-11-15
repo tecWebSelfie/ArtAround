@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ContentsSearchResults } from '@/components/mantine/ContentsSearchResults'
 import { EntitySearch } from '@/components/mantine/EntitySearch'
 import { SearchShell } from '@/components/mantine/SearchShell'
+import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
 import config from '@/payload.config'
@@ -14,7 +15,7 @@ import { LinkButton } from '@/components/editing/LinkButton'
 import { getTourEditorData } from '../../tour/tour-editing'
 import { backToTourHref, newStopHref, parseTourPicker, tourPickerParams } from '@/lib/tour-picker'
 import { docsInHitOrder } from '@/lib/search/hydrate'
-import { searchItemsWithFallback } from '@/lib/search/query'
+import { searchItems } from '@/lib/search/query'
 import type { Content } from '@/payload-types'
 import { ArrowLeft, PenLine } from 'lucide-react'
 import type { Route } from 'next'
@@ -94,6 +95,7 @@ export default async function SearchContentsPage(props: {
   let contents: Content[] = []
   let totalPages = 1
   let lockedPrices: ReadonlyMap<string, number> | undefined
+  let searchFailed = false
 
   if (editor) {
     // Picker: the museum's tour candidates (permission-scoped, on Payload).
@@ -114,23 +116,28 @@ export default async function SearchContentsPage(props: {
     )
   } else {
     // Contents only: this page's own bar. Museum mode scopes through `museum_id`.
-    const { hits, total } = await searchItemsWithFallback({
-      payload,
-      q: query,
-      kinds: ['content'],
-      museumId,
-      page,
-      limit: PAGE_SIZE,
-      queryBy: ['title', 'excerpt'],
-      queryByWeights: '5,2',
-    })
-    contents = await docsInHitOrder<Content>({
-      payload,
-      collection: 'contents',
-      hits,
-      locale: lng as TypedLocale,
-    })
-    totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    // No Payload fallback: an outage is shown, not replaced by other results.
+    try {
+      const { hits, total } = await searchItems({
+        q: query,
+        kinds: ['content'],
+        museumId,
+        page,
+        limit: PAGE_SIZE,
+        queryBy: ['title', 'excerpt'],
+        queryByWeights: '5,2',
+      })
+      contents = await docsInHitOrder<Content>({
+        payload,
+        collection: 'contents',
+        hits,
+        locale: lng as TypedLocale,
+      })
+      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+    } catch (error) {
+      console.error('[search] Typesense contents search failed', error)
+      searchFailed = true
+    }
   }
 
   return (
@@ -200,11 +207,15 @@ export default async function SearchContentsPage(props: {
               basePath={`/${lng}/search/contents`}
               initialQuery={query}
               page={page}
-              totalPages={totalPages}
+              totalPages={searchFailed ? 1 : totalPages}
               placeholder={t('Search contents…')}
               labels={{ search: t('Search') }}
             />
-            <ContentsSearchResults contents={contents} lng={lng} picker={null} />
+            {searchFailed ? (
+              <SearchUnavailableAlert message={t('Search is not reachable right now.')} />
+            ) : (
+              <ContentsSearchResults contents={contents} lng={lng} picker={null} />
+            )}
           </>
         )}
       </Stack>

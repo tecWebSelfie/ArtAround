@@ -1,6 +1,6 @@
 import config from '@/payload.config'
 import { museumSearchMuseumId } from '@/lib/museum-mode'
-import { fallbackSearchItems, searchItems } from '@/lib/search/query'
+import { searchItems } from '@/lib/search/query'
 import type { SearchHit } from '@/lib/search/types'
 import type { Content, Difficulty, Museum, Object as ArtObject, Tour } from '@/payload-types'
 import { getPayload, type Payload, type TypedLocale } from 'payload'
@@ -204,30 +204,18 @@ export async function GET(request: Request) {
     // with Payload.
     const [payload, museumId] = await Promise.all([getPayload({ config }), museumSearchMuseumId()])
 
-    let hits: SearchHit[]
-    try {
-      const result = await searchItems({
-        q: query,
-        kinds: navigatorKinds(museumId),
-        museumId,
-        page: 1,
-        // Rank a larger pool, then keep `limit`: an exact city match may rank
-        // below the priority-ordered rows.
-        limit: Math.max(limit, RANK_POOL),
-      })
-      hits = result.hits
-    } catch (error) {
-      // Typesense unreachable: keep the dropdown working with a degraded read.
-      console.error('[search] Typesense navigator search failed, falling back', error)
-      const result = await fallbackSearchItems({
-        payload,
-        q: query,
-        kinds: navigatorKinds(museumId),
-        museumId,
-        limit: Math.max(limit, RANK_POOL),
-      })
-      hits = result.hits
-    }
+    // A Typesense failure is not hidden: it reaches the catch below, which
+    // answers 500 and lets the dropdown show its error state (no Payload
+    // fallback with a different, silently worse result set).
+    const { hits } = await searchItems({
+      q: query,
+      kinds: navigatorKinds(museumId),
+      museumId,
+      page: 1,
+      // Rank a larger pool, then keep `limit`: an exact city match may rank
+      // below the priority-ordered rows.
+      limit: Math.max(limit, RANK_POOL),
+    })
 
     // Exact city matches come first, then title matches, then the rest;
     // within each band Typesense's relevance and priority order is kept

@@ -1,5 +1,5 @@
-import type { Payload, Where } from 'payload'
 import { SEARCH_COLLECTION_NAME, typesense } from './client'
+import { ensureSearchCollection } from './schema'
 import {
   SEARCH_COLLECTION_BY_KIND,
   type SearchDocKind,
@@ -14,10 +14,6 @@ import {
  * `/search/{tours,objects,contents}`) passes the fields it looks at
  * (`queryBy`), its kinds and its own filters; the ranking stays one rule for
  * all: relevance, then the cross-collection priority, then recency.
- *
- * Typesense failures are thrown to the caller, which logs and falls back to a
- * degraded Payload query (`fallbackSearchItems`). Search is never the only way
- * to reach a document.
  */
 
 export type SearchPrice = 'all' | 'free' | 'paid'
@@ -94,6 +90,11 @@ export async function searchItems({
   filterBy,
   sortBy,
 }: SearchItemsOptions): Promise<{ hits: SearchHit[]; total: number }> {
+  // A fresh cluster has no collection yet. Creating it here (memoized) means
+  // the first window after a deploy answers with an empty result instead of a
+  // 404; the seed or a save then fills it.
+  await ensureSearchCollection()
+
   const trimmed = q.trim()
   const filter = buildFilterBy({ kinds, price, museumId, filterBy })
 
@@ -116,87 +117,4 @@ export async function searchItems({
     })
 
   return { hits: (result.hits ?? []).map((hit) => toHit(hit.document)), total: result.found }
-}
-
-/** Which collections a degraded read has to scan for these kinds. */
-const COLLECTION_BY_KIND = SEARCH_COLLECTION_BY_KIND
-
-/**
- * `searchItems` with the degraded Payload read as its fallback: the pages and
- * route handlers use this so a Typesense outage logs once and still answers.
- */
-export async function searchItemsWithFallback({
-  payload,
-  ...options
-}: SearchItemsOptions & { payload: Payload }) {
-  try {
-    return await searchItems(options)
-  } catch (error) {
-    console.error('[search] Typesense search failed, falling back', error)
-    return fallbackSearchItems({
-      payload,
-      q: options.q,
-      kinds: options.kinds,
-      page: options.page,
-      limit: options.limit,
-      museumId: options.museumId,
-    })
-  }
-}
-
-/**
- * Degraded search: when Typesense is down, match the query with Payload's
- * `like` over the same public fields. It has no relevance ranking and no
- * typo tolerance, but it keeps the pages working (and logs why).
- * Callers use it only in a `catch`.
- */
-export async function fallbackSearchItems({
-  payload,
-  q = '',
-  kinds,
-  page = 1,
-  limit = 12,
-  museumId,
-}: {
-  payload: Payload
-  q?: string
-  kinds: SearchDocKind[]
-  page?: number
-  limit?: number
-  museumId?: string | null
-}): Promise<{ hits: SearchHit[]; total: number }> {
-  const trimmed = q.trim()
-  if (!trimmed) return { hits: [], total: 0 }
-
-  const hits: SearchHit[] = []
-  for (const kind of kinds) {
-    const collection = COLLECTION_BY_KIND[kind]
-    const where: Where[] = [{ title: { like: trimmed } }]
-    if (museumId && kind === 'tour') where.push({ museum: { equals: museumId } })
-    const { docs } = await payload.find({
-      collection,
-      where: { and: where },
-      depth: 0,
-      locale: 'en',
-      limit,
-      overrideAccess: true,
-    })
-    for (const doc of docs) {
-      const source = doc as unknown as { title?: string; name?: string; createdAt?: string }
-      hits.push({
-        searchId: `${kind}_${doc.id}`,
-        collection,
-        sourceId: String(doc.id),
-        kind,
-        title: source.title ?? source.name ?? '',
-        excerpt: '',
-        city: '',
-        priceCents: 0,
-        sourceCreatedAt: source.createdAt,
-      })
-    }
-  }
-
-  const start = (page - 1) * limit
-  return { hits: hits.slice(start, start + limit), total: hits.length }
 }
