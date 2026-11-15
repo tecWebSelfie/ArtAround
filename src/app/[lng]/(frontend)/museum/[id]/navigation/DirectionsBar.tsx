@@ -36,24 +36,41 @@ export function useStepSentence() {
       switch (step.kind) {
         case 'start':
           return step.room ? t('Start in {{room}}', { room: step.room }) : t('Start walking')
-        case 'enter':
-          if (step.door) {
-            const values = { door: step.door, room: step.room }
-            if (step.turn === 'left') return t('Turn left through {{door}} into {{room}}', values)
-            if (step.turn === 'right') return t('Turn right through {{door}} into {{room}}', values)
-            return t('Go straight through {{door}} into {{room}}', values)
+        case 'enter': {
+          if (!step.door) {
+            return bySide(step.turn, {
+              left: t('Turn left into {{room}}', { room: step.room }),
+              right: t('Turn right into {{room}}', { room: step.room }),
+              ahead: t('Continue into {{room}}', { room: step.room }),
+            })
           }
-          if (step.turn === 'left') return t('Turn left into {{room}}', { room: step.room })
-          if (step.turn === 'right') return t('Turn right into {{room}}', { room: step.room })
-          return t('Continue into {{room}}', { room: step.room })
+          const values = { door: step.door, room: step.room }
+          return bySide(step.turn, {
+            left: t('Turn left through {{door}} into {{room}}', values),
+            right: t('Turn right through {{door}} into {{room}}', values),
+            ahead: t('Go straight through {{door}} into {{room}}', values),
+          })
+        }
         case 'arrive':
-          if (step.side === 'left') return t('{{destination}} is on your left', { destination })
-          if (step.side === 'right') return t('{{destination}} is on your right', { destination })
-          return t('{{destination}} is ahead', { destination })
+          return bySide(step.side, {
+            left: t('{{destination}} is on your left', { destination }),
+            right: t('{{destination}} is on your right', { destination }),
+            ahead: t('{{destination}} is ahead', { destination }),
+          })
       }
     },
     [t],
   )
+}
+
+/** The sentence for a turn or a side: left, right, or anything else (ahead). */
+function bySide(
+  side: string | undefined,
+  sentences: { left: string; right: string; ahead: string },
+) {
+  if (side === 'left') return sentences.left
+  if (side === 'right') return sentences.right
+  return sentences.ahead
 }
 
 /** Keep the assistant mounted while route status changes; only its layout moves. */
@@ -131,32 +148,12 @@ export function DirectionsBar({
   const step = steps[current]
 
   if (status === 'no-position' || status === 'no-destination') {
-    // Directions need a start and an end, asked for in that order: first the
-    // position, then (if the tour doesn't give one) where to go. In the primary
-    // color (orange means "paid" in this app) and tappable, unlike the plain
-    // status messages, so each reads as the one thing to do before guidance
-    // can start. Both are chosen from search; the copy says so in the
-    // visitor's terms (the work in front of them), not the map's.
-    const position = status === 'no-position'
     return (
-      <DirectionsLayout trailingControl={trailingControl}>
-        <UnstyledButton
-          onClick={onSearch}
-          className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-museum-light-color)"
-        >
-          {position ? (
-            <MapPinOff size={20} aria-hidden className="shrink-0" />
-          ) : (
-            <Navigation size={20} aria-hidden className="shrink-0" />
-          )}
-          <Text size="sm" fw={600} lineClamp={2}>
-            {position
-              ? t('Where are you? Find the work in front of you')
-              : t('Choose where to go from search')}
-          </Text>
-          <ChevronRight size={18} aria-hidden className="ml-auto shrink-0" />
-        </UnstyledButton>
-      </DirectionsLayout>
+      <AskForEnds
+        position={status === 'no-position'}
+        onSearch={onSearch}
+        trailingControl={trailingControl}
+      />
     )
   }
 
@@ -272,5 +269,42 @@ export function DirectionsBar({
         </Timeline>
       </Modal>
     </>
+  )
+}
+
+/**
+ * Directions need a start and an end, asked for in that order: first the
+ * position, then (if the tour doesn't give one) where to go. In the primary
+ * color (orange means "paid" in this app) and tappable, unlike the plain
+ * status messages, so each reads as the one thing to do before guidance can
+ * start. Both are chosen from search; the copy says so in the visitor's
+ * terms (the work in front of them), not the map's.
+ */
+function AskForEnds({
+  position,
+  onSearch,
+  trailingControl,
+}: {
+  position: boolean
+  onSearch?: () => void
+  trailingControl?: React.ReactNode
+}) {
+  const { t } = useTranslation('tour-navigation')
+  const Icon = position ? MapPinOff : Navigation
+  return (
+    <DirectionsLayout trailingControl={trailingControl}>
+      <UnstyledButton
+        onClick={onSearch}
+        className="flex min-h-12 w-full items-center gap-2 rounded-md px-1 text-(--mantine-color-museum-light-color)"
+      >
+        <Icon size={20} aria-hidden className="shrink-0" />
+        <Text size="sm" fw={600} lineClamp={2}>
+          {position
+            ? t('Where are you? Find the work in front of you')
+            : t('Choose where to go from search')}
+        </Text>
+        <ChevronRight size={18} aria-hidden className="ml-auto shrink-0" />
+      </UnstyledButton>
+    </DirectionsLayout>
   )
 }

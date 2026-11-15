@@ -65,29 +65,21 @@ function AudioControl({ url }: { url: string }) {
     const signal = unmounted.current?.signal
     if (!signal) return
     setState('preparing')
-    for (let poll = 0; poll < MAX_POLLS; poll++) {
-      const response = await fetch(`${url}&check=1`, { cache: 'no-store', signal }).catch(
-        () => null,
-      )
-      const { status } = ((await response?.json().catch(() => null)) ?? {}) as { status?: string }
-      if (signal.aborted) return
-      if (status === 'ready') {
-        const player = new Audio(url)
-        player.addEventListener('ended', () => setState('paused'))
-        audio.current = player
-        await player.play().catch(() => undefined)
-        if (signal.aborted) {
-          player.pause()
-          return
-        }
-        setState(player.paused ? 'paused' : 'playing')
-        return
-      }
-      if (status !== 'pending' && status !== 'translating') break
-      await wait(POLL_MS)
-      if (signal.aborted) return
+    const ready = await audioReady(url, signal)
+    if (signal.aborted) return
+    if (!ready) {
+      setState('unavailable')
+      return
     }
-    setState('unavailable')
+    const player = new Audio(url)
+    player.addEventListener('ended', () => setState('paused'))
+    audio.current = player
+    await player.play().catch(() => undefined)
+    if (signal.aborted) {
+      player.pause()
+      return
+    }
+    setState(player.paused ? 'paused' : 'playing')
   }
 
   const onClick = () => {
@@ -133,4 +125,20 @@ function AudioControl({ url }: { url: string }) {
       {label}
     </Button>
   )
+}
+
+/**
+ * Asks the route until the audio is ready (true), while it is being
+ * generated or translated; false once it says anything else or after
+ * `MAX_POLLS`. Stops early when `signal` aborts (the button unmounted).
+ */
+async function audioReady(url: string, signal: AbortSignal) {
+  for (let poll = 0; poll < MAX_POLLS && !signal.aborted; poll++) {
+    const response = await fetch(`${url}&check=1`, { cache: 'no-store', signal }).catch(() => null)
+    const { status } = ((await response?.json().catch(() => null)) ?? {}) as { status?: string }
+    if (status === 'ready') return true
+    if (status !== 'pending' && status !== 'translating') return false
+    await wait(POLL_MS)
+  }
+  return false
 }

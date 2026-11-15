@@ -44,19 +44,7 @@ export function useRouteGuidance({
   const start: PolygonPoint2D | null = route?.start
     ? [route.start[0], route.start[2]]
     : (startPoint ?? null)
-  const startKey = start ? `${anchorScope}:${start.join(',')}` : null
-  const [anchor, setAnchor] = useState<{ key: string; fix: GpsFix } | null>(null)
-  // Take the anchor fix at a new confirmed start (or at the first fix after it).
-  // Adjusted during render (React's pattern for state derived from changing
-  // inputs) rather than in an effect, which would render once with a stale
-  // anchor first. Each branch makes its own condition false, so it settles.
-  if (startKey && fix && anchor?.key !== startKey) setAnchor({ key: startKey, fix })
-  else if (!fix && anchor) setAnchor(null)
-
-  const estimate =
-    start && fix && anchor?.key === startKey
-      ? estimatePlanPoint(start, gpsOffsetMetres(anchor.fix, fix))
-      : null
+  const estimate = useGpsEstimate(start, fix, anchorScope)
   const progress = estimate && samples.length > 1 ? distanceAlongPath(samples, estimate) : null
   const gpsStep = progress ? stepAtDistance(steps, progress.distance) : null
 
@@ -86,4 +74,22 @@ export function useRouteGuidance({
       ? ([onPlan[0], route?.start?.[1] ?? 0, onPlan[1]] as [number, number, number])
       : null,
   }
+}
+
+/**
+ * Where the visitor is on the plan: the confirmed start moved by how far the
+ * GPS has drifted since the fix taken there (the anchor). Null without a
+ * start, a fix, or before the anchor is taken.
+ */
+function useGpsEstimate(start: PolygonPoint2D | null, fix: GpsFix | null, anchorScope: string) {
+  const startKey = start ? `${anchorScope}:${start.join(',')}` : null
+  const [anchor, setAnchor] = useState<{ key: string; fix: GpsFix } | null>(null)
+  // Take the anchor fix at a new confirmed start (or at the first fix after it).
+  // Adjusted during render (React's pattern for state derived from changing
+  // inputs) rather than in an effect, which would render once with a stale
+  // anchor first. Each branch makes its own condition false, so it settles.
+  if (startKey && fix && anchor?.key !== startKey) setAnchor({ key: startKey, fix })
+  else if (!fix && anchor) setAnchor(null)
+  if (!start || !fix || anchor?.key !== startKey) return null
+  return estimatePlanPoint(start, gpsOffsetMetres(anchor.fix, fix))
 }

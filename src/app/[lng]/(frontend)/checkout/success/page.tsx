@@ -67,16 +67,7 @@ export default async function CheckoutSuccess(props: {
     )
   }
 
-  if (sessionId) {
-    try {
-      await reconcileCheckoutSession({ payload, stripe: getStripe(), sessionId, userId: user.id })
-    } catch (error) {
-      // The webhook may still deliver; the ownership check below tells the truth either way.
-      payload.logger.error(
-        `[stripe] reconcile failed for session ${sessionId}: ${error instanceof Error ? error.message : String(error)}`,
-      )
-    }
-  }
+  if (sessionId) await reconcile(payload, sessionId, user.id)
 
   // Ownership, and the bought item's name so the page says what was bought
   // ("Masterpieces of the Pinacoteca is unlocked"), read together. In
@@ -144,4 +135,18 @@ async function purchasedTitle(
     })
     .catch(() => null)
   return doc?.title ?? null
+}
+
+/**
+ * Records the purchase from the Stripe session, in case the webhook hasn't
+ * yet. A failure is only logged: the webhook may still deliver, and the
+ * ownership check tells the truth either way.
+ */
+async function reconcile(payload: Payload, sessionId: string, userId: string) {
+  try {
+    await reconcileCheckoutSession({ payload, stripe: getStripe(), sessionId, userId })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    payload.logger.error(`[stripe] reconcile failed for session ${sessionId}: ${message}`)
+  }
 }
