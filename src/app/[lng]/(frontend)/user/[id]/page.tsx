@@ -31,7 +31,7 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
     museumScope(),
     asViewer(),
   ])
-  const viewerId = sessionUser ? String(sessionUser.id) : null
+  const isSelf = sessionUser != null && String(sessionUser.id) === id
   const inMuseum = museumOnly && scope
   const user = await payload
     .findByID({
@@ -56,28 +56,27 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
     })
   // Own tours the list rule hides (no visitable stop). The viewer's session
   // reads them, so a visitor passing `id` of someone else gets nothing.
-  const ownEmptyTours =
-    viewerId && viewerId === id
-      ? await payload
-          .find({
-            collection: 'tours',
-            where: {
-              and: [
-                { author: { equals: id } },
-                { visitableStops: { equals: 0 } },
-                { visitCopyOf: { exists: false } },
-                { 'generation.generated': { not_equals: true } },
-                ...(inMuseum ? [{ museum: { equals: inMuseum.museumId } }] : []),
-              ],
-            },
-            sort: '-createdAt',
-            depth: 0,
-            pagination: false,
-            ...viewer,
-          })
-          .then((found) => found.docs)
-      : []
-  return { user, scope, ownEmptyTours }
+  const ownEmptyTours = isSelf
+    ? await payload
+        .find({
+          collection: 'tours',
+          where: {
+            and: [
+              { author: { equals: id } },
+              { visitableStops: { equals: 0 } },
+              { visitCopyOf: { exists: false } },
+              { 'generation.generated': { not_equals: true } },
+              ...(inMuseum ? [{ museum: { equals: inMuseum.museumId } }] : []),
+            ],
+          },
+          sort: '-createdAt',
+          depth: 0,
+          pagination: false,
+          ...viewer,
+        })
+        .then((found) => found.docs)
+    : []
+  return { user, scope, ownEmptyTours, isSelf }
 })
 
 /** `?scope=all` lifts the museum filter; any other value (or none) keeps it. */
@@ -91,17 +90,12 @@ export async function generateMetadata(props: PageProps<'/[lng]/user/[id]'>): Pr
 }
 
 export default async function getUserById(props: PageProps<'/[lng]/user/[id]'>) {
-  const [{ user: viewer }, { id }, { scope: scopeParam }] = await Promise.all([
-    getSession(),
-    props.params,
-    props.searchParams,
-  ])
+  const [{ id }, { scope: scopeParam }] = await Promise.all([props.params, props.searchParams])
   const museumOnly = museumOnlyParam(scopeParam)
   // Started before the translations, so the two loads overlap.
   const read = readUser(id, museumOnly)
   const { t } = await getT('editing')
-  const { user, scope, ownEmptyTours } = await read
-  const isSelf = String(viewer?.id) === String(user.id)
+  const { user, scope, ownEmptyTours, isSelf } = await read
 
   return (
     <UserPage

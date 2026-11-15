@@ -63,6 +63,22 @@ export async function removeContentsFromTours({
     overrideAccess: true,
     req,
   })
+  // The quiz questions of all these tours in one read (not one per tour): which
+  // contents each one is about decides whether it still belongs to its tour.
+  const questionIds = [...new Set(docs.flatMap((tour) => tourQuizQuestionIds(tour)))]
+  const related = new Map<string, string[]>()
+  if (questionIds.length) {
+    const { docs: questions } = await payload.find({
+      collection: 'quizQuestions',
+      where: { id: { in: questionIds } },
+      select: { relatedTo: true },
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    for (const q of questions) related.set(String(q.id), relationshipIds(q.relatedTo))
+  }
   const changed: string[] = []
   const museums = new Map<string, Promise<Pick<Museum, 'map'> | null>>()
   for (const tour of docs) {
@@ -70,27 +86,13 @@ export async function removeContentsFromTours({
     const kept = new Set(contents)
 
     // Questions still about this tour: tour-owned ones, or one of whose
-    // remaining related contents is a stop.
-    const questionIds = tourQuizQuestionIds(tour)
-    let quizQuestions = questionIds
-    if (questionIds.length) {
-      const { docs: questions } = await payload.find({
-        collection: 'quizQuestions',
-        where: { id: { in: questionIds } },
-        select: { relatedTo: true },
-        depth: 0,
-        pagination: false,
-        overrideAccess: true,
-        req,
-      })
-      const related = new Map(questions.map((q) => [String(q.id), relationshipIds(q.relatedTo)]))
-      quizQuestions = questionIds.filter((id) => {
-        const contentsOfQuestion = related.get(id)
-        // A question already deleted leaves the quiz too (dangling id).
-        if (!contentsOfQuestion) return false
-        return !contentsOfQuestion.length || contentsOfQuestion.some((c) => kept.has(c))
-      })
-    }
+    // remaining related contents is a stop. A question already deleted (absent
+    // from `related`) leaves the quiz too (dangling id).
+    const quizQuestions = tourQuizQuestionIds(tour).filter((id) => {
+      const contentsOfQuestion = related.get(id)
+      if (!contentsOfQuestion) return false
+      return !contentsOfQuestion.length || contentsOfQuestion.some((c) => kept.has(c))
+    })
 
     const ids = await computeVisitableContentIds(
       payload,

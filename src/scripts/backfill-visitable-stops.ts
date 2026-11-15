@@ -20,6 +20,9 @@ import { relationshipIds } from '../lib/search-index'
 import { removeContentsFromTours } from '../lib/tour-stop-cleanup'
 import { refreshVisitableStops } from '../lib/visitable-stops'
 
+/** Ids per `$in` query (existence check and cleanup). */
+const SLICE = 500
+
 /**
  * Ids listed by tours whose content no longer exists (deleted before a
  * deleted content left its tours): they are dropped from the tours first.
@@ -33,19 +36,23 @@ async function dropDeletedContents(payload: Awaited<ReturnType<typeof getPayload
     overrideAccess: true,
   })
   const listed = [...new Set(tours.flatMap((tour) => relationshipIds(tour.contents)))]
-  if (!listed.length) return 0
-  const { docs: existing } = await payload.find({
-    collection: 'contents',
-    where: { id: { in: listed } },
-    select: {},
-    depth: 0,
-    pagination: false,
-    overrideAccess: true,
-  })
-  const alive = new Set(existing.map((doc) => String(doc.id)))
-  const missing = listed.filter((id) => !alive.has(id))
-  const cleaned = await removeContentsFromTours({ payload, contentIds: missing })
-  return cleaned.length
+  // In slices: a big museum lists thousands of ids, too many for one `$in`.
+  let cleaned = 0
+  for (let from = 0; from < listed.length; from += SLICE) {
+    const slice = listed.slice(from, from + SLICE)
+    const { docs: existing } = await payload.find({
+      collection: 'contents',
+      where: { id: { in: slice } },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+    })
+    const alive = new Set(existing.map((doc) => String(doc.id)))
+    const missing = slice.filter((id) => !alive.has(id))
+    cleaned += (await removeContentsFromTours({ payload, contentIds: missing })).length
+  }
+  return cleaned
 }
 
 async function backfill() {
