@@ -19,6 +19,7 @@ import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
 import { PROJECT_ACCOUNTS } from './seed-accounts'
 import { placedObjectIds } from '@/lib/tour-navigation'
+import { refreshVisitableStops } from '@/lib/visitable-stops'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -998,7 +999,7 @@ try {
 
   // Objects join a museum only by being placed on its map (museums.objects is
   // derived from the saved scene). A tour stop whose work is not on the map is
-  // skipped by navigation (`unavailableStops`, src/lib/tour-navigation.ts), so
+  // dropped from navigation (`visitableTour`, src/lib/tour-navigation.ts), so
   // place the stops now: a fresh seed would otherwise create tours nobody can
   // visit. Existing placements are kept, so re-runs do not duplicate items.
   const demoMap = validateBuildJson(demoMuseum.docs[0]!.map).parsed
@@ -1169,6 +1170,9 @@ try {
         })
         console.log(`Tour "${tour.data.title}" already exists, museum/author backfilled`)
       } else {
+        // Saved before the visitable-stops fields existed? Fill them (a no-op
+        // otherwise); every later change keeps them up to date (hooks).
+        await refreshVisitableStops({ payload, where: { id: { equals: foundId } } })
         console.log(`Tour "${tour.data.title}" already exists, skipping`)
       }
       continue

@@ -55,12 +55,12 @@ export const Full: Story = {
     images: [
       {
         id: 'img-1',
-        url: 'https://picsum.photos/seed/content-img-1/600/400',
+        url: '/icons/collection.webp',
         alt: 'Dettaglio della scena di banchetto',
       },
       {
         id: 'img-2',
-        url: 'https://picsum.photos/seed/content-img-2/600/400',
+        url: '/icons/collection.webp',
         alt: 'Retro del vaso',
       },
     ],

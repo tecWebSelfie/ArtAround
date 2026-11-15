@@ -5,6 +5,7 @@ import type { Payload } from 'payload'
 import type { PurchasableCollection } from '@/lib/entitlements'
 import { filterPopulated } from '@/lib/isPopulated'
 import { isLocked, PRICE_CURRENCY } from '@/lib/price'
+import { withVisitableStops } from '@/lib/tour-summary'
 import type { User } from '@/payload-types'
 
 /**
@@ -14,8 +15,12 @@ import type { User } from '@/payload-types'
  *
  * Prices follow the paid-content model (docs/permissions-and-editing.md):
  * - a content costs its `price` (euro cents) while it is locked for the viewer;
- * - a tour costs the sum of its contents that are locked for the viewer, and
- *   buying it unlocks exactly those contents (`purchases.unlockedContents`).
+ * - a tour costs the sum of its VISITABLE contents that are locked for the
+ *   viewer, and buying it unlocks exactly those contents
+ *   (`purchases.unlockedContents`). A stop nobody can visit (gone, about no
+ *   object, off the museum map) is neither charged nor unlocked: the tour page
+ *   already hides it and prices without it (`withVisitableStops`), so the
+ *   amount Stripe charges is the amount the page showed.
  *
  * "Locked" is read the same way the pages read it: the document is fetched as
  * the visitor, so field access (`canReadPaidBody`) has already accounted for
@@ -47,7 +52,8 @@ export async function quoteCheckout(
     }
   }
   const tour = await payload.findByID({ collection, id, depth: 1, ...asViewer })
-  const locked = filterPopulated(tour.contents).filter(isLocked)
+  // Same stored list the tour page reads (a tour not backfilled keeps all its stops).
+  const locked = filterPopulated(withVisitableStops(tour).contents).filter(isLocked)
   return {
     title: tour.title,
     amountCents: locked.reduce((sum, content) => sum + (content.price ?? 0), 0),

@@ -13,12 +13,12 @@ import {
   tourQuizResultPath,
   tourStepIndex,
   museumObjectId,
-  nextVisitableStep,
-  tourAdvanceHref,
   unavailableStops,
+  visitableTour,
   withNavigationPosition,
   withNavigationValue,
 } from '@/lib/tour-navigation'
+import type { Tour } from '@/payload-types'
 import { ItemNode } from '@pascal-app/core'
 
 describe('tour navigation', () => {
@@ -152,7 +152,7 @@ describe('tour navigation', () => {
     expect(tourQuizResultPath('it', 't', 'a/b')).toBe('/it/tour/t/quiz/result/a%2Fb')
   })
 
-  it('flags stops whose content is gone or whose object is not on the map, and skips them', () => {
+  it('flags stops whose content is gone or whose object is not on the map, and navigation drops them', () => {
     const content = (id: string, objectId?: string) =>
       ({ id, title: id, objects: { docs: objectId ? [objectId] : [] } }) as never
     const catalog = [{ id: 'listed', name: 'Listed', contents: [{ id: 'c-listed', title: 'x' }] }]
@@ -164,26 +164,35 @@ describe('tour navigation', () => {
       // The catalog's authored relation wins over the content's own objects.
       content('c-listed', 'unplaced'),
     ] as never
-    const skipped = unavailableStops(contents, catalog, new Set(['placed', 'listed']))
-    expect([...skipped]).toEqual([1, 2, 3])
-    expect(nextVisitableStep(0, 5, skipped)).toBe(0)
-    expect(nextVisitableStep(1, 5, skipped)).toBe(4)
-    // Only unavailable stops left: the tour is complete.
-    expect(nextVisitableStep(1, 4, skipped)).toBe(4)
-  })
+    const placed = new Set(['placed', 'listed'])
+    expect([...unavailableStops(contents, catalog, placed)]).toEqual([1, 2, 3])
 
-  it('advances to the next map step, or to the quiz when that ends the tour', () => {
-    const tour = { id: 't', museum: 'm', contents: ['a', 'b'], quiz: { questions: ['q'] } }
-    expect(tourAdvanceHref('en', tour, 1, 'at=o1&to=o2')).toEqual({
-      href: '/en/museum/m/navigation/tour/t/1?at=o1',
-      quiz: false,
-    })
-    expect(tourAdvanceHref('en', tour, 2, 'at=o1&to=o2')).toEqual({
-      href: '/en/tour/t/quiz?at=o1&from=2',
-      quiz: true,
-    })
-    expect(tourAdvanceHref('en', { ...tour, quiz: {} }, 2, '').href).toBe(
-      '/en/museum/m/navigation/tour/t/2',
-    )
+    // The visitor's tour holds only the visitable stops, in order, and every
+    // count/cursor derives from that one list.
+    const tour = { id: 't', museum: 'm', contents: contents as Tour['contents'] }
+    const visitable = visitableTour(tour, catalog, placed)
+    expect(visitable.contents.map((stop) => (stop as { id: string }).id)).toEqual([
+      'c-placed',
+      'c-listed',
+    ])
+    expect(visitable.contents).toHaveLength(2)
+    expect(visitable).toMatchObject({ id: 't', museum: 'm' })
+    // The cursor of the visitable list: 2 is "completed", 3 is stale.
+    expect(tourStepIndex('2', visitable.contents.length)).toBe(2)
+    expect(tourStepIndex('3', visitable.contents.length)).toBeNull()
+    // Nothing to drop: the very same tour comes back (no copy per render).
+    const whole = { id: 't', museum: 'm', contents: [content('c-placed', 'placed')] as never }
+    expect(visitableTour(whole, catalog, placed)).toBe(whole)
+    // No usable map is its own state ("Map not available"): placement can't be
+    // judged, only the stops whose content is gone are dropped.
+    expect(
+      visitableTour(tour, catalog, null).contents.map((stop) =>
+        typeof stop === 'string' ? stop : stop.id,
+      ),
+    ).toEqual(['c-placed', 'c-unplaced', 'c-no-object', 'c-listed'])
+    // Only unavailable stops left: the tour is complete from the start.
+    expect(
+      visitableTour({ ...tour, contents: ['c-deleted'] as never }, catalog, placed).contents,
+    ).toEqual([])
   })
 })

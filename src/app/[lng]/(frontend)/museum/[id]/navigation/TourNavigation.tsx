@@ -22,7 +22,6 @@ import {
   useTourIds,
   useVoiceGuidance,
 } from './use-tour-navigation'
-import { SkippedStopModal } from './SkippedStopModal'
 import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -30,14 +29,13 @@ import { NavigationProximity } from './NavigationProximity'
 import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import {
-  tourAdvanceHref,
   tourHasQuiz as hasQuiz,
   tourQuizPath,
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
@@ -89,12 +87,7 @@ export const TourNavigationPage = ({
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
   const [startEntranceId, setStartEntranceId] = useState<string | null>(null)
-  const { skipped, skipTo, stepSkipped, defaultDestination, destination, notes } = useTourCursor(
-    tour,
-    step,
-    catalog,
-    museumMap.parsed,
-  )
+  const { defaultDestination, destination, notes } = useTourCursor(tour, step, catalog)
   // The work the route leads to, if it is one (not a service or an exit).
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
   const currentObjectId = search.get('at')
@@ -125,9 +118,6 @@ export const TourNavigationPage = ({
     tours,
     catalog,
     markers,
-    // "Open next stop" would open a stop that can't be visited: the skip
-    // modal is the way on instead.
-    withoutNextStop: stepSkipped,
     nearby: {
       enabled: settings.suggestions,
       notify: settings.gpsMode === 'off',
@@ -157,9 +147,6 @@ export const TourNavigationPage = ({
 
   return (
     <>
-      {tour && stepSkipped && (
-        <TourSkipModal tour={tour} step={step} skipTo={skipTo} guest={guest} />
-      )}
       <NavigationHeader
         ref={headerRef}
         tour={tour}
@@ -167,7 +154,6 @@ export const TourNavigationPage = ({
         museumName={museum.name}
         stopObjectId={defaultDestination}
         rooms={rooms}
-        skipped={skipped}
         entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
         notes={notes}
       />
@@ -337,43 +323,6 @@ function NavigationFooter({
         </Box>
       </Group>
     </AppShellFooter>
-  )
-}
-
-/** Stops the visitor can't reach between the cursor and `skipTo`, skipped together. */
-function TourSkipModal({
-  tour,
-  step,
-  skipTo,
-  guest,
-}: {
-  tour: Tour
-  step: number
-  skipTo: number
-  guest: boolean
-}) {
-  const { t } = useTranslation('tour-navigation')
-  const { lng } = useParams<{ lng: string }>()
-  const search = useSearchParams()
-  const router = useRouter()
-  return (
-    <SkippedStopModal
-      titles={tour.contents
-        .slice(step, skipTo)
-        .map((content, index) =>
-          typeof content === 'object'
-            ? content.title
-            : t('Stop {{number}}', { number: step + index + 1 }),
-        )}
-      completes={skipTo === tour.contents.length}
-      guest={guest}
-      onSkip={() => {
-        // Same advance as the step modal: the quiz when it ends the tour.
-        const { href, quiz } = tourAdvanceHref(lng, tour, skipTo, search.toString())
-        if (quiz) router.push(href)
-        else router.replace(href, { scroll: false })
-      }}
-    />
   )
 }
 

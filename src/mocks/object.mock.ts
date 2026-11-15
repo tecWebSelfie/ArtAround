@@ -8,9 +8,9 @@ function baseThumbnail(): ObjectsThumbnail {
     alt: 'Veduta frontale del reperto',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
-    // which breaks the visual-regression baselines.
-    url: 'https://picsum.photos/seed/object-thumb-1/200/300',
+    // Local asset served from public/: remote photos would break offline and make
+    // the visual-regression baselines depend on the network.
+    url: '/icons/collection.webp',
     filename: 'object-frontal.jpg',
     mimeType: 'image/jpeg',
     width: 1200,

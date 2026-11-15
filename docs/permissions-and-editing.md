@@ -37,15 +37,15 @@ Code map:
 
 ## Rules per collection
 
-| Collection  | Read                           | Create                                | Update                                                                                                       | Delete                                                              |
-| ----------- | ------------------------------ | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
-| `museums`   | anyone                         | any signed-in user (becomes director) | curator+ of it; non-map fields director-only (field access); curators' map saves limited to object placement | director                                                            |
-| `objects`   | anyone                         | curator+ of any museum                | owner (creator) only — museums manage objects through their map, not the object                              | super admin only (the catalog is a lasting object database)         |
-| `contents`  | anyone; paid `body` restricted | any signed-in user                    | author                                                                                                       | author, or staff above the author's rank in a museum of the content |
-| `tours`     | anyone                         | any signed-in user                    | author                                                                                                       | author, or director of `tour.museum`                                |
-| `users`     | anyone (email only to self)    | anyone (sign-up)                      | self                                                                                                         | self                                                                |
-| `purchases` | own rows; super admin all      | super admin (rows come from Stripe)   | super admin                                                                                                  | super admin                                                         |
-| memberships | anyone                         | roles below the actor's rank          | roles below the actor's rank, never own row                                                                  | roles below the actor's rank, never own row                         |
+| Collection  | Read                                                  | Create                                | Update                                                                                                       | Delete                                                              |
+| ----------- | ----------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| `museums`   | anyone                                                | any signed-in user (becomes director) | curator+ of it; non-map fields director-only (field access); curators' map saves limited to object placement | director                                                            |
+| `objects`   | anyone                                                | curator+ of any museum                | owner (creator) only — museums manage objects through their map, not the object                              | super admin only (the catalog is a lasting object database)         |
+| `contents`  | anyone; paid `body` restricted                        | any signed-in user                    | author                                                                                                       | author, or staff above the author's rank in a museum of the content |
+| `tours`     | anyone                                                | any signed-in user                    | author                                                                                                       | author, or director of `tour.museum`                                |
+| `users`     | anyone (email only to self or super admin, see below) | anyone (sign-up)                      | self                                                                                                         | self                                                                |
+| `purchases` | own rows; super admin all                             | super admin (rows come from Stripe)   | super admin                                                                                                  | super admin                                                         |
+| memberships | anyone                                                | roles below the actor's rank          | roles below the actor's rank, never own row                                                                  | roles below the actor's rank, never own row                         |
 
 Super admins bypass all of the above.
 
@@ -93,28 +93,48 @@ Super admins bypass all of the above.
 - `body` read access (`canReadPaidBody`): free, or super admin, author,
   curator+ of one of its museums, or `ownsContent`.
 - Locked = `price > 0 && body == null` as returned to the viewer
-  (`src/lib/price.ts`). A tour's price = sum of its locked contents.
+  (`src/lib/price.ts`). A tour's price = sum of its locked visitable contents.
 - Display: `formatPrice(cents, lng)` (`Intl.NumberFormat`, EUR). Choosing and
   converting a local currency needs region + exchange rates → payments work.
+
+### User emails (private to self and super admins)
+
+The auth-injected `email` (and `sessions`) is redeclared in
+`src/collections/Users.ts` with field-level `read` access
+(`selfOrAdminField`). Payload merges it with its base field, so `unique`, the
+index and the lowercase/trim hook stay. Field access removes the value from
+every access-checked response and makes Payload reject `where`/`sort` on it
+(REST, GraphQL, count, relation paths), which closes the "does this address
+have an account" oracle. Because that validation has no document to compare
+with, only super admins may filter by email; a visitor reads their own address
+from `/api/users/me` or their own document.
+`hidePrivateFields` stays as a second layer for Local API reads that skip field
+access (`overrideAccess` defaults to true). Spec:
+`tests/int/nightly/email-enumeration.int.spec.ts`, `user-email-privacy.int.spec.ts`.
 
 ### Purchases (Stripe, sandbox)
 
 - `POST /api/checkout { collection: 'contents' | 'tours', id }` prices the
   purchase for the signed-in buyer with `quoteCheckout`
   (`src/lib/checkout-quote.ts`), reading the document _as the buyer_: a
-  content costs its `price` while locked; a tour costs the sum of its contents
-  locked for the buyer. Nothing locked → 409. The quote's content ids travel in
-  the Checkout Session metadata (`unlocks`, at most 20).
+  content costs its `price` while locked; a tour costs the sum of its
+  **visitable** contents locked for the buyer (the stored
+  `tours.visitableContents` through `withVisitableStops`, the list the tour page
+  prices with: an unavailable stop is neither charged nor unlocked). Nothing
+  locked → 409, also when the tour's only locked stops are unavailable. The
+  quote's content ids travel in the Checkout Session metadata (`unlocks`, at
+  most 20, counted on visitable stops).
 - `checkout.session.completed` (webhook, `src/hooks/onCheckoutCompleted.ts`)
   and the success page (reconciliation) both call `recordPurchaseFromSession`,
   idempotent on `stripeSessionID`. The row stores `target` (what was bought)
-  and `unlockedContents` (a snapshot: paid contents added to a tour later are
-  not unlocked for free).
+  and `unlockedContents` (a snapshot of the visitable locked contents at
+  purchase time: paid contents added to a tour later, or a stop that becomes
+  available later, are not unlocked for free).
 - Ownership (`ownsContent`) = a `paid` purchase whose target is the content or
   whose `unlockedContents` contains it. Refunded/failed rows unlock nothing.
 - UI: the tour page's "Unlock" modal starts checkout for the tour; the sandbox
-  shop `/[lng]/stripe-test` lists every paid content and the tours containing
-  one. Success/cancel pages return to the tour (`?collection=&id=`).
+  shop `/[lng]/stripe-test` lists every paid content and the tours with a paid
+  visitable stop (priced like the checkout). Success/cancel pages return to the tour (`?collection=&id=`).
 
 ### Reading on behalf of a visitor
 
@@ -136,17 +156,100 @@ with the caller's `where` and reads as the visitor (`asViewer()`) unless the
 caller passes `overrideAccess` itself. The navigator rails, a work's and a
 content's tours and `/search/tours` use it; the museum page's `tours` join
 takes `LISTED_TOURS` directly, and in-memory filters use `isPersonalTour`.
+`LISTED_TOURS` also leaves out tours with no visitable stop (next section;
+in-memory: `isEmptyTour`), and the planned visits and visit copies stay
+reachable by link as before.
+
+### Visitable stops (derived, server-written)
+
+Product rule: a stop a visitor can't visit (its content is gone or unreadable,
+is about no object, or its object isn't placed on the museum map:
+`unavailableStops`) is never shown to visitors; only its author's editor lists
+it, flagged. Navigation applies the rule live (`visitableTour`); lists, cards,
+counts and search need it in a query or on tours read without the museum map,
+so tours store it: `tours.visitableStops` (count, indexed) and
+`tours.visitableContents` (the ids in tour order, `maxDepth: 0`). Both are
+read-only in the admin and denied to every client write (field access
+`create`/`update: false`, and the `syncVisitableStops` hook drops whatever a
+save carries first), so only the server writes them.
+
+- **One definition.** `computeVisitableContentIds`
+  (`src/lib/visitable-stops.ts`) builds navigation's own inputs (placed objects
+  `museumPlacedObjects`, the objects that list each stop, readable stops) and
+  calls `visitableTour`. Readable = public, or authored by the tour's author
+  (the group-cookie rule of `readContents`; other authors' private stops can't
+  be added since `guardTourContents`, and legacy ones count as unavailable).
+  Paid locked stops are visitable (only their body is withheld). A museum with
+  no usable map drops only the stops whose content is gone, as in navigation.
+- **When it is recomputed:** the tour's own save (`beforeChange`, only when its
+  stops, museum or author change, or it has no value yet); a museum's map save
+  when the placed objects changed (`Museums.ts`, that museum's tours); an
+  object's `contents` change or deletion (`Objects.ts`, the tours including
+  those contents); a content's visibility/author change (`Contents.ts`, the
+  tours including it). A content's deletion removes it from its tours instead
+  (next bullet), which recomputes them in the same write.
+- **A deleted content leaves its tours** (`removeContentsFromTours`,
+  `src/lib/tour-stop-cleanup.ts`, from `Contents.afterDelete` after
+  `detachDeletedContentFromQuestions`, same transaction). Only a hard delete:
+  an object leaving the map or a detached content stays derived and
+  reversible. Per tour it drops the id from `contents`, the stop's `directions`
+  and the `quiz.questions` that no longer concern a stop, recomputes the
+  visitable stops and the search row (price included), and leaves purchases
+  alone. It writes through the adapter (`db.updateOne`, no hooks), which is how
+  it passes `validateTourStops` (minimum stops), `required`/`minRows` and
+  `validateQuizQuestions`: a system cleanup must not be refused. A tour whose
+  last stop is deleted is KEPT with empty `contents` (never deleted
+  automatically): 0 visitable stops, hidden by `LISTED_TOURS`, still readable
+  by its author, whose next save asks for stops again.
+- **Cost and loops.** `refreshVisitableStops` reads the affected tours, writes
+  only the ones whose value actually changed, one after the other (a MongoDB
+  session doesn't take concurrent operations), through `req` so it joins the
+  caller's transaction and rolls back with it. The write is a direct adapter
+  `db.updateOne`: no tour hooks run (no validation of the whole tour, quiz
+  cleanup, `updatedAt` bump), so it can't loop back into the collections that
+  trigger it and needs no `context` flag. It then refreshes the search rows of
+  the changed tours. Derived data: a failure is logged, never fails the save.
+- **Lists.** `LISTED_TOURS` requires `visitableStops` missing (not backfilled
+  yet: fail open, so a database that hasn't run the backfill doesn't empty
+  every list) or greater than 0. Readers outside navigation read a tour through
+  `withVisitableStops` (`src/lib/tour-summary.ts`), which keeps only
+  `visitableContents`; `summarizeTour` does it itself.
+- **Backfill.** `pnpm tours:backfill-visitable`
+  (`src/scripts/backfill-visitable-stops.ts`, idempotent) first drops ids of
+  contents that no longer exist from the tours listing them (deleted before the
+  cleanup above), then fills tours saved before the field; `pnpm seed` does it for the tours it finds again.
+- **Direct link to a tour with no visitable stop:** still opens (404 would
+  tell nothing the author doesn't already know, and a shared link shouldn't
+  turn into an error when a stop is removed from the map): its page shows a
+  notice instead of stops and has no "Start tour", and its start page sends
+  the visitor back to the tour page. Its author keeps the editor, which lists
+  every stop and flags the unavailable ones (it opens even with `contents: []`
+  and asks for stops on save). Nothing else is offered either (`hasNoStopsToVisit`,
+  `src/lib/tour-stops.ts`): every page of the tour's navigation branch
+  redirects to the tour page (its layout), the quiz and its results are a 404
+  (`getTourQuiz`), `POST /api/rooms` answers 422 `empty`, a room whose tour
+  emptied afterwards shows as ended, and checkout has nothing to unlock (409).
+  Spec: `tests/e2e/empty-tour.e2e.spec.ts`.
+
+Tests: `tests/int/visitable-stops.int.spec.ts`, `tests/int/tour-stop-cleanup.int.spec.ts`.
 
 ## Private contents and tours
 
 `visibility` (`public` | `private`) on contents and tours (`src/lib/visibility.ts`,
 `VisibilityInput` in the forms). Read access returns a query: public documents,
 the caller's own, and — for group-visit guests — the tour named by the signed
-`aa-group-tour` cookie and its contents (see [group tours](group-tours.md)).
+`aa-group-tour` cookie and those of its contents that are public or authored by
+the tour's author, never another user's private content the tour lists
+(see [group tours](group-tours.md)).
 Private documents are never indexed (`skipSync`, `hideFromSearch` hooks,
 `refreshSearchDocs`). Save rules: a private content can't be sold
 (`guardVisibility`), nor made private once bought or used in another author's
-tour; a public tour can't include private contents (`guardPrivateContents`).
+tour; a public tour can't include private contents (`guardTourContents`), and
+no tour (public or private) can list another author's private content: only
+that author can read it, so everyone else would meet an unavailable stop. The
+rule follows the tour's author (a super admin gets no exception) and refuses
+only stops the save adds (not in `originalDoc.contents`), so a tour saved
+before it still saves and its author's editor flags the stops to fix.
 Tests: `tests/int/visibility.int.spec.ts`.
 
 ## Frontend editing
@@ -201,7 +304,13 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      locked stops are flagged so they can be replaced. Stops that can no longer
      be visited (object off the map, or content gone; `getTourEditorData(museumId, stopIds)`) stay
      in the list, flagged "No longer on show, visitors skip it", with a summary
-     alert offering to remove them all; they are never dropped on save.
+     alert offering to remove them all; they are never dropped on save. That
+     is the author's own tour. A copy (`?from=`, customize or visit) starts
+     with no such stops and no notice (`getNewTourEditorData`,
+     `src/lib/tour-copy.ts`): it drops stops that are unavailable, unreadable
+     by the visitor or another author's private content (the copy's author is
+     the visitor), and their directions. With none (or fewer than
+     `minStopsFor`) left, the form just asks for more stops.
      Adding stops: a quick select, or "Browse contents" → `/[lng]/search/contents`
      in picker mode (`?pick=tour&museum=&returnTo=&have=`: only the museum's
      exhibited contents, each with "Add to tour" or "In the tour", locked ones
@@ -286,7 +395,9 @@ allowed, any other node change rejected). Not yet run against a database:
 7. Objects: non-owner update and `generate-model` → 403; delete by anyone but
    a super admin → 403; removing an object from a map un-exhibits it
    (`museums.objects`) without deleting it.
-8. Users: another user's profile has no `email`; self-update cannot set
+8. Users: another user's profile has no `email` and a `where`/`sort` on it is
+   refused (400), also through relations (`author.email`); a signed-in user
+   may still filter by their own; self-update cannot set
    `isSuperAdmin`/`roles`.
 9. Purchases: anonymous → 401 at checkout; a tour whose contents the buyer can
    already read → 409; a paid tour purchase makes its contents' `body` readable

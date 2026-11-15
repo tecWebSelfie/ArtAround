@@ -1,5 +1,10 @@
 import IsoCodes from 'iso-639-1'
-import { after } from 'next/server'
+// `.js` on purpose: this module is reachable from `payload.config`, which the Playwright
+// helpers (tests/helpers/seedUser.ts) import. Playwright loads them as native ESM
+// (package.json `"type": "module"`) and `next` has no `exports` map, so Node's ESM
+// resolver needs the explicit file. Bundlers resolve both spellings.
+// No other module on that path imports from `next/*` (checked with `playwright test --list`).
+import { after } from 'next/server.js'
 import type { Payload, TypedLocale, TypedUser } from 'payload'
 import type { Config } from '@/payload-types'
 import { relationshipIds } from './search-index'

@@ -15,7 +15,7 @@ export default async function NavigationStart({
   // step use it); this page shows the title, so it reads that in the
   // visitor's language alongside.
   const [tour, localized] = await Promise.all([
-    getNavigationTour(tourId),
+    getNavigationTour(tourId, lng),
     payload
       .findByID({
         collection: 'tours',

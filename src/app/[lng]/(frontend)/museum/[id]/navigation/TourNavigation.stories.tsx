@@ -2,6 +2,7 @@ import { mockMuseumFull } from '@/mocks/museum.mock'
 import { mockContentsList } from '@/mocks/content.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
+import { visitableTour } from '@/lib/tour-navigation'
 import { AppShell } from '@mantine/core'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
@@ -270,13 +271,32 @@ export const FreeNavigation: Story = {
 }
 
 /**
- * The next stop's work is no longer on the map (its object was removed): the
- * stepper flags it "Skipped" and a modal explains the skip, with the action
- * that moves the cursor past it. "Open next stop" is withdrawn meanwhile.
+ * A tour with a stop whose work is no longer on the map (the second one):
+ * navigation drops it before the visitor sees anything (`visitableTour`), so
+ * the header counts the two visitable stops, the stepper never lists the
+ * missing one, and there is no "Skipped" badge or blocking modal.
  */
+const stopCatalog = routeCatalog.map((object, index) => ({
+  ...object,
+  // The first and third stops are listed on the map's objects; the second is not.
+  contents: [
+    ...object.contents,
+    { id: mockContentsList[index * 2]!.id, title: mockContentsList[index * 2]!.title },
+  ],
+}))
+const visitableStopsTour = visitableTour(
+  { ...mockTourFull, museum: mockMuseumFull },
+  stopCatalog,
+  new Set(routeCatalog.map(({ id }) => id)),
+)
+
 export const UnavailableStop: Story = {
   ...RouteBetweenObjects,
-  args: { ...RouteBetweenObjects.args, catalog: routeCatalog },
+  args: {
+    ...RouteBetweenObjects.args,
+    scope: { kind: 'tour', tour: visitableStopsTour, step: 0 },
+    catalog: stopCatalog,
+  },
   parameters: {
     nextjs: {
       navigation: {
@@ -291,11 +311,13 @@ export const UnavailableStop: Story = {
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvas, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body)
-    const dialog = await body.findByRole('dialog', { name: 'These stops can no longer be visited' })
-    await expect(within(dialog).getByText(mockContentsList[0]!.title)).toBeVisible()
-    await expect(within(dialog).getByRole('button', { name: /^Skip/ })).toBeVisible()
-    await expect(body.queryByRole('button', { name: 'Open next stop' })).toBeNull()
+    await expect(canvas.getByText(/Stop 1 of 2/)).toBeVisible()
+    await expect(canvas.getByText(mockContentsList[0]!.title)).toBeVisible()
+    await expect(canvas.getByText(mockContentsList[2]!.title)).toBeVisible()
+    await expect(canvas.queryByText(mockContentsList[1]!.title)).toBeNull()
+    await expect(canvas.queryByText('Skipped')).toBeNull()
+    await expect(body.queryByRole('dialog')).toBeNull()
   },
 }

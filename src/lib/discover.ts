@@ -4,7 +4,7 @@ import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
 import { PRIMARY_SHADE } from '@/lib/museum-color'
 import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
-import { visitMinutes } from '@/lib/tour-summary'
+import { visitMinutes, withVisitableStops } from '@/lib/tour-summary'
 import { findListedTours } from '@/lib/listed-tours'
 import type { Museum, MuseumThumbnail, Tour } from '@/payload-types'
 import type { Payload, TypedLocale, TypedUser, Where } from 'payload'
@@ -72,6 +72,8 @@ const TOUR_CARD_READ = {
     title: true,
     thumbnail: true,
     contents: true,
+    // Visitable stops only reach a card (`withVisitableStops`).
+    visitableContents: true,
     durationMinutes: true,
     wheelchairAccessible: true,
     categories: true,
@@ -88,18 +90,20 @@ type CardTour = Pick<
   | 'title'
   | 'thumbnail'
   | 'contents'
+  | 'visitableContents'
   | 'durationMinutes'
   | 'wheelchairAccessible'
   | 'categories'
   | 'quiz'
 >
 
-function toRailTour(tour: CardTour): RailTour {
+function toRailTour(source: CardTour): RailTour {
+  const tour = withVisitableStops(source)
   return {
     id: tour.id,
     title: tour.title,
     imageUrl: isPopulated(tour.thumbnail) ? pictureSrc(tour.thumbnail, 'card') : null,
-    // Unpopulated relations still count as stops, as `summarizeTour` counts them.
+    // Visitable stops only, as `summarizeTour` counts them.
     stops: tour.contents?.length ?? 0,
     minutes: visitMinutes(tour),
   }
@@ -178,7 +182,7 @@ export async function rotatingCandidates(options: {
       id: 'quick',
       title: titles.quick,
       tours: pick((tour) => {
-        const minutes = visitMinutes(tour)
+        const minutes = visitMinutes(withVisitableStops(tour))
         return minutes != null && minutes <= QUICK_VISIT_MINUTES
       }),
     },

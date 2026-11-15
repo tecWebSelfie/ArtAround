@@ -9,7 +9,8 @@ function baseThumbnail(id: string, seed: string): ToursThumbnail {
     alt: 'Tour thumbnail image',
     createdAt: TIMESTAMP,
     updatedAt: TIMESTAMP,
-    url: `https://picsum.photos/seed/${seed}/600/400`,
+    // Local asset from public/ (not a remote photo) so visual baselines are deterministic offline.
+    url: '/icons/collection.webp',
     filename: `${seed}.jpg`,
     mimeType: 'image/jpeg',
     width: 1200,

@@ -16,10 +16,7 @@ import { logisticNotes } from '@/lib/tour-logistics'
 import type { DirectionStep } from '@/lib/tour-directions'
 import {
   navigationDestination,
-  nextVisitableStep,
-  placedObjectIds,
   stopObjectId,
-  unavailableStops,
   navigationBasePath,
   withNavigationValue,
   type NavigationCatalogObject,
@@ -103,31 +100,18 @@ export function useDestinationName(
 }
 
 /**
- * Where the tour cursor stands: the stops the visitor can no longer reach
- * (content gone, or its object left the map: flagged in the progress bar and
- * skipped through a modal when the cursor reaches them), the destination
- * (the next stop's work unless the visitor chose `to`) and the author's
- * directions for the stop ahead.
+ * Where the tour cursor stands: the destination (the next stop's work unless
+ * the visitor chose `to`) and the author's directions for the stop ahead.
+ * `tour` already holds only the stops the visitor can reach: the server drops
+ * the unavailable ones where the navigation data is built (`visitableTour`),
+ * so the cursor, "Stop N of M" and the progress bar count the same list and
+ * there is nothing to skip here.
  */
-export function useTourCursor(
-  tour: Tour | null,
-  step: number,
-  catalog: NavigationCatalogObject[],
-  map: ReturnType<typeof validateBuildJson>['parsed'],
-) {
+export function useTourCursor(tour: Tour | null, step: number, catalog: NavigationCatalogObject[]) {
   const search = useSearchParams()
   const tourContents = tour?.contents
   // Route guidance follows the next ordered content unless the visitor chose `to`.
   const defaultDestination = stopObjectId(tourContents?.[step], catalog)
-  const skipped = useMemo(
-    () =>
-      // No map at all is its own state ("Map not available"): nothing to skip.
-      tourContents && map
-        ? unavailableStops(tourContents, catalog, placedObjectIds(map))
-        : new Set<number>(),
-    [tourContents, catalog, map],
-  )
-  const skipTo = tour ? nextVisitableStep(step, tour.contents.length, skipped) : step
   // Memoized on the URL: the map recomputes its route when the destination changes.
   const destination = useMemo<NavigationDestination | null>(
     () =>
@@ -141,7 +125,7 @@ export function useTourCursor(
     () => (tour && !navigationDestination(search) ? logisticNotes(tour, step) : []),
     [tour, step, search],
   )
-  return { skipped, skipTo, stepSkipped: skipTo > step, defaultDestination, destination, notes }
+  return { defaultDestination, destination, notes }
 }
 
 /**
@@ -291,7 +275,6 @@ export function useTourCommands({
   tours,
   catalog,
   markers,
-  withoutNextStop,
   nearby,
 }: {
   museum: Museum
@@ -299,7 +282,6 @@ export function useTourCommands({
   tours: NavigationTourSummary[]
   catalog: NavigationCatalogObject[]
   markers: { services: ServiceMarker[]; exitEntrances: ExitEntranceMarker[] }
-  withoutNextStop: boolean
   nearby: {
     enabled: boolean
     notify: boolean
@@ -311,7 +293,7 @@ export function useTourCommands({
   const { lng } = useParams<{ lng: string }>()
   const search = useSearchParams()
   const router = useRouter()
-  const { commands: all, run } = useNavigationCommands({
+  const { commands, run } = useNavigationCommands({
     museum,
     scope,
     tours,
@@ -319,7 +301,6 @@ export function useTourCommands({
     services: markers.services,
     exits: markers.exitEntrances,
   })
-  const commands = withoutNextStop ? all.filter((command) => command.id !== 'next-stop') : all
   const commandById = (id: string) => commands.find((command) => command.id === id)
   const runId = (id: string) => {
     const command = commandById(id)

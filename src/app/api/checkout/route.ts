@@ -89,10 +89,24 @@ export async function POST(request: Request) {
   const title = quote.title || `${collection} ${id}`
   const back = `collection=${collection}&id=${encodeURIComponent(id)}`
 
+  // `payload.auth` hands back the user as loaded before `req.user` exists, so the
+  // users collection's `hidePrivateFields` hook has already stripped `email`
+  // from it. Re-read the caller's OWN document as themselves (`user` + access
+  // checks on): field access then lets the address through, and nobody else's
+  // is ever requested. Stripe uses it to prefill the Checkout form and receipt.
+  const { email } = await payload.findByID({
+    collection: 'users',
+    id: user.id,
+    depth: 0,
+    select: { email: true },
+    user,
+    overrideAccess: false,
+  })
+
   const session = await stripe.checkout.sessions.create({
     mode: 'payment',
     client_reference_id: String(user.id),
-    customer_email: user.email ?? undefined,
+    customer_email: email ?? undefined,
     metadata: {
       userId: String(user.id),
       collection,

@@ -123,7 +123,7 @@ function SortableStop({
             <Group gap={4} wrap="nowrap" c="dimmed">
               <MapPinOff size={12} aria-hidden />
               <Text size="xs" fw={500}>
-                {t('No longer on show, visitors skip it')}
+                {t("Visitors don't see this stop: replace or remove it")}
               </Text>
             </Group>
           )}
@@ -406,9 +406,9 @@ export function TourForm({
             <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>
               <Stack gap="xs" align="start">
                 <Text size="sm">
-                  {t('This tour has stops that can no longer be visited, and visitors skip them', {
-                    count: unavailableSelected.length,
-                  })}
+                  {t(
+                    "Visitors don't see stops that can no longer be visited: replace or remove them",
+                  )}
                 </Text>
                 <Button
                   size="compact-sm"

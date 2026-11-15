@@ -28,7 +28,6 @@ export function NavigationHeader({
   museumName,
   stopObjectId,
   rooms,
-  skipped,
   entranceLabel,
   notes,
 }: {
@@ -39,7 +38,6 @@ export function NavigationHeader({
   /** The work of the stop ahead, for its room. */
   stopObjectId: string | null | undefined
   rooms: MuseumRooms
-  skipped: Set<number>
   /** The entrance the route starts from, while there is no confirmed position. */
   entranceLabel: string | null
   notes: string[]
@@ -92,7 +90,6 @@ export function NavigationHeader({
           <TourProgress
             contents={tour.contents}
             step={step}
-            skipped={skipped}
             entranceLabel={entranceLabel}
             hasQuiz={hasQuiz(tour)}
           />

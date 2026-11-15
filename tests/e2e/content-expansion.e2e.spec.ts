@@ -89,5 +89,7 @@ test('importing a museum config file locks the app to that museum', async ({ pag
   // Back to global mode: "All museums" is the first row of the switch's list.
   await page.getByRole('button', { name: /^Museum: / }).click()
   await page.getByRole('dialog').getByRole('button', { name: 'All museums' }).click()
-  await expect(page.getByRole('button', { name: /^Museum: / })).toHaveText('All museums')
+  // The pill's visible text is the short "All" (the long form was cut on narrow
+  // phones), while its accessible name keeps "All museums": assert the name.
+  await expect(page.getByRole('button', { name: 'Museum: All museums' })).toBeVisible()
 })

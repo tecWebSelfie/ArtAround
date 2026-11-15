@@ -2272,6 +2272,11 @@ export interface Tour {
       }[]
     | null
   contents: (string | Content)[]
+  /**
+   * Stops visitors can reach (content readable, about a work placed on the museum map). Maintained by the server.
+   */
+  visitableStops?: number | null
+  visitableContents?: (string | Content)[] | null
   thumbnail?: (string | null) | ToursThumbnail
   museum: string | Museum
   author?: (string | null) | User
@@ -4571,6 +4576,8 @@ export interface ToursSelect<T extends boolean = true> {
         id?: T
       }
   contents?: T
+  visitableStops?: T
+  visitableContents?: T
   thumbnail?: T
   museum?: T
   author?: T

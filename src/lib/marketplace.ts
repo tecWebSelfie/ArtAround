@@ -3,6 +3,7 @@ import type { MarketplaceItem } from '@/components/mantine/MarketplaceCard'
 import type { MarketplaceKind, MarketplacePrice } from '@/components/mantine/MarketplaceControls'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PRICE_CURRENCY } from '@/lib/price'
+import { withVisitableStops } from '@/lib/tour-summary'
 import { querySearchIndex, type SearchHit } from '@/lib/search-query'
 import type { SearchDocKind } from '@/lib/search-index'
 import type {
@@ -22,7 +23,9 @@ export type MarketplaceResults = {
   total: number
 }
 
-function mapTour(tour: Tour): MarketplaceItem {
+function mapTour(source: Tour): MarketplaceItem {
+  // Only the stops a visitor can visit count towards the list price.
+  const tour = withVisitableStops(source)
   const thumbnail = isPopulated<ToursThumbnail>(tour.thumbnail) ? tour.thumbnail : null
   return {
     key: `tour:${tour.id}`,

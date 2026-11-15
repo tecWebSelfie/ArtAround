@@ -3,6 +3,8 @@ import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
 import { museumSearchRestriction } from '@/lib/museum-mode'
 import type { SearchDocKind } from '@/lib/search-index'
 import { NAVIGATOR_SEARCH_KINDS, querySearchIndex, type SearchHit } from '@/lib/search-query'
+import { isEmptyTour } from '@/lib/tour-stops'
+import { withVisitableStops } from '@/lib/tour-summary'
 import type { Content, Difficulty, Museum, Tour } from '@/payload-types'
 import { getPayload, type Payload, type TypedLocale } from 'payload'
 
@@ -103,7 +105,10 @@ async function hydrateNavigatorHits({
   ])
 
   // Tours' details come from their contents and museum: one read each.
-  const tourDocs = (tours?.docs ?? []) as Tour[]
+  // Tours with nothing to visit are not offered (the index drops them too).
+  const tourDocs = ((tours?.docs ?? []) as Tour[])
+    .filter((tour) => !isEmptyTour(tour))
+    .map(withVisitableStops)
   const stopIds = [...new Set(tourDocs.flatMap((tour) => tour.contents.map(idOf)))].filter(
     (id): id is string => Boolean(id),
   )
