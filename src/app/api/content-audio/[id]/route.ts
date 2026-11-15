@@ -14,6 +14,8 @@ import { asViewer, getSession } from '@/lib/session'
 import { open, readFile, stat } from 'node:fs/promises'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
+import type { Payload, TypedLocale } from 'payload'
+import type { z } from 'zod'
 
 /**
  * Read-aloud audio of a content (`src/lib/content-audio.ts`):
@@ -69,47 +71,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   if (!source.body) return json('locked', 403)
 
   // 2. The saved version asked for (resolved by the same validated parameters
-  //    as /api/expand), the text in the requested language (never the English
-  //    fallback) and the stored audio. Only the audio depends on the version,
-  //    so the content read runs alongside both.
-  const variantRead = version?.success
-    ? payload
-        .find({
-          collection: 'contentVariants',
-          where: variantWhere('contents', id, version.data),
-          locale,
-          fallbackLocale: false,
-          depth: 0,
-          limit: 1,
-          overrideAccess: true,
-        })
-        .then(({ docs }) => docs[0])
-    : Promise.resolve(undefined)
-  const [variant, content, { docs }] = await Promise.all([
-    variantRead,
-    payload.findByID({
-      collection: 'contents',
-      id,
-      locale,
-      fallbackLocale: false,
-      depth: 0,
-      select: { title: true, body: true },
-      overrideAccess: true,
-    }),
-    variantRead.then((found) =>
-      payload.find({
-        collection: 'contentAudio',
-        where: contentAudioWhere(id, locale, found?.id),
-        depth: 0,
-        limit: 1,
-        overrideAccess: true,
-      }),
-    ),
-  ])
+  //    as /api/expand), the text in the requested language and the audio.
+  const [variant, content, { docs }] = await readTextAndAudio(
+    payload,
+    id,
+    locale,
+    version?.success ? version.data : null,
+  )
   // While the version's text stream is saving, wait instead of accidentally
-  // playing the base version.
-  if (version && !variant?.body) return json('translating', 202)
-  if (!content.body && !variant?.body) return json('translating', 202)
+  // playing the base version; without the text in this language, wait too.
+  if (!variant?.body && (version || !content.body)) return json('translating', 202)
   const textHash = audioTextHash(
     contentAudioText({ ...content, body: variant?.body ?? content.body }),
   )
@@ -118,29 +89,35 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   const audio = docs[0]
   if (audio?.filename && audio.textHash === textHash) {
     if (url.searchParams.has('check')) return json('ready', 200)
-    const etag = `"${textHash}"`
-    // The player revalidates by fingerprint: an unchanged audio costs no read.
-    if (request.headers.get('if-none-match') === etag) {
-      return new Response(null, { status: 304, headers: { ETag: etag } })
-    }
     const staticDir = payload.collections.contentAudio.config.upload.staticDir || 'contentAudio'
-    return audioResponse(
-      path.resolve(staticDir, audio.filename),
-      request.headers.get('range'),
-      etag,
-    )
+    return storedAudio(request, path.resolve(staticDir, audio.filename), textHash)
   }
   if (!speechAvailable()) return json('unavailable', 503)
-  const key = `${id}:${locale}:${variant?.id ?? 'base'}`
-  if (Date.now() - (queuedAt.get(key) ?? 0) > REQUEUE_AFTER_MS) {
-    queuedAt.set(key, Date.now())
-    await payload.jobs.queue({
-      task: 'generateContentAudio',
-      input: { contentId: id, locale, ...(variant ? { variantId: variant.id } : {}) },
-      queue: AUDIO_QUEUE,
-    })
-  }
+  await queueAudio(payload, { contentId: id, locale, variantId: variant?.id })
   return json('pending', 202)
+}
+
+/** Queues the audio's generation, once per window (`queuedAt`). */
+async function queueAudio(
+  payload: Payload,
+  input: { contentId: string; locale: TypedLocale; variantId?: string },
+) {
+  const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}`
+  if (Date.now() - (queuedAt.get(key) ?? 0) <= REQUEUE_AFTER_MS) return
+  queuedAt.set(key, Date.now())
+  await payload.jobs.queue({ task: 'generateContentAudio', input, queue: AUDIO_QUEUE })
+}
+
+/**
+ * The current audio. The player revalidates by fingerprint (the text's hash
+ * as ETag): an unchanged audio costs no read.
+ */
+function storedAudio(request: Request, filePath: string, textHash: string) {
+  const etag = `"${textHash}"`
+  if (request.headers.get('if-none-match') === etag) {
+    return new Response(null, { status: 304, headers: { ETag: etag } })
+  }
+  return audioResponse(filePath, request.headers.get('range'), etag)
 }
 
 /**
@@ -184,4 +161,52 @@ async function audioResponse(filePath: string, range: string | null, etag: strin
       'Content-Range': `bytes ${start}-${end}/${size}`,
     },
   })
+}
+
+/**
+ * The saved version asked for, the content's text in `locale` (never the
+ * English fallback) and its stored audio. Only the audio depends on the
+ * version, so the content read runs alongside both.
+ */
+async function readTextAndAudio(
+  payload: Payload,
+  id: string,
+  locale: TypedLocale,
+  version: z.infer<typeof VersionRequest> | null,
+) {
+  const variantRead = version
+    ? payload
+        .find({
+          collection: 'contentVariants',
+          where: variantWhere('contents', id, version),
+          locale,
+          fallbackLocale: false,
+          depth: 0,
+          limit: 1,
+          overrideAccess: true,
+        })
+        .then(({ docs }) => docs[0])
+    : Promise.resolve(undefined)
+  const [variant, content, audio] = await Promise.all([
+    variantRead,
+    payload.findByID({
+      collection: 'contents',
+      id,
+      locale,
+      fallbackLocale: false,
+      depth: 0,
+      select: { title: true, body: true },
+      overrideAccess: true,
+    }),
+    variantRead.then((found) =>
+      payload.find({
+        collection: 'contentAudio',
+        where: contentAudioWhere(id, locale, found?.id),
+        depth: 0,
+        limit: 1,
+        overrideAccess: true,
+      }),
+    ),
+  ])
+  return [variant, content, audio] as const
 }

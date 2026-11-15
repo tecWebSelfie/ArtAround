@@ -269,6 +269,8 @@
         "src/globals/**",
         "src/payload.config.ts",
         "src/seed*.ts",
+        "scripts/demo-museum-data.ts",
+        "src/mocks/**",
         "src/migrations/**",
         "**/*.stories.{ts,tsx}",
         "tests/**",
