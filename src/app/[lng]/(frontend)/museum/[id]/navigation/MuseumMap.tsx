@@ -135,20 +135,19 @@ export function MuseumMap({
     )
 
     const reference = point(currentObjectId)
-    // A service button routes to the closest instance of that type; spotlight
-    // entries carry the exact node id and win over the "closest" fallback.
-    // An exit is any placed exit.
+    // A service button routes to the closest instance of that type (an exit
+    // button, to the closest exit); spotlight entries carry the exact node id
+    // and win over the "closest" fallback.
     const routeEnd = () => {
       if (!destination) return null
       if (destination.kind === 'object') return point(destination.id)
-      const placed = destination.kind === 'service' ? placedServices : placedExits
+      const [placed, candidates] =
+        destination.kind === 'service'
+          ? [placedServices, placedServices.filter((node) => node.service === destination.target)]
+          : [placedExits, placedExits]
       if (placed.some((node) => node.id === destination.target)) {
         return toPoint({ id: destination.target })
       }
-      const candidates =
-        destination.kind === 'service'
-          ? placedServices.filter((node) => node.service === destination.target)
-          : placedExits
       return (
         nearest(
           candidates.map((node) => node.id),

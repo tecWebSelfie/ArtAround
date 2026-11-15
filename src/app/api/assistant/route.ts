@@ -30,6 +30,15 @@ const CommandList = z
   .array(z.object({ id: z.string(), label: z.string(), description: z.string() }))
   .max(500)
 
+/** Malformed JSON reads as `null`, so it fails validation (400), not the route (500). */
+function parseJson(text: string): unknown {
+  try {
+    return JSON.parse(text)
+  } catch {
+    return null
+  }
+}
+
 export async function POST(request: Request) {
   if (!allowRequest(request, 20)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
@@ -41,7 +50,7 @@ export async function POST(request: Request) {
     return typeof value === 'string' ? value : fallback
   }
   const audio = form.get('audio')
-  const commands = CommandList.safeParse(JSON.parse(text('commands', '[]')))
+  const commands = CommandList.safeParse(parseJson(text('commands', '[]')))
   const language = text('language', 'en')
   const context = text('context', '').slice(0, 2_000)
   if (!(audio instanceof Blob) || audio.size > MAX_AUDIO_BYTES || !commands.success) {

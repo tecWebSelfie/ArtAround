@@ -63,13 +63,13 @@ function formatPrice(cents: number, currency: string, locale: string) {
   }).format(amount)
 }
 
+const KIND_COLOR = { tour: 'grape', content: 'teal', user: 'blue' } as const
+
 /**
  * One marketplace result. The whole card is the link (no nested interactive
  * elements), and the footer always shows either the price, a "Free" badge, or
  * the profile action so every result type is distinguishable at a glance.
  */
-const KIND_COLOR = { tour: 'grape', content: 'teal', user: 'blue' } as const
-
 export function MarketplaceCard({
   item,
   locale,

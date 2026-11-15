@@ -22,7 +22,7 @@ import { useTranslation } from 'react-i18next'
  */
 export const SOURCE_LOCALE = 'en' as const
 
-/** Best human-readable message from a Payload SDK / fetch failure. */
+/** Best human-readable message from a Payload SDK / fetch failure or a job error. */
 export function errorMessage(error: unknown): string {
   if (error instanceof PayloadSDKError) {
     const first = error.errors?.[0]
@@ -30,8 +30,12 @@ export function errorMessage(error: unknown): string {
     const field = (first?.data as { errors?: { message?: string }[] } | undefined)?.errors?.[0]
     return field?.message ?? first?.message ?? error.message
   }
-  if (error instanceof Error) return error.message
-  return typeof error === 'string' ? error : ''
+  if (typeof error === 'string') return error
+  // An Error, or a plain `{ message }` (a Payload job's stored error).
+  if (error && typeof error === 'object' && 'message' in error) {
+    return typeof error.message === 'string' ? error.message : ''
+  }
+  return ''
 }
 
 /**

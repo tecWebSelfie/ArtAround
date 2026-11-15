@@ -8,6 +8,7 @@ import {
   modelObjectOptions,
   uploadModelReference,
 } from '@/lib/model-generation-client'
+import { errorMessage } from '@/components/editing/saving'
 import { canSteerObject, type EditorViewer } from '@/lib/pascal/editor-viewer'
 import { objectAsset } from '@/lib/pascal/object-assets'
 import { zGenerateModelBody, zReviseOperationBody } from '@/lib/pascal/mint/client/zod.gen'
@@ -26,14 +27,6 @@ import styles from './object-catalog.module.css'
 function referenceGuidance(urls: string[]) {
   if (urls.length === 1) return { imageUrl: urls[0] }
   return urls.length > 1 ? { sourceImages: urls } : {}
-}
-
-/** A job's or a request's error: an Error, a Payload `{ message }` or a string. */
-function errorMessage(error: unknown) {
-  if (error && typeof error === 'object' && 'message' in error) {
-    return typeof error.message === 'string' ? error.message : ''
-  }
-  return typeof error === 'string' ? error : ''
 }
 
 /**

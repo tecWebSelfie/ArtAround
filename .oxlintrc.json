@@ -255,8 +255,7 @@
         "sonarjs/prefer-immediate-return": "warn",
         "sonarjs/no-gratuitous-expressions": "warn",
         "sonarjs/no-dead-store": "warn",
-        // Not `no-invariant-returns`: Payload hooks return their `doc` on
-        // every path by contract.
+        "sonarjs/no-invariant-returns": "warn",
         "sonarjs/no-useless-catch": "warn"
       }
     },
@@ -278,6 +277,14 @@
         "max-lines": "off",
         "max-lines-per-function": "off",
         "max-nested-callbacks": "off"
+      }
+    },
+    {
+      // Payload hooks return their `doc` on every path by contract, and the
+      // seed's builders return the scene they fill.
+      "files": ["src/collections/**", "src/lib/visibility.ts", "src/seed.ts"],
+      "rules": {
+        "sonarjs/no-invariant-returns": "off"
       }
     },
     {
