@@ -50,7 +50,7 @@ export async function generateMetadata(props: PageProps<'/[lng]/museum/[id]'>): 
 
 export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
   const { user, payload } = await getSession()
-  const { lng, id } = await props.params
+  const [{ lng, id }, { tab }] = await Promise.all([props.params, props.searchParams])
   const locale = normalizeLocale(lng) ?? 'en'
   // The permissions only need the id, so they are read alongside the museum.
   const [museum, canEditDetails, canManageMap] = await Promise.all([
@@ -90,6 +90,9 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
     <MuseumPage
       museum={museum}
       navigationHref={museumNavigationEntry(lng, museum)}
+      // `?tab=info` opens on the Info tab (where the museum's color is
+      // edited), as "Your museums" links a director without one there.
+      initialTab={tab === 'info' ? 'info' : undefined}
       translationNotice={pending.some(Boolean) && <TranslationPending />}
       editing={{
         lng,

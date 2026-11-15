@@ -14,8 +14,10 @@ import type { MuseumThumbnail } from '@/payload-types'
 import { museumAccent } from '@/lib/museum-color'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { LinkAnchor } from '@/components/mantine/LinkAnchor'
+import { lockedMuseumId } from '@/lib/museum-mode'
 import {
   Avatar,
+  Badge,
   Button,
   Container,
   Group,
@@ -26,10 +28,12 @@ import {
   Title,
 } from '@mantine/core'
 import {
+  ChevronRight,
   Download,
   FilePlus,
   Landmark,
   Map as MapIcon,
+  MapPin,
   QrCode,
   Route as RouteIcon,
   Users,
@@ -46,9 +50,10 @@ import { MuseumSearch } from './MuseumSearch'
  *
  * A private page, not a profile tab: the profile is the person's public face,
  * this is where they go to work. One row per museum; directors first, then
- * curators, then verified creators; by name within a role. A search field
- * appears once the list is long (`MuseumSearch`), and from `md` a long list
- * takes two columns.
+ * curators, then verified creators; by name within a role, except that the
+ * museum the app is locked to (museum mode: the visitor is in it) comes
+ * first, marked "You are here". One column at every width; a search field
+ * appears once the list is long (`MuseumSearch`, its query in the URL).
  *
  * The actions only link to the existing tools, which keep their own guards
  * (`can()`, the membership access rules): this page grants nothing.
@@ -66,9 +71,6 @@ const fallbackHue = (name: string) =>
     [...name].reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0) % FALLBACK_HUES.length
   ]
 
-/** From this many museums the list takes two columns from `md`. */
-const TWO_COLUMNS_FROM = 4
-
 export async function generateMetadata(props: PageProps<'/[lng]/my-museums'>): Promise<Metadata> {
   await props.params
   const { t } = await getT('user-page')
@@ -78,7 +80,7 @@ export async function generateMetadata(props: PageProps<'/[lng]/my-museums'>): P
 export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-museums'>) {
   const { lng } = await params
   const user = await requireUser(lng, `/${lng}/my-museums`)
-  const { payload } = await getSession()
+  const [{ payload }, activeMuseumId] = await Promise.all([getSession(), lockedMuseumId()])
   const memberships = payload.find({
     collection: 'user-museum-memberships',
     where: { user: { equals: user.id } },
@@ -104,19 +106,23 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
         ? [{ museum: membership.museum, role: membership.role as MuseumRole }]
         : [],
     )
+    // The museum the app is locked to (museum mode: the visitor is in it)
+    // first, then by role and name.
     .sort(
       (a, b) =>
+        Number(b.museum.id === activeMuseumId) - Number(a.museum.id === activeMuseumId) ||
         MUSEUM_FUNCTION_RANK[b.role] - MUSEUM_FUNCTION_RANK[a.role] ||
         a.museum.name.localeCompare(b.museum.name, lng),
     )
 
   // The tools, one rule for every row: the role's main work (editing the
-  // map for staff, a new tour for a verified creator) is the one outlined
-  // `default` button; the others follow as gray `subtle` ones. Neutral on
-  // every row, so a long list stays one system instead of a rainbow: the
-  // museum's color lives on its tile only. `sm` (36px) everywhere, a
-  // comfortable tap on a phone carried between rooms.
-  const main = { variant: 'default', size: 'sm' } as const
+  // map for staff, a new tour for a verified creator) is the one filled
+  // (`light` gray) button; the others follow as gray `subtle` ones. Neutral
+  // on every row, so a long list stays one system instead of a rainbow: the
+  // museum's color lives on its tile only. The fill, not an outline, marks
+  // the main one (an outline barely reads, 1.5:1 on the page). `sm` (36px)
+  // everywhere, a comfortable tap on a phone carried between rooms.
+  const main = { variant: 'light', size: 'sm', color: 'gray' } as const
   // The quiet ones carry less side padding: no fill to frame, and the three
   // tools then fit one line on a 375px phone.
   const other = { variant: 'subtle', size: 'sm', color: 'gray', px: 'xs' } as const
@@ -127,13 +133,17 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
     const accent = museumAccent(museum.palette)
     const base = `/${lng}/museum/${museum.id}`
     const nameId = `museum-${museum.id}`
+    const active = museum.id === activeMuseumId
+    // A director's museum still without a color shows its initials on a
+    // stand-in hue: the row says where to give it its own.
+    const needsColor = role === 'director' && !accent
     return (
       // Tile and name side by side; the tools on a line of their own, under
       // both on phones (the whole width for the buttons), under the name
       // from `md`.
       <li
         key={museum.id}
-        className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-(--mantine-spacing-md) gap-y-(--mantine-spacing-sm) border-b border-(--mantine-color-default-border) py-(--mantine-spacing-lg)"
+        className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-(--mantine-spacing-md) gap-y-(--mantine-spacing-sm) border-b border-(--mantine-color-default-border) py-(--mantine-spacing-lg)"
       >
         {/* The museum's tile, its identity at a glance and the one place its
             color lives: its photo, else its initials on its own color
@@ -142,12 +152,7 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
             profile avatar's status does, bordered so it holds on a photo.
             It repeats the name's link: out of the tab order and hidden from
             screen readers, one stop per museum. */}
-        <Link
-          href={base as Route}
-          tabIndex={-1}
-          aria-hidden
-          className="self-start from-md:row-span-2"
-        >
+        <Link href={base as Route} tabIndex={-1} aria-hidden className="self-start">
           <Indicator
             position="bottom-end"
             offset={6}
@@ -170,15 +175,39 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
           </Indicator>
         </Link>
         <Stack gap={2} miw={0}>
-          <Title order={2} size="h4" lineClamp={2} id={nameId}>
-            <LinkAnchor href={base as Route} inherit c="inherit">
-              {museum.name}
+          {/* The name opens the museum: a trailing chevron says so on a
+              phone, where there is no hover. */}
+          <Title order={2} size="h4" id={nameId}>
+            <LinkAnchor
+              href={base as Route}
+              inherit
+              c="inherit"
+              className="inline-flex max-w-full items-center gap-1"
+            >
+              <span className="line-clamp-2">{museum.name}</span>
+              <ChevronRight
+                size={18}
+                aria-hidden
+                className="shrink-0 text-(--mantine-color-dimmed)"
+              />
             </LinkAnchor>
           </Title>
-          <Text size="sm" c="dimmed">
-            {roleLabel[role]}
-            {museum.location?.city && ` · ${museum.location.city}`}
-          </Text>
+          <Group gap={6} wrap="wrap">
+            {active && (
+              <Badge size="sm" variant="light" leftSection={<MapPin size={12} aria-hidden />}>
+                {t('You are here')}
+              </Badge>
+            )}
+            <Text size="sm" c="dimmed">
+              {roleLabel[role]}
+              {museum.location?.city && ` · ${museum.location.city}`}
+            </Text>
+          </Group>
+          {needsColor && (
+            <LinkAnchor href={`${base}?tab=info` as Route} size="sm">
+              {t('Give the museum its color')}
+            </LinkAnchor>
+          )}
         </Stack>
         {/* A group named by the museum, not a landmark: a long list would
             otherwise fill the screen reader's landmark menu. A 6px gap: the
@@ -285,12 +314,12 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
         // A list, not a wall of covers: a curator may hold several museums,
         // and every row keeps the same anatomy (tile, name, role and city,
         // tools) in the same place, so the eye runs down one column.
+        // One column at every width: two would zig-zag the role order
+        // across columns, and the search covers a long list.
         <MuseumSearch
           rows={rows}
           keys={museums.map(({ museum }) => `${museum.name} ${museum.location?.city ?? ''}`)}
-          label={t('Find a museum')}
-          noMatch={t('No museum matches')}
-          className={`m-0 grid list-none p-0 ${museums.length >= TWO_COLUMNS_FROM ? 'from-md:grid-cols-2 from-md:gap-x-(--mantine-spacing-xl)' : ''}`}
+          className="m-0 list-none p-0"
         />
       )}
     </Container>
