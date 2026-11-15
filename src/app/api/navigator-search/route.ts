@@ -195,6 +195,9 @@ function navigatorKinds(museumId: string | null): SearchHit['kind'][] {
 export async function GET(request: Request) {
   const url = new URL(request.url)
   const query = (url.searchParams.get('q') ?? '').trim()
+  // The client always sends a supported locale. The value is not validated
+  // here: an unknown code would only produce hrefs pointing at a route that
+  // does not exist, never a different document.
   const locale = (url.searchParams.get('locale') || 'en') as TypedLocale
   const limitParam = Number(url.searchParams.get('limit') || 8)
   const limit = Math.min(20, Math.max(1, Number.isFinite(limitParam) ? limitParam : 8))

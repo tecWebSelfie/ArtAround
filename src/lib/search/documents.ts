@@ -34,8 +34,6 @@ function idOf(value: unknown): string | null {
   return null
 }
 
-/** The ids of a relationship array, whether its entries are ids or documents. */
-
 function joinParts(...parts: Array<string | null | undefined>) {
   return parts
     .filter((part): part is string => Boolean(part && part.trim()))

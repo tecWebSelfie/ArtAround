@@ -14,6 +14,11 @@ import {
  * `/search/{tours,objects,contents}`) passes the fields it looks at
  * (`queryBy`), its kinds and its own filters; the ranking stays one rule for
  * all: relevance, then the cross-collection priority, then recency.
+ *
+ * There is deliberately no fallback to Payload: a Typesense failure is thrown
+ * to the caller, so every surface shows its own error state. A second result
+ * set with different ranking would hide an outage and could surface documents
+ * the index already treats as unlisted.
  */
 
 export type SearchPrice = 'all' | 'free' | 'paid'
@@ -110,6 +115,9 @@ export async function searchItems({
       page,
       per_page: limit,
       prefix: true,
+      // Serves hits in the middle of a word ("ernini" → Bernini) when no
+      // prefix match exists. The schema must declare `infix: true` on the same
+      // fields (src/lib/search/schema.ts): without it Typesense answers 400.
       infix: 'fallback',
       num_typos: 2,
       min_len_1typo: 4,
