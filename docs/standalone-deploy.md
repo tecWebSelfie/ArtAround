@@ -87,8 +87,25 @@ into the boot like the seed.
 
 Build in any folder (the deploy folder's quota is too small for a clone and a
 build), then copy `.next/standalone` into the deploy folder **preserving
-symbolic links** (`cp -a`, `rsync -a`, or `tar`): Next's pnpm layout and the
-externals linked above are relative symlinks into `node_modules/.pnpm`. A copy
-that follows them duplicates every linked package and may no longer fit the
-quota. Build on Linux: on Windows the links are junctions, which are always
+symbolic links** (`cp -a`, `rsync -a`, or `tar`).
+
+The standalone keeps pnpm's layout: the real files of each package sit in
+`node_modules/.pnpm/<name>@<version>/node_modules/<name>`, next to the
+packages it depends on, and `node_modules/<name>` is a relative symlink to it
+(Next's own trace, plus the externals linked above). Node follows the link to
+the real path and finds the dependencies there. A copy that follows the
+links instead (`cp -r`, some SFTP clients, a zip) breaks this twice, as
+measured on this project:
+
+- it no longer runs: `node_modules/payload` becomes a plain copy outside
+  `.pnpm`, and `import('payload')` fails with `Cannot find package 'ws'`;
+- it grows from ~314 MB to ~525 MB, which may no longer fit the quota.
+
+Build on Linux: on Windows the links are junctions, which are always
 absolute paths of the build machine.
+
+The standalone does not depend on the global pnpm store (wherever it is
+configured, e.g. moved out of a home folder with its own quota): Next copies
+the real files into `.next/standalone/node_modules/.pnpm`, and every link is
+relative and points inside the standalone. The store is only used by
+`pnpm install` on the build machine.
