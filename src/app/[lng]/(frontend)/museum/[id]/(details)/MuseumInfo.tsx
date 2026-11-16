@@ -51,6 +51,9 @@ import {
 } from 'lucide-react'
 import type { ReactNode } from 'react'
 
+/** The `t` of the museum-page namespace, handed to the parts below. */
+type MuseumPageT = Awaited<ReturnType<typeof getT>>['t']
+
 export async function MuseumInfo({
   museum,
   descriptionHTML,
@@ -59,36 +62,59 @@ export async function MuseumInfo({
   descriptionHTML: string | null
 }) {
   const { t, lng } = await getT('museum-page')
+  const visit = visitBlocks(museum, t, lng)
+  const contacts = contactBlocks(museum, t)
+  const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
 
-  // Only the facilities the museum confirmed; unknown ones are left unsaid.
-  const access = museum.accessibility
-  const accessFeatures = [
-    access?.stepFreeEntrance && t('Step-free entrance'),
-    access?.elevator && t('Elevator'),
-    access?.accessibleBathrooms && t('Accessible toilets'),
-    access?.tactilePaths && t('Tactile paths'),
-    access?.audioGuides && t('Audio guides'),
-    access?.signLanguage && t('Sign language'),
-    access?.serviceAnimals && t('Service animals welcome'),
-  ].filter((feature): feature is string => Boolean(feature))
+  return (
+    <Stack gap="xl">
+      {/* Reading measure: the rest of the tab uses the container's width. */}
+      <Box className="from-md:max-w-[75ch]">
+        <Spoiler maxHeight={120} showLabel={t('Show more')} hideLabel={t('Hide')}>
+          <Typography>
+            {descriptionHTML ? (
+              <div dangerouslySetInnerHTML={{ __html: descriptionHTML }} />
+            ) : (
+              <Text c="dimmed">{t('No description available')}</Text>
+            )}
+          </Typography>
+        </Spoiler>
+      </Box>
+      <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">
+        <GridCol span={{ base: 12, md: 7 }}>
+          <InfoGroup title={t('Plan your visit')}>{visit}</InfoGroup>
+        </GridCol>
+        {(contacts.length > 0 || news.length > 0) && (
+          <GridCol span={{ base: 12, md: 5 }}>
+            <Stack gap="xl">
+              {contacts.length > 0 && (
+                <InfoGroup title={t('Contacts')}>
+                  <Stack gap="sm">{contacts}</Stack>
+                </InfoGroup>
+              )}
+              {news.length > 0 && (
+                <InfoGroup title={t('News')}>
+                  <NewsItems news={news} t={t} lng={lng} />
+                </InfoGroup>
+              )}
+            </Stack>
+          </GridCol>
+        )}
+      </Grid>
+    </Stack>
+  )
+}
+
+/**
+ * "Plan your visit": opening hours, tickets, address with its map and
+ * directions, accessibility. Each block only when the museum gave its data
+ * (the address always: every museum has one).
+ */
+function visitBlocks(museum: Museum, t: MuseumPageT, lng: string) {
   const hours = openingHoursRows(museum.openingHours, lng)
   const point = museum.location?.latlng
-  // Shown in international notation; dialled as E.164, the form the phone
-  // field stores for `tel:` links.
-  const phone =
-    typeof museum.phone === 'string'
-      ? { shown: museum.phone, dial: museum.phone.replace(/[^\d+]/g, '') }
-      : museum.phone?.international
-        ? { shown: museum.phone.international, dial: museum.phone.e164 }
-        : null
-  const socials = museum.socials ?? []
-  const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
-  // A news date is a day, which Payload's date picker stores as 12:00 UTC of
-  // the picked day: formatted in UTC it is that day for every visitor, where
-  // the server's or visitor's zone could shift it to the day before or after.
-  const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium', timeZone: 'UTC' })
-
-  const visitBlocks = [
+  const accessFeatures = confirmedAccess(museum.accessibility, t)
+  return [
     (hours.length > 0 || museum.openingHours?.notes) && (
       <InfoBlock key="hours" icon={Clock} title={t('Opening hours')}>
         <OpeningHours
@@ -161,8 +187,26 @@ export async function MuseumInfo({
       </InfoBlock>
     ),
   ].filter(Boolean)
+}
 
-  const contactBlocks = [
+/** Only the facilities the museum confirmed; unknown ones are left unsaid. */
+function confirmedAccess(access: Museum['accessibility'], t: MuseumPageT) {
+  return [
+    access?.stepFreeEntrance && t('Step-free entrance'),
+    access?.elevator && t('Elevator'),
+    access?.accessibleBathrooms && t('Accessible toilets'),
+    access?.tactilePaths && t('Tactile paths'),
+    access?.audioGuides && t('Audio guides'),
+    access?.signLanguage && t('Sign language'),
+    access?.serviceAnimals && t('Service animals welcome'),
+  ].filter((feature): feature is string => Boolean(feature))
+}
+
+/** "Contacts": phone, email and the social profiles, those the museum gave. */
+function contactBlocks(museum: Museum, t: MuseumPageT) {
+  const phone = phoneLink(museum.phone)
+  const socials = museum.socials ?? []
+  return [
     phone && (
       <ContactRow key="phone" icon={Phone} label={t('Phone')}>
         <Anchor href={`tel:${phone.dial}`} size="sm">
@@ -186,56 +230,47 @@ export async function MuseumInfo({
       </Stack>
     ),
   ].filter(Boolean)
+}
 
-  return (
-    <Stack gap="xl">
-      {/* Reading measure: the rest of the tab uses the container's width. */}
-      <Box className="from-md:max-w-[75ch]">
-        <Spoiler maxHeight={120} showLabel={t('Show more')} hideLabel={t('Hide')}>
-          <Typography>
-            {descriptionHTML ? (
-              <div dangerouslySetInnerHTML={{ __html: descriptionHTML }} />
-            ) : (
-              <Text c="dimmed">{t('No description available')}</Text>
-            )}
-          </Typography>
-        </Spoiler>
-      </Box>
-      <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">
-        <GridCol span={{ base: 12, md: 7 }}>
-          <InfoGroup title={t('Plan your visit')}>{visitBlocks}</InfoGroup>
-        </GridCol>
-        {(contactBlocks.length > 0 || news.length > 0) && (
-          <GridCol span={{ base: 12, md: 5 }}>
-            <Stack gap="xl">
-              {contactBlocks.length > 0 && (
-                <InfoGroup title={t('Contacts')}>
-                  <Stack gap="sm">{contactBlocks}</Stack>
-                </InfoGroup>
-              )}
-              {news.length > 0 && (
-                <InfoGroup title={t('News')}>
-                  {news.map((item) => (
-                    <Stack key={item.id ?? item.title} gap={2} component="article">
-                      <Text size="xs" c="dimmed" component="time" dateTime={item.date}>
-                        {newsDate.format(new Date(item.date))}
-                      </Text>
-                      <Title order={4} size="h6">
-                        {item.title}
-                      </Title>
-                      <Spoiler maxHeight={66} showLabel={t('Show more')} hideLabel={t('Hide')}>
-                        <Text size="sm">{item.content}</Text>
-                      </Spoiler>
-                    </Stack>
-                  ))}
-                </InfoGroup>
-              )}
-            </Stack>
-          </GridCol>
-        )}
-      </Grid>
+/**
+ * The museum's phone, shown in international notation and dialled as E.164
+ * (the form the phone field stores for `tel:` links). Older documents hold a
+ * plain string: shown as typed, dialled with only its digits and `+`.
+ */
+function phoneLink(phone: Museum['phone']) {
+  if (typeof phone === 'string') return { shown: phone, dial: phone.replace(/[^\d+]/g, '') }
+  if (!phone?.international) return null
+  return { shown: phone.international, dial: phone.e164 }
+}
+
+/**
+ * The latest news. A news date is a day, which Payload's date picker stores
+ * as 12:00 UTC of the picked day: formatted in UTC it is that day for every
+ * visitor, where the server's or visitor's zone could shift it.
+ */
+function NewsItems({
+  news,
+  t,
+  lng,
+}: {
+  news: NonNullable<Museum['news']>
+  t: MuseumPageT
+  lng: string
+}) {
+  const newsDate = new Intl.DateTimeFormat(lng, { dateStyle: 'medium', timeZone: 'UTC' })
+  return news.map((item) => (
+    <Stack key={item.id ?? item.title} gap={2} component="article">
+      <Text size="xs" c="dimmed" component="time" dateTime={item.date}>
+        {newsDate.format(new Date(item.date))}
+      </Text>
+      <Title order={4} size="h6">
+        {item.title}
+      </Title>
+      <Spoiler maxHeight={66} showLabel={t('Show more')} hideLabel={t('Hide')}>
+        <Text size="sm">{item.content}</Text>
+      </Spoiler>
     </Stack>
-  )
+  ))
 }
 
 /**

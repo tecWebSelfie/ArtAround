@@ -90,161 +90,17 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
         a.museum.name.localeCompare(b.museum.name, lng),
     )
 
-  // The tools, one rule for every row: the role's main work (editing the
-  // map for staff, a new tour for a verified creator) is the one filled
-  // (`light` gray) button; the others follow as gray `subtle` ones. Neutral
-  // on every row, so a long list stays one system instead of a rainbow: the
-  // museum's color lives on its tile only. The fill, not an outline, marks
-  // the main one (an outline barely reads, 1.5:1 on the page). `sm` (36px)
-  // everywhere, a comfortable tap on a phone carried between rooms. The row
-  // wraps where the labels need it (longer languages, narrow phones).
-  const main = { variant: 'light', size: 'sm', color: 'gray' } as const
-  const other = { variant: 'subtle', size: 'sm', color: 'gray' } as const
-
-  const rows = museums.map(({ museum, role }) => {
-    const Icon = MUSEUM_ROLE_ICON[role]
-    const [cover] = filterPopulated<MuseumThumbnail>(museum.thumbnails)
-    const accent = museumAccent(museum.palette)
-    const base = `/${lng}/museum/${museum.id}`
-    const nameId = `museum-${museum.id}`
-    const active = museum.id === activeMuseumId
-    // A director's museum still without a color shows its initials on a
-    // stand-in hue: the row says where to give it its own.
-    const needsColor = role === 'director' && !accent
-    return (
-      // Tile and name side by side; the tools on a line of their own, under
-      // both on phones (the whole width for the buttons), under the name
-      // from `md`.
-      <li
-        key={museum.id}
-        className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-(--mantine-spacing-md) gap-y-(--mantine-spacing-sm) border-b border-(--mantine-color-default-border) py-(--mantine-spacing-lg)"
-      >
-        {/* The museum's tile, its identity at a glance and the one place its
-            color lives: its photo, else its initials on its own color
-            (shade 6, at least 4.5:1 with white by the palette's rule) or, `light`,
-            on Mantine's per-name initials color among the theme's neutral
-            hues (`NEUTRAL_INITIALS_COLORS`). The role sits on its corner as the
-            profile avatar's status does, bordered so it holds on a photo.
-            It repeats the name's link: out of the tab order and hidden from
-            screen readers, one stop per museum. */}
-        <Link href={base as Route} tabIndex={-1} aria-hidden className="self-start">
-          <Indicator
-            position="bottom-end"
-            offset={6}
-            color="transparent"
-            label={
-              <ThemeIcon size={24} radius="xl" variant="default">
-                <Icon size={14} />
-              </ThemeIcon>
-            }
-          >
-            <Avatar
-              src={pictureSrc(cover, 'card')}
-              name={museum.name}
-              color={accent ?? 'initials'}
-              allowedInitialsColors={NEUTRAL_INITIALS_COLORS}
-              variant={accent ? 'filled' : 'light'}
-              size={64}
-              radius="lg"
-              fz="lg"
-            />
-          </Indicator>
-        </Link>
-        <Stack gap={2} miw={0}>
-          {/* The name opens the museum: a trailing chevron says so on a
-              phone, where there is no hover. */}
-          <Title order={2} size="h4" id={nameId}>
-            <LinkAnchor
-              href={base as Route}
-              inherit
-              c="inherit"
-              className="inline-flex max-w-full items-center gap-1"
-            >
-              <span className="line-clamp-2">{museum.name}</span>
-              <ChevronRight
-                size={18}
-                aria-hidden
-                className="shrink-0 text-(--mantine-color-dimmed)"
-              />
-            </LinkAnchor>
-          </Title>
-          <Group gap={6} wrap="wrap">
-            {active && (
-              <Badge size="sm" variant="light" leftSection={<MapPin size={12} aria-hidden />}>
-                {t('You are here')}
-              </Badge>
-            )}
-            <Text size="sm" c="dimmed">
-              {roleLabel[role]}
-              {museum.location?.city && ` · ${museum.location.city}`}
-            </Text>
-          </Group>
-          {needsColor && (
-            <LinkAnchor href={`${base}?tab=info` as Route} size="sm">
-              {t('Give the museum its color')}
-            </LinkAnchor>
-          )}
-        </Stack>
-        {/* A group named by the museum, not a landmark: a long list would
-            otherwise fill the screen reader's landmark menu. */}
-        <Group
-          gap="xs"
-          role="group"
-          aria-labelledby={nameId}
-          className="col-span-2 from-md:col-span-1 from-md:col-start-2"
-        >
-          {hasRank(role, MUSEUM_FUNCTION_CURATOR) ? (
-            <>
-              <LinkButton
-                href={`${base}/edit/mapeditor` as Route}
-                leftSection={<MapIcon size={16} aria-hidden />}
-                {...main}
-              >
-                {t('Edit map')}
-              </LinkButton>
-              <LinkButton
-                href={`${base}/members` as Route}
-                leftSection={<Users size={16} aria-hidden />}
-                {...other}
-              >
-                {t('Staff')}
-              </LinkButton>
-              {/* The QR labels PDF (`/api/qr-sheet`): a file, so a plain
-                  download link, which says so in words for screen readers. */}
-              <Button
-                component="a"
-                href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${lng}`}
-                download
-                leftSection={<QrCode size={16} aria-hidden />}
-                rightSection={<Download size={14} aria-hidden />}
-                {...other}
-              >
-                {t('QR labels')}
-                <span className="sr-only"> ({t('PDF download')})</span>
-              </Button>
-            </>
-          ) : (
-            <>
-              <LinkButton
-                href={`/${lng}/tour/new?museum=${museum.id}` as Route}
-                leftSection={<RouteIcon size={16} aria-hidden />}
-                {...main}
-              >
-                {t('New tour')}
-              </LinkButton>
-              <LinkButton
-                href={`/${lng}/content/new?museum=${museum.id}` as Route}
-                leftSection={<FilePlus size={16} aria-hidden />}
-                {...other}
-              >
-                {t('New content')}
-              </LinkButton>
-            </>
-          )}
-        </Group>
-      </li>
-    )
-  })
+  const rows = museums.map(({ museum, role }) => (
+    <MuseumRow
+      key={museum.id}
+      museum={museum}
+      role={role}
+      roleLabel={roleLabel[role]}
+      active={museum.id === activeMuseumId}
+      lng={lng}
+      t={t}
+    />
+  ))
 
   return (
     <Container component="main" size="md" py="md" w="100%">
@@ -293,5 +149,178 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
         />
       )}
     </Container>
+  )
+}
+
+/** The `t` of the user-page namespace, handed to the row. */
+type UserPageT = Awaited<ReturnType<typeof getT>>['t']
+
+// The tools, one rule for every row: the role's main work (editing the
+// map for staff, a new tour for a verified creator) is the one filled
+// (`light` gray) button; the others follow as gray `subtle` ones. Neutral
+// on every row, so a long list stays one system instead of a rainbow: the
+// museum's color lives on its tile only. The fill, not an outline, marks
+// the main one (an outline barely reads, 1.5:1 on the page). `sm` (36px)
+// everywhere, a comfortable tap on a phone carried between rooms. The row
+// wraps where the labels need it (longer languages, narrow phones).
+const main = { variant: 'light', size: 'sm', color: 'gray' } as const
+const other = { variant: 'subtle', size: 'sm', color: 'gray' } as const
+
+/**
+ * One museum of the list: its tile, its name and "role · city", and the tools
+ * its role opens there. `active` marks the museum the app is locked to.
+ */
+function MuseumRow({
+  museum,
+  role,
+  roleLabel,
+  active,
+  lng,
+  t,
+}: {
+  museum: Awaited<ReturnType<typeof readMyMuseums>>[number]['museum']
+  role: MuseumRole
+  roleLabel: string
+  active: boolean
+  lng: string
+  t: UserPageT
+}) {
+  const Icon = MUSEUM_ROLE_ICON[role]
+  const [cover] = filterPopulated<MuseumThumbnail>(museum.thumbnails)
+  const accent = museumAccent(museum.palette)
+  const base = `/${lng}/museum/${museum.id}`
+  const nameId = `museum-${museum.id}`
+  // A director's museum still without a color shows its initials on a
+  // stand-in hue: the row says where to give it its own.
+  const needsColor = role === 'director' && !accent
+  return (
+    // Tile and name side by side; the tools on a line of their own, under
+    // both on phones (the whole width for the buttons), under the name
+    // from `md`.
+    <li className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-(--mantine-spacing-md) gap-y-(--mantine-spacing-sm) border-b border-(--mantine-color-default-border) py-(--mantine-spacing-lg)">
+      {/* The museum's tile, its identity at a glance and the one place its
+          color lives: its photo, else its initials on its own color
+          (shade 6, at least 4.5:1 with white by the palette's rule) or, `light`,
+          on Mantine's per-name initials color among the theme's neutral
+          hues (`NEUTRAL_INITIALS_COLORS`). The role sits on its corner as the
+          profile avatar's status does, bordered so it holds on a photo.
+          It repeats the name's link: out of the tab order and hidden from
+          screen readers, one stop per museum. */}
+      <Link href={base as Route} tabIndex={-1} aria-hidden className="self-start">
+        <Indicator
+          position="bottom-end"
+          offset={6}
+          color="transparent"
+          label={
+            <ThemeIcon size={24} radius="xl" variant="default">
+              <Icon size={14} />
+            </ThemeIcon>
+          }
+        >
+          <Avatar
+            src={pictureSrc(cover, 'card')}
+            name={museum.name}
+            color={accent ?? 'initials'}
+            allowedInitialsColors={NEUTRAL_INITIALS_COLORS}
+            variant={accent ? 'filled' : 'light'}
+            size={64}
+            radius="lg"
+            fz="lg"
+          />
+        </Indicator>
+      </Link>
+      <Stack gap={2} miw={0}>
+        {/* The name opens the museum: a trailing chevron says so on a
+            phone, where there is no hover. */}
+        <Title order={2} size="h4" id={nameId}>
+          <LinkAnchor
+            href={base as Route}
+            inherit
+            c="inherit"
+            className="inline-flex max-w-full items-center gap-1"
+          >
+            <span className="line-clamp-2">{museum.name}</span>
+            <ChevronRight
+              size={18}
+              aria-hidden
+              className="shrink-0 text-(--mantine-color-dimmed)"
+            />
+          </LinkAnchor>
+        </Title>
+        <Group gap={6} wrap="wrap">
+          {active && (
+            <Badge size="sm" variant="light" leftSection={<MapPin size={12} aria-hidden />}>
+              {t('You are here')}
+            </Badge>
+          )}
+          <Text size="sm" c="dimmed">
+            {roleLabel}
+            {museum.location?.city && ` · ${museum.location.city}`}
+          </Text>
+        </Group>
+        {needsColor && (
+          <LinkAnchor href={`${base}?tab=info` as Route} size="sm">
+            {t('Give the museum its color')}
+          </LinkAnchor>
+        )}
+      </Stack>
+      {/* A group named by the museum, not a landmark: a long list would
+          otherwise fill the screen reader's landmark menu. */}
+      <Group
+        gap="xs"
+        role="group"
+        aria-labelledby={nameId}
+        className="col-span-2 from-md:col-span-1 from-md:col-start-2"
+      >
+        {hasRank(role, MUSEUM_FUNCTION_CURATOR) ? (
+          <>
+            <LinkButton
+              href={`${base}/edit/mapeditor` as Route}
+              leftSection={<MapIcon size={16} aria-hidden />}
+              {...main}
+            >
+              {t('Edit map')}
+            </LinkButton>
+            <LinkButton
+              href={`${base}/members` as Route}
+              leftSection={<Users size={16} aria-hidden />}
+              {...other}
+            >
+              {t('Staff')}
+            </LinkButton>
+            {/* The QR labels PDF (`/api/qr-sheet`): a file, so a plain
+                download link, which says so in words for screen readers. */}
+            <Button
+              component="a"
+              href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${lng}`}
+              download
+              leftSection={<QrCode size={16} aria-hidden />}
+              rightSection={<Download size={14} aria-hidden />}
+              {...other}
+            >
+              {t('QR labels')}
+              <span className="sr-only"> ({t('PDF download')})</span>
+            </Button>
+          </>
+        ) : (
+          <>
+            <LinkButton
+              href={`/${lng}/tour/new?museum=${museum.id}` as Route}
+              leftSection={<RouteIcon size={16} aria-hidden />}
+              {...main}
+            >
+              {t('New tour')}
+            </LinkButton>
+            <LinkButton
+              href={`/${lng}/content/new?museum=${museum.id}` as Route}
+              leftSection={<FilePlus size={16} aria-hidden />}
+              {...other}
+            >
+              {t('New content')}
+            </LinkButton>
+          </>
+        )}
+      </Group>
+    </li>
   )
 }

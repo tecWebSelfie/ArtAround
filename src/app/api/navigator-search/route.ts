@@ -68,6 +68,64 @@ const pointOf = (museum: Pick<Museum, 'location'> | undefined) => {
 const idOf = (value: unknown) =>
   typeof value === 'string' ? value : (value as { id?: string } | null)?.id
 
+const pictureOf = (pictures: Map<string, string>, value: unknown) => pictures.get(idOf(value) ?? '')
+
+/**
+ * Row thumbnails of one upload collection, keyed by picture id: one read,
+ * only the URL fields.
+ */
+async function findPictures(payload: Payload, collection: ThumbnailCollection, values: unknown[]) {
+  const ids = [...new Set(values.map(idOf))].filter((id): id is string => Boolean(id))
+  if (!ids.length) return new Map<string, string>()
+  const { docs } = await payload.find({
+    collection,
+    where: { id: { in: ids } },
+    select: PICTURE_SELECT,
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+  })
+  return new Map(
+    docs.flatMap((doc) => {
+      const src = pictureSrc(doc as Picture, 'card')
+      return src ? [[String(doc.id), src] as const] : []
+    }),
+  )
+}
+
+/**
+ * A tour's row: its museum and city, its length (its own figure, else its
+ * stops' reading time), its hardest stop's difficulty, its stop count.
+ */
+function tourItem(
+  tour: Tour,
+  stopById: Map<string, Pick<Content, 'difficulty' | 'durationSeconds'>>,
+  museum: Museum | undefined,
+  pictures: Map<string, string>,
+  locale: TypedLocale,
+): NavigatorSearchItem {
+  const own = tour.contents.map((content) => stopById.get(idOf(content) ?? '')).filter(Boolean)
+  const length = own.reduce((sum, stop) => sum + (stop?.durationSeconds ?? 0), 0)
+  const hardest = own.reduce<Difficulty | undefined>((top, stop) => {
+    const difficulty = stop?.difficulty
+    return difficulty && (!top || DIFFICULTY_RANK[difficulty] > DIFFICULTY_RANK[top])
+      ? difficulty
+      : top
+  }, undefined)
+  return {
+    kind: 'tour',
+    key: `tour:${tour.id}`,
+    title: tour.title,
+    href: `/${locale}/tour/${tour.id}`,
+    subtitle: joinParts(museum?.name, museum?.location?.city) || undefined,
+    seconds: tour.durationMinutes ? tour.durationMinutes * 60 : length || undefined,
+    difficulty: hardest,
+    stops: tour.contents.length,
+    point: pointOf(museum),
+    imageUrl: pictureOf(pictures, tour.thumbnail),
+  }
+}
+
 /**
  * The search index is English-only so matching stays stable. Hydrate the
  * result page with the visitor's locale before returning it: titles read like
@@ -122,55 +180,15 @@ async function hydrateNavigatorHits({
   const museumDocs = (museums?.docs ?? []) as Museum[]
   const objectDocs = objects?.docs ?? []
 
-  // Row thumbnails: one read per upload collection, only the URL fields, in
-  // the same round as the tours' stops and museums. Keyed by picture id.
-  const findPictures = (collection: ThumbnailCollection, values: unknown[]) => {
-    const ids = [...new Set(values.map(idOf))].filter((id): id is string => Boolean(id))
-    if (!ids.length) return Promise.resolve(new Map<string, string>())
-    return payload
-      .find({
-        collection,
-        where: { id: { in: ids } },
-        select: PICTURE_SELECT,
-        depth: 0,
-        pagination: false,
-        overrideAccess: true,
-      })
-      .then(
-        ({ docs }) =>
-          new Map(
-            docs.flatMap((doc) => {
-              const src = pictureSrc(doc as Picture, 'card')
-              return src ? [[String(doc.id), src] as const] : []
-            }),
-          ),
-      )
-  }
-  const picturesPromise = Promise.all([
-    findPictures(
-      'toursThumbnails',
-      tourDocs.map((tour) => tour.thumbnail),
-    ),
-    findPictures(
-      'contentImages',
-      contentDocs.map((content) => content.images?.[0]),
-    ),
-    findPictures(
-      'museumThumbnails',
-      museumDocs.map((museum) => museum.thumbnails?.[0]),
-    ),
-    findPictures(
-      'objectsThumbnails',
-      objectDocs.map((object) => object.thumbnail),
-    ),
-  ])
   const stopIds = [...new Set(tourDocs.flatMap((tour) => tour.contents.map(idOf)))].filter(
     (id): id is string => Boolean(id),
   )
   const tourMuseumIds = [...new Set(tourDocs.map((tour) => idOf(tour.museum)))].filter(
     (id): id is string => Boolean(id),
   )
-  const [stops, tourMuseums, [tourPictures, contentPictures, museumPictures, objectPictures]] =
+  // Row thumbnails (`findPictures`) in the same round as the tours' stops
+  // and museums.
+  const [stops, tourMuseums, tourPictures, contentPictures, museumPictures, objectPictures] =
     await Promise.all([
       stopIds.length
         ? payload.find({
@@ -193,10 +211,27 @@ async function hydrateNavigatorHits({
             overrideAccess: true,
           })
         : null,
-      picturesPromise,
+      findPictures(
+        payload,
+        'toursThumbnails',
+        tourDocs.map((tour) => tour.thumbnail),
+      ),
+      findPictures(
+        payload,
+        'contentImages',
+        contentDocs.map((content) => content.images?.[0]),
+      ),
+      findPictures(
+        payload,
+        'museumThumbnails',
+        museumDocs.map((museum) => museum.thumbnails?.[0]),
+      ),
+      findPictures(
+        payload,
+        'objectsThumbnails',
+        objectDocs.map((object) => object.thumbnail),
+      ),
     ])
-  const pictureOf = (pictures: Map<string, string>, value: unknown) =>
-    pictures.get(idOf(value) ?? '')
   const stopById = new Map((stops?.docs ?? []).map((stop) => [String(stop.id), stop]))
   const museumById = new Map(
     (tourMuseums?.docs ?? []).map((museum) => [String(museum.id), museum as Museum]),
@@ -204,27 +239,8 @@ async function hydrateNavigatorHits({
 
   const items = new Map<string, NavigatorSearchItem>()
   for (const tour of tourDocs) {
-    const own = tour.contents.map((content) => stopById.get(idOf(content) ?? '')).filter(Boolean)
-    const length = own.reduce((sum, stop) => sum + (stop?.durationSeconds ?? 0), 0)
-    const hardest = own.reduce<Difficulty | undefined>((top, stop) => {
-      const difficulty = stop?.difficulty
-      return difficulty && (!top || DIFFICULTY_RANK[difficulty] > DIFFICULTY_RANK[top])
-        ? difficulty
-        : top
-    }, undefined)
     const museum = museumById.get(idOf(tour.museum) ?? '')
-    items.set(`tours:${tour.id}`, {
-      kind: 'tour',
-      key: `tour:${tour.id}`,
-      title: tour.title,
-      href: `/${locale}/tour/${tour.id}`,
-      subtitle: joinParts(museum?.name, museum?.location?.city) || undefined,
-      seconds: tour.durationMinutes ? tour.durationMinutes * 60 : length || undefined,
-      difficulty: hardest,
-      stops: tour.contents.length,
-      point: pointOf(museum),
-      imageUrl: pictureOf(tourPictures, tour.thumbnail),
-    })
+    items.set(`tours:${tour.id}`, tourItem(tour, stopById, museum, tourPictures, locale))
   }
   for (const content of contentDocs) {
     items.set(`contents:${content.id}`, {

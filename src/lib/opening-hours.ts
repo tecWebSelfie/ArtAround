@@ -145,32 +145,58 @@ export function openingStatus(
   | { open: false; opens: { time: string; inDays: number } | null }
   | null {
   if (!hasOpeningHours(hours) || clock.weekday < 0) return null
-  const ranges = (weekday: number) =>
-    (hours[WEEKDAYS[weekday % 7]] ?? [])
-      .map((range) => ({ opening: toMinutes(range.opening), closing: toMinutes(range.closing) }))
-      .filter(
-        (range): range is { opening: number; closing: number } =>
-          range.opening !== null && range.closing !== null && range.opening !== range.closing,
-      )
-      .sort((a, b) => a.opening - b.opening)
-  const now = clock.minutes
-  const open = (closing: number, minutesLeft: number) =>
-    ({ open: true, closes: toTimeOfDay(closing), closingSoon: minutesLeft <= soonMinutes }) as const
+  const current = currentRange(hours, clock)
+  if (current) {
+    const minutesLeft = current.ends - clock.minutes
+    return {
+      open: true,
+      closes: toTimeOfDay(current.closing),
+      closingSoon: minutesLeft <= soonMinutes,
+    }
+  }
+  return { open: false, opens: nextOpening(hours, clock) }
+}
 
-  // Still inside yesterday's late opening.
-  for (const range of ranges(clock.weekday + 6))
-    if (range.closing < range.opening && now < range.closing)
-      return open(range.closing, range.closing - now)
-  for (const range of ranges(clock.weekday)) {
+type Range = { opening: number; closing: number }
+
+/** A weekday's valid ranges in minutes, by opening (`weekday` wraps past Sunday). */
+function rangesOf(hours: NonNullable<Museum['openingHours']>, weekday: number): Range[] {
+  return (hours[WEEKDAYS[weekday % 7]] ?? [])
+    .map((range) => ({ opening: toMinutes(range.opening), closing: toMinutes(range.closing) }))
+    .filter(
+      (range): range is Range =>
+        range.opening !== null && range.closing !== null && range.opening !== range.closing,
+    )
+    .sort((a, b) => a.opening - b.opening)
+}
+
+/**
+ * The range the museum is open in at `clock`, with when it ends in today's
+ * minutes (past 24:00 for a range that runs over midnight); null when closed.
+ * Yesterday's late opening counts in the small hours.
+ */
+function currentRange(hours: NonNullable<Museum['openingHours']>, clock: MuseumClock) {
+  const now = clock.minutes
+  const lateYesterday = rangesOf(hours, clock.weekday + 6).find(
+    (range) => range.closing < range.opening && now < range.closing,
+  )
+  if (lateYesterday) return { closing: lateYesterday.closing, ends: lateYesterday.closing }
+  const today = rangesOf(hours, clock.weekday).find((range) => {
     const overnight = range.closing < range.opening
-    if (now >= range.opening && (overnight || now < range.closing))
-      return open(range.closing, (overnight ? range.closing + 24 * 60 : range.closing) - now)
-  }
-  const later = ranges(clock.weekday).find((range) => range.opening > now)
-  if (later) return { open: false, opens: { time: toTimeOfDay(later.opening), inDays: 0 } }
+    return now >= range.opening && (overnight || now < range.closing)
+  })
+  if (!today) return null
+  const overnight = today.closing < today.opening
+  return { closing: today.closing, ends: overnight ? today.closing + 24 * 60 : today.closing }
+}
+
+/** The next opening after `clock`: later today, or the first of the next days. */
+function nextOpening(hours: NonNullable<Museum['openingHours']>, clock: MuseumClock) {
+  const later = rangesOf(hours, clock.weekday).find((range) => range.opening > clock.minutes)
+  if (later) return { time: toTimeOfDay(later.opening), inDays: 0 }
   for (let inDays = 1; inDays <= 7; inDays++) {
-    const [first] = ranges(clock.weekday + inDays)
-    if (first) return { open: false, opens: { time: toTimeOfDay(first.opening), inDays } }
+    const [first] = rangesOf(hours, clock.weekday + inDays)
+    if (first) return { time: toTimeOfDay(first.opening), inDays }
   }
-  return { open: false, opens: null }
+  return null
 }

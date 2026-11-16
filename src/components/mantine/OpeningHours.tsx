@@ -160,6 +160,15 @@ export function OpeningHours({
   )
 }
 
+/** The three states the line can say, each with its own icon and color. */
+const STATE = {
+  open: { Icon: DoorOpen, color: 'green', label: 'Open now' },
+  closingSoon: { Icon: Clock, color: 'yellow', label: 'Closes soon' },
+  closed: { Icon: DoorClosed, color: 'gray', label: 'Closed' },
+} as const
+// The labels, listed for `i18next-cli extract`, which can't read a key out of
+// a variable: t('Open now') t('Closes soon') t('Closed')
+
 /**
  * "Open now · closes at 7:00 PM", "Closes soon · at 7:00 PM", "Closed · opens
  * tomorrow at 9:00 AM": the state in words with its own icon, never color
@@ -183,37 +192,31 @@ function StatusLine({
   const status = openingStatus(hours, clock)
   if (!status) return null
 
-  let icon, color, label, detail
-  if (status.open) {
-    icon = status.closingSoon ? <Clock size={16} aria-hidden /> : <DoorOpen size={16} aria-hidden />
-    color = status.closingSoon ? 'yellow' : 'green'
-    label = status.closingSoon ? t('Closes soon') : t('Open now')
-    detail = t('closes at {{time}}', { time: time(status.closes) })
-  } else {
-    icon = <DoorClosed size={16} aria-hidden />
-    color = 'gray'
-    label = t('Closed')
-    const opens = status.opens
-    detail = !opens
-      ? null
-      : opens.inDays === 0
-        ? t('opens today at {{time}}', { time: time(opens.time) })
-        : opens.inDays === 1
-          ? t('opens tomorrow at {{time}}', { time: time(opens.time) })
-          : t('opens {{day}} at {{time}}', {
-              day: rows[(clock.weekday + opens.inDays) % 7].day,
-              time: time(opens.time),
-            })
+  let state: keyof typeof STATE = 'closed'
+  if (status.open) state = status.closingSoon ? 'closingSoon' : 'open'
+  const { Icon, color, label } = STATE[state]
+  const detail = status.open
+    ? t('closes at {{time}}', { time: time(status.closes) })
+    : opensDetail(status.opens)
+
+  /** When a closed museum opens next, in words; null when it never does. */
+  function opensDetail(opens: { time: string; inDays: number } | null) {
+    if (!opens) return null
+    const at = time(opens.time)
+    if (opens.inDays === 0) return t('opens today at {{time}}', { time: at })
+    if (opens.inDays === 1) return t('opens tomorrow at {{time}}', { time: at })
+    const day = rows[(clock.weekday + opens.inDays) % 7].day
+    return t('opens {{day}} at {{time}}', { day, time: at })
   }
 
   return (
     <Group gap="xs" wrap="nowrap" align="center">
       <ThemeIcon variant="light" color={color} radius="xl" size={28}>
-        {icon}
+        <Icon size={16} aria-hidden />
       </ThemeIcon>
       <Text size="sm">
         <Text span inherit fw={700}>
-          {label}
+          {t(label)}
         </Text>
         {detail && ` · ${detail}`}
       </Text>
