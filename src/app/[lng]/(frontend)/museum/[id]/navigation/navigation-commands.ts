@@ -6,6 +6,7 @@ import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/Serv
 import {
   navigationBasePath,
   navigationContentPath,
+  navigationScanPath,
   tourNavigationPath,
   withNavigationPosition,
   withNavigationValue,
@@ -363,7 +364,9 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       label: labels.scan,
       description: labels.position,
       group: quick,
-      href: href(`${here}/scan`),
+      // Its own page, not over the map: the camera and the map's controls
+      // on one screen were confusing. It comes back here (see QrScanPage).
+      href: navigationScanPath(lng, href(here)),
       replace: false,
     },
   ]

@@ -324,3 +324,12 @@ export function tourAdvanceHref(
 export function tourHasQuiz(tour: Pick<Tour, 'quiz'>) {
   return Boolean(tour.quiz?.questions?.length)
 }
+
+/**
+ * The QR scanner's own page for a navigation map: `/[lng]/scan` remembers in
+ * `from` the map URL to come back to (position kept), where a scanned
+ * object or content opens as the map's modal (see `QrScanPage`).
+ */
+export function navigationScanPath(lng: string, mapHref: string) {
+  return `/${lng}/scan?${new URLSearchParams({ from: mapHref })}` as Route
+}

@@ -7,7 +7,7 @@ import { getMuseumNavigationTours, getNavigationCatalog, getNavigationMuseum } f
  * (`/[lng]/museum/[id]/navigation`) and for each of its tours
  * (`…/navigation/tour/[tourId]/[stepId]`). Contents and objects open in the
  * `@modal` slots (this one for the free map, the tour's own below
- * `[stepId]`), the scanner at `/scan`, so the map stays mounted while the URL
+ * `[stepId]`; the QR scanner has its own page, `/[lng]/scan`), so the map stays mounted while the URL
  * changes, including when the visitor starts a tour from the Spotlight.
  * A layout cannot read the `[tourId]` below it, so it hands the shell all of
  * the museum's tours and the shell picks the one in the URL.

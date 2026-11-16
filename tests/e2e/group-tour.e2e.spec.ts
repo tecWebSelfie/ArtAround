@@ -5,6 +5,7 @@ import {
   type Browser,
   type BrowserContextOptions,
 } from '@playwright/test'
+import { toDataURL } from 'qrcode'
 import { requireLiveKit } from '../helpers/livekit'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
@@ -188,7 +189,7 @@ async function openGroup(page: Page, name: string, { showResults = false } = {})
   const nameField = page.getByRole('textbox', { name: 'Your name' })
   await expect(async () => {
     if (!(await nameField.isVisible())) {
-      await page.getByRole('button', { name: 'Start with a group' }).click({ timeout: 1_500 })
+      await page.getByRole('button', { name: 'Lead the group' }).click({ timeout: 1_500 })
     }
     await expect(nameField).toBeVisible({ timeout: 1_500 })
   }).toPass({ timeout: 90_000 })
@@ -409,4 +410,56 @@ test('the quiz still works for a visitor touring alone', async ({ page }) => {
   await takeQuiz(page)
   await expect(page).toHaveURL(/\/quiz\/result\//)
   await expect(page.getByRole('heading', { name: 'Your answers' })).toBeVisible()
+})
+
+// Scanning in a group: only the host has the scanner, and its own page keeps
+// the guests on the map (it isn't a tour URL, so it isn't followed); what the
+// host scans then opens for everyone, without moving the shared position.
+test('the host scans a work and the guest follows into it', async ({ browser }) => {
+  await requireLiveKit()
+  const host = await groupPage(browser, { viewport: { width: 390, height: 844 } })
+  const guest = await groupPage(browser, { viewport: { width: 390, height: 844 } })
+  const object = fixture!.objectIds[0]
+  // The host's camera shows Object 1's QR code (see tour-qr.e2e.spec.ts).
+  const qr = await toDataURL(`/object/${object}`, { width: 480, margin: 4 })
+  await host.addInitScript((imageURL) => {
+    navigator.mediaDevices.getUserMedia = async () => {
+      const canvas = document.createElement('canvas')
+      canvas.width = canvas.height = 480
+      const image = new Image()
+      image.src = imageURL
+      await image.decode()
+      const context = canvas.getContext('2d')!
+      const draw = () => context.drawImage(image, 0, 0)
+      draw()
+      setInterval(draw, 100)
+      return canvas.captureStream(10)
+    }
+  }, qr)
+
+  const code = await openGroup(host, 'Anna')
+  await joinGroup(guest, `/en/room/${code}`, 'Marco')
+  await expect(guest.getByText('Waiting for Anna to start the tour')).toBeVisible()
+  await host.getByRole('button', { name: 'Start the tour' }).click()
+  await expect(guest).toHaveURL(/\/navigation\/tour\/[^/]+\/0/)
+  const tourUrl = guest.url()
+
+  // The guest has no scanner: the host leads. (Once the controls are up.)
+  await expect(guest.getByRole('button', { name: 'Guidance settings' })).toBeVisible()
+  await expect(guest.getByRole('button', { name: 'Scan a QR code' })).toHaveCount(0)
+
+  // The host scans: the scan page is the host's alone…
+  await expect(async () => {
+    await host
+      .getByRole('button', { name: 'Scan a QR code', exact: true })
+      .click({ timeout: 10_000 })
+    await expect(host).toHaveURL(/\/scan\?from=|\/object\//, { timeout: 20_000 })
+  }).toPass({ timeout: 90_000 })
+  // …then the work opens over the tour for both, the position unchanged.
+  await expect(host).toHaveURL(new RegExp(`/navigation/tour/[^/]+/0/object/${object}`))
+  await expect(guest).toHaveURL(new RegExp(`/navigation/tour/[^/]+/0/object/${object}`))
+  await expect(guest.getByRole('dialog')).toBeVisible()
+  expect(new URL(guest.url()).searchParams.get('at')).toBe(new URL(tourUrl).searchParams.get('at'))
+  // The guest never went through the scanner.
+  expect(guest.url()).not.toMatch(/\/scan/)
 })

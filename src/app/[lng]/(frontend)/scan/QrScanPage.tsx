@@ -7,28 +7,27 @@ import type { Route } from 'next'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { inLanguage } from '@/lib/app-url'
-import { navigationDetailPath, withNavigationPosition } from '@/lib/tour-navigation'
-import { useNavigationScope } from '../TourNavigationShell'
+import { parseNavigationPathname, withNavigationPosition } from '@/lib/tour-navigation'
 
 /**
- * Scans canonical museum links and routes them into the current navigation (a
- * tour, or free navigation of the museum) with `at`/`to` intact: a canonical
- * object/content URL opens directly as that navigation's contextual modal.
- * Outside a navigation (the navigator home's `/scan`) a scanned link opens as
- * an ordinary page, and closing returns to the navigator.
+ * The QR scanner, always on its own page (`/[lng]/scan`): the camera never
+ * shares the screen with the map, whose controls and directions made it
+ * confusing. A museum navigation opens it with `?from=` set to the map URL it
+ * left (tour cursor, `at`, `to`, … included, see `navigationScanPath`):
+ * - a canonical object/content code opens over that same map as its
+ *   contextual modal, with the position intact (the tour's next stop as
+ *   `/open`, which the content modal itself redirects to);
+ * - any other code opens as its own page; closing returns to the map.
+ * Without `from` (the navigator home's "Scan"), a scanned link opens as an
+ * ordinary page and closing returns to the navigator.
  */
 export function QrScanPage() {
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
   const { lng: currentLng } = useParams<{ lng: string }>()
-  const search = useSearchParams()
-  const navigation = useNavigationScope()
+  const navigation = returnNavigation(useSearchParams().get('from'))
   const close = () => {
-    router.replace(
-      navigation
-        ? withNavigationPosition(navigation.base, search.toString())
-        : (`/${currentLng}/navigator` as Route),
-    )
+    router.replace(navigation?.href ?? (`/${currentLng}/navigator` as Route))
   }
   return (
     <QrScanner
@@ -39,27 +38,25 @@ export function QrScanPage() {
       }
       onScan={(url) => {
         const pathname = inLanguage(url.pathname, currentLng)
-        // Inside a navigation, a canonical object/content code opens straight
-        // in this map's modal (a tour's next stop as `/open`). Going through
-        // the canonical URL would also work (one interceptor per route in the
-        // museum navigation `@modal`), but the museum details page's
-        // `@object` interceptor matches the same URLs from below
-        // `/museum/[id]` and can win that race, remounting the map.
+        // From a navigation, a canonical object/content code opens straight
+        // in that map's modal. Not through the canonical URL: from this page
+        // no navigation interceptor applies, so it would open as a full page.
         const canonical = CANONICAL_DETAIL.exec(pathname)
-        const target =
-          navigation && canonical
-            ? navigationDetailPath(
-                currentLng,
-                navigation.scope,
-                canonical[2] as 'content' | 'object',
-                canonical[3],
-              )
-            : pathname
-        // A group's QR code opens its join page as is; museum links keep the position.
+        if (navigation && canonical) {
+          router.replace(
+            withNavigationPosition(
+              `${navigation.pathname}/${canonical[2]}/${canonical[3]}`,
+              navigation.search,
+            ),
+          )
+          return
+        }
+        // A group's QR code opens its join page as is; other museum links
+        // keep the position the visitor came with.
         router.replace(
-          (GROUP_ROOM.test(pathname)
+          (GROUP_ROOM.test(pathname) || !navigation
             ? pathname
-            : withNavigationPosition(target, search.toString())) as Route,
+            : withNavigationPosition(pathname, navigation.search)) as Route,
         )
       }}
       onClose={close}
@@ -122,3 +119,17 @@ const GROUP_ROOM = new RegExp(`^/(${lng})/room/`)
 
 /** A canonical object/content page: `[, lng, kind, id]`. */
 const CANONICAL_DETAIL = new RegExp(`^/(${lng})/(object|content)/([^/]+)$`)
+
+/**
+ * The navigation map named by `?from=`, split for building URLs on it: only
+ * a same-site path of a museum navigation counts (`parseNavigationPathname`),
+ * so a crafted link can't send the visitor elsewhere after a scan.
+ */
+function returnNavigation(from: string | null) {
+  if (!from?.startsWith('/') || from.startsWith('//')) return null
+  const url = new URL(from, 'https://app.invalid')
+  if (!parseNavigationPathname(url.pathname)) return null
+  const pathname = url.pathname.replace(/\/$/, '')
+  const search = url.searchParams.toString()
+  return { pathname, search, href: withNavigationPosition(pathname, search) }
+}

@@ -23,10 +23,16 @@ import { useTranslation } from 'react-i18next'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
-import { Box3, Vector3, type Group, type Object3D } from 'three'
+import { Box3, Color, Vector3, type Group, type Object3D } from 'three'
+import { useMantineTheme } from '@mantine/core'
+import { useViewer } from '@pascal-app/viewer'
+import { usePathname } from 'next/navigation'
 
 /** A destination flag is drawn at hero-glTF scale (~1.3 m); keep it knee-high. */
 const DESTINATION_FLAG_SCALE = 0.7
+
+/** How strongly Pascal's outline pass draws the works' outline (its editor uses 3). */
+const WORK_OUTLINE_STRENGTH = 2
 
 /** Metres from the avatar's face height up to its "You" label: clear of the head. */
 const AVATAR_LABEL_GAP = 0.7
@@ -116,6 +122,26 @@ export function MuseumMap({
 }) {
   const [ready, setReady] = useState(false)
   const { t } = useTranslation('tour-navigation')
+  // The outline in the museum's own colour (its primary, DESIGN.md → The
+  // Museum Primary Rule), steady rather than pulsing like the editor's hover:
+  // it marks what is a work, it doesn't call for attention. Pascal adds the
+  // colour onto the scene, so the hidden edges (behind a wall) get black,
+  // which adds nothing: only the visible outline shows.
+  const museumColor = useMantineTheme().colors.museum?.[6]
+  // The work open in the object modal, read here: router hooks belong
+  // outside the 3D canvas.
+  const openedObjectId = /\/object\/([^/]+)$/.exec(usePathname())?.[1] ?? null
+  const workOutlineStyles = useMemo(
+    () => ({
+      default: {
+        visibleColor: new Color(museumColor ?? '#228be6').getHex(),
+        hiddenColor: 0x00_00_00,
+        strength: WORK_OUTLINE_STRENGTH,
+        pulse: false,
+      },
+    }),
+    [museumColor],
+  )
   useObjectClicks(onObjectClick)
 
   const route = useMemo(() => {
@@ -231,7 +257,16 @@ export function MuseumMap({
 
   const shownPath = path ?? route?.path
   return (
-    <MapViewer map={map} {...props} selectionManager="custom" onSceneReadyChange={setReady}>
+    <MapViewer
+      map={map}
+      {...props}
+      selectionManager="custom"
+      onSceneReadyChange={setReady}
+      hoverStyles={workOutlineStyles}
+    >
+      {/* Every work outlined, so artworks stand apart from walls and
+          furniture at a glance. */}
+      {ready && <WorkOutlines opened={openedObjectId} />}
       {route?.start && (
         // The avatar stands at the live position: the pin (last explicitly
         // confirmed position, or the derived entrance) moved by the GPS.
@@ -255,6 +290,79 @@ export function MuseumMap({
       )}
     </MapViewer>
   )
+}
+
+/**
+ * Outlines every work on the map with Pascal's own outline pass (the one its
+ * editor draws around a hovered node), so no shader of ours is involved: the
+ * works' scene objects go into the viewer's `outliner.hoveredObjects` and
+ * `hoverStyles` (above) sets the look. The visitor map has no hover of its
+ * own (`selectionManager="custom"`), so the list is ours alone.
+ *
+ * The work under the pointer and the one open in a modal (`…/object/ID`)
+ * move to Pascal's other list, `selectedObjects`: its selection outline,
+ * thicker and in Pascal's fixed colours (white, yellow behind walls), so the
+ * work the visitor is pointing at or reading stands out from the rest.
+ *
+ * Pascal empties both lists whenever it rebuilds its pipeline (a new scene,
+ * a lost GPU device), so they are refilled on the next frame when they no
+ * longer match; checking length and first entry is enough for that.
+ * Without WebGPU Pascal draws no post-processing and the works stay plain.
+ */
+function WorkOutlines({ opened }: { opened: string | null }) {
+  const nodes = useScene((state) => state.nodes)
+  const hovered = useHoveredWork()
+  const { plain, focused } = useMemo(() => {
+    const lists = { plain: [] as Object3D[], focused: [] as Object3D[] }
+    for (const node of Object.values(nodes)) {
+      const id = museumObjectId(node)
+      const object = id ? sceneRegistry.nodes.get(node.id) : undefined
+      if (!object) continue
+      lists[node.id === hovered || id === opened ? 'focused' : 'plain'].push(object)
+    }
+    return lists
+  }, [nodes, hovered, opened])
+  useFrame(() => {
+    const { outliner } = useViewer.getState()
+    syncOutlined(outliner.hoveredObjects, plain)
+    syncOutlined(outliner.selectedObjects, focused)
+  })
+  useEffect(
+    () => () => {
+      const { outliner } = useViewer.getState()
+      outliner.hoveredObjects.length = 0
+      outliner.selectedObjects.length = 0
+    },
+    [],
+  )
+  return null
+}
+
+/** Pascal's outline list made to hold `objects`, rewritten only when it differs. */
+function syncOutlined(list: Object3D[], objects: Object3D[]) {
+  if (list.length === objects.length && list[0] === objects[0]) return
+  list.length = 0
+  list.push(...objects)
+}
+
+/** The scene id of the work under the pointer (Pascal's `item:enter`/`leave`), if any. */
+function useHoveredWork() {
+  const [hovered, setHovered] = useState<string | null>(null)
+  useEffect(() => {
+    const enter = ({ node }: ItemEvent) => {
+      if (museumObjectId(node)) setHovered(node.id)
+    }
+    const leave = ({ node }: ItemEvent) => {
+      setHovered((current) => (current === node.id ? null : current))
+    }
+    emitter.on('item:enter', enter)
+    emitter.on('item:leave', leave)
+    return () => {
+      emitter.off('item:enter', enter)
+      emitter.off('item:leave', leave)
+    }
+  }, [])
+  return hovered
 }
 
 /**

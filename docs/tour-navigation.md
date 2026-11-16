@@ -23,6 +23,10 @@ and cached build artifacts are not reliable handoff state.
   avatar walks there and the route leaves from there. A new pin resets the
   GPS reference, so the avatar returns onto it and the camera re-centres;
   live movement never moves the camera.
+- Pinned at the destination itself (a QR scanned at the next stop, or a link
+  whose `at` is that stop): the directions say "You are at …" instead of
+  searching a route. Once the live position is over 1.5 m away, directions
+  lead back to it from there (`useActivePath`).
 - Tour contents retain their original order. The cursor counts completed contents:
   `0` means the first content is next; `contents.length` means tour completed.
 - Objects and contents outside the next tour stop can be explored independently.
@@ -100,7 +104,7 @@ a tour from the free map only changes the URL and the map stays mounted.
 | Expected next content                 | `/open` parallel modal                                                                         |
 | Other content                         | `/content/CONTENT_ID` parallel modal                                                           |
 | Object details                        | `/object/OBJECT_ID` parallel modal                                                             |
-| Scanner                               | `/scan`                                                                                        |
+| Scanner (its own page)                | `/[lng]/scan?from=MAP_URL`; old `…/scan` URLs redirect there                                   |
 | End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md))                |
 | Group join page and waiting room      | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
@@ -167,7 +171,7 @@ actions, scanner and commands derive "here" from it through
 | ------------------------ | --------------------------------------------------------------------------------------------------------- |
 | Free map                 | `/[lng]/museum/[id]/navigation`                                                                           |
 | Content / object (modal) | `…/navigation/content/ID`, `…/object/ID`                                                                  |
-| Scanner                  | `…/navigation/scan`                                                                                       |
+| Scanner                  | `/[lng]/scan?from=…/navigation` (its own page; `…/navigation/scan` redirects)                             |
 | Start one of its tours   | Spotlight `tour:ID` → `…/navigation/tour/ID/0`, keeping `at`, `mobility`, `audience` (same shell and map) |
 
 - Entry points: "Explore the map" on the museum page, "Find it on the map" on
@@ -195,7 +199,7 @@ live under `tour/[tourId]/`.
 | `MuseumMap.tsx`                                                      | Museum item clicks, avatar, destination and saved-navmesh route  |
 | `NavigationObjectActions.tsx`                                        | Related content, explicit position/destination actions           |
 | `NavigationModal.tsx`                                                | Shared contextual modal dismissal                                |
-| `scan/QrScanPage.tsx`                                                | Allowed canonical QR paths, opened as contextual modals          |
+| `scan/page.tsx` (and the tour step's)                                | Old in-map scanner URLs: redirect to `/[lng]/scan?from=`         |
 | `tour/[tourId]/layout.tsx`, `page.tsx`                               | Tour belongs to this museum; start page                          |
 | `tour/[tourId]/[stepId]/@modal/open/StepModal.tsx`                   | Next/complete action, moving `at` to the stop and clearing `to`  |
 | `src/app/[lng]/(frontend)/tour/[id]/navigation/[[...rest]]/route.ts` | 308 from the old tour URLs                                       |
@@ -441,7 +445,8 @@ Relevant tests:
 - `tests/e2e/tour-qr.e2e.spec.ts`: actual decoder with a generated QR supplied through
   a canvas camera stream; the scanner opens the scanned canonical object/content
   link straight as the tour's contextual modal (the poll waits for the URL to
-  leave `/scan`), then reload.
+  leave `/scan`), keeping the tour state (`to`), then reload; closing the scan
+  page returns to the same tour URL; an old `…/scan` URL redirects to it.
   The camera is simulated, not the decoder. It does not require physical webcam access.
 
 Use `PLAYWRIGHT_CHANNEL=chrome` if Playwright's pinned Chromium is unavailable,
@@ -485,8 +490,15 @@ record. Preserve the historical evidence without treating old failures as open t
   heavy checks). Run project typecheck and browser/Next compilation sequentially.
   Cold Next routes have taken multiple minutes; do not attribute every timeout to
   a scanner defect, or keep retrying the same expensive checks without diagnosis.
-- Inside a navigation the scanner no longer requests the canonical URL (it maps
-  it to the contextual modal itself): leaving `/scan` proves decoding happened,
+- The scanner has its own page, `/[lng]/scan` (`src/app/[lng]/(frontend)/scan/QrScanPage.tsx`):
+  the camera over the map, with the map's controls and directions, was
+  confusing. The map's Scan button opens it with `?from=` set to the map URL
+  (`navigationScanPath`); a scanned object/content opens as that map's modal
+  (`from` + `/object/ID` or `/content/ID`, which the tour's content modal
+  redirects to `/open` for the next stop), keeping `at`/`to`/…; closing returns
+  to `from`. Only a museum navigation path counts as `from`.
+- From a navigation the scanner never requests the canonical URL (it builds
+  the contextual modal URL itself): leaving `/scan` proves decoding happened,
   not that the modal opened. Inspect both stages and final UI.
 - Real `getUserMedia` needs permission and a secure context. `localhost` is allowed;
   a phone visiting plain HTTP on a LAN IP generally needs HTTPS instead.

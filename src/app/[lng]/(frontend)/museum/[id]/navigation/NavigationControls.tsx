@@ -135,24 +135,29 @@ export function NavigationControls({
             the contextual action a smaller pill beneath it. On a short screen
             (a phone held sideways) the two sit side by side instead. */}
         <div className="pointer-events-auto col-start-2 row-start-1 flex flex-col items-center gap-2 from-md:row-span-2 [@media(max-height:30rem)]:flex-row">
-          <Tooltip
-            label={t('Scan a QR code')}
-            disabled={!desktop}
-            events={{ hover: true, focus: true, touch: false }}
-          >
-            <ActionIcon
-              onClick={() => runId('scan')}
-              size={52}
-              radius="xl"
-              variant="filled"
-              color={scanColor}
-              autoContrast
-              aria-label={t('Scan a QR code')}
-              className="shadow-(--mantine-shadow-md)"
+          {/* Only when the visitor has the command: a group guest doesn't
+              (`guestCommands`, the host leads), and a button that does
+              nothing is worse than none. */}
+          {command('scan') && (
+            <Tooltip
+              label={t('Scan a QR code')}
+              disabled={!desktop}
+              events={{ hover: true, focus: true, touch: false }}
             >
-              <ScanQrCode size={24} aria-hidden />
-            </ActionIcon>
-          </Tooltip>
+              <ActionIcon
+                onClick={() => runId('scan')}
+                size={52}
+                radius="xl"
+                variant="filled"
+                color={scanColor}
+                autoContrast
+                aria-label={t('Scan a QR code')}
+                className="shadow-(--mantine-shadow-md)"
+              >
+                <ScanQrCode size={24} aria-hidden />
+              </ActionIcon>
+            </Tooltip>
+          )}
           {lead ? (
             <Button
               color="museum.8"

@@ -137,6 +137,12 @@ function useLivePosition(
 }
 
 /**
+ * Metres (in plan) the live position must be from the destination before a
+ * visitor pinned at it counts as having walked away and gets directions back.
+ */
+const AWAY_FROM_DESTINATION = 1.5
+
+/**
  * The route being followed and the line still ahead of the live position
  * (see `src/lib/live-route.ts`). It starts as the map's route from the pin;
  * each live position moves its corridor along, and one that can't be
@@ -153,6 +159,22 @@ function useActivePath(route: MuseumRoute | null, position: Vec3 | null, navMesh
     followed =
       navMesh && route?.start && route.end ? startRoute(navMesh, route.start, route.end) : null
     setActive({ route, followed })
+  }
+  // No route from the pin (pinned at the destination itself: a QR scanned at
+  // the next stop) but the visitor has walked away from it: guide them back
+  // from where they are now. Set once; from then on the corridor follows.
+  if (
+    !followed &&
+    navMesh &&
+    position &&
+    route?.end &&
+    Math.hypot(position[0] - route.end[0], position[2] - route.end[2]) > AWAY_FROM_DESTINATION
+  ) {
+    const back = startRoute(navMesh, position, route.end)
+    if (back) {
+      followed = back
+      setActive({ route, followed })
+    }
   }
   const next =
     navMesh && followed && position && route?.end

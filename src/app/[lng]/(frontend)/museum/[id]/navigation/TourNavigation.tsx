@@ -37,7 +37,7 @@ import {
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
@@ -76,8 +76,6 @@ export const TourNavigationPage = ({
   const step = scope.kind === 'tour' ? scope.step : 0
   // URL state stays in the URL; this component reads it where map behavior needs it.
   const search = useSearchParams()
-  // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
-  const scanning = /\/scan$/.test(usePathname())
   // "Scan" is one tap away: load the scanner's code while the visitor looks at
   // the map, not after the tap (src/lib/qr-scanner-module.ts).
   useEffect(prewarmQrScanner, [])
@@ -142,7 +140,7 @@ export const TourNavigationPage = ({
   // GPS notices about the works around. A guessed entrance is never treated
   // as the visitor's position; group guests keep following the host,
   // including `at`.
-  const proximity = !guest && !scanning && currentObjectId && settings.gpsMode !== 'off' && (
+  const proximity = !guest && currentObjectId && settings.gpsMode !== 'off' && (
     <NavigationProximity
       point={guidance.estimate}
       heading={compass.heading}
@@ -182,7 +180,6 @@ export const TourNavigationPage = ({
               map={museumMap.parsed}
               h="100%"
               w="100%"
-              renderPaused={scanning}
               navMesh={navMesh}
               currentObjectId={currentObjectId}
               destination={destination}
@@ -223,7 +220,12 @@ export const TourNavigationPage = ({
         status={directionsStatus({
           complete,
           positioned: Boolean(currentObjectId),
-          atDestination: Boolean(currentObjectId) && currentObjectId === nextObjectId,
+          // Only while there is no way back to give: once the visitor walks
+          // away, directions lead them back to it.
+          atDestination:
+            Boolean(currentObjectId) &&
+            currentObjectId === nextObjectId &&
+            guidance.steps.length === 0,
           routeUnavailable,
           hasDestination: Boolean(destination),
           hasSteps: guidance.steps.length > 0,
