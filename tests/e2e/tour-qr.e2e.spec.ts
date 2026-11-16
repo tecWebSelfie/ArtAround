@@ -60,7 +60,9 @@ for (const target of ['object', 'content'] as const) {
     await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
     // A click before hydration opens nothing: retry until the scanner is up.
     await expect(async () => {
-      await page.getByRole('button', { name: 'Scan', exact: true }).click({ timeout: 10_000 })
+      await page
+        .getByRole('button', { name: 'Scan a QR code', exact: true })
+        .click({ timeout: 10_000 })
       await expect(page).toHaveURL(/\/scan(\?|$)/, { timeout: 2_000 })
     }).toPass({ timeout: 60_000 })
     await expect

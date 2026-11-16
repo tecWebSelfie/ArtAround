@@ -109,7 +109,7 @@ function DirectionsLayout({
 
 /** What the strip shows instead of steps. */
 export type DirectionsStatus =
-  'complete' | 'no-position' | 'unavailable' | 'no-destination' | 'loading'
+  'complete' | 'no-position' | 'here' | 'unavailable' | 'no-destination' | 'loading'
 
 /**
  * The navbar's directions space (most of its width, beside the assistant
@@ -161,6 +161,7 @@ export function DirectionsBar({
     // Any other status (or none, without a step) asks for a destination.
     const shown: Partial<Record<DirectionsStatus, [string, LucideIcon]>> = {
       complete: [t('Tour completed'), MapPinCheck],
+      here: [t('You are at {{destination}}', { destination }), MapPinCheck],
       unavailable: [t('No route available between these objects'), MapPinOff],
       loading: [t('Finding your route'), Navigation],
     }

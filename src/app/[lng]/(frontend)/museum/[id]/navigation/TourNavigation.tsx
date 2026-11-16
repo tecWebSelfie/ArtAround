@@ -149,6 +149,7 @@ export const TourNavigationPage = ({
       rooms={rooms}
       catalog={catalog}
       nextId={nextObjectId}
+      currentId={currentObjectId}
       tourObjectIds={tourObjectIds}
       discoveries={settings.suggestions}
       scopeKey={`${positionScope}:${destinationKey(destination)}`}
@@ -222,6 +223,7 @@ export const TourNavigationPage = ({
         status={directionsStatus({
           complete,
           positioned: Boolean(currentObjectId),
+          atDestination: Boolean(currentObjectId) && currentObjectId === nextObjectId,
           routeUnavailable,
           hasDestination: Boolean(destination),
           hasSteps: guidance.steps.length > 0,
@@ -248,7 +250,10 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--navigation-header-height,7rem)] min-h-0">
+        {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
+            drei's `zIndexRange`), below the app shell's bars (z 100), so a
+            notice or a control is never crossed by a label. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--navigation-header-height,7rem)] z-20 min-h-0">
           {controls}
         </div>
       </Box>

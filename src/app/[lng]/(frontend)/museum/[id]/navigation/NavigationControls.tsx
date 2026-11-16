@@ -136,7 +136,7 @@ export function NavigationControls({
             (a phone held sideways) the two sit side by side instead. */}
         <div className="pointer-events-auto col-start-2 row-start-1 flex flex-col items-center gap-2 from-md:row-span-2 [@media(max-height:30rem)]:flex-row">
           <Tooltip
-            label={t('Scan')}
+            label={t('Scan a QR code')}
             disabled={!desktop}
             events={{ hover: true, focus: true, touch: false }}
           >
@@ -147,7 +147,7 @@ export function NavigationControls({
               variant="filled"
               color={scanColor}
               autoContrast
-              aria-label={t('Scan')}
+              aria-label={t('Scan a QR code')}
               className="shadow-(--mantine-shadow-md)"
             >
               <ScanQrCode size={24} aria-hidden />

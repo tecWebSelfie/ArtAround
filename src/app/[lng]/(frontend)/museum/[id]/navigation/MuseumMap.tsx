@@ -7,7 +7,7 @@ import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
-import { useGLTF, type CameraControlsImpl } from '@react-three/drei'
+import { Html, useGLTF, type CameraControlsImpl } from '@react-three/drei'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import type { NavMesh, Vec3 } from 'navcat'
 import {
@@ -19,6 +19,7 @@ import {
   useState,
   type ComponentProps,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
@@ -26,6 +27,9 @@ import { Box3, Vector3, type Group, type Object3D } from 'three'
 
 /** A destination flag is drawn at hero-glTF scale (~1.3 m); keep it knee-high. */
 const DESTINATION_FLAG_SCALE = 0.7
+
+/** Metres from the avatar's face height up to its "You" label: clear of the head. */
+const AVATAR_LABEL_GAP = 0.7
 
 /**
  * Camera framing the avatar after the visitor's position is set or changes:
@@ -111,6 +115,7 @@ export function MuseumMap({
   path?: Vec3[] | null
 }) {
   const [ready, setReady] = useState(false)
+  const { t } = useTranslation('tour-navigation')
   useObjectClicks(onObjectClick)
 
   const route = useMemo(() => {
@@ -230,7 +235,7 @@ export function MuseumMap({
       {route?.start && (
         // The avatar stands at the live position: the pin (last explicitly
         // confirmed position, or the derived entrance) moved by the GPS.
-        <WalkingAvatar point={position ?? route.start} />
+        <WalkingAvatar point={position ?? route.start} label={t('You')} />
       )}
       {/* The camera follows the pin, not every GPS step: re-centring on
           each fix would fight the visitor's own panning. */}
@@ -257,7 +262,7 @@ export function MuseumMap({
  * the way it walks. The group's position is driven per frame, never as a
  * prop: a prop would put it back on the target at every render.
  */
-function WalkingAvatar({ point }: { point: Vec3 }) {
+function WalkingAvatar({ point, label }: { point: Vec3; label: string }) {
   const group = useRef<Group>(null)
   const heading = useRef<number | null>(null)
   const placed = useRef(false)
@@ -288,6 +293,20 @@ function WalkingAvatar({ point }: { point: Vec3 }) {
       <Suspense fallback={null}>
         <Avatar heading={heading} />
       </Suspense>
+      {/* "You": a map's "you are here", so a visitor landing on a shared or
+          QR link finds themselves at a glance among the room names. Same
+          halo as the room labels (see `RoomLabels`), in the museum color so
+          it never reads as one of them; it walks with the avatar. */}
+      <Html
+        center
+        position={[0, AVATAR_FACE_HEIGHT + AVATAR_LABEL_GAP, 0]}
+        zIndexRange={[10, 0]}
+        style={{ pointerEvents: 'none' }}
+      >
+        <span className="block text-sm leading-tight font-bold whitespace-nowrap text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))] select-none [text-shadow:0_0_1px_var(--mantine-color-body),0_0_2px_var(--mantine-color-body),0_0_3px_var(--mantine-color-body),0_0_4px_var(--mantine-color-body)]">
+          {label}
+        </span>
+      </Html>
     </group>
   )
 }

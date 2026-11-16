@@ -16,6 +16,7 @@ export function NavigationProximity({
   rooms,
   catalog,
   nextId,
+  currentId = null,
   tourObjectIds,
   discoveries,
   scopeKey,
@@ -27,6 +28,11 @@ export function NavigationProximity({
   rooms: MuseumRooms
   catalog: NavigationCatalogObject[]
   nextId: string | null
+  /**
+   * The work the visitor confirmed being at: never suggested, since "is this
+   * the work in front of you?" is already answered (directions say so).
+   */
+  currentId?: string | null
   tourObjectIds: ReadonlySet<string>
   discoveries: boolean
   scopeKey: string
@@ -54,13 +60,14 @@ export function NavigationProximity({
         .filter(
           ({ objectId }) =>
             catalogById.has(objectId) &&
+            objectId !== currentId &&
             (!rooms.rooms.length || roomOf.get(objectId) === room?.id) &&
             (objectId === nextId || (discoveries && !tourObjectIds.has(objectId))),
         )
         .map(({ objectId, point }) => ({ id: objectId, point }))
         // Prefer the requested destination when several works share one direction.
         .sort((a, b) => Number(b.id === nextId) - Number(a.id === nextId)),
-    [rooms, roomOf, catalogById, room, nextId, discoveries, tourObjectIds],
+    [rooms, roomOf, catalogById, room, nextId, currentId, discoveries, tourObjectIds],
   )
   const [seen, setSeen] = useState({
     key: scopeKey,

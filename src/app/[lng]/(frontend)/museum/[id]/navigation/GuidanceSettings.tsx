@@ -94,7 +94,14 @@ export function GuidanceSettings({
           />
           <Stack gap={4}>
             <Text size="sm" fw={500}>
-              {t('Follow my position')}
+              {t('Move me on the map')}
+            </Text>
+            {/* Says what the position source does in the visitor's terms:
+                it walks the avatar on from the last confirmed work (the
+                pin), it never replaces it. Styled like the switches'
+                descriptions above. */}
+            <Text size="xs" c="dimmed">
+              {t('As you walk, from the last work you confirmed')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -102,7 +109,7 @@ export function GuidanceSettings({
               data={gpsOptions}
               value={settings.gpsMode}
               onChange={(value) => settings.setGpsMode(value as GpsMode)}
-              aria-label={t('Follow my position')}
+              aria-label={t('Move me on the map')}
             />
             {gpsError && (
               <Text size="xs" c="red">
