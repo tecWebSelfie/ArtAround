@@ -27,10 +27,13 @@ import { fileURLToPath } from 'node:url'
 process.chdir(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'))
 
 // Node's own .env loader (≥ 20.12; dotenv is not guaranteed to be traced). It
-// never overrides a variable already set, so the container environment wins,
-// then `.env.local`, then `.env` — the same precedence as the repo scripts.
-// The seed and the reindex need these; server.js would load them itself.
-for (const file of ['.env.local', '.env']) {
+// never overrides a variable already set, so the order below is Next's
+// production precedence: container environment, `.env.local`,
+// `.env.production`, `.env`. `next build` copies `.env.production` and `.env`
+// of the build folder into the standalone by itself (not `.env.local`), so
+// the production values travel with every build. The seed and the reindex
+// need these; server.js loads them itself.
+for (const file of ['.env.local', '.env.production', '.env']) {
   try {
     process.loadEnvFile(file)
   } catch (error) {
