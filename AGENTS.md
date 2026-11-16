@@ -40,6 +40,8 @@ Use these guides as starting points for implementation and debugging:
   movements and events of the works, the Wikidata import.
 - [Permissions and editing](docs/permissions-and-editing.md): per-museum roles,
   access rules, paid contents, viewer-scoped reads, and the frontend editing plan.
+- [Standalone deploy](docs/standalone-deploy.md): build without a database,
+  the `.next/standalone` packaging, and the seed → reindex → app boot script.
 
 Improve and simplify these implementations as needed; the guides describe the
 current design and should evolve with the code. Reuse Pascal APIs, Mantine,
