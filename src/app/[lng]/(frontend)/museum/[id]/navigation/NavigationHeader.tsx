@@ -50,7 +50,14 @@ export function NavigationHeader({
   const { lng } = useParams<{ lng: string }>()
   const position = useTourPosition(tour, step, rooms, stopObjectId)
   return (
-    <AppShellHeader ref={ref} px="xs" pb="xs" className="rounded-b-xl">
+    // Top padding (and the notch's inset): the title no longer touches the
+    // screen's edge, which made the bar read cramped.
+    <AppShellHeader
+      ref={ref}
+      px="xs"
+      pb="xs"
+      className="rounded-b-xl pt-[max(var(--mantine-spacing-xs),env(safe-area-inset-top))]"
+    >
       {tour ? (
         // Desktop: one centred column (the brief's 1200px container) so the
         // progress bar and stepper don't stretch across a 1920px screen.
@@ -70,7 +77,9 @@ export function NavigationHeader({
                 </Title>
                 <GroupBadge />
               </Group>
-              <Text size="xs" c="dimmed" ta="center">
+              {/* One line: a long room name or locale never wraps the
+                  header taller (the stepper repeats the stop number). */}
+              <Text size="xs" c="dimmed" ta="center" truncate="end" maw="100%">
                 {position}
               </Text>
             </Stack>
@@ -91,18 +100,23 @@ export function NavigationHeader({
               </ActionIcon>
             </Group>
           </div>
-          <Progress
-            aria-label={t('Tour progress')}
-            size="xs"
-            value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
-          />
-          <TourProgress
-            contents={tour.contents}
-            step={step}
-            skipped={skipped}
-            entranceLabel={entranceLabel}
-            hasQuiz={hasQuiz(tour)}
-          />
+          {/* The bar and the stops are one thing (where the tour stands), so
+              they sit close together, apart from the title above: two
+              groups instead of four rows at the same distance. */}
+          <Stack gap={4}>
+            <Progress
+              aria-label={t('Tour progress')}
+              size="xs"
+              value={tour.contents.length ? (step / tour.contents.length) * 100 : 100}
+            />
+            <TourProgress
+              contents={tour.contents}
+              step={step}
+              skipped={skipped}
+              entranceLabel={entranceLabel}
+              hasQuiz={hasQuiz(tour)}
+            />
+          </Stack>
           <LogisticNotes notes={notes} />
         </Stack>
       ) : (
