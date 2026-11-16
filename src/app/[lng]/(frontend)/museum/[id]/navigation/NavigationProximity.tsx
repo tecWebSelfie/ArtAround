@@ -7,6 +7,8 @@ import { nearbyWorks } from '@/lib/proximity-works'
 import type { NavigationCatalogObject } from '@/lib/tour-navigation'
 import { NearbyWorksNotice } from './NearbyWorksNotice'
 
+const NO_IDS: string[] = []
+
 /** Sensor suggestions never navigate on their own or write GPS coordinates to the URL. */
 export function NavigationProximity({
   point,
@@ -65,7 +67,8 @@ export function NavigationProximity({
     ids: [] as string[],
     dismissed: [] as string[],
   })
-  const previous = seen.key === scopeKey ? seen.ids : []
+  // A stable empty list, so the memo below doesn't recompute on every render.
+  const previous = seen.key === scopeKey ? seen.ids : NO_IDS
   // Recomputed only when a sensor reading or the candidate works change, not
   // on every re-render of the navigation around it.
   const ids = useMemo(

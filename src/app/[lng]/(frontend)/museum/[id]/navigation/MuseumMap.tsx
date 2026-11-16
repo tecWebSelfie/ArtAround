@@ -73,21 +73,7 @@ export function MuseumMap({
   progressPoint?: Vec3 | null
 }) {
   const [ready, setReady] = useState(false)
-  useEffect(() => {
-    // Pascal emits item clicks for every selectable node; the shared ID helper
-    // filters these to museum objects, leaving walls and map geometry untouched.
-    const select = ({ node, stopPropagation }: ItemEvent) => {
-      const id = museumObjectId(node)
-      if (id) {
-        stopPropagation()
-        onObjectClick?.(id)
-      }
-    }
-    emitter.on('item:click', select)
-    return () => {
-      emitter.off('item:click', select)
-    }
-  }, [onObjectClick])
+  useObjectClicks(onObjectClick)
 
   const route = useMemo(() => {
     if (!ready || !navMesh) return null
@@ -257,4 +243,24 @@ function NavigationPath({ points }: { points: [number, number, number][] }) {
       <PathMaterial color="#228be6" linewidth={5} depthTest={false} depthWrite={false} />
     </PathLine>
   )
+}
+
+/**
+ * Pascal emits item clicks for every selectable node; the shared ID helper
+ * filters these to museum objects, leaving walls and map geometry untouched.
+ */
+function useObjectClicks(onObjectClick?: (id: string) => void) {
+  useEffect(() => {
+    const select = ({ node, stopPropagation }: ItemEvent) => {
+      const id = museumObjectId(node)
+      if (id) {
+        stopPropagation()
+        onObjectClick?.(id)
+      }
+    }
+    emitter.on('item:click', select)
+    return () => {
+      emitter.off('item:click', select)
+    }
+  }, [onObjectClick])
 }

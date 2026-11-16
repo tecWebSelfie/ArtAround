@@ -18,7 +18,7 @@ import { Search, SlidersHorizontal } from 'lucide-react'
 import { ClearSearchButton } from './ClearSearchButton'
 import type { Route } from 'next'
 import { useRouter } from 'next/navigation'
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type ReactNode } from 'react'
 
 /** Values accepted by the marketplace URL. Kept in one place so the server
  *  page and the client controls cannot drift apart. */
@@ -84,22 +84,12 @@ export function MarketplaceSearch({
   labels: MarketplaceLabels
 }) {
   const router = useRouter()
-  const [query, setQuery] = useState(initialQuery)
-  const [kind, setKind] = useState<MarketplaceKind>(initialKind)
-  const [price, setPrice] = useState<MarketplacePrice>(initialPrice)
+  const { query, setQuery, kind, setKind, price, setPrice } = useSearchState({
+    query: initialQuery,
+    kind: initialKind,
+    price: initialPrice,
+  })
   const [filtersOpen, setFiltersOpen] = useState(initialKind !== 'all' || initialPrice !== 'all')
-
-  // Browser back/forward changes the URL without remounting this component.
-  // Adjust state during render (React's recommended prop-sync pattern) so a
-  // navigation cannot leave the input showing stale filters.
-  const initialKey = `${initialQuery}|${initialKind}|${initialPrice}`
-  const [syncedKey, setSyncedKey] = useState(initialKey)
-  if (syncedKey !== initialKey) {
-    setSyncedKey(initialKey)
-    setQuery(initialQuery)
-    setKind(initialKind)
-    setPrice(initialPrice)
-  }
 
   const activeFilterCount = (kind !== 'all' ? 1 : 0) + (kind !== 'users' && price !== 'all' ? 1 : 0)
 
@@ -148,27 +138,12 @@ export function MarketplaceSearch({
                     }}
                   />
                 )}
-                <Indicator
-                  inline
-                  label={activeFilterCount}
-                  size={16}
-                  color="red"
-                  autoContrast
-                  disabled={activeFilterCount === 0}
-                >
-                  <ActionIcon
-                    type="button"
-                    variant={filtersOpen || activeFilterCount > 0 ? 'light' : 'subtle'}
-                    color="red"
-                    size="sm"
-                    aria-label={labels.filters}
-                    aria-expanded={filtersOpen}
-                    aria-controls={FILTERS_ID}
-                    onClick={() => setFiltersOpen((open) => !open)}
-                  >
-                    <SlidersHorizontal size={16} aria-hidden />
-                  </ActionIcon>
-                </Indicator>
+                <FiltersToggle
+                  count={activeFilterCount}
+                  open={filtersOpen}
+                  label={labels.filters}
+                  onToggle={() => setFiltersOpen((open) => !open)}
+                />
               </Group>
             }
           />
@@ -198,10 +173,7 @@ export function MarketplaceSearch({
               </Group>
 
               <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-                <Stack gap={6}>
-                  <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                    {labels.type}
-                  </Text>
+                <FilterField label={labels.type}>
                   <SegmentedControl
                     fullWidth
                     size="xs"
@@ -223,12 +195,9 @@ export function MarketplaceSearch({
                       { value: 'users', label: labels.users },
                     ]}
                   />
-                </Stack>
+                </FilterField>
 
-                <Stack gap={6}>
-                  <Text size="xs" fw={600} c="dimmed" tt="uppercase">
-                    {labels.price}
-                  </Text>
+                <FilterField label={labels.price}>
                   <SegmentedControl
                     fullWidth
                     size="xs"
@@ -251,7 +220,7 @@ export function MarketplaceSearch({
                       {labels.usersNoPrice}
                     </Text>
                   ) : null}
-                </Stack>
+                </FilterField>
               </SimpleGrid>
             </Stack>
           </Paper>
@@ -292,4 +261,67 @@ export function MarketplacePagination({
       />
     </Group>
   )
+}
+
+/** Opens the filter panel; its badge counts the filters in force. */
+function FiltersToggle({
+  count,
+  open,
+  label,
+  onToggle,
+}: {
+  count: number
+  open: boolean
+  label: string
+  onToggle: () => void
+}) {
+  return (
+    <Indicator inline label={count} size={16} color="red" autoContrast disabled={count === 0}>
+      <ActionIcon
+        type="button"
+        variant={open || count > 0 ? 'light' : 'subtle'}
+        color="red"
+        size="sm"
+        aria-label={label}
+        aria-expanded={open}
+        aria-controls={FILTERS_ID}
+        onClick={onToggle}
+      >
+        <SlidersHorizontal size={16} aria-hidden />
+      </ActionIcon>
+    </Indicator>
+  )
+}
+
+/** One filter in the panel: its small uppercase label over the control. */
+function FilterField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <Stack gap={6}>
+      <Text size="xs" fw={600} c="dimmed" tt="uppercase">
+        {label}
+      </Text>
+      {children}
+    </Stack>
+  )
+}
+
+/**
+ * The search's draft state, following the URL. Browser back/forward changes
+ * the URL without remounting the component: state is adjusted during render
+ * (React's recommended prop-sync pattern), so a navigation cannot leave the
+ * input showing stale filters.
+ */
+function useSearchState(initial: SearchState) {
+  const [query, setQuery] = useState(initial.query)
+  const [kind, setKind] = useState<MarketplaceKind>(initial.kind)
+  const [price, setPrice] = useState<MarketplacePrice>(initial.price)
+  const initialKey = `${initial.query}|${initial.kind}|${initial.price}`
+  const [syncedKey, setSyncedKey] = useState(initialKey)
+  if (syncedKey !== initialKey) {
+    setSyncedKey(initialKey)
+    setQuery(initial.query)
+    setKind(initial.kind)
+    setPrice(initial.price)
+  }
+  return { query, setQuery, kind, setKind, price, setPrice }
 }
