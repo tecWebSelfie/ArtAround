@@ -2,7 +2,6 @@
 
 import type { Museum } from '@/payload-types'
 import {
-  ActionIcon,
   Button,
   Group,
   Kbd,
@@ -20,9 +19,10 @@ import { Accessibility, DoorOpen, Navigation, Route, ScanQrCode, Search } from '
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import { DockButton } from './DockButton'
 import { NavigationSpotlight } from './NavigationSpotlight'
 import { NavigationServices, type NavigationServiceAction } from './NavigationServices'
-import { NAVIGATION_COMPACT_ACTION_CLASS, NAVIGATION_HIT_AREA } from './navigation-touch'
+import { NAVIGATION_COMPACT_ACTION_CLASS } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import type { NavigationCommand } from './navigation-commands'
 import { GuidanceSettings, type GuidanceSettingsValue } from './GuidanceSettings'
@@ -90,7 +90,10 @@ export function NavigationControls({
   return (
     // The upper slot can scroll/shrink. The essential dock never gets pushed
     // below the footer by a simulator, a notice, or larger text.
-    <div className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 p-2">
+    // On a short screen (a phone held sideways) the stack would stand in the
+    // middle of the little map left between the bars: there the tour's pills
+    // and the dock share one bottom row instead.
+    <div className="grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto] gap-2 p-2 [@media(max-height:30rem)]:grid-flow-col [@media(max-height:30rem)]:grid-cols-[auto_auto] [@media(max-height:30rem)]:grid-rows-1 [@media(max-height:30rem)]:content-end [@media(max-height:30rem)]:items-end [@media(max-height:30rem)]:justify-center from-md:[@media(max-height:30rem)]:justify-start">
       <div
         ref={scrollRef}
         className={`min-h-0 w-full max-w-sm justify-self-center overflow-y-auto from-md:justify-self-start ${overflowing ? 'pointer-events-auto' : 'pointer-events-none'}`}
@@ -163,18 +166,12 @@ export function NavigationControls({
                 </Group>
               }
             >
-              <ActionIcon
-                aria-label={t('Search')}
+              <DockButton
+                label={t('Search')}
+                icon={<Search size={18} aria-hidden />}
                 aria-keyshortcuts="/ Control+K Meta+K"
-                variant="subtle"
-                color="gray"
-                radius="xl"
-                size={36}
-                className={NAVIGATION_HIT_AREA}
                 onClick={spotlight.open}
-              >
-                <Search size={18} />
-              </ActionIcon>
+              />
             </Tooltip>
             <Button
               onClick={() => runId('scan')}

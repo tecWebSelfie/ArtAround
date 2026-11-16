@@ -13,15 +13,19 @@ import { Vector3 } from 'three'
  * `@pascal-app/editor`), but they are bound to the editor's selection and
  * tool stores; this is the visitor's read-only version built from the same
  * parts: each named zone (Pascal's room) gets a label at the interior point
- * Pascal itself picks (`polygonInteriorPoint`), lifted just above its floor.
+ * Pascal itself picks (`polygonInteriorPoint`), floating above its floor.
  *
  * The labels are DOM (`Html`), so they keep one readable size at any zoom,
  * never take pointer events (the map stays draggable through them) and sit
  * below the navigation overlay (`zIndexRange`), which must stay on top.
  */
 
-/** Metres above the room's floor: clear of the floor, below the artworks. */
-const LABEL_HEIGHT = 0.15
+/**
+ * Metres above the room's floor: the name floats mid-air in the room, above
+ * the visitors' heads and the artworks and below the top of the walls, as
+ * map labels usually do, instead of lying on the floor among the objects.
+ */
+const LABEL_HEIGHT = 2.2
 
 export function RoomLabels() {
   const nodes = useScene((state) => state.nodes)
@@ -45,7 +49,10 @@ export function RoomLabels() {
       zIndexRange={[10, 0]}
       style={{ pointerEvents: 'none' }}
     >
-      <span className="block rounded-full bg-(--mantine-color-body)/85 px-2 py-0.5 text-xs font-semibold whitespace-nowrap text-(--mantine-color-text) shadow-(--mantine-shadow-xs) select-none">
+      {/* Readable over any wall, floor or artwork: a solid body-colored pill
+          (text color on body, full contrast in both themes), a hairline
+          border and a soft shadow lift it off the scene; `sm` type, not `xs`. */}
+      <span className="block rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) px-2.5 py-1 text-sm leading-tight font-semibold whitespace-nowrap text-(--mantine-color-text) shadow-(--mantine-shadow-sm) select-none">
         {label.name}
       </span>
     </Html>

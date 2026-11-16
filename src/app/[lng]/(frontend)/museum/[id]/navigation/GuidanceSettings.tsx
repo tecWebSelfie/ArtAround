@@ -1,7 +1,7 @@
 'use client'
 
-import { NAVIGATION_HIT_AREA } from './navigation-touch'
-import { ActionIcon, Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
+import { DockButton } from './DockButton'
+import { Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -67,18 +67,10 @@ export function GuidanceSettings({
   return (
     <Popover position="top-end" withArrow shadow="md" width={260} trapFocus>
       <Popover.Target>
-        <ActionIcon
-          aria-label={t('Guidance settings')}
-          title={t('Guidance settings')}
-          size={36}
-          radius="xl"
-          className={NAVIGATION_HIT_AREA}
-          // Sits inside the dock's route capsule (NavigationControls), quiet like its neighbour.
-          variant="subtle"
-          color="gray"
-        >
-          <SlidersHorizontal size={18} />
-        </ActionIcon>
+        <DockButton
+          label={t('Guidance settings')}
+          icon={<SlidersHorizontal size={18} aria-hidden />}
+        />
       </Popover.Target>
       <Popover.Dropdown className="max-h-[60dvh] max-w-[calc(100vw-2rem)] overflow-y-auto">
         <Stack gap="sm">
