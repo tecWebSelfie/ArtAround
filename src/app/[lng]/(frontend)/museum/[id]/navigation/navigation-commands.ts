@@ -125,7 +125,7 @@ export function useNavigationCommands({
       placedServices: services.filter((node) => node.placed),
       placedExits: exits.filter((node) => node.placed && node.direction === 'exit'),
       labels,
-      focus: navigationFocus({ scope, search, pathname, catalog }),
+      focus: navigationFocus({ scope, pathname, catalog }),
     }
     const all = [
       ...modalCommands(context),
@@ -225,17 +225,18 @@ function only<T>(
 }
 
 /**
- * The tour's stops around the current one, and the work in front of the
- * visitor: the open object or content's work, the stop modal's, else the
- * confirmed position's. Its author and movement (Wikidata subjects) answer
- * "who's the author?" and "what style is it?".
+ * The tour's stops around the current one, and the work the visitor is
+ * looking at. Only an open modal says that: the object modal's work, or the
+ * work behind the open content or stop. A confirmed position or the tour's
+ * current stop doesn't (the visitor may still be walking there), so without
+ * a modal there is no work and the commands about it ("what is this?", the
+ * author, the style) stay out of the Spotlight.
  */
 function navigationFocus({
   scope,
-  search,
   pathname,
   catalog,
-}: Pick<CommandContext, 'scope' | 'search' | 'pathname' | 'catalog'>) {
+}: Pick<CommandContext, 'scope' | 'pathname' | 'catalog'>) {
   const tour = scope.kind === 'tour' ? scope.tour : null
   const step = scope.kind === 'tour' ? scope.step : 0
   const next = tour?.contents[step]
@@ -244,31 +245,26 @@ function navigationFocus({
   const previousId = previous && extractID(previous)
   const openContentId =
     /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
-  const objectOf = (contentId: string | null | undefined) =>
-    contentId
-      ? catalog.find((object) => object.contents.some((content) => content.id === contentId))
-      : undefined
-  const atPosition = catalog.find((object) => object.id === search.get('at'))
-  const work =
-    catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
-    objectOf(openContentId) ??
-    atPosition
-  // "Cos'è questo?": the work at the visitor's confirmed position; without
-  // one (the base navigator places nobody), the work being looked at, else
-  // the current tour stop's.
-  const inFront = atPosition ?? work ?? objectOf(nextId)
-  return { tour, nextId, previousId, work, inFront }
+  const openObject = catalog.find(
+    (object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1],
+  )
+  // The work behind the open content: "cos'è questo?" opens its object page.
+  const contentWork = openContentId
+    ? catalog.find((object) => object.contents.some((content) => content.id === openContentId))
+    : undefined
+  return { tour, nextId, previousId, openContentId, contentWork, work: openObject ?? contentWork }
 }
 
 /** The empty Spotlight's pills: tour steps, "what is this?", services, exits, route. */
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
   const { lng, scope, search, here, href, destination, labels } = context
-  const { tour, nextId, previousId, inFront } = context.focus
+  const { tour, nextId, previousId, openContentId, contentWork } = context.focus
   const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
   const quick = 'quick' as const
   return [
-    ...only(nextId, (id) => ({
+    // Not while that stop is already open: the pill would reopen it.
+    ...only(nextId !== openContentId && nextId, (id) => ({
       id: 'next-stop',
       label: labels.openNextStop,
       description: labels.tour,
@@ -286,7 +282,9 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: href(navigationContentPath(lng, scope, id)),
       replace: false,
     })),
-    ...only(inFront, (work) => ({
+    // Only on an open content (see navigationFocus); on the object modal
+    // the visitor is already reading about the work.
+    ...only(contentWork, (work) => ({
       id: 'what-is-this',
       label: labels.whatIsThis,
       description: work.name,

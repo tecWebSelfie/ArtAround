@@ -87,3 +87,34 @@ describe('GPS identification without an active route', () => {
     expect(result.current.estimate).toEqual([10, 20])
   })
 })
+
+describe('Directions following the route path', () => {
+  const rooms = { rooms: [], doors: [], objects: [] }
+  const route = (path: [number, number, number][]) => ({ path, start: path[0], target: null })
+  const along: [number, number, number][] = [
+    [0, 0, 0],
+    [10, 0, 0],
+  ]
+  it('keeps the shown step on an equal path and restarts on a changed one', () => {
+    const { result, rerender } = renderHook(
+      ({ current }) => useRouteGuidance({ route: current, rooms, fix: null }),
+      { initialProps: { current: route(along) } },
+    )
+    const steps = result.current.steps
+    expect(steps.length).toBeGreaterThan(1)
+    act(() => result.current.setCurrent(1))
+    // The map rebuilds the route object on any URL change: same path, same directions.
+    rerender({ current: route(along.map((point) => [...point] as [number, number, number])) })
+    expect(result.current.steps).toBe(steps)
+    expect(result.current.current).toBe(1)
+    // A new path (another corridor) rebuilds the directions from the first step.
+    rerender({
+      current: route([
+        [0, 0, 0],
+        [0, 0, 10],
+      ]),
+    })
+    expect(result.current.steps).not.toBe(steps)
+    expect(result.current.current).toBe(0)
+  })
+})
