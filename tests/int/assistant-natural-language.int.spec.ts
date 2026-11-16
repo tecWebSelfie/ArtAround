@@ -152,4 +152,16 @@ describe('natural-language voice commands', () => {
     expect(body.commandId).toBe('next-stop')
     expect(state.modelCalls).toBe(0)
   })
+
+  it('explains a fixed phrase whose command the navigation state does not offer', async () => {
+    // "Cos'è questo?" with no work open: what-is-this is not in the list.
+    state.heard = "Cos'è questo?"
+    state.modelAnswer = { reply: "Apri prima un'opera.", commandId: 'none' }
+
+    const { body } = await ask()
+
+    expect(state.modelCalls).toBe(1)
+    expect(state.systemPrompts[0]).toContain('"what-is-this", which is not available right now')
+    expect(body.commandId).toBeNull()
+  })
 })

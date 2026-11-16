@@ -255,9 +255,14 @@ function navigationFocus({
   return { tour, nextId, previousId, openContentId, contentWork, work: openObject ?? contentWork }
 }
 
-/** The empty Spotlight's pills: tour steps, "what is this?", services, exits, route. */
+/**
+ * The empty Spotlight's pills: tour steps, "what is this?", services, exits,
+ * route. Each exists only where it changes something: a pill that would
+ * reopen what is open or reselect the active destination is left out, so
+ * the voice assistant (same list) can't run it either.
+ */
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
-  const { lng, scope, search, here, href, destination, labels } = context
+  const { lng, scope, search, pathname, here, href, destination, labels } = context
   const { tour, nextId, previousId, openContentId, contentWork } = context.focus
   const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
@@ -303,8 +308,11 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       replace: true,
     })),
     // One "nearest" pill per service type present; the map picks the closest.
-    ...SERVICE_TYPES.filter((type) =>
-      context.placedServices.some((node) => node.service === type),
+    // The active one is left out: the controls toggle it off with resume-tour.
+    ...SERVICE_TYPES.filter(
+      (type) =>
+        search.get('service') !== type &&
+        context.placedServices.some((node) => node.service === type),
     ).map((type) => ({
       id: `service-type:${type}`,
       label: labels.nearestService[type],
@@ -313,7 +321,7 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: destination('service', type),
       replace: true,
     })),
-    ...only(context.placedExits.length, () => ({
+    ...only(search.get('exit') !== 'nearest' && context.placedExits.length, () => ({
       id: 'exit:nearest',
       label: labels.nearestExit,
       description: labels.exit,
@@ -334,14 +342,15 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       ),
       replace: true,
     })),
-    {
+    // Not on the scanner itself.
+    ...only(!pathname.endsWith('/scan'), () => ({
       id: 'scan',
       label: labels.scan,
       description: labels.position,
       group: quick,
       href: href(`${here}/scan`),
       replace: false,
-    },
+    })),
   ]
 }
 
@@ -448,11 +457,13 @@ function modalCommands(context: CommandContext): NavigationCommand[] {
 
 /**
  * The "Tell me more" angles: they only set `?more=` on the modal URL; asking
- * again for the angle already open goes one step further (`?step=`).
+ * again for the angle already open goes one step further (`?step=`), until
+ * the last step, where the angle has nothing more to give and is left out.
  */
 function expansionCommands({ search, pathname, labels }: CommandContext): NavigationCommand[] {
   const step = Number(search.get('step')) || 1
-  return EXPANSION_ANGLES.map((angle) => {
+  const exhausted = (angle: string) => search.get('more') === angle && step >= MAX_EXPANSION_STEPS
+  return EXPANSION_ANGLES.filter((angle) => !exhausted(angle)).map((angle) => {
     const params = new URLSearchParams(search)
     if (search.get('more') !== angle) params.delete('step')
     else if (step < MAX_EXPANSION_STEPS) params.set('step', String(step + 1))
@@ -468,9 +479,15 @@ function expansionCommands({ search, pathname, labels }: CommandContext): Naviga
   })
 }
 
-/** A content's reading options, each a set of version parameters. */
+/**
+ * A content's reading options, each a set of version parameters. The one
+ * already shown is left out ("Simpler" on the simpler text, "Original" on
+ * the original), as it would change nothing.
+ */
 function versionCommands({ search, pathname, labels }: CommandContext): NavigationCommand[] {
   const version = (label: string, id: string, set: Record<string, string | null>) => {
+    const active = Object.entries(set).every(([key, value]) => search.get(key) === value)
+    if (active) return []
     const params = new URLSearchParams(search)
     for (const [key, value] of Object.entries(set)) {
       if (value === null) params.delete(key)
@@ -478,23 +495,25 @@ function versionCommands({ search, pathname, labels }: CommandContext): Navigati
     }
     params.delete('more')
     params.delete('step')
-    return {
-      id,
-      label,
-      description: labels.readingOptions,
-      group: 'quick' as const,
-      href: `${pathname}?${params}` as Route,
-      replace: true,
-    }
+    return [
+      {
+        id,
+        label,
+        description: labels.readingOptions,
+        group: 'quick' as const,
+        href: `${pathname}?${params}` as Route,
+        replace: true,
+      },
+    ]
   }
   return [
-    version(labels.simpler, 'version:simpler', { level: 'easy' }),
+    ...version(labels.simpler, 'version:simpler', { level: 'easy' }),
     // "Troppo semplice": the most detailed wording.
-    version(labels.harder, 'version:harder', { level: 'hard' }),
+    ...version(labels.harder, 'version:harder', { level: 'hard' }),
     // A short version: half a minute, whatever the original's length.
-    version(labels.shorter, 'version:shorter', { seconds: '30' }),
-    version(labels.children, 'version:children', { audience: 'children' }),
-    version(labels.original, 'version:original', {
+    ...version(labels.shorter, 'version:shorter', { seconds: '30' }),
+    ...version(labels.children, 'version:children', { audience: 'children' }),
+    ...version(labels.original, 'version:original', {
       level: null,
       seconds: null,
       audience: null,

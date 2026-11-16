@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest'
-import { matchControlledCommand, normalize, VOCABULARY } from '@/lib/voice-vocabulary'
+import {
+  matchControlledCommand,
+  normalize,
+  unavailableControlledCommand,
+  VOCABULARY,
+} from '@/lib/voice-vocabulary'
 
 /**
  * The controlled vocabulary of voice commands (requirement 7 of
@@ -52,5 +57,25 @@ describe('controlled vocabulary', () => {
         ALL.filter((id) => id !== 'next-stop'),
       ),
     ).toBeNull()
+  })
+})
+
+describe('fixed phrases for commands the navigation state does not offer', () => {
+  it('names the unavailable command and why, for the model to explain', () => {
+    const found = unavailableControlledCommand(
+      "Cos'è questo?",
+      ALL.filter((id) => id !== 'what-is-this'),
+    )
+    expect(found?.command).toBe('what-is-this')
+    expect(found?.reason).toMatch(/open/)
+  })
+
+  it('stays null for runnable phrases and free speech', () => {
+    expect(unavailableControlledCommand("Cos'è questo?", ALL)).toBeNull()
+    expect(unavailableControlledCommand('Raccontami una storia', [])).toBeNull()
+  })
+
+  it('gives every vocabulary command a reason', () => {
+    for (const entry of VOCABULARY) expect(entry.unavailable).not.toBe('')
   })
 })

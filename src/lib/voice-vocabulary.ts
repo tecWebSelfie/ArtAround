@@ -11,16 +11,25 @@
  * reading options run the same ids (`navigation-commands.ts`).
  */
 
-type Vocabulary = { command: string; phrases: string[] }[]
+/**
+ * `unavailable` tells the language model, in English, why the command may be
+ * missing from the ones offered: the commands follow the navigation state
+ * (`navigation-commands.ts`), so "cos'è questo" with no work open reaches
+ * the model, which explains instead of guessing.
+ */
+type Vocabulary = { command: string; phrases: string[]; unavailable: string }[]
 
 /** Phrases are compared after `normalize`: lowercase, no accents or punctuation. */
 export const VOCABULARY: Vocabulary = [
   {
     command: 'next-stop',
+    unavailable:
+      'There is no stop to open: no tour is running, the tour is complete, or the current stop is already open.',
     phrases: ['avanti', 'prossima tappa', 'prossimo', 'vai avanti', 'next', 'next stop', 'go on'],
   },
   {
     command: 'previous-stop',
+    unavailable: 'There is no previous stop: no tour is running or this is the first stop.',
     phrases: [
       'indietro',
       'tappa precedente',
@@ -33,6 +42,8 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'what-is-this',
+    unavailable:
+      'No content or tour stop is open on screen, or the work itself is already open: the visitor opens a work, its content or the tour stop first.',
     phrases: [
       'cos e questo',
       'che cos e',
@@ -44,14 +55,17 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'more:more',
+    unavailable: 'No work, content or stop is open on screen, or it has nothing more to tell.',
     phrases: ['dimmi di piu', 'raccontami di piu', 'ancora', 'tell me more', 'more'],
   },
   {
     command: 'version:shorter',
+    unavailable: 'No content is open on screen, or the short version is already shown.',
     phrases: ['dimmi di meno', 'piu breve', 'piu corto', 'tell me less', 'shorter', 'less'],
   },
   {
     command: 'version:simpler',
+    unavailable: 'No content is open on screen, or the simpler version is already shown.',
     phrases: [
       'non ho capito',
       'non capisco',
@@ -64,6 +78,7 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'version:harder',
+    unavailable: 'No content is open on screen, or the most detailed version is already shown.',
     phrases: [
       'troppo semplice',
       'troppo facile',
@@ -75,6 +90,7 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'author',
+    unavailable: 'No work is open on screen, or the open work has no known author.',
     phrases: [
       'chi e l autore',
       'chi l ha fatto',
@@ -88,6 +104,7 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'style',
+    unavailable: 'No work is open on screen, or the open work has no known style or movement.',
     phrases: [
       'qual e lo stile',
       'che stile e',
@@ -100,6 +117,7 @@ export const VOCABULARY: Vocabulary = [
   {
     // The step-free route is the answer the map can give: it avoids stairs.
     command: 'wheelchair',
+    unavailable: 'This museum has no step-free route on its map.',
     phrases: [
       'ci sono ostacoli',
       'ostacoli',
@@ -111,10 +129,12 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'exit:nearest',
+    unavailable: 'The map has no exit, or the route already leads to the nearest exit.',
     phrases: ['dov e l uscita', 'uscita', 'where is the exit', 'exit', 'way out'],
   },
   {
     command: 'service-type:bathrooms',
+    unavailable: 'The map has no toilets, or the route already leads there.',
     phrases: [
       'dov e il bagno',
       'dov e la toilette',
@@ -128,10 +148,12 @@ export const VOCABULARY: Vocabulary = [
   },
   {
     command: 'service-type:food',
+    unavailable: 'The map has no food service, or the route already leads there.',
     phrases: ['dov e il bar', 'bar', 'caffetteria', 'where is the bar', 'cafe', 'food'],
   },
   {
     command: 'service-type:shop',
+    unavailable: 'The map has no shop, or the route already leads there.',
     phrases: [
       'dov e lo shop',
       'dov e il negozio',
@@ -185,18 +207,38 @@ export function matchControlledCommand(
   transcript: string,
   available: readonly string[],
 ): string | null {
+  return matchPhrase(transcript, (command) => available.includes(command))?.command ?? null
+}
+
+/**
+ * Why a fixed phrase can't run now: the vocabulary entry it names when that
+ * command is not among the available ones, for the language model to explain
+ * (in the visitor's language) instead of improvising. Null when the phrase
+ * is runnable or not a vocabulary phrase.
+ */
+export function unavailableControlledCommand(
+  transcript: string,
+  available: readonly string[],
+): { command: string; reason: string } | null {
+  if (matchControlledCommand(transcript, available)) return null
+  const entry = matchPhrase(transcript, (command) => !available.includes(command))
+  return entry && { command: entry.command, reason: entry.unavailable }
+}
+
+/** The entry among `allowed` whose phrase the transcript is; the longest phrase wins. */
+function matchPhrase(transcript: string, allowed: (command: string) => boolean) {
   const words = normalize(transcript).split(' ').filter(Boolean)
   const said = words.join(' ')
   const core = trimFillers(words).join(' ')
-  let best: { command: string; length: number } | null = null
-  for (const { command, phrases } of VOCABULARY) {
-    if (!available.includes(command)) continue
-    for (const phrase of phrases) {
+  let best: { entry: Vocabulary[number]; length: number } | null = null
+  for (const entry of VOCABULARY) {
+    if (!allowed(entry.command)) continue
+    for (const phrase of entry.phrases) {
       const key = normalize(phrase)
       if ((said === key || core === key) && (!best || key.length > best.length)) {
-        best = { command, length: key.length }
+        best = { entry, length: key.length }
       }
     }
   }
-  return best?.command ?? null
+  return best?.entry ?? null
 }
