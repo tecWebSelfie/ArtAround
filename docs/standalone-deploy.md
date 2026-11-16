@@ -43,7 +43,8 @@ the standalone self-sufficient:
   the plugins, `@pascal-app/core`, `jose` and `@payloadcms/translations` (whose
   traced copies are partial) — is compiled in; only the packages the
   standalone really ships whole (`payload`, `@payloadcms/db-mongodb`,
-  `mongoose`, `jsdom`, `sharp`, `graphql`) stay external;
+  `jsdom`, `sharp`, `graphql`) stay external (mongoose comes through the
+  adapter);
 - it links the external packages Next left only inside
   `node_modules/.pnpm` — and replaces the partial top-level trace copies of
   the same — with junctions to their full directories in the store;

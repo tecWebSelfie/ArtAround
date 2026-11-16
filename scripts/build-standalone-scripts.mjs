@@ -34,14 +34,14 @@ if (!(await existsAt(standalone))) process.exit(0)
  * Packages the bundles import from disk instead of compiling in. They must be
  * resolvable from `.next/standalone/scripts/`: Node walks up to the standalone
  * `node_modules`, so a top-level entry (real dir or junction) is enough.
- * Mongoose stays external because the mongodb adapter already resolves it
- * through its own `.pnpm` closure; bundling it would drag the optional native
- * modules of the driver into the artifact.
+ * Each must be a direct dependency of the project (its version is read from
+ * the project's own `node_modules`, see `linkExternals`). Mongoose is not
+ * listed: only the external mongodb adapter imports it, and resolves it
+ * through its own `.pnpm` closure.
  */
 const externals = [
   'payload',
   '@payloadcms/db-mongodb',
-  'mongoose',
   'jsdom',
   'sharp',
   'graphql',
