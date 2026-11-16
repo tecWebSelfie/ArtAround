@@ -3,6 +3,34 @@
 The deploy container gets only the `.next/standalone` output of `pnpm build` and
 runs a single node command inside it. This guide covers what that requires.
 
+## Deploy procedure
+
+On the deploy server, in a build folder outside the quota (the global pnpm
+store outside the home quota too):
+
+    git clone <repo> build && cd build      # or `git pull` in an existing clone
+    # once: the production variables (DATABASE_URL, PAYLOAD_SECRET, NEXT_PUBLIC_*, ...)
+    cp .env.example .env && $EDITOR .env
+    pnpm install --frozen-lockfile
+    pnpm build                              # no database needed
+    rsync -a --delete .next/standalone/ /path/to/html/standalone/
+
+`/path/to/html` is the folder mounted as the container's root. The
+container's single entrypoint is then
+
+    node standalone/scripts/standalone-boot.mjs
+
+(the boot moves into the standalone root by itself, so the working directory
+it starts from does not matter). Restart the container after each copy.
+
+- **Variables:** `next build` copies the build folder's `.env` (and
+  `.env.production`) into the standalone, so nothing is placed by hand in the
+  deploy folder and `--delete` is safe. Keep no `.env.local` in the build
+  folder: the build would read it (e.g. for `NEXT_PUBLIC_*`, inlined at build
+  time) but not copy it, so the server would run with other values.
+- **`-a`** keeps the symlinks (see below); `--delete` removes the files of
+  the previous build.
+
 ## Build without a database
 
 `pnpm build` may run where MongoDB is not reachable. The build-time reads are
