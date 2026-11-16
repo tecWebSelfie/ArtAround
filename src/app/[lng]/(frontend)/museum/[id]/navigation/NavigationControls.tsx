@@ -31,8 +31,9 @@ import type { useCompass } from './compass-source'
 
 /**
  * The map's floating controls: GPS notices on top (a column that scrolls
- * only when it overflows), then one bottom bar ranked by importance. The
- * overlay buttons are shortcuts to the same commands as search.
+ * only when it overflows), the simulated GPS stick when on, then one bottom
+ * bar ranked by importance. The overlay buttons are shortcuts to the same
+ * commands as search.
  *
  *   [Search]                                    [Services]
  *   [Resume]     [ Scan ] [ contextual CTA ]    [Settings]
@@ -70,6 +71,8 @@ export function NavigationControls({
     settings: GuidanceSettingsValue
     gps: ReturnType<typeof useGpsFix>
     compass: ReturnType<typeof useCompass>
+    /** The simulator's walk slid along walls (see `useRouteGuidance`). */
+    walk: (east: number, north: number) => { east: number; north: number }
   }
   proximity: React.ReactNode
 }) {
@@ -105,17 +108,23 @@ export function NavigationControls({
         className={`min-h-0 w-full max-w-sm overflow-y-auto ${overflowing ? 'pointer-events-auto' : 'pointer-events-none'}`}
       >
         <div ref={contentRef} className="pointer-events-auto flex w-fit max-w-full flex-col gap-2">
-          {sensors.settings.gpsMode === 'simulated' && (
-            <GpsSimulator
-              onMove={(east, north) => {
-                sensors.gps.move(east, north)
-                sensors.compass.turn(east, north)
-              }}
-            />
-          )}
           {proximity}
         </div>
       </div>
+      {/* The simulated GPS stick: its own row on the start edge, just above
+          the controls (where a game pad's stick sits), so the map above it
+          stays clear. Only in builds with the simulator, when chosen. */}
+      {sensors.settings.gpsMode === 'simulated' && (
+        <div className="justify-self-start">
+          <GpsSimulator
+            onMove={(east, north) => {
+              const walked = sensors.walk(east, north)
+              sensors.gps.move(walked.east, walked.north)
+              sensors.compass.turn(east, north)
+            }}
+          />
+        </div>
+      )}
       {/* Phones: support | centre | support, one bottom row within the
           thumbs' reach. From md the right of the map belongs to docked
           panels, so both support capsules stack on the left and the centre

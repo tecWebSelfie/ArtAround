@@ -109,11 +109,13 @@ export const TourNavigationPage = ({
   // Group guests follow the host, who leads them into the quiz too.
   const guest = useIsGroupGuest()
 
+  const navMesh = (wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh) ?? null
   const { settings, gps, compass, positionScope, guidance, here } = useGuidance({
     museumId: museum.id,
     currentObjectId,
     rooms,
     route,
+    navMesh,
   })
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
@@ -180,13 +182,14 @@ export const TourNavigationPage = ({
               h="100%"
               w="100%"
               renderPaused={scanning}
-              navMesh={wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh}
+              navMesh={navMesh}
               currentObjectId={currentObjectId}
               destination={destination}
               onRouteUnavailable={setRouteUnavailable}
               onStartEntranceChange={setStartEntranceId}
               onRouteChange={setRoute}
-              progressPoint={settings.gpsMode === 'off' ? null : guidance.progressPoint}
+              position={guidance.position}
+              path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
             />
           )
@@ -199,7 +202,7 @@ export const TourNavigationPage = ({
             onRun={run}
             services={markers.services}
             exits={markers.exitEntrances}
-            sensors={{ settings, gps, compass }}
+            sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
           />
         }

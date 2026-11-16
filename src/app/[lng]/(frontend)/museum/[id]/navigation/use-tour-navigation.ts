@@ -39,6 +39,7 @@ import { useGpsFix } from './gps-source'
 import { useCompass } from './compass-source'
 import { useRouteGuidance } from './use-route-guidance'
 import type { MuseumRoute } from './MuseumMap'
+import type { NavMesh } from 'navcat'
 
 /**
  * The state behind the navigation page (`TourNavigation.tsx`): the map's
@@ -356,11 +357,14 @@ export function useGuidance({
   currentObjectId,
   rooms,
   route,
+  navMesh,
 }: {
   museumId: string
   currentObjectId: string | null
   rooms: MuseumRooms
   route: MuseumRoute | null
+  /** The navmesh the route uses: the live position stays on it. */
+  navMesh: NavMesh | null
 }) {
   const settings = useGuidanceSettings()
   const gps = useGpsFix(settings.gpsMode)
@@ -372,6 +376,7 @@ export function useGuidance({
     fix: gps.fix,
     startPoint: rooms.objects.find(({ objectId }) => objectId === currentObjectId)?.point,
     anchorScope: positionScope,
+    navMesh,
   })
   // Nearby suggestions follow the GPS estimate, or else the confirmed start.
   const here =

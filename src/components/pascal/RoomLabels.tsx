@@ -49,10 +49,11 @@ export function RoomLabels() {
       zIndexRange={[10, 0]}
       style={{ pointerEvents: 'none' }}
     >
-      {/* Readable over any wall, floor or artwork: a solid body-colored pill
-          (text color on body, full contrast in both themes), a hairline
-          border and a soft shadow lift it off the scene; `sm` type, not `xs`. */}
-      <span className="block rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) px-2.5 py-1 text-sm leading-tight font-semibold whitespace-nowrap text-(--mantine-color-text) shadow-(--mantine-shadow-sm) select-none">
+      {/* A cartographic halo, not a box: the letters alone, ringed by the
+          page color, so the name reads over any wall, floor or artwork
+          while covering only its own strokes (a solid pill hid what stood
+          behind it). Text color on body: full contrast in both themes. */}
+      <span className="block text-sm leading-tight font-bold tracking-wide whitespace-nowrap text-(--mantine-color-text) select-none [text-shadow:0_0_1px_var(--mantine-color-body),0_0_2px_var(--mantine-color-body),0_0_3px_var(--mantine-color-body),0_0_4px_var(--mantine-color-body)]">
         {label.name}
       </span>
     </Html>

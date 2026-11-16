@@ -28,7 +28,8 @@ describe('GPS identification without an active route', () => {
     expect(result.current.estimate).toEqual([10, 20])
     rerender({ fix: moveFix(start, 2, 0), point: [10, 20] })
     expect(result.current.estimate?.[0]).toBeCloseTo(12)
-    expect(result.current.progressPoint?.[0]).toBeCloseTo(12)
+    // Without a navmesh the live position (the avatar) is the estimate itself.
+    expect(result.current.position?.[0]).toBeCloseTo(12)
     rerender({ fix: moveFix(start, 2, 0), point: [50, 60] })
     expect(result.current.estimate).toEqual([50, 60])
   })

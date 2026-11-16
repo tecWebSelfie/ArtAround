@@ -8,7 +8,7 @@ import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/naviga
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
 import { useGLTF, type CameraControlsImpl } from '@react-three/drei'
-import { extend, useThree } from '@react-three/fiber'
+import { extend, useFrame, useThree } from '@react-three/fiber'
 import type { NavMesh, Vec3 } from 'navcat'
 import {
   Suspense,
@@ -22,7 +22,7 @@ import {
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
-import { Box3, Vector3, type Object3D } from 'three'
+import { Box3, Vector3, type Group, type Object3D } from 'three'
 
 /** A destination flag is drawn at hero-glTF scale (~1.3 m); keep it knee-high. */
 const DESTINATION_FLAG_SCALE = 0.7
@@ -42,9 +42,28 @@ const AVATAR_VIEW_POLAR = 0.88
  */
 const PATH_START_CLEARANCE = 0.45
 
+/**
+ * The avatar walks to each new live position instead of jumping: GPS fixes
+ * (about one a second) and the simulator's steps arrive as points, the
+ * avatar covers the gap at walking pace or faster, so a steady stream of
+ * fixes reads as one continuous walk. A gap wider than `AVATAR_TELEPORT_METRES`
+ * is a new pin (a QR, a confirmed work) or a GPS jump: the avatar is put there.
+ */
+const AVATAR_WALK_SPEED = 1.4
+/** Catch-up rate (1/s): the farther behind, the faster it walks. */
+const AVATAR_CATCH_UP = 4
+const AVATAR_TELEPORT_METRES = 4
+
+/**
+ * The route from the pinned position (`at`, else the derived entrance) to the
+ * destination. `start` is the pin, never the live GPS position: the live
+ * position and the part of the route ahead of it are derived from this in
+ * `useRouteGuidance` and handed back to the map (`position`, `path`).
+ */
 export type MuseumRoute = {
   path: Vec3[] | null
   start: Vec3 | null
+  end: Vec3 | null
   target: [number, number] | null
 }
 
@@ -69,7 +88,8 @@ export function MuseumMap({
   onRouteUnavailable,
   onStartEntranceChange,
   onRouteChange,
-  progressPoint,
+  position,
+  path,
   ...props
 }: ComponentProps<typeof MapViewer> & {
   navMesh?: NavMesh | null
@@ -85,8 +105,10 @@ export function MuseumMap({
    * (the path ends beside the destination, not inside it).
    */
   onRouteChange?: (route: MuseumRoute | null) => void
-  /** GPS progress: where the visitor is estimated to be along the route. */
-  progressPoint?: Vec3 | null
+  /** The live position (pin moved by GPS) where the avatar stands; the pin if absent. */
+  position?: Vec3 | null
+  /** The route still ahead of the live position; the whole route if absent. */
+  path?: Vec3[] | null
 }) {
   const [ready, setReady] = useState(false)
   useObjectClicks(onObjectClick)
@@ -188,7 +210,9 @@ export function MuseumMap({
   }, [ready, navMesh, currentObjectId, destination])
 
   useEffect(() => {
-    onRouteChange?.(route ? { path: route.path, start: route.start, target: route.target } : null)
+    onRouteChange?.(
+      route ? { path: route.path, start: route.start, end: route.end, target: route.target } : null,
+    )
   }, [route, onRouteChange])
 
   const startEntranceId = route?.startEntranceId ?? null
@@ -200,17 +224,16 @@ export function MuseumMap({
     onRouteUnavailable?.(Boolean(route?.start && route.end && !route.path))
   }, [route, onRouteUnavailable])
 
+  const shownPath = path ?? route?.path
   return (
     <MapViewer map={map} {...props} selectionManager="custom" onSceneReadyChange={setReady}>
       {route?.start && (
-        // This avatar marks the last position explicitly confirmed by the visitor,
-        // or the derived entrance origin before any position is confirmed.
-        <group position={route.start}>
-          <Suspense fallback={null}>
-            <Avatar />
-          </Suspense>
-        </group>
+        // The avatar stands at the live position: the pin (last explicitly
+        // confirmed position, or the derived entrance) moved by the GPS.
+        <WalkingAvatar point={position ?? route.start} />
       )}
+      {/* The camera follows the pin, not every GPS step: re-centring on
+          each fix would fight the visitor's own panning. */}
       {route?.start && <FocusOnAvatar point={route.start} />}
       {/* Room names over the plan, once the scene (and its zones) is ready. */}
       {ready && <RoomLabels />}
@@ -222,28 +245,57 @@ export function MuseumMap({
           </Suspense>
         </group>
       )}
-      {route?.path && route.path.length > 1 && (
-        <NavigationPath points={trimPathStart(route.path, PATH_START_CLEARANCE)} />
-      )}
-      {progressPoint && (
-        // GPS estimate snapped onto the route: a soft dot, distinct from the
-        // avatar, which stays on the last explicitly confirmed position.
-        <mesh
-          name="museum-navigation-progress"
-          position={[progressPoint[0], progressPoint[1] + 0.05, progressPoint[2]]}
-          renderOrder={1001}
-        >
-          <sphereGeometry args={[0.35, 24, 16]} />
-          <meshBasicMaterial color="#228be6" transparent opacity={0.85} depthTest={false} />
-        </mesh>
+      {shownPath && shownPath.length > 1 && (
+        <NavigationPath points={trimPathStart(shownPath, PATH_START_CLEARANCE)} />
       )}
     </MapViewer>
   )
 }
 
 /**
- * Moves the camera onto the avatar whenever the visitor's position changes
- * (entering the museum, confirming a new position, advancing a stop), so the
+ * The avatar carried to `point` as described at `AVATAR_WALK_SPEED`, facing
+ * the way it walks. The group's position is driven per frame, never as a
+ * prop: a prop would put it back on the target at every render.
+ */
+function WalkingAvatar({ point }: { point: Vec3 }) {
+  const group = useRef<Group>(null)
+  const heading = useRef<number | null>(null)
+  const placed = useRef(false)
+  const [x, y, z] = point
+  useFrame((_, delta) => {
+    const avatar = group.current
+    if (!avatar) return
+    const dx = x - avatar.position.x
+    const dz = z - avatar.position.z
+    const distance = Math.hypot(dx, dz)
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!placed.current || still || distance > AVATAR_TELEPORT_METRES || distance < 0.02) {
+      avatar.position.set(x, y, z)
+      placed.current = true
+      heading.current = null
+      return
+    }
+    heading.current = Math.atan2(dx, dz)
+    const step = Math.min(distance, Math.max(AVATAR_WALK_SPEED, distance * AVATAR_CATCH_UP) * delta)
+    avatar.position.set(
+      avatar.position.x + (dx / distance) * step,
+      y,
+      avatar.position.z + (dz / distance) * step,
+    )
+  })
+  return (
+    <group ref={group}>
+      <Suspense fallback={null}>
+        <Avatar heading={heading} />
+      </Suspense>
+    </group>
+  )
+}
+
+/**
+ * Moves the camera onto the avatar whenever the visitor's pinned position
+ * changes (entering the museum, confirming a new position, advancing a stop),
+ * not at every GPS step of the live position, so the
  * jump of the avatar is seen rather than guessed: the avatar ends up in the
  * centre, seen from `AVATAR_VIEW_DISTANCE` at a slant that shows the
  * surrounding rooms. The current compass direction is kept, so the map does

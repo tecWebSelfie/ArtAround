@@ -26,10 +26,22 @@ export function objectNavigationPoint(mesh: NavMesh, object: Object3D): Vec3 | n
   return nearest.success ? nearest.position : null
 }
 
-/** A partial route must not be presented as reaching the destination. */
-export function museumNavigationPath(mesh: NavMesh, start: Vec3, end: Vec3): Vec3[] | null {
+/**
+ * A route from `start` to `end`: its corner points and the navmesh polygons
+ * it crosses (the corridor `src/lib/live-route.ts` follows as the visitor
+ * walks). A partial route must not be presented as reaching the destination.
+ */
+export function museumNavigationRoute(mesh: NavMesh, start: Vec3, end: Vec3) {
   const result = findPath(mesh, start, end, [0.5, 0.6, 0.5], DEFAULT_QUERY_FILTER)
-  return result.success && result.flags & FindPathResultFlags.COMPLETE_PATH
-    ? result.path.map(({ position }) => position)
-    : null
+  if (!result.success || !(result.flags & FindPathResultFlags.COMPLETE_PATH)) return null
+  return {
+    points: result.path.map(({ position }) => position),
+    nodes: result.nodePath?.path ?? [],
+    start: result.startPosition,
+  }
+}
+
+/** The corner points of `museumNavigationRoute`, for drawing and directions. */
+export function museumNavigationPath(mesh: NavMesh, start: Vec3, end: Vec3): Vec3[] | null {
+  return museumNavigationRoute(mesh, start, end)?.points ?? null
 }
