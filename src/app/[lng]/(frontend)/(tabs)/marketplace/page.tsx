@@ -4,15 +4,22 @@ import {
   MarketplacePagination,
   MarketplaceSearch,
   type MarketplaceKind,
+  type MarketplaceLabels,
   type MarketplacePrice,
 } from '@/components/mantine/MarketplaceControls'
 import { getT } from '@/i18n.server'
 import { getMarketplaceResults, MARKETPLACE_PAGE_SIZE } from '@/lib/marketplace'
 import { museumSearchMuseumId } from '@/lib/museum-mode'
 import config from '@/payload.config'
-import { Button, Group, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
+import { Button, Container, Paper, SimpleGrid, Stack, Text, ThemeIcon, Title } from '@mantine/core'
 import { SearchX } from 'lucide-react'
 import { getPayload, type TypedLocale } from 'payload'
+import type { Route } from 'next'
+import {
+  MarketplaceResultsHeader,
+  type MarketplaceActiveFilter,
+} from '@/components/mantine/MarketplaceResultsHeader'
+import type { ReactNode } from 'react'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -28,6 +35,59 @@ function parseKind(value: string | undefined): MarketplaceKind {
 
 function parsePrice(value: string | undefined): MarketplacePrice {
   return value === 'free' || value === 'paid' ? value : 'all'
+}
+
+/** Removing a marketplace filter preserves the other URL state and resets pagination. */
+function marketplaceHref(
+  basePath: string,
+  query: string,
+  kind: MarketplaceKind,
+  price: MarketplacePrice,
+): Route {
+  const params = new URLSearchParams()
+  if (query) params.set('q', query)
+  if (kind !== 'all') params.set('kind', kind)
+  if (price !== 'all') params.set('price', price)
+  const search = params.toString()
+  return (search ? `${basePath}?${search}` : basePath) as Route
+}
+
+/** Active kind and price chips remove one URL filter while keeping the other. */
+function buildMarketplaceActiveFilters({
+  basePath,
+  query,
+  kind,
+  price,
+  labels,
+  removeLabel,
+}: {
+  basePath: string
+  query: string
+  kind: MarketplaceKind
+  price: MarketplacePrice
+  labels: MarketplaceLabels
+  removeLabel: (filter: string) => string
+}) {
+  const filters: MarketplaceActiveFilter[] = []
+  if (kind !== 'all') {
+    const label = labels[kind]
+    filters.push({
+      id: 'kind',
+      label,
+      removeLabel: removeLabel(label),
+      href: marketplaceHref(basePath, query, 'all', price),
+    })
+  }
+  if (price !== 'all') {
+    const label = price === 'free' ? labels.free : labels.paid
+    filters.push({
+      id: 'price',
+      label,
+      removeLabel: removeLabel(label),
+      href: marketplaceHref(basePath, query, kind, 'all'),
+    })
+  }
+  return filters
 }
 
 export default async function Marketplace(props: {
@@ -82,100 +142,118 @@ export default async function Marketplace(props: {
 
   const totalPages = Math.max(1, Math.ceil(total / MARKETPLACE_PAGE_SIZE))
   const hasFilters = Boolean(query) || kind !== 'all' || price !== 'all'
-
-  return (
-    <Stack mx={{ base: 'md', sm: 'xl' }} my="md" gap="lg">
-      <Title order={1} size="h2">
-        {t('Marketplace')}
-      </Title>
-
-      <MarketplaceSearch
-        basePath={basePath}
-        initialQuery={query}
-        initialKind={kind}
-        initialPrice={price}
-        labels={{
-          searchPlaceholder: t('searchPlaceholder'),
-          search: t('search'),
-          filters: t('filters'),
-          clearFilters: t('clearFilters'),
-          type: t('type'),
-          all: t('all'),
-          tours: t('tours'),
-          contents: t('contents'),
-          objects: t('objects'),
-          users: t('users'),
-          usersNoPrice: t('usersNoPrice'),
-          price: t('price'),
-          anyPrice: t('anyPrice'),
-          free: t('free'),
-          paid: t('paid'),
-        }}
-      />
-
-      {searchFailed ? (
-        <SearchUnavailableAlert message={ts('Search is not reachable right now.')} />
-      ) : (
-        <Group justify="space-between" align="center">
-          <Text fw={600}>{t('results', { count: total })}</Text>
-          {hasFilters && items.length > 0 && (
-            <Button component="a" href={basePath} variant="subtle" size="xs">
+  const labels = {
+    searchPlaceholder: t('Search tours, contents, objects and people'),
+    search: t('search'),
+    filters: t('filters'),
+    clearFilters: t('clearFilters'),
+    type: t('type'),
+    all: t('all'),
+    tours: t('tours'),
+    contents: t('contents'),
+    objects: t('objects'),
+    users: t('users'),
+    usersNoPrice: t('usersNoPrice'),
+    price: t('price'),
+    anyPrice: t('anyPrice'),
+    free: t('free'),
+    paid: t('paid'),
+  }
+  const activeFilters = buildMarketplaceActiveFilters({
+    basePath,
+    query,
+    kind,
+    price,
+    labels,
+    removeLabel: (filter) => ts('Remove filter: {{filter}}', { filter }),
+  })
+  let resultContent: ReactNode = null
+  if (!searchFailed && items.length > 0) {
+    resultContent = (
+      <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
+        {items.map((item) => (
+          <MarketplaceCard
+            key={item.key}
+            item={item}
+            locale={lng}
+            labels={{
+              free: t('free'),
+              tour: t('tour'),
+              content: t('content'),
+              user: t('user'),
+              object: t('object'),
+              viewProfile: t('viewProfile'),
+              viewObject: t('viewObject'),
+              min: t('min'),
+              difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
+            }}
+          />
+        ))}
+      </SimpleGrid>
+    )
+  } else if (!searchFailed) {
+    // The empty state follows the same result heading and active filter chips.
+    resultContent = (
+      <Paper withBorder radius="lg" p="xl">
+        <Stack align="center" gap="xs">
+          <ThemeIcon size={48} radius="xl" variant="light" color="gray">
+            <SearchX size={24} aria-hidden />
+          </ThemeIcon>
+          <Title order={2} size="h4">
+            {t('noResults')}
+          </Title>
+          <Text c="dimmed" ta="center">
+            {t('noResultsHint')}
+          </Text>
+          {hasFilters && (
+            <Button component="a" href={basePath} variant="light" mt="xs">
               {t('clearFilters')}
             </Button>
           )}
-        </Group>
-      )}
+        </Stack>
+      </Paper>
+    )
+  }
 
-      {searchFailed ? null : items.length > 0 ? (
-        <SimpleGrid cols={{ base: 1, sm: 2, lg: 3 }} spacing="md">
-          {items.map((item) => (
-            <MarketplaceCard
-              key={item.key}
-              item={item}
-              locale={lng}
-              labels={{
-                free: t('free'),
-                tour: t('tour'),
-                content: t('content'),
-                user: t('user'),
-                object: t('object'),
-                viewProfile: t('viewProfile'),
-                viewObject: t('viewObject'),
-                min: t('min'),
-                difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
-              }}
-            />
-          ))}
-        </SimpleGrid>
-      ) : (
-        <Paper withBorder radius="lg" p="xl">
-          <Stack align="center" gap="xs">
-            <ThemeIcon size={48} radius="xl" variant="light" color="gray">
-              <SearchX size={24} aria-hidden />
-            </ThemeIcon>
-            <Title order={2} size="h4">
-              {t('noResults')}
-            </Title>
-            <Text c="dimmed" ta="center">
-              {t('noResultsHint')}
-            </Text>
-            {hasFilters && (
-              <Button component="a" href={basePath} variant="light" mt="xs">
-                {t('clearFilters')}
-              </Button>
-            )}
-          </Stack>
-        </Paper>
-      )}
+  return (
+    // In the tabs' flex stack, w-full fills the available width before Container
+    // caps it at the same centered lg measure used by other catalog search pages.
+    <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm" className="w-full">
+      <Stack gap="lg">
+        <Title order={1} size="h2">
+          {t('Marketplace')}
+        </Title>
 
-      <MarketplacePagination
-        basePath={basePath}
-        query={query}
-        kind={kind}
-        price={price}
-        page={page}
-        totalPages={searchFailed ? 1 : totalPages}
-      />
-    </Stack>
+        <MarketplaceSearch
+          basePath={basePath}
+          initialQuery={query}
+          initialKind={kind}
+          initialPrice={price}
+          labels={labels}
+        />
+
+        {searchFailed ? (
+          <SearchUnavailableAlert message={ts('Search is not reachable right now.')} />
+        ) : (
+          <MarketplaceResultsHeader
+            resultsLabel={t('results', { count: total })}
+            filters={activeFilters}
+            clearHref={hasFilters && items.length > 0 ? (basePath as Route) : undefined}
+            clearLabel={t('clearFilters')}
+          />
+        )}
+
+        {resultContent}
+
+        <MarketplacePagination
+          basePath={basePath}
+          query={query}
+          kind={kind}
+          price={price}
+          page={page}
+          totalPages={searchFailed ? 1 : totalPages}
+        />
+      </Stack>
+    </Container>
   )
 }

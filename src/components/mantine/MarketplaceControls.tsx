@@ -67,9 +67,9 @@ const FILTERS_ID = 'marketplace-filters'
  * change pushes a new URL and the server page refetches, so the result is
  * shareable and survives a reload.
  *
- * Filters expand inline instead of in a floating popover. The results grid sits
- * directly below this block: an overlay would cover the very cards the user is
- * trying to narrow down, while an inline panel simply pushes them down.
+ * Filters expand inline instead of in a floating popover. The result summary
+ * and grid follow this block, so the filter surface shares the search panel's
+ * border rather than adding a second frame around nested controls.
  */
 export function MarketplaceSearch({
   basePath,
@@ -166,83 +166,117 @@ export function MarketplaceSearch({
           </Button>
         </Group>
 
-        <Collapse expanded={filtersOpen} id={FILTERS_ID}>
-          <Paper withBorder radius="md" p="sm" bg="var(--mantine-color-default-hover)">
-            <Stack gap="sm">
-              <Group justify="space-between" align="center">
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  {labels.filters}
-                </Text>
-                {activeFilterCount > 0 && (
-                  <Button
-                    type="button"
-                    variant="subtle"
-                    size="compact-xs"
-                    color="red"
-                    onClick={clearFilters}
-                  >
-                    {labels.clearFilters}
-                  </Button>
-                )}
-              </Group>
-
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-                <FilterField label={labels.type}>
-                  <SegmentedControl
-                    fullWidth
-                    size="xs"
-                    value={kind}
-                    aria-label={labels.type}
-                    onChange={(value) => {
-                      const next = value as MarketplaceKind
-                      // Profiles and catalog objects are free-form directory
-                      // entries, not sellable documents, so a price filter must
-                      // not survive this switch.
-                      const nextPrice = next === 'users' || next === 'objects' ? 'all' : price
-                      setKind(next)
-                      setPrice(nextPrice)
-                      navigate({ query, kind: next, price: nextPrice })
-                    }}
-                    data={[
-                      { value: 'all', label: labels.all },
-                      { value: 'tours', label: labels.tours },
-                      { value: 'contents', label: labels.contents },
-                      { value: 'objects', label: labels.objects },
-                      { value: 'users', label: labels.users },
-                    ]}
-                  />
-                </FilterField>
-
-                <FilterField label={labels.price}>
-                  <SegmentedControl
-                    fullWidth
-                    size="xs"
-                    value={kind === 'users' || kind === 'objects' ? 'all' : price}
-                    disabled={kind === 'users' || kind === 'objects'}
-                    aria-label={labels.price}
-                    onChange={(value) => {
-                      const next = value as MarketplacePrice
-                      setPrice(next)
-                      navigate({ query, kind, price: next })
-                    }}
-                    data={[
-                      { value: 'all', label: labels.anyPrice },
-                      { value: 'free', label: labels.free },
-                      { value: 'paid', label: labels.paid },
-                    ]}
-                  />
-                  {kind === 'users' || kind === 'objects' ? (
-                    <Text size="xs" c="dimmed">
-                      {labels.usersNoPrice}
-                    </Text>
-                  ) : null}
-                </FilterField>
-              </SimpleGrid>
-            </Stack>
-          </Paper>
-        </Collapse>
+        <MarketplaceFilterPanel
+          expanded={filtersOpen}
+          activeFilterCount={activeFilterCount}
+          kind={kind}
+          price={price}
+          labels={labels}
+          onClear={clearFilters}
+          onKindChange={(next) => {
+            // Profiles and catalog objects are not sellable, so changing type
+            // to either one also removes a stale price constraint.
+            const nextPrice = next === 'users' || next === 'objects' ? 'all' : price
+            setKind(next)
+            setPrice(nextPrice)
+            navigate({ query, kind: next, price: nextPrice })
+          }}
+          onPriceChange={(next) => {
+            setPrice(next)
+            navigate({ query, kind, price: next })
+          }}
+        />
       </Stack>
     </Paper>
+  )
+}
+
+/**
+ * The inline panel keeps filter choices beside their search context. Its
+ * tonal surface is nested without another border so the form reads as one unit.
+ */
+function MarketplaceFilterPanel({
+  expanded,
+  activeFilterCount,
+  kind,
+  price,
+  labels,
+  onClear,
+  onKindChange,
+  onPriceChange,
+}: {
+  expanded: boolean
+  activeFilterCount: number
+  kind: MarketplaceKind
+  price: MarketplacePrice
+  labels: MarketplaceLabels
+  onClear: () => void
+  onKindChange: (kind: MarketplaceKind) => void
+  onPriceChange: (price: MarketplacePrice) => void
+}) {
+  return (
+    <Collapse expanded={expanded} id={FILTERS_ID}>
+      <Paper radius="md" p="sm" bg="var(--mantine-color-default-hover)">
+        <Stack gap="sm">
+          <Group justify="space-between" align="center">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+              {labels.filters}
+            </Text>
+            {activeFilterCount > 0 && (
+              <Button
+                type="button"
+                variant="subtle"
+                size="compact-xs"
+                color="red"
+                onClick={onClear}
+              >
+                {labels.clearFilters}
+              </Button>
+            )}
+          </Group>
+
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+            <FilterField label={labels.type}>
+              <SegmentedControl
+                fullWidth
+                size="xs"
+                value={kind}
+                aria-label={labels.type}
+                onChange={(value) => onKindChange(value as MarketplaceKind)}
+                data={[
+                  { value: 'all', label: labels.all },
+                  { value: 'tours', label: labels.tours },
+                  { value: 'contents', label: labels.contents },
+                  { value: 'objects', label: labels.objects },
+                  { value: 'users', label: labels.users },
+                ]}
+              />
+            </FilterField>
+
+            <FilterField label={labels.price}>
+              <SegmentedControl
+                fullWidth
+                size="xs"
+                value={kind === 'users' || kind === 'objects' ? 'all' : price}
+                disabled={kind === 'users' || kind === 'objects'}
+                aria-label={labels.price}
+                onChange={(value) => onPriceChange(value as MarketplacePrice)}
+                data={[
+                  { value: 'all', label: labels.anyPrice },
+                  { value: 'free', label: labels.free },
+                  { value: 'paid', label: labels.paid },
+                ]}
+              />
+              {(kind === 'users' || kind === 'objects') && (
+                <Text size="xs" c="dimmed">
+                  {labels.usersNoPrice}
+                </Text>
+              )}
+            </FilterField>
+          </SimpleGrid>
+        </Stack>
+      </Paper>
+    </Collapse>
   )
 }
 

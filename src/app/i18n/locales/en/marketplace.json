@@ -17,7 +17,7 @@
   "results_one": "{{count}} result",
   "results_other": "{{count}} results",
   "search": "Search",
-  "searchPlaceholder": "Search tours, contents and people",
+  "Search tours, contents, objects and people": "Search tours, contents, objects and people",
   "tour": "Tour",
   "tours": "Tours",
   "type": "Type",
