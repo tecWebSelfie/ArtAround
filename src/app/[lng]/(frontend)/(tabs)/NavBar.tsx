@@ -1,14 +1,8 @@
 'use client'
 
-import {
-  MyMuseumsMenuItems,
-  NAV_ITEMS,
-  useNavState,
-  type MyMuseum,
-  type NavAccount,
-} from '@/components/navigation/nav-shared'
-import { Avatar, Button, Center, Group, Menu, Stack, Text } from '@mantine/core'
-import { Compass, Landmark, LogIn } from 'lucide-react'
+import { NAV_ITEMS, useNavState, type NavAccount } from '@/components/navigation/nav-shared'
+import { Avatar, Button, Center, Group, Stack, Text } from '@mantine/core'
+import { Compass, LogIn } from 'lucide-react'
 import Link from 'next/link'
 import { useT } from 'next-i18next/client'
 
@@ -28,26 +22,22 @@ function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
 /**
  * Bottom app navigation, phones and tablets only: from `md` the desktop top
  * bar (`SiteHeader`) takes over and the tabs layout hides this footer.
- * Entries, account and museum menus come from `nav-shared` so both bars
- * agree; here every entry is an icon over an `xs` label and menus open upward.
+ * Entries and account come from `nav-shared` so both bars agree; here every
+ * entry is an icon over an `xs` label.
  * - Account entry: a link straight to the visitor's profile, where they sign
  *   out (`SignOutButton`). Signed-out visitors sign in and come back to the
  *   page they were on (`?next=`).
- * - `myMuseums`: a shortcut to the museums where the visitor is director,
- *   curator or verified creator, shown only when there is at least one.
+ * - The museums the visitor works on are reached from the profile
+ *   (`/[lng]/my-museums`), not from here: the bar stays at three entries.
  */
-export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[] }> = function ({
-  account,
-  myMuseums,
-}) {
-  const { lng, signedIn, profileHref, displayName, inMyMuseum, signInHref, localize, isActive } =
-    useNavState(account, myMuseums)
+export const NavBar: React.FC<{ account: NavAccount | null }> = function ({ account }) {
+  const { signedIn, profileHref, displayName, signInHref, localize, isActive } =
+    useNavState(account)
   // Here, not from `useNavState`: `i18next-cli extract` reads the prefix only at the call.
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
 
-  // Tight horizontal padding (px={4}) on every entry: with four entries a
-  // phone leaves ~90px each, enough for "Marketplace" only without the
-  // default button padding.
+  // Tight horizontal padding (px={4}) on every entry: a narrow phone leaves
+  // ~90px each, enough for "Marketplace" only without the default padding.
   return (
     <Group grow gap={4}>
       {NAV_ITEMS.map((item) => {
@@ -98,25 +88,6 @@ export const NavBar: React.FC<{ account: NavAccount | null; myMuseums: MyMuseum[
         <Button component={Link} href={signInHref} variant="subtle" h="auto" py="sm" px={4}>
           <ItemContent Icon={LogIn} label={t('SignIn')} />
         </Button>
-      )}
-      {myMuseums.length > 0 && (
-        <Menu position="top" withArrow shadow="md">
-          <Menu.Target>
-            <Button
-              color="grape"
-              variant={inMyMuseum ? 'light' : 'subtle'}
-              autoContrast
-              h="auto"
-              py="sm"
-              px={4}
-            >
-              <ItemContent Icon={Landmark} label={t('My museums')} />
-            </Button>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <MyMuseumsMenuItems lng={lng} myMuseums={myMuseums} />
-          </Menu.Dropdown>
-        </Menu>
       )}
     </Group>
   )

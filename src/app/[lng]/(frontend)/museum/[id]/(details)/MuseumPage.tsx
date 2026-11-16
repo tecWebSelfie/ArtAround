@@ -53,6 +53,7 @@ export default async function MuseumPage({
   editing,
   navigationHref,
   translationNotice,
+  openOnInfo = false,
 }: {
   museum: Museum
   editing?: MuseumEditing
@@ -60,6 +61,8 @@ export default async function MuseumPage({
   translationNotice?: ReactNode
   /** Free navigation of this museum, when its map is saved (`museumNavigationEntry`). */
   navigationHref?: Route | null
+  /** Open on the Info tab (`?tab=info`) instead of the contents. */
+  openOnInfo?: boolean
 }) {
   const { t, lng } = await getT('museum-page')
 
@@ -127,6 +130,7 @@ export default async function MuseumPage({
         </GridCol>
       </Grid>
       <ArtaroundTabs
+        defaultValue={openOnInfo ? t('info') : undefined}
         tabs={[
           {
             value: t('contents'),

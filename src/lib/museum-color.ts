@@ -16,3 +16,11 @@ export const HEX = /^#[0-9a-f]{6}$/i
 /** A stored palette the theme can use (10 shades); anything else means "no color". */
 export const isPalette = (palette: readonly string[] | null | undefined): palette is string[] =>
   palette?.length === PALETTE_SIZE
+
+/**
+ * A museum's own color wherever it is marked (the museum switch's swatch,
+ * the rail card's outline, the search thumbnail's ring): its palette's
+ * primary shade, null without one.
+ */
+export const museumAccent = (palette: readonly string[] | null | undefined) =>
+  palette?.[PRIMARY_SHADE] ?? null

@@ -33,6 +33,10 @@ export const MUSEUM_FUNCTION_RANK: Record<MuseumRole, number> = {
   [MUSEUM_FUNCTION_DIRECTOR]: 3,
 }
 
+/** A role the app knows (a membership with a missing or legacy role is not one). */
+export const isMuseumRole = (role: unknown): role is MuseumRole =>
+  typeof role === 'string' && Object.hasOwn(MUSEUM_FUNCTION_RANK, role)
+
 /**
  * To be appended to the `roles` collection via the RBAC plugin override
  * (`collections: { roles: { fields: [...] } }`). Fail-closed default:

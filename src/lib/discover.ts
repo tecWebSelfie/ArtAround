@@ -2,7 +2,7 @@ import 'server-only'
 
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
-import { PRIMARY_SHADE } from '@/lib/museum-color'
+import { museumAccent } from '@/lib/museum-color'
 import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
 import { visitMinutes, withVisitableStops } from '@/lib/tour-summary'
 import { findListedTours } from '@/lib/listed-tours'
@@ -219,7 +219,7 @@ function toRailMuseum(museum: CardMuseum): RailMuseum {
     city: museum.location?.city ?? null,
     imageUrl: pictureSrc(cover, 'card'),
     point: isMuseumPoint(point) ? point : null,
-    color: museum.palette?.[PRIMARY_SHADE] ?? null,
+    color: museumAccent(museum.palette),
   }
 }
 

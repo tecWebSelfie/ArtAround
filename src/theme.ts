@@ -56,6 +56,15 @@ export const theme = createTheme({
 export const ACCESSIBILITY_COLOR = 'blue'
 
 /**
+ * The hues a name-derived `Avatar color="initials"` may take where the
+ * avatar stands for a museum without a color of its own ("Your museums"):
+ * only hues that mean nothing else in the app, never Navigator green,
+ * content teal, tour grape, paid orange, destructive red or the navigation
+ * and accessibility blue.
+ */
+export const NEUTRAL_INITIALS_COLORS = ['indigo', 'violet', 'pink', 'gray']
+
+/**
  * The tour identity (DESIGN.md → Colors) on every tour mark drawn with
  * Mantine's `gradient` variant (start buttons, tour pills, the search
  * result's tour icon): the strong pair of the `--tour-*` tokens in

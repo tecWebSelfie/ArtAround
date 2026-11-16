@@ -31,22 +31,24 @@ export default async function NewContentPage({
   const subjectId = param('subject')
   const museumId = param('museum')
   const returnTo = safeTourReturnTo(lng, param('returnTo') ?? undefined)
-  // The museum and returnTo only as a pair (the tour flow).
+  // The tour flow needs the museum and returnTo together; the museum alone
+  // ("Your museums") only picks the objects offered.
   const tourFlow = Boolean(museumId && returnTo)
   const ownQuery = new URLSearchParams(
     Object.entries({
       object: objectId,
       subject: subjectId,
-      museum: tourFlow ? museumId : null,
+      museum: museumId,
       returnTo: tourFlow ? returnTo : null,
     }).filter((entry): entry is [string, string] => Boolean(entry[1])),
   )
   await requireUser(lng, `/${lng}/content/new${ownQuery.size ? `?${ownQuery}` : ''}`)
 
   const { payload } = await getSession()
-  // The object picker offers one museum's objects: the tour's in the tour
-  // flow, else the locked one in museum mode (like every list in the app).
-  const pickerMuseumId = tourFlow ? museumId : await lockedMuseumId()
+  // The object picker offers one museum's objects: the one the link names
+  // (the tour's in the tour flow, the row's on "Your museums"), else the
+  // locked one in museum mode (like every list in the app).
+  const pickerMuseumId = museumId ?? (await lockedMuseumId())
   // A missing or unreadable id just leaves its field empty.
   const [museum, object, subject] = await Promise.all([
     optional(pickerMuseumId, (id) =>

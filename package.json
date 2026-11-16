@@ -93,6 +93,7 @@
     "@payloadcms/translations": "^3.90.2",
     "@payloadcms/ui": "3.89.0",
     "@phosphor-icons/react": "^2.1.10",
+    "@photostructure/tz-lookup": "11.8.0",
     "@react-pdf/renderer": "4.9.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.7.0",
@@ -233,7 +234,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "oxlint --fix",
+      "oxlint --fix --no-error-on-unmatched-pattern",
       "prettier --write"
     ],
     "*.{json,md,mdx,css,scss}": [

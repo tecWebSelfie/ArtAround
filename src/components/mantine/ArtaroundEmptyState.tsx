@@ -1,5 +1,5 @@
-import { TOUR_GRADIENT } from '@/theme'
 import { LinkButton } from '@/components/editing/LinkButton'
+import { TOUR_GRADIENT } from '@/theme'
 import { EmptyState, EmptyStateActions, Stack, ThemeIcon, Title } from '@mantine/core'
 import { Amphora, Plus, Route as RouteIcon } from 'lucide-react'
 import type { Route } from 'next'
@@ -22,7 +22,8 @@ import type { Route } from 'next'
  *
  * Server-safe: the parts are Mantine's named exports, since
  * `EmptyState.Actions` (a static member) isn't reachable from a server
- * component.
+ * component, and the action is a `LinkButton` (a server component can't hand
+ * `component={Link}` to a client one).
  */
 const KIND = {
   tour: {
@@ -80,9 +81,6 @@ export function ArtaroundEmptyState({
       >
         {action && (
           <EmptyStateActions>
-            {/* LinkButton: `component={Link}` can't cross from this Server
-                Component to Mantine's client Button (it crashed the owner's own
-                profile whenever a section was empty). */}
             <LinkButton
               href={action.href}
               radius="xl"

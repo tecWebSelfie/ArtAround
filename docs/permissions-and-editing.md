@@ -333,8 +333,10 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      autosave (with an exit flush) keeps unsaved map edits across the trip;
      the editor drops the params with `history.replaceState` (a
      `router.replace` would reload the scene). See `src/lib/museum-picker.ts`.
-   - NavBar: account entry and a "My museums" menu for directors, curators
-     and verified creators.
+   - "Your museums" (`/[lng]/my-museums`): directors, curators and verified
+     creators reach it from their own profile; one row per museum with the
+     tools their role opens there (map, staff, QR labels; or a new tour or
+     content). The navigation bars carry no museums menu.
 3. **Rich text**: Mantine `RichTextEditor` (`@mantine/tiptap`) edits HTML,
    seeded with `lexicalToHTML` (`src/lib/richtext.ts`); forms submit
    `bodyHTML` / `descriptionHTML`, converted server-side to Lexical by
