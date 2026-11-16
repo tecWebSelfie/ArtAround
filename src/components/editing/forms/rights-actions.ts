@@ -2,7 +2,7 @@
 
 import { hasRank } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_CURATOR } from '@/fields/MuseumFunction'
-import { getSiteChrome } from '@/lib/site-chrome'
+import { readMyMuseums } from '@/lib/my-museums'
 
 /**
  * The museums the signed-in author may name as a content's rights holder:
@@ -11,8 +11,7 @@ import { getSiteChrome } from '@/lib/site-chrome'
  * rule on save, so this list is a convenience, not the check.
  */
 export async function loadRightsMuseums(): Promise<{ id: string; name: string }[]> {
-  const { myMuseums } = await getSiteChrome()
-  return myMuseums
+  return (await readMyMuseums())
     .filter(({ role }) => hasRank(role, MUSEUM_FUNCTION_CURATOR))
-    .map(({ id, name }) => ({ id, name }))
+    .map(({ museum }) => ({ id: museum.id, name: museum.name }))
 }

@@ -4,12 +4,14 @@ import {
   MUSEUM_FUNCTION_RANK,
   type MuseumRole,
 } from '@/fields/MuseumFunction'
+import { readMyMuseums } from '@/lib/my-museums'
+import { NEUTRAL_INITIALS_COLORS } from '@/theme'
 import { getT } from '@/i18n.server'
 import { hasRank } from '@/access/museumRoles'
-import { filterPopulated, isPopulated } from '@/lib/isPopulated'
+import { filterPopulated } from '@/lib/isPopulated'
 import { MUSEUM_ROLE_ICON } from '@/lib/museum-role-meta'
-import { PICTURE_SELECT, pictureSrc } from '@/lib/picture'
-import { getSession, requireUser } from '@/lib/session'
+import { pictureSrc } from '@/lib/picture'
+import { requireUser } from '@/lib/session'
 import type { MuseumThumbnail } from '@/payload-types'
 import { museumAccent } from '@/lib/museum-color'
 import { LinkButton } from '@/components/editing/LinkButton'
@@ -59,18 +61,6 @@ import { MuseumSearch } from './MuseumSearch'
  * (`can()`, the membership access rules): this page grants nothing.
  */
 
-/**
- * The tile's color for a museum without one of its own: a stable pick by
- * name among hues that mean nothing else in the app (not Navigator green,
- * content teal, tour grape, paid orange, destructive red, navigation and
- * accessibility blue), drawn `light` so its initials keep their contrast.
- */
-const FALLBACK_HUES = ['indigo', 'violet', 'pink', 'gray'] as const
-const fallbackHue = (name: string) =>
-  FALLBACK_HUES[
-    [...name].reduce((sum, char) => sum + (char.codePointAt(0) ?? 0), 0) % FALLBACK_HUES.length
-  ]
-
 export async function generateMetadata(props: PageProps<'/[lng]/my-museums'>): Promise<Metadata> {
   await props.params
   const { t } = await getT('user-page')
@@ -80,17 +70,7 @@ export async function generateMetadata(props: PageProps<'/[lng]/my-museums'>): P
 export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-museums'>) {
   const { lng } = await params
   const user = await requireUser(lng, `/${lng}/my-museums`)
-  const [{ payload }, activeMuseumId] = await Promise.all([getSession(), lockedMuseumId()])
-  const memberships = payload.find({
-    collection: 'user-museum-memberships',
-    where: { user: { equals: user.id } },
-    depth: 2,
-    pagination: false,
-    populate: {
-      museums: { name: true, location: true, thumbnails: true, palette: true },
-      museumThumbnails: PICTURE_SELECT,
-    },
-  })
+  const read = Promise.all([readMyMuseums(), lockedMuseumId()])
   const { t } = await getT('user-page')
   const { t: tc } = await getT('common')
   const roleLabel: Record<MuseumRole, string> = {
@@ -99,13 +79,8 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
     verified: tc('navbar.Verified creator'),
   }
 
-  // Only roles the app knows how to name (a legacy or missing role is left out).
-  const museums = (await memberships).docs
-    .flatMap((membership) =>
-      isPopulated(membership.museum) && Object.hasOwn(MUSEUM_FUNCTION_RANK, membership.role ?? '')
-        ? [{ museum: membership.museum, role: membership.role as MuseumRole }]
-        : [],
-    )
+  const [myMuseums, activeMuseumId] = await read
+  const museums = [...myMuseums]
     // The museum the app is locked to (museum mode: the visitor is in it)
     // first, then by role and name.
     .sort(
@@ -121,11 +96,10 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
   // on every row, so a long list stays one system instead of a rainbow: the
   // museum's color lives on its tile only. The fill, not an outline, marks
   // the main one (an outline barely reads, 1.5:1 on the page). `sm` (36px)
-  // everywhere, a comfortable tap on a phone carried between rooms.
+  // everywhere, a comfortable tap on a phone carried between rooms. The row
+  // wraps where the labels need it (longer languages, narrow phones).
   const main = { variant: 'light', size: 'sm', color: 'gray' } as const
-  // The quiet ones carry less side padding: no fill to frame, and the three
-  // tools then fit one line on a 375px phone.
-  const other = { variant: 'subtle', size: 'sm', color: 'gray', px: 'xs' } as const
+  const other = { variant: 'subtle', size: 'sm', color: 'gray' } as const
 
   const rows = museums.map(({ museum, role }) => {
     const Icon = MUSEUM_ROLE_ICON[role]
@@ -147,8 +121,9 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
       >
         {/* The museum's tile, its identity at a glance and the one place its
             color lives: its photo, else its initials on its own color
-            (shade 6, at least 4.5:1 with white by the palette's rule) or on
-            a neutral fallback hue. The role sits on its corner as the
+            (shade 6, at least 4.5:1 with white by the palette's rule) or, `light`,
+            on Mantine's per-name initials color among the theme's neutral
+            hues (`NEUTRAL_INITIALS_COLORS`). The role sits on its corner as the
             profile avatar's status does, bordered so it holds on a photo.
             It repeats the name's link: out of the tab order and hidden from
             screen readers, one stop per museum. */}
@@ -166,7 +141,8 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
             <Avatar
               src={pictureSrc(cover, 'card')}
               name={museum.name}
-              color={accent ?? fallbackHue(museum.name)}
+              color={accent ?? 'initials'}
+              allowedInitialsColors={NEUTRAL_INITIALS_COLORS}
               variant={accent ? 'filled' : 'light'}
               size={64}
               radius="lg"
@@ -210,11 +186,9 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
           )}
         </Stack>
         {/* A group named by the museum, not a landmark: a long list would
-            otherwise fill the screen reader's landmark menu. A 6px gap: the
-            quiet buttons' own padding already keeps the taps apart, and the
-            three tools then fit one line at 375px (longer translations wrap). */}
+            otherwise fill the screen reader's landmark menu. */}
         <Group
-          gap={6}
+          gap="xs"
           role="group"
           aria-labelledby={nameId}
           className="col-span-2 from-md:col-span-1 from-md:col-start-2"
@@ -236,20 +210,17 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
                 {t('Staff')}
               </LinkButton>
               {/* The QR labels PDF (`/api/qr-sheet`): a file, so a plain
-                  download link. Seen as "QR" between the QR and download
-                  icons, so the three tools fit one line on a phone; heard
-                  in full ("QR labels (PDF download)"), which still holds
-                  the visible word (WCAG 2.5.3). */}
+                  download link, which says so in words for screen readers. */}
               <Button
                 component="a"
                 href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${lng}`}
                 download
-                aria-label={t('QR labels (PDF download)')}
                 leftSection={<QrCode size={16} aria-hidden />}
                 rightSection={<Download size={14} aria-hidden />}
                 {...other}
               >
-                QR
+                {t('QR labels')}
+                <span className="sr-only"> ({t('PDF download')})</span>
               </Button>
             </>
           ) : (
@@ -319,7 +290,6 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
         <MuseumSearch
           rows={rows}
           keys={museums.map(({ museum }) => `${museum.name} ${museum.location?.city ?? ''}`)}
-          className="m-0 list-none p-0"
         />
       )}
     </Container>

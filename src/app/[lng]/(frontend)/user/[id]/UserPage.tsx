@@ -28,15 +28,7 @@ import {
   Title,
   Tooltip,
 } from '@mantine/core'
-import {
-  Amphora,
-  BadgeCheck,
-  BadgeInfo,
-  ChevronRight,
-  Landmark,
-  Palette,
-  Verified,
-} from 'lucide-react'
+import { Amphora, BadgeInfo, ChevronRight, Landmark, Palette, Verified } from 'lucide-react'
 
 /**
  * A visitor's public profile. Phones: one column (identity with the account
@@ -46,14 +38,12 @@ import {
  */
 export const UserPage = async ({
   user,
-  curatedMuseums,
   isSelf = false,
   museumFilter,
   accountActions,
   museumsHref,
 }: {
   user: User
-  curatedMuseums?: (string | Museum)[] | null
   /** The visitor's own profile: inline profile editing. */
   isSelf?: boolean
   /**
@@ -142,7 +132,7 @@ export const UserPage = async ({
                 </Group>
                 {accountActions}
               </Group>
-              <UserBadges user={user} curatedMuseums={curatedMuseums} />
+              <UserBadges user={user} />
               {museumsHref && (
                 <LinkButton
                   href={museumsHref}
@@ -282,12 +272,7 @@ export const UserPage = async ({
 // curator alike, each with its role's icon and its role in the tooltip (a
 // generic role badge when the memberships came back unpopulated). Returns
 // null when neither applies so no empty row is rendered.
-export async function UserBadges({
-  user,
-}: {
-  user: User
-  curatedMuseums?: (string | Museum)[] | null
-}) {
+export async function UserBadges({ user }: { user: User }) {
   const { t } = await getT('user-page')
   const museumsOf = (docs: (string | { museum: string | Museum })[] | undefined) =>
     filterPopulated(
@@ -318,6 +303,9 @@ export async function UserBadges({
   // The generic role badge covers join rows whose memberships are not
   // populated (IDs only): the user holds the role but no museum resolved.
   const hasStaffRows = curatorDocs.length > 0 || directorDocs.length > 0
+  const genericRole = directorDocs.length > 0 ? 'director' : 'curator'
+  const GenericIcon = MUSEUM_ROLE_ICON[genericRole]
+  const VerifiedIcon = MUSEUM_ROLE_ICON.verified
 
   if (verifiedMuseums.length === 0 && !hasStaffRows) return null
 
@@ -325,7 +313,7 @@ export async function UserBadges({
     <Group gap="xs">
       {verifiedMuseums.length > 0 && (
         <Tooltip label={t('Verified creator tooltip')} withArrow>
-          <Badge size="sm" leftSection={<BadgeCheck size={14} />}>
+          <Badge size="sm" leftSection={<VerifiedIcon size={14} aria-hidden />}>
             {t('Verified creator')}
           </Badge>
         </Tooltip>
@@ -344,12 +332,8 @@ export async function UserBadges({
           })
         ) : (
           // Unpopulated rows: the role is known from the join it came from.
-          <Badge
-            color="green"
-            size="sm"
-            leftSection={directorDocs.length > 0 ? <Landmark size={14} /> : <Palette size={14} />}
-          >
-            {directorDocs.length > 0 ? t('Director') : t('Curator')}
+          <Badge color="green" size="sm" leftSection={<GenericIcon size={14} aria-hidden />}>
+            {genericRole === 'director' ? t('Director') : t('Curator')}
           </Badge>
         ))}
     </Group>

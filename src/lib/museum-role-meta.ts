@@ -12,6 +12,3 @@ export const MUSEUM_ROLE_ICON: Record<MuseumRole, LucideIcon> = {
   curator: Palette,
   verified: BadgeCheck,
 }
-
-/** A museum where the signed-in visitor holds a per-museum role. */
-export type MyMuseum = { id: string; name: string; role: MuseumRole }

@@ -1,10 +1,7 @@
 import 'server-only'
 
 import { toNavAccount } from '@/components/navigation/nav-account'
-import type { MyMuseum } from '@/lib/museum-role-meta'
 import type { MuseumOption } from '@/components/mantine/MuseumSwitch'
-import { MUSEUM_FUNCTION_RANK } from '@/fields/MuseumFunction'
-import { isPopulated } from '@/lib/isPopulated'
 import { museumScope } from '@/lib/museum-mode'
 import { museumAccent } from '@/lib/museum-color'
 import { getSession } from '@/lib/session'
@@ -12,28 +9,18 @@ import { cache } from 'react'
 
 /**
  * Everything the app's navigation chrome shows about the visitor and the
- * museum scope: the account entry and the museum switch, plus the museums
- * where the visitor holds a role (`myMuseums`, read by the rights form). Two places render it from the same data: the phone's bottom bar
- * (tabs layout) and the desktop top bar (`SiteHeader`, frontend layout).
- * `cache` makes both share one round of Local API reads per request.
+ * museum scope: the account entry and the museum switch. Two places render
+ * it from the same data: the phone's bottom bar (tabs layout) and the
+ * desktop top bar (`SiteHeader`, frontend layout). `cache` makes both share
+ * one round of Local API reads per request. The museums the visitor works
+ * on are not chrome: "Your museums" reads them (`readMyMuseums`).
  */
 export const getSiteChrome = cache(async () => {
-  // Local API session (cookie): decides the account entry and the visitor's
-  // museums (directors, curators and verified creators).
+  // Local API session (cookie): decides the account entry.
   const { payload, user } = await getSession()
-  // The three reads are independent once the session is known: run them in
-  // one round instead of waiting on the memberships first. Museum mode: the
-  // switch shows the locked museum (or "All museums") and lists every museum.
-  const [memberships, scope, museums] = await Promise.all([
-    user
-      ? payload.find({
-          collection: 'user-museum-memberships',
-          where: { user: { equals: user.id } },
-          depth: 1,
-          pagination: false,
-          populate: { museums: { name: true } },
-        })
-      : null,
+  // Museum mode: the switch shows the locked museum (or "All museums") and
+  // lists every museum; the two reads run together.
+  const [scope, museums] = await Promise.all([
     museumScope(),
     payload.find({
       collection: 'museums',
@@ -43,18 +30,9 @@ export const getSiteChrome = cache(async () => {
       select: { name: true, location: true, palette: true },
     }),
   ])
-  // Only roles the app knows how to name: a membership stored with a missing
-  // or legacy role (older seeds, raw writes) has no `MUSEUM_ROLE_ICON` entry,
-  // so it is left out instead.
-  const myMuseums: MyMuseum[] = (memberships?.docs ?? []).flatMap((membership) =>
-    isPopulated(membership.museum) && Object.hasOwn(MUSEUM_FUNCTION_RANK, membership.role ?? '')
-      ? [{ id: membership.museum.id, name: membership.museum.name, role: membership.role }]
-      : [],
-  )
 
   return {
     account: user ? toNavAccount(user) : null,
-    myMuseums,
     currentMuseum: scope ? { id: scope.museumId, name: scope.name, palette: scope.palette } : null,
     museums: museums.docs.map((museum): MuseumOption => ({
       id: museum.id,

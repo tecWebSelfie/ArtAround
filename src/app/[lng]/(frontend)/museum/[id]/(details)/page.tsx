@@ -92,7 +92,7 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
       navigationHref={museumNavigationEntry(lng, museum)}
       // `?tab=info` opens on the Info tab (where the museum's color is
       // edited), as "Your museums" links a director without one there.
-      initialTab={tab === 'info' ? 'info' : undefined}
+      openOnInfo={tab === 'info'}
       translationNotice={pending.some(Boolean) && <TranslationPending />}
       editing={{
         lng,

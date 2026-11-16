@@ -88,20 +88,10 @@ const toTimeOfDay = (minutes: number) =>
  * saving included. Without a zone it is the runtime's own clock.
  */
 export function museumClock(now: Date, timeZone?: string) {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }
-  let format: Intl.DateTimeFormat
-  try {
-    format = new Intl.DateTimeFormat('en-US', { ...options, timeZone })
-  } catch {
-    // A zone this browser's time-zone data doesn't know (an id newer than
-    // the runtime): weekday -1, so no status is claimed rather than crashing.
-    return { weekday: -1, minutes: 0 }
-  }
+  const format = clockFormat(timeZone)
+  // A zone this browser's time-zone data doesn't know (an id newer than the
+  // runtime): weekday -1, so no status is claimed rather than crashing.
+  if (!format) return { weekday: -1, minutes: 0 }
   const parts = format.formatToParts(now)
   const part = (type: Intl.DateTimeFormatPartTypes) =>
     parts.find((item) => item.type === type)?.value ?? ''
@@ -112,6 +102,29 @@ export function museumClock(now: Date, timeZone?: string) {
 }
 
 export type MuseumClock = ReturnType<typeof museumClock>
+
+// One zone-aware formatter per zone (the costly kind: it loads the zone's
+// data), built on first use: the status line asks every minute.
+const clockFormats = new Map<string, Intl.DateTimeFormat | null>()
+function clockFormat(timeZone?: string) {
+  const key = timeZone ?? ''
+  if (!clockFormats.has(key)) {
+    let format: Intl.DateTimeFormat | null
+    try {
+      format = new Intl.DateTimeFormat('en-US', {
+        weekday: 'short',
+        hour: '2-digit',
+        minute: '2-digit',
+        hourCycle: 'h23',
+        timeZone,
+      })
+    } catch {
+      format = null
+    }
+    clockFormats.set(key, format)
+  }
+  return clockFormats.get(key) ?? null
+}
 
 /**
  * Whether the museum is open at its wall-clock `clock`, as the Info tab's

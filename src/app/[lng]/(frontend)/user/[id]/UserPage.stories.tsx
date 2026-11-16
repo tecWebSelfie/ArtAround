@@ -5,7 +5,7 @@ import { expect, waitFor } from 'storybook/test'
 import { mockContentMinimal, mockContentSecond, mockContentThird } from '@/mocks/content.mock'
 import { mockMuseumBrera, mockMuseumMinimal, mockMuseumUffizi } from '@/mocks/museum.mock'
 import { mockTourMinimal } from '@/mocks/tour.mock'
-import type { Museum, User } from '@/payload-types'
+import type { User } from '@/payload-types'
 import {
   mockUserAuthor,
   mockUserCurator,
@@ -24,19 +24,16 @@ import { UserPage } from './UserPage'
 import { serverComponentStory } from '@/mocks/server-component'
 
 // Async Server Component: resolved in a Storybook loader before render (see serverComponentStory).
-// Flat User args keep one control per field in the addon panel, plus an extra
-// `curatedMuseums` control for the curator-for-specific-museums states.
-// The wrapper maps them back to the component's { user, curatedMuseums } props,
-// so UserPage.tsx itself stays a correct App Router Server Component.
+// Flat User args keep one control per field in the addon panel; the wrapper
+// maps them back to the component's { user } prop, so UserPage.tsx itself
+// stays a correct App Router Server Component.
 type UserPageStoryProps = User & {
-  curatedMuseums?: (string | Museum)[] | null
   /** Museum mode: the profile's "This museum / All museums" filter. */
   museumFilter?: { name: string; museumOnly: boolean }
 }
 
-const UserPageStory = serverComponentStory(
-  ({ curatedMuseums, museumFilter, ...user }: UserPageStoryProps) =>
-    UserPage({ user, curatedMuseums, museumFilter }),
+const UserPageStory = serverComponentStory(({ museumFilter, ...user }: UserPageStoryProps) =>
+  UserPage({ user, museumFilter }),
 )
 
 const meta = {

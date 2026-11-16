@@ -58,7 +58,6 @@ export function useNavState(account: NavAccount | null) {
   }
 
   return {
-    lng,
     pathname,
     signedIn,
     // Both bars link the account entry to the profile (it carries sign out).

@@ -20,13 +20,12 @@ import {
   museumClock,
   openingStatus,
   timeOfDayFormatter,
-  weekdayNames,
   type MuseumClock,
 } from '@/lib/opening-hours'
 import type { Museum } from '@/payload-types'
 import { Button, Group, Skeleton, Stack, Table, Text, ThemeIcon } from '@mantine/core'
 import { ChevronDown, Clock, DoorClosed, DoorOpen } from 'lucide-react'
-import { useId, useState, useSyncExternalStore } from 'react'
+import { useId, useMemo, useState, useSyncExternalStore } from 'react'
 import { useTranslation } from 'react-i18next'
 
 // The current minute as a store: one timer, re-rendering when the minute
@@ -68,7 +67,7 @@ export function OpeningHours({
         // closing time, while the page stays open.
         <div aria-live="polite">
           {clock ? (
-            <StatusLine hours={hours} clock={clock} lng={lng} />
+            <StatusLine hours={hours} rows={rows} clock={clock} lng={lng} />
           ) : (
             <Skeleton height={28} width="16rem" radius="xl" />
           )}
@@ -168,17 +167,21 @@ export function OpeningHours({
  */
 function StatusLine({
   hours,
+  rows,
   clock,
   lng,
 }: {
   hours: Museum['openingHours']
+  /** The week's rows: their day names are the ones this line says. */
+  rows: { day: string }[]
   clock: MuseumClock
   lng: string
 }) {
   const { t } = useTranslation('museum-page')
+  // One formatter per language, not one per minute's re-render.
+  const time = useMemo(() => timeOfDayFormatter(lng), [lng])
   const status = openingStatus(hours, clock)
   if (!status) return null
-  const time = timeOfDayFormatter(lng)
 
   let icon, color, label, detail
   if (status.open) {
@@ -198,7 +201,7 @@ function StatusLine({
         : opens.inDays === 1
           ? t('opens tomorrow at {{time}}', { time: time(opens.time) })
           : t('opens {{day}} at {{time}}', {
-              day: weekdayNames(lng)[(clock.weekday + opens.inDays) % 7],
+              day: rows[(clock.weekday + opens.inDays) % 7].day,
               time: time(opens.time),
             })
   }
