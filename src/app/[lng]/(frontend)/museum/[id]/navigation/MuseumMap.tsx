@@ -2,7 +2,7 @@
 
 import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
 import { MapViewer } from '@/components/pascal/MapViewer'
-import { RoomLabels } from '@/components/pascal/RoomLabels'
+import { MAP_LABEL_CLASS, MAP_LABEL_Z_RANGE, RoomLabels } from '@/components/pascal/RoomLabels'
 import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
@@ -408,10 +408,12 @@ function WalkingAvatar({ point, label }: { point: Vec3; label: string }) {
       <Html
         center
         position={[0, AVATAR_FACE_HEIGHT + AVATAR_LABEL_GAP, 0]}
-        zIndexRange={[10, 0]}
+        zIndexRange={MAP_LABEL_Z_RANGE}
         style={{ pointerEvents: 'none' }}
       >
-        <span className="block text-sm leading-tight font-bold whitespace-nowrap text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))] select-none [text-shadow:0_0_1px_var(--mantine-color-body),0_0_2px_var(--mantine-color-body),0_0_3px_var(--mantine-color-body),0_0_4px_var(--mantine-color-body)]">
+        <span
+          className={`${MAP_LABEL_CLASS} text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))]`}
+        >
           {label}
         </span>
       </Html>

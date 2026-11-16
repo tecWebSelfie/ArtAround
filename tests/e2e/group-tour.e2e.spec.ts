@@ -5,7 +5,7 @@ import {
   type Browser,
   type BrowserContextOptions,
 } from '@playwright/test'
-import { toDataURL } from 'qrcode'
+import { showQrToCamera } from '../helpers/qr-camera'
 import { requireLiveKit } from '../helpers/livekit'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
@@ -420,22 +420,8 @@ test('the host scans a work and the guest follows into it', async ({ browser }) 
   const host = await groupPage(browser, { viewport: { width: 390, height: 844 } })
   const guest = await groupPage(browser, { viewport: { width: 390, height: 844 } })
   const object = fixture!.objectIds[0]
-  // The host's camera shows Object 1's QR code (see tour-qr.e2e.spec.ts).
-  const qr = await toDataURL(`/object/${object}`, { width: 480, margin: 4 })
-  await host.addInitScript((imageURL) => {
-    navigator.mediaDevices.getUserMedia = async () => {
-      const canvas = document.createElement('canvas')
-      canvas.width = canvas.height = 480
-      const image = new Image()
-      image.src = imageURL
-      await image.decode()
-      const context = canvas.getContext('2d')!
-      const draw = () => context.drawImage(image, 0, 0)
-      draw()
-      setInterval(draw, 100)
-      return canvas.captureStream(10)
-    }
-  }, qr)
+  // The host's camera shows Object 1's QR code.
+  await showQrToCamera(host, `/object/${object}`)
 
   const code = await openGroup(host, 'Anna')
   await joinGroup(guest, `/en/room/${code}`, 'Marco')

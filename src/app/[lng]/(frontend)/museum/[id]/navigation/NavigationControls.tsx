@@ -135,8 +135,8 @@ export function NavigationControls({
             the contextual action a smaller pill beneath it. On a short screen
             (a phone held sideways) the two sit side by side instead. */}
         <div className="pointer-events-auto col-start-2 row-start-1 flex flex-col items-center gap-2 from-md:row-span-2 [@media(max-height:30rem)]:flex-row">
-          {/* Only when the visitor has the command: a group guest doesn't
-              (`guestCommands`, the host leads), and a button that does
+          {/* Only when the visitor has the command. Group guests lack it,
+              as the host leads (see guestCommands); a button that does
               nothing is worse than none. */}
           {command('scan') && (
             <Tooltip
