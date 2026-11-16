@@ -10,16 +10,17 @@ export default async function CheckoutCancel(props: {
   const { lng } = await props.params
   const back = checkoutReturn(lng, await props.searchParams)
   const { t } = await getT('checkout')
+  const backLabel = {
+    tour: t('Back to the tour'),
+    content: t('Back to the content'),
+    navigator: t('Back to the navigator'),
+  }[back.kind]
   return (
     <CheckoutOutcome
       title={t('Checkout cancelled')}
       description={t('No payment was taken. You can unlock it whenever you like.')}
       action={{
-        label: back.isTour
-          ? t('Back to the tour')
-          : back.target?.collection === 'contents'
-            ? t('Back to the content')
-            : t('Back to the navigator'),
+        label: backLabel,
         href: back.href,
       }}
     />

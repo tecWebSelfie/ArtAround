@@ -151,13 +151,15 @@ export async function ContentGlance({
       )}
       {/* A paid content shows its price while locked; once readable (bought,
           or the visitor is its author or museum staff) it says so instead. */}
-      {isLocked(content) ? (
-        <LockedPriceBadge price={content.price ?? 0} size="lg" />
-      ) : isPaid(content) ? (
-        <Badge size="lg" variant="light" color="teal" leftSection={<LockOpen size={14} />}>
-          {t('Unlocked')}
-        </Badge>
-      ) : null}
+      {/* Locked implies paid (`src/lib/price.ts`). */}
+      {isPaid(content) &&
+        (isLocked(content) ? (
+          <LockedPriceBadge price={content.price ?? 0} size="lg" />
+        ) : (
+          <Badge size="lg" variant="light" color="teal" leftSection={<LockOpen size={14} />}>
+            {t('Unlocked')}
+          </Badge>
+        ))}
       {/* `default`: a bordered neutral chip with body-colored text (the gray
           outline variant drew its label at 3.3:1). */}
       {categories.map((category) => (
@@ -194,9 +196,6 @@ export async function ContentDetails({
   })
   const objectImage = isPopulated(object?.thumbnail) ? object.thumbnail : null
   const sources = content.sources ?? []
-  const authorAvatar = isPopulated(author?.avatar) ? author.avatar : null
-  // Only read inside the `object &&` section below.
-  const objectHref = `/${lng}/object/${object?.id}` as Route
 
   return (
     <Stack gap="xl">
@@ -209,122 +208,19 @@ export async function ContentDetails({
 
       {sources.length > 0 && (
         <Section title={t('Sources')}>
-          {/* Explicit marker: Tailwind's preflight strips `ol` numbering. */}
-          <List type="ordered" listStyleType="decimal" size="sm" spacing={4}>
-            {sources.map((source, index) => (
-              // `ListItem`, not `List.Item`: server component (see SearchResultCard).
-              <ListItem key={source.id ?? index}>
-                {source.url ? (
-                  <a
-                    href={source.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-(--mantine-color-anchor) underline-offset-2 hover:underline"
-                  >
-                    {source.label}
-                  </a>
-                ) : (
-                  source.label
-                )}
-              </ListItem>
-            ))}
-          </List>
+          <SourcesList sources={sources} />
         </Section>
       )}
 
       {object && (
         <Section title={t('About the object')}>
-          {/* Two rows: the object's identity (picture, name, artist and date)
-              side by side, then its description across the full card width
-              with the way out to the museum and the object's page beneath it,
-              so the card holds everything about the object, CTA included. */}
-          <Card withBorder radius="md" padding="sm">
-            <Stack gap="sm">
-              <Group align="center" gap="md" wrap="nowrap">
-                <Link
-                  href={objectHref}
-                  className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
-                  tabIndex={-1}
-                  aria-hidden
-                >
-                  <Image
-                    src={objectImage?.thumbnailURL ?? objectImage?.url ?? PLACEHOLDER_IMAGE}
-                    alt=""
-                    w={{ base: 72, sm: 96 }}
-                    h={{ base: 72, sm: 96 }}
-                    radius="md"
-                    fit="cover"
-                  />
-                </Link>
-                <Stack gap={6} miw={0} className="flex-1">
-                  <Link href={objectHref} className="text-inherit no-underline hover:underline">
-                    <Title order={3} size="h4" lineClamp={2}>
-                      {object.name}
-                    </Title>
-                  </Link>
-                  {(object.artist || object.dating) && (
-                    <Text size="sm" c="dimmed">
-                      {[object.artist, object.dating].filter(Boolean).join(' · ')}
-                    </Text>
-                  )}
-                </Stack>
-              </Group>
-              {object.description && (
-                <Text size="sm" lineClamp={3}>
-                  {object.description}
-                </Text>
-              )}
-              <Group gap="xs">
-                {museum && (
-                  <Link
-                    href={`/${lng}/museum/${museum.id}` as Route}
-                    // Primary .8 on light, .4 on dark (.8 was 1.8:1 there).
-                    className="inline-flex w-fit items-center gap-1 text-sm text-[light-dark(var(--mantine-primary-color-8),var(--mantine-primary-color-4))] hover:underline"
-                  >
-                    <Landmark size={14} aria-hidden />
-                    {museum.name}
-                  </Link>
-                )}
-                {/* `ms-auto` keeps the CTA at the right edge, with or without a museum. */}
-                <Link
-                  href={objectHref}
-                  className="ms-auto inline-flex w-fit items-center gap-1 text-sm font-semibold text-(--mantine-color-anchor) hover:underline"
-                >
-                  {t('View the object')}
-                  <ChevronRight size={14} aria-hidden />
-                </Link>
-              </Group>
-            </Stack>
-          </Card>
+          <ObjectCard object={object} museum={museum} image={objectImage} />
         </Section>
       )}
 
       {author && (
         <Section title={t('Written by')}>
-          <Link
-            href={`/${lng}/user/${author.id}` as Route}
-            className="-mx-2 block rounded-md px-2 py-1 text-inherit no-underline transition-colors hover:bg-(--mantine-color-default-hover)"
-          >
-            <Group gap="sm" wrap="nowrap">
-              <Avatar
-                src={authorAvatar?.thumbnailURL ?? authorAvatar?.url}
-                name={author.name.fullName}
-                alt={author.name.fullName}
-                color="initials"
-                size="md"
-              />
-              <Stack gap={0} miw={0}>
-                <Text fw={600} size="sm">
-                  {author.name.fullName}
-                </Text>
-                {author.bio && (
-                  <Text size="xs" c="dimmed" lineClamp={2}>
-                    {author.bio}
-                  </Text>
-                )}
-              </Stack>
-            </Group>
-          </Link>
+          <AuthorLink author={author} lng={lng} />
         </Section>
       )}
 
@@ -488,5 +384,155 @@ function LinkRow({
         <ChevronRight size={18} className="shrink-0 text-(--mantine-color-dimmed)" aria-hidden />
       </Group>
     </Link>
+  )
+}
+
+/**
+ * The work the content is about. Two rows: its identity (picture, name,
+ * artist and date) side by side, then its description across the full card
+ * width with the way out to the museum and the object's page beneath it, so
+ * the card holds everything about the object, CTA included.
+ */
+async function ObjectCard({
+  object,
+  museum,
+  image,
+}: {
+  object: NonNullable<ContentDetailsProps['object']>
+  museum: ContentDetailsProps['museum']
+  /** The object's populated thumbnail (the page computes it once). */
+  image: Extract<NonNullable<ContentDetailsProps['object']>['thumbnail'], object> | null
+}) {
+  const { t, lng } = await getT('content-page')
+  const objectImage = image
+  const objectHref = `/${lng}/object/${object.id}` as Route
+  return (
+    <Card withBorder radius="md" padding="sm">
+      <Stack gap="sm">
+        <Group align="center" gap="md" wrap="nowrap">
+          <Link
+            href={objectHref}
+            className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
+            tabIndex={-1}
+            aria-hidden
+          >
+            <Image
+              src={objectImage?.thumbnailURL ?? objectImage?.url ?? PLACEHOLDER_IMAGE}
+              alt=""
+              w={{ base: 72, sm: 96 }}
+              h={{ base: 72, sm: 96 }}
+              radius="md"
+              fit="cover"
+            />
+          </Link>
+          <Stack gap={6} miw={0} className="flex-1">
+            <Link href={objectHref} className="text-inherit no-underline hover:underline">
+              <Title order={3} size="h4" lineClamp={2}>
+                {object.name}
+              </Title>
+            </Link>
+            {(object.artist || object.dating) && (
+              <Text size="sm" c="dimmed">
+                {[object.artist, object.dating].filter(Boolean).join(' · ')}
+              </Text>
+            )}
+          </Stack>
+        </Group>
+        {object.description && (
+          <Text size="sm" lineClamp={3}>
+            {object.description}
+          </Text>
+        )}
+        <Group gap="xs">
+          {museum && (
+            <Link
+              href={`/${lng}/museum/${museum.id}` as Route}
+              // Primary .8 on light, .4 on dark (.8 was 1.8:1 there).
+              className="inline-flex w-fit items-center gap-1 text-sm text-[light-dark(var(--mantine-primary-color-8),var(--mantine-primary-color-4))] hover:underline"
+            >
+              <Landmark size={14} aria-hidden />
+              {museum.name}
+            </Link>
+          )}
+          {/* `ms-auto` keeps the CTA at the right edge, with or without a museum. */}
+          <Link
+            href={objectHref}
+            className="ms-auto inline-flex w-fit items-center gap-1 text-sm font-semibold text-(--mantine-color-anchor) hover:underline"
+          >
+            {t('View the object')}
+            <ChevronRight size={14} aria-hidden />
+          </Link>
+        </Group>
+      </Stack>
+    </Card>
+  )
+}
+
+/** The author's profile link: avatar, name and the start of their bio. */
+function AuthorLink({
+  author,
+  lng,
+}: {
+  author: NonNullable<ContentDetailsProps['author']>
+  lng: string
+}) {
+  const authorAvatar = isPopulated(author.avatar) ? author.avatar : null
+  return (
+    <Link
+      href={`/${lng}/user/${author.id}` as Route}
+      className="-mx-2 block rounded-md px-2 py-1 text-inherit no-underline transition-colors hover:bg-(--mantine-color-default-hover)"
+    >
+      <Group gap="sm" wrap="nowrap">
+        <Avatar
+          src={authorAvatar?.thumbnailURL ?? authorAvatar?.url}
+          name={author.name.fullName}
+          alt={author.name.fullName}
+          color="initials"
+          size="md"
+        />
+        <Stack gap={0} miw={0}>
+          <Text fw={600} size="sm">
+            {author.name.fullName}
+          </Text>
+          {author.bio && (
+            <Text size="xs" c="dimmed" lineClamp={2}>
+              {author.bio}
+            </Text>
+          )}
+        </Stack>
+      </Group>
+    </Link>
+  )
+}
+
+/**
+ * The content's sources, numbered (an explicit marker: Tailwind's preflight
+ * strips `ol` numbering), each linked when it has a URL.
+ */
+function SourcesList({
+  sources,
+}: {
+  sources: NonNullable<ContentDetailsProps['content']['sources']>
+}) {
+  return (
+    <List type="ordered" listStyleType="decimal" size="sm" spacing={4}>
+      {sources.map((source, index) => (
+        // `ListItem`, not `List.Item`: server component (see SearchResultCard).
+        <ListItem key={source.id ?? index}>
+          {source.url ? (
+            <a
+              href={source.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-(--mantine-color-anchor) underline-offset-2 hover:underline"
+            >
+              {source.label}
+            </a>
+          ) : (
+            source.label
+          )}
+        </ListItem>
+      ))}
+    </List>
   )
 }

@@ -89,6 +89,20 @@ export function NavigationSpotlight({
       </Stack>
     )
 
+  const searchResults = () => {
+    if (results.length === 0) return <Spotlight.Empty>{t('No results found')}</Spotlight.Empty>
+    return results.map((command) => (
+      <Spotlight.Action
+        key={command.id}
+        label={command.label}
+        description={command.description}
+        leftSection={commandIcon(command)}
+        rightSection={command.lockedPrice ? <LockedPriceBadge price={command.lockedPrice} /> : null}
+        onClick={() => onRun(command)}
+      />
+    ))
+  }
+
   return (
     <Spotlight.Root shortcut={NAVIGATION_SEARCH_SHORTCUTS} query={query} onQueryChange={setQuery}>
       <Spotlight.Search
@@ -112,29 +126,7 @@ export function NavigationSpotlight({
       />
       <Spotlight.ActionsList>
         {text ? (
-          results.length > 0 ? (
-            results.map((command) => (
-              <Spotlight.Action
-                key={command.id}
-                label={command.label}
-                description={command.description}
-                leftSection={
-                  command.group === 'tour' ? (
-                    <RouteIcon size={18} color="var(--mantine-color-grape-6)" aria-hidden />
-                  ) : command.lockedPrice ? (
-                    // Paid at a glance; the badge on the right gives the price.
-                    <PaidMark />
-                  ) : null
-                }
-                rightSection={
-                  command.lockedPrice ? <LockedPriceBadge price={command.lockedPrice} /> : null
-                }
-                onClick={() => onRun(command)}
-              />
-            ))
-          ) : (
-            <Spotlight.Empty>{t('No results found')}</Spotlight.Empty>
-          )
+          searchResults()
         ) : (
           <Stack gap="md" p="sm">
             {pills(t('Tours in this museum'), tours, true)}
@@ -148,4 +140,12 @@ export function NavigationSpotlight({
       </Spotlight.ActionsList>
     </Spotlight.Root>
   )
+}
+
+/** A result's mark: a tour's route, or the paid mark (its badge gives the price). */
+function commandIcon(command: NavigationCommand) {
+  if (command.group === 'tour') {
+    return <RouteIcon size={18} color="var(--mantine-color-grape-6)" aria-hidden />
+  }
+  return command.lockedPrice ? <PaidMark /> : null
 }

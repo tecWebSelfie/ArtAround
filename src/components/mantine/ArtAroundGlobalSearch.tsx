@@ -36,6 +36,7 @@ import {
   Shapes,
   UserRound,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ClearSearchButton } from './ClearSearchButton'
 import { PaidMark } from './PaidMark'
@@ -90,6 +91,12 @@ export type SearchStatus = 'idle' | 'loading' | 'error'
  */
 const RETRY_VALUE = '__retry'
 
+/** The default filter: the text in the item's title, subtitle or city. */
+const matchesText = (text: string) => (item: AutoCompleteItem) =>
+  `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
+    .toLowerCase()
+    .includes(text.toLowerCase())
+
 export function ArtAroundGlobalSearch({
   items,
   onChange,
@@ -133,19 +140,27 @@ export function ArtAroundGlobalSearch({
   const loading = status === 'loading'
   // After a failure, whatever items the owner still passes belong to an
   // earlier text: hide them, so the error and its retry are what the list says.
-  const filteredOptions =
-    status === 'error'
-      ? []
-      : items.filter(
-          filter ??
-            ((item) => {
-              const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
-              return label.toLowerCase().includes(_value.toLowerCase())
-            }),
-        )
+  const filteredOptions = status === 'error' ? [] : items.filter(filter ?? matchesText(_value))
   // Nothing at all to say (no text, no suggestions, nothing pending): keep the
   // dropdown hidden rather than open an empty bordered sliver.
   const nothingToShow = filteredOptions.length === 0 && status === 'idle' && !query
+
+  // The clear button wins once there is text; with an empty field the
+  // spinner shows while the default suggestions load (first visit, or right
+  // after clearing).
+  let rightSection: ReactNode = loading ? <Loader size="xs" aria-hidden /> : null
+  if (_value) {
+    rightSection = (
+      <ClearSearchButton
+        onClear={() => {
+          // Through `handleChange`, so the owner's query resets too and the
+          // default results come back.
+          handleChange('')
+          combobox.openDropdown()
+        }}
+      />
+    )
+  }
 
   return (
     // The animated border wraps the whole combobox, not the input: the
@@ -198,23 +213,7 @@ export function ArtAroundGlobalSearch({
         <ComboboxTarget withExpandedAttribute>
           <TextInput
             leftSection={<Search size={16} />}
-            rightSection={
-              // The clear button wins once there is text; with an empty field
-              // the spinner shows while the default suggestions load (first
-              // visit, or right after clearing).
-              _value ? (
-                <ClearSearchButton
-                  onClear={() => {
-                    // Through `handleChange`, so the owner's query resets too
-                    // and the default results come back.
-                    handleChange('')
-                    combobox.openDropdown()
-                  }}
-                />
-              ) : loading ? (
-                <Loader size="xs" aria-hidden />
-              ) : null
-            }
+            rightSection={rightSection}
             rightSectionPointerEvents="all"
             // Search terms are names and places, not prose: no red squiggles.
             spellCheck={false}

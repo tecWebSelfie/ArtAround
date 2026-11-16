@@ -17,12 +17,13 @@ import {
   type PlannedTour,
 } from '@/lib/tour-plan'
 import { languageName, normalizeLocale } from '@/lib/localized'
-import type { Tour } from '@/payload-types'
+import type { Object as MuseumObject, Tour } from '@/payload-types'
 import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { generateText, Output } from 'ai'
 import { NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
-import { getPayload } from 'payload'
+import { getPayload, type Payload, type TypedLocale } from 'payload'
+import { extractID } from 'payload/shared'
 import { z } from 'zod'
 
 /**
@@ -57,34 +58,12 @@ export async function POST(request: Request) {
     // 1. Which museum: in museum mode always the locked one (the app is that
     // museum's app, whatever the request body says); else the chosen one, or
     // the one named in the interests.
-    let museumId = (await lockedMuseumId()) ?? answers.museumId
-    if (!museumId) {
-      const { docs } = await payload.find({
-        collection: 'museums',
-        limit: 200,
-        depth: 0,
-        locale,
-        select: { name: true, location: true },
-      })
-      if (!docs.length || !answers.interests.trim()) {
-        return NextResponse.json({ error: 'museum' }, { status: 422 })
-      }
-      const { output } = await generateText({
-        model: await textModel(),
-        output: Output.object({
-          schema: z.object({ museumId: z.enum(['none', ...docs.map((museum) => museum.id)]) }),
-        }),
-        system:
-          'Pick the museum the visitor means from the list, or "none" when their words name or clearly describe none of them.',
-        prompt: [
-          `Visitor: ${answers.interests}`,
-          // `id: name` lines: the AI_MOCK model matches the visitor's words against them.
-          ...docs.map((museum) => `${museum.id}: ${museum.name}, ${museum.location?.city ?? ''}`),
-        ].join('\n'),
-      })
-      if (output.museumId === 'none') return NextResponse.json({ error: 'museum' }, { status: 422 })
-      museumId = output.museumId
-    }
+    const museumId =
+      // `||`: an empty id in the body falls through to the interests.
+      (await lockedMuseumId()) ||
+      answers.museumId ||
+      (await museumNamedIn(payload, answers.interests, locale))
+    if (!museumId) return NextResponse.json({ error: 'museum' }, { status: 422 })
 
     // 2. Planned before with the same answers? Reuse it.
     const requestKey = createHash('sha256').update(planRequestKey(museumId, answers)).digest('hex')
@@ -135,65 +114,21 @@ export async function POST(request: Request) {
       select: { name: true, contents: true },
       ...viewer,
     })
-    const candidates: (PlanCandidate & { objectId: string })[] = objects.flatMap((object) => {
-      const point = pointOf.get(object.id)
-      const room = point ? (roomAt(rooms, point)?.name ?? null) : null
-      return (object.contents ?? []).flatMap((content) =>
-        typeof content === 'object' && content.visibility !== 'private' && !isLocked(content)
-          ? [
-              {
-                id: content.id,
-                title: content.title,
-                objectName: object.name,
-                objectId: object.id,
-                room,
-                difficulty: content.difficulty,
-                audience: content.audience ?? 'everyone',
-                minutes: toMinutes(content.durationSeconds) || 1,
-              },
-            ]
-          : [],
-      )
+    const candidates = freeCandidates(objects, (objectId) => {
+      const point = pointOf.get(objectId)
+      return point ? (roomAt(rooms, point)?.name ?? null) : null
     })
     if (!candidates.length) return NextResponse.json({ error: 'empty' }, { status: 422 })
     const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
-    const preview = (
-      tour: Pick<Tour, 'id' | 'title' | 'description' | 'contents'>,
-    ): PlannedTour => {
-      const stops = tour.contents.flatMap((entry) => {
-        const candidate = byId.get(typeof entry === 'string' ? entry : entry.id)
-        return candidate
-          ? [
-              {
-                id: candidate.id,
-                title: candidate.title,
-                objectName: candidate.objectName,
-                room: candidate.room,
-                minutes: candidate.minutes,
-              },
-            ]
-          : []
-      })
-      return {
-        id: tour.id,
-        // Starting it opens the tour inside this museum's navigation.
-        museumId,
-        title: tour.title,
-        description: tour.description ?? '',
-        totalMinutes: stops.reduce((sum, stop) => sum + stop.minutes + WALK_MINUTES_PER_STOP, 0),
-        stops,
-      }
-    }
-    if (previous.docs[0]) {
-      const cached = preview(previous.docs[0])
-      // Content can be removed, made private or lengthened after planning.
-      if (
-        cached.stops.length === previous.docs[0].contents.length &&
-        cached.stops.length &&
-        cached.totalMinutes <= answers.minutes
-      )
-        return NextResponse.json(cached)
-    }
+    const preview = (tour: PreviewTour) => plannedTour(tour, byId, museumId)
+    const cached = previous.docs[0] && preview(previous.docs[0])
+    // Content can be removed, made private or lengthened after planning.
+    const reusable =
+      cached &&
+      cached.stops.length === previous.docs[0].contents.length &&
+      cached.stops.length > 0 &&
+      cached.totalMinutes <= answers.minutes
+    if (reusable) return NextResponse.json(cached)
 
     // 4. The model picks, most important first.
     const { output } = await generateText({
@@ -209,14 +144,7 @@ export async function POST(request: Request) {
     })
 
     // 5. Our rules: no repeats, within the time, then nearest-room order.
-    const selectedObjects = new Set<string>()
-    const picked = [...new Set(output.contentIds)].flatMap((id) => {
-      const candidate = byId.get(id)
-      // Adult/child descriptions of one work are reading choices, not two stops.
-      if (!candidate || selectedObjects.has(candidate.objectId)) return []
-      selectedObjects.add(candidate.objectId)
-      return [candidate]
-    })
+    const picked = onePerWork(output.contentIds, byId)
     // Recover from a model choosing only overlong entries without exceeding time.
     const preferred = fitTimeBudget(picked, answers.minutes)
     const fitted = preferred.length
@@ -249,5 +177,105 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Tour planning failed', error)
     return NextResponse.json({ error: 'unavailable' }, { status: 502 })
+  }
+}
+
+type Candidate = PlanCandidate & { objectId: string }
+type PreviewTour = Pick<Tour, 'id' | 'title' | 'description' | 'contents'>
+
+/**
+ * Without a museum chosen or locked, the one the visitor's interests name or
+ * describe, picked by the model from the list (null when none matches).
+ */
+async function museumNamedIn(payload: Payload, interests: string, locale: TypedLocale) {
+  const { docs } = await payload.find({
+    collection: 'museums',
+    limit: 200,
+    depth: 0,
+    locale,
+    select: { name: true, location: true },
+  })
+  if (!docs.length || !interests.trim()) return null
+  const { output } = await generateText({
+    model: await textModel(),
+    output: Output.object({
+      schema: z.object({ museumId: z.enum(['none', ...docs.map((museum) => museum.id)]) }),
+    }),
+    system:
+      'Pick the museum the visitor means from the list, or "none" when their words name or clearly describe none of them.',
+    prompt: [
+      `Visitor: ${interests}`,
+      // `id: name` lines: the AI_MOCK model matches the visitor's words against them.
+      ...docs.map((museum) => `${museum.id}: ${museum.name}, ${museum.location?.city ?? ''}`),
+    ].join('\n'),
+  })
+  return output.museumId === 'none' ? null : output.museumId
+}
+
+/** The listed contents of the works this visitor can read for free, with their room. */
+function freeCandidates(
+  objects: Pick<MuseumObject, 'id' | 'name' | 'contents'>[],
+  roomOf: (objectId: string) => string | null,
+): Candidate[] {
+  return objects.flatMap((object) => {
+    const room = roomOf(object.id)
+    return (object.contents ?? []).flatMap((content) =>
+      typeof content === 'object' && content.visibility !== 'private' && !isLocked(content)
+        ? [
+            {
+              id: content.id,
+              title: content.title,
+              objectName: object.name,
+              objectId: object.id,
+              room,
+              difficulty: content.difficulty,
+              audience: content.audience ?? 'everyone',
+              minutes: toMinutes(content.durationSeconds) || 1,
+            },
+          ]
+        : [],
+    )
+  })
+}
+
+/** The model's picks, without repeats and one per work: adult/child texts are reading choices, not two stops. */
+function onePerWork(contentIds: string[], byId: Map<string, Candidate>) {
+  const works = new Set<string>()
+  return [...new Set(contentIds)].flatMap((id) => {
+    const candidate = byId.get(id)
+    if (!candidate || works.has(candidate.objectId)) return []
+    works.add(candidate.objectId)
+    return [candidate]
+  })
+}
+
+/** A tour as the planner shows it: its stops that are still candidates, and the time. */
+function plannedTour(
+  tour: PreviewTour,
+  byId: Map<string, Candidate>,
+  museumId: string,
+): PlannedTour {
+  const stops = tour.contents.flatMap((entry) => {
+    const candidate = byId.get(extractID(entry))
+    return candidate
+      ? [
+          {
+            id: candidate.id,
+            title: candidate.title,
+            objectName: candidate.objectName,
+            room: candidate.room,
+            minutes: candidate.minutes,
+          },
+        ]
+      : []
+  })
+  return {
+    id: tour.id,
+    // Starting it opens the tour inside this museum's navigation.
+    museumId,
+    title: tour.title,
+    description: tour.description ?? '',
+    totalMinutes: stops.reduce((sum, stop) => sum + stop.minutes + WALK_MINUTES_PER_STOP, 0),
+    stops,
   }
 }

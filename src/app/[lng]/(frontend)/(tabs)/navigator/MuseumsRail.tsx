@@ -36,7 +36,7 @@ export function MuseumsRail({ museums }: { museums: RailMuseum[] }) {
   useEffect(() => {
     if (!coords) return
     let cancelled = false
-    museumsNear({ latitude: round(coords.latitude), longitude: round(coords.longitude), lng })
+    void museumsNear({ latitude: round(coords.latitude), longitude: round(coords.longitude), lng })
       .catch(() => null)
       .then((list) => {
         if (!cancelled) setNear(list?.length ? { origin: coords, museums: list } : 'failed')

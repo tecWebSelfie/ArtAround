@@ -13,11 +13,12 @@ export type MuseumConfig = { id: string | null; name: string | null }
 
 function fromJson(text: string): MuseumConfig | null {
   const data: unknown = JSON.parse(text)
-  const first = Array.isArray(data)
-    ? data[0]
-    : data && typeof data === 'object' && 'docs' in data && Array.isArray(data.docs)
-      ? data.docs[0]
+  // A bare document, an array of them, or a REST list response (`docs`).
+  const list =
+    data && typeof data === 'object' && 'docs' in data && Array.isArray(data.docs)
+      ? data.docs
       : data
+  const first: unknown = Array.isArray(list) ? list[0] : list
   if (!first || typeof first !== 'object') return null
   const { id, name } = first as { id?: unknown; name?: unknown }
   return {

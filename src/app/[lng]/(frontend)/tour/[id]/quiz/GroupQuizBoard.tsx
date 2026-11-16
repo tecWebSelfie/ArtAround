@@ -80,6 +80,8 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
   const group = useGroup()
   const ended = group?.membership.attributes?.quiz === 'ended'
   const { showResults } = useGroupSettings()
+  let heading = t('Your group is taking the quiz')
+  if (ended) heading = showResults ? t('Quiz results') : t('The quiz is over')
   const finished = guests.filter((guest) => isQuizHandedIn(guest.attributes)).length
   const scores = useScores(
     tour.id,
@@ -87,6 +89,51 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
   )
   // Each guest row looks its score up by token: one Map, not a scan per row.
   const scoreByToken = new Map(scores.map((score) => [score.token, score]))
+
+  // A guest's line: their score once graded (with a link to their answers),
+  // "Finished" once handed in, else how far they are.
+  const guestStatus = (attributes: Record<string, string>) => {
+    const score = attributes.quizToken ? scoreByToken.get(attributes.quizToken) : undefined
+    if (score) {
+      return (
+        <Group gap="xs" wrap="nowrap">
+          <Text size="sm" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
+            {t('{{score}} of {{total}}', score)}
+          </Text>
+          <Anchor
+            component={Link}
+            href={tourQuizResultPath(lng, tour.id, score.token) as Route}
+            size="sm"
+          >
+            {t('Answers')}
+          </Anchor>
+        </Group>
+      )
+    }
+    if (isQuizHandedIn(attributes)) {
+      return (
+        <Group
+          gap={4}
+          c="light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))"
+          wrap="nowrap"
+        >
+          <Check size={14} aria-hidden />
+          <Text size="sm" inherit>
+            {t('Finished')}
+          </Text>
+        </Group>
+      )
+    }
+    const answered = Number(attributes.quizAnswered ?? 0)
+    return (
+      <Text size="sm" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {t('{{answered}} of {{total}} answered', {
+          answered,
+          total: questionCount,
+        })}
+      </Text>
+    )
+  }
 
   const endQuiz = () =>
     modals.openConfirmModal({
@@ -106,11 +153,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
           <Stack gap="lg">
             <Stack gap={4}>
               <Title order={1} size="h2">
-                {ended
-                  ? showResults
-                    ? t('Quiz results')
-                    : t('The quiz is over')
-                  : t('Your group is taking the quiz')}
+                {heading}
               </Title>
               <Text c="dimmed">{tour.title}</Text>
               {!showResults && (
@@ -137,51 +180,15 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
               <Text c="dimmed">{t('Nobody else is in the group right now.')}</Text>
             )}
             <Stack gap="sm" aria-live="polite">
-              {guests.map((guest) => {
-                const token = guest.attributes.quizToken
-                const score = token ? scoreByToken.get(token) : undefined
-                const answered = Number(guest.attributes.quizAnswered ?? 0)
-                return (
-                  <Group key={guest.identity} gap="sm" wrap="nowrap">
-                    <Avatar name={guest.name} color="initials" size="sm" />
-                    <Text size="sm" flex={1} truncate>
-                      {guest.name}
-                    </Text>
-                    {score ? (
-                      <Group gap="xs" wrap="nowrap">
-                        <Text size="sm" fw={600} style={{ fontVariantNumeric: 'tabular-nums' }}>
-                          {t('{{score}} of {{total}}', score)}
-                        </Text>
-                        <Anchor
-                          component={Link}
-                          href={tourQuizResultPath(lng, tour.id, score.token) as Route}
-                          size="sm"
-                        >
-                          {t('Answers')}
-                        </Anchor>
-                      </Group>
-                    ) : isQuizHandedIn(guest.attributes) ? (
-                      <Group
-                        gap={4}
-                        c="light-dark(var(--mantine-color-green-8), var(--mantine-color-green-4))"
-                        wrap="nowrap"
-                      >
-                        <Check size={14} aria-hidden />
-                        <Text size="sm" inherit>
-                          {t('Finished')}
-                        </Text>
-                      </Group>
-                    ) : (
-                      <Text size="sm" c="dimmed" style={{ fontVariantNumeric: 'tabular-nums' }}>
-                        {t('{{answered}} of {{total}} answered', {
-                          answered,
-                          total: questionCount,
-                        })}
-                      </Text>
-                    )}
-                  </Group>
-                )
-              })}
+              {guests.map((guest) => (
+                <Group key={guest.identity} gap="sm" wrap="nowrap">
+                  <Avatar name={guest.name} color="initials" size="sm" />
+                  <Text size="sm" flex={1} truncate>
+                    {guest.name}
+                  </Text>
+                  {guestStatus(guest.attributes)}
+                </Group>
+              ))}
             </Stack>
           </Stack>
         </Container>

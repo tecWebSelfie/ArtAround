@@ -127,14 +127,11 @@ export function createRealisticMuseumMap(
     host.children.push(node.id)
   }
 
+  /** A box at `[x, y, z]` of `[width, height, depth]` metres. */
   function block(
     name: string,
-    x: number,
-    y: number,
-    z: number,
-    width: number,
-    height: number,
-    depth: number,
+    [x, y, z]: [number, number, number],
+    [width, height, depth]: [number, number, number],
     finish: string,
   ) {
     add(
@@ -149,13 +146,11 @@ export function createRealisticMuseumMap(
     )
   }
 
+  /** A room's floor plan: `[x, z, width, depth]` metres from the corner. */
   function room(
     name: string,
     number: string,
-    x: number,
-    z: number,
-    width: number,
-    depth: number,
+    [x, z, width, depth]: [number, number, number, number],
     finish: string,
   ) {
     add(
@@ -227,29 +222,29 @@ export function createRealisticMuseumMap(
   window(courtWest, 4, 'Vetrata corte ovest', 5)
   window(courtEast, 4, 'Vetrata corte est', 5)
 
-  room('Bookshop', '01', 0, 0, 8, 6, palette.wood)
-  room('Foyer e biglietteria', '02', 8, 0, 14, 6, palette.stone)
-  room('Servizi accessibili', '03', 22, 0, 4, 6, palette.stone)
-  room('Caffetteria', '04', 26, 0, 4, 6, palette.wood)
-  room('Galleria di distribuzione', '05', 0, 6, 30, 3, palette.stone)
-  room('Archeologia', '06', 0, 9, 11, 7, palette.ochre)
-  room('Scultura', '07', 0, 16, 11, 8, palette.stone)
-  room('Pittura italiana', '08', 19, 9, 11, 7, palette.blue)
-  room('Arte moderna', '09', 19, 16, 11, 8, palette.rose)
-  room('Mostre temporanee', '10', 11, 17, 8, 7, palette.stone)
-  room('Corte delle sculture', '11', 11, 9, 8, 8, palette.garden)
+  room('Bookshop', '01', [0, 0, 8, 6], palette.wood)
+  room('Foyer e biglietteria', '02', [8, 0, 14, 6], palette.stone)
+  room('Servizi accessibili', '03', [22, 0, 4, 6], palette.stone)
+  room('Caffetteria', '04', [26, 0, 4, 6], palette.wood)
+  room('Galleria di distribuzione', '05', [0, 6, 30, 3], palette.stone)
+  room('Archeologia', '06', [0, 9, 11, 7], palette.ochre)
+  room('Scultura', '07', [0, 16, 11, 8], palette.stone)
+  room('Pittura italiana', '08', [19, 9, 11, 7], palette.blue)
+  room('Arte moderna', '09', [19, 16, 11, 8], palette.rose)
+  room('Mostre temporanee', '10', [11, 17, 8, 7], palette.stone)
+  room('Corte delle sculture', '11', [11, 9, 8, 8], palette.garden)
 
-  block('Banco biglietteria', 14, 0.05, 3, 5, 1.1, 0.9, palette.wood)
-  block('Banco informazioni', 17, 0.05, 3.7, 0.9, 1.1, 2.3, palette.wood)
-  block('Espositore bookshop A', 2, 0.05, 3, 0.5, 1.8, 3, palette.wood)
-  block('Espositore bookshop B', 6, 0.05, 3, 0.5, 1.8, 3, palette.wood)
-  block('Lavabi', 24, 0.05, 1, 2, 0.85, 0.6, palette.stone)
-  block('Cabina servizi', 25, 0.05, 3, 1.6, 2.2, 1.8, palette.wall)
+  block('Banco biglietteria', [14, 0.05, 3], [5, 1.1, 0.9], palette.wood)
+  block('Banco informazioni', [17, 0.05, 3.7], [0.9, 1.1, 2.3], palette.wood)
+  block('Espositore bookshop A', [2, 0.05, 3], [0.5, 1.8, 3], palette.wood)
+  block('Espositore bookshop B', [6, 0.05, 3], [0.5, 1.8, 3], palette.wood)
+  block('Lavabi', [24, 0.05, 1], [2, 0.85, 0.6], palette.stone)
+  block('Cabina servizi', [25, 0.05, 3], [1.6, 2.2, 1.8], palette.wall)
 
   for (const [index, x] of [2.5, 5.5, 8.5].entries()) {
-    block(`Vetrina ${index} base`, x, 0.05, 12.5, 1.5, 0.85, 0.9, palette.wood)
-    block(`Vetrina ${index} vetro`, x, 0.9, 12.5, 1.5, 0.7, 0.9, palette.glass)
-    block(`Reperto ${index}`, x, 0.9, 12.5, 0.3, 0.4, 0.3, palette.bronze)
+    block(`Vetrina ${index} base`, [x, 0.05, 12.5], [1.5, 0.85, 0.9], palette.wood)
+    block(`Vetrina ${index} vetro`, [x, 0.9, 12.5], [1.5, 0.7, 0.9], palette.glass)
+    block(`Reperto ${index}`, [x, 0.9, 12.5], [0.3, 0.4, 0.3], palette.bronze)
   }
   for (const [index, [x, z]] of [
     [3, 20],
@@ -257,21 +252,13 @@ export function createRealisticMuseumMap(
     [15, 13],
     [15, 21],
   ].entries()) {
-    block(`Piedistallo ${index}`, x, 0.05, z, 1.3, 0.8, 1.3, palette.stone)
-    block(`Scultura ${index}`, x, 0.85, z, 0.5, 1.4, 0.65, palette.bronze)
+    block(`Piedistallo ${index}`, [x, 0.05, z], [1.3, 0.8, 1.3], palette.stone)
+    block(`Scultura ${index}`, [x, 0.85, z], [0.5, 1.4, 0.65], palette.bronze)
   }
   for (const [index, z] of [10.8, 13.4, 18, 21].entries()) {
-    block(`Cornice ${index}`, 29.7, 1.25, z, 0.1, 1.2, 1.8, palette.wood)
-    block(
-      `Opera ${index}`,
-      29.63,
-      1.32,
-      z,
-      0.04,
-      1.06,
-      1.66,
-      index < 2 ? palette.bronze : palette.blue,
-    )
+    block(`Cornice ${index}`, [29.7, 1.25, z], [0.1, 1.2, 1.8], palette.wood)
+    const finish = index < 2 ? palette.bronze : palette.blue
+    block(`Opera ${index}`, [29.63, 1.32, z], [0.04, 1.06, 1.66], finish)
   }
   for (const [index, [x, z]] of [
     [5.5, 14.8],
@@ -279,16 +266,16 @@ export function createRealisticMuseumMap(
     [24.5, 20],
     [15, 7.5],
   ].entries()) {
-    block(`Panca ${index} seduta`, x, 0.45, z, 2.6, 0.12, 0.65, palette.wood)
+    block(`Panca ${index} seduta`, [x, 0.45, z], [2.6, 0.12, 0.65], palette.wood)
     for (const dx of [-0.9, 0.9])
-      block(`Panca ${index} gamba ${dx}`, x + dx, 0.05, z, 0.12, 0.4, 0.5, palette.dark)
+      block(`Panca ${index} gamba ${dx}`, [x + dx, 0.05, z], [0.12, 0.4, 0.5], palette.dark)
   }
   for (const [index, z] of [2, 4.5].entries()) {
-    block(`Tavolino bar ${index}`, 28, 0.75, z, 1.2, 0.08, 0.8, palette.wood)
-    block(`Tavolino bar ${index} base`, 28, 0.05, z, 0.12, 0.7, 0.12, palette.dark)
+    block(`Tavolino bar ${index}`, [28, 0.75, z], [1.2, 0.08, 0.8], palette.wood)
+    block(`Tavolino bar ${index} base`, [28, 0.05, z], [0.12, 0.7, 0.12], palette.dark)
   }
-  block('Fioriera corte A', 12.2, 0.05, 10.2, 1.4, 0.45, 1.4, palette.stone)
-  block('Fioriera corte B', 17.8, 0.05, 15.8, 1.4, 0.45, 1.4, palette.stone)
+  block('Fioriera corte A', [12.2, 0.05, 10.2], [1.4, 0.45, 1.4], palette.stone)
+  block('Fioriera corte B', [17.8, 0.05, 15.8], [1.4, 0.45, 1.4], palette.stone)
 
   add(
     LevelNode.parse({

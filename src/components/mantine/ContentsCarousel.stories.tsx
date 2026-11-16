@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect } from 'storybook/test'
 
 import { mockContentMinimal, mockContentsList } from '@/mocks/content.mock'
-import type { ComponentProps } from 'react'
 
 import { ContentsCarousel } from './ContentsCarousel'
 import { serverComponentStory } from '@/mocks/server-component'

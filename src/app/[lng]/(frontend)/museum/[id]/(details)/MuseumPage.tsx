@@ -1,7 +1,4 @@
 import { BackButton } from '@/components/navigation/BackButton'
-import { EditableSection } from '@/components/editing/EditableSection'
-import { MuseumAppearanceForm } from '@/components/editing/forms/MuseumAppearanceForm'
-import { MuseumMetadataForm } from '@/components/editing/forms/MuseumMetadataForm'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { ArtaroundTabs } from '@/components/mantine/ArtaroundTabs'
 import { DetailCover } from '@/components/mantine/DetailCover'
@@ -11,8 +8,6 @@ import { scopedSearchHref } from '@/lib/search-url'
 import type { ReactNode } from 'react'
 import { getT } from '@/i18n.server'
 import { filterPopulated } from '@/lib/isPopulated'
-import { lexicalToHTML } from '@/lib/richtext'
-import { MuseumInfo } from './MuseumInfo'
 import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { SERVICE_TYPES } from '@/lib/pascal/museum-plugin/ServiceNode'
@@ -21,9 +16,6 @@ import { ACCESSIBILITY_COLOR } from '@/theme'
 import {
   Avatar,
   AvatarGroup,
-  Box,
-  Button,
-  ColorSwatch,
   Grid,
   GridCol,
   Group,
@@ -34,19 +26,9 @@ import {
   Tooltip,
   TooltipGroup,
 } from '@mantine/core'
-import {
-  Accessibility,
-  Amphora,
-  BadgeInfo,
-  Compass,
-  FilePlus,
-  Map as MapIcon,
-  MapPin,
-  QrCode,
-  Route as Route_,
-  Users,
-} from 'lucide-react'
+import { Accessibility, Amphora, BadgeInfo, Compass, MapPin } from 'lucide-react'
 import type { Route } from 'next'
+import { MuseumEditActions, MuseumInfo } from './MuseumPageParts'
 
 /**
  * What the visitor may do on this museum, computed server-side with `can()`
@@ -83,11 +65,7 @@ export default async function MuseumPage({
   openOnInfo?: boolean
 }) {
   const { t, lng } = await getT('museum-page')
-  const { t: te } = await getT('editing')
-  const { t: tc } = await getT('common')
 
-  const descriptionHTML = lexicalToHTML(museum.description) || null
-  const base = editing ? `/${editing.lng}` : ''
   const tours = filterPopulated<Tour>(museum.tours?.docs)
   return (
     // One stacked column on phones. From `md` the page is a centered
@@ -145,66 +123,7 @@ export default async function MuseumPage({
                 {t('Explore the map')}
               </LinkButton>
             )}
-            {editing && (editing.isSignedIn || editing.canManageMap) && (
-              // Complex relations get dedicated pages; metadata is edited in place (Info tab).
-              <Group gap="xs">
-                {editing.canManageMap && (
-                  <LinkButton
-                    href={`${base}/museum/${museum.id}/edit/mapeditor` as Route}
-                    variant="light"
-                    size="xs"
-                    leftSection={<MapIcon size={14} />}
-                  >
-                    {te('Add objects to the map')}
-                  </LinkButton>
-                )}
-                {editing.isSignedIn && (
-                  <LinkButton
-                    href={`${base}/tour/new?museum=${museum.id}` as Route}
-                    variant="light"
-                    size="xs"
-                    leftSection={<Route_ size={14} />}
-                  >
-                    {te('Add tour')}
-                  </LinkButton>
-                )}
-                {editing.isSignedIn && (
-                  <LinkButton
-                    href={`${base}/content/new` as Route}
-                    variant="light"
-                    size="xs"
-                    leftSection={<FilePlus size={14} />}
-                  >
-                    {te('Add content')}
-                  </LinkButton>
-                )}
-                {editing.canManageMap && (
-                  <LinkButton
-                    href={`${base}/museum/${museum.id}/members` as Route}
-                    variant="subtle"
-                    size="xs"
-                    leftSection={<Users size={14} />}
-                  >
-                    {te('Staff')}
-                  </LinkButton>
-                )}
-                {editing.canManageMap && (
-                  // A sheet of labels, one QR per object on the map, in the
-                  // page's language (`/api/qr-sheet`). Scanned on site, each
-                  // opens the app in this museum. A plain download link.
-                  <Button
-                    component="a"
-                    href={`/api/qr-sheet?kind=museum&id=${museum.id}&lng=${editing.lng}`}
-                    download
-                    variant="subtle"
-                    size="xs"
-                    leftSection={<QrCode size={14} aria-hidden />}
-                  >
-                    {tc('Print the QR codes of all objects')}
-                  </Button>
-                )}
-              </Group>
-            )}
+            {editing && <MuseumEditActions museumId={museum.id} editing={editing} />}
             <Text>{museum.shortDescription}</Text>
             {translationNotice}
           </Stack>
@@ -239,46 +158,7 @@ export default async function MuseumPage({
           {
             value: t('info'),
             icon: <BadgeInfo size={16} />,
-            panel: (
-              // The pencil stays at the trailing edge of the section it edits;
-              // the read view sets its own measures (MuseumInfo).
-              <>
-                <EditableSection
-                  title={te('About this museum')}
-                  canEdit={Boolean(editing?.canEditDetails)}
-                  form={
-                    editing && (
-                      <MuseumMetadataForm
-                        museum={editing.source}
-                        descriptionHTML={editing.source.descriptionHTML}
-                      />
-                    )
-                  }
-                >
-                  <MuseumInfo museum={museum} descriptionHTML={descriptionHTML} />
-                </EditableSection>
-                {/* The museum's color: only for the people who can change it
-                    (director); visitors just see the app wearing it. */}
-                {editing?.canEditDetails && (
-                  <Box mt="xl">
-                    <EditableSection
-                      title={te('Museum color')}
-                      canEdit
-                      form={<MuseumAppearanceForm museum={editing.source} />}
-                    >
-                      <Group gap="xs">
-                        {museum.brandColor && (
-                          <ColorSwatch color={museum.brandColor} size={20} aria-hidden />
-                        )}
-                        <Text size="sm">
-                          {museum.brandColor ? museum.brandColor : te('Default blue')}
-                        </Text>
-                      </Group>
-                    </EditableSection>
-                  </Box>
-                )}
-              </>
-            ),
+            panel: <MuseumInfo museum={museum} editing={editing} />,
           },
         ]}
       />

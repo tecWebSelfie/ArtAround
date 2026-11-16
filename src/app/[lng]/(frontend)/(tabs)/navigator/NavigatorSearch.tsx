@@ -70,8 +70,10 @@ export function NavigatorSearch({
   // not for the text in the field. A flag set on typing stayed stuck when the
   // text went back to an already-fetched value before the debounce fired.
   const trimmedQuery = query.trim()
-  const status: SearchStatus =
-    result === null || result.query !== trimmedQuery ? 'loading' : result.failed ? 'error' : 'idle'
+  let status: SearchStatus = 'idle'
+  // No answer yet, or one for an older query.
+  if (result === null || result.query !== trimmedQuery) status = 'loading'
+  else if (result.failed) status = 'error'
   const items = result?.items ?? initialItems
 
   return (
@@ -107,14 +109,14 @@ export function NavigatorSearch({
           list closed. Visually hidden: the open list shows the same message
           with its hint and its way out. */}
       <Text className="sr-only" role="status" aria-live="polite">
-        {status === 'error'
-          ? t('Search is not reachable right now.')
-          : status === 'idle' && trimmedQuery && items.length === 0
-            ? t('Nothing matches “{{query}}”.', {
-                query: trimmedQuery,
-                interpolation: { escapeValue: false },
-              })
-            : ''}
+        {status === 'error' && t('Search is not reachable right now.')}
+        {status === 'idle' &&
+          trimmedQuery &&
+          items.length === 0 &&
+          t('Nothing matches “{{query}}”.', {
+            query: trimmedQuery,
+            interpolation: { escapeValue: false },
+          })}
       </Text>
     </>
   )

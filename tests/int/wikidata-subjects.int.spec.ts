@@ -28,7 +28,7 @@ const ENTITIES: Record<string, object> = {
 }
 
 const fakeFetch = vi.fn(async (input: URL | RequestInfo) => {
-  const url = new URL(String(input))
+  const url = new URL(input instanceof Request ? input.url : input)
   if (url.searchParams.get('action') === 'wbsearchentities') {
     return Response.json({
       search: [{ id: 'Q1103801', label: 'Estasi di santa Cecilia', description: 'dipinto' }],

@@ -4,7 +4,7 @@ import { pictureSrc, usablePictures, type Picture } from '@/lib/picture'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { Box, Button, Group, Image, Overlay, Paper, Skeleton, UnstyledButton } from '@mantine/core'
 import { Box as Cube, Image as ImageIcon, Images } from 'lucide-react'
-import { lazy, Suspense, useState } from 'react'
+import { lazy, Suspense, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { KIND_FALLBACK } from './kind-fallback'
 
@@ -76,37 +76,43 @@ export function DetailCover({
   const showPhotosButton = lightbox && shown.length > 1 && !show3d
   const openLightbox = () => setLightboxIndex(0)
 
+  // The 3D model once asked for, else the first picture, else a placeholder.
+  let media: ReactNode = <CoverFallback kind={fallback} />
+  if (show3d && modelUrl) {
+    media = (
+      <Suspense fallback={<Skeleton h="100%" radius={0} />}>
+        <ModelViewer
+          url={modelUrl}
+          label={t('3D model of {{title}}', { title })}
+          unavailable={t('The 3D view is not available on this device.')}
+        />
+      </Suspense>
+    )
+  } else if (cover) {
+    media = (
+      <UnstyledButton
+        w="100%"
+        h="100%"
+        disabled={!lightbox}
+        aria-label={lightbox ? t('Open photos') : undefined}
+        onClick={openLightbox}
+        className={lightbox ? 'cursor-zoom-in' : undefined}
+      >
+        {/* The page's largest paint: fetch it first. */}
+        <Image
+          src={pictureSrc(cover, 'cover')}
+          alt={cover.alt ?? ''}
+          h="100%"
+          fit="cover"
+          fetchPriority="high"
+        />
+      </UnstyledButton>
+    )
+  }
+
   return (
     <Paper radius="lg" pos="relative" h={height} className="overflow-hidden">
-      {show3d && modelUrl ? (
-        <Suspense fallback={<Skeleton h="100%" radius={0} />}>
-          <ModelViewer
-            url={modelUrl}
-            label={t('3D model of {{title}}', { title })}
-            unavailable={t('The 3D view is not available on this device.')}
-          />
-        </Suspense>
-      ) : cover ? (
-        <UnstyledButton
-          w="100%"
-          h="100%"
-          disabled={!lightbox}
-          aria-label={lightbox ? t('Open photos') : undefined}
-          onClick={openLightbox}
-          className={lightbox ? 'cursor-zoom-in' : undefined}
-        >
-          {/* The page's largest paint: fetch it first. */}
-          <Image
-            src={pictureSrc(cover, 'cover')}
-            alt={cover.alt ?? ''}
-            h="100%"
-            fit="cover"
-            fetchPriority="high"
-          />
-        </UnstyledButton>
-      ) : (
-        <CoverFallback kind={fallback} />
-      )}
+      {media}
 
       {(modelUrl || showPhotosButton) && (
         // Overlay Opt-In: only the buttons take pointer events, the canvas

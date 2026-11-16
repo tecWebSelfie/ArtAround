@@ -94,7 +94,10 @@ export const objectModelGenerationEndpoints: Endpoint[] = [
     method: 'post',
     handler: async (req) => {
       if (!req.user) return Response.json({ error: 'Unauthorized' }, { status: 401 })
-      const objectId = String(req.routeParams?.id ?? '')
+      const objectId = req.routeParams?.id
+      if (typeof objectId !== 'string') {
+        return Response.json({ error: 'Missing object id' }, { status: 400 })
+      }
       const object = await req.payload.findByID({
         collection: 'objects',
         id: objectId,
@@ -123,61 +126,18 @@ export const objectModelGenerationEndpoints: Endpoint[] = [
           ? { ...parsed.data, generation: undefined }
           : parsed.data
       const requestedBy = String(req.user.id)
-      const existing = await req.payload.find({
-        collection: 'payload-jobs',
-        depth: 0,
-        limit: 1,
-        sort: '-createdAt',
-        req,
-        where: {
-          and: [
-            { workflowSlug: { in: [...MODEL_WORKFLOWS] } },
-            { 'input.objectId': { equals: object.id } },
-            { 'input.requestedBy': { equals: requestedBy } },
-            {
-              or: [
-                { 'input.requestId': { equals: command.requestId } },
-                { and: [{ completedAt: { exists: false } }, { hasError: { not_equals: true } }] },
-              ],
-            },
-          ],
-        },
-      })
-      if (existing.docs[0]) return Response.json(existing.docs[0], { status: 202 })
+      const existing = await pendingJob(req, object.id, requestedBy, command.requestId)
+      if (existing) return Response.json(existing, { status: 202 })
       if (!canSteer && command.action === 'start') {
         // Only after dedupe, so a repeated request never re-uploads to Mint.
-        const imageUrl = await objectThumbnailReference(req, object)
-        command = {
-          ...command,
-          generation: zGenerateModelBody.parse({
-            prompt: objectGenerationPrompt(object),
-            ...(imageUrl ? { imageUrl } : {}),
-          }),
-        }
+        command = { ...command, generation: await objectOnlyGeneration(req, object) }
       }
       let operationId: string | undefined
       let prompt = command.action === 'start' ? command.generation?.prompt : undefined
       if (command.action !== 'start') {
-        const preview = (await req.payload.findByID({
-          collection: 'payload-jobs',
-          id: command.previewJobId,
-          depth: 0,
-          req,
-          overrideAccess: false,
-        })) as Job<'interactiveObjectModel'>
-        if (
-          preview.workflowSlug !== 'interactiveObjectModel' ||
-          preview.input.objectId !== object.id ||
-          !preview.completedAt ||
-          preview.hasError
-        ) {
-          return Response.json({ error: 'Preview is not ready' }, { status: 409 })
-        }
-        operationId =
-          preview.taskStatus.pollMintModelOperation?.['wait-preview']?.output.mintOperationId
-        prompt = preview.taskStatus.loadObjectGenerationContext?.['load-context']?.output.prompt
-        if (!operationId)
-          return Response.json({ error: 'Missing preview operation' }, { status: 409 })
+        const preview = await previewOperation(req, object.id, command.previewJobId)
+        if (preview instanceof Response) return preview
+        ;({ operationId, prompt } = preview)
       }
       const common = { objectId: object.id, requestedBy, requestId: command.requestId, prompt }
       const job =
@@ -196,3 +156,70 @@ export const objectModelGenerationEndpoints: Endpoint[] = [
     },
   },
 ]
+
+/**
+ * This user's job for the object that answers this request already: the same
+ * request id (a retried click), or any job still running (one at a time).
+ */
+async function pendingJob(
+  req: PayloadRequest,
+  objectId: string,
+  requestedBy: string,
+  requestId: string,
+) {
+  const { docs } = await req.payload.find({
+    collection: 'payload-jobs',
+    depth: 0,
+    limit: 1,
+    sort: '-createdAt',
+    req,
+    where: {
+      and: [
+        { workflowSlug: { in: [...MODEL_WORKFLOWS] } },
+        { 'input.objectId': { equals: objectId } },
+        { 'input.requestedBy': { equals: requestedBy } },
+        {
+          or: [
+            { 'input.requestId': { equals: requestId } },
+            { and: [{ completedAt: { exists: false } }, { hasError: { not_equals: true } }] },
+          ],
+        },
+      ],
+    },
+  })
+  return docs[0]
+}
+
+/**
+ * The finished preview a revision or an approval continues from: its Mint
+ * operation and the prompt it was made with. A 409 while it isn't ready.
+ */
+async function previewOperation(req: PayloadRequest, objectId: string, previewJobId: string) {
+  const preview = (await req.payload.findByID({
+    collection: 'payload-jobs',
+    id: previewJobId,
+    depth: 0,
+    req,
+    overrideAccess: false,
+  })) as Job<'interactiveObjectModel'>
+  const ready =
+    preview.workflowSlug === 'interactiveObjectModel' &&
+    preview.input.objectId === objectId &&
+    preview.completedAt &&
+    !preview.hasError
+  if (!ready) return Response.json({ error: 'Preview is not ready' }, { status: 409 })
+  const operationId =
+    preview.taskStatus.pollMintModelOperation?.['wait-preview']?.output.mintOperationId
+  if (!operationId) return Response.json({ error: 'Missing preview operation' }, { status: 409 })
+  const prompt = preview.taskStatus.loadObjectGenerationContext?.['load-context']?.output.prompt
+  return { operationId, prompt }
+}
+
+/** A non-owner's generation: the object document's own prompt and thumbnail. */
+async function objectOnlyGeneration(req: PayloadRequest, object: MuseumObject) {
+  const imageUrl = await objectThumbnailReference(req, object)
+  return zGenerateModelBody.parse({
+    prompt: objectGenerationPrompt(object),
+    ...(imageUrl ? { imageUrl } : {}),
+  })
+}

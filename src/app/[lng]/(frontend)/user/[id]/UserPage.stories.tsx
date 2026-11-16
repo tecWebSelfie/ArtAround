@@ -80,7 +80,7 @@ export const VerifiedCreator: Story = {
     // Active creator role: verified badge plus the authored content, no curator badge.
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentMinimal.title)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -93,7 +93,7 @@ export const AuthorVerifiedByContents: Story = {
     ).resolves.toBeTruthy()
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentSecond.title)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -106,7 +106,7 @@ export const CuratorWithMuseums: Story = {
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockMuseumUffizi.name)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockMuseumBrera.name)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -134,8 +134,8 @@ export const InactiveRole: Story = {
     await expect(
       canvas.findByRole('heading', { name: mockUserInactiveRole.name.fullName }),
     ).resolves.toBeTruthy()
-    expect(canvas.queryByText('Verified creator')).toBeNull()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Verified creator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -146,7 +146,7 @@ export const UnpopulatedReferences: Story = {
     await expect(
       canvas.findByRole('heading', { name: 'Contents' }, { timeout: 5000 }),
     ).resolves.toBeTruthy()
-    expect(canvas.queryByText('Verified creator')).toBeNull()
+    await expect(canvas.queryByText('Verified creator')).toBeNull()
   },
 }
 

@@ -94,8 +94,11 @@ function joinParts(...parts: Array<string | null | undefined>) {
 }
 
 function createdAt(value: unknown): string | undefined {
-  if (!value) return undefined
-  const date = new Date(String(value))
+  // Payload stores dates as ISO strings; a Date or a timestamp also reads.
+  if (typeof value !== 'string' && typeof value !== 'number' && !(value instanceof Date)) {
+    return undefined
+  }
+  const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : date.toISOString()
 }
 
@@ -377,50 +380,24 @@ export async function refreshSearchDocs({
     if (relation?.value) bySourceId.set(String(relation.value), searchDoc)
   }
 
-  // Unlisted tours and contents (private, or one visitor's tours) stay out of
-  // the index: the same rule as the plugin's `skipSync` (`isUnlistedInSearch`).
-  const hidden = new Set<string>()
-  if (collection === 'tours' || collection === 'contents') {
-    const { docs } = await payload.find({
-      collection,
-      where: { id: { in: uniqueIds } },
-      select:
-        collection === 'tours'
-          ? { visibility: true, generation: true, visitCopyOf: true }
-          : { visibility: true },
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      req,
-    })
-    for (const doc of docs) if (isUnlistedInSearch(doc)) hidden.add(String(doc.id))
-  }
-
+  const hidden = await unlistedIds(payload, collection, uniqueIds, req)
   for (const id of uniqueIds) {
     if (hidden.has(id)) continue
     try {
       const data = await buildSearchDoc({ payload, collection, id, req })
       const current = bySourceId.get(id)
-      if (current) {
-        await payload.update({
-          collection: 'search',
-          id: current.id,
-          data,
-          overrideAccess: true,
-          req,
-        })
-      } else {
-        await payload.create({
-          collection: 'search',
-          data: {
-            ...data,
-            doc: { relationTo: collection, value: id },
-            priority: SEARCH_PRIORITIES[collection],
-          },
-          overrideAccess: true,
-          req,
-        })
-      }
+      await (current
+        ? payload.update({ collection: 'search', id: current.id, data, overrideAccess: true, req })
+        : payload.create({
+            collection: 'search',
+            data: {
+              ...data,
+              doc: { relationTo: collection, value: id },
+              priority: SEARCH_PRIORITIES[collection],
+            },
+            overrideAccess: true,
+            req,
+          }))
     } catch (error) {
       // One stale relation must not roll back the museum save or block the
       // remaining dependent documents.
@@ -431,6 +408,33 @@ export async function refreshSearchDocs({
       })
     }
   }
+}
+
+/**
+ * Unlisted tours and contents (private, or one visitor's tours) among `ids`:
+ * they stay out of the index, the same rule as the plugin's `skipSync`
+ * (`isUnlistedInSearch`). Objects are always listed.
+ */
+async function unlistedIds(
+  payload: Payload,
+  collection: Extract<SearchPluginCollection, 'tours' | 'contents' | 'objects'>,
+  ids: string[],
+  req?: PayloadRequest,
+) {
+  if (collection === 'objects') return new Set<string>()
+  const { docs } = await payload.find({
+    collection,
+    where: { id: { in: ids } },
+    select:
+      collection === 'tours'
+        ? { visibility: true, generation: true, visitCopyOf: true }
+        : { visibility: true },
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  return new Set(docs.filter(isUnlistedInSearch).map((doc) => String(doc.id)))
 }
 
 /**

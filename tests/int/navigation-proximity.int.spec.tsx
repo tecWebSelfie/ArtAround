@@ -93,7 +93,9 @@ describe('nearby works through walls', () => {
 describe('dismissing the notice', () => {
   it('keeps a dismissed work hidden when sensor jitter moves it briefly out of range', () => {
     const { update } = renderProximity({ point: [11, 5] })
-    act(() => fireEvent.click(screen.getByRole('button', { name: 'Dismiss nearby works' })))
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss nearby works' }))
+    })
     expect(shown('East work')).toBe(false)
 
     update({ point: [17, 5] }) // one jittery fix: 5.5 m away, out of range
@@ -104,7 +106,9 @@ describe('dismissing the notice', () => {
 
   it('shows it again once the visitor’s context changes', () => {
     const { update } = renderProximity({ point: [11, 5] })
-    act(() => fireEvent.click(screen.getByRole('button', { name: 'Dismiss nearby works' })))
+    act(() => {
+      fireEvent.click(screen.getByRole('button', { name: 'Dismiss nearby works' }))
+    })
 
     update({ point: [11, 5], scopeKey: 'museum:other-at:device:' })
 

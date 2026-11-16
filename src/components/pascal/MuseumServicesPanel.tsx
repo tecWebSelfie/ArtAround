@@ -4,16 +4,7 @@ import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import { collectMuseumMarkers, type ServiceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_NODE_TYPE, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { useMuseumMarkersStore } from '@/lib/pascal/museum-plugin/services-store'
-import {
-  ActionIcon,
-  Badge,
-  Card,
-  Divider,
-  Group,
-  Stack,
-  Text,
-  Tooltip,
-} from '@mantine/core'
+import { ActionIcon, Badge, Card, Divider, Group, Stack, Text, Tooltip } from '@mantine/core'
 import { type AnyNode, type AnyNodeId, useScene } from '@pascal-app/core'
 import { armToolMode, useEditor } from '@pascal-app/editor'
 import { useViewer } from '@pascal-app/viewer'
@@ -42,7 +33,6 @@ export function MuseumServicesPanel() {
   const nodes = useScene((state) => state.nodes)
   const levelId = useViewer((state) => state.selection.levelId)
   const selectedService = useMuseumMarkersStore((state) => state.selectedService)
-  const selectService = useMuseumMarkersStore((state) => state.selectService)
 
   // The toolbar owns type selection; deriving and ordering the visible nodes in
   // one memo keeps the panel focused on the current service category.

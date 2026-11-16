@@ -134,22 +134,22 @@ const NAVIGATION_KEYS: NavigationKey[] = [
   'age',
 ]
 
+/** Whether a navigation parameter holds a value its route can use. */
+function isValidNavigationValue(key: NavigationKey, value: string) {
+  if (key === 'mobility') return value === 'wheelchair'
+  if (key === 'audience') return value === 'children'
+  if (key === 'age') return readingAge(value) !== undefined
+  return true
+}
+
 /** Carry shareable navigation state between canonical and contextual routes. */
 export function withNavigationPosition(path: string, search: string | NavigationSearch) {
   const input = typeof search === 'string' ? new URLSearchParams(search) : search
   const output = new URLSearchParams()
   for (const key of NAVIGATION_KEYS) {
     const value = input instanceof URLSearchParams ? input.get(key) : input[key]
-    const valid =
-      key === 'mobility'
-        ? value === 'wheelchair'
-        : key === 'audience'
-          ? value === 'children'
-          : key === 'age'
-            ? typeof value === 'string' && readingAge(value) !== undefined
-            : typeof value === 'string' && value
-    if (valid) {
-      output.set(key, value as string)
+    if (typeof value === 'string' && value && isValidNavigationValue(key, value)) {
+      output.set(key, value)
     }
   }
   return `${path}${output.size ? `?${output}` : ''}` as Route

@@ -48,8 +48,9 @@ export function useNavState(account: NavAccount | null) {
   const { t } = useT(undefined, { keyPrefix: 'navbar' })
   const { status, user } = useAuth()
 
-  const signedIn: NavAccount | null =
-    status === 'loading' ? account : user ? toNavAccount(user) : null
+  // While the session loads, the account the server rendered stays shown.
+  const loaded = user ? toNavAccount(user) : null
+  const signedIn: NavAccount | null = status === 'loading' ? account : loaded
 
   const localize = (href: string) => `/${lng}${href}` as Route
   const isActive = (href: string) => {

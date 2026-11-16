@@ -28,6 +28,17 @@ export function useGroupExit() {
       onConfirm: () => group?.leave(),
     })
 
+  // Errors are shown here, so the modal's callback can drop the promise.
+  const end = async () => {
+    if (!group) return
+    try {
+      await group.end()
+      router.push(`/${lng}/navigator` as Route)
+    } catch {
+      notifications.show({ title: t('The group could not be ended. Try again.'), message: '' })
+    }
+  }
+
   const confirmEnd = () =>
     modals.openConfirmModal({
       title: t('End the group tour?'),
@@ -35,15 +46,7 @@ export function useGroupExit() {
       children: <Text size="sm">{t('Everyone leaves the group and continues on their own.')}</Text>,
       labels: { confirm: t('End for everyone'), cancel: t('Cancel') },
       confirmProps: { color: 'red' },
-      onConfirm: async () => {
-        if (!group) return
-        try {
-          await group.end()
-          router.push(`/${lng}/navigator` as Route)
-        } catch {
-          notifications.show({ title: t('The group could not be ended. Try again.'), message: '' })
-        }
-      },
+      onConfirm: () => void end(),
     })
 
   return { confirmLeave, confirmEnd }

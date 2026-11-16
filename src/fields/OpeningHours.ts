@@ -17,24 +17,6 @@ export const OpeningHours: GroupField = {
   ],
 }
 
-// da completare se si vuole
-const ExtraordinarySchedule: ArrayField = {
-  name: 'extraordinaryOpeningHours',
-  type: 'array',
-  fields: [
-    {
-      name: 'startDate',
-      type: 'date',
-      required: true,
-    },
-    {
-      name: 'endDate', //se non c'è, l'orario straordinario è solo per un giorno
-      type: 'date',
-      required: false,
-    },
-  ],
-}
-
 /**
  * A time of day at the museum, as `HH:mm` text: the museum's own wall clock,
  * like the map services' hours (`ServiceOpeningHours`). Not a date field: a

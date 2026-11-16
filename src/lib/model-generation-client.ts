@@ -152,7 +152,8 @@ export async function uploadModelReference(file: File, requestId: string) {
   const base64Data = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader()
     reader.onerror = () => reject(reader.error)
-    reader.onload = () => resolve(String(reader.result).split(',')[1])
+    // readAsDataURL always yields a string: `data:<type>;base64,<data>`.
+    reader.onload = () => resolve((reader.result as string).split(',')[1])
     reader.readAsDataURL(file)
   })
   const { data } = await uploadReferenceImage({

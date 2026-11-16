@@ -1,12 +1,7 @@
 import config from '@/payload.config'
-import {
-  keepKnownLinks,
-  LINKS_HEADER,
-  type ExpansionAngle,
-  type ExpansionLink,
-} from '@/lib/expansion'
+import { keepKnownLinks, LINKS_HEADER, type ExpansionLink } from '@/lib/expansion'
 import { expansionPrompt } from '@/lib/expansion-prompt'
-import { previousStepsWhere, variantWhere } from '@/lib/expansion-variants'
+import { type MoreStep, previousStepsWhere, variantWhere } from '@/lib/expansion-variants'
 import { externalSources, type ExternalSource } from '@/lib/expansion-sources'
 import { normalizeLocale } from '@/lib/localized'
 import { lockedMuseumId } from '@/lib/museum-mode'
@@ -24,7 +19,8 @@ import { TEXT_MODEL, textModel } from '@/lib/ai-models'
 import { streamText } from 'ai'
 import IsoCodes from 'iso-639-1'
 import { NextResponse } from 'next/server'
-import { getPayload } from 'payload'
+import { getPayload, type Payload } from 'payload'
+import { extractID } from 'payload/shared'
 import { z } from 'zod'
 import { ExpansionRequestSchema } from '@/lib/expansion-request'
 
@@ -62,14 +58,12 @@ async function previousAdditions(
   payload: Awaited<ReturnType<typeof getPayload>>,
   target: 'contents' | 'objects',
   id: string,
-  angle: ExpansionAngle,
-  step: number,
   locale: NonNullable<ReturnType<typeof normalizeLocale>>,
-  age?: number,
+  more: MoreStep,
 ): Promise<string[]> {
   const { docs } = await payload.find({
     collection: 'contentVariants',
-    where: previousStepsWhere(target, id, angle, step, age),
+    where: previousStepsWhere(target, id, more),
     locale,
     fallbackLocale: false,
     sort: 'step',
@@ -97,106 +91,19 @@ export async function POST(request: Request) {
   const payload = await getPayload({ config })
   const viewer = await asViewer()
 
+  // The museum-mode cookie, read alongside the subject (step 2 needs it).
+  const locked = lockedMuseumId()
   // 1. The original, read as the visitor: a paid body they may not read is absent.
-  let subject: { name: string; text: string; object: MuseumObject | null }
-  try {
-    if (target === 'contents') {
-      const content = await payload.findByID({
-        collection: 'contents',
-        id,
-        locale,
-        depth: 1,
-        ...viewer,
-      })
-      if (!content.body) return NextResponse.json({ error: 'Locked' }, { status: 403 })
-      const objectId = contentObjectId(content)
-      const object = objectId
-        ? await payload.findByID({
-            collection: 'objects',
-            id: objectId,
-            locale,
-            depth: 1,
-            ...viewer,
-          })
-        : null
-      subject = {
-        name: object ? `${content.title} (${object.name})` : content.title,
-        text: convertLexicalToPlaintext({ data: content.body }),
-        object,
-      }
-    } else {
-      const object = await payload.findByID({
-        collection: 'objects',
-        id,
-        locale,
-        depth: 1,
-        populate: { contents: { title: true, body: true } },
-        ...viewer,
-      })
-      // Only the contents this visitor may read feed the text.
-      const readable = (object.contents ?? []).flatMap((content) =>
-        typeof content === 'object' && content.body
-          ? [`${content.title}: ${convertLexicalToPlaintext({ data: content.body })}`]
-          : [],
-      )
-      subject = {
-        name: object.name,
-        text: [object.description ?? '', ...readable].join('\n\n'),
-        object,
-      }
-    }
-  } catch {
-    return NextResponse.json({ error: 'Not found' }, { status: 404 })
-  }
+  const subject = await readSubject(payload, { target, id, locale, viewer }).catch(() => null)
+  if (!subject) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  if (subject === 'locked') return NextResponse.json({ error: 'Locked' }, { status: 403 })
 
   // 2. Entities of the same museum the text may link to.
-  // In museum mode, prefer the locked museum when the object is in several.
-  const locked = await lockedMuseumId()
-  const museumIds = (subject.object?.museums?.docs ?? []).map((museum) =>
-    typeof museum === 'string' ? museum : museum.id,
-  )
-  const museumId = museumIds.find((id) => id === locked) ?? museumIds[0]
-  const links: ExpansionLink[] = []
-  if (museumId) {
-    const { objects } = await payload.findByID({
-      collection: 'museums',
-      id: museumId,
-      depth: 0,
-      select: { objects: true },
-    })
-    const ids = (objects ?? [])
-      .map((entry) => (typeof entry === 'string' ? entry : entry.id))
-      .filter((objectId) => objectId !== subject.object?.id)
-      .slice(0, MAX_LINKS)
-    const { docs } = await payload.find({
-      collection: 'objects',
-      where: { id: { in: ids } },
-      locale,
-      depth: 1,
-      pagination: false,
-      populate: { contents: { title: true } },
-      select: { name: true, thumbnail: true, contents: true },
-      ...viewer,
-    })
-    for (const object of docs) {
-      links.push({
-        kind: 'object',
-        id: object.id,
-        title: object.name,
-        thumbnail: thumbnailUrl(object),
-      })
-      for (const content of object.contents ?? []) {
-        if (typeof content === 'object') {
-          links.push({
-            kind: 'content',
-            id: content.id,
-            title: content.title,
-            thumbnail: thumbnailUrl(object),
-          })
-        }
-      }
-    }
-  }
+  const links = await museumLinks(payload, subject.object, {
+    locale,
+    viewer,
+    locked: await locked,
+  })
   const known = new Set(links.map((link) => link.id))
   const headers = { [LINKS_HEADER]: encodeURIComponent(JSON.stringify(links)) }
 
@@ -224,7 +131,11 @@ export async function POST(request: Request) {
   // angle: the model gets them too, as text the visitor has already read.
   const alreadyRead =
     ask.kind === 'more' && (ask.step ?? 1) > 1
-      ? await previousAdditions(payload, target, id, ask.angle, ask.step ?? 1, locale, ask.age)
+      ? await previousAdditions(payload, target, id, locale, {
+          angle: ask.angle,
+          step: ask.step ?? 1,
+          age: ask.age,
+        })
       : []
   const sources: ExternalSource[] = await externalSources(
     subject.object?.name ?? subject.name,
@@ -249,44 +160,161 @@ export async function POST(request: Request) {
       const markdown = keepKnownLinks(text.trim(), known)
       if (!markdown) return
       const body = convertMarkdownToLexical({ editorConfig, markdown }) as ContentVariant['body']
-      try {
-        if (existing) {
-          // Same request, new language: another locale of the same document.
-          await payload.update({
-            collection: 'contentVariants',
-            id: existing.id,
-            locale,
-            data: { body },
-          })
-        } else {
-          await payload.create({
-            collection: 'contentVariants',
-            locale,
-            data: {
-              kind: ask.kind,
-              ...(target === 'contents' ? { content: id } : { object: id }),
-              ...(ask.age === undefined ? {} : { age: ask.age }),
-              ...(ask.kind === 'more'
-                ? { angle: ask.angle, step: ask.step ?? 1 }
-                : {
-                    difficulty: ask.difficulty,
-                    audience: ask.audience,
-                    // The requested length is the lookup key; the real one is close to it.
-                    durationSeconds: ask.seconds,
-                  }),
-              body,
-              generation: {
-                generated: true,
-                model: TEXT_MODEL,
-                sources: sources.map(({ title, url }) => ({ title, url })),
-              },
-            },
-          })
-        }
-      } catch (error) {
-        console.error('Saving the expansion failed', error)
-      }
+      await saveExpansion(payload, { target, id, ask, locale, existing, body, sources }).catch(
+        (error: unknown) => console.error('Saving the expansion failed', error),
+      )
     },
   })
   return result.toTextStreamResponse({ headers })
+}
+
+type Viewer = Awaited<ReturnType<typeof asViewer>>
+type Locale = NonNullable<ReturnType<typeof normalizeLocale>>
+type Subject = { name: string; text: string; object: MuseumObject | null }
+
+/**
+ * What the text expands: a content (with its work, if any) or a work (with
+ * the contents this visitor may read). `'locked'` for a paid body the
+ * visitor can't read; throws when the document doesn't exist for them.
+ */
+async function readSubject(
+  payload: Payload,
+  {
+    target,
+    id,
+    locale,
+    viewer,
+  }: { target: 'contents' | 'objects'; id: string; locale: Locale; viewer: Viewer },
+): Promise<Subject | 'locked'> {
+  if (target === 'contents') {
+    const content = await payload.findByID({
+      collection: 'contents',
+      id,
+      locale,
+      depth: 1,
+      ...viewer,
+    })
+    if (!content.body) return 'locked'
+    const objectId = contentObjectId(content)
+    const object = objectId
+      ? await payload.findByID({ collection: 'objects', id: objectId, locale, depth: 1, ...viewer })
+      : null
+    return {
+      name: object ? `${content.title} (${object.name})` : content.title,
+      text: convertLexicalToPlaintext({ data: content.body }),
+      object,
+    }
+  }
+  const object = await payload.findByID({
+    collection: 'objects',
+    id,
+    locale,
+    depth: 1,
+    populate: { contents: { title: true, body: true } },
+    ...viewer,
+  })
+  // Only the contents this visitor may read feed the text.
+  const readable = (object.contents ?? []).flatMap((content) =>
+    typeof content === 'object' && content.body
+      ? [`${content.title}: ${convertLexicalToPlaintext({ data: content.body })}`]
+      : [],
+  )
+  return { name: object.name, text: [object.description ?? '', ...readable].join('\n\n'), object }
+}
+
+/**
+ * The other works of the subject's museum and their contents, which the text
+ * may link to. In museum mode, the locked museum wins when the work is in
+ * several.
+ */
+async function museumLinks(
+  payload: Payload,
+  object: MuseumObject | null,
+  { locale, viewer, locked }: { locale: Locale; viewer: Viewer; locked: string | null },
+): Promise<ExpansionLink[]> {
+  const museumIds = (object?.museums?.docs ?? []).map(extractID)
+  const museumId = museumIds.find((museum) => museum === locked) ?? museumIds[0]
+  if (!museumId) return []
+  const { objects } = await payload.findByID({
+    collection: 'museums',
+    id: museumId,
+    depth: 0,
+    select: { objects: true },
+  })
+  const ids = (objects ?? [])
+    .map(extractID)
+    .filter((objectId) => objectId !== object?.id)
+    .slice(0, MAX_LINKS)
+  const { docs } = await payload.find({
+    collection: 'objects',
+    where: { id: { in: ids } },
+    locale,
+    depth: 1,
+    pagination: false,
+    populate: { contents: { title: true } },
+    select: { name: true, thumbnail: true, contents: true },
+    ...viewer,
+  })
+  return docs.flatMap((work) => {
+    const thumbnail = thumbnailUrl(work)
+    const contents = (work.contents ?? []).flatMap((content) =>
+      typeof content === 'object'
+        ? [{ kind: 'content' as const, id: content.id, title: content.title, thumbnail }]
+        : [],
+    )
+    return [{ kind: 'object' as const, id: work.id, title: work.name, thumbnail }, ...contents]
+  })
+}
+
+/**
+ * Stores a finished text for the next visitor: another locale of the same
+ * document when the request was already written in another language.
+ */
+async function saveExpansion(
+  payload: Payload,
+  {
+    target,
+    id,
+    ask,
+    locale,
+    existing,
+    body,
+    sources,
+  }: {
+    target: 'contents' | 'objects'
+    id: string
+    ask: z.infer<typeof ExpansionRequestSchema>
+    locale: Locale
+    existing: ContentVariant | undefined
+    body: ContentVariant['body']
+    sources: ExternalSource[]
+  },
+) {
+  if (existing) {
+    await payload.update({ collection: 'contentVariants', id: existing.id, locale, data: { body } })
+    return
+  }
+  await payload.create({
+    collection: 'contentVariants',
+    locale,
+    data: {
+      kind: ask.kind,
+      ...(target === 'contents' ? { content: id } : { object: id }),
+      ...(ask.age === undefined ? {} : { age: ask.age }),
+      ...(ask.kind === 'more'
+        ? { angle: ask.angle, step: ask.step ?? 1 }
+        : {
+            difficulty: ask.difficulty,
+            audience: ask.audience,
+            // The requested length is the lookup key; the real one is close to it.
+            durationSeconds: ask.seconds,
+          }),
+      body,
+      generation: {
+        generated: true,
+        model: TEXT_MODEL,
+        sources: sources.map(({ title, url }) => ({ title, url })),
+      },
+    },
+  })
 }

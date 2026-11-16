@@ -31,22 +31,33 @@ const isPoint = (value: unknown): value is PolygonPoint2D =>
 
 export function museumRooms(nodes: Record<string, unknown> | null | undefined): MuseumRooms {
   const all = Object.values(nodes ?? {}) as RawNode[]
-  const rooms: Room[] = []
-  const doors: Door[] = []
-  const objects: PlacedObject[] = []
-  // Zones are Pascal's rooms: a named polygon on the floor plan.
-  for (const node of all) {
-    if (
-      node.type === 'zone' &&
-      typeof node.id === 'string' &&
-      Array.isArray(node.polygon) &&
-      node.polygon.every(isPoint)
-    ) {
-      rooms.push({ id: node.id, name: String(node.name ?? ''), polygon: node.polygon })
-    }
-  }
-  // A door stores its distance along its host wall (`position[0]`), so its
-  // plan point is the wall start moved that far towards the wall end.
+  return { rooms: roomsOf(all), doors: doorsOf(all), objects: objectsOf(all) }
+}
+
+/** Zones are Pascal's rooms: a named polygon on the floor plan. */
+function roomsOf(all: RawNode[]): Room[] {
+  return all.flatMap((node) =>
+    node.type === 'zone' &&
+    typeof node.id === 'string' &&
+    Array.isArray(node.polygon) &&
+    node.polygon.every(isPoint)
+      ? [
+          {
+            id: node.id,
+            name: typeof node.name === 'string' ? node.name : '',
+            polygon: node.polygon,
+          },
+        ]
+      : [],
+  )
+}
+
+/**
+ * Named doors (the name is what directions read out). A door stores its
+ * distance along its host wall (`position[0]`), so its plan point is the wall
+ * start moved that far towards the wall end.
+ */
+function doorsOf(all: RawNode[]): Door[] {
   const walls = new Map(
     all.flatMap((node) =>
       node.type === 'wall' && isPoint(node.start) && isPoint(node.end)
@@ -54,30 +65,35 @@ export function museumRooms(nodes: Record<string, unknown> | null | undefined): 
         : [],
     ),
   )
+  const doors: Door[] = []
   for (const node of all) {
-    if (node.type !== 'door' || typeof node.id !== 'string' || !node.name) continue
+    if (node.type !== 'door' || typeof node.id !== 'string') continue
+    if (typeof node.name !== 'string' || !node.name) continue
     const wall = walls.get(node.wallId)
     const along = Array.isArray(node.position) ? Number(node.position[0]) : NaN
     if (!wall || !Number.isFinite(along)) continue
     const length = Math.hypot(wall.end[0] - wall.start[0], wall.end[1] - wall.start[1]) || 1
     doors.push({
       id: node.id,
-      name: String(node.name),
+      name: node.name,
       point: [
         wall.start[0] + ((wall.end[0] - wall.start[0]) * along) / length,
         wall.start[1] + ((wall.end[1] - wall.start[1]) * along) / length,
       ],
     })
   }
-  // Museum objects are catalog items: their asset id is the Payload object id.
-  for (const node of all) {
+  return doors
+}
+
+/** Museum objects are catalog items: their asset id is the Payload object id. */
+function objectsOf(all: RawNode[]): PlacedObject[] {
+  return all.flatMap((node) => {
     const objectId = museumObjectId(node)
     const position = node.position
-    if (objectId && Array.isArray(position)) {
-      objects.push({ objectId, point: [Number(position[0]), Number(position[2])] })
-    }
-  }
-  return { rooms, doors, objects }
+    return objectId && Array.isArray(position)
+      ? [{ objectId, point: [Number(position[0]), Number(position[2])] as PolygonPoint2D }]
+      : []
+  })
 }
 
 /** The room containing a plan point, if any (corridors without a zone have none). */
