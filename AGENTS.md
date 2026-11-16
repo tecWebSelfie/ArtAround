@@ -24,6 +24,28 @@ After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/
 - Talk to the maintainer in Italian; code, comments, commits and docs stay in
   English.
 
+## Deploy constraints (read first)
+
+The production server imposes hard limits that every change must respect.
+Details and the mechanics are in [Standalone deploy](docs/standalone-deploy.md).
+
+- **The deploy folder has a disk quota** too small to clone and build the
+  project in it. `pnpm build` runs in another folder; only the resulting
+  `.next/standalone` (app, assets and the bundled seed/reindex scripts) is
+  copied into the deploy folder, symlinks preserved. The current standalone
+  fits: keep an eye on its size when adding dependencies or assets.
+- **The Docker container can't be entered**, and its only entrypoint is
+  `node` running one script (the Node version this project uses):
+  `node .next/standalone/scripts/standalone-boot.mjs`. No shell, no `pnpm`, no
+  `tsx`, no `payload` CLI, no second command.
+- **The database is reachable only from inside that container**, so only
+  code started by the boot script can touch it. `next build` must succeed
+  with no database (no `generateStaticParams` or build-time reads that
+  connect), and any maintenance task that writes data (seed, reindex,
+  migrations, imports) has to be bundled into the standalone and run by the
+  boot script: a script that runs only through `pnpm`/`tsx` from a checkout
+  never reaches production data.
+
 ## Museum editor and tour navigation
 
 Use these guides as starting points for implementation and debugging:
@@ -40,6 +62,8 @@ Use these guides as starting points for implementation and debugging:
   movements and events of the works, the Wikidata import.
 - [Permissions and editing](docs/permissions-and-editing.md): per-museum roles,
   access rules, paid contents, viewer-scoped reads, and the frontend editing plan.
+- [Standalone deploy](docs/standalone-deploy.md): build without a database,
+  the `.next/standalone` packaging, and the seed → reindex → app boot script.
 
 Improve and simplify these implementations as needed; the guides describe the
 current design and should evolve with the code. Reuse Pascal APIs, Mantine,

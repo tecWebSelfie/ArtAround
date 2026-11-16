@@ -1,26 +1,16 @@
 import { can, getSession } from '@/lib/session'
-import config from '@/payload.config'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import type { Route } from 'next'
 import { redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 import { MapEditor } from './MapEditor'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({
-    config,
-  })
-
-  const museums = await payload.find({
-    collection: 'museums',
-    pagination: false,
-    select: {},
-  })
-
-  return museums.docs.map((museum) => ({
-    id: museum.id,
-  }))
-}
+/**
+ * Staff-only page reading the visitor's session (`headers()`) on every
+ * request: dynamic by declaration, like the museum details page — the
+ * on-demand static render an unprerendered dynamic param would otherwise get
+ * fails on `headers()` (DYNAMIC_SERVER_USAGE).
+ */
+export const dynamic = 'force-dynamic'
 
 /**
  * Staff-only map editor. Curators reach it to place objects; only the
