@@ -1,6 +1,6 @@
 /**
  * Single-container entry point for the standalone deploy: seed → reindex →
- * app. The Docker container runs just this file:
+ * app. The deploy container can't be entered and runs just this file:
  *
  *   node .next/standalone/scripts/standalone-boot.mjs
  *
@@ -13,85 +13,70 @@
  * Every step is safe to repeat: the seed upserts by natural key (its own
  * skips), the reindex rebuilds the search collection from scratch, and the
  * server is stateless — so an entrypoint that always seeds is what makes a
- * fresh database usable without a manual step.
+ * fresh database usable without a manual step. A failed seed or reindex is
+ * logged and the app starts anyway: nobody can enter the container to fix it,
+ * so a site that serves (and logs why its data may be incomplete) beats one
+ * that never comes up.
  */
 import { spawn } from 'node:child_process'
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url))
-// .../scripts → the standalone root, where server.js and node_modules live.
-const root = path.resolve(scriptDir, '..')
-process.chdir(root)
+// .../scripts → the standalone root, where server.js and node_modules live;
+// every child inherits it as cwd.
+process.chdir(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'))
 
-/** Minimal .env loader (dotenv is not guaranteed to be traced into standalone). */
-function loadEnvFile(name) {
-  let content
+// Node's own .env loader (≥ 20.12; dotenv is not guaranteed to be traced). It
+// never overrides a variable already set, so the container environment wins,
+// then `.env.local`, then `.env` — the same precedence as the repo scripts.
+// The seed and the reindex need these; server.js would load them itself.
+for (const file of ['.env.local', '.env']) {
   try {
-    content = readFileSync(path.join(root, name), 'utf8')
-  } catch {
-    return
-  }
-  for (const line of content.split(/\r?\n/)) {
-    const match = /^\s*([\w.-]+)\s*=\s*(.*)?\s*$/.exec(line)
-    if (!match || line.trim().startsWith('#')) continue
-    const [, key, raw] = match
-    let value = (raw ?? '').trim()
-    if (
-      (value.startsWith('"') && value.endsWith('"')) ||
-      (value.startsWith("'") && value.endsWith("'"))
-    ) {
-      value = value.slice(1, -1)
-    }
-    if (!(key in process.env)) process.env[key] = value
+    process.loadEnvFile(file)
+  } catch (error) {
+    if (error.code !== 'ENOENT') throw error
   }
 }
-// Same precedence as the repo scripts: `.env.local` wins over `.env`.
-loadEnvFile('.env')
-loadEnvFile('.env.local')
 
 // Mirror `pnpm start` and the Docker guidance for `output: 'standalone'`:
 // silence deprecation warnings and listen on every interface in the container.
-process.env.NODE_OPTIONS = process.env.NODE_OPTIONS || '--no-deprecation'
-process.env.HOSTNAME = process.env.HOSTNAME || '0.0.0.0'
-process.env.PORT = process.env.PORT || '3000'
+process.env.NODE_OPTIONS ||= '--no-deprecation'
+process.env.HOSTNAME ||= '0.0.0.0'
+process.env.PORT ||= '3000'
 
-/**
- * Runs one command to completion in the standalone root; exits on failure.
- * `cwd` keeps the child in the standalone root so relative paths (`server.js`)
- * and file-based env/config lookups behave like the documented deployment.
- */
-function run(label, args) {
-  console.log(`[boot] ${label}: node ${args.join(' ')}`)
-  return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, args, {
-      stdio: 'inherit',
-      env: process.env,
-      cwd: root,
-    })
-    child.on('error', reject)
-    child.on('exit', (code) => {
-      if (code === 0) resolve()
-      else reject(new Error(`${label} exited with code ${code}`))
-    })
+// As the container's PID 1 this process gets `docker stop`'s SIGTERM: forward
+// it to whichever child runs (seed, reindex or server) from the start, so the
+// stop never waits for the kill timeout.
+let child
+let stopping = false
+for (const signal of ['SIGINT', 'SIGTERM']) {
+  process.on(signal, () => {
+    stopping = true
+    child?.kill(signal)
   })
 }
 
-try {
-  await run('seed', ['scripts/standalone-seed.mjs'])
-  await run('reindex', ['scripts/standalone-reindex.mjs'])
-} catch (error) {
-  console.error('[boot] failed before the server could start:', error)
-  process.exit(1)
+/** Runs `node <script>`; resolves with its exit code (non-zero when killed). */
+function run(script) {
+  console.log(`[boot] node ${script}`)
+  child = spawn(process.execPath, [script], { stdio: 'inherit' })
+  return new Promise((resolve) => {
+    child.on('error', (error) => {
+      console.error(`[boot] ${script} could not start:`, error)
+      resolve(1)
+    })
+    child.on('exit', (code) => resolve(code ?? 1))
+  })
 }
 
-console.log('[boot] starting the app…')
-// The server is the container's long-lived process: this script stays alive
-// while it runs and forwards the stop signals to it, so `docker stop` ends
-// both cleanly.
-const server = spawn(process.execPath, ['server.js'], { stdio: 'inherit', env: process.env })
-for (const signal of ['SIGINT', 'SIGTERM']) {
-  process.on(signal, () => server.kill(signal))
+for (const script of ['scripts/standalone-seed.mjs', 'scripts/standalone-reindex.mjs']) {
+  const code = await run(script)
+  // A stop during the seed or reindex must not go on to start the server.
+  if (stopping) process.exit(code)
+  if (code !== 0) console.error(`[boot] ${script} failed (exit ${code}); starting the app anyway`)
 }
-server.on('exit', (code) => process.exit(code ?? 0))
+
+// The server is the container's long-lived process: its exit code becomes the
+// container's, so a restart policy sees crashes (a requested stop exits 0).
+const code = await run('server.js')
+process.exit(stopping ? 0 : code)

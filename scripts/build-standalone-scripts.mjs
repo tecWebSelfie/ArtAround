@@ -16,7 +16,7 @@
  * has nothing to complete, like `copy-standalone-assets.mjs`.
  */
 import esbuild from 'esbuild'
-import { copyFile, lstat, mkdir, readdir, rm, stat, symlink } from 'node:fs/promises'
+import { copyFile, lstat, mkdir, realpath, rm, stat, symlink } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -27,11 +27,8 @@ const standaloneNodeModules = path.join(standalone, 'node_modules')
 
 /** stat() that resolves symlinks, as false when missing. */
 const existsAt = (p) => stat(p).then(() => true, () => false)
-/** lstat() as null when missing. */
-const lstat2 = (p) => lstat(p).catch(() => null)
 
-const exists = await existsAt(standalone)
-if (!exists) process.exit(0)
+if (!(await existsAt(standalone))) process.exit(0)
 
 /**
  * Packages the bundles import from disk instead of compiling in. They must be
@@ -59,26 +56,26 @@ const externals = [
  * Windows, symlink elsewhere), the layout a plain `node_modules` install has.
  */
 async function linkExternals() {
-  const pnpmDir = path.join(standaloneNodeModules, '.pnpm')
   for (const name of externals) {
+    // The store entry the project itself resolves (`node_modules/<name>` is a
+    // pnpm symlink into `.pnpm/<entry>/node_modules/<name>`): the version the
+    // bundles were compiled against, even when the store holds several.
+    const resolved = await realpath(path.join(projectRoot, 'node_modules', name))
+    const relativeToStore = path.relative(path.join(projectRoot, 'node_modules', '.pnpm'), resolved)
+    const linkTarget = path.join(standaloneNodeModules, '.pnpm', relativeToStore)
+    if (!(await existsAt(linkTarget))) {
+      throw new Error(`${name} is marked external but ${relativeToStore} is missing from .next/standalone`)
+    }
     const top = path.join(standaloneNodeModules, name)
-    const flat = name.replace('/', '+')
-    let linkTarget
-    for (const entry of await readdir(pnpmDir)) {
-      if (!entry.startsWith(`${flat}@`)) continue
-      linkTarget = path.join(pnpmDir, entry, 'node_modules', name)
-      break
-    }
-    if (!linkTarget) {
-      throw new Error(`${name} is marked external but is missing from .next/standalone`)
-    }
-    // A junction to the store is already the full package; a real directory is
-    // Next's partial trace copy, to be replaced.
-    const existing = await lstat2(top)
+    // A link is already Next's own pnpm layout; a real directory is Next's
+    // partial trace copy, to be replaced.
+    const existing = await lstat(top).catch(() => null)
     if (existing?.isSymbolicLink()) continue
     if (existing) await rm(top, { recursive: true, force: true })
     await mkdir(path.dirname(top), { recursive: true })
-    // Relative targets keep the standalone folder relocatable (Docker copies).
+    // Relative targets keep the standalone folder relocatable (it is built in
+    // one folder and copied into the deploy one). On Windows a junction is
+    // always absolute: build on the deploy OS (see docs/standalone-deploy.md).
     await symlink(path.relative(path.dirname(top), linkTarget), top, 'junction')
   }
 }

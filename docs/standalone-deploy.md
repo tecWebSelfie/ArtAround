@@ -59,19 +59,35 @@ and `.next/static/` in.
 
 Plain Node ESM, no project imports. In order it:
 
-1. loads `.env` then `.env.local` from the standalone root (no dotenv
-   dependency: it is not guaranteed to be traced; variables already set in
-   the environment win);
+1. loads `.env.local` and `.env` from the standalone root with Node's own
+   `process.loadEnvFile` (Node ≥ 20.12; no dotenv, which is not guaranteed to
+   be traced). Variables already set win, so the precedence is container
+   environment, then `.env.local`, then `.env`;
 2. runs the seed bundle (idempotent: upserts by natural key, skips existing
    documents) — makes a fresh database usable;
 3. runs the reindex bundle (rebuilds the search collection from the current
    documents);
-4. starts `server.js` and stays alive while it runs, forwarding `SIGINT`/
-   `SIGTERM` so `docker stop` shuts everything down cleanly.
+4. starts `server.js` and exits with its exit code.
+
+A failed seed or reindex is logged and the app starts anyway: the container
+can't be entered, so a site that serves beats one that never comes up. The
+`SIGINT`/`SIGTERM` of `docker stop` is forwarded to whichever step is running,
+and a stop during the seed or reindex does not go on to start the server.
 
 Defaults mirroring the Docker guidance: `HOSTNAME=0.0.0.0`, `PORT=3000`,
 `NODE_OPTIONS=--no-deprecation`; each can be overridden from the environment.
 
-The demo museum of the course specification is not part of the boot seed: run
-`pnpm seed:demo` against the deployed database manually when it is wanted
-(it needs network access for Wikimedia and Wikidata).
+The demo museum of the course specification is not part of the boot seed.
+`pnpm seed:demo` can't reach the deployed database (only code running inside
+the container can), so it is not available in this deploy until it is bundled
+into the boot like the seed.
+
+## Copying the standalone into the deploy folder
+
+Build in any folder (the deploy folder's quota is too small for a clone and a
+build), then copy `.next/standalone` into the deploy folder **preserving
+symbolic links** (`cp -a`, `rsync -a`, or `tar`): Next's pnpm layout and the
+externals linked above are relative symlinks into `node_modules/.pnpm`. A copy
+that follows them duplicates every linked package and may no longer fit the
+quota. Build on Linux: on Windows the links are junctions, which are always
+absolute paths of the build machine.
