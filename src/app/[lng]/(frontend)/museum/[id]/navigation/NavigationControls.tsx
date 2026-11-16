@@ -1,19 +1,28 @@
 'use client'
 
 import type { Museum } from '@/payload-types'
-import { ActionIcon, Button, Group, Kbd, Tooltip, useMatches } from '@mantine/core'
+import {
+  ActionIcon,
+  Button,
+  Group,
+  Kbd,
+  Paper,
+  Tooltip,
+  useComputedColorScheme,
+  useMatches,
+} from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { ACCESSIBILITY_COLOR } from '@/theme'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
 import type { ExitEntranceMarker, ServiceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
-import { Accessibility, DoorOpen, ScanQrCode, Search } from 'lucide-react'
+import { Accessibility, DoorOpen, Navigation, Route, ScanQrCode, Search } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { NavigationSpotlight } from './NavigationSpotlight'
 import { NavigationServices, type NavigationServiceAction } from './NavigationServices'
-import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
+import { NAVIGATION_COMPACT_ACTION_CLASS, NAVIGATION_HIT_AREA } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import type { NavigationCommand } from './navigation-commands'
 import { GuidanceSettings, type GuidanceSettingsValue } from './GuidanceSettings'
@@ -26,6 +35,17 @@ import type { useCompass } from './compass-source'
  * only when it overflows), the tour's next-stop and resume buttons, then the
  * dock with the service shortcuts, Scan, Search and the guidance settings.
  * The overlay buttons are shortcuts to the same commands as search.
+ *
+ * One visual family over the map, kept small so the map stays the loudest
+ * thing: every control is a 36px full-round shape (44px target, The
+ * Navigation Reach Rule) lifted by the same `md` shadow, grouped by what it
+ * is for:
+ *
+ *   [ Open next stop ] [ Resume ]      the tour: labelled pills
+ *   [ Search | Scan ]  [ Services | Settings ]
+ *     find a work        the route: where to go, how to be guided
+ *
+ * Scan is the one solid pill (it opens the camera); the rest are quiet icons.
  */
 export function NavigationControls({
   museum,
@@ -61,6 +81,8 @@ export function NavigationControls({
   const resume = command('resume-tour')
   const nextStop = command('next-stop')
   const desktop = useMatches({ base: false, md: true })
+  // Scan is the capsule's one solid pill: dark ink on light, light ink on dark.
+  const scanColor = useComputedColorScheme('light') === 'dark' ? 'gray.0' : 'dark'
   const { scrollRef, contentRef, overflowing } = useOverflowing()
 
   const serviceActions = useServiceActions({ museum, services, exits, runId })
@@ -95,7 +117,10 @@ export function NavigationControls({
                 <Button
                   color="museum.8"
                   autoContrast
-                  className={NAVIGATION_ACTION_CLASS}
+                  radius="xl"
+                  size="sm"
+                  leftSection={<Navigation size={16} aria-hidden />}
+                  className={`${NAVIGATION_COMPACT_ACTION_CLASS} shadow-(--mantine-shadow-md)`}
                   onClick={() => onRun(nextStop)}
                 >
                   {nextStop.label}
@@ -104,7 +129,10 @@ export function NavigationControls({
               {resume && (
                 <Button
                   variant="default"
-                  className={NAVIGATION_ACTION_CLASS}
+                  radius="xl"
+                  size="sm"
+                  leftSection={<Route size={16} aria-hidden />}
+                  className={`${NAVIGATION_COMPACT_ACTION_CLASS} shadow-(--mantine-shadow-md)`}
                   onClick={() => onRun(resume)}
                 >
                   {resume.label}
@@ -115,44 +143,67 @@ export function NavigationControls({
         </div>
       </div>
       <div className="pointer-events-auto flex min-w-0 flex-col gap-2">
-        <div className="flex flex-wrap items-end justify-center gap-2 from-md:justify-start">
-          <NavigationServices actions={serviceActions} />
-          <Button
-            onClick={() => runId('scan')}
-            size="md"
-            className={`${NAVIGATION_ACTION_CLASS} rounded-full`}
-            rightSection={<ScanQrCode size={24} />}
-            color="dark"
+        <div className="flex flex-wrap justify-center gap-2 from-md:justify-start">
+          <Paper
+            radius="xl"
+            shadow="md"
+            p={3}
+            withBorder
+            role="group"
+            aria-label={t('Find a work')}
+            className="flex items-center gap-1"
           >
-            {t('Scan')}
-          </Button>
-          <Tooltip
-            disabled={!desktop}
-            events={{ hover: true, focus: true, touch: false }}
-            label={
-              <Group gap={6} wrap="nowrap">
-                {t('Search')}
-                <Kbd size="xs">/</Kbd>
-              </Group>
-            }
-          >
-            <ActionIcon
-              aria-label={t('Search')}
-              aria-keyshortcuts="/ Control+K Meta+K"
-              variant="white"
-              autoContrast
-              radius="xl"
-              size={44}
-              onClick={spotlight.open}
+            <Tooltip
+              disabled={!desktop}
+              events={{ hover: true, focus: true, touch: false }}
+              label={
+                <Group gap={6} wrap="nowrap">
+                  {t('Search')}
+                  <Kbd size="xs">/</Kbd>
+                </Group>
+              }
             >
-              <Search size={22} />
-            </ActionIcon>
-          </Tooltip>
-          <GuidanceSettings
-            settings={sensors.settings}
-            gpsError={sensors.gps.error}
-            compass={sensors.compass}
-          />
+              <ActionIcon
+                aria-label={t('Search')}
+                aria-keyshortcuts="/ Control+K Meta+K"
+                variant="subtle"
+                color="gray"
+                radius="xl"
+                size={36}
+                className={NAVIGATION_HIT_AREA}
+                onClick={spotlight.open}
+              >
+                <Search size={18} />
+              </ActionIcon>
+            </Tooltip>
+            <Button
+              onClick={() => runId('scan')}
+              size="sm"
+              radius="xl"
+              className={NAVIGATION_COMPACT_ACTION_CLASS}
+              rightSection={<ScanQrCode size={16} aria-hidden />}
+              color={scanColor}
+              autoContrast
+            >
+              {t('Scan')}
+            </Button>
+          </Paper>
+          <Paper
+            radius="xl"
+            shadow="md"
+            p={3}
+            withBorder
+            role="group"
+            aria-label={t('Route')}
+            className="flex items-center gap-1"
+          >
+            <NavigationServices actions={serviceActions} />
+            <GuidanceSettings
+              settings={sensors.settings}
+              gpsError={sensors.gps.error}
+              compass={sensors.compass}
+            />
+          </Paper>
           <NavigationSpotlight commands={commands} nearby={nearby} onRun={onRun} />
         </div>
       </div>

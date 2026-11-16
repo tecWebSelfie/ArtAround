@@ -84,7 +84,7 @@ export const UserPage = async ({
     >
       {/* Up a level: back where the visitor came from (a tour's author, the
           marketplace), else the navigator. */}
-      <BackButton href={`/${lng}/navigator` as Route} />
+      <BackButton withLanguage href={`/${lng}/navigator` as Route} />
       {/* Grid lays out with `gap`: below md (full-width columns, `xl` gap)
           it stacks exactly like a single Stack with the same rhythm. */}
       <Grid gap={{ base: 'xl', md: 48 }} align="flex-start">

@@ -7,6 +7,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import type { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
+import i18nConfig from '@/../i18n.config'
+import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 
 /**
  * Whether the tab's previous history entry is a page of this app. The
@@ -28,8 +30,24 @@ function previousEntryIsInApp() {
  *
  * It is a real link to `href` (open in a new tab, crawlers, no JavaScript);
  * only a plain click is turned into a history step.
+ *
+ * `withLanguage` puts the language switcher at the other end of the same row
+ * on phones, the place the GOV.UK/DWP language-toggle pattern uses (right,
+ * level with Back, on every page). Visitor pages turn it on: a visitor who
+ * lands on a work or a content from a QR code must be able to change
+ * language right there, and below `md` these pages have no site header (it
+ * carries the switcher from `md`, so the row's copy hides there). Editors
+ * leave it off: switching language there would switch the edited locale.
  */
-export function BackButton({ href, label }: { href: Route; label?: string }) {
+export function BackButton({
+  href,
+  label,
+  withLanguage = false,
+}: {
+  href: Route
+  label?: string
+  withLanguage?: boolean
+}) {
   const { t } = useTranslation('common')
   const router = useRouter()
 
@@ -42,7 +60,7 @@ export function BackButton({ href, label }: { href: Route; label?: string }) {
     router.back()
   }
 
-  return (
+  const back = (
     <Button
       component={Link}
       href={href}
@@ -55,5 +73,14 @@ export function BackButton({ href, label }: { href: Route; label?: string }) {
     >
       {label ?? t('Back')}
     </Button>
+  )
+  if (!withLanguage) return back
+  return (
+    <div className="flex items-center justify-between gap-(--mantine-spacing-xs) self-stretch">
+      {back}
+      <div className="from-md:hidden">
+        <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
+      </div>
+    </div>
   )
 }

@@ -2,11 +2,12 @@
 
 import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
 import { MapViewer } from '@/components/pascal/MapViewer'
+import { RoomLabels } from '@/components/pascal/RoomLabels'
 import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
-import { Gltf } from '@react-three/drei'
+import { useGLTF, type CameraControlsImpl } from '@react-three/drei'
 import { extend, useThree } from '@react-three/fiber'
 import type { NavMesh, Vec3 } from 'navcat'
 import {
@@ -25,6 +26,21 @@ import { Box3, Vector3, type Object3D } from 'three'
 
 /** A destination flag is drawn at hero-glTF scale (~1.3 m); keep it knee-high. */
 const DESTINATION_FLAG_SCALE = 0.7
+
+/**
+ * Camera framing the avatar after the visitor's position is set or changes:
+ * close enough to see the character clearly, far and high enough that the
+ * rooms around it read as a plan (metres from the avatar; polar angle from
+ * the vertical, so ~50° looks down at the floor plan at a slant).
+ */
+const AVATAR_VIEW_DISTANCE = 20
+const AVATAR_VIEW_POLAR = 0.88
+
+/**
+ * The route line leaves the avatar from its edge instead of its centre,
+ * where it would run through the body (metres, in plan).
+ */
+const PATH_START_CLEARANCE = 0.45
 
 export type MuseumRoute = {
   path: Vec3[] | null
@@ -195,15 +211,20 @@ export function MuseumMap({
           </Suspense>
         </group>
       )}
+      {route?.start && <FocusOnAvatar point={route.start} />}
+      {/* Room names over the plan, once the scene (and its zones) is ready. */}
+      {ready && <RoomLabels />}
       {route?.end && (
         // The flag marks the chosen destination (object, service, or exit).
         <group position={route.end}>
           <Suspense fallback={null}>
-            <Gltf src="/models/flag.glb" scale={DESTINATION_FLAG_SCALE} />
+            <DestinationFlag />
           </Suspense>
         </group>
       )}
-      {route?.path && route.path.length > 1 && <NavigationPath points={route.path} />}
+      {route?.path && route.path.length > 1 && (
+        <NavigationPath points={trimPathStart(route.path, PATH_START_CLEARANCE)} />
+      )}
       {progressPoint && (
         // GPS estimate snapped onto the route: a soft dot, distinct from the
         // avatar, which stays on the last explicitly confirmed position.
@@ -218,6 +239,71 @@ export function MuseumMap({
       )}
     </MapViewer>
   )
+}
+
+/**
+ * Moves the camera onto the avatar whenever the visitor's position changes
+ * (entering the museum, confirming a new position, advancing a stop), so the
+ * jump of the avatar is seen rather than guessed: the avatar ends up in the
+ * centre, seen from `AVATAR_VIEW_DISTANCE` at a slant that shows the
+ * surrounding rooms. The current compass direction is kept, so the map does
+ * not spin. Only a new point refocuses: a new destination from the same
+ * place leaves the camera where the visitor put it.
+ */
+function FocusOnAvatar({ point }: { point: Vec3 }) {
+  const controls = useThree((state) => state.controls) as CameraControlsImpl | null
+  const [x, y, z] = point
+  useEffect(() => {
+    if (!controls) return
+    const azimuth = controls.azimuthAngle
+    const ring = Math.sin(AVATAR_VIEW_POLAR) * AVATAR_VIEW_DISTANCE
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    void controls.setLookAt(
+      x + ring * Math.sin(azimuth),
+      y + Math.cos(AVATAR_VIEW_POLAR) * AVATAR_VIEW_DISTANCE,
+      z + ring * Math.cos(azimuth),
+      x,
+      y + AVATAR_FACE_HEIGHT / 2,
+      z,
+      smooth,
+    )
+  }, [controls, x, y, z])
+  return null
+}
+
+/**
+ * The destination flag with its lowest point on the floor: the model's
+ * origin is not at its base, so drawn as is its pole sank into the floor.
+ */
+function DestinationFlag() {
+  const { scene } = useGLTF('/models/flag.glb')
+  const model = useMemo(() => scene.clone(), [scene])
+  const lift = useMemo(() => -new Box3().setFromObject(model).min.y, [model])
+  return (
+    <group scale={DESTINATION_FLAG_SCALE}>
+      <primitive object={model} position-y={lift} />
+    </group>
+  )
+}
+
+/**
+ * Cuts the first `clearance` metres (in plan) off a route, so the line starts
+ * at the avatar's edge. A route shorter than that is kept as it is.
+ */
+function trimPathStart(points: Vec3[], clearance: number): Vec3[] {
+  let left = clearance
+  for (let index = 1; index < points.length; index++) {
+    const [ax, ay, az] = points[index - 1]
+    const [bx, by, bz] = points[index]
+    const length = Math.hypot(bx - ax, bz - az)
+    if (length > left) {
+      const t = left / length
+      const cut: Vec3 = [ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t]
+      return [cut, ...points.slice(index)]
+    }
+    left -= length
+  }
+  return points
 }
 
 /** Pascal uses WebGPURenderer; Drei's WebGL LineMaterial cannot render here. */

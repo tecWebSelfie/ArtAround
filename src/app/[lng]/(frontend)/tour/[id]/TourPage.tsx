@@ -106,6 +106,7 @@ export default function TourPage({
           {/* Up a level: back where the visitor came from in the app, else
               (a QR code, a shared link) the tour's museum. */}
           <BackButton
+            withLanguage
             href={(museum ? `/${lng}/museum/${museum.id}` : `/${lng}/navigator`) as Route}
           />
           {/* Grid lays out with `gap`: below md (full-width columns, `lg`

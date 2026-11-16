@@ -14,6 +14,8 @@ import { useParams } from 'next/navigation'
 import { useMemo, type Ref } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LogisticNotes } from './LogisticNotes'
+import i18nConfig from '@/../i18n.config'
+import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import { TourProgress } from './TourProgress'
 
 /**
@@ -72,17 +74,22 @@ export function NavigationHeader({
                 {position}
               </Text>
             </Stack>
-            <ActionIcon
-              component={Link}
-              href={`/${lng}/tour/${tour.id}` as Route}
-              variant="subtle"
-              color="gray"
-              size="lg"
-              className="justify-self-end"
-              aria-label={t('Leave the tour')}
-            >
-              <X size={18} aria-hidden />
-            </ActionIcon>
+            {/* The map's global commands, top right like a dashboard's: the
+                language (the site header, which carries it elsewhere, is
+                hidden over the map) and leaving the tour. */}
+            <Group gap={6} wrap="nowrap" className="justify-self-end">
+              <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
+              <ActionIcon
+                component={Link}
+                href={`/${lng}/tour/${tour.id}` as Route}
+                variant="subtle"
+                color="gray"
+                size="lg"
+                aria-label={t('Leave the tour')}
+              >
+                <X size={18} aria-hidden />
+              </ActionIcon>
+            </Group>
           </div>
           <Progress
             aria-label={t('Tour progress')}
@@ -100,14 +107,21 @@ export function NavigationHeader({
         </Stack>
       ) : (
         // Free navigation: no progress to show, only where the visitor is.
-        <Stack gap={0} align="center" pt="xs">
-          <Title size="h5" ta="center">
-            {museumName}
-          </Title>
-          <Text size="xs" c="dimmed">
-            {t('Free visit')}
-          </Text>
-        </Stack>
+        // Same three columns as a tour's header, the language at the end.
+        <div className="grid grid-cols-[1fr_minmax(0,auto)_1fr] items-center gap-(--mantine-spacing-xs) pt-(--mantine-spacing-xs)">
+          <span aria-hidden />
+          <Stack gap={0} align="center" className="min-w-0">
+            <Title size="h5" ta="center">
+              {museumName}
+            </Title>
+            <Text size="xs" c="dimmed">
+              {t('Free visit')}
+            </Text>
+          </Stack>
+          <div className="justify-self-end">
+            <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
+          </div>
+        </div>
       )}
     </AppShellHeader>
   )

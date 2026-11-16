@@ -262,7 +262,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
         <Stack gap="md">
           {/* Up a level: back where the visitor came from in the app, else
               (a QR code, a shared link) the work it is about, or its museum. */}
-          <BackButton href={backHref as Route} />
+          <BackButton withLanguage href={backHref as Route} />
           {offer && <MuseumModeOffer museum={offer} />}
           <DetailCover pictures={pictures} fallback="content" title={content.title} />
           <TranslationNotice collection="contents" id={id} lng={lng} />

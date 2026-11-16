@@ -4,7 +4,7 @@ import { ActionIcon, Button, Popover } from '@mantine/core'
 import { MapPin, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
+import { NAVIGATION_ACTION_CLASS, NAVIGATION_HIT_AREA } from './navigation-touch'
 
 export type NavigationServiceAction = {
   id: string
@@ -32,13 +32,17 @@ export function NavigationServices({ actions }: { actions: NavigationServiceActi
     >
       <Popover.Target>
         <ActionIcon
-          size={44}
-          variant="white"
+          size={36}
+          radius="xl"
+          className={NAVIGATION_HIT_AREA}
+          // Sits inside the dock's route capsule (NavigationControls), quiet like its neighbour.
+          variant="subtle"
+          color="gray"
           aria-label={t('Services')}
           aria-expanded={opened}
           onClick={() => setOpened((value) => !value)}
         >
-          <MapPin size={22} aria-hidden />
+          <MapPin size={18} aria-hidden />
         </ActionIcon>
       </Popover.Target>
       <Popover.Dropdown className="max-w-[calc(100vw-2rem)]">

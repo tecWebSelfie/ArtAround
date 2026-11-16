@@ -82,7 +82,7 @@ export default async function MuseumPage({
       pb="xl"
     >
       {/* Up a level: back where the visitor came from, else the navigator. */}
-      <BackButton href={`/${lng}/navigator` as Route} />
+      <BackButton withLanguage href={`/${lng}/navigator` as Route} />
       {/* Hero. Mantine's Grid lays out with `gap`, so below md (both columns
           full width, `md` gap) it stacks exactly like the page's Stack. */}
       <Grid gap={{ base: 'md', md: 'xl' }} align="flex-start" pb={{ md: 'md' }}>

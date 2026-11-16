@@ -7,7 +7,6 @@ import {
   type InlinePart,
   linkedIds,
   LINKS_HEADER,
-  speakableText,
   type ExpansionLink,
   type ExpansionRequest,
 } from '@/lib/expansion'
@@ -26,6 +25,7 @@ import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import classes from './ContentExpansion.module.css'
+import { registerExpansion, speechChunks } from './read-aloud'
 
 /**
  * Shows a text from `/api/expand` the way the museum's own text looks.
@@ -82,21 +82,6 @@ function useExpansion(target: 'contents' | 'objects', id: string, request: Expan
   return state.key === key ? state : EMPTY
 }
 
-/** Speech requests are capped at 600 characters; long paragraphs go by sentences. */
-function speechChunks(paragraph: string, max = 550) {
-  const chunks: string[] = []
-  let current = ''
-  for (const sentence of speakableText(paragraph).match(/[^.!?]+[.!?]*\s*/g) ?? []) {
-    if (current && (current + sentence).length > max) {
-      chunks.push(current.trim())
-      current = ''
-    }
-    current += sentence
-  }
-  if (current.trim()) chunks.push(current.trim().slice(0, max))
-  return chunks
-}
-
 /** Reads new paragraphs aloud, in order, while the visitor has the assistant on. */
 function useReadAloud(paragraphs: string[], key: string) {
   const speech = useSharedSpeech()
@@ -150,6 +135,18 @@ export function ExpansionText({
   const expansion = useExpansion(target, id, request)
   const paragraphs = finishedParagraphs(expansion.text, expansion.done)
   useReadAloud(paragraphs, JSON.stringify(request))
+  // "Tell me more" steps join what "Listen" reads after the content's audio
+  // (`read-aloud.ts`); a version already is that audio, so it stays out.
+  const box = useRef<HTMLDivElement>(null)
+  const [entryId] = useState(() => Symbol('expansion'))
+  useEffect(() => {
+    if (request.kind !== 'more' || !box.current) return
+    return registerExpansion(entryId, {
+      element: box.current,
+      paragraphs,
+      done: expansion.done,
+    })
+  }, [entryId, request.kind, paragraphs, expansion.done])
 
   // Links open the linked entity's modal over the current map (tour step or
   // free navigation), keeping the position; elsewhere its canonical page.
@@ -187,7 +184,7 @@ export function ExpansionText({
     : []
 
   return (
-    <div aria-live="polite" aria-busy={!expansion.done}>
+    <div ref={box} aria-live="polite" aria-busy={!expansion.done}>
       {paragraphs.map((paragraph, index) => (
         <p key={index} className={classes.paragraph}>
           {inlineParts(paragraph).map(renderPart)}

@@ -1,5 +1,6 @@
 'use client'
 
+import { NAVIGATION_HIT_AREA } from './navigation-touch'
 import { ActionIcon, Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { SlidersHorizontal } from 'lucide-react'
@@ -69,9 +70,12 @@ export function GuidanceSettings({
         <ActionIcon
           aria-label={t('Guidance settings')}
           title={t('Guidance settings')}
-          variant="white"
+          size={36}
           radius="xl"
-          size={44}
+          className={NAVIGATION_HIT_AREA}
+          // Sits inside the dock's route capsule (NavigationControls), quiet like its neighbour.
+          variant="subtle"
+          color="gray"
         >
           <SlidersHorizontal size={18} />
         </ActionIcon>

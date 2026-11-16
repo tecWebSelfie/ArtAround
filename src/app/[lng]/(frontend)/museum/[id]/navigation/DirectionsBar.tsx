@@ -189,7 +189,8 @@ export function DirectionsBar({
           squeezing it between two minimum-size touch targets. */}
       <DirectionsLayout active trailingControl={trailingControl}>
         <ActionIcon
-          className="row-start-2 @min-[22rem]:row-start-1"
+          // Disabled at the first/last step: faded, without Mantine's gray tile.
+          className="row-start-2 data-disabled:bg-transparent data-disabled:opacity-40 @min-[22rem]:row-start-1"
           // Directions remain tappable while walking, including compact footers.
           size={44}
           variant="subtle"
@@ -224,7 +225,7 @@ export function DirectionsBar({
           size={44}
           variant="subtle"
           color="gray"
-          className="col-start-2 row-start-2 justify-self-end @min-[22rem]:col-start-3 @min-[22rem]:row-start-1"
+          className="col-start-2 row-start-2 justify-self-end data-disabled:bg-transparent data-disabled:opacity-40 @min-[22rem]:col-start-3 @min-[22rem]:row-start-1"
           aria-label={t('Next step')}
           disabled={current === steps.length - 1}
           onClick={() => onCurrentChange(current + 1)}
