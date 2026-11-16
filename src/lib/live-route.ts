@@ -40,8 +40,15 @@ const SNAP_EXTENTS: Vec3 = [4, 2, 4]
  * How far (metres, in plan) the corridor's walk may end from the live
  * position and still count as "the same way": farther, a wall stood between
  * them and the route is searched again from the live position.
+ *
+ * Both points are already on the navmesh, and a walk that reaches its target
+ * ends exactly on it, so any real gap means a wall. This only absorbs
+ * rounding where a point sits on a polygon's edge (`findNearestPoly` and the
+ * walk's point-in-polygon test can disagree there). It is not a GPS error
+ * margin: kept small, the line drawn always leaves from the avatar and thin
+ * walls are noticed too.
  */
-const CORRIDOR_SLACK = 0.5
+const CORRIDOR_SLACK = 0.05
 
 /** At most this many corners are drawn ahead (a museum route has a handful). */
 const MAX_CORNERS = 64
