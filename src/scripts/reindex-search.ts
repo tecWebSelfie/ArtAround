@@ -60,6 +60,9 @@ try {
   // Top-level await is required: `payload run` exits as soon as the imported
   // module resolves, so a floating promise would be cut off.
   await reindex()
+  // The standalone bundle has no CLI around it to exit: mongoose and the
+  // plugins keep handles open, so the process must end itself.
+  process.exit(0)
 } catch (error) {
   console.error('Search reindex failed:', error)
   process.exit(1)
