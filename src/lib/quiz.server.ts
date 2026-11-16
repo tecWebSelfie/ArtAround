@@ -96,39 +96,52 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
   return docs.map((q) => ({ ...q, image: images.find((image) => image.id === q.image) ?? null }))
 }
 
-/** The tour's current quiz in the visitor's language; `null` for an unknown tour or one with no visitable stop. */
-export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<TourQuiz | null> => {
-  const payload = await getPayload({ config })
-  const tour = await payload
-    .findByID({
-      collection: 'tours',
-      id: tourId,
-      depth: 0,
-      // The title heads the quiz and its result: in the visitor's language.
-      locale: normalizeLocale(lng) ?? 'en',
-      select: { title: true, contents: true, quiz: true, museum: true },
-    })
-    .catch(() => null)
-  if (!tour) return null
-  // The stops the visitor navigated: unavailable ones are not part of "stops
-  // still ahead" or of what the cursor counted. A tour this visitor can't
-  // read as such (quiz links are public) keeps its stored list.
-  const stops = await getNavigationTour(tourId, lng)
-    .then((visitable) => visitable.contents)
-    .catch(() => tour.contents ?? [])
-  // A tour with nothing to visit has no quiz to offer (its page, results and
-  // answers all read it from here): same "unknown tour" outcome.
-  if (!stops.length) return null
-  return {
-    tour: {
-      id: tour.id,
-      museumId: tourMuseumId(tour),
-      title: tour.title,
-      stopCount: stops.length,
-      contentIds: stops.map((c) => (typeof c === 'string' ? c : c.id)),
-    },
-    questions: await loadQuizQuestions(tourQuizQuestionIds(tour), lng),
-  }
+/**
+ * The tour's current quiz in the visitor's language, whatever its stops;
+ * `null` for an unknown tour. The result of an attempt already taken reads
+ * this: losing its last visitable stop must not hide a score already earned.
+ */
+export const getTourQuizForResult = cache(
+  async (tourId: string, lng: string): Promise<TourQuiz | null> => {
+    const payload = await getPayload({ config })
+    const tour = await payload
+      .findByID({
+        collection: 'tours',
+        id: tourId,
+        depth: 0,
+        // The title heads the quiz and its result: in the visitor's language.
+        locale: normalizeLocale(lng) ?? 'en',
+        select: { title: true, contents: true, quiz: true, museum: true },
+      })
+      .catch(() => null)
+    if (!tour) return null
+    // The stops the visitor navigated: unavailable ones are not part of "stops
+    // still ahead" or of what the cursor counted. A tour this visitor can't
+    // read as such (quiz links are public) keeps its stored list.
+    const stops = await getNavigationTour(tourId, lng)
+      .then((visitable) => visitable.contents)
+      .catch(() => tour.contents ?? [])
+    return {
+      tour: {
+        id: tour.id,
+        museumId: tourMuseumId(tour),
+        title: tour.title,
+        stopCount: stops.length,
+        contentIds: stops.map((c) => (typeof c === 'string' ? c : c.id)),
+      },
+      questions: await loadQuizQuestions(tourQuizQuestionIds(tour), lng),
+    }
+  },
+)
+
+/**
+ * The quiz a visitor can take: `getTourQuizForResult`, but `null` for a tour
+ * with no visitable stop, which has no quiz to offer (its page and answer
+ * actions read it from here): the same "unknown tour" outcome.
+ */
+export const getTourQuiz = cache(async (tourId: string, lng: string) => {
+  const quiz = await getTourQuizForResult(tourId, lng)
+  return quiz?.tour.stopCount ? quiz : null
 })
 
 /**

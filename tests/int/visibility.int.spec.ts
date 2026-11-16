@@ -273,6 +273,35 @@ describe('saving private documents', () => {
       ).resolves.toBeTruthy()
     })
 
+    it('are counted, never named, by the non-commercial (NC) refusal', async () => {
+      const nc = [
+        { id: 'c-paid', title: 'Paid', visibility: 'public', author: 'u1', price: 300 },
+        {
+          id: 'c-nc-private',
+          title: 'Secret NC',
+          visibility: 'private',
+          author: 'u2',
+          license: 'cc-by-nc',
+        },
+        {
+          id: 'c-nc-open',
+          title: 'Open NC',
+          visibility: 'public',
+          author: 'u2',
+          license: 'cc-by-nc',
+        },
+      ]
+      const request = fakeRequest({})
+      request.payload.find = (async () => ({ docs: nc })) as never
+      const refusal = run(
+        guardPrivateContents,
+        { visibility: 'private', author: 'u1', contents: nc.map(({ id }) => id) },
+        request,
+      )
+      await expect(refusal).rejects.toThrow(/NC\) contents of other authors: "Open NC", 1 private/)
+      await expect(refusal).rejects.not.toThrow(/Secret NC/)
+    })
+
     it('are refused on a tour with no author, which owns nothing', async () => {
       await expect(
         run(guardPrivateContents, { visibility: 'private', contents: ['c-mine'] }, req),

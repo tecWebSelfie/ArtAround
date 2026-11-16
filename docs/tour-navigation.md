@@ -42,17 +42,23 @@ and cached build artifacts are not reliable handoff state.
   "unvisited stops" warning, the result page's "visited" set, and group sync
   (host and guests read the same stops, so a shared `.../tour/T/3` means the same
   stop to both; paid locked stops are visitable and stay). There is no skip
-  logic, badge or modal in navigation. A museum with no map at all drops nothing
+  logic or badge in navigation; the only notice is the dynamic case below. A museum with no map at all drops nothing
   ("Map not available"). Stored cursors (`quizAttempts.stepsCompleted`) counted
   all stops before this rule and are not migrated.
 - **Dynamic case** (a content deleted or an object removed from the map while a
-  visit is under way): the next server render of the tour reads the shorter list
-  and the cursor now points at the following visitable stop, silently: no
-  modal, nothing announced. A cursor that falls beyond the new end (a bookmark,
-  a host's link) is redirected by `requireTourStep` to the completed step
-  (`/{count}`), keeping `at`, so a shifted index can neither crash nor loop. The
-  URL holds no stop identity, so a removal _before_ the cursor can make the
-  visitor skip the stop that was next; accepted for an event this rare.
+  visit is under way): the next server render of the tour reads the shorter
+  list. `RemovedStopsModal` (in the navigation folder) remembers, per tab and
+  tour (sessionStorage), the last list it showed: when stops are gone it names
+  them in a modal, and on "Continue the tour" whoever leads (a visitor on their
+  own or a group's host) has the cursor moved back onto the stop they were
+  heading to (`remapStep`: that stop's new index, else the next one still
+  there, else the completed step). Guests only read the notice: the host's
+  corrected cursor moves them. A list that only gained stops gets the same
+  cursor fix without a notice. A cursor that falls beyond the new end (a
+  bookmark, a host's link) is redirected by `requireTourStep` to the completed
+  step (`/{count}`), keeping `at`, so a shifted index can neither crash nor
+  loop. A tab that never saw the old list (a new tab, a link) has nothing to
+  compare, so there the cursor is taken as it is.
 - **Outside navigation the same rule is stored on the tour**
   (`tours.visitableStops`, `tours.visitableContents`, kept by hooks with the
   same `visitableTour` definition: see

@@ -10,7 +10,7 @@ import {
   countLowerAttempts,
   getAttemptQuestions,
   getQuizStats,
-  getTourQuiz,
+  getTourQuizForResult,
 } from '@/lib/quiz.server'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
@@ -37,7 +37,8 @@ export default async function QuizResultPage({
       limit: 1,
       pagination: false,
     }),
-    getTourQuiz(id, lng),
+    // Not `getTourQuiz`: a result stays readable after the tour lost its stops.
+    getTourQuizForResult(id, lng),
   ])
   const attempt = docs[0]
   if (!attempt || !quiz) notFound()

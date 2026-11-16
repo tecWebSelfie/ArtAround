@@ -1,5 +1,6 @@
 import { displayName } from '@/lib/display-name'
 import { isEmptyTour, isPersonalTour } from '@/lib/visibility'
+import { withVisitableStops } from '@/lib/tour-summary'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 
@@ -261,7 +262,14 @@ export async function buildSearchDoc({
       })
       const contentIds = relationshipIds(tour.contents)
       const [priceCents, works] = await Promise.all([
-        tourListPrice({ payload, contentIds, req }),
+        // Visitable stops only, as the card, tour page and checkout count them
+        // (`withVisitableStops`): otherwise the price filters disagree with
+        // the price the result shows once a paid stop stops being visitable.
+        tourListPrice({
+          payload,
+          contentIds: relationshipIds(withVisitableStops(tour).contents),
+          req,
+        }),
         worksText({ payload, contentIds, req }),
       ])
       return {

@@ -8,6 +8,7 @@ import { LISTED_TOURS } from '@/lib/visibility'
 import { withVisitableStops, summarizeTour } from '@/lib/tour-summary'
 import type { Tour } from '@/payload-types'
 import { requireMongoDB } from '../helpers/mongodb'
+import { remapStep } from '@/app/[lng]/(frontend)/museum/[id]/navigation/RemovedStopsModal'
 
 /**
  * The stored visitable stops of a tour (`visitableStops`, `visitableContents`,
@@ -185,6 +186,27 @@ describe('visitable stops of a tour', () => {
     expect(await stored(tour.id)).toEqual({ count: 1, ids: [contentB.id] })
   })
 
+  it('follow a map that no longer parses, though its objects index is the same', async () => {
+    // Without `rootNodeIds` the map has the same nodes (so the same derived
+    // `objects` index) but no longer parses: with no placement to check,
+    // every stop counts as visitable, as for a museum with no map.
+    const placed = mapWith([objectB.id])
+    await payload.update({
+      collection: 'museums',
+      id: museum.id,
+      data: { map: { nodes: placed.nodes } },
+      overrideAccess: true,
+    })
+    expect((await stored(tour.id)).count).toBe(2)
+    await payload.update({
+      collection: 'museums',
+      id: museum.id,
+      data: { map: placed },
+      overrideAccess: true,
+    })
+    expect(await stored(tour.id)).toEqual({ count: 1, ids: [contentB.id] })
+  })
+
   it('follow the contents of an object', async () => {
     await payload.update({
       collection: 'objects',
@@ -325,5 +347,58 @@ describe('summaries count the visitable stops', () => {
 
   it('the planner’s estimate still wins for the visit time', () => {
     expect(summarizeTour({ ...base, durationMinutes: 40 }).visitMinutes).toBe(40)
+  })
+})
+
+describe('the search row of a tour', () => {
+  it('prices only the visitable stops', async () => {
+    const paid = await make('contents', {
+      title: `VS paid ${suffix}`,
+      difficulty: 'easy',
+      body,
+      price: 300,
+      author: author.id,
+      objects: {},
+    })
+    // The paid stop's work is not on the map: the tour is free to visit.
+    const priced = await make('tours', {
+      title: `VS priced ${suffix}`,
+      contents: [contentA.id, paid.id],
+      museum: museum.id,
+      author: author.id,
+    })
+    await payload.update({
+      collection: 'museums',
+      id: museum.id,
+      data: { map: mapWith([objectA.id]) },
+      overrideAccess: true,
+    })
+    const { docs } = await payload.find({
+      collection: 'search',
+      where: { 'doc.value': { equals: priced.id } },
+      depth: 0,
+      overrideAccess: true,
+    })
+    expect(docs[0]?.priceCents).toBe(0)
+  })
+})
+
+describe('the navigation cursor after stops leave the tour', () => {
+  const list = (...ids: string[]) => ids.map((id) => ({ id, title: id }))
+
+  it('stays on the stop the visitor was heading to', () => {
+    // At step 2 the visitor heads to C; B (already visited) is gone.
+    expect(remapStep(list('A', 'B', 'C', 'D'), list('A', 'C', 'D'), 2)).toBe(1)
+    // A stop ahead is gone: nothing visited moves.
+    expect(remapStep(list('A', 'B', 'C', 'D'), list('A', 'B', 'D'), 1)).toBe(1)
+  })
+
+  it('moves on to the next stop left when the one ahead is gone', () => {
+    expect(remapStep(list('A', 'B', 'C'), list('A', 'C'), 1)).toBe(1)
+  })
+
+  it('completes the tour when no stop ahead is left', () => {
+    expect(remapStep(list('A', 'B', 'C'), list('A'), 1)).toBe(1)
+    expect(remapStep(list('A', 'B'), list('A', 'B'), 2)).toBe(2)
   })
 })

@@ -33,7 +33,7 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
   ])
   const isSelf = sessionUser != null && String(sessionUser.id) === id
   const inMuseum = museumOnly && scope
-  const user = await payload
+  const userRead = payload
     .findByID({
       id,
       collection: 'users',
@@ -56,8 +56,9 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
     })
   // Own tours the list rule hides (no visitable stop). The viewer's session
   // reads them, so a visitor passing `id` of someone else gets nothing.
-  const ownEmptyTours = isSelf
-    ? await payload
+  // Independent of the profile read (only `id` and the session): one round.
+  const ownEmptyToursRead = isSelf
+    ? payload
         .find({
           collection: 'tours',
           where: {
@@ -76,6 +77,7 @@ const readUser = cache(async (id: string, museumOnly: boolean) => {
         })
         .then((found) => found.docs)
     : []
+  const [user, ownEmptyTours] = await Promise.all([userRead, ownEmptyToursRead])
   return { user, scope, ownEmptyTours, isSelf }
 })
 

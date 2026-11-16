@@ -73,7 +73,9 @@ Invariants enforced by hooks and validation:
   "stops still ahead" warning), `contentIds` and `stepsCompleted` all count the
   tour's _visitable_ stops (`getTourQuiz` reads them through `getNavigationTour`,
   see [tour navigation](tour-navigation.md)): an unavailable stop is neither ahead
-  nor visited.
+  nor visited. A tour with no visitable stop has no quiz to take (`getTourQuiz`
+  returns null: page and answers 404), but an attempt's result stays readable
+  (`getTourQuizForResult`): a score already earned doesn't vanish with the stops.
 - Quiz pages live outside the map layout. "Back to the map" returns to
   `/[lng]/museum/{museumId}/navigation/tour/{id}/{from}` (`tourNavigationPath`; the
   quiz reads the tour's museum for it) with the same position.

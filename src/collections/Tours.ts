@@ -142,8 +142,13 @@ const guardTourContents: CollectionBeforeChangeHook<TourType> = async ({
     author ? asId(author) : null,
   )
   if (conflicts.length) {
+    // Quote only the titles the caller may read: another author's private
+    // content is counted, never named (the private checks below do the same).
+    const named = conflicts.filter((doc) => doc.visibility !== 'private')
+    const unnamed = conflicts.length - named.length
+    const list = [quote(named), unnamed ? `${unnamed} private` : ''].filter(Boolean).join(', ')
     throw new APIError(
-      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${quote(conflicts)}.`,
+      `A tour with paid contents can't include non-commercial (NC) contents of other authors: ${list}.`,
       400,
     )
   }

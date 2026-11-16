@@ -26,6 +26,7 @@ import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { NavigationProximity } from './NavigationProximity'
+import { RemovedStopsModal } from './RemovedStopsModal'
 import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import {
@@ -157,6 +158,9 @@ export const TourNavigationPage = ({
         entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
         notes={notes}
       />
+
+      {/* Stops that stopped being visitable while this tab followed the tour. */}
+      {tour && <RemovedStopsModal tour={tour} step={step} />}
 
       <NavigationStage
         map={

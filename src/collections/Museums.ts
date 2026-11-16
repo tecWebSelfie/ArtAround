@@ -32,7 +32,7 @@ import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { HEX } from '@/lib/museum-color'
 import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
-import { museumRelationIds, refreshSearchDocs, relationshipIds } from '@/lib/search-index'
+import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
 // Import attribute: native ESM (Playwright's loader for e2e helpers that
 // import the Payload config) refuses a JSON module without it.
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json' }
@@ -251,19 +251,19 @@ async function refreshMuseumDependents({
  * failure is logged, never fails the museum save.
  */
 const refreshToursVisitableStops: CollectionAfterChangeHook<Museum> = async ({
+  data,
   doc,
   previousDoc,
   operation,
   req,
 }) => {
-  if (operation === 'create') return doc
-  // Cheap first: the derived `objects` index (set by `syncMuseumObjects` on a
-  // map save) and whether there is a map at all. Parsing both maps on every
-  // museum save would cost more than the unchanged placement is worth.
-  const indexOf = (museum: Museum) => relationshipIds(museum.objects).sort().join()
-  if (indexOf(doc) === indexOf(previousDoc) && Boolean(doc.map) === Boolean(previousDoc.map)) {
-    return doc
-  }
+  // Cheap first: a save that doesn't send the map (a rename, opening hours)
+  // can't change the placement. A map save is parsed even when the derived
+  // `objects` index is unchanged: a map that no longer parses keeps the same
+  // index (`syncMuseumObjects` reads the raw nodes) but leaves no placement
+  // to check (`museumPlacedObjects` returns null: every stop counts as
+  // visitable, as with no map), and back.
+  if (operation === 'create' || data.map === undefined) return doc
   const before = museumPlacedObjects(previousDoc)
   const after = museumPlacedObjects(doc)
   const same =
