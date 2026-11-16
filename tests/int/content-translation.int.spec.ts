@@ -10,7 +10,7 @@ import { requireMongoDB } from '../helpers/mongodb'
  * very same contents will be heard in Italian by Italians, in French by the
  * French, in Chinese by the Chinese"). The seam is `resolveLocalized()`, the
  * server read every localized page and `/api/{collection}/:id/localized`
- * share (AGENTS.md → On-demand AI translation):
+ * share (docs/ai-translation.md):
  *
  * - a language nobody asked for yet serves the original text at once (MISS),
  *   so the visit never waits for the model;
