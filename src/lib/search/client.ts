@@ -16,7 +16,7 @@ import { Client } from 'typesense'
  * Not marked `server-only`: the reindex script and Payload hooks run outside
  * Next's React server tree. Never import it from a client component.
  */
-export const SEARCH_COLLECTION_NAME = process.env.TYPESENSE_COLLECTION ?? 'search_items'
+export const SEARCH_COLLECTION_NAME = process.env.TYPESENSE_COLLECTION ?? 'artaround'
 
 /** The two variables without which there is no cluster to talk to. */
 export function isTypesenseConfigured() {
