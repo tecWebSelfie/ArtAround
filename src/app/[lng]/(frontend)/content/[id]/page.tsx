@@ -1,4 +1,5 @@
-import { LISTED_TOURS } from '@/lib/visibility'
+import { BackButton } from '@/components/navigation/BackButton'
+import { findListedTours } from '@/lib/listed-tours'
 import { TranslationNotice } from '@/components/TranslationNotice'
 import { displayName } from '@/lib/display-name'
 import { PICTURE_SELECT, usablePictures } from '@/lib/picture'
@@ -27,6 +28,7 @@ import { Compass } from 'lucide-react'
 import type { Route } from 'next'
 import { ContentDetails, ContentGlance, type ContentDetailsProps } from './ContentDetails'
 import type { Metadata } from 'next'
+import type { ReactNode } from 'react'
 
 const firstId = (values: readonly (string | { id: string })[] | null | undefined) => {
   const [first] = values ?? []
@@ -131,13 +133,11 @@ async function loadContentDetails(
             ...viewer,
           })
         : null,
-      payload.find({
-        collection: 'tours',
+      findListedTours(payload, {
         // Museum mode: only the locked museum's tours that include this content.
         where: {
           contents: { contains: id },
           ...(lockedMuseum && { museum: { equals: lockedMuseum } }),
-          ...LISTED_TOURS,
         },
         select: { title: true, thumbnail: true, museum: true },
         populate: {
@@ -148,7 +148,6 @@ async function loadContentDetails(
         depth: 1,
         limit: 6,
         sort: '-updatedAt',
-        ...viewer,
       }),
       // The credit line's holder when it isn't the author (src/lib/content-rights.ts).
       rightsMuseumId
@@ -222,7 +221,8 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('editing')
   const { t: tn } = await getT('tour-navigation')
-  const [canEdit, canDelete, navigationHref, details, { printMuseumId, offer }] = await reads
+  const [canEdit, canDelete, navigationHref, details, { printMuseumId, offer, museumId }] =
+    await reads
 
   // The cover pictures: the content's own, else its object's photo (the piece
   // the text is about); with neither, the content teal stands in.
@@ -233,26 +233,36 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
   // The way forward (`ActionFooter`: phone footer, inline on desktop). A locked
   // content offers the purchase first; a readable one, the way to it on the
   // map. Mutually exclusive: there is no map entry while locked.
-  const forward = locked ? (
-    <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} fullWidth />
-  ) : navigationHref ? (
-    <LinkButton
-      href={navigationHref}
-      size="md"
-      fullWidth
-      color="museum.8"
-      autoContrast
-      leftSection={<Compass size={18} aria-hidden />}
-    >
-      {tn('Find it on the map')}
-    </LinkButton>
-  ) : null
+  let forward: ReactNode = null
+  if (locked) {
+    forward = <ContentUnlock content={content} lng={lng} next={`/${lng}/content/${id}`} fullWidth />
+  } else if (navigationHref) {
+    forward = (
+      <LinkButton
+        href={navigationHref}
+        size="md"
+        fullWidth
+        color="museum.8"
+        autoContrast
+        leftSection={<Compass size={18} aria-hidden />}
+      >
+        {tn('Find it on the map')}
+      </LinkButton>
+    )
+  }
+  // Up a level: the content's object, else its museum, else the navigator.
+  let backHref = `/${lng}/navigator`
+  if (details.object) backHref = `/${lng}/object/${details.object.id}`
+  else if (museumId) backHref = `/${lng}/museum/${museumId}`
 
   return (
     // AppShellMain reserves room for the fixed footer below (64px, layout.tsx).
     <AppShellMain>
       <Container size="md" py="md">
         <Stack gap="md">
+          {/* Up a level: back where the visitor came from in the app, else
+              (a QR code, a shared link) the work it is about, or its museum. */}
+          <BackButton href={backHref as Route} />
           {offer && <MuseumModeOffer museum={offer} />}
           <DetailCover pictures={pictures} fallback="content" title={content.title} />
           <TranslationNotice collection="contents" id={id} lng={lng} />

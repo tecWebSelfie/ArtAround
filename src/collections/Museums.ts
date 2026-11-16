@@ -252,6 +252,22 @@ const refreshSearchAfterDelete: CollectionAfterDeleteHook<Museum> = async ({ doc
   return doc
 }
 
+/**
+ * A tour belongs to one museum (`tours.museum`, required) and only makes
+ * sense inside it: its stops are that museum's works, its route that
+ * museum's map. Deleting a museum deletes its tours too, in the same
+ * request (their own `afterDelete` removes their quiz questions), so no
+ * tour is left pointing at nothing, which broke its page.
+ */
+const deleteToursOfDeletedMuseum: CollectionAfterDeleteHook<Museum> = async ({ id, req }) => {
+  await req.payload.delete({
+    collection: 'tours',
+    where: { museum: { equals: String(id) } },
+    req,
+    overrideAccess: true,
+  })
+}
+
 export const Museums: CollectionConfig = {
   slug: 'museums',
   access: {
@@ -272,7 +288,11 @@ export const Museums: CollectionConfig = {
       searchSyncAfterChange('museums'),
       refreshSearchAfterChange,
     ],
-    afterDelete: [searchSyncAfterDelete('museums'), refreshSearchAfterDelete],
+    afterDelete: [
+      searchSyncAfterDelete('museums'),
+      refreshSearchAfterDelete,
+      deleteToursOfDeletedMuseum,
+    ],
   },
   fields: [
     ...[
@@ -439,8 +459,8 @@ export const Museums: CollectionConfig = {
     },
     {
       // Reverse of `tours.museum`: the tours the museum page offers, without
-      // the visits planned for one visitor (`LISTED_TOURS`), which would fill
-      // the list with everyone's "30 minutes, only the highlights".
+      // one visitor's own tours (`LISTED_TOURS`: planned visits, visit copies),
+      // which would fill the list with everyone's "30 minutes, only the highlights".
       name: 'tours',
       type: 'join',
       collection: 'tours',

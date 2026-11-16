@@ -28,10 +28,15 @@ import { serverComponentStory } from '@/mocks/server-component'
 // `curatedMuseums` control for the curator-for-specific-museums states.
 // The wrapper maps them back to the component's { user, curatedMuseums } props,
 // so UserPage.tsx itself stays a correct App Router Server Component.
-type UserPageStoryProps = User & { curatedMuseums?: (string | Museum)[] | null }
+type UserPageStoryProps = User & {
+  curatedMuseums?: (string | Museum)[] | null
+  /** Museum mode: the profile's "This museum / All museums" filter. */
+  museumFilter?: { name: string; museumOnly: boolean }
+}
 
 const UserPageStory = serverComponentStory(
-  ({ curatedMuseums, ...user }: UserPageStoryProps) => UserPage({ user, curatedMuseums }),
+  ({ curatedMuseums, museumFilter, ...user }: UserPageStoryProps) =>
+    UserPage({ user, curatedMuseums, museumFilter }),
 )
 
 const meta = {
@@ -78,7 +83,7 @@ export const VerifiedCreator: Story = {
     // Active creator role: verified badge plus the authored content, no curator badge.
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentMinimal.title)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -91,7 +96,7 @@ export const AuthorVerifiedByContents: Story = {
     ).resolves.toBeTruthy()
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentSecond.title)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -104,7 +109,7 @@ export const CuratorWithMuseums: Story = {
     await expect(canvas.findByText('Verified creator')).resolves.toBeTruthy()
     await expect(canvas.findByText(mockMuseumUffizi.name)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockMuseumBrera.name)).resolves.toBeTruthy()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -132,8 +137,8 @@ export const InactiveRole: Story = {
     await expect(
       canvas.findByRole('heading', { name: mockUserInactiveRole.name.fullName }),
     ).resolves.toBeTruthy()
-    expect(canvas.queryByText('Verified creator')).toBeNull()
-    expect(canvas.queryByText('Curator')).toBeNull()
+    await expect(canvas.queryByText('Verified creator')).toBeNull()
+    await expect(canvas.queryByText('Curator')).toBeNull()
   },
 }
 
@@ -142,9 +147,9 @@ export const UnpopulatedReferences: Story = {
   play: async ({ canvas }) => {
     // String IDs are un-populated relations: empty state instead of a crash.
     await expect(
-      canvas.findByText('No contents authored yet', undefined, { timeout: 5000 }),
+      canvas.findByRole('heading', { name: 'Contents' }, { timeout: 5000 }),
     ).resolves.toBeTruthy()
-    expect(canvas.queryByText('Verified creator')).toBeNull()
+    await expect(canvas.queryByText('Verified creator')).toBeNull()
   },
 }
 
@@ -155,5 +160,21 @@ export const ManyContents: Story = {
     await expect(canvas.findByText(mockContentMinimal.title)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentSecond.title)).resolves.toBeTruthy()
     await expect(canvas.findByText(mockContentThird.title)).resolves.toBeTruthy()
+  },
+}
+
+/**
+ * Museum mode with the filter on and nothing made at this museum: the
+ * visible filter, and empty sections that name the museum instead of
+ * claiming the person has made nothing.
+ */
+export const MuseumFilterEmpty: Story = {
+  args: {
+    ...mockUserMinimal,
+    museumFilter: { name: mockMuseumBrera.name, museumOnly: true },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByRole('radiogroup')).resolves.toBeTruthy()
+    await expect(canvas.findByText(`No tours at ${mockMuseumBrera.name}`)).resolves.toBeTruthy()
   },
 }

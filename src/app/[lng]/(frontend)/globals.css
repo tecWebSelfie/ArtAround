@@ -58,15 +58,16 @@
    props, which inject a <style> tag per instance:
    - from-sm / from-md: from Mantine's sm / md up;
    - below-md: phones and tablets, where `hiddenFrom="md"` elements show;
-   - fit-screen: those screens held upright and at least Mantine's xs
-     breakpoint tall, where a page can be fitted to one screen (the
-     navigator home);
+   - fit-screen: phones (below Mantine's sm) held upright and at least its
+     xs breakpoint tall, where a page can be fitted to one screen (the
+     navigator home). Not tablets: their screen is far taller than what
+     such a page holds, and fitting it left a wide empty band;
    - phone-landscape: below md held sideways, where height is the scarce
      side and stacked picture-over-caption blocks are laid out in a row. */
 @custom-variant from-sm (@media (width >= 48em));
 @custom-variant from-md (@media (width >= 62em));
 @custom-variant below-md (@media (width < 62em));
-@custom-variant fit-screen (@media (width < 62em) and (orientation: portrait) and (height >= 36em));
+@custom-variant fit-screen (@media (width < 48em) and (orientation: portrait) and (height >= 36em));
 
 @custom-variant phone-landscape (@media (width < 62em) and (orientation: landscape));
 

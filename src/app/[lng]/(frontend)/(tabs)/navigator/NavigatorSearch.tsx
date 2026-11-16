@@ -7,6 +7,7 @@ import {
 } from '@/components/mantine/ArtAroundGlobalSearch'
 import { Box, Text } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
+import { useDevicePosition } from '@/lib/use-device-position'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -22,7 +23,8 @@ type SearchResult = { query: string; items: AutoCompleteItem[]; failed: boolean 
  * `/api/navigator-search`, limited to the home scope (tours first, then
  * contents and museums; only the locked museum in museum mode). The server
  * also matches museum cities, so typing "Roma" surfaces what is in Rome.
- * Choosing a result opens its detail page.
+ * Choosing a result opens its detail page. When the browser already shares
+ * the visitor's position, results near them say so.
  */
 export function NavigatorSearch({
   lng,
@@ -40,6 +42,9 @@ export function NavigatorSearch({
   // Bumped by "Try again" to repeat the request for the same text.
   const [attempt, setAttempt] = useState(0)
   const [debouncedQuery] = useDebouncedValue(query, 180)
+  // Only a position the visitor already shares (never asked from here): it
+  // marks the results near them, computed in the browser.
+  const { coords } = useDevicePosition()
 
   useEffect(() => {
     const controller = new AbortController()
@@ -65,8 +70,10 @@ export function NavigatorSearch({
   // not for the text in the field. A flag set on typing stayed stuck when the
   // text went back to an already-fetched value before the debounce fired.
   const trimmedQuery = query.trim()
-  const status: SearchStatus =
-    result === null || result.query !== trimmedQuery ? 'loading' : result.failed ? 'error' : 'idle'
+  let status: SearchStatus = 'idle'
+  // No answer yet, or one for an older query.
+  if (result === null || result.query !== trimmedQuery) status = 'loading'
+  else if (result.failed) status = 'error'
   const items = result?.items ?? initialItems
 
   return (
@@ -88,6 +95,7 @@ export function NavigatorSearch({
             setAttempt((count) => count + 1)
           }}
           browse={{ label: t('Browse all tours'), href: `/${lng}/marketplace` }}
+          origin={coords}
           // Results are already filtered by Payload; do not apply the local
           // title-only filter or a city/excerpt match would disappear.
           filter={() => true}
@@ -101,14 +109,14 @@ export function NavigatorSearch({
           list closed. Visually hidden: the open list shows the same message
           with its hint and its way out. */}
       <Text className="sr-only" role="status" aria-live="polite">
-        {status === 'error'
-          ? t('Search is not reachable right now.')
-          : status === 'idle' && trimmedQuery && items.length === 0
-            ? t('Nothing matches “{{query}}”.', {
-                query: trimmedQuery,
-                interpolation: { escapeValue: false },
-              })
-            : ''}
+        {status === 'error' && t('Search is not reachable right now.')}
+        {status === 'idle' &&
+          trimmedQuery &&
+          items.length === 0 &&
+          t('Nothing matches “{{query}}”.', {
+            query: trimmedQuery,
+            interpolation: { escapeValue: false },
+          })}
       </Text>
     </>
   )

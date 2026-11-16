@@ -3,9 +3,10 @@ import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { Museum, type Object as PayloadObject } from '@/payload-types'
 import { Carousel, CarouselProps } from '@mantine/carousel'
-import { Stack, Text, Title } from '@mantine/core'
+import { Group, Stack, Text, Title } from '@mantine/core'
 
 import { CoverCard } from './CoverCard'
+import { SeeAllLink } from './SeeAllLink'
 
 /**
  * The museum's objects as a swipeable row of square cards. Each card is one
@@ -14,8 +15,13 @@ import { CoverCard } from './CoverCard'
  */
 export const ObjectsCarousel = async ({
   objects,
+  seeAllHref,
   ...props
-}: CarouselProps & { objects: Museum['objects'] }) => {
+}: CarouselProps & {
+  /** The whole list as a scoped search (`scopedSearchHref`); no pill without it. */
+  seeAllHref?: Route
+  objects: Museum['objects']
+}) => {
   const { t } = await getT('objects-carousel')
   const validObjects = filterPopulated<PayloadObject>(objects)
 
@@ -30,12 +36,15 @@ export const ObjectsCarousel = async ({
   return (
     <Stack>
       {/* h2: the carousel is a section of its page, right under the h1. */}
-      <Title order={2} size="h5">
-        {t('Objects')}{' '}
-        <Text span c="dimmed" fw={400} inherit className="tabular-nums">
-          {validObjects.length}
-        </Text>
-      </Title>
+      <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+        <Title order={2} size="h5">
+          {t('Objects')}{' '}
+          <Text span c="dimmed" fw={400} inherit className="tabular-nums">
+            {validObjects.length}
+          </Text>
+        </Title>
+        {seeAllHref && <SeeAllLink href={seeAllHref} />}
+      </Group>
       <Carousel
         {...props}
         emblaOptions={{

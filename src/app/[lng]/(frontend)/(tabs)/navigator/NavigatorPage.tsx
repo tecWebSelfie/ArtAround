@@ -108,11 +108,15 @@ export default function NavigatorHomePage({
           even though the rails below make the page scroll. */}
       <Stack gap="md" className="fit-screen:min-h-(--tabs-first-screen)">
         {/* Space above the title: 10dvh (6dvh from md, under the site
-          header); in fit mode free height up to that. A top margin that can
-          flex, hence cancelling the gap after it. */}
+          header). In fit mode it shares the free height equally with the
+          spacer under the group form, so the ways in sit centred on the
+          first screen: capping only this one sent every pixel the content
+          left free (a tall phone, larger start blocks) under Join, as one
+          wide gap before the rails. A margin that can flex, hence cancelling
+          the gap after it. */}
         <Box
           aria-hidden
-          className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:max-h-[10dvh] fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+          className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:h-auto fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
         />
         {/* The search keeps a search-sized measure on wide screens. */}
         <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">
@@ -159,6 +163,12 @@ export default function NavigatorHomePage({
             friend gives out; JoinGroupForm → /room/{code}). */}
           <JoinGroupForm />
         </Stack>
+        {/* Fit mode only: the other half of the free height (see the spacer
+            above the title). */}
+        <Box
+          aria-hidden
+          className="hidden fit-screen:block fit-screen:flex-[1_1_0] -mt-(--stack-gap)"
+        />
       </Stack>
       {/* The discover rails: a section of their own, so more space above
           them than the ways in keep between themselves, and room below the

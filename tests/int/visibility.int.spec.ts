@@ -31,8 +31,14 @@ vi.mock('next/headers', () => ({
   }),
 }))
 
-const { GROUP_TOUR_COOKIE, readContents, readTours, signGroupTourToken, verifyGroupTourToken } =
-  await import('@/lib/visibility')
+const {
+  GROUP_TOUR_COOKIE,
+  isPersonalTour,
+  readContents,
+  readTours,
+  signGroupTourToken,
+  verifyGroupTourToken,
+} = await import('@/lib/visibility')
 const { Contents } = await import('@/collections/Contents')
 const { Tour } = await import('@/collections/Tours')
 const { POST: joinRoom } = await import('@/app/api/rooms/token/route')
@@ -189,5 +195,72 @@ describe('saving private documents', () => {
     await expect(
       run(guardPrivateContents, { visibility: 'private', contents: ['c-private'] }, req),
     ).resolves.toMatchObject({ visibility: 'private' })
+  })
+})
+
+/**
+ * A visit copy ("Edit" on a tour's start page, `tours.visitCopyOf`) is one
+ * visitor's own tour: always private, and out of every list like a planned
+ * visit.
+ */
+describe('visit copies', () => {
+  const keepVisitCopyPrivate = hook(Tour.hooks?.beforeChange, 'keepVisitCopyPrivate')
+
+  it('stay private whatever the form sends, on create and on later saves', async () => {
+    const req = fakeRequest({})
+    expect(
+      await run(keepVisitCopyPrivate, { visibility: 'public', visitCopyOf: 'tour-1' }, req),
+    ).toMatchObject({ visibility: 'private' })
+    expect(
+      await run(keepVisitCopyPrivate, { visibility: 'public' }, req, { visitCopyOf: 'tour-1' }),
+    ).toMatchObject({ visibility: 'private' })
+    // Any other tour keeps the visibility it was given, and so does a copy
+    // whose provenance is cleared in the same save.
+    expect(await run(keepVisitCopyPrivate, { visibility: 'public' }, req)).toMatchObject({
+      visibility: 'public',
+    })
+    expect(
+      await run(keepVisitCopyPrivate, { visibility: 'public', visitCopyOf: null }, req, {
+        visitCopyOf: 'tour-1',
+      }),
+    ).toMatchObject({ visibility: 'public' })
+  })
+
+  it('belong to whoever made them, a super admin too', async () => {
+    const assignAuthor = hook(Tour.hooks?.beforeChange, 'assignAuthor')
+    const admin = fakeRequest({ user: { id: 'admin-1', isSuperAdmin: true } })
+    // Even when they pick someone else: a copy someone else owns could not be reopened.
+    expect(await run(assignAuthor, { visitCopyOf: 'tour-1', author: 'u2' }, admin)).toMatchObject({
+      author: 'admin-1',
+    })
+  })
+
+  it('are left out of lists, like planned visits', () => {
+    expect(isPersonalTour({ visitCopyOf: 'tour-1' })).toBe(true)
+    expect(isPersonalTour({ generation: { generated: true } })).toBe(true)
+    expect(isPersonalTour({ visitCopyOf: null, generation: { generated: false } })).toBe(false)
+  })
+})
+
+/**
+ * Who a new tour or content belongs to (`assignAuthor`): the caller, except a
+ * super admin who picks someone else; never nobody.
+ */
+describe('authors of new documents', () => {
+  const hooks = {
+    tours: hook(Tour.hooks?.beforeChange, 'assignAuthor'),
+    contents: hook(Contents.hooks?.beforeChange, 'assignAuthor'),
+  }
+  const admin = fakeRequest({ user: { id: 'admin-1', isSuperAdmin: true } })
+  const visitor = fakeRequest({ user: { id: 'u1' } })
+
+  it.each(Object.entries(hooks))('%s: a super admin picks one, or owns it', async (_, fn) => {
+    expect(await run(fn, { author: 'u2' }, admin)).toMatchObject({ author: 'u2' })
+    expect(await run(fn, {}, admin)).toMatchObject({ author: 'admin-1' })
+    expect(await run(fn, { author: null }, admin)).toMatchObject({ author: 'admin-1' })
+  })
+
+  it.each(Object.entries(hooks))('%s: anyone else always authors their own', async (_, fn) => {
+    expect(await run(fn, { author: 'admin-1' }, visitor)).toMatchObject({ author: 'u1' })
   })
 })

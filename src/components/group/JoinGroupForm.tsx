@@ -28,29 +28,28 @@ import { useTranslation } from 'react-i18next'
  * placeholder stays as written). The hint hangs just under the field, small,
  * so it reads as the field's note.
  *
- * Join is never disabled: it stays light until the text fits the room-code
- * pattern and turns filled once it does, so the change confirms the input.
- * Pressed too early, it shows the length rule as the field's error (in place
- * of the hint) instead of a gray button that gives no reason; the next edit
- * clears it.
+ * Join stays disabled (Mantine's gray, not clickable) until the text fits the
+ * room-code pattern: next to the navigator's light "Plan a visit" block a
+ * light Join read as an available action. The gray button is never left
+ * unexplained: the hint under the field says where the code comes from, and
+ * once something is typed that doesn't fit, it states the length rule instead.
  */
 export function JoinGroupForm() {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
   const router = useRouter()
   const [code, setCode] = useState('')
-  const [tried, setTried] = useState(false)
   const room = normalizeRoomCode(code)
   const complete = ROOM_CODE_PATTERN.test(room)
   const inputId = useId()
   // The limits come from the same constants the pattern checks.
-  const error =
-    tried && !complete
+  const hint =
+    code.trim() && !complete
       ? t('Whoever leads the group shares it: {{min}} to {{max}} letters or numbers.', {
           min: ROOM_CODE_MIN_LENGTH,
           max: ROOM_CODE_MAX_LENGTH,
         })
-      : undefined
+      : t('Whoever leads the group gives it to you.')
 
   return (
     <Stack
@@ -62,7 +61,6 @@ export function JoinGroupForm() {
       onSubmit={(event) => {
         event.preventDefault()
         if (complete) router.push(roomPath(lng, room) as Route)
-        else setTried(true)
       }}
     >
       <Text component="label" htmlFor={inputId} fw={700} lh={1.25}>
@@ -70,15 +68,14 @@ export function JoinGroupForm() {
       </Text>
       {/* The field takes the row's free width (a name is longer than a code).
           The hint is the field's Mantine description, placed under the input
-          so Mantine wires it (and the error that replaces it) to the input's
-          aria-describedby. */}
+          so Mantine wires it to the input's aria-describedby. */}
       <Group gap="xs" wrap="nowrap" align="flex-start">
         <TextInput
           id={inputId}
           flex={1}
           size="md"
           radius="md"
-          inputWrapperOrder={['input', 'description', 'error']}
+          inputWrapperOrder={['input', 'description']}
           leftSection={<UsersRound size={20} aria-hidden />}
           classNames={{
             input:
@@ -87,20 +84,15 @@ export function JoinGroupForm() {
             description: 'mt-1 text-(length:--mantine-font-size-xs)',
           }}
           value={code}
-          onChange={(event) => {
-            setCode(event.currentTarget.value)
-            // The error answers one press of Join; editing the text clears it.
-            setTried(false)
-          }}
-          description={error ? undefined : t('Whoever leads the group gives it to you.')}
-          error={error}
+          onChange={(event) => setCode(event.currentTarget.value)}
+          description={hint}
           placeholder={t('Red Phoenix or AB3X9K')}
           maxLength={40}
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
         />
-        <Button type="submit" size="md" radius="md" variant={complete ? 'filled' : 'light'}>
+        <Button type="submit" size="md" radius="md" disabled={!complete}>
           {t('Join')}
         </Button>
       </Group>

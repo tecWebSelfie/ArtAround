@@ -43,8 +43,8 @@ const clock = new Intl.DateTimeFormat('en-GB', {
 /** `HH:mm` as is; an ISO instant as its `HH:mm` in `timeZone`; anything else dropped. */
 function toTimeOfDay(value: unknown): string | null {
   if (typeof value === 'string' && TIME_OF_DAY.test(value)) return value
-  const date = value instanceof Date ? value : typeof value === 'string' ? new Date(value) : null
-  return date && !Number.isNaN(date.getTime()) ? clock.format(date) : null
+  if (typeof value === 'string') value = new Date(value)
+  return value instanceof Date && !Number.isNaN(value.getTime()) ? clock.format(value) : null
 }
 
 const Museums = payload.db.collections.museums

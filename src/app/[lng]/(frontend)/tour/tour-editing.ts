@@ -1,9 +1,35 @@
 import 'server-only'
 
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
+import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
 import { asViewer, getSession } from '@/lib/session'
-import type { Museum } from '@/payload-types'
+import type { Museum, Tour } from '@/payload-types'
+
+/**
+ * The visitor's existing visit copy (`tours.visitCopyOf`) for "Edit" on
+ * `source`: `source` itself when it is their copy, else their latest copy of
+ * it; null means make one.
+ */
+export async function existingVisitCopy(
+  source: Pick<Tour, 'id' | 'author' | 'visitCopyOf'>,
+): Promise<string | null> {
+  const { payload, user } = await getSession()
+  if (!user) return null
+  if (source.visitCopyOf && asId(source.author) === String(user.id)) return source.id
+  const { docs } = await payload.find({
+    collection: 'tours',
+    where: { visitCopyOf: { equals: source.id }, author: { equals: user.id } },
+    sort: '-updatedAt',
+    limit: 1,
+    // One query: no total count to compute.
+    pagination: false,
+    depth: 0,
+    select: {},
+    ...(await asViewer()),
+  })
+  return docs[0]?.id ?? null
+}
 
 /**
  * Data for the tour editor: the contents a tour of this museum can include,

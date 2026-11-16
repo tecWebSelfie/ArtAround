@@ -1,13 +1,25 @@
 {
+  "{{name}} hasn’t created any tours yet": "{{name}} še nima nobenega ogleda",
+  "{{name}} hasn’t written any contents yet": "{{name}} še nima nobene vsebine",
+  "All museums": "Vsi muzeji",
   "contents": "vsebine",
+  "Contents": "Vsebine",
+  "Create a tour": "Ustvari ogled",
   "Curator": "Kustos",
   "Curator at": "Kustos v",
   "Email": "E-pošta",
   "info": "informacije",
   "Member since": "Član od",
-  "No contents authored yet": "Še ni napisanih vsebin",
-  "No Tours authored yet": "Še ni ustvarjenih ogledov",
+  "No contents at {{museum}}": "Ni vsebin v {{museum}}",
+  "No tours at {{museum}}": "Ni ogledov v {{museum}}",
+  "Pick the works you love and put them in order: a route to take and share.": "Izberi najljubša dela in jih razvrsti: pot, ki jo prehodiš in deliš.",
+  "Show work from": "Prikaži dela iz",
+  "Tell the story of a work": "Povej zgodbo dela",
+  "Tours": "Ogledi",
   "Username": "Uporabniško ime",
   "Verified creator": "Preverjen ustvarjalec",
-  "Verified creator tooltip": "Ta ustvarjalec je preverjen pri ArtAround"
+  "Verified creator tooltip": "Ta ustvarjalec je preverjen pri ArtAround",
+  "What you write about a work shows up here, ready for the visitors who stop in front of it.": "Kar napišeš o delu, se prikaže tukaj, pripravljeno za obiskovalce, ki se ustavijo pred njim.",
+  "Write a content": "Napiši vsebino",
+  "Your first tour starts here": "Tvoj prvi ogled se začne tukaj"
 }

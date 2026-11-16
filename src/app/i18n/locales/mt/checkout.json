@@ -1,5 +1,5 @@
 {
-  "“{{title}}” is now unlocked on your account.": "",
+  "“{{title}}” is now unlocked on your account.": "“{{title}}” issa huwa miftuħ fil-kont tiegħek.",
   "Back to the content": "Lura għall-kontenut",
   "Back to the navigator": "Lura għan-navigatur",
   "Back to the tour": "Lura għat-tour",
@@ -12,7 +12,7 @@
   "Sign in": "Idħol",
   "Sign in to see your purchase": "Idħol biex tara x-xiri tiegħek",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe għadu ma kkonfermalniex dan il-ħlas. Jinfetaħ fil-kont tiegħek hekk kif jagħmel dan; m'hemm xejn aktar x'tagħmel.",
-  "The paid contents of “{{title}}” are now unlocked on your account.": "",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "Il-kontenuti bi ħlas ta’ “{{title}}” issa huma miftuħa fil-kont tiegħek.",
   "The paid contents of this tour are now unlocked on your account.": "Il-kontenuti bi ħlas ta' dan it-tour issa huma miftuħa fil-kont tiegħek.",
   "Your purchase is now unlocked on your account.": "Ix-xiri tiegħek issa huwa miftuħ fil-kont tiegħek."
 }

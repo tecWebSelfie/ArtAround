@@ -3,7 +3,7 @@
 import { EXIT_ENTRANCE_NODE_TYPE } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
 import type { ExitEntranceDirection } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
 import { EXIT_ENTRANCE_META, SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
-import { SERVICE_NODE_TYPE, SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
+import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import { useMuseumMarkersStore } from '@/lib/pascal/museum-plugin/services-store'
 import { ActionIcon, Divider, Paper, Tooltip } from '@mantine/core'
 import { useScene } from '@pascal-app/core'

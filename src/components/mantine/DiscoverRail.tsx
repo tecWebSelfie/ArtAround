@@ -16,14 +16,14 @@
 import { formatUnit } from '@/lib/duration'
 import type { RailMuseum, RailTour } from '@/lib/discover'
 import { Carousel } from '@mantine/carousel'
-import { Anchor, Group, Stack, Title } from '@mantine/core'
+import { Group, Stack, Title } from '@mantine/core'
 import { CoverCard } from './CoverCard'
 import { Clock, MapPin, Navigation } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import type { ReactNode } from 'react'
+import { SeeAllLink } from './SeeAllLink'
 import { useTranslation } from 'react-i18next'
 
 /** The tour outline (DESIGN.md → Colors: grape marks tour cards). */
@@ -69,16 +69,6 @@ export function DiscoverRail({
         {children}
       </Carousel>
     </Stack>
-  )
-}
-
-/** The rail header's link to the whole collection ("See all"). */
-export function SeeAllLink({ href }: { href: Route }) {
-  const { t } = useTranslation('navigator-discover')
-  return (
-    <Anchor component={Link} href={href} size="sm" fw={600} className="shrink-0">
-      {t('See all')}
-    </Anchor>
   )
 }
 

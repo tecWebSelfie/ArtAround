@@ -42,13 +42,14 @@ export function variantWhere(
   }
 }
 
+/** Where a "Tell me more" step stands: its angle, its number, the reader's age. */
+export type MoreStep = { angle: ExpansionAngle; step: number; age?: number }
+
 /** The additions on `angle` before `step`, which the visitor has already read. */
 export function previousStepsWhere(
   target: 'contents' | 'objects',
   id: string,
-  angle: ExpansionAngle,
-  step: number,
-  age?: number,
+  { angle, step, age }: MoreStep,
 ): Where {
   return {
     and: [

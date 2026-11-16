@@ -92,41 +92,38 @@ export default function GroupConnection({
     let cancelled = false
     let retryTimer: ReturnType<typeof setTimeout> | undefined
     let resume: (() => void) | undefined
+    // One attempt: null once connected (or cancelled), else why it failed.
+    const attempt = async () => {
+      try {
+        const { serverUrl, participantToken } = await tokenSource.fetch({
+          roomName: code,
+          participantName: name,
+        })
+        if (!cancelled) await connect(serverUrl, participantToken)
+        return null
+      } catch (error) {
+        return cancelled ? null : connectFailure(code, error)
+      }
+    }
     void (async () => {
       let retryMs = 1_000
       while (!cancelled) {
-        try {
-          const { serverUrl, participantToken } = await tokenSource.fetch({
-            roomName: code,
-            participantName: name,
-          })
-          if (!cancelled) await connect(serverUrl, participantToken)
+        const failure = await attempt()
+        if (cancelled || failure === null) return
+        if (failure === 'ended') {
+          setMembership(null)
+          notifications.show({ title: t('This group has ended'), message: '' })
           return
-        } catch (error) {
-          if (cancelled) return
-          // A transient token/server failure must not strand a reloading host offline.
-          // Only an explicit missing/ended room ends membership; 5xx/429 are retryable.
-          const ended = await fetch(`/api/rooms/${code}`, { cache: 'no-store' }).then(
-            (response) => response.status === 404 || response.status === 410,
-            () => false,
-          )
-          if (cancelled) return
-          if (ended) {
-            setMembership(null)
-            notifications.show({ title: t('This group has ended'), message: '' })
-            return
-          }
-          // A refusal (other 4xx) won't change by asking again every few seconds.
-          if (!isRetryableTokenError(error)) {
-            notifications.show({ title: t('Could not connect to the group'), message: '' })
-            return
-          }
-          await new Promise<void>((resolve) => {
-            resume = resolve
-            retryTimer = setTimeout(resolve, retryMs)
-          })
-          retryMs = Math.min(retryMs * 2, 5_000)
         }
+        if (failure === 'refused') {
+          notifications.show({ title: t('Could not connect to the group'), message: '' })
+          return
+        }
+        await new Promise<void>((resolve) => {
+          resume = resolve
+          retryTimer = setTimeout(resolve, retryMs)
+        })
+        retryMs = Math.min(retryMs * 2, 5_000)
       }
     })()
     return () => {
@@ -271,4 +268,19 @@ function GroupSync({ group }: { group: GroupContextValue }) {
   }, [membership.role, membership.tourId, hostPath, location, lng, pathname, search, router])
 
   return null
+}
+
+/**
+ * Why joining the room failed. A transient token/server failure must not
+ * strand a reloading host offline: only an explicitly missing or ended room
+ * ends the membership (`ended`), a refusal (another 4xx) won't change by
+ * asking again (`refused`), and 5xx/429 are worth retrying (`retry`).
+ */
+async function connectFailure(code: string, error: unknown) {
+  const ended = await fetch(`/api/rooms/${code}`, { cache: 'no-store' }).then(
+    (response) => response.status === 404 || response.status === 410,
+    () => false,
+  )
+  if (ended) return 'ended'
+  return isRetryableTokenError(error) ? 'retry' : 'refused'
 }

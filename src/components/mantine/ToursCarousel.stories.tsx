@@ -1,3 +1,4 @@
+import type { Route } from 'next'
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 
 import { expect, waitFor } from 'storybook/test'
@@ -44,11 +45,13 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
+  // As a museum page passes it: the whole list, narrowed to that museum.
+  args: { seeAllHref: '/en/search/tours?at=museum-1' as Route },
   play: async ({ canvas, userEvent }) => {
     await expect(canvas.getByRole('heading', { level: 2, name: 'Tours' })).toBeVisible()
     await expect(canvas.getByRole('link', { name: /see all/i })).toHaveAttribute(
       'href',
-      '/en/search/tours',
+      '/en/search/tours?at=museum-1',
     )
     // The front card is one link into its tour.
     const open = canvas.getByRole('link', { name: /open the tour/i })
@@ -67,6 +70,8 @@ export const SingleTour: Story = {
   },
   play: async ({ canvas }) => {
     await expect(canvas.queryByRole('button', { name: 'Show next tour' })).toBeNull()
+    // No `seeAllHref`: no pill.
+    await expect(canvas.queryByRole('link', { name: /see all/i })).toBeNull()
   },
 }
 

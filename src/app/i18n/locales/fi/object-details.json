@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} kohde",
+  "{{count}} stops_other": "{{count}} kohdetta",
   "Contents about it": "Sisältöjä aiheesta",
-  "Credit line": "",
+  "Credit line": "Lähdemaininta",
   "Event": "Tapahtuma",
-  "Inventory number": "",
+  "Inventory number": "Inventaarionumero",
   "Movement or style": "Suuntaus tai tyyli",
   "On Wikidata": "Wikidatassa",
   "Person": "Henkilö",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Provenienssi",
+  "Rights": "Oikeudet",
+  "Tours that stop here": "Kierrokset, jotka pysähtyvät täällä",
   "Works in the collection": "Teoksia kokoelmassa",
   "Write a content about it": "Kirjoita siitä sisältö"
 }

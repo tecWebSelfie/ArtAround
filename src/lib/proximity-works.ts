@@ -9,8 +9,10 @@ export function nearbyWorks(
   previous: readonly string[],
 ): string[] {
   if (!point || !point.every(Number.isFinite)) return []
-  const ids = (decision: ReturnType<typeof workInFront>) =>
-    decision.kind === 'sure' ? [decision.id] : decision.kind === 'choose' ? decision.ids : []
+  const ids = (decision: ReturnType<typeof workInFront>) => {
+    if (decision.kind === 'sure') return [decision.id]
+    return decision.kind === 'choose' ? decision.ids : []
+  }
   const entering = ids(workInFront(point, heading, works))
   const shown = new Set(previous)
   const retained = ids(

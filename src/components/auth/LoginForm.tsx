@@ -34,7 +34,7 @@ type LoginFormValues = {
 export function LoginForm() {
   const { t } = useT(undefined, { keyPrefix: 'auth' })
   const { login } = useAuth()
-  const { lng } = useParams()
+  const { lng } = useParams<{ lng: string }>()
   const router = useRouter()
   const { returnTo, nextQuery } = useReturnTo()
 

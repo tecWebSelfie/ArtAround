@@ -4,11 +4,7 @@ import { notifications } from '@mantine/notifications'
 import { useTranslation } from 'react-i18next'
 import { AssistantOrb, type AssistantState } from './AssistantOrb'
 import type { useSpeech } from './use-speech'
-import {
-  useVoiceAssistant,
-  type AssistantCommand,
-  type AssistantTurn,
-} from './use-voice-assistant'
+import { useVoiceAssistant, type AssistantCommand, type AssistantTurn } from './use-voice-assistant'
 
 type Props = {
   enabled: boolean
@@ -74,12 +70,11 @@ function ActiveAssistant({
         id: 'assistant-error',
         position: 'top-center',
         color: 'red',
-        message:
-          reason === 'mic'
-            ? t('Allow the microphone to talk to the assistant.')
-            : reason === 'speech'
-              ? t('The answer could not be spoken; it is shown here instead.')
-              : t('The assistant is not available right now.'),
+        message: {
+          mic: t('Allow the microphone to talk to the assistant.'),
+          speech: t('The answer could not be spoken; it is shown here instead.'),
+          request: t('The assistant is not available right now.'),
+        }[reason],
       }),
   })
   const labels: Record<AssistantState, [label: string, status: string]> = {

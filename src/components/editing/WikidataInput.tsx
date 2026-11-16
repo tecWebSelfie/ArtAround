@@ -55,6 +55,8 @@ export function WikidataInput({
       }))}
       // Wikidata already ranked the results: show them as they come.
       filter={({ options }) => options}
+      // A wrong match is undone in one tap (Mantine's own clear button).
+      clearable
       {...props}
     />
   )

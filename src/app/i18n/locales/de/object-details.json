@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} Station",
+  "{{count}} stops_other": "{{count}} Stationen",
   "Contents about it": "Inhalte dazu",
-  "Credit line": "",
+  "Credit line": "Creditline",
   "Event": "Ereignis",
-  "Inventory number": "",
+  "Inventory number": "Inventarnummer",
   "Movement or style": "Strömung oder Stil",
   "On Wikidata": "Auf Wikidata",
   "Person": "Person",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Provenienz",
+  "Rights": "Rechte",
+  "Tours that stop here": "Touren mit Station hier",
   "Works in the collection": "Werke in der Sammlung",
   "Write a content about it": "Einen Inhalt darüber schreiben"
 }

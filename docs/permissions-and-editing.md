@@ -53,7 +53,9 @@ Super admins bypass all of the above.
 
 - `tours.museum` (relationship) ⇄ `museums.tours` (join).
 - `contents.author` / `tours.author` (relationship, set from the caller on
-  create) ⇄ `users.authoredContents` / `users.authoredTours` (joins).
+  create by `assignAuthor`; only a super admin may pick another author, and
+  one left empty is theirs, so a signed-in create is never ownerless) ⇄
+  `users.authoredContents` / `users.authoredTours` (joins).
 - `museums.objects` is a **derived index** of the Pascal map: on every map
   save, `syncMuseumObjects` stores the ids of placed `museum-objects` items.
   `objects.museums` is its join. An object can exist without a museum and be
@@ -127,6 +129,14 @@ Local API bypasses access unless told otherwise. Server pages use
 
 `resolveLocalized()` takes `user` and always reads with access control.
 
+Lists of tours go through `findListedTours(payload, options)`
+(`src/lib/listed-tours.ts`) instead of `payload.find({ collection: 'tours' })`:
+it ANDs the list rule (`LISTED_TOURS`: no planned visits, no visit copies)
+with the caller's `where` and reads as the visitor (`asViewer()`) unless the
+caller passes `overrideAccess` itself. The navigator rails, a work's and a
+content's tours and `/search/tours` use it; the museum page's `tours` join
+takes `LISTED_TOURS` directly, and in-memory filters use `isPersonalTour`.
+
 ## Private contents and tours
 
 `visibility` (`public` | `private`) on contents and tours (`src/lib/visibility.ts`,
@@ -173,7 +183,18 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      `attachToObject`. The query param is just a shareable prefill.
    - `/[lng]/content/[id]/edit` — redirects to the content page (the body
      is edited inline there now).
-   - `/[lng]/tour/new?museum=<id>` | `?from=<tourId>` (customize a copy) and
+   - `/[lng]/tour/new?museum=<id>` | `?from=<tourId>` (customize a copy) |
+     `?from=<tourId>&visit=1` ("Edit" on the tour's start page,
+     `tourCopyPath(…, { visit: true })`: the visitor's own copy for this
+     visit, never the original. The copy records its provenance in
+     `tours.visitCopyOf` (set on create, never reassigned); the
+     `keepVisitCopyPrivate` hook keeps it private, `LISTED_TOURS` (through
+     `findListedTours`) keeps it
+     out of every list like a planned visit, and the editor opens its start
+     page once saved. "Edit" again — on the original or on the copy — reopens
+     the visitor's copy (`existingVisitCopy`) instead of copying again. Saved
+     on the server rather than on the device so a group can follow it: the
+     room, the guests' cookie and every navigation page read tours by id) and
      `/[lng]/tour/[id]/edit` — `TourForm`: vertical timeline of stops,
      reordered by drag (grip handle, `@dnd-kit/react`, auto-scroll + keyboard)
      or up/down buttons (precise on long tours, WCAG 2.5.7 alternative);

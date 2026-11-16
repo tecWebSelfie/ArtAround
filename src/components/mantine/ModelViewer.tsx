@@ -100,6 +100,11 @@ function Model({ url, onLoaded }: { url: string; onLoaded: (loaded: true) => voi
   useEffect(() => onLoaded(true), [onLoaded, scene])
   useEffect(() => {
     if (group.current && controls) {
+      // `<Center>` has just moved the model (its layout effect), but world
+      // matrices only update on the next render: measured now, the box was
+      // the uncentred one, and the camera aimed off the object. Update them
+      // first so the fit targets the model where it stands.
+      group.current.updateWorldMatrix(true, true)
       // `precise`: skinned and nested models report loose geometry bounds,
       // which framed only part of them.
       const box = new Box3().setFromObject(group.current, true)

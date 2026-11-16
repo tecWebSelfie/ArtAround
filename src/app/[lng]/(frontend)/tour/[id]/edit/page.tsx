@@ -1,20 +1,35 @@
+import type { Route } from 'next'
+import { BackButton } from '@/components/navigation/BackButton'
+import { minStopsFor } from '@/lib/tour-stops'
+import { asId } from '@/access/museumRoles'
 import { TourForm } from '@/components/editing/forms/TourForm'
 import { coverImage } from '@/lib/cover-image'
 import { asViewer, can, getSession, requireUser } from '@/lib/session'
 import { Container } from '@mantine/core'
-import type { Route } from 'next'
-import { redirect } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { directionsByStop } from '@/lib/tour-logistics'
+import { tourCopyPath, tourEditPath } from '@/lib/tour-routes'
 import { getTourEditorData } from '../../tour-editing'
 
 /** Edit an own tour (author only); others customize a copy via `/tour/new?from=`. */
 export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[id]/edit'>) {
   const { lng, id } = await params
-  await requireUser(lng, `/${lng}/tour/${id}/edit`)
-  if (!(await can('tours', id, 'update'))) redirect(`/${lng}/tour/new?from=${id}` as Route)
-
+  await requireUser(lng, tourEditPath(lng, id))
   const { payload } = await getSession()
-  const tour = await payload.findByID({ collection: 'tours', id, depth: 0, ...(await asViewer()) })
+  // Read as the visitor: a deleted tour, or someone else's private one, is a
+  // 404 rather than a copy of nothing.
+  const [tour, canEdit] = await Promise.all([
+    payload.findByID({
+      collection: 'tours',
+      id,
+      depth: 0,
+      disableErrors: true,
+      ...(await asViewer()),
+    }),
+    can('tours', id, 'update'),
+  ])
+  if (!tour) notFound()
+  if (!canEdit) redirect(tourCopyPath(lng, id))
   const stopIds = tour.contents.map((content) =>
     typeof content === 'string' ? content : content.id,
   )
@@ -26,11 +41,18 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
 
   return (
     <Container size="md" py="md">
+      {/* Up a level: back where the editor was opened from, else the tour. */}
+      <BackButton href={`/${lng}/tour/${tour.id}` as Route} />
       <TourForm
         tourId={tour.id}
         museum={museum}
         candidates={candidates}
         thumbnail={thumbnail}
+        // A visit copy reopened ("Edit" on its start page) edits like the
+        // first time: same notice, same return to its start page.
+        visitCopyOf={asId(tour.visitCopyOf)}
+        // A planned visit or a visit copy may keep a single stop.
+        minStops={minStopsFor(tour)}
         initial={{
           title: tour.title,
           description: tour.description ?? '',

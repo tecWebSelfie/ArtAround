@@ -4,7 +4,7 @@ import { ContentDetailsModalContent } from '@/components/mantine/ContentDetailsM
 import type { Content } from '@/payload-types'
 import { getLocalizedDoc } from '@/payload-sdk'
 import { Alert, Drawer, Loader, Stack } from '@mantine/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -47,6 +47,16 @@ export function QuizContentDrawer({
 
   // Ignore a previous content's state while the new one loads.
   const current = state?.id === contentId ? state : null
+  let body: ReactNode = (
+    <Stack align="center" py="xl">
+      <Loader aria-label={t('Loading content')} />
+    </Stack>
+  )
+  if (current && 'error' in current) {
+    body = <Alert color="red">{t('This content could not be loaded.')}</Alert>
+  } else if (current) {
+    body = <ContentDetailsModalContent content={current.content} lng={lng} />
+  }
 
   return (
     <Drawer
@@ -57,15 +67,7 @@ export function QuizContentDrawer({
       title={t('Read the content again')}
       closeButtonProps={{ 'aria-label': t('Close') }}
     >
-      {!current ? (
-        <Stack align="center" py="xl">
-          <Loader aria-label={t('Loading content')} />
-        </Stack>
-      ) : 'error' in current ? (
-        <Alert color="red">{t('This content could not be loaded.')}</Alert>
-      ) : (
-        <ContentDetailsModalContent content={current.content} lng={lng} />
-      )}
+      {body}
     </Drawer>
   )
 }

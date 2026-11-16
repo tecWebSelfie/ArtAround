@@ -1,65 +1,35 @@
 'use client'
 
-import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
+import { TOUR_GRADIENT } from '@/theme'
 import { ActionFooter } from '@/components/mantine/ActionFooter'
-import { DeleteDocumentButton } from '@/components/editing/DeleteDocumentButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
-import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
-import { DurationBadge } from '@/components/mantine/DurationBadge'
-import { LockedPriceBadge } from '@/components/mantine/LockedPriceBadge'
 import { useCheckout } from '@/components/payments/useCheckout'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { formatPrice } from '@/lib/price'
-import { formatRating } from '@/lib/rating'
-import { formatUnit } from '@/lib/duration'
-import { stopImage, stopPicture, summarizeTour } from '@/lib/tour-summary'
-import { stopDirections } from '@/lib/tour-logistics'
-import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
-import { QrCodeButton } from '@/components/QrCodeButton'
+import { stopPicture, summarizeTour } from '@/lib/tour-summary'
+import { tourCopyPath, tourEditPath, tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
+import { BackButton } from '@/components/navigation/BackButton'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
-  Anchor,
   AppShellMain,
-  Badge,
   Button,
   Container,
   Grid,
   GridCol,
   Group,
-  Image,
   Modal,
   Stack,
   Text,
-  ThemeIcon,
-  Timeline,
-  TimelineItem,
   Title,
-  UnstyledButton,
 } from '@mantine/core'
-import {
-  Accessibility,
-  BookOpen,
-  EyeOff,
-  ChevronRight,
-  Clock,
-  Footprints,
-  Landmark,
-  ListChecks,
-  LogIn,
-  MapPin,
-  Pencil,
-  Play,
-  Replace,
-  ShoppingBag,
-  Signpost,
-  Star,
-} from 'lucide-react'
+import { LogIn, Pencil, Play, Replace, ShoppingBag } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
+import { TourFigures, TourHeading, TourStops } from './TourPageParts'
 
 type TourPageProps = {
   tour: Tour
@@ -124,9 +94,7 @@ export default function TourPage({
     hard: t('Hard'),
   }
   // Authors edit their tour; anyone else customizes a copy of it.
-  const editHref = (
-    canEdit ? `/${lng}/tour/${tour.id}/edit` : `/${lng}/tour/new?from=${tour.id}`
-  ) as Route
+  const editHref = canEdit ? tourEditPath(lng, tour.id) : tourCopyPath(lng, tour.id)
   // The tour's start page, inside its museum's navigation.
   const startHref = tourStartPath(lng, tourMuseumId(tour), tour.id)
 
@@ -135,6 +103,11 @@ export default function TourPage({
       <AppShellMain>
         {/* `maw` widens the `sm` container (720px) to 1140px from md only. */}
         <Container size="sm" px="md" py="md" maw={{ md: 1140 }}>
+          {/* Up a level: back where the visitor came from in the app, else
+              (a QR code, a shared link) the tour's museum. */}
+          <BackButton
+            href={(museum ? `/${lng}/museum/${museum.id}` : `/${lng}/navigator`) as Route}
+          />
           {/* Grid lays out with `gap`: below md (full-width columns, `lg`
               gap) it stacks exactly like the former single Stack. */}
           <Grid gap={{ base: 'lg', md: 48 }} align="flex-start">
@@ -154,122 +127,16 @@ export default function TourPage({
                     view. */}
                 <DetailCover pictures={[cover]} fallback="tour" title={tour.title} />
 
-                <Stack gap="xs">
-                  <Group justify="space-between" align="flex-start" wrap="nowrap" gap="sm">
-                    <Title order={1} size="h2" textWrap="balance">
-                      {tour.title}
-                    </Title>
-                    <Group gap="xs" wrap="nowrap">
-                      <QrCodeButton
-                        kind="tour"
-                        id={tour.id}
-                        title={tour.title}
-                        printMuseumId={printMuseumId}
-                      />
-                      {canDelete && (
-                        <DeleteDocumentButton
-                          collection="tours"
-                          id={tour.id}
-                          name={tour.title}
-                          redirectTo={`/${lng}/navigator` as Route}
-                        />
-                      )}
-                    </Group>
-                  </Group>
-                  {(museum || author) && (
-                    <Group gap="xs" c="dimmed" fz="sm">
-                      {museum && (
-                        <Anchor
-                          component={Link}
-                          href={`/${lng}/museum/${museum.id}` as Route}
-                          size="sm"
-                          c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
-                          className="inline-flex items-center gap-1"
-                        >
-                          <Landmark size={14} aria-hidden />
-                          {museum.name}
-                        </Anchor>
-                      )}
-                      {museum && author && <span aria-hidden>·</span>}
-                      {author && <Text size="sm">{t('By {{name}}', { name: author })}</Text>}
-                    </Group>
-                  )}
-                  {tour.description && <Text c="dimmed">{tour.description}</Text>}
-                  {translationNotice}
-                </Stack>
+                <TourHeading
+                  tour={tour}
+                  museum={museum}
+                  author={author}
+                  canDelete={canDelete}
+                  printMuseumId={printMuseumId}
+                  translationNotice={translationNotice}
+                />
 
-                {/* At a glance: what taking the tour asks of the visitor. Light
-                badges, as in the Plan my visit preview; each one names its
-                figure in words beside the icon (never color alone). */}
-                <Group gap="xs">
-                  {summary.visitMinutes != null && (
-                    <Badge size="lg" variant="light" leftSection={<Clock size={14} />}>
-                      {t('About {{duration}}', {
-                        duration: formatUnit(summary.visitMinutes, 'minute', lng),
-                      })}
-                    </Badge>
-                  )}
-                  <Badge size="lg" variant="light" color="gray" leftSection={<MapPin size={14} />}>
-                    {t('{{count}} stops', { count: summary.stops })}
-                  </Badge>
-                  {summary.distanceMeters != null && (
-                    <Badge
-                      size="lg"
-                      variant="light"
-                      color="gray"
-                      leftSection={<Footprints size={14} />}
-                    >
-                      {t('{{distance}} on foot', {
-                        distance: formatUnit(summary.distanceMeters, 'meter', lng),
-                      })}
-                    </Badge>
-                  )}
-                  {summary.wheelchairAccessible && (
-                    <Badge
-                      size="lg"
-                      variant="light"
-                      color={ACCESSIBILITY_COLOR}
-                      leftSection={<Accessibility size={14} />}
-                    >
-                      {t('Step-free route')}
-                    </Badge>
-                  )}
-                  {/* Private: a class visit only its author and group guests see. */}
-                  {tour.visibility === 'private' && (
-                    <Badge
-                      size="lg"
-                      variant="light"
-                      color="gray"
-                      leftSection={<EyeOff size={14} />}
-                    >
-                      {t('Private')}
-                    </Badge>
-                  )}
-                  {summary.quizQuestions > 0 && (
-                    <Badge
-                      size="lg"
-                      variant="light"
-                      color="grape"
-                      leftSection={<ListChecks size={14} />}
-                    >
-                      {t('Ends with a quiz')}
-                    </Badge>
-                  )}
-                  {summary.rating && (
-                    <Badge
-                      size="lg"
-                      variant="light"
-                      color="yellow"
-                      leftSection={<Star size={14} fill="currentColor" />}
-                      aria-label={t('Rated {{rating}} out of 5', {
-                        rating: formatRating(summary.rating.average, lng),
-                      })}
-                      className="tabular-nums"
-                    >
-                      {`${formatRating(summary.rating.average, lng)} (${summary.rating.count})`}
-                    </Badge>
-                  )}
-                </Group>
+                <TourFigures summary={summary} isPrivate={tour.visibility === 'private'} />
 
                 {/* The Thumb-Reach Rule: on phones the way forward lives in the
                     64px footer; from md the same pair sits inline here, right
@@ -301,79 +168,13 @@ export default function TourPage({
             </GridCol>
 
             <GridCol span={{ base: 12, md: 7 }}>
-              <Stack gap="sm">
-                <Group justify="space-between" align="baseline" gap="xs">
-                  <Title order={2} size="h4">
-                    {t('The stops')}
-                  </Title>
-                  {summary.readingMinutes != null && (
-                    <Text size="sm" c="dimmed">
-                      {t('{{duration}} of reading', {
-                        duration: formatUnit(summary.readingMinutes, 'minute', lng),
-                      })}
-                    </Text>
-                  )}
-                </Group>
-                {/* The reading profile: how many stops ask for an easy, medium
-                  or hard read, with the Triplet Rule's icon + label + color. */}
-                {summary.difficulties.length > 0 && (
-                  <Group gap={6}>
-                    {summary.difficulties.map(({ difficulty, count }) => (
-                      <DifficultyBadge
-                        key={difficulty}
-                        difficulty={difficulty}
-                        variant="light"
-                        className="tabular-nums"
-                      >
-                        {`${count} · ${difficultyLabel[difficulty]}`}
-                      </DifficultyBadge>
-                    ))}
-                  </Group>
-                )}
-
-                <Timeline bulletSize={28} lineWidth={2} mt="xs">
-                  {contents.map((content, index) => {
-                    const directions = stopDirections(tour, content.id)
-                    // TimelineItem must stay a direct child of Timeline (it
-                    // injects layout props into direct children only).
-                    return (
-                      <TimelineItem
-                        key={content.id}
-                        bullet={
-                          <Text size="xs" fw={700} className="tabular-nums">
-                            {index + 1}
-                          </Text>
-                        }
-                      >
-                        <StopRow
-                          content={content}
-                          locked={locked.has(content.id)}
-                          difficultyLabel={difficultyLabel[content.difficulty]}
-                        />
-                        {/* How to get there from the previous stop, as the author wrote it. */}
-                        {directions && (
-                          <Group gap={6} wrap="nowrap" align="start" c="dimmed">
-                            <Signpost size={14} aria-hidden className="mt-0.5 shrink-0" />
-                            <Text size="xs">{directions}</Text>
-                          </Group>
-                        )}
-                      </TimelineItem>
-                    )
-                  })}
-                  {summary.quizQuestions > 0 && (
-                    <TimelineItem bullet={<ListChecks size={14} aria-hidden />}>
-                      <Stack gap={0} py={4}>
-                        <Text fw={600} size="sm">
-                          {t('Quiz')}
-                        </Text>
-                        <Text size="xs" c="dimmed">
-                          {t('Test what you remember after the last stop')}
-                        </Text>
-                      </Stack>
-                    </TimelineItem>
-                  )}
-                </Timeline>
-              </Stack>
+              <TourStops
+                tour={tour}
+                contents={contents}
+                locked={locked}
+                summary={summary}
+                difficultyLabel={difficultyLabel}
+              />
             </GridCol>
           </Grid>
         </Container>
@@ -392,6 +193,19 @@ export default function TourPage({
     </>
   )
 }
+
+/**
+ * The two exit buttons (`TourActions`): `md` height at least, tight padding, `sm` text,
+ * and a label that may wrap (centred, tighter leading) where a translation
+ * is longer than half a phone, so it grows a line instead of being cut.
+ */
+const FOOTER_BUTTON = {
+  size: 'md',
+  px: 'xs',
+  fz: 'sm',
+  className: 'h-auto min-h-(--button-height) py-1',
+  classNames: { label: 'whitespace-normal text-center leading-tight' },
+} as const
 
 /**
  * The tour's two exits, shared by the phone footer and the desktop summary
@@ -417,14 +231,13 @@ function TourActions({
   const { lng } = useParams<{ lng: string }>()
   return (
     // Two equal halves of a 390px phone leave ~170px per button: tighter
-    // padding and sm text keep "Customize tour" / "Unlock for €4.99" (and
-    // their longer translations) whole instead of "Customize to…".
-    <Group grow gap="xs" wrap="nowrap">
+    // padding and sm text keep "Customize tour" / "Unlock for €4.99" whole,
+    // and a longer translation ("Muokkaa kierrosta itsellesi") wraps onto a
+    // second line (`FOOTER_BUTTON`) instead of ending in "…".
+    <Group grow gap="xs" wrap="nowrap" align="stretch">
       {price > 0 ? (
         <Button
-          size="md"
-          px="xs"
-          fz="sm"
+          {...FOOTER_BUTTON}
           color="orange"
           autoContrast
           rightSection={<ShoppingBag size={16} />}
@@ -434,9 +247,7 @@ function TourActions({
         </Button>
       ) : (
         <Button
-          size="md"
-          px="xs"
-          fz="sm"
+          {...FOOTER_BUTTON}
           component={Link}
           href={editHref}
           color="orange"
@@ -447,9 +258,7 @@ function TourActions({
         </Button>
       )}
       <Button
-        size="md"
-        px="xs"
-        fz="sm"
+        {...FOOTER_BUTTON}
         component={Link}
         href={startHref}
         // The tour gradient: starting a tour is the app's main way in
@@ -461,65 +270,6 @@ function TourActions({
         {t('Start tour')}
       </Button>
     </Group>
-  )
-}
-
-/**
- * One stop of the timeline, as a single link to the content page: its picture
- * (content image, else its object's thumbnail, else the teal content icon),
- * the title, and what reading it asks for. A locked stop names its price.
- */
-function StopRow({
-  content,
-  locked,
-  difficultyLabel,
-}: {
-  content: Content
-  locked: boolean
-  difficultyLabel: string
-}) {
-  const { t } = useTranslation('tour-page')
-  const { lng } = useParams<{ lng: string }>()
-  const image = stopImage(content)
-  return (
-    <UnstyledButton
-      component={Link}
-      href={`/${lng}/content/${content.id}` as Route}
-      aria-label={t('See more about {{title}}', { title: content.title })}
-      className="-mx-2 -my-1 block rounded-md px-2 py-1 transition-colors hover:bg-(--mantine-color-default-hover)"
-    >
-      <Group gap="sm" wrap="nowrap">
-        {image ? (
-          <Image src={image.url} alt="" w={56} h={56} radius="md" className="shrink-0" />
-        ) : (
-          <ThemeIcon size={56} radius="md" variant="light" color="teal" className="shrink-0">
-            <BookOpen size={22} aria-hidden />
-          </ThemeIcon>
-        )}
-        <Stack gap={6} miw={0} className="flex-1">
-          <Text fw={600} size="sm" lineClamp={2}>
-            {content.title}
-          </Text>
-          <Group gap={6}>
-            <DifficultyBadge difficulty={content.difficulty} size="xs" variant="light">
-              {difficultyLabel}
-            </DifficultyBadge>
-            {content.durationSeconds != null && (
-              <DurationBadge
-                seconds={content.durationSeconds}
-                lng={lng}
-                size="xs"
-                variant="light"
-                color="gray"
-              />
-            )}
-            {/* Shared with navigation search and nearby suggestions. */}
-            {locked && <LockedPriceBadge price={content.price ?? 0} size="xs" />}
-          </Group>
-        </Stack>
-        <ChevronRight size={18} className="shrink-0 text-(--mantine-color-dimmed)" aria-hidden />
-      </Group>
-    </UnstyledButton>
   )
 }
 

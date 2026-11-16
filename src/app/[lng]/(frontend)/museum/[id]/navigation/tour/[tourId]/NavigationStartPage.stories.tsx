@@ -9,9 +9,6 @@ const NavigationPageStory = serverComponentStory(NavigationPage)
 const meta = {
   title: 'Frontend/Navigator/TourNavigatorHome',
   ...NavigationPageStory,
-  args: {
-    className: 'h-dvh',
-  },
   parameters: {
     layout: 'fullscreen',
   },
@@ -24,5 +21,6 @@ type Story = StoryObj<typeof meta>
 export const Default: Story = {
   args: {
     tour: mockTourFull,
+    lng: 'en',
   },
 }

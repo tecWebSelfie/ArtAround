@@ -70,6 +70,8 @@ function formatPrice(cents: number, currency: string, locale: string) {
   }).format(amount)
 }
 
+const KIND_COLOR = { tour: 'grape', content: 'teal', user: 'blue', object: 'orange' } as const
+
 /**
  * One marketplace result. The whole card is the link (no nested interactive
  * elements), and the footer always shows either the price, a "Free" badge, or
@@ -91,24 +93,9 @@ export function MarketplaceCard({
   // Only tours and contents are sellable: objects are catalog entries.
   const isPaid = (isTour || isContent) && item.priceCents > 0
 
-  const href = (
-    isTour
-      ? `/${locale}/tour/${item.id}`
-      : isContent
-        ? `/${locale}/content/${item.id}`
-        : isObject
-          ? `/${locale}/object/${item.id}`
-          : `/${locale}/user/${item.id}`
-  ) as Route
-
-  const kindLabel = isTour
-    ? labels.tour
-    : isContent
-      ? labels.content
-      : isObject
-        ? labels.object
-        : labels.user
-  const kindColor = isTour ? 'grape' : isContent ? 'teal' : isObject ? 'orange' : 'blue'
+  const href = `/${locale}/${item.kind}/${item.id}` as Route
+  const kindLabel = labels[item.kind]
+  const kindColor = KIND_COLOR[item.kind]
   const FallbackIcon = KIND_FALLBACK[item.kind].Icon
 
   // `Link` wraps the card instead of being passed as Mantine's `component`:

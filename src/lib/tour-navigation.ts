@@ -2,6 +2,7 @@ import type { Content, Object as MuseumObject, Tour } from '@/payload-types'
 import { ItemNode } from '@pascal-app/core'
 import type { Route } from 'next'
 import { readingAge } from './reading-profile'
+import { museumNavigationPath, tourNavigationPath } from './tour-routes'
 
 /** URL and Payload/Pascal adapters shared across the tour navigation route tree. */
 export type NavigationCatalogObject = Pick<MuseumObject, 'id' | 'name'> & {
@@ -35,29 +36,16 @@ export function tourStepIndex(value: string, count: number): number | null {
   return Number.isSafeInteger(step) && step <= count ? step : null
 }
 
-/**
- * Free navigation: the museum's map with no tour. The visitor explores, picks
- * destinations and opens contents; the same modal, scanner and URL-state rules
- * as a tour apply, without a cursor (`/[lng]/museum/[id]/navigation`).
- */
-export function museumNavigationPath(lng: string, museumId: string) {
-  return `/${lng}/museum/${museumId}/navigation` as Route
-}
-
-/**
- * Tours live inside their museum's navigation (`…/navigation/tour/[tourId]`),
- * so one persistent shell serves free navigation and every tour of the museum
- * and the map stays mounted when a tour starts. This is the tour's start page
- * (no cursor yet); the old `/[lng]/tour/[id]/navigation/...` URLs redirect here.
- */
-export function tourStartPath(lng: string, museumId: string, tourId: string) {
-  return `${museumNavigationPath(lng, museumId)}/tour/${tourId}` as Route
-}
-
-/** The tour map at cursor `step` (completed stops). */
-export function tourNavigationPath(lng: string, museumId: string, tourId: string, step: number) {
-  return `${tourStartPath(lng, museumId, tourId)}/${step}` as Route
-}
+// The pure URL builders live in `tour-routes` (no Pascal import); re-exported
+// here so the navigation tree keeps one import site.
+export {
+  museumNavigationPath,
+  tourCopyPath,
+  tourEditPath,
+  tourNavigationPath,
+  tourStartPath,
+  VISIT_COPY_PARAM,
+} from './tour-routes'
 
 /** A tour's museum id, whether its `museum` relationship is populated or not. */
 export function tourMuseumId(tour: Pick<Tour, 'museum'>) {
@@ -146,22 +134,22 @@ const NAVIGATION_KEYS: NavigationKey[] = [
   'age',
 ]
 
+/** Whether a navigation parameter holds a value its route can use. */
+function isValidNavigationValue(key: NavigationKey, value: string) {
+  if (key === 'mobility') return value === 'wheelchair'
+  if (key === 'audience') return value === 'children'
+  if (key === 'age') return readingAge(value) !== undefined
+  return true
+}
+
 /** Carry shareable navigation state between canonical and contextual routes. */
 export function withNavigationPosition(path: string, search: string | NavigationSearch) {
   const input = typeof search === 'string' ? new URLSearchParams(search) : search
   const output = new URLSearchParams()
   for (const key of NAVIGATION_KEYS) {
     const value = input instanceof URLSearchParams ? input.get(key) : input[key]
-    const valid =
-      key === 'mobility'
-        ? value === 'wheelchair'
-        : key === 'audience'
-          ? value === 'children'
-          : key === 'age'
-            ? typeof value === 'string' && readingAge(value) !== undefined
-            : typeof value === 'string' && value
-    if (valid) {
-      output.set(key, value as string)
+    if (typeof value === 'string' && value && isValidNavigationValue(key, value)) {
+      output.set(key, value)
     }
   }
   return `${path}${output.size ? `?${output}` : ''}` as Route

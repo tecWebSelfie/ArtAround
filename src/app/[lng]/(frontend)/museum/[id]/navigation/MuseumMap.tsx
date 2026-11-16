@@ -73,21 +73,7 @@ export function MuseumMap({
   progressPoint?: Vec3 | null
 }) {
   const [ready, setReady] = useState(false)
-  useEffect(() => {
-    // Pascal emits item clicks for every selectable node; the shared ID helper
-    // filters these to museum objects, leaving walls and map geometry untouched.
-    const select = ({ node, stopPropagation }: ItemEvent) => {
-      const id = museumObjectId(node)
-      if (id) {
-        stopPropagation()
-        onObjectClick?.(id)
-      }
-    }
-    emitter.on('item:click', select)
-    return () => {
-      emitter.off('item:click', select)
-    }
-  }, [onObjectClick])
+  useObjectClicks(onObjectClick)
 
   const route = useMemo(() => {
     if (!ready || !navMesh) return null
@@ -135,27 +121,27 @@ export function MuseumMap({
     )
 
     const reference = point(currentObjectId)
-    // A service button routes to the closest instance of that type; spotlight
-    // entries carry the exact node id and win over the "closest" fallback.
-    const end = !destination
-      ? null
-      : destination.kind === 'object'
-        ? point(destination.id)
-        : destination.kind === 'service'
-          ? placedServices.some((node) => node.id === destination.target)
-            ? toPoint({ id: destination.target })
-            : (nearest(
-                placedServices
-                  .filter((node) => node.service === destination.target)
-                  .map((node) => node.id),
-                reference,
-              )?.point ?? null)
-          : placedExits.some((node) => node.id === destination.target)
-            ? toPoint({ id: destination.target })
-            : (nearest(
-                placedExits.map((node) => node.id),
-                reference,
-              )?.point ?? null)
+    // A service button routes to the closest instance of that type (an exit
+    // button, to the closest exit); spotlight entries carry the exact node id
+    // and win over the "closest" fallback.
+    const routeEnd = () => {
+      if (!destination) return null
+      if (destination.kind === 'object') return point(destination.id)
+      const [placed, candidates] =
+        destination.kind === 'service'
+          ? [placedServices, placedServices.filter((node) => node.service === destination.target)]
+          : [placedExits, placedExits]
+      if (placed.some((node) => node.id === destination.target)) {
+        return toPoint({ id: destination.target })
+      }
+      return (
+        nearest(
+          candidates.map((node) => node.id),
+          reference,
+        )?.point ?? null
+      )
+    }
+    const end = routeEnd()
 
     // Without a confirmed `at`, the tour starts at an entrance: the closest one
     // to where the visitor is heading, so shared links stay as short as
@@ -257,4 +243,24 @@ function NavigationPath({ points }: { points: [number, number, number][] }) {
       <PathMaterial color="#228be6" linewidth={5} depthTest={false} depthWrite={false} />
     </PathLine>
   )
+}
+
+/**
+ * Pascal emits item clicks for every selectable node; the shared ID helper
+ * filters these to museum objects, leaving walls and map geometry untouched.
+ */
+function useObjectClicks(onObjectClick?: (id: string) => void) {
+  useEffect(() => {
+    const select = ({ node, stopPropagation }: ItemEvent) => {
+      const id = museumObjectId(node)
+      if (id) {
+        stopPropagation()
+        onObjectClick?.(id)
+      }
+    }
+    emitter.on('item:click', select)
+    return () => {
+      emitter.off('item:click', select)
+    }
+  }, [onObjectClick])
 }

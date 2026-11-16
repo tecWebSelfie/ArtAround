@@ -3,7 +3,6 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect } from 'storybook/test'
 
 import { mockContentMinimal, mockContentsList } from '@/mocks/content.mock'
-import type { ComponentProps } from 'react'
 
 import { ContentsCarousel } from './ContentsCarousel'
 import { serverComponentStory } from '@/mocks/server-component'
@@ -34,8 +33,8 @@ export const Default: Story = {
     await expect(canvas.findByText('Leggere un dipinto rinascimentale')).resolves.toBeTruthy()
     // Cards expose difficulty and reading time, not just the title
     await expect(canvas.findByText('Easy')).resolves.toBeTruthy()
-    // Exact lengths in seconds, compact chip notation (src/lib/duration.ts).
-    await expect(canvas.findByText('45"')).resolves.toBeTruthy()
+    // Exact lengths with short unit words (`formatDuration`, src/lib/duration.ts).
+    await expect(canvas.findByText('45 sec')).resolves.toBeTruthy()
   },
 }
 

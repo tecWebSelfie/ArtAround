@@ -1,6 +1,6 @@
 import { displayName } from '@/lib/display-name'
 import { relationshipIds } from '@/lib/relationship-ids'
-import { isPlannedVisit } from '@/lib/visibility'
+import { isPersonalTour } from '@/lib/tour-stops'
 import type { Content, Museum, Object as ArtObject, Tour, User } from '@/payload-types'
 import type { Payload, PayloadRequest, Where } from 'payload'
 import {
@@ -312,11 +312,11 @@ export async function buildSearchDocument({
 
 /**
  * Documents that never get a search row: private contents and tours and the
- * visits planned for one visitor (`src/lib/visibility.ts`). The hooks delete
- * the Typesense document when a document becomes unlisted.
+ * personal tours (a planned visit, a visitor's own copy; `src/lib/tour-stops.ts`).
+ * The hooks delete the Typesense document when a document becomes unlisted.
  */
 export function isUnlistedInSearch(doc: unknown): boolean {
   return (
-    (doc as { visibility?: string | null } | null)?.visibility === 'private' || isPlannedVisit(doc)
+    (doc as { visibility?: string | null } | null)?.visibility === 'private' || isPersonalTour(doc)
   )
 }

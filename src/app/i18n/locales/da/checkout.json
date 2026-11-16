@@ -1,5 +1,5 @@
 {
-  "“{{title}}” is now unlocked on your account.": "",
+  "“{{title}}” is now unlocked on your account.": "“{{title}}” er nu låst op på din konto.",
   "Back to the content": "Tilbage til indholdet",
   "Back to the navigator": "Tilbage til navigatoren",
   "Back to the tour": "Tilbage til turen",
@@ -12,7 +12,7 @@
   "Sign in": "Log ind",
   "Sign in to see your purchase": "Log ind for at se dit køb",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe har ikke bekræftet betalingen over for os endnu. Den låses op på din konto, så snart det sker; du skal ikke gøre andet.",
-  "The paid contents of “{{title}}” are now unlocked on your account.": "",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "Det betalte indhold i “{{title}}” er nu låst op på din konto.",
   "The paid contents of this tour are now unlocked on your account.": "Det betalte indhold i denne tur er nu låst op på din konto.",
   "Your purchase is now unlocked on your account.": "Dit køb er nu låst op på din konto."
 }

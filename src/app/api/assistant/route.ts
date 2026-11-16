@@ -1,5 +1,6 @@
 import { allowRequest } from '@/lib/rate-limit'
 import { matchControlledCommand } from '@/lib/voice-vocabulary'
+import { parseJson } from '@/lib/parse-json'
 import { textModel, transcriptionModel } from '@/lib/ai-models'
 import { generateText, Output, transcribe } from 'ai'
 import { NextResponse } from 'next/server'
@@ -35,10 +36,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
   const form = await request.formData()
+  // A text field, or the fallback when it is missing or sent as a file.
+  const text = (key: string, fallback: string) => {
+    const value = form.get(key)
+    return typeof value === 'string' ? value : fallback
+  }
   const audio = form.get('audio')
-  const commands = CommandList.safeParse(JSON.parse(String(form.get('commands') ?? '[]')))
-  const language = String(form.get('language') ?? 'en')
-  const context = String(form.get('context') ?? '').slice(0, 2_000)
+  const commands = CommandList.safeParse(parseJson(text('commands', '[]')))
+  const language = text('language', 'en')
+  const context = text('context', '').slice(0, 2_000)
   if (!(audio instanceof Blob) || audio.size > MAX_AUDIO_BYTES || !commands.success) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }

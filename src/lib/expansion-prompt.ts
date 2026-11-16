@@ -22,6 +22,13 @@ const DIFFICULTY_STYLE = {
   hard: 'precise art-historical terminology',
 } as const
 
+/** A known age adapts the text to it; without one, the 5–10 default. */
+function childrenInstruction(age: number | undefined) {
+  return age === undefined
+    ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
+    : `Write for a child aged ${age}: adapt vocabulary, sentence length and detail to that exact age. Keep the same artwork and facts as the adults, with concrete things to look for.`
+}
+
 function task(request: ExpansionRequest) {
   if (request.kind === 'more')
     return `${ANGLE_TASKS[request.angle]}${request.age === undefined ? '' : ` Write for a child aged ${request.age}: use age-appropriate language and detail.`}`
@@ -30,11 +37,7 @@ function task(request: ExpansionRequest) {
     `Use ${DIFFICULTY_STYLE[request.difficulty]}.`,
     // Same read-aloud pace as the stored lengths, so a 15-second version is a sentence or two.
     `It should take about ${formatDuration(request.seconds, 'en')} (${request.seconds} seconds) to read aloud: about ${wordsForSeconds(request.seconds)} words.`,
-    request.audience === 'children'
-      ? request.age === undefined
-        ? 'Write for children aged 5 to 10: friendly, concrete, with something to look for.'
-        : `Write for a child aged ${request.age}: adapt vocabulary, sentence length and detail to that exact age. Keep the same artwork and facts as the adults, with concrete things to look for.`
-      : '',
+    request.audience === 'children' ? childrenInstruction(request.age) : '',
   ].join(' ')
 }
 

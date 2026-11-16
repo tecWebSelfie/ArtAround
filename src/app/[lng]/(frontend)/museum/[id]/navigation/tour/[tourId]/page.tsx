@@ -27,5 +27,5 @@ export default async function NavigationStart({
       })
       .catch(() => null),
   ])
-  return <NavigationStartPage tour={{ ...tour, title: localized?.title ?? tour.title }} />
+  return <NavigationStartPage tour={{ ...tour, title: localized?.title ?? tour.title }} lng={lng} />
 }

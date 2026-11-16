@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} спирка",
+  "{{count}} stops_other": "{{count}} спирки",
   "Contents about it": "Съдържания за това",
-  "Credit line": "",
+  "Credit line": "Кредит",
   "Event": "Събитие",
-  "Inventory number": "",
+  "Inventory number": "Инвентарен номер",
   "Movement or style": "Течение или стил",
   "On Wikidata": "В Wikidata",
   "Person": "Личност",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Произход",
+  "Rights": "Права",
+  "Tours that stop here": "Обиколки, които минават оттук",
   "Works in the collection": "Творби в колекцията",
   "Write a content about it": "Напишете съдържание за това"
 }

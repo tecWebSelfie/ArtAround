@@ -120,31 +120,17 @@ export async function GET(request: NextRequest) {
       return file(new Uint8Array(png), 'image/png', `${name}.png`)
     }
 
-    const item =
-      kind === 'tour'
-        ? await payload.findByID({
-            collection: 'tours',
-            id,
-            locale,
-            select: { title: true },
-            ...viewer,
-          })
-        : kind === 'object'
-          ? await payload.findByID({
-              collection: 'objects',
-              id,
-              locale,
-              select: { name: true },
-              ...viewer,
-            })
-          : await payload.findByID({
-              collection: 'contents',
-              id,
-              locale,
+    const read = { id, locale, depth: 0, ...viewer }
+    const title =
+      kind === 'object'
+        ? (await payload.findByID({ collection: 'objects', select: { name: true }, ...read })).name
+        : (
+            await payload.findByID({
+              collection: kind === 'tour' ? 'tours' : 'contents',
               select: { title: true },
-              ...viewer,
+              ...read,
             })
-    const title = 'title' in item ? item.title : item.name
+          ).title
     const sheet = await singleSheet({
       museum: museums.find((museum) => museum.id === museumId)?.name ?? '',
       hint,

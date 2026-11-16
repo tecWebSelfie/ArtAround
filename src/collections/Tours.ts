@@ -7,12 +7,16 @@ import {
   superAdminOnly,
 } from '@/access/museumRoles'
 import { MUSEUM_FUNCTION_DIRECTOR } from '@/fields/MuseumFunction'
+import { minStopsFor } from '@/lib/tour-stops'
+import { requestLanguage } from '@/lib/request-language'
+import { relationship } from 'payload/shared'
 import type { Tour as TourType } from '@/payload-types'
 import {
   APIError,
   type Access,
   type CollectionBeforeChangeHook,
   type CollectionConfig,
+  type RelationshipFieldValidation,
   type Where,
 } from 'payload'
 import { nonCommercialConflicts } from '@/lib/content-rights'
@@ -38,6 +42,38 @@ export const TOURS_COLLECTION_SLUG = 'tours'
  * own yet (`src/lib/price.ts`), so it is computed per viewer.
  */
 
+/**
+ * A tour composed by hand needs `MIN_TOUR_STOPS` stops; a planned visit or a
+ * visit copy may keep one (`minStopsFor`, `src/lib/tour-stops.ts`). Payload's
+ * own relationship checks (required, `minRows`, ids) run first. `data` is
+ * the whole tour on update too, so its personal flags are always there.
+ *
+ * Tours saved before the rule may hold a single stop. Payload validates the
+ * whole document on every update (a stored translation, a quiz question's
+ * cleanup, a title fix), so the rule only refuses a save that creates such a
+ * tour or removes stops from one; an update that leaves the stops as they
+ * were goes through, and the editor asks for the second stop next time.
+ */
+const validateTourStops: RelationshipFieldValidation = async (value, options) => {
+  const base = await relationship(value, options)
+  if (base !== true) return base
+  const stops = Array.isArray(value) ? value.length : 0
+  const min = minStopsFor(options.data)
+  if (stops >= min) return true
+  const before = Array.isArray(options.previousValue) ? options.previousValue.length : 0
+  if (options.operation === 'update' && stops >= before) return true
+  // In the visitor's language, with the form's own message (`editing`).
+  // Loaded only here, on a refused save; outside Next (seed, CLI) the
+  // translations may not load, and the English text stands in.
+  try {
+    const { getT } = await import('@/i18n.server')
+    const { t } = await getT('editing', { lng: requestLanguage(options.req) })
+    return t('A tour needs at least {{count}} stops', { count: min })
+  } catch {
+    return `A tour needs at least ${min} stops.`
+  }
+}
+
 const authorOrSuperAdmin: Access = ({ req }) => {
   if (!req.user) return false
   if (isSuperAdmin(req)) return true
@@ -54,7 +90,13 @@ const authorOrMuseumDirector: Access = async ({ req }) => {
 }
 
 const assignAuthor: CollectionBeforeChangeHook<TourType> = ({ data, req, operation }) => {
-  if (operation === 'create' && req.user && !isSuperAdmin(req)) data.author = req.user.id
+  if (operation !== 'create' || !req.user) return data
+  // Clients cannot pick an author: it is always the caller (the `author` field
+  // also drops a non-admin's value on create). A super admin may author a tour
+  // for someone else from the admin; left empty, the tour is theirs, never
+  // ownerless. A visit copy is always its creator's own (`existingVisitCopy`
+  // finds it by author to reopen it instead of copying again).
+  if (!isSuperAdmin(req) || data.visitCopyOf || !data.author) data.author = req.user.id
   return data
 }
 
@@ -118,8 +160,22 @@ const pruneDirections: CollectionBeforeChangeHook<TourType> = ({ data, originalD
   return data
 }
 
+/**
+ * A visit copy (`visitCopyOf`) is one visitor's tour, followed at most by
+ * their group: always private, whatever the form sent. Before
+ * `guardTourContents`, so a copy of a tour with private stops saves.
+ */
+const keepVisitCopyPrivate: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
+  // The saved value wins over the stored one, a cleared (null) one included.
+  const copyOf = 'visitCopyOf' in data ? data.visitCopyOf : originalDoc?.visitCopyOf
+  if (copyOf) data.visibility = 'private'
+  return data
+}
+
 export const Tour: CollectionConfig = {
   slug: TOURS_COLLECTION_SLUG,
+  // `existingVisitCopy`: a visitor's latest copy of a tour, in one index seek.
+  indexes: [{ fields: ['author', 'visitCopyOf', 'updatedAt'] }],
   access: {
     // Private tours only for their author and the guests of their group visits.
     read: readTours,
@@ -128,7 +184,7 @@ export const Tour: CollectionConfig = {
     delete: authorOrMuseumDirector,
   },
   hooks: {
-    beforeChange: [assignAuthor, guardTourContents, pruneDirections],
+    beforeChange: [assignAuthor, keepVisitCopyPrivate, guardTourContents, pruneDirections],
     // Tour-owned quiz questions live and die with the tour (src/lib/quiz-ownership.ts).
     afterChange: [
       deleteQuestionsRemovedFromQuiz,
@@ -205,6 +261,7 @@ export const Tour: CollectionConfig = {
               hasMany: true,
               minRows: 1,
               required: true,
+              validate: validateTourStops,
             },
             {
               name: 'thumbnail',
@@ -229,7 +286,27 @@ export const Tour: CollectionConfig = {
               relationTo: 'users',
               required: false,
               index: true,
+              // Only a super admin picks an author (`assignAuthor`).
+              access: {
+                create: ({ req }) => isSuperAdmin(req),
+                update: ({ req }) => isSuperAdmin(req),
+              },
+            },
+            {
+              // The tour this one copies for one visitor's visit ("Edit" on a
+              // tour's start page; `/tour/new?from=<id>&visit=1`). Copy-on-write:
+              // the original never changes. Like a planned visit, the copy is
+              // that visitor's own tour: private (`keepVisitCopyPrivate`), never
+              // listed (`LISTED_TOURS`), and reopened by "Edit" instead of copied
+              // again. Set on create only; never reassigned.
+              name: 'visitCopyOf',
+              type: 'relationship',
+              relationTo: TOURS_COLLECTION_SLUG,
+              hasMany: false,
+              maxDepth: 0,
+              // Indexed with `author` (collection `indexes`), the one query on it.
               access: { update: ({ req }) => isSuperAdmin(req) },
+              admin: { position: 'sidebar', readOnly: true },
             },
             {
               // Set only on tours planned from the visitor's form (`/api/plan-tour`).

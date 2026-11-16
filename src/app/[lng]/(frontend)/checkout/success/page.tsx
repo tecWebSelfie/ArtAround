@@ -67,16 +67,7 @@ export default async function CheckoutSuccess(props: {
     )
   }
 
-  if (sessionId) {
-    try {
-      await reconcileCheckoutSession({ payload, stripe: getStripe(), sessionId, userId: user.id })
-    } catch (error) {
-      // The webhook may still deliver; the ownership check below tells the truth either way.
-      payload.logger.error(
-        `[stripe] reconcile failed for session ${sessionId}: ${error instanceof Error ? error.message : String(error)}`,
-      )
-    }
-  }
+  if (sessionId) await reconcile(payload, sessionId, user.id)
 
   // Ownership, and the bought item's name so the page says what was bought
   // ("Masterpieces of the Pinacoteca is unlocked"), read together. In
@@ -89,29 +80,30 @@ export default async function CheckoutSuccess(props: {
         purchasedTitle(payload, back.target, lng),
       ])
     : [false, null]
-  const action = {
-    label: back.isTour
-      ? t('Back to the tour')
-      : back.target?.collection === 'contents'
-        ? t('Back to the content')
-        : t('Back to the navigator'),
-    href: back.href,
+  const label = {
+    tour: t('Back to the tour'),
+    content: t('Back to the content'),
+    navigator: t('Back to the navigator'),
+  }[back.kind]
+  const action = { label, href: back.href }
+
+  // What was unlocked: a whole tour's paid contents or a single purchase,
+  // named when its title is known.
+  let unlocked: string
+  if (back.kind === 'tour') {
+    unlocked = item
+      ? t('The paid contents of “{{title}}” are now unlocked on your account.', { title: item })
+      : t('The paid contents of this tour are now unlocked on your account.')
+  } else {
+    unlocked = item
+      ? t('“{{title}}” is now unlocked on your account.', { title: item })
+      : t('Your purchase is now unlocked on your account.')
   }
 
   return owned ? (
     <CheckoutOutcome
       title={t('Payment received')}
-      description={
-        item
-          ? back.isTour
-            ? t('The paid contents of “{{title}}” are now unlocked on your account.', {
-                title: item,
-              })
-            : t('“{{title}}” is now unlocked on your account.', { title: item })
-          : back.isTour
-            ? t('The paid contents of this tour are now unlocked on your account.')
-            : t('Your purchase is now unlocked on your account.')
-      }
+      description={unlocked}
       detail={reference}
       action={action}
     />
@@ -143,4 +135,18 @@ async function purchasedTitle(
     })
     .catch(() => null)
   return doc?.title ?? null
+}
+
+/**
+ * Records the purchase from the Stripe session, in case the webhook hasn't
+ * yet. A failure is only logged: the webhook may still deliver, and the
+ * ownership check tells the truth either way.
+ */
+async function reconcile(payload: Payload, sessionId: string, userId: string) {
+  try {
+    await reconcileCheckoutSession({ payload, stripe: getStripe(), sessionId, userId })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error)
+    payload.logger.error(`[stripe] reconcile failed for session ${sessionId}: ${message}`)
+  }
 }

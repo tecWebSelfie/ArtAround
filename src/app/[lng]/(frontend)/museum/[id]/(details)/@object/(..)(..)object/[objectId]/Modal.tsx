@@ -14,7 +14,7 @@ export function ObjectModal({
   const router = useRouter()
   // The close button's name comes from AppMantineProvider.
   return (
-    <Modal opened {...props} onClose={router.back}>
+    <Modal opened {...props} onClose={() => router.back()}>
       {children}
     </Modal>
   )

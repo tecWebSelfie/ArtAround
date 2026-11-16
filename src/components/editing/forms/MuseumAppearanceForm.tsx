@@ -96,13 +96,16 @@ export function MuseumAppearanceForm({ museum }: { museum: Pick<Museum, 'id' | '
     close,
   )
 
+  // The semantic colors a museum can't take, and why.
+  const reserved = {
+    destructive: t(
+      'Red marks the actions that delete something, so it cannot be the museum color.',
+    ),
+    paid: t('Orange marks paid contents, so it cannot be the museum color.'),
+  }
   const error = invalid
     ? t('Enter a color like #1b2a4a.')
-    : analysis?.reserved === 'destructive'
-      ? t('Red marks the actions that delete something, so it cannot be the museum color.')
-      : analysis?.reserved === 'paid'
-        ? t('Orange marks paid contents, so it cannot be the museum color.')
-        : null
+    : analysis?.reserved && reserved[analysis.reserved]
 
   return (
     <form
@@ -146,55 +149,7 @@ export function MuseumAppearanceForm({ museum }: { museum: Pick<Museum, 'id' | '
           </Alert>
         )}
         {analysis?.result && analysis.theme && (
-          <Stack gap="xs" aria-live="polite">
-            {analysis.result.adjusted && (
-              <Alert color="yellow" variant="light">
-                {t('We darkened this color so text and buttons stay readable.')}
-              </Alert>
-            )}
-            <Group gap="lg">
-              <Group gap="xs">
-                <ColorSwatch color={brand} size={22} aria-hidden />
-                <Text size="sm">{t('Your color')}</Text>
-              </Group>
-              <Group gap="xs">
-                <ColorSwatch color={analysis.result.palette[PRIMARY_SHADE]} size={22} aria-hidden />
-                <Text size="sm">{t('Used for buttons and links')}</Text>
-              </Group>
-            </Group>
-            <Text size="sm" fw={500}>
-              {t('Preview')}
-            </Text>
-            {/* Scoped copy of the theme: Mantine's variables normally live on
-                `:root`, so a nested provider writes them on this wrapper only
-                and the rest of the page keeps its own colors. */}
-            <MantineProvider
-              theme={analysis.theme}
-              cssVariablesSelector="[data-museum-preview]"
-              getRootElement={() => undefined}
-              withGlobalClasses={false}
-              withStaticClasses={false}
-            >
-              <Group
-                // Mantine writes the light-scheme variables (filled, light,
-                // anchor) for `selector[data-mantine-color-scheme="light"]`.
-                data-museum-preview
-                data-mantine-color-scheme="light"
-                gap="sm"
-                align="center"
-                wrap="wrap"
-              >
-                <Button size="compact-md">{t('Button')}</Button>
-                <Button size="compact-md" variant="light">
-                  {t('Button')}
-                </Button>
-                <Anchor component="span" size="sm">
-                  {t('Link')}
-                </Anchor>
-                <Badge variant="light">{t('Tag')}</Badge>
-              </Group>
-            </MantineProvider>
-          </Stack>
+          <ThemePreview brand={brand} result={analysis.result} theme={analysis.theme} />
         )}
         {brand === '' && museum.brandColor && (
           <Text size="sm" c="dimmed">
@@ -214,5 +169,73 @@ export function MuseumAppearanceForm({ museum }: { museum: Pick<Museum, 'id' | '
         </Group>
       </Stack>
     </form>
+  )
+}
+
+/**
+ * What the museum's theme will look like: the color as typed beside the one
+ * buttons and links will use (darkened when needed), then a few components
+ * drawn with it.
+ */
+function ThemePreview({
+  brand,
+  result,
+  theme,
+}: {
+  brand: string
+  result: ReturnType<PaletteModule['museumPalette']>
+  theme: ReturnType<typeof museumTheme>
+}) {
+  const { t } = useTranslation('editing')
+  return (
+    <Stack gap="xs" aria-live="polite">
+      {result.adjusted && (
+        <Alert color="yellow" variant="light">
+          {t('We darkened this color so text and buttons stay readable.')}
+        </Alert>
+      )}
+      <Group gap="lg">
+        <Group gap="xs">
+          <ColorSwatch color={brand} size={22} aria-hidden />
+          <Text size="sm">{t('Your color')}</Text>
+        </Group>
+        <Group gap="xs">
+          <ColorSwatch color={result.palette[PRIMARY_SHADE]} size={22} aria-hidden />
+          <Text size="sm">{t('Used for buttons and links')}</Text>
+        </Group>
+      </Group>
+      <Text size="sm" fw={500}>
+        {t('Preview')}
+      </Text>
+      {/* Scoped copy of the theme: Mantine's variables normally live on
+          `:root`, so a nested provider writes them on this wrapper only
+          and the rest of the page keeps its own colors. */}
+      <MantineProvider
+        theme={theme}
+        cssVariablesSelector="[data-museum-preview]"
+        getRootElement={() => undefined}
+        withGlobalClasses={false}
+        withStaticClasses={false}
+      >
+        <Group
+          // Mantine writes the light-scheme variables (filled, light,
+          // anchor) for `selector[data-mantine-color-scheme="light"]`.
+          data-museum-preview
+          data-mantine-color-scheme="light"
+          gap="sm"
+          align="center"
+          wrap="wrap"
+        >
+          <Button size="compact-md">{t('Button')}</Button>
+          <Button size="compact-md" variant="light">
+            {t('Button')}
+          </Button>
+          <Anchor component="span" size="sm">
+            {t('Link')}
+          </Anchor>
+          <Badge variant="light">{t('Tag')}</Badge>
+        </Group>
+      </MantineProvider>
+    </Stack>
   )
 }

@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} stop",
+  "{{count}} stops_other": "{{count}} stop",
   "Contents about it": "Indhold om det",
-  "Credit line": "",
+  "Credit line": "Kreditering",
   "Event": "Begivenhed",
-  "Inventory number": "",
+  "Inventory number": "Inventarnummer",
   "Movement or style": "Retning eller stil",
   "On Wikidata": "På Wikidata",
   "Person": "Person",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Proveniens",
+  "Rights": "Rettigheder",
+  "Tours that stop here": "Ture, der stopper her",
   "Works in the collection": "Værker i samlingen",
   "Write a content about it": "Skriv et indhold om det"
 }

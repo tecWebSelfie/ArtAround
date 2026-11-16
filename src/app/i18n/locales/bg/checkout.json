@@ -1,5 +1,5 @@
 {
-  "“{{title}}” is now unlocked on your account.": "",
+  "“{{title}}” is now unlocked on your account.": "„{{title}}“ вече е отключено в профила ти.",
   "Back to the content": "Обратно към съдържанието",
   "Back to the navigator": "Обратно към навигатора",
   "Back to the tour": "Обратно към обиколката",
@@ -12,7 +12,7 @@
   "Sign in": "Вход",
   "Sign in to see your purchase": "Влез, за да видиш покупката си",
   "Stripe has not confirmed this payment to us yet. It unlocks on your account as soon as it does; there is nothing else to do.": "Stripe все още не ни е потвърдил това плащане. То ще се отключи в профила ти веднага щом го направи; не е нужно да правиш нищо друго.",
-  "The paid contents of “{{title}}” are now unlocked on your account.": "",
+  "The paid contents of “{{title}}” are now unlocked on your account.": "Платените съдържания в „{{title}}“ вече са отключени в профила ти.",
   "The paid contents of this tour are now unlocked on your account.": "Платените съдържания в тази обиколка вече са отключени в профила ти.",
   "Your purchase is now unlocked on your account.": "Покупката ти вече е отключена в профила ти."
 }

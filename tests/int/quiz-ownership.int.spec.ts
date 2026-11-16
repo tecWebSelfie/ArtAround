@@ -136,16 +136,19 @@ describe('quiz question cleanup', () => {
 })
 
 describe('quiz answers never reach the browser through tour or attempt reads', () => {
-  const findField = (fields: Field[], name: string): Field | undefined => {
+  // A field by name, looking inside tabs too (a named tab reads as a group).
+  function findField(fields: Field[], name: string): Field | undefined {
     for (const field of fields) {
       if ('name' in field && field.name === name) return field
-      if (field.type === 'tabs') {
-        for (const tab of (field as TabsField).tabs) {
-          if ('name' in tab && tab.name === name) return { ...tab, type: 'group' } as Field
-          const found = findField(tab.fields, name)
-          if (found) return found
-        }
-      }
+      const found = field.type === 'tabs' ? findInTabs((field as TabsField).tabs, name) : undefined
+      if (found) return found
+    }
+  }
+  function findInTabs(tabs: TabsField['tabs'], name: string): Field | undefined {
+    for (const tab of tabs) {
+      if ('name' in tab && tab.name === name) return { ...tab, type: 'group' } as Field
+      const found = findField(tab.fields, name)
+      if (found) return found
     }
   }
 

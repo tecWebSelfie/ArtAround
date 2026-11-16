@@ -1,3 +1,4 @@
+import { BackButton } from '@/components/navigation/BackButton'
 import { getT } from '@/i18n.server'
 import { normalizeLocale } from '@/lib/localized'
 import { asViewer, getSession } from '@/lib/session'
@@ -28,6 +29,8 @@ import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import { notFound } from 'next/navigation'
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
+import { SeeAllLink } from '@/components/mantine/SeeAllLink'
+import { scopedSearchHref } from '@/lib/search-url'
 import { cache } from 'react'
 
 /**
@@ -109,6 +112,9 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
   return (
     <Container component="main" size="sm" py="md">
       <Stack gap="lg">
+        {/* Up a level: back where the visitor came from (a work, a command),
+            else the navigator. */}
+        <BackButton href={`/${lng}/navigator` as Route} />
         <Stack gap="xs">
           <Badge variant="light" color="gray">
             {kindLabel}
@@ -142,9 +148,15 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
           // or inspired, and a name list said little. Two columns on phones,
           // three from sm; works without a photo keep a neutral tile.
           <Stack gap="xs" component="section">
-            <Title order={2} size="h4">
-              {t('Works in the collection')}
-            </Title>
+            <Group justify="space-between" align="center" gap="xs" wrap="nowrap">
+              <Title order={2} size="h4">
+                {t('Works in the collection')}
+              </Title>
+              {/* The grid holds the first 50: past that, the search holds every one. */}
+              {works.totalDocs > works.docs.length && (
+                <SeeAllLink href={scopedSearchHref(lng, 'objects', 'subject', id) as Route} />
+              )}
+            </Group>
             <SimpleGrid cols={{ base: 2, sm: 3 }} spacing="md">
               {works.docs.map((work) => {
                 const photo = isPopulated(work.thumbnail) ? work.thumbnail : null

@@ -141,6 +141,45 @@ export async function resyncSearchDocuments({
 }
 
 /**
+ * Refreshes the tours that include any of these contents (a content's price,
+ * a work's name or artist: both are part of a tour's search text). The relation
+ * lives on `tours.contents`, so the tours are read here before re-indexing.
+ */
+export async function resyncToursIncluding({
+  payload,
+  contentIds,
+  req,
+}: {
+  payload: Payload
+  contentIds: string[]
+  req?: PayloadRequest
+}) {
+  const ids = [...new Set(contentIds.filter(Boolean))]
+  if (!ids.length) return
+  let tourIds: string[]
+  try {
+    const { docs } = await payload.find({
+      collection: 'tours',
+      where: { contents: { in: ids } },
+      select: {},
+      depth: 0,
+      pagination: false,
+      overrideAccess: true,
+      req,
+    })
+    tourIds = docs.map((tour) => String(tour.id))
+  } catch (error) {
+    // Search is derived data: never fail the save that triggered it.
+    payload.logger.error({
+      err: error,
+      msg: `Could not read the tours including contents ${ids.join(', ')}`,
+    })
+    return
+  }
+  await resyncSearchDocuments({ payload, collection: 'tours', ids: tourIds, req })
+}
+
+/**
  * The `afterChange` / `afterDelete` pair every indexed collection installs:
  * one upsert or delete per save, nothing for the collection itself to
  * remember. The save never fails because of search (see `upsert`).

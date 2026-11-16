@@ -1,5 +1,7 @@
 'use client'
 
+import { formatUnit } from '@/lib/duration'
+import { distanceKm, type MuseumPoint } from '@/lib/museum-location'
 import { TOUR_GRADIENT } from '@/theme'
 import type { Difficulty } from '@/payload-types'
 import { BorderAnimate } from '@gfazioli/mantine-border-animate'
@@ -25,12 +27,14 @@ import {
   ArrowRight,
   BookOpen,
   Landmark,
+  Navigation,
   RotateCw,
   Route as RouteIcon,
   Search,
   Shapes,
   UserRound,
 } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ClearSearchButton } from './ClearSearchButton'
 import { PaidMark } from './PaidMark'
@@ -61,7 +65,12 @@ export type AutoCompleteItem = {
   stops?: number
   /** Content: list price in euro cents when paid. */
   priceCents?: number
+  /** Museum, or a tour's museum: [longitude, latitude], for the "near you" mark. */
+  point?: MuseumPoint
 }
+
+/** Within this many kilometres of the visitor, a result is marked as near them. */
+const NEAR_KM = 5
 
 /**
  * Where the owner's request stands: `loading` while the results shown are not
@@ -76,6 +85,12 @@ export type SearchStatus = 'idle' | 'loading' | 'error'
  */
 const RETRY_VALUE = '__retry'
 
+/** The default filter: the text in the item's title, subtitle or city. */
+const matchesText = (text: string) => (item: AutoCompleteItem) =>
+  `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
+    .toLowerCase()
+    .includes(text.toLowerCase())
+
 export function ArtAroundGlobalSearch({
   items,
   onChange,
@@ -85,6 +100,7 @@ export function ArtAroundGlobalSearch({
   status = 'idle',
   onRetry,
   browse,
+  origin,
   onOptionSubmit,
   ...props
 }: ComboboxProps & {
@@ -99,6 +115,12 @@ export function ArtAroundGlobalSearch({
   onRetry?: () => void
   /** A way out when nothing matches: the option opens `href` like a result. */
   browse?: { label: string; href: string }
+  /**
+   * The visitor's position when they already share it (`useDevicePosition`):
+   * results with a `point` within `NEAR_KM` get a "near you" mark with the
+   * distance. Computed here, so the position never leaves the device.
+   */
+  origin?: { latitude: number; longitude: number } | null
 }) {
   const { t } = useTranslation('search')
   const [_value, handleChange] = useUncontrolled({
@@ -112,19 +134,27 @@ export function ArtAroundGlobalSearch({
   const loading = status === 'loading'
   // After a failure, whatever items the owner still passes belong to an
   // earlier text: hide them, so the error and its retry are what the list says.
-  const filteredOptions =
-    status === 'error'
-      ? []
-      : items.filter(
-          filter ??
-            ((item) => {
-              const label = `${item.title} ${item.subtitle ?? ''} ${item.city ?? ''}`
-              return label.toLowerCase().includes(_value.toLowerCase())
-            }),
-        )
+  const filteredOptions = status === 'error' ? [] : items.filter(filter ?? matchesText(_value))
   // Nothing at all to say (no text, no suggestions, nothing pending): keep the
   // dropdown hidden rather than open an empty bordered sliver.
   const nothingToShow = filteredOptions.length === 0 && status === 'idle' && !query
+
+  // The clear button wins once there is text; with an empty field the
+  // spinner shows while the default suggestions load (first visit, or right
+  // after clearing).
+  let rightSection: ReactNode = loading ? <Loader size="xs" aria-hidden /> : null
+  if (_value) {
+    rightSection = (
+      <ClearSearchButton
+        onClear={() => {
+          // Through `handleChange`, so the owner's query resets too and the
+          // default results come back.
+          handleChange('')
+          combobox.openDropdown()
+        }}
+      />
+    )
+  }
 
   return (
     // The animated border wraps the whole combobox, not the input: the
@@ -151,6 +181,19 @@ export function ArtAroundGlobalSearch({
         {...props}
         store={combobox}
         offset={0}
+        // The list never runs under the phone's tab bar: floating-ui's `size`
+        // gives the room left below the field, and the bar's height (Mantine's
+        // global `--app-shell-footer-offset`, 0 where there is no bar) and a
+        // small margin come off it. The list scrolls inside past that.
+        middlewares={{
+          flip: true,
+          shift: true,
+          size: {
+            apply: ({ availableHeight, elements }) => {
+              elements.floating.style.maxHeight = `calc(${availableHeight}px - var(--app-shell-footer-offset, 0rem) - var(--mantine-spacing-xs))`
+            },
+          },
+        }}
         onOptionSubmit={(optionValue, optionProps) => {
           if (optionValue === RETRY_VALUE) {
             onRetry?.()
@@ -164,23 +207,7 @@ export function ArtAroundGlobalSearch({
         <ComboboxTarget withExpandedAttribute>
           <TextInput
             leftSection={<Search size={16} />}
-            rightSection={
-              // The clear button wins once there is text; with an empty field
-              // the spinner shows while the default suggestions load (first
-              // visit, or right after clearing).
-              _value ? (
-                <ClearSearchButton
-                  onClear={() => {
-                    // Through `handleChange`, so the owner's query resets too
-                    // and the default results come back.
-                    handleChange('')
-                    combobox.openDropdown()
-                  }}
-                />
-              ) : loading ? (
-                <Loader size="xs" aria-hidden />
-              ) : null
-            }
+            rightSection={rightSection}
             rightSectionPointerEvents="all"
             // Search terms are names and places, not prose: no red squiggles.
             spellCheck={false}
@@ -217,6 +244,7 @@ export function ArtAroundGlobalSearch({
           clearly against white cards in light mode and the dark page in dark. */}
         <ComboboxDropdown
           hidden={nothingToShow}
+          className="overflow-y-auto overscroll-contain"
           bd="1px solid light-dark(var(--mantine-color-gray-5), var(--mantine-color-dark-3))"
         >
           {/* Stale results stay in place while the new ones load, dimmed and
@@ -231,7 +259,10 @@ export function ArtAroundGlobalSearch({
                 gradient), so tours no longer draw an animated border too. */}
             {filteredOptions.map((item) => (
               <ComboboxOption value={item.href} key={item.href}>
-                <ResultRow item={item} />
+                <ResultRow
+                  item={item}
+                  nearKm={origin && item.point ? nearKm(origin, item.point) : null}
+                />
               </ComboboxOption>
             ))}
             {filteredOptions.length === 0 && (
@@ -348,7 +379,13 @@ const KIND_ICON = {
  * One result. Everything is plain text and badges, no nested controls: the
  * whole option is the action (it opens the detail page).
  */
-function ResultRow({ item }: { item: AutoCompleteItem }) {
+/** The distance to a point when it is within `NEAR_KM`, else null. */
+function nearKm(origin: { latitude: number; longitude: number }, point: MuseumPoint) {
+  const km = distanceKm(origin, point)
+  return km <= NEAR_KM ? km : null
+}
+
+function ResultRow({ item, nearKm }: { item: AutoCompleteItem; nearKm: number | null }) {
   const { t, i18n } = useTranslation('search')
   const { Icon, ...mark } = KIND_ICON[item.kind]
   const kindLabel = {
@@ -361,6 +398,7 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
   // Literal `t()` calls so `i18next-cli extract` sees the labels.
   const difficultyLabel = { easy: t('Easy'), medium: t('Medium'), hard: t('Hard') }
   const hasDetails =
+    nearKm !== null ||
     item.seconds !== undefined ||
     item.difficulty !== undefined ||
     item.stops !== undefined ||
@@ -389,8 +427,20 @@ function ResultRow({ item }: { item: AutoCompleteItem }) {
           </Text>
         ) : null}
         {hasDetails && (
-          // The essentials for choosing: time and difficulty first.
+          // The essentials for choosing: near you first (it can decide the
+          // visit on its own), then time and difficulty.
           <Group gap={4}>
+            {nearKm !== null && (
+              // Icon + words + distance, never color alone; the navigation
+              // icon and rounding of the museums rail's distance
+              // (`MuseumRailCard`), in the primary color of a way to go.
+              <Badge size="xs" variant="light" leftSection={<Navigation size={10} aria-hidden />}>
+                {t('Near you · {{distance}}', {
+                  // One decimal: within NEAR_KM, whole kilometres say too little.
+                  distance: formatUnit(Math.round(nearKm * 10) / 10, 'kilometer', i18n.language),
+                })}
+              </Badge>
+            )}
             {item.seconds !== undefined && (
               <DurationBadge
                 seconds={item.seconds}

@@ -1,5 +1,6 @@
 {
   "3D model of {{title}}": "Modello 3D di {{title}}",
+  "All (museums)": "Tutti",
   "All museums": "Tutti i musei",
   "Are you at {{museum}}?": "Ti trovi qui: {{museum}}?",
   "auth": {
@@ -38,6 +39,7 @@
     "username": "Nome utente",
     "usernameHint": "È così che gli altri esploratori ti vedranno."
   },
+  "Back": "Indietro",
   "Back to the navigator": "Torna al navigatore",
   "Change museum": "Cambia museo",
   "Clear search": "Cancella la ricerca",
@@ -92,6 +94,7 @@
   "Scan with your phone camera to open it in ArtAround.": "Inquadra con la fotocamera del telefono per aprirlo in ArtAround.",
   "Search a language": "Cerca una lingua",
   "Search a museum": "Cerca un museo",
+  "See all": "Vedi tutti",
   "Show QR code": "Mostra il codice QR",
   "Show thumbnails": "Mostra miniature",
   "Skip to main content": "Vai al contenuto principale",

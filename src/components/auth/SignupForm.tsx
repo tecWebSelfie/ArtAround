@@ -46,7 +46,7 @@ const USERNAME_PATTERN = /^[a-zA-Z0-9._-]+$/
 export function SignupForm() {
   const { t } = useT(undefined, { keyPrefix: 'auth' })
   const { register } = useAuth()
-  const { lng } = useParams()
+  const { lng } = useParams<{ lng: string }>()
   const router = useRouter()
   const { returnTo, nextQuery } = useReturnTo()
 

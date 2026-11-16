@@ -1,4 +1,4 @@
-import { isPlannedVisit } from '@/lib/visibility'
+import { isPersonalTour } from '@/lib/visibility'
 import { filterPopulated } from '@/lib/isPopulated'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
@@ -94,8 +94,9 @@ export const getMuseumNavigationTours = cache(
     return {
       tours,
       summaries: tours
-        // Not the visits planned for one visitor: those open from their own link.
-        .filter((tour) => (tour.contents?.length ?? 0) > 0 && !isPlannedVisit(tour))
+        // Not one visitor's own tours (planned visits, visit copies): those
+        // open from their own link or start page.
+        .filter((tour) => (tour.contents?.length ?? 0) > 0 && !isPersonalTour(tour))
         .map((tour) => ({ id: tour.id, title: tour.title, stops: tour.contents.length })),
     }
   },

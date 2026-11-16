@@ -1,0 +1,312 @@
+/*
+ * The tour's start page (NavigationStartPage): a CSS module because, like
+ * the tour deck, the layout hangs on things Mantine and Tailwind can't reach
+ * cleanly — a gradient border-box frame, an icon chip seated half outside
+ * its panel, Mantine Button's own internal parts (`.mantine-Button-inner`),
+ * and a short-viewport query that tightens the whole page. Chosen in live
+ * mode: a full-height column (title, cover, then the two ways in and the
+ * join form), Start Tour as a tinted panel framed by the shared tour
+ * gradient with a solid chip riding its rim, "Lead the group" matched to it.
+ */
+
+.root {
+  --sp-plum: var(--tour-strong-from);
+  --sp-radius: var(--mantine-radius-md);
+  /* Seats a chip on an edge (Start Tour's icon, the cover's "Edit"). */
+  --sp-ring: 0 0 0 3px var(--mantine-color-body);
+  min-height: calc(100dvh - var(--site-header-height, 0px));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mantine-spacing-xl);
+  padding: var(--mantine-spacing-lg) var(--mantine-spacing-md)
+    calc(var(--mantine-spacing-lg) + env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+}
+
+.identity {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Wider than the dock's rhythm: the cover is a circle, so it meets the
+     title at a single point and 16px (then 20px) read as glued. */
+  gap: 1.5rem;
+  max-width: 24rem;
+  /* Title and cover sit centred in the space over the dock, a touch above
+     where an even split would put them: clear of the
+     controls, yet not reaching the museum badge in the top corner. */
+  padding-top: 7dvh;
+
+  /* The page's one heading: a step past Mantine's h2 and heavier, in the
+     full text colour, so it reads as the tour's name and not as a label. */
+  & h2 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    color: var(--mantine-color-text);
+  }
+}
+
+.cover {
+  position: relative;
+  width: min(58vw, 15rem);
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 50%;
+  box-shadow: 0 14px 30px -18px rgb(0 0 0 / 0.55);
+}
+
+/* "Edit": centred on the circle's rim at 45° — (1 − cos 45°) / 2 = 14.6% in
+   from the box's edges — not on the box's empty corner. */
+.coverEdit {
+  position: absolute;
+  right: 14.6%;
+  bottom: 14.6%;
+  translate: 50% 50%;
+  white-space: nowrap;
+  box-shadow:
+    var(--sp-ring),
+    0 6px 14px -8px rgb(0 0 0 / 0.5);
+
+  /* The visible pill is Mantine's compact-sm (26px tall): the tap target
+     reaches 44px around it without making the badge itself any bigger. */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -9px;
+  }
+}
+
+.controls {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+/* Equal halves: Start Tour and "Lead the group" carry the same weight, so
+   a longer translation of either gets the room it needs. */
+.ctas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--mantine-spacing-sm);
+  align-items: stretch;
+
+  & > * {
+    min-width: 0;
+  }
+
+  & > button {
+    height: auto;
+    border-radius: var(--sp-radius);
+    padding-block: 6px;
+    /* Mantine's own button layout isn't trusted here: both the icon-over-
+       label stack and the button's own box are centred explicitly. */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* "Lead the group" reshapes Mantine's `Button` (icon over the label, a
+   two-line clamp) through its own Styles API — `classNames={{ inner,
+   section, label }}` on the component — rather than overriding
+   `.mantine-Button-*` from outside, which the part names aren't a
+   contract for. */
+.groupInner {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Matches `.startText`'s own title-to-facts gap, so the two panels'
+     internal rhythm reads the same. */
+  gap: 2px;
+  /* Mantine's own `.mantine-Button-inner` sets `height: 100%` (it fills a
+     single-row button); unset, it stretches to the button's full content
+     height, and with no justify-content leaves icon and label pinned to
+     the top with the leftover room sitting below them instead of split
+     evenly. `justify-content: center` above covers the same case even if
+     Mantine's default ever changes. */
+  height: auto;
+}
+
+.groupSection {
+  margin: 0;
+}
+
+/* Capped at two lines in any language: a longer translation shrinks to
+   fit rather than taking a third line this narrow column can't afford. */
+.groupLabel {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.2;
+  /* Mantine's own `.mantine-Button-label` also trims the line box to the
+     cap-height-to-baseline region (`text-box-trim`, meant for its own
+     single, already-centred row); with our `overflow: hidden` that
+     clipped descenders ("gruppo", "Lead") instead of leaving them inside
+     a full line box. */
+  text-box-trim: none;
+  /* Mantine's own `.mantine-Button-label` sets `height: 100%` (it fills a
+     single-row button); unset here, it stretched the label to the column's
+     full height, leaving the one line of text sitting above true centre
+     with dead space reserved below it. */
+  height: auto;
+}
+
+/* Start Tour: a tinted panel framed by the tour gradient — never a flat
+   gradient or flat plum fill over the whole surface, just this one hairline
+   border and the chip below. */
+.start {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* 34px on the left: the chip (36px, half outside) ends at 22px, leaving a
+     12px gap to the text at rest and still 10px when it nudges right on hover. */
+  padding: 10px 10px 10px 34px;
+  box-sizing: border-box;
+  border-radius: var(--sp-radius);
+  border: 1px solid transparent;
+  background:
+    linear-gradient(
+        color-mix(in oklch, var(--sp-plum) 9%, var(--mantine-color-body)),
+        color-mix(in oklch, var(--sp-plum) 9%, var(--mantine-color-body))
+      )
+      padding-box,
+    linear-gradient(in oklch 120deg, var(--tour-from), var(--tour-to)) border-box;
+  color: var(--tour-text-from);
+  text-decoration: none;
+  min-height: 56px;
+  transition:
+    background-color 200ms ease-out,
+    scale 120ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:focus-visible {
+    outline: 3px solid var(--mantine-primary-color-filled);
+    outline-offset: 3px;
+  }
+
+  /* The only CTA on the page that starts the visit: it earns its own
+     feedback rather than relying on a generic hover lift. The chip leans
+     into the tap (translate only, no scale) and the tint deepens, both
+     undone faster than they arrive; a press settles the whole panel back. */
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background:
+        linear-gradient(
+            color-mix(in oklch, var(--sp-plum) 15%, var(--mantine-color-body)),
+            color-mix(in oklch, var(--sp-plum) 15%, var(--mantine-color-body))
+          )
+          padding-box,
+        linear-gradient(in oklch 120deg, var(--tour-from), var(--tour-to)) border-box;
+      transition-duration: 260ms;
+
+      & .startIcon {
+        translate: 2px -50%;
+      }
+    }
+  }
+
+  &:active {
+    scale: 0.98;
+    transition-duration: 90ms;
+  }
+}
+
+/* The one solid accent: a small plum circle seated on the panel's rim,
+   half on the tint and half over the gradient border. */
+.startIcon {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  left: -14px;
+  top: 50%;
+  translate: 0 -50%;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--sp-plum);
+  color: var(--mantine-color-white);
+  box-shadow: var(--sp-ring);
+  transition: translate 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .start,
+  .start .startIcon {
+    transition: background-color 200ms ease-out !important;
+    translate: 0 -50% !important;
+    scale: 1 !important;
+  }
+}
+
+.startText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.startTitle {
+  font-weight: 700;
+  line-height: 1.2;
+  font-size: var(--mantine-font-size-md);
+}
+
+/* What starting the tour means, stated right where the visitor commits
+   to it: quieter than the title, under it. */
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  font-size: var(--mantine-font-size-xs);
+  opacity: 0.85;
+
+  /* Each stat stays on one line — at the panel's narrowest, "35 min" drops
+     to its own line rather than breaking "7 tappe" between the number and
+     the word. */
+  & span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 62em) {
+  .root {
+    justify-content: center;
+  }
+
+  .identity {
+    flex: none;
+  }
+}
+
+/* A short viewport (a small phone, or the browser chrome eating into a
+   tall one): everything must still fit without scrolling, so the rhythm
+   tightens and the cover gives up the room first. */
+@media (max-height: 620px) {
+  .root {
+    gap: var(--mantine-spacing-md);
+  }
+
+  .identity {
+    gap: var(--mantine-spacing-sm);
+  }
+
+  .cover {
+    width: min(42vw, 11rem);
+  }
+}

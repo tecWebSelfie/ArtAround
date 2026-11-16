@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} megálló",
+  "{{count}} stops_other": "{{count}} megálló",
   "Contents about it": "Tartalmak róla",
-  "Credit line": "",
+  "Credit line": "Forrásmegjelölés",
   "Event": "Esemény",
-  "Inventory number": "",
+  "Inventory number": "Leltári szám",
   "Movement or style": "Irányzat vagy stílus",
   "On Wikidata": "A Wikidatán",
   "Person": "Személy",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Proveniencia",
+  "Rights": "Jogok",
+  "Tours that stop here": "Túrák, amelyek itt megállnak",
   "Works in the collection": "Művek a gyűjteményben",
   "Write a content about it": "Tartalom írása erről"
 }

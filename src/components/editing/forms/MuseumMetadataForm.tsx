@@ -11,7 +11,7 @@ import {
 import { payloadSdk } from '@/payload-sdk'
 import type { Museum } from '@/payload-types'
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import { useEditableSection } from '../EditableSection'
 import { FormActions } from '../FormActions'
 import { RichTextInput } from '../RichTextInput'
@@ -24,27 +24,13 @@ export function MuseumMetadataForm({
   museum,
   descriptionHTML,
 }: {
-  museum: Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location'>
+  museum: MuseumFields
   descriptionHTML: string
 }) {
   const { t } = useTranslation('editing')
   const { close } = useEditableSection()
-  const savedPoint = isMuseumPoint(museum.location.latlng) ? museum.location.latlng : null
   const form = useForm({
-    initialValues: {
-      name: museum.name,
-      shortDescription: museum.shortDescription,
-      descriptionHTML,
-      email: museum.email ?? '',
-      address: formatMuseumAddress(museum.location),
-      city: museum.location.city,
-      region: museum.location.region,
-      postalCode: museum.location.postalCode,
-      country: museum.location.country,
-      longitude: savedPoint ? String(savedPoint[0]) : '',
-      latitude: savedPoint ? String(savedPoint[1]) : '',
-      locationConfirmed: Boolean(savedPoint),
-    },
+    initialValues: metadataValues(museum, descriptionHTML),
     validate: {
       name: (value) => (value.trim() ? null : t('Required')),
       shortDescription: (value) => (value.trim() ? null : t('Required')),
@@ -141,67 +127,106 @@ export function MuseumMetadataForm({
           </Text>
         )}
         <MuseumLocationMap point={point} />
-        <details>
-          <summary>{t('Set coordinates manually')}</summary>
-          <Stack gap="sm" mt="sm">
-            {/* Only manual entry needs a separate locality; normal search derives it from the result. */}
-            <TextInput
-              label={t('City')}
-              {...form.getInputProps('city')}
-              style={
-                {
-                  '--mantine-color-error':
-                    'light-dark(var(--mantine-color-red-8), var(--mantine-color-red-4))',
-                } as CSSProperties
-              }
-              onChange={(event) =>
-                form.setValues({ city: event.currentTarget.value, locationConfirmed: false })
-              }
-            />
-            <Group grow align="start">
-              <TextInput
-                label={t('Longitude')}
-                type="number"
-                min={-180}
-                max={180}
-                step="any"
-                value={form.values.longitude}
-                onChange={(event) =>
-                  form.setValues({ longitude: event.currentTarget.value, locationConfirmed: false })
-                }
-              />
-              <TextInput
-                label={t('Latitude')}
-                type="number"
-                min={-90}
-                max={90}
-                step="any"
-                value={form.values.latitude}
-                onChange={(event) =>
-                  form.setValues({ latitude: event.currentTarget.value, locationConfirmed: false })
-                }
-              />
-            </Group>
-            <Button
-              type="button"
-              variant="light"
-              disabled={!point || !form.values.address.trim() || !form.values.city.trim()}
-              onClick={() => {
-                form.setValues({
-                  address: formatMuseumAddress(form.values),
-                  locationConfirmed: true,
-                })
-                form.clearFieldError('locationConfirmed')
-                form.clearFieldError('city')
-                form.clearFieldError('address')
-              }}
-            >
-              {t('Confirm this location')}
-            </Button>
-          </Stack>
-        </details>
+        <ManualLocation form={form} point={point} />
         <FormActions saving={save.isPending} autoContrast submitColor="museum.8" />
       </Stack>
     </form>
+  )
+}
+
+type MuseumFields = Pick<Museum, 'id' | 'name' | 'shortDescription' | 'email' | 'location'>
+
+/** The form's draft from the saved museum: postal text and its point as editable strings. */
+function metadataValues(museum: MuseumFields, descriptionHTML: string) {
+  const savedPoint = isMuseumPoint(museum.location.latlng) ? museum.location.latlng : null
+  return {
+    name: museum.name,
+    shortDescription: museum.shortDescription,
+    descriptionHTML,
+    email: museum.email ?? '',
+    address: formatMuseumAddress(museum.location),
+    city: museum.location.city,
+    region: museum.location.region,
+    postalCode: museum.location.postalCode,
+    country: museum.location.country,
+    longitude: savedPoint ? String(savedPoint[0]) : '',
+    latitude: savedPoint ? String(savedPoint[1]) : '',
+    locationConfirmed: Boolean(savedPoint),
+  }
+}
+
+/**
+ * The manual way to place the museum: a city and coordinates typed by hand,
+ * confirmed explicitly. Any edit unconfirms the point, so a stale one is
+ * never saved with a new address.
+ */
+function ManualLocation({
+  form,
+  point,
+}: {
+  form: UseFormReturnType<ReturnType<typeof metadataValues>>
+  point: ReturnType<typeof museumPointFromFields>
+}) {
+  const { t } = useTranslation('editing')
+  return (
+    <details>
+      <summary>{t('Set coordinates manually')}</summary>
+      <Stack gap="sm" mt="sm">
+        {/* Only manual entry needs a separate locality; normal search derives it from the result. */}
+        <TextInput
+          label={t('City')}
+          {...form.getInputProps('city')}
+          style={
+            {
+              '--mantine-color-error':
+                'light-dark(var(--mantine-color-red-8), var(--mantine-color-red-4))',
+            } as CSSProperties
+          }
+          onChange={(event) =>
+            form.setValues({ city: event.currentTarget.value, locationConfirmed: false })
+          }
+        />
+        <Group grow align="start">
+          <TextInput
+            label={t('Longitude')}
+            type="number"
+            min={-180}
+            max={180}
+            step="any"
+            value={form.values.longitude}
+            onChange={(event) =>
+              form.setValues({ longitude: event.currentTarget.value, locationConfirmed: false })
+            }
+          />
+          <TextInput
+            label={t('Latitude')}
+            type="number"
+            min={-90}
+            max={90}
+            step="any"
+            value={form.values.latitude}
+            onChange={(event) =>
+              form.setValues({ latitude: event.currentTarget.value, locationConfirmed: false })
+            }
+          />
+        </Group>
+        <Button
+          type="button"
+          variant="light"
+          disabled={!point || !form.values.address.trim() || !form.values.city.trim()}
+          onClick={() => {
+            form.setValues({
+              address: formatMuseumAddress(form.values),
+              locationConfirmed: true,
+            })
+            form.clearFieldError('locationConfirmed')
+            form.clearFieldError('city')
+            form.clearFieldError('address')
+          }}
+        >
+          {t('Confirm this location')}
+        </Button>
+      </Stack>
+    </details>
   )
 }

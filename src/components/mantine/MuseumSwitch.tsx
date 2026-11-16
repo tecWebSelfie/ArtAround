@@ -97,55 +97,14 @@ export function MuseumSwitch({
   ]
   const busy = pending !== null
   /** Trailing mark of a row: its loader while switching, a check when current. */
-  const status = (row: string, active: boolean) =>
-    pending === row ? <Loader size={16} /> : active ? <Check size={16} aria-hidden /> : null
+  const status = (row: string, active: boolean) => {
+    if (pending === row) return <Loader size={16} />
+    return active ? <Check size={16} aria-hidden /> : null
+  }
 
   return (
     <>
-      {/* A place picker, not an action button: the small dimmed label
-          "Museum" over the current scope in bold, the landmark before them
-          and a chevron after, in a pill with the same hairline border as the
-          round language badge beside it (long where that one is round), and
-          no blue fill, so it can't pass for one of the page's actions. The
-          landmark takes the primary color, which in museum mode is the
-          locked museum's own (DESIGN.md → Museum Primary Rule). The visible
-          name is part of the accessible one (WCAG 2.5.3). */}
-      <UnstyledButton
-        onClick={open}
-        aria-label={t('Museum: {{name}}', {
-          name: current?.name ?? t('All museums'),
-          // A label, not HTML: "Sant'Anna" must not become "Sant&#39;Anna".
-          interpolation: { escapeValue: false },
-        })}
-        title={t('Change museum')}
-        maw="100%"
-        miw={0}
-        mih={36}
-        className="mantine-focus-auto relative rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-px ps-2 pe-2.5 transition-colors after:absolute after:-inset-1 after:content-[''] hover:bg-(--mantine-color-default-hover)"
-      >
-        <Group gap={6} wrap="nowrap" miw={0}>
-          <Landmark
-            size={16}
-            aria-hidden
-            color="var(--mantine-primary-color-filled)"
-            className="shrink-0"
-          />
-          <Stack gap={0} miw={0}>
-            <Text fz={11} c="dimmed" lh={1.15}>
-              {t('Museum')}
-            </Text>
-            <Text size="sm" fw={700} lh={1.15} truncate>
-              {current?.name ?? t('All museums')}
-            </Text>
-          </Stack>
-          <ChevronDown
-            size={14}
-            aria-hidden
-            color="var(--mantine-color-dimmed)"
-            className="shrink-0"
-          />
-        </Group>
-      </UnstyledButton>
+      <MuseumSwitchTrigger name={current?.name ?? null} onOpen={open} />
       <Modal opened={opened} onClose={close} title={t('Change museum')}>
         <Stack gap="sm">
           <TextInput
@@ -234,5 +193,60 @@ export function MuseumSwitch({
         </Stack>
       </Modal>
     </>
+  )
+}
+
+/**
+ * A place picker, not an action button: the small dimmed label
+ * "Museum" over the current scope in bold, the landmark before them
+ * and a chevron after, in a pill with the same hairline border as the
+ * round language badge beside it (long where that one is round), and
+ * no blue fill, so it can't pass for one of the page's actions. The
+ * landmark takes the primary color, which in museum mode is the
+ * locked museum's own (DESIGN.md → Museum Primary Rule). The visible
+ * name is part of the accessible one (WCAG 2.5.3).
+ */
+function MuseumSwitchTrigger({ name, onOpen }: { name: string | null; onOpen: () => void }) {
+  const { t } = useTranslation('common')
+  return (
+    <UnstyledButton
+      onClick={onOpen}
+      aria-label={t('Museum: {{name}}', {
+        name: name ?? t('All museums'),
+        // A label, not HTML: "Sant'Anna" must not become "Sant&#39;Anna".
+        interpolation: { escapeValue: false },
+      })}
+      title={t('Change museum')}
+      maw="100%"
+      miw={0}
+      mih={36}
+      className="mantine-focus-auto relative rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-px ps-2 pe-2.5 transition-colors after:absolute after:-inset-1 after:content-[''] hover:bg-(--mantine-color-default-hover)"
+    >
+      <Group gap={6} wrap="nowrap" miw={0}>
+        <Landmark
+          size={16}
+          aria-hidden
+          color="var(--mantine-primary-color-filled)"
+          className="shrink-0"
+        />
+        <Stack gap={0} miw={0}>
+          <Text fz={11} c="dimmed" lh={1.15}>
+            {t('Museum')}
+          </Text>
+          {/* Under the "Museum" eyebrow, global mode reads just "All": the
+              long form ("Összes múzeum") was cut on narrow phones. The list
+              and the accessible name keep "All museums". */}
+          <Text size="sm" fw={700} lh={1.15} truncate>
+            {name ?? t('All (museums)')}
+          </Text>
+        </Stack>
+        <ChevronDown
+          size={14}
+          aria-hidden
+          color="var(--mantine-color-dimmed)"
+          className="shrink-0"
+        />
+      </Group>
+    </UnstyledButton>
   )
 }

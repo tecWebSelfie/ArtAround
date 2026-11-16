@@ -1,5 +1,5 @@
 import type { ActiveFilter, FilterDefinition, FilterOperator } from 'mantine-composite-filters'
-import type { Where } from 'payload'
+import type { Where, WhereField } from 'payload'
 
 /**
  * Shared bridge between mantine-composite-filters, the URL (searchParams)
@@ -30,6 +30,9 @@ function allowedOperators(def: FilterDefinition): FilterOperator[] {
   return def.operators ?? DEFAULT_OPERATORS[def.type]
 }
 
+/** One search param's values, without the empty ones. */
+const nonEmpty = (raw: string | string[]) => [raw].flat().filter((value) => value !== '')
+
 export function parseFilterSearchParams(
   params: Record<string, string | string[] | undefined>,
   definitions: FilterDefinition[],
@@ -38,66 +41,58 @@ export function parseFilterSearchParams(
   const filters: ActiveFilter[] = []
   const rangeStarts = new Map<string, string>()
   const rangeEnds = new Map<string, string>()
-  let index = 0
 
   const push = (def: FilterDefinition, operator: FilterOperator, value: string | string[]) => {
-    const displayValue = Array.isArray(value) ? value.join(', ') : value
     filters.push({
-      id: `initial-${index++}`,
+      id: `initial-${filters.length}`,
       key: def.key,
       label: def.label,
       type: def.type,
       operator,
       value,
-      displayValue,
+      displayValue: [value].flat().join(', '),
     })
+  }
+
+  // `?q=` (a plain search link, the convention of the marketplace and the
+  // navigator): "title (or name) contains q", shown as an ordinary filter
+  // chip the visitor can edit or remove.
+  const readQuery = (values: string[]) => {
+    const def = byKey.get('title') ?? byKey.get('name')
+    if (def && values[0] && allowedOperators(def).includes('contains')) {
+      push(def, 'contains', values[0])
+    }
+  }
+
+  // `filter[<key>][<operator>]`: one filter per value, except a repeated
+  // multi_select `=`, regrouped into one array-valued filter (Payload `in`).
+  const readFilter = (key: string, operator: string, values: string[]) => {
+    const def = byKey.get(key)
+    if (!def || !allowedOperators(def).includes(operator as FilterOperator)) return
+    if (def.type === 'multi_select' && operator === '=' && values.length > 1) {
+      push(def, '=', values)
+      return
+    }
+    for (const value of values) push(def, operator as FilterOperator, value)
   }
 
   for (const [rawKey, rawValue] of Object.entries(params)) {
     if (rawValue === undefined || rawKey === 'page') continue
-    const values = (Array.isArray(rawValue) ? rawValue : [rawValue]).filter((v) => v !== '')
-
-    // `?q=` (a plain search link, the convention of the marketplace and the
-    // navigator): "title (or name) contains q", shown as an ordinary filter
-    // chip the visitor can edit or remove.
-    if (rawKey === 'q') {
-      const def = byKey.get('title') ?? byKey.get('name')
-      if (def && values[0] && allowedOperators(def).includes('contains')) {
-        push(def, 'contains', values[0])
-      }
-      continue
-    }
-
+    const values = nonEmpty(rawValue)
     const filterMatch = FILTER_PARAM.exec(rawKey)
-    if (filterMatch) {
-      const [, key, operator] = filterMatch
-      const def = byKey.get(key)
-      if (!def || !allowedOperators(def).includes(operator as FilterOperator)) continue
-      // A repeated multi_select `=` round-trips as several params: regroup
-      // them into one array-valued filter (Payload `in`).
-      if (def.type === 'multi_select' && operator === '=' && values.length > 1) {
-        push(def, '=', values)
-      } else {
-        for (const value of values) push(def, operator as FilterOperator, value)
-      }
-      continue
-    }
-
     const rangeMatch = RANGE_PARAM.exec(rawKey)
-    if (rangeMatch) {
-      const [, key, bound] = rangeMatch
-      const def = byKey.get(key)
-      if (!def || values.length === 0) continue
-      ;(bound === 'start' ? rangeStarts : rangeEnds).set(key, values[0])
+    if (rawKey === 'q') readQuery(values)
+    else if (filterMatch) readFilter(filterMatch[1], filterMatch[2], values)
+    else if (rangeMatch && byKey.has(rangeMatch[1]) && values.length > 0) {
+      // `<key>_start` / `<key>_end`: paired into one `between` below.
+      ;(rangeMatch[2] === 'start' ? rangeStarts : rangeEnds).set(rangeMatch[1], values[0])
     }
   }
 
   for (const def of definitions) {
     const start = rangeStarts.get(def.key)
     const end = rangeEnds.get(def.key)
-    if (start || end) {
-      push(def, 'between', [start ?? '', end ?? ''])
-    }
+    if (start || end) push(def, 'between', [start ?? '', end ?? ''])
   }
 
   return filters
@@ -108,73 +103,52 @@ function coerceNumber(value: unknown): number | null {
   return Number.isNaN(n) ? null : n
 }
 
-function singleFilterToWhere(filter: ActiveFilter, def: FilterDefinition): Where | null {
-  const { key, operator } = filter
-  const raw = filter.value
+/** The Payload condition of each single-value operator. */
+const SCALAR_WHERE: Partial<Record<FilterOperator, (value: string | number) => WhereField>> = {
+  '=': (value) => ({ equals: value }),
+  '!=': (value) => ({ not_equals: value }),
+  '>': (value) => ({ greater_than: value }),
+  '>=': (value) => ({ greater_than_equal: value }),
+  '<': (value) => ({ less_than: value }),
+  '<=': (value) => ({ less_than_equal: value }),
+  contains: (value) => ({ contains: value }),
+  starts_with: (value) => ({ like: `${value}%` }),
+  ends_with: (value) => ({ like: `%${value}` }),
+}
 
-  switch (operator) {
-    case '=': {
-      if (def.type === 'multi_select' || Array.isArray(raw)) {
-        const values = (Array.isArray(raw) ? raw : [raw]).map(String).filter((v) => v !== '')
-        return values.length > 0 ? { [key]: { in: values } } : null
-      }
-      if (def.type === 'number') {
-        const value = coerceNumber(raw)
-        return value === null ? null : { [key]: { equals: value } }
-      }
-      const value = String(raw)
-      return value === '' ? null : { [key]: { equals: value } }
-    }
-    case '!=': {
-      if (Array.isArray(raw)) {
-        const values = raw.map(String).filter((v) => v !== '')
-        return values.length > 0 ? { [key]: { not_in: values } } : null
-      }
-      if (def.type === 'number') {
-        const value = coerceNumber(raw)
-        return value === null ? null : { [key]: { not_equals: value } }
-      }
-      const value = String(raw)
-      return value === '' ? null : { [key]: { not_equals: value } }
-    }
-    case '>':
-    case '>=':
-    case '<':
-    case '<=': {
-      const fieldOperator =
-        operator === '>'
-          ? 'greater_than'
-          : operator === '>='
-            ? 'greater_than_equal'
-            : operator === '<'
-              ? 'less_than'
-              : 'less_than_equal'
-      const value = def.type === 'number' ? coerceNumber(raw) : String(raw)
-      return value === null || value === '' ? null : { [key]: { [fieldOperator]: value } }
-    }
-    case 'contains': {
-      const value = String(raw)
-      return value === '' ? null : { [key]: { contains: value } }
-    }
-    case 'starts_with': {
-      const value = String(raw)
-      return value === '' ? null : { [key]: { like: `${value}%` } }
-    }
-    case 'ends_with': {
-      const value = String(raw)
-      return value === '' ? null : { [key]: { like: `%${value}` } }
-    }
-    case 'between': {
-      if (!Array.isArray(raw)) return null
-      const [start, end] = raw.map(String)
-      const and: Where[] = []
-      if (start) and.push({ [key]: { greater_than_equal: start } })
-      if (end) and.push({ [key]: { less_than_equal: end } })
-      return and.length > 0 ? { and } : null
-    }
-    default:
-      return null
+/** A date range: either bound may be missing. */
+function betweenWhere(key: string, raw: unknown): Where | null {
+  if (!Array.isArray(raw)) return null
+  const [start, end] = raw.map(String)
+  const and: Where[] = []
+  if (start) and.push({ [key]: { greater_than_equal: start } })
+  if (end) and.push({ [key]: { less_than_equal: end } })
+  return and.length > 0 ? { and } : null
+}
+
+/**
+ * One active filter as a Payload condition, or null when it holds nothing
+ * usable (an empty value, a number that isn't one). Lists (a multi_select,
+ * a repeated value) become `in` / `not_in`; numbers are compared as numbers.
+ */
+function singleFilterToWhere(filter: ActiveFilter, def: FilterDefinition): Where | null {
+  const { key, operator, value: raw } = filter
+  if (operator === 'between') return betweenWhere(key, raw)
+
+  const list = operator === '=' || operator === '!='
+  if (list && (Array.isArray(raw) || (operator === '=' && def.type === 'multi_select'))) {
+    const values = [raw]
+      .flat()
+      .map(String)
+      .filter((value) => value !== '')
+    if (values.length === 0) return null
+    return { [key]: { [operator === '=' ? 'in' : 'not_in']: values } }
   }
+
+  const condition = SCALAR_WHERE[operator]
+  const value = def.type === 'number' ? coerceNumber(raw) : String(raw)
+  if (!condition || value === null || value === '') return null
+  return { [key]: condition(value) }
 }
 
 export function activeFiltersToWhere(

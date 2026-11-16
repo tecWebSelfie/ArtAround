@@ -71,7 +71,6 @@ export function QrScanPage() {
         },
       }}
       components={{
-        finder: true,
         zoom: true,
         torch: true,
       }}

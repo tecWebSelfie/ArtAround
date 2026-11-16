@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} stop",
+  "{{count}} stops_other": "{{count}} stops",
   "Contents about it": "Inhoud hierover",
-  "Credit line": "",
+  "Credit line": "Creditline",
   "Event": "Gebeurtenis",
-  "Inventory number": "",
+  "Inventory number": "Inventarisnummer",
   "Movement or style": "Stroming of stijl",
   "On Wikidata": "Op Wikidata",
   "Person": "Persoon",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Herkomst",
+  "Rights": "Rechten",
+  "Tours that stop here": "Tours die hier stoppen",
   "Works in the collection": "Werken in de collectie",
   "Write a content about it": "Schrijf er een inhoud over"
 }

@@ -2,6 +2,8 @@
 
 import { formatPrice } from '@/lib/price'
 import { ADD_PARAM, DRAFT_PARAM, newStopHref, tourPickerHref } from '@/lib/tour-picker'
+// Not `tour-navigation`: that one pulls Pascal's map code into the editor.
+import { tourStartPath } from '@/lib/tour-routes'
 import { payloadSdk } from '@/payload-sdk'
 import { DragDropProvider } from '@dnd-kit/react'
 import { isSortable, useSortable } from '@dnd-kit/react/sortable'
@@ -21,7 +23,7 @@ import {
   type TimelineItemProps,
   Title,
 } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import { useForm, type UseFormReturnType } from '@mantine/form'
 import {
   ArrowDown,
   ArrowUp,
@@ -36,6 +38,7 @@ import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
+import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
@@ -164,8 +167,7 @@ function SortableStop({
       <Textarea
         mt="xs"
         size="xs"
-        autosize
-        minRows={1}
+        rows={2}
         maxLength={500}
         label={
           first
@@ -198,6 +200,8 @@ export function TourForm({
   candidates,
   initial,
   thumbnail,
+  visitCopyOf = null,
+  minStops = minStopsFor({ visitCopyOf }),
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -209,19 +213,25 @@ export function TourForm({
    * customizing a copy (the copy keeps it unless the author changes it).
    */
   thumbnail?: CurrentImage | null
+  /**
+   * Creating or editing a visit copy (`tours.visitCopyOf`): a notice, no
+   * visibility choice, and the copy's start page once saved.
+   */
+  visitCopyOf?: string | null
+  /**
+   * The stops this tour needs (`minStopsFor`, the rule the collection
+   * validates): the edit page passes the stored tour's; a new tour needs
+   * two unless it is a visit copy.
+   */
+  minStops?: number
 }) {
+  const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
+  let heading = t('Edit your copy')
+  if (!visitCopy) heading = tourId ? t('Edit tour') : t('New tour')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  // This editor's own URL (museum/from query kept, round-trip params dropped):
-  // where the picker returns, and the draft's storage key.
-  const editorQuery = new URLSearchParams(searchParams.toString())
-  editorQuery.delete(DRAFT_PARAM)
-  editorQuery.delete(ADD_PARAM)
-  const editorUrl = editorQuery.size ? `${pathname}?${editorQuery}` : pathname
-  const draftKey = `tour-draft:${editorUrl}`
+  const editorUrl = useEditorUrl()
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
   const form = useForm<TourValues>({
     initialValues: {
@@ -236,55 +246,14 @@ export function TourForm({
     },
     validate: {
       title: (value) => (value.trim() ? null : t('Required')),
-      contents: (value) => (value.length ? null : t('Add at least one content')),
+      contents: (value) =>
+        value.length >= minStops
+          ? null
+          : t('A tour needs at least {{count}} stops', { count: minStops }),
     },
   })
-  const selected = form.values.contents
 
-  // Back from the picker: restore the draft, append the picked content, then
-  // drop the round-trip params so a reload doesn't add it again.
-  // Once per arrival: the save effect below overwrites storage right after
-  // this reads it, so a second run (React's dev double-invoke) must not
-  // restore again.
-  const restored = useRef(false)
-  useEffect(() => {
-    if (restored.current || searchParams.get(DRAFT_PARAM) !== '1') return
-    restored.current = true
-    let draft: TourValues | null = null
-    try {
-      const stored = sessionStorage.getItem(draftKey)
-      draft = stored ? (JSON.parse(stored) as TourValues) : null
-    } catch {
-      // Storage blocked (private mode): start from the saved tour instead.
-    }
-    // A draft saved before a field existed lacks it: the current values fill it in.
-    const base = { ...form.getValues(), ...draft }
-    const added = searchParams.get(ADD_PARAM)
-    const contents = base.contents.filter((id) => byId.has(id))
-    if (added && byId.has(added) && !contents.includes(added)) contents.push(added)
-    form.setValues({ ...base, contents })
-    router.replace(editorUrl as Route, { scroll: false })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // Keep the draft while the author browses or writes contents elsewhere.
-  useEffect(() => {
-    try {
-      sessionStorage.setItem(draftKey, JSON.stringify(form.values))
-    } catch {
-      // Storage blocked: the round trip then keeps only the picked stop.
-    }
-  }, [draftKey, form.values])
-  const clearDraft = () => {
-    try {
-      sessionStorage.removeItem(draftKey)
-    } catch {}
-  }
-
-  const picker = { museumId: museum.id, returnTo: editorUrl, have: selected }
-  const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
-  const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
-  const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
+  const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id))
 
   // Not in the form values: a picked file can't go into the sessionStorage draft.
   const [cover, setCover] = useState<CoverChange>(null)
@@ -307,28 +276,28 @@ export function TourForm({
       }
       return tourId
         ? payloadSdk.update({ collection: 'tours', id: tourId, data })
-        : payloadSdk.create({ collection: 'tours', data })
+        : payloadSdk.create({ collection: 'tours', data: { ...data, visitCopyOf } })
     },
     (saved) => {
       clearDraft()
-      router.push(`/${lng}/tour/${saved.id}` as Route)
+      router.push(
+        visitCopy ? tourStartPath(lng, museum.id, saved.id) : (`/${lng}/tour/${saved.id}` as Route),
+      )
     },
   )
-
-  const move = (index: number, delta: number) => {
-    const next = [...selected]
-    const [item] = next.splice(index, 1)
-    next.splice(index + delta, 0, item!)
-    form.setFieldValue('contents', next)
-  }
 
   return (
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
       <Stack gap="md">
-        <Title order={2}>{tourId ? t('Edit tour') : t('New tour')}</Title>
+        <Title order={2}>{heading}</Title>
         <Text c="dimmed" size="sm">
           {t('Museum: {{name}}', { name: museum.name })}
         </Text>
+        {visitCopy && (
+          <Alert color="blue">
+            {t('You are editing your own copy for this visit: the original tour stays as it is.')}
+          </Alert>
+        )}
         <TextInput label={t('Title')} required {...form.getInputProps('title')} />
         <TextInput
           label={t('Short description')}
@@ -336,147 +305,29 @@ export function TourForm({
           {...form.getInputProps('description')}
         />
         <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
-        <VisibilityInput
-          kind="tour"
-          value={form.values.visibility}
-          onChange={(value) => form.setFieldValue('visibility', value)}
-        />
+        {/* A visit copy is always private (the server enforces it): no choice to offer. */}
+        {!visitCopy && (
+          <VisibilityInput
+            kind="tour"
+            value={form.values.visibility}
+            onChange={(value) => form.setFieldValue('visibility', value)}
+          />
+        )}
         {/* Logistic directions: not a stop, not part of one (src/lib/tour-logistics.ts). */}
         <Textarea
           label={t('Practical information')}
           description={t('Entrance, tickets, cloakroom: what visitors read before the first stop.')}
-          autosize
-          minRows={2}
           maxLength={1000}
           {...form.getInputProps('logistics')}
         />
 
-        <Stack gap="xs">
-          <Text fw={600}>{t('Stops, in visiting order')}</Text>
-          {lockedSelected.length > 0 && (
-            <Alert color="orange" icon={<Lock size={16} />}>
-              {t(
-                '{{count}} stops are paid contents you do not own. Replace them to keep the tour free.',
-                {
-                  count: lockedSelected.length,
-                },
-              )}
-            </Alert>
-          )}
-          {/* How much of the route is still unexplained: stops without the
-              author's directions show visitors only the map's route. A quiet
-              count, not a warning: directions are optional. */}
-          {missingDirections > 0 && (
-            <Text size="sm" c="dimmed">
-              {t('{{count}} stops have no directions yet: visitors only see the route on the map', {
-                count: missingDirections,
-              })}
-            </Text>
-          )}
-          {unavailableSelected.length > 0 && (
-            <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>
-              <Stack gap="xs" align="start">
-                <Text size="sm">
-                  {t('This tour has stops that can no longer be visited, and visitors skip them', {
-                    count: unavailableSelected.length,
-                  })}
-                </Text>
-                <Button
-                  size="compact-sm"
-                  variant="default"
-                  onClick={() =>
-                    form.setFieldValue(
-                      'contents',
-                      selected.filter((id) => !byId.get(id)?.unavailable),
-                    )
-                  }
-                >
-                  {t('Remove them from the tour', { count: unavailableSelected.length })}
-                </Button>
-              </Stack>
-            </Alert>
-          )}
-          <DragDropProvider
-            onDragEnd={(event) => {
-              // dnd-kit reorders the DOM optimistically while dragging; commit
-              // the move to form state once the drop is final.
-              const { source } = event.operation
-              if (event.canceled || !isSortable(source)) return
-              move(source.initialIndex, source.index - source.initialIndex)
-            }}
-          >
-            <Timeline bulletSize={28} lineWidth={2} active={selected.length - 1}>
-              {selected.map((id, index) => {
-                const content = byId.get(id)!
-                return (
-                  <SortableStop
-                    key={id}
-                    id={id}
-                    index={index}
-                    bullet={<Text size="xs">{index + 1}</Text>}
-                    // A deleted content has no title left to show.
-                    title={content.title || t('A content that no longer exists')}
-                    content={content}
-                    lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
-                    first={index === 0}
-                    last={index === selected.length - 1}
-                    onMove={(delta) => move(index, delta)}
-                    directions={form.values.directions[id] ?? ''}
-                    onDirectionsChange={(value) =>
-                      form.setFieldValue('directions', {
-                        ...form.values.directions,
-                        [id]: value,
-                      })
-                    }
-                    onRemove={() =>
-                      form.setFieldValue(
-                        'contents',
-                        selected.filter((other) => other !== id),
-                      )
-                    }
-                  />
-                )
-              })}
-            </Timeline>
-          </DragDropProvider>
-          <Select
-            label={t('Add a stop')}
-            placeholder={t('Search the museum’s contents')}
-            searchable
-            value={null}
-            data={candidates
-              .filter((candidate) => !candidate.unavailable && !selected.includes(candidate.id))
-              .map((candidate) => ({
-                value: candidate.id,
-                label: `${candidate.title} — ${candidate.objectName}${
-                  candidate.locked ? ` (${formatPrice(candidate.price, lng)})` : ''
-                }`,
-              }))}
-            onChange={(id) => id && form.setFieldValue('contents', [...selected, id])}
-            nothingFoundMessage={t('No contents available in this museum')}
-            error={form.errors.contents}
-          />
-          <Group gap="xs">
-            <Button
-              component={Link}
-              href={tourPickerHref(lng, picker) as Route}
-              variant="light"
-              leftSection={<Search size={16} aria-hidden />}
-            >
-              {t('Browse contents')}
-            </Button>
-            <Button
-              component={Link}
-              href={newStopHref(lng, picker) as Route}
-              variant="light"
-              color="teal"
-              autoContrast
-              leftSection={<PenLine size={16} aria-hidden />}
-            >
-              {t('Write a new content')}
-            </Button>
-          </Group>
-        </Stack>
+        <TourStopsEditor
+          form={form}
+          candidates={candidates}
+          byId={byId}
+          museumId={museum.id}
+          returnTo={editorUrl}
+        />
 
         <Group justify="end">
           <Button
@@ -490,10 +341,240 @@ export function TourForm({
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            {tourId ? t('Save') : t('Create tour')}
+            {/* A visit copy reads as editing (it came from "Edit"), even when it's created. */}
+            {tourId || visitCopy ? t('Save') : t('Create tour')}
           </Button>
         </Group>
       </Stack>
     </form>
+  )
+}
+
+/**
+ * This editor's own URL (museum/from query kept, round-trip params
+ * dropped): where the picker returns, and the draft's storage key.
+ */
+function useEditorUrl() {
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const editorQuery = new URLSearchParams(searchParams.toString())
+  editorQuery.delete(DRAFT_PARAM)
+  editorQuery.delete(ADD_PARAM)
+  return editorQuery.size ? `${pathname}?${editorQuery}` : pathname
+}
+
+/**
+ * The unsaved draft in sessionStorage while the author browses or writes
+ * contents elsewhere, restored (with the picked content appended) on the way
+ * back. Returns the function that drops it once the tour is saved.
+ */
+function useTourDraft(
+  form: UseFormReturnType<TourValues>,
+  editorUrl: string,
+  isCandidate: (id: string) => boolean,
+) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const draftKey = `tour-draft:${editorUrl}`
+  // Back from the picker: restore the draft, append the picked content, then
+  // drop the round-trip params so a reload doesn't add it again.
+  // Once per arrival: the save effect below overwrites storage right after
+  // this reads it, so a second run (React's dev double-invoke) must not
+  // restore again.
+  const restored = useRef(false)
+  useEffect(() => {
+    if (restored.current || searchParams.get(DRAFT_PARAM) !== '1') return
+    restored.current = true
+    let draft: TourValues | null = null
+    try {
+      const stored = sessionStorage.getItem(draftKey)
+      draft = stored ? (JSON.parse(stored) as TourValues) : null
+    } catch {
+      // Storage blocked (private mode): start from the saved tour instead.
+    }
+    // A draft saved before a field existed lacks it: the current values fill it in.
+    const base = { ...form.getValues(), ...draft }
+    const added = searchParams.get(ADD_PARAM)
+    const contents = base.contents.filter(isCandidate)
+    if (added && isCandidate(added) && !contents.includes(added)) contents.push(added)
+    form.setValues({ ...base, contents })
+    router.replace(editorUrl as Route, { scroll: false })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  // Keep the draft while the author browses or writes contents elsewhere.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(draftKey, JSON.stringify(form.values))
+    } catch {
+      // Storage blocked: the round trip then keeps only the picked stop.
+    }
+  }, [draftKey, form.values])
+  return () => {
+    try {
+      sessionStorage.removeItem(draftKey)
+    } catch {}
+  }
+}
+
+/**
+ * The stops, in visiting order: notices about paid, unvisitable or
+ * unexplained stops, the sortable timeline (drag, arrows, per-stop
+ * directions), then the ways to add one: the quick select for a known
+ * title, or the contents search and the content editor in picker mode.
+ */
+function TourStopsEditor({
+  form,
+  candidates,
+  byId,
+  museumId,
+  returnTo,
+}: {
+  form: UseFormReturnType<TourValues>
+  candidates: TourCandidate[]
+  byId: Map<string, TourCandidate>
+  museumId: string
+  /** The editor's own URL, where the contents picker comes back. */
+  returnTo: string
+}) {
+  const { t } = useTranslation('editing')
+  const { lng } = useParams<{ lng: string }>()
+  const selected = form.values.contents
+  const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
+  const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
+  const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
+  const move = (index: number, delta: number) => {
+    const next = [...selected]
+    const [item] = next.splice(index, 1)
+    next.splice(index + delta, 0, item!)
+    form.setFieldValue('contents', next)
+  }
+  return (
+    <Stack gap="xs">
+      <Text fw={600}>{t('Stops, in visiting order')}</Text>
+      {lockedSelected.length > 0 && (
+        <Alert color="orange" icon={<Lock size={16} />}>
+          {t(
+            '{{count}} stops are paid contents you do not own. Replace them to keep the tour free.',
+            {
+              count: lockedSelected.length,
+            },
+          )}
+        </Alert>
+      )}
+      {/* How much of the route is still unexplained: stops without the
+          author's directions show visitors only the map's route. A quiet
+          count, not a warning: directions are optional. */}
+      {missingDirections > 0 && (
+        <Text size="sm" c="dimmed">
+          {t('{{count}} stops have no directions yet: visitors only see the route on the map', {
+            count: missingDirections,
+          })}
+        </Text>
+      )}
+      {unavailableSelected.length > 0 && (
+        <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>
+          <Stack gap="xs" align="start">
+            <Text size="sm">
+              {t('This tour has stops that can no longer be visited, and visitors skip them', {
+                count: unavailableSelected.length,
+              })}
+            </Text>
+            <Button
+              size="compact-sm"
+              variant="default"
+              onClick={() =>
+                form.setFieldValue(
+                  'contents',
+                  selected.filter((id) => !byId.get(id)?.unavailable),
+                )
+              }
+            >
+              {t('Remove them from the tour', { count: unavailableSelected.length })}
+            </Button>
+          </Stack>
+        </Alert>
+      )}
+      <DragDropProvider
+        onDragEnd={(event) => {
+          // dnd-kit reorders the DOM optimistically while dragging; commit
+          // the move to form state once the drop is final.
+          const { source } = event.operation
+          if (event.canceled || !isSortable(source)) return
+          move(source.initialIndex, source.index - source.initialIndex)
+        }}
+      >
+        <Timeline bulletSize={28} lineWidth={2} active={selected.length - 1}>
+          {selected.map((id, index) => {
+            const content = byId.get(id)!
+            return (
+              <SortableStop
+                key={id}
+                id={id}
+                index={index}
+                bullet={<Text size="xs">{index + 1}</Text>}
+                // A deleted content has no title left to show.
+                title={content.title || t('A content that no longer exists')}
+                content={content}
+                lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
+                first={index === 0}
+                last={index === selected.length - 1}
+                onMove={(delta) => move(index, delta)}
+                directions={form.values.directions[id] ?? ''}
+                onDirectionsChange={(value) =>
+                  form.setFieldValue('directions', {
+                    ...form.values.directions,
+                    [id]: value,
+                  })
+                }
+                onRemove={() =>
+                  form.setFieldValue(
+                    'contents',
+                    selected.filter((other) => other !== id),
+                  )
+                }
+              />
+            )
+          })}
+        </Timeline>
+      </DragDropProvider>
+      <Select
+        label={t('Add a stop')}
+        placeholder={t('Search the museum’s contents')}
+        searchable
+        value={null}
+        data={candidates
+          .filter((candidate) => !candidate.unavailable && !selected.includes(candidate.id))
+          .map((candidate) => ({
+            value: candidate.id,
+            label: `${candidate.title} — ${candidate.objectName}${
+              candidate.locked ? ` (${formatPrice(candidate.price, lng)})` : ''
+            }`,
+          }))}
+        onChange={(id) => id && form.setFieldValue('contents', [...selected, id])}
+        nothingFoundMessage={t('No contents available in this museum')}
+        error={form.errors.contents}
+      />
+      <Group gap="xs">
+        <Button
+          component={Link}
+          href={tourPickerHref(lng, { museumId, returnTo, have: selected }) as Route}
+          variant="light"
+          leftSection={<Search size={16} aria-hidden />}
+        >
+          {t('Browse contents')}
+        </Button>
+        <Button
+          component={Link}
+          href={newStopHref(lng, { museumId, returnTo }) as Route}
+          variant="light"
+          color="teal"
+          autoContrast
+          leftSection={<PenLine size={16} aria-hidden />}
+        >
+          {t('Write a new content')}
+        </Button>
+      </Group>
+    </Stack>
   )
 }

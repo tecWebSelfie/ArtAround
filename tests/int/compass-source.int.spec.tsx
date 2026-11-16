@@ -45,13 +45,19 @@ describe('absolute compass measurements', () => {
       return useCompass('device')
     })
     await act(() => result.current.enable())
-    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 15 })))
+    act(() => {
+      window.dispatchEvent(orientation({ webkitCompassHeading: 15 }))
+    })
     const settled = renders
     for (const reading of [15.4, 14.7, 15.9, 14.2])
-      act(() => window.dispatchEvent(orientation({ webkitCompassHeading: reading })))
+      act(() => {
+        window.dispatchEvent(orientation({ webkitCompassHeading: reading }))
+      })
     expect(result.current.heading).toBe(15)
     expect(renders).toBe(settled)
-    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 40 })))
+    act(() => {
+      window.dispatchEvent(orientation({ webkitCompassHeading: 40 }))
+    })
     expect(result.current.heading).toBe(40)
   })
   it('requests Safari permission on demand, expires measurements and cleans up', async () => {
@@ -65,12 +71,18 @@ describe('absolute compass measurements', () => {
     expect(permission).not.toHaveBeenCalled()
     await act(() => result.current.enable())
     expect(permission).toHaveBeenCalledOnce()
-    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 15 })))
+    act(() => {
+      window.dispatchEvent(orientation({ webkitCompassHeading: 15 }))
+    })
     expect(result.current.heading).toBe(15)
-    act(() => vi.advanceTimersByTime(8_001))
+    act(() => {
+      vi.advanceTimersByTime(8_001)
+    })
     expect(result.current.heading).toBeNull()
     rerender({ mode: 'off' })
-    act(() => window.dispatchEvent(orientation({ webkitCompassHeading: 90 })))
+    act(() => {
+      window.dispatchEvent(orientation({ webkitCompassHeading: 90 }))
+    })
     expect(result.current.heading).toBeNull()
   })
   it('keeps the nearby chooser available when orientation permission is denied', async () => {
@@ -92,11 +104,15 @@ describe('absolute compass measurements', () => {
     await act(() => result.current.enable())
     const event = () =>
       Object.assign(new Event('deviceorientationabsolute'), { alpha: 270, absolute: true })
-    act(() => window.dispatchEvent(event()))
+    act(() => {
+      window.dispatchEvent(event())
+    })
     expect(result.current.heading).toBe(90)
     expect(result.current.status).toBe('ready')
     rerender({ mode: 'off' })
-    act(() => window.dispatchEvent(event()))
+    act(() => {
+      window.dispatchEvent(event())
+    })
     expect(result.current.heading).toBeNull()
     expect(result.current.status).toBe('off')
   })

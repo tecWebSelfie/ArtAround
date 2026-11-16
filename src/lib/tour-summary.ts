@@ -1,7 +1,7 @@
 import { toMinutes } from '@/lib/duration'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Picture } from '@/lib/picture'
-import type { Content, Difficulty, Tour } from '@/payload-types'
+import type { Content, Tour } from '@/payload-types'
 
 /**
  * The "tour at a glance" figures shared by the tour page and the museum's tour
@@ -18,13 +18,9 @@ export type TourSummary = {
   distanceMeters: number | null
   wheelchairAccessible: boolean
   quizQuestions: number
-  /** Stops per difficulty, in easy → hard order, zero counts omitted. */
-  difficulties: { difficulty: Difficulty; count: number }[]
   /** The ratings average when at least one visitor rated the tour. */
   rating: { average: number; count: number } | null
 }
-
-const DIFFICULTY_ORDER: Difficulty[] = ['easy', 'medium', 'hard']
 
 /**
  * Minutes of reading in these stops (their `durationSeconds`, the only
@@ -53,7 +49,6 @@ export function visitMinutes(
 }
 
 export function summarizeTour(tour: Tour): TourSummary {
-  const contents = filterPopulated<Content>(tour.contents)
   const reading = readingMinutes(tour.contents)
   const ratingsCount = tour.lfrs?.ratingsCount ?? 0
 
@@ -65,10 +60,6 @@ export function summarizeTour(tour: Tour): TourSummary {
     distanceMeters: tour.distanceMeters ?? null,
     wheelchairAccessible: Boolean(tour.wheelchairAccessible),
     quizQuestions: tour.quiz?.questions?.length ?? 0,
-    difficulties: DIFFICULTY_ORDER.map((difficulty) => ({
-      difficulty,
-      count: contents.filter((content) => content.difficulty === difficulty).length,
-    })).filter(({ count }) => count > 0),
     rating:
       ratingsCount > 0 && tour.lfrs?.ratingsAverage != null
         ? { average: tour.lfrs.ratingsAverage, count: ratingsCount }

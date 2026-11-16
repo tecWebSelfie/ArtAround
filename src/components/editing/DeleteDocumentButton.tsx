@@ -32,6 +32,22 @@ export function DeleteDocumentButton({
   const { t } = useTranslation('editing')
   const router = useRouter()
 
+  // Errors are shown here, so the modal's callback can drop the promise.
+  const remove = async () => {
+    try {
+      await payloadSdk.delete({ collection, id })
+      notifications.show({ message: t('Deleted') })
+      router.push(redirectTo)
+      router.refresh()
+    } catch (error) {
+      notifications.show({
+        color: 'red',
+        title: t('Could not delete'),
+        message: errorMessage(error),
+      })
+    }
+  }
+
   const confirm = () =>
     modals.openConfirmModal({
       title: t('Delete “{{name}}”?', { name }),
@@ -39,20 +55,7 @@ export function DeleteDocumentButton({
       children: <Text size="sm">{t('This cannot be undone.')}</Text>,
       labels: { confirm: t('Delete'), cancel: t('Cancel') },
       confirmProps: { color: 'red' },
-      onConfirm: async () => {
-        try {
-          await payloadSdk.delete({ collection, id })
-          notifications.show({ message: t('Deleted') })
-          router.push(redirectTo)
-          router.refresh()
-        } catch (error) {
-          notifications.show({
-            color: 'red',
-            title: t('Could not delete'),
-            message: errorMessage(error),
-          })
-        }
-      },
+      onConfirm: () => void remove(),
     })
 
   return (

@@ -1,16 +1,16 @@
 {
-  "{{count}} stops_one": "",
-  "{{count}} stops_other": "",
+  "{{count}} stops_one": "{{count}} στάση",
+  "{{count}} stops_other": "{{count}} στάσεις",
   "Contents about it": "Περιεχόμενα σχετικά",
-  "Credit line": "",
+  "Credit line": "Πίστωση",
   "Event": "Γεγονός",
-  "Inventory number": "",
+  "Inventory number": "Αριθμός ευρετηρίου",
   "Movement or style": "Κίνημα ή ύφος",
   "On Wikidata": "Στα Wikidata",
   "Person": "Πρόσωπο",
-  "Provenance": "",
-  "Rights": "",
-  "Tours that stop here": "",
+  "Provenance": "Προέλευση",
+  "Rights": "Δικαιώματα",
+  "Tours that stop here": "Ξεναγήσεις που περνούν από εδώ",
   "Works in the collection": "Έργα στη συλλογή",
   "Write a content about it": "Γράψτε ένα περιεχόμενο γι’ αυτό"
 }

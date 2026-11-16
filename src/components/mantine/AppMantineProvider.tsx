@@ -5,6 +5,7 @@ import {
   Drawer,
   MantineProvider,
   Modal,
+  Textarea,
   type MantineProviderProps,
   type MantineThemeOverride,
 } from '@mantine/core'
@@ -22,6 +23,12 @@ import { useTranslation } from 'react-i18next'
  * visitor's language): Mantine's is an icon-only button, which screen readers
  * announced as an unnamed button wherever a dialog forgot to pass a label.
  * A dialog's own `closeButtonProps` still wins.
+ *
+ * Text areas keep a fixed height and scroll inside: one that grows while the
+ * visitor types pushes the rest of the form (and its save button) down. No
+ * `autosize` in the app; a field sets its own `rows` when four lines don't
+ * suit its text. Set here, not in `src/theme.ts`: `Component.extend` is not
+ * available in server components, which import that file.
  */
 export function AppMantineProvider({
   theme,
@@ -37,6 +44,7 @@ export function AppMantineProvider({
         ...theme?.components,
         Modal: Modal.extend({ defaultProps: { closeButtonProps } }),
         Drawer: Drawer.extend({ defaultProps: { closeButtonProps } }),
+        Textarea: Textarea.extend({ defaultProps: { rows: 4 } }),
       },
     }
   }, [theme, close])

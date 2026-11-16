@@ -26,7 +26,7 @@ import { readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
 import {
-  resyncSearchDocuments,
+  resyncToursIncluding,
   searchSyncAfterChange,
   searchSyncAfterDelete,
 } from '@/lib/search/sync'
@@ -116,9 +116,12 @@ const deleteContents: Access = async ({ req }) => {
 }
 
 const assignAuthor: CollectionBeforeChangeHook<Content> = ({ data, req, operation }) => {
-  // Clients cannot pick an author: it is always the caller. Trusted Local API
-  // calls without a user (seed, jobs) and super admins keep what they pass.
-  if (operation === 'create' && req.user && !isSuperAdmin(req)) data.author = req.user.id
+  // Clients cannot pick an author: it is always the caller (the `author` field
+  // also drops a non-admin's value on create). A super admin may author a
+  // content for someone else; left empty, it is theirs, never ownerless.
+  // Trusted Local API calls without a user (seed, jobs) keep what they pass.
+  if (operation !== 'create' || !req.user) return data
+  if (!isSuperAdmin(req) || !data.author) data.author = req.user.id
   return data
 }
 
@@ -235,26 +238,7 @@ const attachTo = (
  */
 const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
   if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
-  try {
-    const tours = await req.payload.find({
-      collection: 'tours',
-      where: { contents: { contains: doc.id } },
-      select: {},
-      depth: 0,
-      pagination: false,
-      overrideAccess: true,
-      req,
-    })
-    await resyncSearchDocuments({
-      payload: req.payload,
-      collection: 'tours',
-      ids: tours.docs.map((tour) => String(tour.id)),
-      req,
-    })
-  } catch (error) {
-    // Search is derived data: never fail the content save over it.
-    req.payload.logger.error({ err: error, msg: `Could not refresh tour prices for ${doc.id}` })
-  }
+  await resyncToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
   return doc
 }
 
@@ -506,7 +490,11 @@ export const Contents: CollectionConfig = {
       relationTo: 'users',
       required: false,
       index: true,
-      access: { update: ({ req }) => isSuperAdmin(req) },
+      // Only a super admin picks an author (`assignAuthor`).
+      access: {
+        create: ({ req }) => isSuperAdmin(req),
+        update: ({ req }) => isSuperAdmin(req),
+      },
     },
     {
       // Create-only input: the object this content is written about.
