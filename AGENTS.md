@@ -36,8 +36,9 @@ Details and the mechanics are in [Standalone deploy](docs/standalone-deploy.md).
   fits: keep an eye on its size when adding dependencies or assets.
 - **The Docker container can't be entered**, and its only entrypoint is
   `node` running one script (the Node version this project uses):
-  `node .next/standalone/scripts/standalone-boot.mjs`. No shell, no `pnpm`, no
-  `tsx`, no `payload` CLI, no second command.
+  `node standalone/scripts/standalone-boot.mjs`, with the standalone copied
+  into the folder mounted as the container's root (`html`). No shell, no
+  `pnpm`, no `tsx`, no `payload` CLI, no second command.
 - **The database is reachable only from inside that container**, so only
   code started by the boot script can touch it. `next build` must succeed
   with no database (no `generateStaticParams` or build-time reads that
