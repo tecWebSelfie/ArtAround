@@ -10,6 +10,7 @@ import { placedObjectIds, type NavigationCatalogObject } from '@/lib/tour-naviga
 import type { Subject, Museum, Tour } from '@/payload-types'
 import { isLocked } from '@/lib/price'
 import { asViewer } from '@/lib/session'
+import { getStartableTourIds } from '@/lib/tour-start-access'
 import type { NavigationTourSummary } from './TourNavigationShell'
 export { getLocalizedPageDocument as getNavigationDocument } from '@/lib/localized-page'
 
@@ -91,13 +92,20 @@ export const getMuseumNavigationTours = cache(
       ...(await asViewer()),
     })
     const tours = docs.map((tour) => ({ ...tour, museum: museumId }))
+    const startableTourIds = await getStartableTourIds(payload, tours)
     return {
       tours,
       summaries: tours
         // Not one visitor's own tours (planned visits, visit copies): those
         // open from their own link or start page.
         .filter((tour) => (tour.contents?.length ?? 0) > 0 && !isPersonalTour(tour))
-        .map((tour) => ({ id: tour.id, title: tour.title, stops: tour.contents.length })),
+        .map((tour) => ({
+          id: tour.id,
+          title: tour.title,
+          stops: tour.contents.length,
+          // Spotlight and voice commands receive the same server-side verdict.
+          canStart: startableTourIds.has(tour.id),
+        })),
     }
   },
 )

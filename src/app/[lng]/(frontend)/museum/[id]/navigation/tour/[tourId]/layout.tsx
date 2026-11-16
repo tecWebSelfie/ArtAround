@@ -1,10 +1,11 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { getNavigationTour } from '../../data'
 import { TranslationPending } from '@/components/TranslationPending'
 import { normalizeLocale, requestTourTranslations } from '@/lib/localized'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
+import { getTourStartAccess } from '@/lib/tour-start-access'
 
 /**
  * Guards the tour branch of the museum navigation: the tour must exist and
@@ -20,6 +21,9 @@ export default async function TourBranchLayout({
   const { lng, id, tourId } = await params
   const tour = await getNavigationTour(tourId).catch(() => null)
   if (!tour || tourMuseumId(tour) !== id) notFound()
+  // Protect direct links and every nested navigation URL, not only visible CTAs.
+  const access = await getTourStartAccess(await getPayload({ config }), tourId, tour.contents)
+  if (!access.canStart) redirect(`/${lng}/tour/${tour.id}`)
   // The shell shows this tour's title, directions and stop titles in the
   // visitor's language, falling back to English: queue what is missing and
   // refresh quietly until it arrives.

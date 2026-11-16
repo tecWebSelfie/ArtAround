@@ -48,7 +48,15 @@ export function NavigationHeader({
   const { lng } = useParams<{ lng: string }>()
   const position = useTourPosition(tour, step, rooms, stopObjectId)
   return (
-    <AppShellHeader ref={ref} px="xs" pb="xs" className="rounded-b-xl">
+    // This map-specific bar is a named region, not a second page banner beside a dialog title.
+    <AppShellHeader
+      ref={ref}
+      role="group"
+      aria-label={t('Museum navigation')}
+      px="xs"
+      pb="xs"
+      className="rounded-b-xl"
+    >
       {tour ? (
         // Desktop: one centred column (the brief's 1200px container) so the
         // progress bar and stepper don't stretch across a 1920px screen.

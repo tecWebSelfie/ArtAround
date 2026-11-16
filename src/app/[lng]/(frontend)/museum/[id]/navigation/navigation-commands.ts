@@ -360,17 +360,19 @@ function tourCommands(
   if (scope.kind !== 'free') return []
   const startTour = new URLSearchParams(search)
   for (const key of ['to', 'service', 'exit']) startTour.delete(key)
-  return tours.map((item) => ({
-    id: `tour:${item.id}`,
-    label: item.title,
-    description: labels.tourStops(item.stops),
-    group: 'tour',
-    href: withNavigationPosition(
-      tourNavigationPath(lng, scope.museumId, item.id, 0),
-      startTour.toString(),
-    ),
-    replace: false,
-  }))
+  return tours
+    .filter((item) => item.canStart)
+    .map((item) => ({
+      id: `tour:${item.id}`,
+      label: item.title,
+      description: labels.tourStops(item.stops),
+      group: 'tour',
+      href: withNavigationPosition(
+        tourNavigationPath(lng, scope.museumId, item.id, 0),
+        startTour.toString(),
+      ),
+      replace: false,
+    }))
 }
 
 /** Search results: the works and their contents, each service and exit. */

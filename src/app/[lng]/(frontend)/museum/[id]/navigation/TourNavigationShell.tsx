@@ -16,8 +16,11 @@ import { SpeechProvider } from '@/components/assistant/speech-context'
 import { TourNavigationPage } from './TourNavigation'
 import type { NavigationTour } from './data'
 
-/** A tour of this museum, as free navigation's Spotlight offers it. */
-export type NavigationTourSummary = Pick<Tour, 'id' | 'title'> & { stops: number }
+/** A tour of this museum, with server-verified access for free-navigation commands. */
+export type NavigationTourSummary = Pick<Tour, 'id' | 'title'> & {
+  stops: number
+  canStart: boolean
+}
 
 type TourNavigationData = {
   /** The tour in the URL (`…/navigation/tour/[tourId]`); `null` in free navigation. */

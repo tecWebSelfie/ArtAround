@@ -302,7 +302,13 @@ function PurchaseModal({
   const { lng } = useParams<{ lng: string }>()
   const { startCheckout, loading, error } = useCheckout()
   return (
-    <Modal opened={opened} onClose={onClose} title={t('Unlock this tour')} centered>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={t('Unlock this tour')}
+      closeButtonProps={{ 'aria-label': t('Close', { ns: 'common' }) }}
+      centered
+    >
       <Stack gap="md">
         <Text size="sm">
           {t('{{count}} contents in this tour are paid. Buying the tour unlocks all of them.', {
