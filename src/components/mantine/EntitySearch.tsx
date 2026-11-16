@@ -35,7 +35,7 @@ export function EntitySearch({
   totalPages: number
   placeholder: string
   labels: { search: string }
-  /** Extra URL state to keep (the picker mode's parameters). */
+  /** Extra URL state to keep (search scopes and picker parameters). */
   keepParams?: Record<string, string>
 }) {
   const keep = keepParams ?? {}

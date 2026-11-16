@@ -5,6 +5,7 @@ import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAl
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
 import { getT } from '@/i18n.server'
 import { docsInHitOrder } from '@/lib/search/hydrate'
+import { authorSourceFilter } from '@/lib/search/author-filter'
 import { searchItems } from '@/lib/search/query'
 import type { SearchHit } from '@/lib/search/types'
 import type { Tour } from '@/payload-types'
@@ -37,24 +38,29 @@ export default async function SearchToursPage(props: {
     Array.isArray(value) ? value[0] : value
   const query = (firstValue(searchParams.q) ?? '').trim()
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
+  const authorId = firstValue(searchParams.author)
 
-  // Tours only: this page's own bar. Museum mode scopes it through `museum_id`.
-  // No Payload fallback: an outage is shown, not replaced by other results.
+  // Tours only: museum mode scopes through `museum_id`, while profile links
+  // additionally narrow to their author. No Payload results fallback on outage.
   let hits: SearchHit[] = []
   let total = 0
   let searchFailed = false
   try {
-    ;({ hits, total } = await searchItems({
-      q: query,
-      kinds: ['tour'],
-      museumId,
-      page,
-      limit: PAGE_SIZE,
-      queryBy: ['title', 'description', 'excerpt'],
-      queryByWeights: '5,3,2',
-    }))
+    const authorFilter = await authorSourceFilter(payload, 'tours', authorId)
+    if (authorFilter.kind !== 'empty') {
+      ;({ hits, total } = await searchItems({
+        q: query,
+        kinds: ['tour'],
+        museumId,
+        page,
+        limit: PAGE_SIZE,
+        queryBy: ['title', 'description', 'excerpt'],
+        queryByWeights: '5,3,2',
+        filterBy: authorFilter.kind === 'filter' ? [authorFilter.value] : undefined,
+      }))
+    }
   } catch (error) {
-    console.error('[search] Typesense tours search failed', error)
+    console.error('[search] Tours search failed', error)
     searchFailed = true
   }
   const tours = await docsInHitOrder<Tour>({
@@ -81,6 +87,7 @@ export default async function SearchToursPage(props: {
           totalPages={searchFailed ? 1 : totalPages}
           placeholder={t('Search visits…')}
           labels={{ search: t('Search') }}
+          keepParams={authorId ? { author: authorId } : undefined}
         />
         {searchFailed ? (
           <SearchUnavailableAlert message={t('Search is not reachable right now.')} />

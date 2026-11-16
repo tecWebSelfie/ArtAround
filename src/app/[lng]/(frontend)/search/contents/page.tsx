@@ -5,6 +5,7 @@ import { SearchShell } from '@/components/mantine/SearchShell'
 import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
+import { authorSourceFilter } from '@/lib/search/author-filter'
 import config from '@/payload.config'
 import { Container, Group, Stack, Text, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
@@ -58,6 +59,7 @@ export default async function SearchContentsPage(props: {
     Array.isArray(value) ? value[0] : value
   const query = (firstValue(searchParams.q) ?? '').trim()
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
+  const authorId = firstValue(searchParams.author)
 
   const picker = parseTourPicker(lng, searchParams)
   const editor = picker ? await getTourEditorData(picker.museumId) : null
@@ -115,27 +117,31 @@ export default async function SearchContentsPage(props: {
         .map((candidate) => [candidate.id, candidate.price]),
     )
   } else {
-    // Contents only: this page's own bar. Museum mode scopes through `museum_id`.
-    // No Payload fallback: an outage is shown, not replaced by other results.
+    // Museum mode scopes through `museum_id`; profile links additionally
+    // narrow to their author. The picker above remains its separate Payload flow.
     try {
-      const { hits, total } = await searchItems({
-        q: query,
-        kinds: ['content'],
-        museumId,
-        page,
-        limit: PAGE_SIZE,
-        queryBy: ['title', 'excerpt'],
-        queryByWeights: '5,2',
-      })
-      contents = await docsInHitOrder<Content>({
-        payload,
-        collection: 'contents',
-        hits,
-        locale: lng as TypedLocale,
-      })
-      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+      const authorFilter = await authorSourceFilter(payload, 'contents', authorId)
+      if (authorFilter.kind !== 'empty') {
+        const { hits, total } = await searchItems({
+          q: query,
+          kinds: ['content'],
+          museumId,
+          page,
+          limit: PAGE_SIZE,
+          queryBy: ['title', 'excerpt'],
+          queryByWeights: '5,2',
+          filterBy: authorFilter.kind === 'filter' ? [authorFilter.value] : undefined,
+        })
+        contents = await docsInHitOrder<Content>({
+          payload,
+          collection: 'contents',
+          hits,
+          locale: lng as TypedLocale,
+        })
+        totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+      }
     } catch (error) {
-      console.error('[search] Typesense contents search failed', error)
+      console.error('[search] Contents search failed', error)
       searchFailed = true
     }
   }
@@ -210,6 +216,7 @@ export default async function SearchContentsPage(props: {
               totalPages={searchFailed ? 1 : totalPages}
               placeholder={t('Search contents…')}
               labels={{ search: t('Search') }}
+              keepParams={authorId ? { author: authorId } : undefined}
             />
             {searchFailed ? (
               <SearchUnavailableAlert message={t('Search is not reachable right now.')} />
