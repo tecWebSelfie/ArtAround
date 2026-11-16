@@ -26,7 +26,11 @@ const standaloneScripts = path.join(standalone, 'scripts')
 const standaloneNodeModules = path.join(standalone, 'node_modules')
 
 /** stat() that resolves symlinks, as false when missing. */
-const existsAt = (p) => stat(p).then(() => true, () => false)
+const existsAt = (p) =>
+  stat(p).then(
+    () => true,
+    () => false,
+  )
 
 if (!(await existsAt(standalone))) process.exit(0)
 
@@ -39,13 +43,7 @@ if (!(await existsAt(standalone))) process.exit(0)
  * listed: only the external mongodb adapter imports it, and resolves it
  * through its own `.pnpm` closure.
  */
-const externals = [
-  'payload',
-  '@payloadcms/db-mongodb',
-  'jsdom',
-  'sharp',
-  'graphql',
-]
+const externals = ['payload', '@payloadcms/db-mongodb', 'jsdom', 'sharp', 'graphql']
 
 /**
  * Next traces some externals only into `node_modules/.pnpm` without a
@@ -64,7 +62,9 @@ async function linkExternals() {
     const relativeToStore = path.relative(path.join(projectRoot, 'node_modules', '.pnpm'), resolved)
     const linkTarget = path.join(standaloneNodeModules, '.pnpm', relativeToStore)
     if (!(await existsAt(linkTarget))) {
-      throw new Error(`${name} is marked external but ${relativeToStore} is missing from .next/standalone`)
+      throw new Error(
+        `${name} is marked external but ${relativeToStore} is missing from .next/standalone`,
+      )
     }
     const top = path.join(standaloneNodeModules, name)
     // A link is already Next's own pnpm layout; a real directory is Next's
