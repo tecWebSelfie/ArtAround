@@ -4,6 +4,8 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { useRouteGuidance } from '@/app/[lng]/(frontend)/museum/[id]/navigation/use-route-guidance'
 import { useGpsFix } from '@/app/[lng]/(frontend)/museum/[id]/navigation/gps-source'
 import { moveFix } from '@/lib/gps'
+import { snapToNavMesh } from '@/lib/live-route'
+import { createRouteMuseum } from '@/mocks/tour-navigation.mock'
 
 // Real positioning hooks: only the operating system's GPS boundary is stubbed.
 afterEach(() => {
@@ -28,7 +30,8 @@ describe('GPS identification without an active route', () => {
     expect(result.current.estimate).toEqual([10, 20])
     rerender({ fix: moveFix(start, 2, 0), point: [10, 20] })
     expect(result.current.estimate?.[0]).toBeCloseTo(12)
-    expect(result.current.progressPoint?.[0]).toBeCloseTo(12)
+    // Without a navmesh the live position (the avatar) is the estimate itself.
+    expect(result.current.position?.[0]).toBeCloseTo(12)
     rerender({ fix: moveFix(start, 2, 0), point: [50, 60] })
     expect(result.current.estimate).toEqual([50, 60])
   })
@@ -90,7 +93,12 @@ describe('GPS identification without an active route', () => {
 
 describe('Directions following the route path', () => {
   const rooms = { rooms: [], doors: [], objects: [] }
-  const route = (path: [number, number, number][]) => ({ path, start: path[0], target: null })
+  const route = (path: [number, number, number][]) => ({
+    path,
+    start: path[0],
+    end: path.at(-1)!,
+    target: null,
+  })
   it('keeps the shown step on the same route and restarts on a new one', () => {
     // The map keeps the route object until its destination or start changes
     // (useTourCursor memoizes the destination on its URL parameters only).
@@ -116,5 +124,27 @@ describe('Directions following the route path', () => {
     })
     expect(result.current.steps).not.toBe(steps)
     expect(result.current.current).toBe(0)
+  })
+})
+
+describe('pinned at the destination itself', () => {
+  // The route story's museum (see live-route.int.spec.ts): a 12 × 8 m floor.
+  const { navMesh } = createRouteMuseum('/models/route.glb')
+  const rooms = { rooms: [], doors: [], objects: [] }
+  const fix = { latitude: 45, longitude: 9, accuracy: 4 }
+  // A QR scanned at the next stop: the pin and the destination are one point.
+  const here = snapToNavMesh(navMesh, [10, 2], 0)!
+  const route = { path: null, start: here, end: here, target: null }
+
+  it('gives no directions while there, and leads back once the visitor walks away', () => {
+    const { result, rerender } = renderHook(
+      ({ current }) => useRouteGuidance({ route, rooms, fix: current, navMesh }),
+      { initialProps: { current: fix } },
+    )
+    expect(result.current.steps).toHaveLength(0)
+    // Four metres west (plan −x), still on the floor.
+    rerender({ current: moveFix(fix, -4, 0) })
+    expect(result.current.steps.length).toBeGreaterThan(0)
+    expect(result.current.path?.at(-1)?.[0]).toBeCloseTo(here[0], 0)
   })
 })

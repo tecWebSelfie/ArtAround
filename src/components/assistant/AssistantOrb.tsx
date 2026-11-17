@@ -1,7 +1,8 @@
 'use client'
 
-import { UnstyledButton, VisuallyHidden } from '@mantine/core'
+import { Tooltip, UnstyledButton, VisuallyHidden } from '@mantine/core'
 import { useReducedMotion } from '@mantine/hooks'
+import { Mic } from 'lucide-react'
 import { useEffect, useState, type RefObject } from 'react'
 import CrystalizedBall from './CrystalizedBall'
 
@@ -13,6 +14,16 @@ import CrystalizedBall from './CrystalizedBall'
  * The microphone is open only in `listening`. Every other state, including
  * `ready`, keeps the mic closed, and the orb must make that difference
  * obvious: `ready` only breathes slowly, `listening` follows the voice.
+ *
+ * Read as something to press, not as decoration:
+ * - `off` is asleep, not dead: a dim ember that keeps drifting very slowly.
+ *   Frozen, it looked like an image or a disabled control. Only reduced
+ *   motion stills it.
+ * - while the mic is closed (`off`, `ready`) a small mic badge sits on the
+ *   orb's edge (the same corner mark as the language switcher's), saying
+ *   "voice" in a glance; it goes once the orb itself listens or speaks.
+ * - with a pointer, the ball leans towards it (React Bits' own `interactive`
+ *   reaction) and a tooltip names what pressing it does.
  */
 export type AssistantState = 'off' | 'loading' | 'ready' | 'listening' | 'thinking' | 'speaking'
 
@@ -20,7 +31,8 @@ export type AssistantState = 'off' | 'loading' | 'ready' | 'listening' | 'thinki
 function ballSettings(state: AssistantState, level: number) {
   switch (state) {
     case 'off':
-      return { speed: 0, glow: 0.35, crackle: 0.2, sparks: 0, flares: 0, paused: true }
+      // Asleep: barely moving, dim, no sparks; still alive.
+      return { speed: 0.05, glow: 0.45, crackle: 0.25, sparks: 0.05, flares: 0.05, paused: false }
     case 'loading':
     case 'ready':
       return { speed: 0.15, glow: 0.8, crackle: 0.4, sparks: 0.2, flares: 0.2, paused: false }
@@ -73,37 +85,51 @@ export function AssistantOrb({
   }, [reacting, level])
 
   const settings = ballSettings(state, reacting ? sampled : 0)
+  const micClosed = state === 'off' || state === 'ready'
   return (
-    <UnstyledButton
-      onClick={onPress}
-      aria-label={label}
-      aria-pressed={state === 'listening'}
-      data-state={state}
-      className="relative grid place-items-center rounded-full"
-      style={{ width: size, height: size }}
-    >
-      <CrystalizedBall
-        preset="ember"
-        color="#FF8A2A"
-        theme="light"
-        particleCount={6000}
-        fill={0.35}
-        depth={0.7}
-        sway={0.3}
-        twinkle={0.7}
-        haze={1.05}
-        dustSpeed={1.6}
-        strands={5}
-        particleShape="round"
-        interactive={false}
-        intro={false}
-        {...settings}
-        paused={settings.paused || reducedMotion}
-        style={{ width: size, height: size, pointerEvents: 'none' }}
-      />
-      <VisuallyHidden role="status" aria-live="polite">
-        {status}
-      </VisuallyHidden>
-    </UnstyledButton>
+    <Tooltip label={label} events={{ hover: true, focus: true, touch: false }}>
+      <UnstyledButton
+        onClick={onPress}
+        aria-label={label}
+        aria-pressed={state === 'listening'}
+        data-state={state}
+        className="relative grid place-items-center rounded-full"
+        style={{ width: size, height: size }}
+      >
+        <CrystalizedBall
+          preset="ember"
+          color="#FF8A2A"
+          theme="light"
+          particleCount={6000}
+          fill={0.35}
+          depth={0.7}
+          sway={0.3}
+          twinkle={0.7}
+          haze={1.05}
+          dustSpeed={1.6}
+          strands={5}
+          particleShape="round"
+          interactive
+          hoverStrength={0.5}
+          intro={false}
+          {...settings}
+          paused={settings.paused || reducedMotion}
+          style={{ width: size, height: size, pointerEvents: 'none' }}
+        />
+        {micClosed && (
+          // Cut out of the orb's edge by a page-colored halo, like the
+          // language switcher's corner mark; decorative (the name says it).
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -right-0.5 -bottom-0.5 grid size-5 place-items-center rounded-full border border-[light-dark(var(--mantine-color-gray-5),var(--mantine-color-dark-3))] bg-[light-dark(var(--mantine-color-gray-1),var(--mantine-color-dark-5))] text-[light-dark(var(--mantine-color-gray-8),var(--mantine-color-dark-0))] shadow-[0_0_0_2px_var(--mantine-color-body)]"
+          >
+            <Mic size={11} strokeWidth={2.5} />
+          </span>
+        )}
+        <VisuallyHidden role="status" aria-live="polite">
+          {status}
+        </VisuallyHidden>
+      </UnstyledButton>
+    </Tooltip>
   )
 }

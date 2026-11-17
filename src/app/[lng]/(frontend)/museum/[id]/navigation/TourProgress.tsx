@@ -1,9 +1,8 @@
 'use client'
 
-import { DifficultyBadge } from '@/components/mantine/DifficultyBadge'
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { Tour } from '@/payload-types'
-import { Group, Scroller, Stepper, StepperStep } from '@mantine/core'
+import { Scroller, Stepper, StepperStep } from '@mantine/core'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   tourContentPath,
@@ -116,17 +115,18 @@ export function TourProgress({
             key={typeof content === 'string' ? content : content.id}
             label={typeof content === 'string' ? `${index + 1}` : content.title}
             ref={index === step ? activeStep : undefined}
+            // Only the stop's length, small: what the visitor weighs against
+            // the time they have left. Difficulty is theirs to choose
+            // (reading options), so it is left off this tight row.
             description={
               typeof content === 'object' && (
-                <Group gap={4}>
-                  <DifficultyBadge difficulty={content.difficulty} withLabel={false} />
-                  <DurationBadge
-                    seconds={content.durationSeconds ?? 0}
-                    lng={lng}
-                    color="museum.8"
-                    autoContrast
-                  />
-                </Group>
+                <DurationBadge
+                  seconds={content.durationSeconds ?? 0}
+                  lng={lng}
+                  size="xs"
+                  color="museum.8"
+                  autoContrast
+                />
               )
             }
           />

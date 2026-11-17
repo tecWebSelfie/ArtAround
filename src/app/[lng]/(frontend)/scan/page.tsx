@@ -1,6 +1,6 @@
 import { Suspense } from 'react'
 
-import { QrScanPage } from '@/app/[lng]/(frontend)/museum/[id]/navigation/scan/QrScanPage'
+import { QrScanPage } from './QrScanPage'
 import classes from './scan.module.css'
 
 /**

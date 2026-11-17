@@ -36,7 +36,7 @@ import {
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
-import { useParams, usePathname, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
@@ -75,8 +75,6 @@ export const TourNavigationPage = ({
   const step = scope.kind === 'tour' ? scope.step : 0
   // URL state stays in the URL; this component reads it where map behavior needs it.
   const search = useSearchParams()
-  // The scanner (`…/scan`) covers the whole map with the camera: pause the map's frames meanwhile.
-  const scanning = /\/scan$/.test(usePathname())
   // "Scan" is one tap away: load the scanner's code while the visitor looks at
   // the map, not after the tap (src/lib/qr-scanner-module.ts).
   useEffect(prewarmQrScanner, [])
@@ -103,11 +101,13 @@ export const TourNavigationPage = ({
   // Group guests follow the host, who leads them into the quiz too.
   const guest = useIsGroupGuest()
 
+  const navMesh = (wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh) ?? null
   const { settings, gps, compass, positionScope, guidance, here } = useGuidance({
     museumId: museum.id,
     currentObjectId,
     rooms,
     route,
+    navMesh,
   })
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
@@ -131,13 +131,14 @@ export const TourNavigationPage = ({
   // GPS notices about the works around. A guessed entrance is never treated
   // as the visitor's position; group guests keep following the host,
   // including `at`.
-  const proximity = !guest && !scanning && currentObjectId && settings.gpsMode !== 'off' && (
+  const proximity = !guest && currentObjectId && settings.gpsMode !== 'off' && (
     <NavigationProximity
       point={guidance.estimate}
       heading={compass.heading}
       rooms={rooms}
       catalog={catalog}
       nextId={nextObjectId}
+      currentId={currentObjectId}
       tourObjectIds={tourObjectIds}
       discoveries={settings.suggestions}
       scopeKey={`${positionScope}:${destinationKey(destination)}`}
@@ -169,14 +170,14 @@ export const TourNavigationPage = ({
               map={museumMap.parsed}
               h="100%"
               w="100%"
-              renderPaused={scanning}
-              navMesh={wheelchairRoute ? museum.navMeshWheelchair : museum.navMesh}
+              navMesh={navMesh}
               currentObjectId={currentObjectId}
               destination={destination}
               onRouteUnavailable={setRouteUnavailable}
               onStartEntranceChange={setStartEntranceId}
               onRouteChange={setRoute}
-              progressPoint={settings.gpsMode === 'off' ? null : guidance.progressPoint}
+              position={guidance.position}
+              path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
             />
           )
@@ -189,7 +190,7 @@ export const TourNavigationPage = ({
             onRun={run}
             services={markers.services}
             exits={markers.exitEntrances}
-            sensors={{ settings, gps, compass }}
+            sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
           />
         }
@@ -209,6 +210,12 @@ export const TourNavigationPage = ({
         status={directionsStatus({
           complete,
           positioned: Boolean(currentObjectId),
+          // Only while there is no way back to give: once the visitor walks
+          // away, directions lead them back to it.
+          atDestination:
+            Boolean(currentObjectId) &&
+            currentObjectId === nextObjectId &&
+            guidance.steps.length === 0,
           routeUnavailable,
           hasDestination: Boolean(destination),
           hasSteps: guidance.steps.length > 0,
@@ -235,7 +242,10 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--navigation-header-height,7rem)] min-h-0">
+        {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
+            drei's `zIndexRange`), below the app shell's bars (z 100), so a
+            notice or a control is never crossed by a label. */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 top-[var(--navigation-header-height,7rem)] z-20 min-h-0">
           {controls}
         </div>
       </Box>

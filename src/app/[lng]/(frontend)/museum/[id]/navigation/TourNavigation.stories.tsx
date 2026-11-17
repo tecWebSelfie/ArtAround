@@ -206,6 +206,16 @@ export const SimulatedGps: Story = {
 /** The dormant orb sits at the right of the navbar until the visitor opts in. */
 export const AssistantOff: Story = {
   ...RouteBetweenObjects,
+  parameters: {
+    nextjs: {
+      navigation: {
+        ...RouteBetweenObjects.parameters?.nextjs?.navigation,
+        // No destination chosen: the map's centre pill is the next stop
+        // (with one, it is "I'm here", see NavigationControls).
+        query: { at: 'route-start' },
+      },
+    },
+  },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('button', { name: 'Turn on the voice assistant' })).toBeVisible()
     // "Open next stop" moved from the navbar to the map overlay.
@@ -292,6 +302,9 @@ const visitableStopsTour = visitableTour(
 
 export const UnavailableStop: Story = {
   ...RouteBetweenObjects,
+  // A fresh tab: the stops other stories showed (RemovedStopsModal's
+  // sessionStorage) would otherwise read as stops that left the tour.
+  beforeEach: () => sessionStorage.removeItem(`artaround:tour-stops:${mockTourFull.id}`),
   args: {
     ...RouteBetweenObjects.args,
     scope: { kind: 'tour', tour: visitableStopsTour, step: 0 },

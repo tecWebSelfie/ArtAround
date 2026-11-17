@@ -1,6 +1,7 @@
 'use client'
 
-import { ActionIcon, Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
+import { DockButton } from './DockButton'
+import { Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
 import { SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -66,15 +67,10 @@ export function GuidanceSettings({
   return (
     <Popover position="top-end" withArrow shadow="md" width={260} trapFocus>
       <Popover.Target>
-        <ActionIcon
-          aria-label={t('Guidance settings')}
-          title={t('Guidance settings')}
-          variant="white"
-          radius="xl"
-          size={44}
-        >
-          <SlidersHorizontal size={18} />
-        </ActionIcon>
+        <DockButton
+          label={t('Guidance settings')}
+          icon={<SlidersHorizontal size={18} aria-hidden />}
+        />
       </Popover.Target>
       <Popover.Dropdown className="max-h-[60dvh] max-w-[calc(100vw-2rem)] overflow-y-auto">
         <Stack gap="sm">
@@ -98,7 +94,14 @@ export function GuidanceSettings({
           />
           <Stack gap={4}>
             <Text size="sm" fw={500}>
-              {t('Follow my position')}
+              {t('Move me on the map')}
+            </Text>
+            {/* Says what the position source does in the visitor's terms:
+                it walks the avatar on from the last confirmed work (the
+                pin), it never replaces it. Styled like the switches'
+                descriptions above. */}
+            <Text size="xs" c="dimmed">
+              {t('As you walk, from the last work you confirmed')}
             </Text>
             <SegmentedControl
               size="xs"
@@ -106,7 +109,7 @@ export function GuidanceSettings({
               data={gpsOptions}
               value={settings.gpsMode}
               onChange={(value) => settings.setGpsMode(value as GpsMode)}
-              aria-label={t('Follow my position')}
+              aria-label={t('Move me on the map')}
             />
             {gpsError && (
               <Text size="xs" c="red">

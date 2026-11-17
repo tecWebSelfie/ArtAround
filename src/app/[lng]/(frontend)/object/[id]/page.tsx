@@ -136,7 +136,10 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
     <Container component="main" size="md" py="md" maw={{ md: 1140 }}>
       {/* Up a level: back where the visitor came from in the app, else (a QR
           code, a shared link) the work's museum. */}
-      <BackButton href={(museumId ? `/${lng}/museum/${museumId}` : `/${lng}/navigator`) as Route} />
+      <BackButton
+        withLanguage
+        href={(museumId ? `/${lng}/museum/${museumId}` : `/${lng}/navigator`) as Route}
+      />
       <Grid gap={{ base: 0, md: 48 }} align="flex-start">
         {/* Desktop media pane: the cover fills the viewport's height under the
             site header (capped, so it stays a picture beside the text, not a

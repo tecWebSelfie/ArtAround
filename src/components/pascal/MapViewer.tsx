@@ -12,7 +12,7 @@ import {
   type ParsedBuildJson,
 } from '@pascal-app/core'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
-import { Viewer } from '@pascal-app/viewer'
+import { Viewer, type HoverStyles } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -26,6 +26,7 @@ export function MapViewer({
   onSceneReadyChange,
   selectionManager = 'default',
   renderPaused = false,
+  hoverStyles,
   ...props
 }: {
   map: ParsedBuildJson
@@ -40,6 +41,12 @@ export function MapViewer({
    * slow device the scanner then gets too few frames to decode a code.
    */
   renderPaused?: boolean
+  /**
+   * How Pascal draws its hover outline (the post-processing pass the editor
+   * uses for hovered nodes). The visitor map reuses it to outline its works:
+   * see `WorkOutlines` in the navigation map.
+   */
+  hoverStyles?: HoverStyles
 } & BoxProps) {
   const { t } = useTranslation()
   const setScene = useScene((state) => state.setScene)
@@ -130,6 +137,7 @@ export function MapViewer({
           selectionManager={selectionManager}
           onSceneReadyChange={handleSceneReadyChange}
           renderPaused={renderPaused}
+          hoverStyles={hoverStyles}
         >
           <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
           {children}

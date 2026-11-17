@@ -114,7 +114,7 @@ export default async function SubjectPage({ params }: PageProps<'/[lng]/subject/
       <Stack gap="lg">
         {/* Up a level: back where the visitor came from (a work, a command),
             else the navigator. */}
-        <BackButton href={`/${lng}/navigator` as Route} />
+        <BackButton withLanguage href={`/${lng}/navigator` as Route} />
         <Stack gap="xs">
           <Badge variant="light" color="gray">
             {kindLabel}

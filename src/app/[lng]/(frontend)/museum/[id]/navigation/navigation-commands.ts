@@ -7,6 +7,7 @@ import {
   DESTINATION_KEYS,
   navigationBasePath,
   navigationContentPath,
+  navigationScanPath,
   tourNavigationPath,
   withNavigationPosition,
   withNavigationValue,
@@ -88,8 +89,9 @@ export function useNavigationCommands({
       previousStop: t('Previous stop'),
       tour: t('Tour'),
       whatIsThis: t('What is this?'),
-      resumeTour: t('Resume tour route'),
-      clearDestination: t('Clear destination'),
+      resumeTour: t('Back to the tour route'),
+      clearDestination: t('End route'),
+      arrived: t("I'm here"),
       route: t('Route'),
       serviceKind: t('Service'),
       nearestExit: t('Nearest exit'),
@@ -174,6 +176,7 @@ type CommandLabels = {
   | 'whatIsThis'
   | 'resumeTour'
   | 'clearDestination'
+  | 'arrived'
   | 'route'
   | 'serviceKind'
   | 'nearestExit'
@@ -298,6 +301,26 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: href(`${here}/object/${work.id}`),
       replace: false,
     })),
+    // "I'm here": the visitor reached the chosen destination. An object
+    // becomes the confirmed position (`at`, the same explicit confirmation
+    // as "Set as my position"); a service or exit has no object, so the
+    // position stays. Either way the destination is done and cleared, and a
+    // tour's route to its next stop comes back. Not for group guests (the
+    // host leads; `guestCommands` keeps an allowlist).
+    ...only(hasDestination, () => {
+      const arrived = new URLSearchParams(search)
+      const reached = arrived.get('to')
+      for (const key of ['to', 'service', 'exit']) arrived.delete(key)
+      if (reached) arrived.set('at', reached)
+      return {
+        id: 'arrived',
+        label: labels.arrived,
+        description: labels.route,
+        group: quick,
+        href: withNavigationPosition(here, arrived.toString()),
+        replace: true,
+      }
+    }),
     // Same id in both modes (the overlay toggles services off with it): a
     // tour resumes its route, free navigation clears the target.
     ...only(hasDestination, () => ({
@@ -343,15 +366,16 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       ),
       replace: true,
     })),
-    // Not on the scanner itself.
-    ...only(!pathname.endsWith('/scan'), () => ({
+    {
       id: 'scan',
       label: labels.scan,
       description: labels.position,
       group: quick,
-      href: href(`${here}/scan`),
+      // Its own page, not over the map: the camera and the map's controls
+      // on one screen were confusing. It comes back here (see QrScanPage).
+      href: navigationScanPath(lng, href(here)),
       replace: false,
-    })),
+    },
   ]
 }
 

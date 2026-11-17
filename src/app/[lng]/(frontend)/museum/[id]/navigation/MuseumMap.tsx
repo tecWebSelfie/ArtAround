@@ -2,12 +2,13 @@
 
 import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
 import { MapViewer } from '@/components/pascal/MapViewer'
+import { MAP_LABEL_CLASS, MAP_LABEL_Z_RANGE, RoomLabels } from '@/components/pascal/RoomLabels'
 import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
-import { Gltf } from '@react-three/drei'
-import { extend, useThree } from '@react-three/fiber'
+import { Html, useGLTF, type CameraControlsImpl } from '@react-three/drei'
+import { extend, useFrame, useThree } from '@react-three/fiber'
 import type { NavMesh, Vec3 } from 'navcat'
 import {
   Suspense,
@@ -18,17 +19,61 @@ import {
   useState,
   type ComponentProps,
 } from 'react'
+import { useTranslation } from 'react-i18next'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
-import { Box3, Vector3, type Object3D } from 'three'
+import { Box3, Color, Vector3, type Group, type Object3D } from 'three'
+import { useMantineTheme } from '@mantine/core'
+import { useViewer } from '@pascal-app/viewer'
+import { usePathname } from 'next/navigation'
 
 /** A destination flag is drawn at hero-glTF scale (~1.3 m); keep it knee-high. */
 const DESTINATION_FLAG_SCALE = 0.7
 
+/** How strongly Pascal's outline pass draws the works' outline (its editor uses 3). */
+const WORK_OUTLINE_STRENGTH = 2
+
+/** Metres from the avatar's face height up to its "You" label: clear of the head. */
+const AVATAR_LABEL_GAP = 0.7
+
+/**
+ * Camera framing the avatar after the visitor's position is set or changes:
+ * close enough to see the character clearly, far and high enough that the
+ * rooms around it read as a plan (metres from the avatar; polar angle from
+ * the vertical, so ~50° looks down at the floor plan at a slant).
+ */
+const AVATAR_VIEW_DISTANCE = 20
+const AVATAR_VIEW_POLAR = 0.88
+
+/**
+ * The route line leaves the avatar from its edge instead of its centre,
+ * where it would run through the body (metres, in plan).
+ */
+const PATH_START_CLEARANCE = 0.45
+
+/**
+ * The avatar walks to each new live position instead of jumping: GPS fixes
+ * (about one a second) and the simulator's steps arrive as points, the
+ * avatar covers the gap at walking pace or faster, so a steady stream of
+ * fixes reads as one continuous walk. A gap wider than `AVATAR_TELEPORT_METRES`
+ * is a new pin (a QR, a confirmed work) or a GPS jump: the avatar is put there.
+ */
+const AVATAR_WALK_SPEED = 1.4
+/** Catch-up rate (1/s): the farther behind, the faster it walks. */
+const AVATAR_CATCH_UP = 4
+const AVATAR_TELEPORT_METRES = 4
+
+/**
+ * The route from the pinned position (`at`, else the derived entrance) to the
+ * destination. `start` is the pin, never the live GPS position: the live
+ * position and the part of the route ahead of it are derived from this in
+ * `useRouteGuidance` and handed back to the map (`position`, `path`).
+ */
 export type MuseumRoute = {
   path: Vec3[] | null
   start: Vec3 | null
+  end: Vec3 | null
   target: [number, number] | null
 }
 
@@ -53,7 +98,8 @@ export function MuseumMap({
   onRouteUnavailable,
   onStartEntranceChange,
   onRouteChange,
-  progressPoint,
+  position,
+  path,
   ...props
 }: ComponentProps<typeof MapViewer> & {
   navMesh?: NavMesh | null
@@ -69,10 +115,33 @@ export function MuseumMap({
    * (the path ends beside the destination, not inside it).
    */
   onRouteChange?: (route: MuseumRoute | null) => void
-  /** GPS progress: where the visitor is estimated to be along the route. */
-  progressPoint?: Vec3 | null
+  /** The live position (pin moved by GPS) where the avatar stands; the pin if absent. */
+  position?: Vec3 | null
+  /** The route still ahead of the live position; the whole route if absent. */
+  path?: Vec3[] | null
 }) {
   const [ready, setReady] = useState(false)
+  const { t } = useTranslation('tour-navigation')
+  // The outline in the museum's own colour (its primary, DESIGN.md → The
+  // Museum Primary Rule), steady rather than pulsing like the editor's hover:
+  // it marks what is a work, it doesn't call for attention. Pascal adds the
+  // colour onto the scene, so the hidden edges (behind a wall) get black,
+  // which adds nothing: only the visible outline shows.
+  const museumColor = useMantineTheme().colors.museum?.[6]
+  // The work open in the object modal, read here: router hooks belong
+  // outside the 3D canvas.
+  const openedObjectId = /\/object\/([^/]+)$/.exec(usePathname())?.[1] ?? null
+  const workOutlineStyles = useMemo(
+    () => ({
+      default: {
+        visibleColor: new Color(museumColor ?? '#228be6').getHex(),
+        hiddenColor: 0x00_00_00,
+        strength: WORK_OUTLINE_STRENGTH,
+        pulse: false,
+      },
+    }),
+    [museumColor],
+  )
   useObjectClicks(onObjectClick)
 
   const route = useMemo(() => {
@@ -172,7 +241,9 @@ export function MuseumMap({
   }, [ready, navMesh, currentObjectId, destination])
 
   useEffect(() => {
-    onRouteChange?.(route ? { path: route.path, start: route.start, target: route.target } : null)
+    onRouteChange?.(
+      route ? { path: route.path, start: route.start, end: route.end, target: route.target } : null,
+    )
   }, [route, onRouteChange])
 
   const startEntranceId = route?.startEntranceId ?? null
@@ -184,40 +255,236 @@ export function MuseumMap({
     onRouteUnavailable?.(Boolean(route?.start && route.end && !route.path))
   }, [route, onRouteUnavailable])
 
+  const shownPath = path ?? route?.path
   return (
-    <MapViewer map={map} {...props} selectionManager="custom" onSceneReadyChange={setReady}>
+    <MapViewer
+      map={map}
+      {...props}
+      selectionManager="custom"
+      onSceneReadyChange={setReady}
+      hoverStyles={workOutlineStyles}
+    >
+      {/* Every work outlined, so artworks stand apart from walls and
+          furniture at a glance. */}
+      {ready && <WorkOutlines opened={openedObjectId} />}
       {route?.start && (
-        // This avatar marks the last position explicitly confirmed by the visitor,
-        // or the derived entrance origin before any position is confirmed.
-        <group position={route.start}>
-          <Suspense fallback={null}>
-            <Avatar />
-          </Suspense>
-        </group>
+        // The avatar stands at the live position: the pin (last explicitly
+        // confirmed position, or the derived entrance) moved by the GPS.
+        <WalkingAvatar point={position ?? route.start} label={t('You')} />
       )}
+      {/* The camera follows the pin, not every GPS step: re-centring on
+          each fix would fight the visitor's own panning. */}
+      {route?.start && <FocusOnAvatar point={route.start} />}
+      {/* Room names over the plan, once the scene (and its zones) is ready. */}
+      {ready && <RoomLabels />}
       {route?.end && (
         // The flag marks the chosen destination (object, service, or exit).
         <group position={route.end}>
           <Suspense fallback={null}>
-            <Gltf src="/models/flag.glb" scale={DESTINATION_FLAG_SCALE} />
+            <DestinationFlag />
           </Suspense>
         </group>
       )}
-      {route?.path && route.path.length > 1 && <NavigationPath points={route.path} />}
-      {progressPoint && (
-        // GPS estimate snapped onto the route: a soft dot, distinct from the
-        // avatar, which stays on the last explicitly confirmed position.
-        <mesh
-          name="museum-navigation-progress"
-          position={[progressPoint[0], progressPoint[1] + 0.05, progressPoint[2]]}
-          renderOrder={1001}
-        >
-          <sphereGeometry args={[0.35, 24, 16]} />
-          <meshBasicMaterial color="#228be6" transparent opacity={0.85} depthTest={false} />
-        </mesh>
+      {shownPath && shownPath.length > 1 && (
+        <NavigationPath points={trimPathStart(shownPath, PATH_START_CLEARANCE)} />
       )}
     </MapViewer>
   )
+}
+
+/**
+ * Outlines every work on the map with Pascal's own outline pass (the one its
+ * editor draws around a hovered node), so no shader of ours is involved: the
+ * works' scene objects go into the viewer's `outliner.hoveredObjects` and
+ * `hoverStyles` (above) sets the look. The visitor map has no hover of its
+ * own (`selectionManager="custom"`), so the list is ours alone.
+ *
+ * The work under the pointer and the one open in a modal (`…/object/ID`)
+ * move to Pascal's other list, `selectedObjects`: its selection outline,
+ * thicker and in Pascal's fixed colours (white, yellow behind walls), so the
+ * work the visitor is pointing at or reading stands out from the rest.
+ *
+ * Pascal empties both lists whenever it rebuilds its pipeline (a new scene,
+ * a lost GPU device), so they are refilled on the next frame when they no
+ * longer match; checking length and first entry is enough for that.
+ * Without WebGPU Pascal draws no post-processing and the works stay plain.
+ */
+function WorkOutlines({ opened }: { opened: string | null }) {
+  const nodes = useScene((state) => state.nodes)
+  const hovered = useHoveredWork()
+  const { plain, focused } = useMemo(() => {
+    const lists = { plain: [] as Object3D[], focused: [] as Object3D[] }
+    for (const node of Object.values(nodes)) {
+      const id = museumObjectId(node)
+      const object = id ? sceneRegistry.nodes.get(node.id) : undefined
+      if (!object) continue
+      lists[node.id === hovered || id === opened ? 'focused' : 'plain'].push(object)
+    }
+    return lists
+  }, [nodes, hovered, opened])
+  useFrame(() => {
+    const { outliner } = useViewer.getState()
+    syncOutlined(outliner.hoveredObjects, plain)
+    syncOutlined(outliner.selectedObjects, focused)
+  })
+  useEffect(
+    () => () => {
+      const { outliner } = useViewer.getState()
+      outliner.hoveredObjects.length = 0
+      outliner.selectedObjects.length = 0
+    },
+    [],
+  )
+  return null
+}
+
+/** Pascal's outline list made to hold `objects`, rewritten only when it differs. */
+function syncOutlined(list: Object3D[], objects: Object3D[]) {
+  if (list.length === objects.length && list[0] === objects[0]) return
+  list.length = 0
+  list.push(...objects)
+}
+
+/** The scene id of the work under the pointer (Pascal's `item:enter`/`leave`), if any. */
+function useHoveredWork() {
+  const [hovered, setHovered] = useState<string | null>(null)
+  useEffect(() => {
+    const enter = ({ node }: ItemEvent) => {
+      if (museumObjectId(node)) setHovered(node.id)
+    }
+    const leave = ({ node }: ItemEvent) => {
+      setHovered((current) => (current === node.id ? null : current))
+    }
+    emitter.on('item:enter', enter)
+    emitter.on('item:leave', leave)
+    return () => {
+      emitter.off('item:enter', enter)
+      emitter.off('item:leave', leave)
+    }
+  }, [])
+  return hovered
+}
+
+/**
+ * The avatar carried to `point` as described at `AVATAR_WALK_SPEED`, facing
+ * the way it walks. The group's position is driven per frame, never as a
+ * prop: a prop would put it back on the target at every render.
+ */
+function WalkingAvatar({ point, label }: { point: Vec3; label: string }) {
+  const group = useRef<Group>(null)
+  const heading = useRef<number | null>(null)
+  const placed = useRef(false)
+  const [x, y, z] = point
+  useFrame((_, delta) => {
+    const avatar = group.current
+    if (!avatar) return
+    const dx = x - avatar.position.x
+    const dz = z - avatar.position.z
+    const distance = Math.hypot(dx, dz)
+    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (!placed.current || still || distance > AVATAR_TELEPORT_METRES || distance < 0.02) {
+      avatar.position.set(x, y, z)
+      placed.current = true
+      heading.current = null
+      return
+    }
+    heading.current = Math.atan2(dx, dz)
+    const step = Math.min(distance, Math.max(AVATAR_WALK_SPEED, distance * AVATAR_CATCH_UP) * delta)
+    avatar.position.set(
+      avatar.position.x + (dx / distance) * step,
+      y,
+      avatar.position.z + (dz / distance) * step,
+    )
+  })
+  return (
+    <group ref={group}>
+      <Suspense fallback={null}>
+        <Avatar heading={heading} />
+      </Suspense>
+      {/* "You": a map's "you are here", so a visitor landing on a shared or
+          QR link finds themselves at a glance among the room names. Same
+          halo as the room labels (see `RoomLabels`), in the museum color so
+          it never reads as one of them; it walks with the avatar. */}
+      <Html
+        center
+        position={[0, AVATAR_FACE_HEIGHT + AVATAR_LABEL_GAP, 0]}
+        zIndexRange={MAP_LABEL_Z_RANGE}
+        style={{ pointerEvents: 'none' }}
+      >
+        <span
+          className={`${MAP_LABEL_CLASS} text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))]`}
+        >
+          {label}
+        </span>
+      </Html>
+    </group>
+  )
+}
+
+/**
+ * Moves the camera onto the avatar whenever the visitor's pinned position
+ * changes (entering the museum, confirming a new position, advancing a stop),
+ * not at every GPS step of the live position, so the
+ * jump of the avatar is seen rather than guessed: the avatar ends up in the
+ * centre, seen from `AVATAR_VIEW_DISTANCE` at a slant that shows the
+ * surrounding rooms. The current compass direction is kept, so the map does
+ * not spin. Only a new point refocuses: a new destination from the same
+ * place leaves the camera where the visitor put it.
+ */
+function FocusOnAvatar({ point }: { point: Vec3 }) {
+  const controls = useThree((state) => state.controls) as CameraControlsImpl | null
+  const [x, y, z] = point
+  useEffect(() => {
+    if (!controls) return
+    const azimuth = controls.azimuthAngle
+    const ring = Math.sin(AVATAR_VIEW_POLAR) * AVATAR_VIEW_DISTANCE
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    void controls.setLookAt(
+      x + ring * Math.sin(azimuth),
+      y + Math.cos(AVATAR_VIEW_POLAR) * AVATAR_VIEW_DISTANCE,
+      z + ring * Math.cos(azimuth),
+      x,
+      y + AVATAR_FACE_HEIGHT / 2,
+      z,
+      smooth,
+    )
+  }, [controls, x, y, z])
+  return null
+}
+
+/**
+ * The destination flag with its lowest point on the floor: the model's
+ * origin is not at its base, so drawn as is its pole sank into the floor.
+ */
+function DestinationFlag() {
+  const { scene } = useGLTF('/models/flag.glb')
+  const model = useMemo(() => scene.clone(), [scene])
+  const lift = useMemo(() => -new Box3().setFromObject(model).min.y, [model])
+  return (
+    <group scale={DESTINATION_FLAG_SCALE}>
+      <primitive object={model} position-y={lift} />
+    </group>
+  )
+}
+
+/**
+ * Cuts the first `clearance` metres (in plan) off a route, so the line starts
+ * at the avatar's edge. A route shorter than that is kept as it is.
+ */
+function trimPathStart(points: Vec3[], clearance: number): Vec3[] {
+  let left = clearance
+  for (let index = 1; index < points.length; index++) {
+    const [ax, ay, az] = points[index - 1]
+    const [bx, by, bz] = points[index]
+    const length = Math.hypot(bx - ax, bz - az)
+    if (length > left) {
+      const t = left / length
+      const cut: Vec3 = [ax + (bx - ax) * t, ay + (by - ay) * t, az + (bz - az) * t]
+      return [cut, ...points.slice(index)]
+    }
+    left -= length
+  }
+  return points
 }
 
 /** Pascal uses WebGPURenderer; Drei's WebGL LineMaterial cannot render here. */

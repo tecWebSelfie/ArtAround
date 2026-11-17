@@ -55,7 +55,7 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
     <div className={classes.root}>
       {/* Up a level: back where the visitor came from, else the tour's page
           (a start link shared or scanned has no in-app history). */}
-      <BackButton href={`/${lng}/tour/${tour.id}` as Route} />
+      <BackButton withLanguage href={`/${lng}/tour/${tour.id}` as Route} />
       <div className={classes.identity}>
         <Title order={2} className="text-center text-balance">
           {tour.title}

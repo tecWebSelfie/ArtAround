@@ -10,8 +10,7 @@ import { useNavigationCommands } from '@/app/[lng]/(frontend)/museum/[id]/naviga
 /**
  * The navigation commands follow the navigation state: a command that would
  * change nothing now (reopen the open stop, reselect the active destination
- * or reading option, a "Tell me more" angle at its last step, Scan on the
- * scanner) is left out, so the Spotlight, the overlay and the voice
+ * or reading option, a "Tell me more" angle at its last step) is left out, so the Spotlight, the overlay and the voice
  * assistant (same list) can't run it. The URL is the boundary: Next's
  * navigation hooks are faked with the state under test.
  */
@@ -72,10 +71,5 @@ describe('commands that follow the navigation state', () => {
     expect(idsAt(open, 'level=easy')).not.toContain('version:simpler')
     expect(idsAt(open, 'more=more')).toContain('more:more')
     expect(idsAt(open, 'more=more&step=99')).not.toContain('more:more')
-  })
-
-  it('leaves Scan out on the scanner itself', () => {
-    expect(idsAt(base)).toContain('scan')
-    expect(idsAt(`${base}/scan`)).not.toContain('scan')
   })
 })
