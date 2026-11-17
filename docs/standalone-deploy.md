@@ -32,7 +32,7 @@ it starts from does not matter). Restart the container after each copy.
       mkdir /path/to/html/uploads && chmod 777 /path/to/html/uploads
 
   (or `chown` it to the container's uid, which the boot's `[tts-check]`
-  lines print), and in the build folder's `.env`:
+  lines print when `TTS_CHECK=1`), and in the build folder's `.env`:
   `UPLOADS_DIR=../uploads`. It resolves against the standalone root, the
   working directory of every process the boot starts, so it is
   `html/uploads` wherever the container mounts `html`
@@ -113,7 +113,7 @@ Plain Node ESM, no project imports. In order it:
    documents) — makes a fresh database usable;
 3. runs the reindex bundle (rebuilds the Typesense search collection from the current
    documents);
-4. only with `TTS_CHECK=1` (off by default: it delays the server and pays
+4. only with `TTS_CHECK=1` or `true` (off by default: it delays the server and pays
    for Fish Audio), runs the read-aloud diagnostics bundle
    (`src/scripts/tts-check.ts`, at most two minutes): it logs, prefixed
    `[tts-check]`, the working directory and user, where each upload

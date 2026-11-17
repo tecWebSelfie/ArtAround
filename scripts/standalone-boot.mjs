@@ -92,13 +92,13 @@ function run(script, timeoutMs) {
 
 // The read-aloud diagnostics (src/scripts/tts-check.ts) write to this log
 // what the content audio chain does on this server. Opt-in with `TTS_CHECK=1`
-// (e.g. in `.env.production` for one deploy): they hold the server back for up
+// or `true` (e.g. in `.env.production` for one deploy): they hold the server back for up
 // to two minutes and pay for a Fish Audio synthesis plus one content audio,
 // so they must not run on every boot or restart.
 const steps = [
   { script: 'scripts/standalone-seed.mjs' },
   { script: 'scripts/standalone-reindex.mjs' },
-  ...(process.env.TTS_CHECK === '1'
+  ...(['1', 'true'].includes(process.env.TTS_CHECK?.toLowerCase() ?? '')
     ? [{ script: 'scripts/standalone-tts-check.mjs', timeoutMs: 120_000 }]
     : []),
 ]

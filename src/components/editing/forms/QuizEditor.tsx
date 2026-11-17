@@ -50,10 +50,11 @@ export const validateQuiz =
 
 /**
  * A quiz question the editor doesn't show (linked to contents, written in the
- * admin): `index` is its place in the stored quiz, `contents` the contents it
- * concerns (`null` when unreadable here, then always kept).
+ * admin): `after` lists the questions before it in the stored quiz, nearest
+ * first; `contents` the contents it concerns (`null` when unreadable here, then
+ * always kept).
  */
-export type KeptQuestion = { id: string; index: number; contents: string[] | null }
+export type KeptQuestion = { id: string; after: string[]; contents: string[] | null }
 
 const questionData = (question: QuizDraft) => ({
   prompt: question.prompt.trim(),
@@ -63,14 +64,15 @@ const questionData = (question: QuizDraft) => ({
 })
 
 /**
- * Creates the new questions and updates the edited ones (only those that
- * changed from `saved`, the stored drafts), returning the ids the tour's
- * `quiz.questions` should list. Kept content questions go back to their
- * stored places, minus those whose contents all left the tour (the tour's
- * validation would refuse them, and the editor can't remove them).
+ * Creates the new questions and updates the existing ones, returning the ids
+ * the tour's `quiz.questions` should list. Kept content questions go back
+ * right after the nearest question that preceded them and is still listed
+ * (or first), minus those whose
+ * contents all left the tour (the tour's validation would refuse them, and
+ * the editor can't remove them).
  * Runs before the tour is saved, since the tour validates the ids it lists;
  * if the tour save then fails, `discard` deletes the questions created here
- * and restores the edited ones.
+ * and writes back `saved` (the stored drafts) over the updated ones.
  */
 export async function saveQuizQuestions({
   quiz,
@@ -84,11 +86,10 @@ export async function saveQuizQuestions({
   stops: string[]
 }) {
   const savedById = new Map(saved.flatMap((draft) => (draft.id ? [[draft.id, draft]] : [])))
-  const savedJson = new Map(
-    [...savedById].map(([id, draft]) => [id, JSON.stringify(questionData(draft))]),
-  )
-  const edited: QuizDraft[] = []
+  const updated: QuizDraft[] = []
   const created: string[] = []
+  // Every existing question is written, changed or not: the form may come
+  // back from a sessionStorage draft, so `saved` can't tell what changed.
   const results = await Promise.allSettled(
     quiz.map(async (question) => {
       const data = questionData(question)
@@ -101,18 +102,16 @@ export async function saveQuizQuestions({
         created.push(doc.id)
         return doc.id
       }
+      await payloadSdk.update({ collection: 'quizQuestions', id: question.id, data })
       const before = savedById.get(question.id)
-      if (savedJson.get(question.id) !== JSON.stringify(data)) {
-        await payloadSdk.update({ collection: 'quizQuestions', id: question.id, data })
-        if (before) edited.push(before)
-      }
+      if (before) updated.push(before)
       return question.id
     }),
   )
   const discard = () =>
     Promise.allSettled([
       ...created.map((id) => payloadSdk.delete({ collection: 'quizQuestions', id })),
-      ...edited.map((draft) =>
+      ...updated.map((draft) =>
         payloadSdk.update({
           collection: 'quizQuestions',
           id: draft.id!,
@@ -128,11 +127,13 @@ export async function saveQuizQuestions({
     }
     questions.push(result.value)
   }
-  // Ascending stored index, so each insertion lands where it was.
+  // In stored order, so a kept question that followed another kept one
+  // finds it already in place.
   const stopSet = new Set(stops)
-  for (const question of [...kept].sort((a, b) => a.index - b.index)) {
+  for (const question of kept) {
     if (question.contents && !question.contents.some((content) => stopSet.has(content))) continue
-    questions.splice(Math.min(question.index, questions.length), 0, question.id)
+    const anchor = question.after.find((id) => questions.includes(id))
+    questions.splice(anchor ? questions.indexOf(anchor) + 1 : 0, 0, question.id)
   }
   return { questions, discard }
 }

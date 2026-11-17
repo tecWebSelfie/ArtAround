@@ -205,7 +205,7 @@ export async function getTourQuizDrafts(
       // Linked to contents, or unreadable here: kept in its place untouched.
       keptQuestions.push({
         id,
-        index,
+        after: ids.slice(0, index).reverse(),
         contents: question ? relationshipIds(question.relatedTo) : null,
       })
     }

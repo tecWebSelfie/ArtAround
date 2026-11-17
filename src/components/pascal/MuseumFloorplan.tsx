@@ -122,10 +122,10 @@ const FLAG_RADIUS = 0.5
 /**
  * The visitor's own layer of the plan, portaled into a `<g>` kept as the last
  * child of `FloorplanPreview`'s scene group (its rotation applies, and the
- * layer draws over the plan). MutationObservers attach it once the plan's SVG
- * appears (possibly after this layer's first commit, e.g. once the plan has
- * measured itself) and keep it last, so a group Pascal adds later never ends
- * up over the layer.
+ * layer draws over the plan). A MutationObserver attaches it once the plan's
+ * SVG appears (possibly after this layer's first commit, e.g. once the plan
+ * has measured itself), again when the plan rebuilds it, and keeps it last,
+ * so a group Pascal adds later never ends up over the layer.
  */
 function PlanLayer({
   frame,
@@ -144,29 +144,20 @@ function PlanLayer({
   useLayoutEffect(() => {
     const root = frame.current
     if (!root) return
-    // Until the plan's scene group exists, watch the whole frame for it; then
-    // only that group's own children (a group Pascal appends), not the
-    // layer's subtree, which changes on every step the visitor takes.
-    let scene: Element | null = null
-    const keepLast = () => {
+    // The frame is watched for good (the plan may rebuild its SVG or scene
+    // group, e.g. when the level changes), ignoring mutations inside the
+    // layer itself, which changes on every step the visitor takes.
+    const attach = (records: MutationRecord[] = []) => {
+      if (records.length && records.every((record) => layer.contains(record.target))) return
+      const scene = root.querySelector('svg[data-floorplan-preview] > g')
       // A no-op once in place, so the observer's own mutation doesn't loop.
       if (scene && scene.lastChild !== layer) scene.appendChild(layer)
     }
-    const sceneObserver = new MutationObserver(keepLast)
-    const find = () => {
-      scene = root.querySelector('svg[data-floorplan-preview] > g')
-      if (!scene) return false
-      keepLast()
-      sceneObserver.observe(scene, { childList: true })
-      return true
-    }
-    const frameObserver = new MutationObserver(() => {
-      if (find()) frameObserver.disconnect()
-    })
-    if (!find()) frameObserver.observe(root, { childList: true, subtree: true })
+    attach()
+    const observer = new MutationObserver(attach)
+    observer.observe(root, { childList: true, subtree: true })
     return () => {
-      frameObserver.disconnect()
-      sceneObserver.disconnect()
+      observer.disconnect()
       layer.remove()
     }
   }, [frame, layer])

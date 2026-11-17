@@ -5392,7 +5392,7 @@ export interface TaskGenerateContentAudio {
     contentId: string
     locale: string
     variantId?: string | null
-    textHash: string
+    textHash?: string | null
   }
   output: {
     status: string

@@ -181,8 +181,9 @@ export const generateContentAudioTask: TaskConfig<'generateContentAudio'> = {
     { name: 'locale', type: 'text', required: true },
     { name: 'variantId', type: 'text' },
     // The text's hash when the job was queued (the handler recomputes it):
-    // ties a failed job to the text it failed on (`recentFailure`).
-    { name: 'textHash', type: 'text', required: true },
+    // ties a failed job to the text it failed on (`recentFailure`). Optional:
+    // jobs queued before it existed, and tts-check's direct call, have none.
+    { name: 'textHash', type: 'text' },
   ],
   outputSchema: [
     { name: 'status', type: 'text', required: true },
