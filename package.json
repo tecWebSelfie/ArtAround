@@ -42,7 +42,8 @@
     "agent:create": "lk agent create ./my-agent --secrets-file ./my-agent/.env.local",
     "agent:deploy": "lk agent deploy ./my-agent --secrets-file ./my-agent/.env.local",
     "intl:dev": "i18next-cli extract --sync-all --trust-derived --with-types -w",
-    "openapi-ts": "openapi-ts"
+    "openapi-ts": "openapi-ts",
+    "prototype:colyseus-group": "tsx scripts/prototype-colyseus-group.ts"
   },
   "dependencies": {
     "@adobe/leonardo-contrast-colors": "1.0.1",
@@ -51,6 +52,11 @@
     "@ai-sdk/mcp": "2.0.61",
     "@asammad48/react-map-place": "0.1.0",
     "@base-ui/react": "^1.8.0",
+    "@colyseus/core": "0.18.28",
+    "@colyseus/react": "0.18.4",
+    "@colyseus/schema": "5.0.49",
+    "@colyseus/sdk": "0.18.10",
+    "@colyseus/ws-transport": "0.18.5",
     "@dnd-kit/dom": "^0.5.0",
     "@dnd-kit/react": "^0.5.1",
     "@focus-reactive/payload-plugin-translator": "0.13.4",
