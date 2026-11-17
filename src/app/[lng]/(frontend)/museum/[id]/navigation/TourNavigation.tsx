@@ -5,7 +5,7 @@ import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { Suspense, useEffect, useState, type ReactNode, type Ref } from 'react'
+import { Suspense, useEffect, useMemo, useState, type ReactNode, type Ref } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
@@ -83,6 +83,14 @@ export const TourNavigationPage = ({
 
   const { t } = useTranslation('tour-navigation')
   const [routeUnavailable, setRouteUnavailable] = useState(false)
+  // Each work's photo, for its round picture on the 2D floor plan.
+  const workPhotos = useMemo(
+    () =>
+      new Map(
+        catalog.flatMap((object) => (object.thumbnail ? [[object.id, object.thumbnail]] : [])),
+      ),
+    [catalog],
+  )
   const [route, setRoute] = useState<MuseumRoute | null>(null)
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
@@ -188,7 +196,16 @@ export const TourNavigationPage = ({
             />
           )
         }
-        plan={settings.mapView === '2d' && museumMap.parsed && <MuseumFloorplan />}
+        plan={
+          settings.mapView === '2d' &&
+          museumMap.parsed && (
+            <MuseumFloorplan
+              position={guidance.position}
+              path={guidance.path ?? route?.path ?? null}
+              photos={workPhotos}
+            />
+          )
+        }
         controls={
           <NavigationControls
             museum={museum}
