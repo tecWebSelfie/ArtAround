@@ -78,6 +78,11 @@ get no row; a document that becomes unlisted has its row deleted, and gets it
 back when it is listed again. The same rules (`LISTED_TOURS`, a `where`, in
 `src/lib/visibility.ts`) keep them out of every list of tours.
 
+The museum navigation's actions ("Open next stop", "Nearest food", the
+reading options) are client-side commands built from the navigation state
+(`navigation-commands.ts`), not documents: the map's Spotlight searches them
+beside the catalog, and they never enter the index.
+
 ## Result scopes
 
 `searchItems()` (`src/lib/search/query.ts`) is the single read path: each

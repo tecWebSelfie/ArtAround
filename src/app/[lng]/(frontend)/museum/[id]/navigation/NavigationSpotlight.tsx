@@ -27,6 +27,12 @@ const RESULT_LIMIT = 8
  * exit, wheelchair route, resume tour) and the latest nearby suggestions, so a
  * suggestion missed in its notification can always be found again here.
  *
+ * Typing searches that same list, quick actions included: the pills are
+ * actions, not documents, so "next" finds "Open next stop" and "food" finds
+ * "Nearest food" beside the works and contents. They are built here from the
+ * navigation state and never indexed: only the museum navigation searches
+ * them, unlike the site's Typesense-backed search.
+ *
  * In free navigation the museum's tours lead the empty Spotlight as gradient
  * pills (the tour identity, DESIGN.md → Colors): starting a tour is the main
  * way to use the app, so it is offered before anything else.
@@ -44,12 +50,11 @@ export function NavigationSpotlight({
   const { t } = useTranslation('tour-navigation')
   const [query, setQuery] = useState('')
   const text = query.trim().toLowerCase()
+  // Every command is searchable, quick actions included: they describe what
+  // the visitor can do now ("Open next stop", "Nearest food"), which is often
+  // what they are typing, and they live only in this list (never in Typesense).
   const results = commands
-    .filter(
-      (command) =>
-        command.group !== 'quick' &&
-        `${command.label} ${command.description}`.toLowerCase().includes(text),
-    )
+    .filter((command) => `${command.label} ${command.description}`.toLowerCase().includes(text))
     .slice(0, RESULT_LIMIT)
   const run = (command: NavigationCommand) => {
     spotlight.close()
