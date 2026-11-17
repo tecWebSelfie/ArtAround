@@ -3,16 +3,17 @@
 import { groundLevelId } from '@/lib/pascal/museum-plugin/marker-hierarchy'
 import {
   PLAN_NODE_BASE,
-  PLAN_ROUTE_NODE_TYPE,
-  PLAN_VISITOR_NODE_TYPE,
   PLAN_WORK_NODE_TYPE,
+  routePlanGeometry,
+  visitorPlanGeometry,
 } from '@/lib/pascal/museum-plugin/plan-overlay'
 import { museumObjectId } from '@/lib/tour-navigation'
 import { DEFAULT_PRIMARY } from '@/theme'
 import { Box, Loader, useMantineTheme } from '@mantine/core'
 import { type AnyNode, useScene } from '@pascal-app/core'
 import type { Vec3 } from 'navcat'
-import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 /**
  * Pascal's own read-only floor plan (`FloorplanPreview` from
@@ -22,15 +23,21 @@ import { lazy, Suspense, useEffect, useMemo, useState } from 'react'
  * routes and directions are computed on its meshes, as `ViewerStage` itself
  * keeps it. Loaded on the first switch only: the editor package is large.
  *
- * The plan gets the live scene plus nodes that exist only here
- * (`plan-overlay.ts`): every work as a round picture of its photo, the
- * visitor where the avatar stands, and the route ahead with a flag at its end.
- * The scene changes only when what it shows changes (by value), and the plan
- * refits only when its framing does (our `FloorplanPreview` patch), so the
- * visitor's pan and zoom survive the walk.
+ * The scene handed to the plan is the live scene plus every work as a round
+ * picture of its photo (`plan-overlay.ts`). It changes only when the museum
+ * or the pictures do: each new scene makes `FloorplanPreview` refit its view,
+ * which would undo the visitor's pan and zoom. What moves while walking, the
+ * visitor and the route ahead, is drawn by `MovingLayer` instead, with
+ * Pascal's own geometry renderer, in the plan's SVG: it follows pan, zoom
+ * and rotation and never touches the scene.
  */
 const FloorplanPreview = lazy(() =>
   import('@pascal-app/editor').then((module) => ({ default: module.FloorplanPreview })),
+)
+const FloorplanGeometryRenderer = lazy(() =>
+  import('@pascal-app/editor').then((module) => ({
+    default: module.FloorplanGeometryRenderer,
+  })),
 )
 
 /** The map's view (see `useGuidanceSettings`): the 3D model or the floor plan. */
@@ -56,30 +63,41 @@ export function MuseumFloorplan({
 }) {
   // The museum's primary (blue, or the museum's own in museum mode).
   const color = useMantineTheme().colors.museum?.[6] ?? DEFAULT_PRIMARY[6]
-  const scene = usePlanScene(position, path, catalog, color)
+  const scene = usePlanScene(catalog, color)
   const loaded = useScene((state) => state.rootNodeIds.some((id) => roots.includes(id)))
+  const frame = useRef<HTMLDivElement>(null)
+  const sceneGroup = usePlanSceneGroup(frame, loaded)
   const loader = (
     <Box className="grid size-full place-items-center">
       <Loader size="sm" />
     </Box>
   )
   return (
-    // The zoom buttons would sit under the map's control dock: off, as pinch
-    // and wheel zoom remain. The compass and the floor picker are off too
-    // (museums have one floor).
-    <Box pos="absolute" inset={0} bg="var(--mantine-color-body)">
+    // Its own zoom buttons (no prop turns them off; their inline display
+    // needs !important) would sit under the map's control dock: hidden, as
+    // pinch and wheel zoom remain. The compass and the floor picker are off
+    // too (museums have one floor).
+    <Box
+      ref={frame}
+      pos="absolute"
+      inset={0}
+      bg="var(--mantine-color-body)"
+      className="[&_div:has(>button[aria-label='Zoom_out'])]:hidden!"
+    >
       {loaded ? (
         <Suspense fallback={loader}>
           <FloorplanPreview
             className="size-full"
             scene={scene}
-            // The level the plan-only nodes are on (else Pascal shows the
-            // lowest one, a basement).
+            // The level the works are on (else Pascal shows the lowest one, a
+            // basement).
             levelId={scene.levelId}
             showCompass={false}
             showLevelSelector={false}
-            showZoomControls={false}
           />
+          {sceneGroup && (
+            <MovingLayer scene={sceneGroup} position={position} path={path} color={color} />
+          )}
         </Suspense>
       ) : (
         loader
@@ -88,48 +106,95 @@ export function MuseumFloorplan({
   )
 }
 
-/** The same value until its JSON changes: a new array with equal points keeps the scene. */
-function useByValue<T>(value: T): T {
-  const key = JSON.stringify(value)
-  return useMemo(() => JSON.parse(key) as T, [key])
+/**
+ * The visitor and the route ahead, in plan coordinates, over the plan's own
+ * geometry. Portaled into the plan's SVG after its scene group (so the view
+ * box pans and zooms it too), with that group's rotation mirrored: Pascal
+ * sets it as an attribute, outside React.
+ */
+function MovingLayer({
+  scene,
+  position,
+  path,
+  color,
+}: {
+  scene: SVGGElement
+  position: Vec3 | null
+  path: Vec3[] | null
+  color: string
+}) {
+  const [transform, setTransform] = useState(() => scene.getAttribute('transform'))
+  useEffect(() => {
+    const mirror = () => setTransform(scene.getAttribute('transform'))
+    mirror()
+    const observer = new MutationObserver(mirror)
+    observer.observe(scene, { attributes: true, attributeFilter: ['transform'] })
+    return () => observer.disconnect()
+  }, [scene])
+  const route = path && path.length > 1 ? routePlanGeometry(path, color) : null
+  return createPortal(
+    <g pointerEvents="none" transform={transform ?? undefined}>
+      {route && <FloorplanGeometryRenderer geometry={route} />}
+      {position && <FloorplanGeometryRenderer geometry={visitorPlanGeometry(position, color)} />}
+    </g>,
+    scene.ownerSVGElement ?? scene,
+  )
 }
 
-/** The live scene with the plan-only nodes on the ground level. */
+/**
+ * The `<g>` of `FloorplanPreview`'s SVG that holds the plan's geometry (its
+ * only direct group, carrying the view rotation). Found once the lazy plan
+ * has rendered, and again if it is remounted.
+ */
+function usePlanSceneGroup(frame: React.RefObject<HTMLDivElement | null>, active: boolean) {
+  const [group, setGroup] = useState<SVGGElement | null>(null)
+  useEffect(() => {
+    const root = frame.current
+    if (!active || !root) return
+    const find = () => {
+      const next = root.querySelector<SVGGElement>('svg[data-floorplan-preview] > g')
+      setGroup((current) => (current === next ? current : next))
+    }
+    find()
+    const observer = new MutationObserver(find)
+    observer.observe(root, { childList: true, subtree: true })
+    return () => observer.disconnect()
+  }, [frame, active])
+  return active ? group : null
+}
+
+/** The live scene with every work's round picture on the ground level. */
 function usePlanScene(
-  position: Vec3 | null,
-  path: Vec3[] | null,
   catalog: readonly { id: string; thumbnail?: string | null }[],
   color: string,
 ) {
   const nodes = useScene((state) => state.nodes) as Record<string, AnyNode>
   const installedPlugins = useScene((state) => state.installedPlugins)
   const pictures = useRoundPictures(nodes, catalog, color)
-  const here = useByValue(position)
-  const ahead = useByValue(path && path.length > 1 ? path : null)
   return useMemo(() => {
     const levelId = groundLevelId(nodes)
-    if (!levelId) return { nodes, installedPlugins, levelId }
-    const overlay: Record<string, unknown>[] = []
+    if (!levelId || pictures.size === 0) return { nodes, installedPlugins, levelId }
+    const works: string[] = []
+    const next: Record<string, unknown> = { ...nodes }
     for (const [id, url] of pictures) {
       const node = nodes[id] as { position?: Vec3 } | undefined
       if (!node?.position) continue
       const [x, , z] = node.position
-      overlay.push({ id: `planWork_${id}`, type: PLAN_WORK_NODE_TYPE, position: [x, 0, z], url })
-    }
-    if (ahead) {
-      overlay.push({ id: 'planRoute_visitor', type: PLAN_ROUTE_NODE_TYPE, points: ahead, color })
-    }
-    if (here) {
-      overlay.push({ id: 'planVisitor_you', type: PLAN_VISITOR_NODE_TYPE, position: here, color })
-    }
-    const next: Record<string, unknown> = { ...nodes }
-    for (const node of overlay) {
-      next[node.id as string] = { ...PLAN_NODE_BASE, parentId: levelId, ...node }
+      const workId = `planWork_${id}`
+      next[workId] = {
+        ...PLAN_NODE_BASE,
+        id: workId,
+        type: PLAN_WORK_NODE_TYPE,
+        parentId: levelId,
+        position: [x, 0, z],
+        url,
+      }
+      works.push(workId)
     }
     const level = nodes[levelId] as AnyNode & { children: string[] }
-    next[levelId] = { ...level, children: [...level.children, ...overlay.map((node) => node.id)] }
+    next[levelId] = { ...level, children: [...level.children, ...works] }
     return { nodes: next as Record<string, AnyNode>, installedPlugins, levelId }
-  }, [nodes, installedPlugins, pictures, here, ahead, color])
+  }, [nodes, installedPlugins, pictures])
 }
 
 /**

@@ -25,7 +25,7 @@ function iconNode(Icon: LucideIcon): LucideIconData['node'] {
 const escape = (value: unknown) => String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;')
 
 /** The lucide icon as a white SVG data URL, for a plan `image`. */
-function planIconUrl(Icon: LucideIcon): string {
+export function planIconUrl(Icon: LucideIcon): string {
   let url = ICON_URL.get(Icon)
   if (!url) {
     const shapes = iconNode(Icon)

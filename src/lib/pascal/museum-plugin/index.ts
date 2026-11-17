@@ -1,6 +1,6 @@
 import type { AnyNodeDefinition, Plugin } from '@pascal-app/core'
 import { ExitEntranceDefinition } from './ExitEntranceDefinition'
-import { PlanRouteDefinition, PlanVisitorDefinition, PlanWorkDefinition } from './plan-overlay'
+import { PlanWorkDefinition } from './plan-overlay'
 import { ServiceDefinition } from './ServiceDefinition'
 
 export const museumPlugin: Plugin = {
@@ -10,9 +10,7 @@ export const museumPlugin: Plugin = {
   nodes: [
     ServiceDefinition as AnyNodeDefinition,
     ExitEntranceDefinition as AnyNodeDefinition,
-    // Floor-plan-only kinds of the visitor's 2D view (plan-overlay.ts).
+    // The floor-plan-only kind of the visitor's 2D view (plan-overlay.ts).
     PlanWorkDefinition as AnyNodeDefinition,
-    PlanVisitorDefinition as AnyNodeDefinition,
-    PlanRouteDefinition as AnyNodeDefinition,
   ],
 }
