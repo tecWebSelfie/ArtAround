@@ -93,8 +93,52 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return storedAudio(request, path.resolve(staticDir, audio.filename), textHash)
   }
   if (!speechAvailable()) return json('unavailable', 503)
-  await queueAudio(payload, { contentId: id, locale, variantId: variant?.id })
+  const input = { contentId: id, locale, variantId: variant?.id }
+  // A generation that just failed (every retry spent) is reported, not
+  // re-queued: the button stops at "Audio not available" instead of waiting
+  // out its polls, and the error reaches the server log and super admins.
+  const failure = await recentFailure(payload, input)
+  if (failure) {
+    console.error(`Content audio ${id} (${locale}) failed:`, failure)
+    const user = viewer.user
+    const detail = user && 'isSuperAdmin' in user && user.isSuperAdmin ? failure : undefined
+    return NextResponse.json(
+      { status: 'failed', ...(detail ? { error: detail } : {}) },
+      { status: 502, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+  await queueAudio(payload, input)
   return json('pending', 202)
+}
+
+/**
+ * The error of this audio's latest generation job, when it failed within the
+ * requeue window; null otherwise (none, still running, succeeded, or failed
+ * long enough ago to try again).
+ */
+async function recentFailure(
+  payload: Payload,
+  input: { contentId: string; locale: TypedLocale; variantId?: string },
+) {
+  const { docs } = await payload.find({
+    collection: 'payload-jobs',
+    where: {
+      taskSlug: { equals: 'generateContentAudio' },
+      'input.contentId': { equals: input.contentId },
+      'input.locale': { equals: input.locale },
+      // A base audio's job has no variant: never mistake a version's job for it.
+      'input.variantId': input.variantId ? { equals: input.variantId } : { exists: false },
+    },
+    sort: '-updatedAt',
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const job = docs[0]
+  if (!job?.hasError || job.processing) return null
+  if (Date.now() - new Date(job.updatedAt).getTime() > REQUEUE_AFTER_MS) return null
+  const error = job.error as { message?: string } | string | null | undefined
+  return (typeof error === 'string' ? error : error?.message) || JSON.stringify(job.error)
 }
 
 /** Queues the audio's generation, once per window (`queuedAt`). */
