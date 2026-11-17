@@ -110,7 +110,8 @@ export const TourNavigationPage = ({
     route,
     navMesh,
   })
-  const planView = settings.mapView === '2d'
+  // The plan needs a map to draw: without one the view stays 3D.
+  const planView = settings.mapView === '2d' && Boolean(museumMap.parsed)
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
 
@@ -197,6 +198,7 @@ export const TourNavigationPage = ({
               position={guidance.position ?? route?.start ?? null}
               path={guidance.path ?? route?.path ?? null}
               catalog={catalog}
+              roots={museumMap.parsed.rootNodeIds}
             />
           )
         }
@@ -210,6 +212,7 @@ export const TourNavigationPage = ({
             exits={markers.exitEntrances}
             sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
+            planAvailable={Boolean(museumMap.parsed)}
           />
         }
       />

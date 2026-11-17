@@ -71,8 +71,9 @@ export function AssistantButton({
             key={ring}
             aria-hidden
             className="pointer-events-none absolute inset-0 rounded-full border-2 border-(--mantine-primary-color-filled) animate-[assistant-ring_1.8s_cubic-bezier(0.16,1,0.3,1)_infinite] motion-reduce:scale-[1.18] motion-reduce:animate-none motion-reduce:opacity-60"
-            // The second ring leaves half a period later, so one is always on its way.
-            style={{ animationDelay: `${ring * 0.9}s` }}
+            // The second ring runs half a period ahead (a negative delay, so
+            // it never waits as a still outline), and one is always on its way.
+            style={{ animationDelay: `${ring * -0.9}s` }}
           />
         ))}
       {reacting && (

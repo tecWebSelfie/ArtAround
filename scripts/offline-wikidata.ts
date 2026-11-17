@@ -14,7 +14,17 @@ import { recordedWikidataFetch } from '../src/lib/wikidata'
  */
 export const WIKIDATA_SNAPSHOT_PATH = 'seed-assets/wikidata-entities.json'
 
+/**
+ * The snapshot's `fetch`. A missing or unreadable snapshot (a standalone
+ * copied without `seed-assets/`) only costs the subjects: every item then
+ * answers as missing, and the seed goes on.
+ */
 export async function offlineWikidataFetch(): Promise<typeof fetch> {
-  const entities = JSON.parse(await readFile(path.resolve(WIKIDATA_SNAPSHOT_PATH), 'utf8'))
-  return recordedWikidataFetch(entities as Record<string, object>)
+  try {
+    const entities = JSON.parse(await readFile(path.resolve(WIKIDATA_SNAPSHOT_PATH), 'utf8'))
+    return recordedWikidataFetch(entities as Record<string, object>)
+  } catch (error) {
+    console.warn(`No Wikidata snapshot, the demo works get no subjects: ${String(error)}`)
+    return recordedWikidataFetch({})
+  }
 }

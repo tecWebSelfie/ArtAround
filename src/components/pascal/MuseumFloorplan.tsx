@@ -40,6 +40,7 @@ export function MuseumFloorplan({
   position,
   path,
   catalog,
+  roots,
 }: {
   /** The tour's works: their photos become the round pictures. */
   catalog: readonly { id: string; thumbnail?: string | null }[]
@@ -47,30 +48,42 @@ export function MuseumFloorplan({
   position: Vec3 | null
   /** The route still ahead. */
   path: Vec3[] | null
+  /**
+   * The museum map's root ids: the plan waits until the shared scene store
+   * holds this map (`MapViewer` loads it), not the museum seen before.
+   */
+  roots: readonly string[]
 }) {
   // The museum's primary (blue, or the museum's own in museum mode).
   const color = useMantineTheme().colors.museum?.[6] ?? DEFAULT_PRIMARY[6]
   const scene = usePlanScene(position, path, catalog, color)
+  const loaded = useScene((state) => state.rootNodeIds.some((id) => roots.includes(id)))
+  const loader = (
+    <Box className="grid size-full place-items-center">
+      <Loader size="sm" />
+    </Box>
+  )
   return (
     // The zoom buttons would sit under the map's control dock: off, as pinch
     // and wheel zoom remain. The compass and the floor picker are off too
     // (museums have one floor).
-    <Box pos="absolute" inset={0} className="bg-(--mantine-color-body)">
-      <Suspense
-        fallback={
-          <Box className="grid size-full place-items-center">
-            <Loader size="sm" />
-          </Box>
-        }
-      >
-        <FloorplanPreview
-          className="size-full"
-          scene={scene}
-          showCompass={false}
-          showLevelSelector={false}
-          showZoomControls={false}
-        />
-      </Suspense>
+    <Box pos="absolute" inset={0} bg="var(--mantine-color-body)">
+      {loaded ? (
+        <Suspense fallback={loader}>
+          <FloorplanPreview
+            className="size-full"
+            scene={scene}
+            // The level the plan-only nodes are on (else Pascal shows the
+            // lowest one, a basement).
+            levelId={scene.levelId}
+            showCompass={false}
+            showLevelSelector={false}
+            showZoomControls={false}
+          />
+        </Suspense>
+      ) : (
+        loader
+      )}
     </Box>
   )
 }
@@ -95,7 +108,7 @@ function usePlanScene(
   const ahead = useByValue(path && path.length > 1 ? path : null)
   return useMemo(() => {
     const levelId = groundLevelId(nodes)
-    if (!levelId) return { nodes, installedPlugins }
+    if (!levelId) return { nodes, installedPlugins, levelId }
     const overlay: Record<string, unknown>[] = []
     for (const [id, url] of pictures) {
       const node = nodes[id] as { position?: Vec3 } | undefined
@@ -115,15 +128,15 @@ function usePlanScene(
     }
     const level = nodes[levelId] as AnyNode & { children: string[] }
     next[levelId] = { ...level, children: [...level.children, ...overlay.map((node) => node.id)] }
-    return { nodes: next as Record<string, AnyNode>, installedPlugins }
+    return { nodes: next as Record<string, AnyNode>, installedPlugins, levelId }
   }, [nodes, installedPlugins, pictures, here, ahead, color])
 }
 
 /**
  * Each placed work's round picture by node id: its photo from the catalog,
  * else its asset's own picture (the default standee's), in a ring of the
- * primary color. Pictures appear as they load; one that fails is left out (the
- * work keeps Pascal's own item symbol) and tried again on the next change.
+ * primary color. One that fails is left out (the work keeps Pascal's own
+ * item symbol) and tried again on the next change.
  */
 function useRoundPictures(
   nodes: Record<string, AnyNode>,
@@ -144,18 +157,23 @@ function useRoundPictures(
     }
     return JSON.stringify(entries)
   }, [nodes, catalog])
-  // Pictures arrive one by one and replace their older version (another ring
-  // color); a work no longer placed is skipped by `usePlanScene`.
+  // All at once, so the plan is rebuilt once rather than per photo (a slow
+  // one times out, see `photoDataUrl`); a work no longer placed is skipped by
+  // `usePlanScene`.
   const [pictures, setPictures] = useState(() => new Map<string, string>())
   useEffect(() => {
     let cancelled = false
     const sources = JSON.parse(sourcesKey) as [string, string][]
-    for (const [id, src] of sources) {
-      void photoDataUrl(src).then((photo) => {
-        if (cancelled || !photo) return
-        setPictures((current) => new Map(current).set(id, roundPictureUrl(photo, color)))
-      })
-    }
+    void Promise.all(sources.map(async ([id, src]) => [id, await photoDataUrl(src)] as const)).then(
+      (entries) => {
+        if (cancelled) return
+        setPictures(
+          new Map(
+            entries.flatMap(([id, photo]) => (photo ? [[id, roundPictureUrl(photo, color)]] : [])),
+          ),
+        )
+      },
+    )
     return () => {
       cancelled = true
     }

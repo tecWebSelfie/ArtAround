@@ -174,9 +174,9 @@ async function objectThumbnail(payload: Payload, object: (typeof OBJECTS)[number
 }
 
 /**
- * Gives the demo works that have no thumbnail their photo, leaving anything
- * the staff set alone: a deploy whose first seed could not save files (an
- * upload folder the container could not write) gets them on the next boot.
+ * Gives the demo works whose photo was never saved their photo: a deploy
+ * whose first seed could not save files (an upload folder the container
+ * could not write) gets them on the next boot. Never fails the boot.
  */
 async function backfillThumbnails(payload: Payload) {
   // One query on every boot; uploads only when something is missing.
@@ -196,17 +196,29 @@ async function backfillThumbnails(payload: Payload) {
   let added = 0
   for (const work of docs) {
     const object = OBJECTS.find((candidate) => candidate.name === work.name)
-    const thumbnail = object && (await objectThumbnail(payload, object))
-    if (!thumbnail) continue
-    await payload.update({
-      collection: 'objects',
-      id: work.id,
-      data: { thumbnail },
-      depth: 0,
-      overrideAccess: true,
-      context: { skipMintModelGeneration: true },
+    if (!object) continue
+    // Only a photo that was never saved: one already uploaded means the staff
+    // removed it from the work on purpose.
+    const uploaded = await payload.count({
+      collection: 'objectsThumbnails',
+      where: { filename: { equals: `${object.key}.jpg` } },
     })
-    added += 1
+    if (uploaded.totalDocs) continue
+    try {
+      const thumbnail = await objectThumbnail(payload, object)
+      if (!thumbnail) continue
+      await payload.update({
+        collection: 'objects',
+        id: work.id,
+        data: { thumbnail },
+        depth: 0,
+        overrideAccess: true,
+        context: { skipMintModelGeneration: true },
+      })
+      added += 1
+    } catch (error) {
+      console.warn(`No photo added to "${object.name}": ${String(error)}`)
+    }
   }
   if (added) console.info(`${added} demo work photos added.`)
 }

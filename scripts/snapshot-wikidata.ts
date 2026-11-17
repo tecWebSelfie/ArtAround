@@ -65,8 +65,8 @@ const subjectIds = [...works.values()].flatMap((work) =>
 )
 const subjects = await getWikidataEntities(subjectIds, LANGUAGES)
 
-// Keyed by the id asked for, as `wbgetentities` answers (a merged item keeps
-// its old id as key, with `redirects`).
+// Keyed by the id asked for, the way `recordedWikidataFetch` looks them up (a
+// merged item under its old id, with `redirects`).
 const snapshot = Object.fromEntries(
   [...works, ...subjects]
     .sort(([a], [b]) => a.localeCompare(b))
