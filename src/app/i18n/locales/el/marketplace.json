@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Όλα",
   "anyPrice": "Οποιαδήποτε τιμή",
   "clearFilters": "Καθαρισμός φίλτρων",

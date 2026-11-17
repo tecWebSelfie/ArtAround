@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Tous",
   "anyPrice": "Tous les prix",
   "clearFilters": "Effacer les filtres",

@@ -52,6 +52,15 @@ function quote(value: string) {
   return `\`${value.replaceAll('`', '')}\``
 }
 
+/**
+ * One `filter_by` condition for "this field equals this value". The search
+ * pages' URL scopes (`src/lib/search-scope.ts`) build their filters with it, so
+ * quoting and escaping stay in one place.
+ */
+export function filterEquals(field: string, value: string) {
+  return `${field}:=${quote(value)}`
+}
+
 /** Builds the `filter_by` string from the structured options. */
 export function buildFilterBy({
   kinds,
@@ -63,7 +72,7 @@ export function buildFilterBy({
   if (kinds.length > 0) conditions.push(`kind:=[${kinds.join(',')}]`)
   if (price === 'free') conditions.push('price_cents:=0')
   else if (price === 'paid') conditions.push('price_cents:>0')
-  if (museumId) conditions.push(`museum_id:=${quote(museumId)}`)
+  if (museumId) conditions.push(filterEquals('museum_id', museumId))
   return conditions.join(' && ')
 }
 

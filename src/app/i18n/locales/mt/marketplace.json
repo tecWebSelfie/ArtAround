@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Kollha",
   "anyPrice": "Kull prezz",
   "clearFilters": "Neħħi l-filtri",

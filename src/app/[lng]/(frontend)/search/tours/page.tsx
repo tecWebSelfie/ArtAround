@@ -1,17 +1,18 @@
 import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { EntitySearch } from '@/components/mantine/EntitySearch'
+import { SearchHeading } from '@/components/mantine/SearchHeading'
 import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { ToursSearchResults } from '@/components/mantine/ToursSearchResults'
 import { getT } from '@/i18n.server'
+import { museumSearchMuseumId } from '@/lib/museum-mode'
+import { scopeParams, resolveSearchScopes } from '@/lib/search-scope'
 import { docsInHitOrder } from '@/lib/search/hydrate'
-import { authorSourceFilter } from '@/lib/search/author-filter'
 import { searchItems } from '@/lib/search/query'
 import type { SearchHit } from '@/lib/search/types'
 import type { Tour } from '@/payload-types'
-import { Container, Stack, Title } from '@mantine/core'
+import { Container, Stack } from '@mantine/core'
 import { getPayload, type TypedLocale } from 'payload'
-import { museumSearchMuseumId } from '@/lib/museum-mode'
 
 const PAGE_SIZE = 12
 
@@ -27,8 +28,14 @@ export default async function SearchToursPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumSearchMuseumId()])
+  const basePath = `/${lng}/search/tours`
+  // Independent setup reads: started together, and the URL scopes (`?at=`,
+  // `?author=`, `?subject=`: a "See all" link's list) as soon as Payload is up.
+  const payloadReady = getPayload({ config })
+  const setup = Promise.all([payloadReady, museumSearchMuseumId()])
+  const scoping = payloadReady.then((payload) =>
+    resolveSearchScopes(payload, 'tours', searchParams, lng),
+  )
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
@@ -38,29 +45,27 @@ export default async function SearchToursPage(props: {
     Array.isArray(value) ? value[0] : value
   const query = (firstValue(searchParams.q) ?? '').trim()
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
-  const authorId = firstValue(searchParams.author)
+  const { filters, scopes } = await scoping
 
-  // Tours only: museum mode scopes through `museum_id`, while profile links
-  // additionally narrow to their author. No Payload results fallback on outage.
+  // Tours only: this page's own bar. Museum mode scopes it through `museum_id`,
+  // a "See all" link through the URL scopes (`filters`).
+  // No Payload fallback: an outage is shown, not replaced by other results.
   let hits: SearchHit[] = []
   let total = 0
   let searchFailed = false
   try {
-    const authorFilter = await authorSourceFilter(payload, 'tours', authorId)
-    if (authorFilter.kind !== 'empty') {
-      ;({ hits, total } = await searchItems({
-        q: query,
-        kinds: ['tour'],
-        museumId,
-        page,
-        limit: PAGE_SIZE,
-        queryBy: ['title', 'description', 'excerpt'],
-        queryByWeights: '5,3,2',
-        filterBy: authorFilter.kind === 'filter' ? [authorFilter.value] : undefined,
-      }))
-    }
+    ;({ hits, total } = await searchItems({
+      q: query,
+      kinds: ['tour'],
+      museumId,
+      page,
+      limit: PAGE_SIZE,
+      queryBy: ['title', 'description', 'excerpt'],
+      queryByWeights: '5,3,2',
+      filterBy: filters,
+    }))
   } catch (error) {
-    console.error('[search] Tours search failed', error)
+    console.error('[search] Typesense tours search failed', error)
     searchFailed = true
   }
   const tours = await docsInHitOrder<Tour>({
@@ -77,17 +82,24 @@ export default async function SearchToursPage(props: {
     // wide screens. Below md the padding equals the old side margins: no change.
     <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
-        <Title order={1} size="h2">
-          {t('Search visits')}
-        </Title>
+        <SearchHeading
+          title={t('Search visits')}
+          total={total}
+          scopes={scopes}
+          // This page has no composite filters: only a scope narrows it.
+          filtered={false}
+          basePath={basePath}
+          searchParams={searchParams}
+        />
         <EntitySearch
-          basePath={`/${lng}/search/tours`}
+          basePath={basePath}
           initialQuery={query}
           page={page}
           totalPages={searchFailed ? 1 : totalPages}
           placeholder={t('Search visits…')}
           labels={{ search: t('Search') }}
-          keepParams={authorId ? { author: authorId } : undefined}
+          // The search box and the pager keep the "See all" scope.
+          keepParams={scopeParams(scopes)}
         />
         {searchFailed ? (
           <SearchUnavailableAlert message={t('Search is not reachable right now.')} />

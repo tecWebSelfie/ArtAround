@@ -30,6 +30,11 @@ const schema = {
     { name: 'city', type: 'string', locale: 'en', facet: true, infix: true, optional: true },
     { name: 'museum_id', type: 'string[]', facet: true, optional: true },
     { name: 'museum_name', type: 'string', locale: 'en', infix: true, optional: true },
+    // Scoped search pages (`?author=`, `?subject=`): one condition on an
+    // indexed id keeps a scoped list the same ranked query as the unscoped one
+    // (`src/lib/search-scope.ts`).
+    { name: 'author_id', type: 'string', facet: true, optional: true },
+    { name: 'subject_ids', type: 'string[]', facet: true, optional: true },
     { name: 'artist', type: 'string', locale: 'en', infix: true, optional: true },
     { name: 'difficulty', type: 'string', facet: true, optional: true },
     { name: 'duration_seconds', type: 'int32', optional: true },

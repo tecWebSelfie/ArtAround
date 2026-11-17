@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Sve",
   "anyPrice": "Bilo koja cijena",
   "clearFilters": "Očisti filtre",

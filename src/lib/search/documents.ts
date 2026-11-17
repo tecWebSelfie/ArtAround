@@ -169,6 +169,35 @@ async function tourStops({
   return docs
 }
 
+/**
+ * Subjects a set of contents is about.
+ *
+ * The relation is stored on the subject (`subjects.contents`), so it is read
+ * backwards: the ids are what a "See all" link's `?subject=` filters on, for the
+ * contents themselves and for the tours that stop at them.
+ */
+async function subjectIdsOfContents({
+  payload,
+  contentIds,
+  req,
+}: {
+  payload: Payload
+  contentIds: string[]
+  req?: PayloadRequest
+}): Promise<string[] | undefined> {
+  if (contentIds.length === 0) return undefined
+  const { docs } = await payload.find({
+    collection: 'subjects',
+    where: { contents: { in: contentIds } },
+    select: {},
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+    req,
+  })
+  return docs.length > 0 ? docs.map((subject) => String(subject.id)) : undefined
+}
+
 export async function buildSearchDocument({
   payload,
   collection,
@@ -204,11 +233,11 @@ export async function buildSearchDocument({
         ? await museumsWhere({ payload, where: { id: { equals: museumId } }, req })
         : []
       const museum = museums[0]
-      const stops = await tourStops({
-        payload,
-        contentIds: relationshipIds(tour.contents),
-        req,
-      })
+      const stopIds = relationshipIds(tour.contents)
+      const [stops, subjectIds] = await Promise.all([
+        tourStops({ payload, contentIds: stopIds, req }),
+        subjectIdsOfContents({ payload, contentIds: stopIds, req }),
+      ])
       const stopSeconds = stops.reduce((sum, stop) => sum + (stop.durationSeconds ?? 0), 0)
       const seconds = tour.durationMinutes ? tour.durationMinutes * 60 : stopSeconds
       return {
@@ -220,13 +249,19 @@ export async function buildSearchDocument({
         city: museum?.city || undefined,
         museum_id: museums.map((entry) => entry.id),
         museum_name: museum?.name,
+        author_id: idOf(tour.author) ?? undefined,
+        // The tour is about a subject when one of its stops is.
+        subject_ids: subjectIds,
         duration_seconds: seconds || undefined,
         price_cents: stops.reduce((sum, stop) => sum + (stop.price ?? 0), 0),
       }
     }
     case 'contents': {
       const content = doc as unknown as Content
-      const museums = await museumsForContent({ payload, contentIds: [id], req })
+      const [museums, subjectIds] = await Promise.all([
+        museumsForContent({ payload, contentIds: [id], req }),
+        subjectIdsOfContents({ payload, contentIds: [id], req }),
+      ])
       return {
         ...base,
         title: content.title,
@@ -235,6 +270,8 @@ export async function buildSearchDocument({
         city: museums[0]?.city || undefined,
         museum_id: museums.map((entry) => entry.id),
         museum_name: museums[0]?.name,
+        author_id: idOf(content.author) ?? undefined,
+        subject_ids: subjectIds,
         difficulty: content.difficulty ?? undefined,
         duration_seconds: content.durationSeconds ?? undefined,
         price_cents: content.price ?? 0,
@@ -243,6 +280,14 @@ export async function buildSearchDocument({
     case 'objects': {
       const object = doc as unknown as ArtObject
       const museums = await museumsForObject({ payload, objectId: id, req })
+      // The three ways a work names a subject (`src/collections/Objects.ts`).
+      const subjectIds = [
+        ...new Set([
+          ...relationshipIds(object.creators),
+          ...relationshipIds(object.movements),
+          ...relationshipIds(object.events),
+        ]),
+      ]
       return {
         ...base,
         title: object.name,
@@ -251,6 +296,7 @@ export async function buildSearchDocument({
         city: museums[0]?.city || undefined,
         museum_id: museums.map((entry) => entry.id),
         museum_name: museums[0]?.name,
+        subject_ids: subjectIds.length > 0 ? subjectIds : undefined,
         artist: object.artist || undefined,
       }
     }

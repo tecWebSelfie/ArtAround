@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
 import { EntitySearch } from '@/components/mantine/EntitySearch'
+import { SearchHeading } from '@/components/mantine/SearchHeading'
 import { SearchShell } from '@/components/mantine/SearchShell'
 import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { getT } from '@/i18n.server'
@@ -15,6 +16,7 @@ import { createObjectHref, museumPickerParams, parseMuseumPicker } from '@/lib/m
 import { can } from '@/lib/session'
 import { docsInHitOrder } from '@/lib/search/hydrate'
 import { searchItems } from '@/lib/search/query'
+import { resolveSearchScopes, scopeParams } from '@/lib/search-scope'
 import type { Object as ArtObject } from '@/payload-types'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import type { Route } from 'next'
@@ -43,8 +45,14 @@ export default async function SearchObjectsPage(props: {
 }) {
   const { lng } = await props.params
   const searchParams = await props.searchParams
-  // Independent setup reads: started together.
-  const setup = Promise.all([getPayload({ config }), museumSearchMuseumId()])
+  const basePath = `/${lng}/search/objects`
+  // Independent setup reads: started together, and the URL scopes (`?at=`,
+  // `?subject=`: a "See all" link's list) as soon as Payload is up.
+  const payloadReady = getPayload({ config })
+  const setup = Promise.all([payloadReady, museumSearchMuseumId()])
+  const scoping = payloadReady.then((payload) =>
+    resolveSearchScopes(payload, 'objects', searchParams, lng),
+  )
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
@@ -54,6 +62,7 @@ export default async function SearchObjectsPage(props: {
     Array.isArray(value) ? value[0] : value
   const query = (firstValue(searchParams.q) ?? '').trim()
   const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
+  const { filters, scopes } = await scoping
 
   const requested = parseMuseumPicker(lng, searchParams)
   const picker =
@@ -91,6 +100,7 @@ export default async function SearchObjectsPage(props: {
   const initialFilters = picker ? parseFilterSearchParams(searchParams, definitions) : []
 
   let objects: ArtObject[] = []
+  let total = 0
   let totalPages = 1
   let searchFailed = false
   if (picker) {
@@ -102,12 +112,14 @@ export default async function SearchObjectsPage(props: {
       depth: 1,
     })
     objects = result.docs
+    total = result.totalDocs
     totalPages = result.totalPages ?? 1
   } else {
-    // Objects only: this page's own bar. Museum mode scopes through `museum_id`.
+    // Objects only: this page's own bar. Museum mode scopes it through
+    // `museum_id`, a "See all" link through the URL scopes (`filters`).
     // No Payload fallback: an outage is shown, not replaced by other results.
     try {
-      const { hits, total } = await searchItems({
+      const { hits, total: found } = await searchItems({
         q: query,
         kinds: ['object'],
         museumId,
@@ -115,14 +127,16 @@ export default async function SearchObjectsPage(props: {
         limit: PAGE_SIZE,
         queryBy: ['title', 'artist', 'description'],
         queryByWeights: '5,3,2',
+        filterBy: filters,
       })
+      total = found
       objects = await docsInHitOrder<ArtObject>({
         payload,
         collection: 'objects',
         hits,
         locale: lng as TypedLocale,
       })
-      totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+      totalPages = Math.max(1, Math.ceil(found / PAGE_SIZE))
     } catch (error) {
       console.error('[search] Typesense objects search failed', error)
       searchFailed = true
@@ -164,9 +178,15 @@ export default async function SearchObjectsPage(props: {
             </Group>
           </Stack>
         ) : (
-          <Title order={1} size="h2">
-            {t('Search objects')}
-          </Title>
+          <SearchHeading
+            title={t('Search objects')}
+            total={total}
+            scopes={scopes}
+            // This page has no composite filters: only a scope narrows it.
+            filtered={false}
+            basePath={basePath}
+            searchParams={searchParams}
+          />
         )}
 
         {picker ? (
@@ -175,7 +195,7 @@ export default async function SearchObjectsPage(props: {
             initialFilters={initialFilters}
             page={page}
             totalPages={totalPages}
-            basePath={`/${lng}/search/objects`}
+            basePath={basePath}
             storageKeyPrefix="search-objects"
             placeholder={t('Filter objects…')}
             keepParams={museumPickerParams(picker)}
@@ -185,12 +205,14 @@ export default async function SearchObjectsPage(props: {
         ) : (
           <>
             <EntitySearch
-              basePath={`/${lng}/search/objects`}
+              basePath={basePath}
               initialQuery={query}
               page={page}
               totalPages={searchFailed ? 1 : totalPages}
               placeholder={t('Search objects…')}
               labels={{ search: t('Search') }}
+              // The search box and the pager keep the "See all" scope.
+              keepParams={scopeParams(scopes)}
             />
             {searchFailed ? (
               <SearchUnavailableAlert message={t('Search is not reachable right now.')} />

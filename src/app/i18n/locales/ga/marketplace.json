@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Gach rud",
   "anyPrice": "Praghas ar bith",
   "clearFilters": "Glan na scagairí",

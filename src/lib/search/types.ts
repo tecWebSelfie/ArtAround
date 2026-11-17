@@ -60,6 +60,14 @@ export type SearchDocument = {
   /** Museums the document belongs to (museum mode filtering). */
   museum_id?: string[]
   museum_name?: string
+  /**
+   * The scoped lists a "See all" link opens: `?author=` on tours and contents,
+   * `?subject=` on works, contents and tours (`src/lib/search-scope.ts`). They
+   * are indexed so a scoped page is the same ranked query with one more
+   * `filter_by`, instead of a Payload id list the index would have to trust.
+   */
+  author_id?: string
+  subject_ids?: string[]
   artist?: string
   difficulty?: string
   duration_seconds?: number

@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Vše",
   "anyPrice": "Jakákoli cena",
   "clearFilters": "Vymazat filtry",

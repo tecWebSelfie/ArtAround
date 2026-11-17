@@ -186,6 +186,16 @@ export default async function Marketplace(props: {
               viewObject: t('viewObject'),
               min: t('min'),
               difficulty: { easy: ts('Easy'), medium: ts('Medium'), hard: ts('Hard') },
+              // Context labels are translated and interpolated here, where `t`
+              // lives: the card is a server component without an i18n hook.
+              atMuseum: (name: string) => ts('At {{name}}', { name }),
+              byAuthor: (name: string) => ts('By {{name}}', { name }),
+              // The card link's accessible name: its visible text includes the
+              // description, which makes a screen reader's results list slow.
+              cardLabel: ({ kind, title, price }) =>
+                price
+                  ? t('{{kind}}: {{title}}, {{price}}', { kind, title, price })
+                  : t('{{kind}}: {{title}}', { kind, title }),
             }}
           />
         ))}
@@ -218,7 +228,16 @@ export default async function Marketplace(props: {
   return (
     // In the tabs' flex stack, w-full fills the available width before Container
     // caps it at the same centered lg measure used by other catalog search pages.
-    <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm" className="w-full">
+    // The page keeps room under its last row: below the pagination when the
+    // results span several pages, below the grid when they do not.
+    <Container
+      component="main"
+      size="lg"
+      px={{ base: 'md', sm: 'xl' }}
+      mt="sm"
+      pb="xl"
+      className="w-full"
+    >
       <Stack gap="lg">
         <Title order={1} size="h2">
           {t('Marketplace')}

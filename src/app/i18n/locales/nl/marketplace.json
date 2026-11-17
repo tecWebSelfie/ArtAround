@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Alles",
   "anyPrice": "Elke prijs",
   "clearFilters": "Filters wissen",

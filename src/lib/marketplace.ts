@@ -8,6 +8,7 @@ import type { SearchDocKind, SearchHit } from '@/lib/search/types'
 import type {
   Content,
   ContentImage,
+  Museum,
   Object as ArtObject,
   ObjectsThumbnail,
   Tour,
@@ -26,6 +27,11 @@ export type MarketplaceResults = {
 
 function mapTour(tour: Tour): MarketplaceItem {
   const thumbnail = isPopulated<ToursThumbnail>(tour.thumbnail) ? tour.thumbnail : null
+  // Context for choosing (DESIGN.md → Marketplace results): the card shows
+  // where the tour runs and who made it. Both relationships are populated by
+  // the hydrating read (depth 1), so no extra query is needed.
+  const museum = isPopulated<Museum>(tour.museum) ? tour.museum : null
+  const author = isPopulated<User>(tour.author) ? tour.author : null
   return {
     key: `tour:${tour.id}`,
     kind: 'tour',
@@ -34,6 +40,8 @@ function mapTour(tour: Tour): MarketplaceItem {
     description: tour.description,
     imageUrl: thumbnail?.url,
     imageAlt: thumbnail?.alt,
+    museumName: museum?.name,
+    authorName: author ? displayName(author) : null,
     // List price: a tour costs its paid contents (src/lib/price.ts). What a
     // given visitor pays can be less; the tour page shows that amount.
     priceCents: filterPopulated<Content>(tour.contents).reduce(
@@ -48,6 +56,9 @@ function mapTour(tour: Tour): MarketplaceItem {
 
 function mapContent(content: Content): MarketplaceItem {
   const thumbnail = filterPopulated<ContentImage>(content.images)[0] ?? null
+  // A content has no museum of its own (its objects do), and reaching it would
+  // need a deeper read; the author is the context that costs nothing.
+  const author = isPopulated<User>(content.author) ? content.author : null
   return {
     key: `content:${content.id}`,
     kind: 'content',
@@ -55,6 +66,7 @@ function mapContent(content: Content): MarketplaceItem {
     title: content.title,
     imageUrl: thumbnail?.url,
     imageAlt: thumbnail?.alt,
+    authorName: author ? displayName(author) : null,
     priceCents: content.price ?? 0,
     currency: PRICE_CURRENCY,
     createdAt: content.createdAt,
@@ -83,6 +95,9 @@ function mapUser(user: User): MarketplaceItem {
 
 function mapObject(object: ArtObject): MarketplaceItem {
   const thumbnail = isPopulated<ObjectsThumbnail>(object.thumbnail) ? object.thumbnail : null
+  // Objects are shown in their museums; the join's first populated doc is the
+  // museum (an object can be on show in more than one, the card shows one).
+  const museum = filterPopulated<Museum>(object.museums?.docs)[0] ?? null
   return {
     key: `object:${object.id}`,
     kind: 'object',
@@ -91,6 +106,7 @@ function mapObject(object: ArtObject): MarketplaceItem {
     description: object.description,
     imageUrl: thumbnail?.url,
     imageAlt: thumbnail?.alt ?? object.name,
+    museumName: museum?.name,
     createdAt: object.createdAt,
     artist: object.artist,
   }

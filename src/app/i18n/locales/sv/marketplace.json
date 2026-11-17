@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Alla",
   "anyPrice": "Alla priser",
   "clearFilters": "Rensa filter",
