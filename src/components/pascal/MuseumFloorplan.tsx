@@ -122,10 +122,10 @@ const FLAG_RADIUS = 0.5
 /**
  * The visitor's own layer of the plan, portaled into a `<g>` kept as the last
  * child of `FloorplanPreview`'s scene group (its rotation applies, and the
- * layer draws over the plan). Rendered beside the plan in the same Suspense,
- * so the plan's SVG exists when the layout effect runs; it runs after every
- * render, which follows every scene change (`nodes`), so a group Pascal adds
- * never ends up over the layer.
+ * layer draws over the plan). A MutationObserver on the frame re-attaches it
+ * whenever the plan's DOM changes: the SVG may appear after this layer's
+ * first commit (e.g. once the plan has measured itself), and a group Pascal
+ * adds later must never end up over the layer.
  */
 function PlanLayer({
   frame,
@@ -142,10 +142,21 @@ function PlanLayer({
 }) {
   const [layer] = useState(() => document.createElementNS('http://www.w3.org/2000/svg', 'g'))
   useLayoutEffect(() => {
-    const scene = frame.current?.querySelector('svg[data-floorplan-preview] > g')
-    if (scene && scene.lastChild !== layer) scene.appendChild(layer)
-  })
-  useLayoutEffect(() => () => layer.remove(), [layer])
+    const root = frame.current
+    if (!root) return
+    const attach = () => {
+      const scene = root.querySelector('svg[data-floorplan-preview] > g')
+      // A no-op once in place, so the observer's own mutation doesn't loop.
+      if (scene && scene.lastChild !== layer) scene.appendChild(layer)
+    }
+    attach()
+    const observer = new MutationObserver(attach)
+    observer.observe(root, { childList: true, subtree: true })
+    return () => {
+      observer.disconnect()
+      layer.remove()
+    }
+  }, [frame, layer])
   // One circular clip for every picture (object bounding box units).
   const clip = `plan-photo-${useId().replace(/:/g, '')}`
   const end = path && path.length > 1 ? path.at(-1) : undefined

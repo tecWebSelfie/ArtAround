@@ -113,8 +113,9 @@ Plain Node ESM, no project imports. In order it:
    documents) — makes a fresh database usable;
 3. runs the reindex bundle (rebuilds the Typesense search collection from the current
    documents);
-4. runs the read-aloud diagnostics bundle (`src/scripts/tts-check.ts`, at
-   most two minutes; `TTS_CHECK=0` skips it): it logs, prefixed
+4. only with `TTS_CHECK=1` (off by default: it delays the server and pays
+   for Fish Audio), runs the read-aloud diagnostics bundle
+   (`src/scripts/tts-check.ts`, at most two minutes): it logs, prefixed
    `[tts-check]`, the working directory and user, where each upload
    collection writes and whether a 2 MB write there succeeds, the content
    audio jobs and their latest errors, one Fish Audio synthesis, and the

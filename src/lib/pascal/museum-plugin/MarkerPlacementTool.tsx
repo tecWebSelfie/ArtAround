@@ -7,6 +7,7 @@ import { useEffect, useRef } from 'react'
 import type { Group } from 'three'
 import { EXIT_ENTRANCE_NODE_TYPE, ExitEntranceNode } from './ExitEntranceNode'
 import { EXIT_ENTRANCE_META, SERVICE_META, isExitEntranceDirection, isServiceType } from './markers'
+import { groundLevelId } from './marker-hierarchy'
 import { SERVICE_NODE_TYPE, ServiceNode } from './ServiceNode'
 
 /**
@@ -48,7 +49,11 @@ export default function MarkerPlacementTool() {
     const onGridClick = (event: GridEvent) => {
       const scene = useScene.getState()
       const editor = useEditor.getState()
-      const levelId = useViewer.getState().selection.levelId
+      // Markers live under a level (marker-hierarchy.ts): with none selected,
+      // the ground level, never the scene root that `setScene` drops on load.
+      // `localPosition` is the building frame, which a level shares in x/z
+      // (Pascal's own spawn tool places the same way).
+      const levelId = useViewer.getState().selection.levelId ?? groundLevelId(scene.nodes)
       const armed = editor.tool
       const current =
         (armed ? (editor.toolDefaults[armed] as MarkerToolDefaults | undefined) : undefined) ?? {}

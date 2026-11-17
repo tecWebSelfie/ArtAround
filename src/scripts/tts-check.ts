@@ -17,7 +17,7 @@
  *      that has no audio yet, which also leaves that audio in place.
  *
  * Run by the boot script (`scripts/standalone-boot.mjs`) before the server
- * (skip with `TTS_CHECK=0`), or by hand from the standalone folder:
+ * when `TTS_CHECK=1` (off by default), or by hand from the standalone folder:
  * `node scripts/standalone-tts-check.mjs`. Bundled by
  * `scripts/build-standalone-scripts.mjs`. Never prints a secret.
  */

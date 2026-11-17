@@ -91,7 +91,9 @@ describe('personal read-aloud access and caching', () => {
     )
     expect(await response.json()).toEqual({ status: 'pending' })
     expect(api.queue).toHaveBeenCalledWith(
-      expect.objectContaining({ input: { contentId: 'localized', locale: 'fr', variantId: 'v5' } }),
+      expect.objectContaining({
+        input: expect.objectContaining({ contentId: 'localized', locale: 'fr', variantId: 'v5' }),
+      }),
     )
   })
   it('queues distinct audio for two exact ages, without a base-record collision', async () => {

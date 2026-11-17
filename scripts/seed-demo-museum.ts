@@ -360,10 +360,12 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
     // Demo objects have no Mint model: the default info standee stands in.
     const asset = placeableObjectAsset({ id, name: object.name, model: null, thumbnail: null })
     // Pascal's schema accepts plain http only on localhost, and
-    // NEXT_PUBLIC_PAYLOAD_URL may be a LAN address (phone testing).
+    // NEXT_PUBLIC_PAYLOAD_URL may be a LAN address (phone testing). An https
+    // origin (a deploy, run by the boot seed) is kept as it is: baking
+    // localhost there would point visitors' browsers at their own machine.
     for (const field of ['src', 'thumbnail'] as const) {
       const url = new URL(asset[field] as string)
-      asset[field] = `http://localhost:3000${url.pathname}`
+      if (url.protocol === 'http:') asset[field] = `http://localhost:3000${url.pathname}`
     }
     const item = ItemNode.parse({
       id: `item_${MAP_KEY}_${object.key.replace(/-/g, '_')}`,

@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next'
  * here belong to the tour (`quizQuestions.relatedTo` empty, see
  * `src/lib/quiz-ownership.ts`): removing one from the quiz deletes it, and
  * they go with the tour. Questions linked to contents, written in the admin,
- * are kept untouched (`keptQuestions` in `saveQuizQuestions`).
+ * are kept untouched in their places (`KeptQuestion`, `saveQuizQuestions`).
  */
 
 /** One question as the form edits it; `id` once it has been saved. */
@@ -49,41 +49,86 @@ export const validateQuiz =
       : message
 
 /**
- * Creates the new questions and updates the edited ones, returning the ids
- * the tour's `quiz.questions` should list (kept content questions first).
- * Runs before the tour is saved, since the tour validates the ids it lists;
- * if the tour save then fails, `discard` deletes the questions created here.
+ * A quiz question the editor doesn't show (linked to contents, written in the
+ * admin): `index` is its place in the stored quiz, `contents` the contents it
+ * concerns (`null` when unreadable here, then always kept).
  */
-export async function saveQuizQuestions(quiz: QuizDraft[], keptQuestions: string[]) {
+export type KeptQuestion = { id: string; index: number; contents: string[] | null }
+
+const questionData = (question: QuizDraft) => ({
+  prompt: question.prompt.trim(),
+  correctAnswer: question.correctAnswer.trim(),
+  wrongAnswers: question.wrongAnswers.map((text) => ({ text: text.trim() })),
+  explanation: question.explanation.trim() || null,
+})
+
+/**
+ * Creates the new questions and updates the edited ones (only those that
+ * changed from `saved`, the stored drafts), returning the ids the tour's
+ * `quiz.questions` should list. Kept content questions go back to their
+ * stored places, minus those whose contents all left the tour (the tour's
+ * validation would refuse them, and the editor can't remove them).
+ * Runs before the tour is saved, since the tour validates the ids it lists;
+ * if the tour save then fails, `discard` deletes the questions created here
+ * and restores the edited ones.
+ */
+export async function saveQuizQuestions({
+  quiz,
+  saved,
+  kept,
+  stops,
+}: {
+  quiz: QuizDraft[]
+  saved: QuizDraft[]
+  kept: KeptQuestion[]
+  stops: string[]
+}) {
+  const savedById = new Map(saved.flatMap((draft) => (draft.id ? [[draft.id, draft]] : [])))
+  const edited: QuizDraft[] = []
   const created: string[] = []
-  const ids: string[] = []
-  for (const question of quiz) {
-    const data = {
-      prompt: question.prompt.trim(),
-      correctAnswer: question.correctAnswer.trim(),
-      wrongAnswers: question.wrongAnswers.map((text) => ({ text: text.trim() })),
-      explanation: question.explanation.trim() || null,
-    }
-    if (question.id) {
-      await payloadSdk.update({ collection: 'quizQuestions', id: question.id, data })
-      ids.push(question.id)
-    } else {
-      // The collection's default, made explicit for the typed SDK.
-      const saved = await payloadSdk.create({
-        collection: 'quizQuestions',
-        data: { ...data, difficulty: 'medium' },
-      })
-      created.push(saved.id)
-      ids.push(saved.id)
-    }
-  }
-  return {
-    questions: [...keptQuestions, ...ids],
-    discard: () =>
-      Promise.allSettled(
-        created.map((id) => payloadSdk.delete({ collection: 'quizQuestions', id })),
+  const results = await Promise.allSettled(
+    quiz.map(async (question) => {
+      const data = questionData(question)
+      if (!question.id) {
+        // The collection's default, made explicit for the typed SDK.
+        const doc = await payloadSdk.create({
+          collection: 'quizQuestions',
+          data: { ...data, difficulty: 'medium' },
+        })
+        created.push(doc.id)
+        return doc.id
+      }
+      const before = savedById.get(question.id)
+      if (!before || JSON.stringify(questionData(before)) !== JSON.stringify(data)) {
+        await payloadSdk.update({ collection: 'quizQuestions', id: question.id, data })
+        if (before) edited.push(before)
+      }
+      return question.id
+    }),
+  )
+  const discard = () =>
+    Promise.allSettled([
+      ...created.map((id) => payloadSdk.delete({ collection: 'quizQuestions', id })),
+      ...edited.map((draft) =>
+        payloadSdk.update({
+          collection: 'quizQuestions',
+          id: draft.id!,
+          data: questionData(draft),
+        }),
       ),
+    ])
+  const failed = results.find((result) => result.status === 'rejected')
+  if (failed) {
+    await discard()
+    throw failed.reason
   }
+  const questions = results.map((result) => (result as PromiseFulfilledResult<string>).value)
+  // Ascending stored index, so each insertion lands where it was.
+  for (const question of [...kept].sort((a, b) => a.index - b.index)) {
+    if (question.contents && !question.contents.some((content) => stops.includes(content))) continue
+    questions.splice(Math.min(question.index, questions.length), 0, question.id)
+  }
+  return { questions, discard }
 }
 
 export function QuizEditor({

@@ -1,7 +1,7 @@
 import 'server-only'
 
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
-import type { QuizDraft } from '@/components/editing/forms/QuizEditor'
+import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEditor'
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
@@ -174,7 +174,7 @@ export async function getNewTourEditorData(museumId: string, sourceStopIds: stri
  */
 export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
   const ids = tourQuizQuestionIds(tour).map(String)
-  if (ids.length === 0) return { drafts: [] as QuizDraft[], keptQuestions: [] as string[] }
+  if (ids.length === 0) return { drafts: [] as QuizDraft[], keptQuestions: [] as KeptQuestion[] }
   const { payload } = await getSession()
   const { docs } = await payload.find({
     collection: 'quizQuestions',
@@ -186,8 +186,8 @@ export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
   })
   const byId = new Map(docs.map((doc) => [String(doc.id), doc]))
   const drafts: QuizDraft[] = []
-  const keptQuestions: string[] = []
-  for (const id of ids) {
+  const keptQuestions: KeptQuestion[] = []
+  for (const [index, id] of ids.entries()) {
     const question = byId.get(id)
     if (question && !question.relatedTo?.length) {
       const [a = '', b = '', c = ''] = (question.wrongAnswers ?? []).map((row) => row.text)
@@ -199,8 +199,12 @@ export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
         explanation: question.explanation ?? '',
       })
     } else {
-      // Linked to contents, or unreadable here: kept in the quiz untouched.
-      keptQuestions.push(id)
+      // Linked to contents, or unreadable here: kept in its place untouched.
+      keptQuestions.push({
+        id,
+        index,
+        contents: question ? question.relatedTo!.flatMap((ref) => asId(ref) ?? []) : null,
+      })
     }
   }
   return { drafts, keptQuestions }

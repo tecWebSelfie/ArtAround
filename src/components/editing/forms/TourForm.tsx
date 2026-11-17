@@ -43,7 +43,13 @@ import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
-import { QuizEditor, saveQuizQuestions, validateQuiz, type QuizDraft } from './QuizEditor'
+import {
+  QuizEditor,
+  saveQuizQuestions,
+  validateQuiz,
+  type KeptQuestion,
+  type QuizDraft,
+} from './QuizEditor'
 
 /** Content a tour may include (see `getTourEditorData`). */
 export type TourCandidate = {
@@ -230,9 +236,10 @@ export function TourForm({
   minStops?: number
   /**
    * Quiz questions linked to contents (written in the admin): the editor
-   * doesn't show them, the save keeps them first in the quiz.
+   * doesn't show them, the save keeps them in their places while one of
+   * their contents is still a stop.
    */
-  keptQuestions?: string[]
+  keptQuestions?: KeptQuestion[]
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
@@ -288,7 +295,12 @@ export function TourForm({
         thumbnail: await saveCover(cover, thumbnail, 'toursThumbnails', title),
       }
       // Questions first: the tour validates the ids its quiz lists.
-      const quiz = await saveQuizQuestions(values.quiz, keptQuestions)
+      const quiz = await saveQuizQuestions({
+        quiz: values.quiz,
+        saved: initial?.quiz ?? [],
+        kept: keptQuestions,
+        stops: values.contents,
+      })
       try {
         const withQuiz = { ...data, quiz: { questions: quiz.questions } }
         return await (tourId

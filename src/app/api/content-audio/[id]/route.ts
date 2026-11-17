@@ -113,7 +113,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     if (!removed) return json('failed', 502)
   }
   if (!speechAvailable()) return json('unavailable', 503)
-  const input = { contentId: id, locale, variantId: variant?.id }
+  const input = { contentId: id, locale, variantId: variant?.id, textHash }
   // A generation that just failed (every retry spent) is reported, not
   // re-queued: the button stops at "Audio not available" instead of waiting
   // out its polls, and the error reaches the server log and super admins.
@@ -131,15 +131,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   return json('pending', 202)
 }
 
+type AudioJobInput = {
+  contentId: string
+  locale: TypedLocale
+  variantId?: string
+  textHash: string
+}
+
 /**
  * The error of this audio's latest generation job, when it failed within the
  * requeue window; null otherwise (none, still running, succeeded, or failed
- * long enough ago to try again).
+ * long enough ago to try again). Only a job for this text counts (or one
+ * without a hash, queued by the content save): a failure on the text an
+ * editor has just fixed must not hold back the new one.
  */
-async function recentFailure(
-  payload: Payload,
-  input: { contentId: string; locale: TypedLocale; variantId?: string },
-) {
+async function recentFailure(payload: Payload, input: AudioJobInput) {
   const { docs } = await payload.find({
     collection: 'payload-jobs',
     where: {
@@ -148,6 +154,10 @@ async function recentFailure(
       'input.locale': { equals: input.locale },
       // A base audio's job has no variant: never mistake a version's job for it.
       'input.variantId': input.variantId ? { equals: input.variantId } : { exists: false },
+      or: [
+        { 'input.textHash': { equals: input.textHash } },
+        { 'input.textHash': { exists: false } },
+      ],
     },
     sort: '-updatedAt',
     limit: 1,
@@ -161,12 +171,9 @@ async function recentFailure(
   return (typeof error === 'string' ? error : error?.message) || JSON.stringify(job.error)
 }
 
-/** Queues the audio's generation, once per window (`queuedAt`). */
-async function queueAudio(
-  payload: Payload,
-  input: { contentId: string; locale: TypedLocale; variantId?: string },
-) {
-  const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}`
+/** Queues the audio's generation, once per window and text (`queuedAt`). */
+async function queueAudio(payload: Payload, input: AudioJobInput) {
+  const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}:${input.textHash}`
   if (Date.now() - (queuedAt.get(key) ?? 0) <= REQUEUE_AFTER_MS) return
   queuedAt.set(key, Date.now())
   await payload.jobs.queue({ task: 'generateContentAudio', input, queue: AUDIO_QUEUE })

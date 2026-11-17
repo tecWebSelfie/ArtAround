@@ -26,6 +26,8 @@ export const runtime = 'nodejs'
 
 /** About 30 s of 16 kHz mono WAV; longer recordings are not commands. */
 const MAX_AUDIO_BYTES = 1_000_000
+// App languages (i18n.config.ts) missing from Whisper's language list.
+const WHISPER_UNSUPPORTED = new Set(['ga'])
 
 const CommandList = z
   .array(z.object({ id: z.string(), label: z.string(), description: z.string() }))
@@ -56,7 +58,11 @@ export async function POST(request: Request) {
       // The visitor's language, when it is an ISO 639-1 code: left to guess,
       // Whisper read short Italian commands as gibberish ("E adesso?" became
       // "Iadeso", "Prossima tappa" "Prasima tapa") and the vocabulary missed them.
-      ...(/^[a-z]{2}$/.test(language) ? { providerOptions: { groq: { language } } } : {}),
+      // Whisper has no Irish ('ga', an app language): Groq refuses it, so it
+      // is left to auto-detection.
+      ...(/^[a-z]{2}$/.test(language) && !WHISPER_UNSUPPORTED.has(language)
+        ? { providerOptions: { groq: { language } } }
+        : {}),
     })
     if (!transcript.trim()) return NextResponse.json({ transcript, reply: '', commandId: null })
 

@@ -1,6 +1,6 @@
 /**
  * Single-container entry point for the standalone deploy: seed → reindex →
- * read-aloud diagnostics → app. The deploy container can't be entered and runs just this file:
+ * (opt-in read-aloud diagnostics) → app. The deploy container can't be entered and runs just this file:
  *
  *   node .next/standalone/scripts/standalone-boot.mjs
  *
@@ -61,18 +61,25 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
 
 /**
  * Runs `node <script>`; resolves with its exit code (non-zero when killed).
- * With `timeoutMs`, a script still running by then is stopped.
+ * With `timeoutMs`, a script still running by then gets SIGTERM, then SIGKILL
+ * a few seconds later: a library's SIGTERM handler that doesn't exit must not
+ * keep the boot (and so the server) waiting forever.
  */
 function run(script, timeoutMs) {
   console.log(`[boot] node ${script}`)
   child = spawn(process.execPath, [script], { stdio: 'inherit' })
   if (timeoutMs) {
     const running = child
+    let killTimer
     const timer = setTimeout(() => {
       console.error(`[boot] ${script} still running after ${timeoutMs / 1000} s: stopped`)
       running.kill('SIGTERM')
+      killTimer = setTimeout(() => running.kill('SIGKILL'), 5_000)
     }, timeoutMs)
-    running.on('exit', () => clearTimeout(timer))
+    running.on('exit', () => {
+      clearTimeout(timer)
+      clearTimeout(killTimer)
+    })
   }
   return new Promise((resolve) => {
     child.on('error', (error) => {
@@ -84,14 +91,16 @@ function run(script, timeoutMs) {
 }
 
 // The read-aloud diagnostics (src/scripts/tts-check.ts) write to this log
-// what the content audio chain does on this server; at most two minutes, and
-// `TTS_CHECK=0` (e.g. in `.env.production`) skips them.
+// what the content audio chain does on this server. Opt-in with `TTS_CHECK=1`
+// (e.g. in `.env.production` for one deploy): they hold the server back for up
+// to two minutes and pay for a Fish Audio synthesis plus one content audio,
+// so they must not run on every boot or restart.
 const steps = [
   { script: 'scripts/standalone-seed.mjs' },
   { script: 'scripts/standalone-reindex.mjs' },
-  ...(process.env.TTS_CHECK === '0'
-    ? []
-    : [{ script: 'scripts/standalone-tts-check.mjs', timeoutMs: 120_000 }]),
+  ...(process.env.TTS_CHECK === '1'
+    ? [{ script: 'scripts/standalone-tts-check.mjs', timeoutMs: 120_000 }]
+    : []),
 ]
 for (const { script, timeoutMs } of steps) {
   const code = await run(script, timeoutMs)

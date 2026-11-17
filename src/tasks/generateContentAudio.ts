@@ -180,6 +180,9 @@ export const generateContentAudioTask: TaskConfig<'generateContentAudio'> = {
     { name: 'contentId', type: 'text', required: true },
     { name: 'locale', type: 'text', required: true },
     { name: 'variantId', type: 'text' },
+    // The text's hash when the route queued the job (the handler recomputes
+    // it): ties a failed job to the text it failed on (`recentFailure`).
+    { name: 'textHash', type: 'text' },
   ],
   outputSchema: [
     { name: 'status', type: 'text', required: true },
