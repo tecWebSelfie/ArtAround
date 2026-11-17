@@ -22,6 +22,7 @@ import {
   useTourIds,
   useVoiceGuidance,
 } from './use-tour-navigation'
+import { MuseumFloorplan } from '@/components/pascal/MuseumFloorplan'
 import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -179,10 +180,15 @@ export const TourNavigationPage = ({
               position={guidance.position}
               path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
-              view={settings.mapView}
+              // Under the floor plan the 3D map stays mounted (routes are
+              // computed on its meshes) but draws no frames, and is hidden
+              // with its DOM labels, which would float over the plan.
+              renderPaused={settings.mapView === '2d'}
+              className={settings.mapView === '2d' ? 'invisible' : undefined}
             />
           )
         }
+        plan={settings.mapView === '2d' && museumMap.parsed && <MuseumFloorplan />}
         controls={
           <NavigationControls
             museum={museum}
@@ -235,7 +241,16 @@ export const TourNavigationPage = ({
  * The map and, over it, the floating controls: only the space between the
  * measured bars belongs to them.
  */
-function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNode }) {
+function NavigationStage({
+  map,
+  plan,
+  controls,
+}: {
+  map: ReactNode
+  /** Pascal's 2D floor plan, drawn over the (paused) 3D map when chosen. */
+  plan: ReactNode
+  controls: ReactNode
+}) {
   const { t } = useTranslation('tour-navigation')
   return (
     <AppShellMain h="100dvh" className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]">
@@ -243,6 +258,7 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
+        {plan}
         {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
             drei's `zIndexRange`), below the app shell's bars (z 100), so a
             notice or a control is never crossed by a label. */}

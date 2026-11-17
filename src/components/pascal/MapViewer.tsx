@@ -14,15 +14,11 @@ import {
 import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
 import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
-import { useViewer, Viewer, type HoverStyles } from '@pascal-app/viewer'
+import { Viewer, type HoverStyles } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
-import { useThree } from '@react-three/fiber'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Box3, Sphere, Vector3 } from 'three'
-
-/** How the map is drawn: in perspective, or straight from above as a plan. */
-export type MapView = '3d' | '2d'
+import { Box3, Sphere } from 'three'
 
 /** Hosts the shared Pascal museum scene used by both editing and visitor flows. */
 export function MapViewer({
@@ -33,7 +29,6 @@ export function MapViewer({
   selectionManager = 'default',
   renderPaused = false,
   hoverStyles,
-  view = '3d',
   ...props
 }: {
   map: ParsedBuildJson
@@ -54,8 +49,6 @@ export function MapViewer({
    * see `WorkOutlines` in the navigation map.
    */
   hoverStyles?: HoverStyles
-  /** `2d`: an orthographic plan seen from above, north up; zoom and pan only. */
-  view?: MapView
 } & BoxProps) {
   const { t } = useTranslation()
   const setScene = useScene((state) => state.setScene)
@@ -77,9 +70,21 @@ export function MapViewer({
       // nothing to frame, and a canvas kept hidden would hide the fallback.
       setFramedMap(map)
       if (!controls.current) return
-      frameMuseum(controls.current, view, false)
+      const bounds = new Box3()
+      // The site's horizon is presentation scenery, not the museum's bounds.
+      for (const node of Object.values(useScene.getState().nodes)) {
+        if (node.type === 'site') continue
+        const object = sceneRegistry.nodes.get(node.id)
+        if (object) bounds.expandByObject(object)
+      }
+      if (!bounds.isEmpty()) {
+        void controls.current.setLookAt(20, 20, 20, 0, 0, 0, false)
+        const sphere = bounds.getBoundingSphere(new Sphere())
+        sphere.radius *= 1.1
+        void controls.current.fitToSphere(sphere, false)
+      }
     },
-    [onSceneReadyChange, map, view],
+    [onSceneReadyChange, map],
   )
 
   useEffect(() => {
@@ -144,82 +149,10 @@ export function MapViewer({
             hoverStyles={hoverStyles}
           >
             <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
-            <ViewMode view={view} />
             {children}
           </Viewer>
         </Box>
       </RenderErrorBoundary>
     </Box>
   )
-}
-
-/**
- * Switches Pascal's camera (`useViewer` → `cameraMode`) and the controls'
- * limits for `view`. The plan locks the camera straight above the museum,
- * north up, so dragging pans and pinching zooms; perspective gets its orbit
- * back. A switch frames the whole museum again. Pascal's camera mode is
- * global, so leaving the map puts perspective back for the next viewer (the
- * map editor).
- */
-function ViewMode({ view }: { view: MapView }) {
-  // A new camera brings new controls (drei rebuilds them for it).
-  const controls = useThree((state) => state.controls) as CameraControlsImpl | null
-  useEffect(() => {
-    useViewer.getState().setCameraMode(view === '2d' ? 'orthographic' : 'perspective')
-  }, [view])
-  useEffect(() => () => useViewer.getState().setCameraMode('perspective'), [])
-  // The view the controls were last framed for: the first frame is the
-  // scene-ready handler's, before the canvas shows; this reframes on a switch.
-  const framedFor = useRef<{ controls: CameraControlsImpl; view: MapView } | null>(null)
-  useEffect(() => {
-    if (!controls) return
-    lockToView(controls, view)
-    const previous = framedFor.current
-    framedFor.current = { controls, view }
-    if (!previous || (previous.view === view && previous.controls === controls)) return
-    frameMuseum(controls, view, !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
-  }, [controls, view])
-  return null
-}
-
-/** The plan sits straight above the museum, north up; perspective orbits freely. */
-function lockToView(controls: CameraControlsImpl, view: MapView) {
-  const plan = view === '2d'
-  controls.minPolarAngle = 0
-  controls.maxPolarAngle = plan ? 0 : Math.PI
-  controls.minAzimuthAngle = plan ? 0 : -Infinity
-  controls.maxAzimuthAngle = plan ? 0 : Infinity
-}
-
-/** The whole museum in view: from a corner in perspective, from above as a plan. */
-function frameMuseum(controls: CameraControlsImpl, view: MapView, smooth: boolean) {
-  const bounds = museumBounds()
-  if (bounds.isEmpty()) return
-  lockToView(controls, view)
-  if (view === '2d') {
-    const centre = bounds.getCenter(new Vector3())
-    void controls.setLookAt(centre.x, centre.y + 50, centre.z, centre.x, centre.y, centre.z, false)
-    void controls.fitToBox(bounds, smooth, {
-      paddingTop: 1,
-      paddingBottom: 1,
-      paddingLeft: 1,
-      paddingRight: 1,
-    })
-    return
-  }
-  void controls.setLookAt(20, 20, 20, 0, 0, 0, false)
-  const sphere = bounds.getBoundingSphere(new Sphere())
-  sphere.radius *= 1.1
-  void controls.fitToSphere(sphere, smooth)
-}
-
-/** The museum's extent: every registered node but the site's horizon scenery. */
-function museumBounds() {
-  const bounds = new Box3()
-  for (const node of Object.values(useScene.getState().nodes)) {
-    if (node.type === 'site') continue
-    const object = sceneRegistry.nodes.get(node.id)
-    if (object) bounds.expandByObject(object)
-  }
-  return bounds
 }
