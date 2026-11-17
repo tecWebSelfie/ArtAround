@@ -1,6 +1,6 @@
 import { Button, Group, Paper, Text, TextInput } from '@mantine/core'
 import { ChevronLeft, ChevronRight, Search } from 'lucide-react'
-import Link from 'next/link'
+import { LinkButton } from '@/components/editing/LinkButton'
 import type { Route } from 'next'
 
 /**
@@ -72,33 +72,32 @@ export function EntitySearch({
       </Paper>
 
       {totalPages > 1 ? (
-        // Prev/next only: an entity page's result set is rarely navigated deep,
-        // and plain links keep this component server-rendered.
+        // Prev/next only: an entity page's result set is rarely navigated deep.
+        // `LinkButton`: a server component can't pass `component={Link}` (a
+        // function) to Mantine's client Button.
         <Group gap={4} wrap="nowrap">
           {page > 1 && (
-            <Button
-              component={Link}
+            <LinkButton
               href={hrefFor(basePath, initialQuery, page - 1, keep)}
               variant="subtle"
               size="compact-sm"
               leftSection={<ChevronLeft size={16} aria-hidden />}
             >
               {page - 1}
-            </Button>
+            </LinkButton>
           )}
           <Text size="sm" c="dimmed">
             {page} / {totalPages}
           </Text>
           {page < totalPages && (
-            <Button
-              component={Link}
+            <LinkButton
               href={hrefFor(basePath, initialQuery, page + 1, keep)}
               variant="subtle"
               size="compact-sm"
               rightSection={<ChevronRight size={16} aria-hidden />}
             >
               {page + 1}
-            </Button>
+            </LinkButton>
           )}
         </Group>
       ) : null}
