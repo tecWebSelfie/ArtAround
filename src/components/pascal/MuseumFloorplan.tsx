@@ -1,47 +1,40 @@
 'use client'
 
 import { groundLevelId } from '@/lib/pascal/museum-plugin/marker-hierarchy'
-import {
-  PLAN_NODE_BASE,
-  PLAN_WORK_NODE_TYPE,
-  routePlanGeometry,
-  visitorPlanGeometry,
-} from '@/lib/pascal/museum-plugin/plan-overlay'
 import { museumObjectId } from '@/lib/tour-navigation'
 import { DEFAULT_PRIMARY } from '@/theme'
 import { Box, Loader, useMantineTheme } from '@mantine/core'
 import { type AnyNode, useScene } from '@pascal-app/core'
+import { Flag, PersonStanding, type LucideIcon } from 'lucide-react'
 import type { Vec3 } from 'navcat'
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 
 /**
  * Pascal's own read-only floor plan (`FloorplanPreview` from
- * `@pascal-app/editor`, the 2D half of its `ViewerStage`): the museum drawn
- * from every node's `floorplan()` builder, with pan and zoom (drag, pinch,
- * wheel). The 3D map stays mounted underneath, hidden and paused, because
- * routes and directions are computed on its meshes, as `ViewerStage` itself
- * keeps it. Loaded on the first switch only: the editor package is large.
+ * `@pascal-app/editor`, the 2D half of its `ViewerStage`): the museum as the
+ * live scene draws it (walls, rooms, services, entrances, exits, each through
+ * its `floorplan()`), with pan and zoom (drag, pinch, wheel). The 3D map stays
+ * mounted underneath, hidden and paused, because routes and directions are
+ * computed on its meshes, as `ViewerStage` itself keeps it. Loaded on the
+ * first switch only: the editor package is large.
  *
- * The scene handed to the plan is the live scene plus every work as a round
- * picture of its photo (`plan-overlay.ts`). It changes only when the museum
- * or the pictures do: each new scene makes `FloorplanPreview` refit its view,
- * which would undo the visitor's pan and zoom. What moves while walking, the
- * visitor and the route ahead, is drawn by `MovingLayer` instead, with
- * Pascal's own geometry renderer, in the plan's SVG: it follows pan, zoom
- * and rotation and never touches the scene.
+ * `FloorplanPreview` refits its view whenever its scene changes, and has no
+ * slot for extra content. So the plan reads the scene store unchanged (it
+ * changes only when a map loads), and what is the visitor's own, the works'
+ * photos, the route ahead and the visitor, is drawn by `PlanLayer` as plain
+ * SVG at the end of the plan's scene group, like Pascal's editor draws its
+ * own transient layers: it pans, zooms and rotates with the plan, and walking
+ * never resets the visitor's view.
  */
 const FloorplanPreview = lazy(() =>
   import('@pascal-app/editor').then((module) => ({ default: module.FloorplanPreview })),
 )
-const FloorplanGeometryRenderer = lazy(() =>
-  import('@pascal-app/editor').then((module) => ({
-    default: module.FloorplanGeometryRenderer,
-  })),
-)
 
 /** The map's view (see `useGuidanceSettings`): the 3D model or the floor plan. */
 export type MapView = '3d' | '2d'
+
+type Work = { id: string; x: number; z: number; src: string }
 
 export function MuseumFloorplan({
   position,
@@ -63,10 +56,10 @@ export function MuseumFloorplan({
 }) {
   // The museum's primary (blue, or the museum's own in museum mode).
   const color = useMantineTheme().colors.museum?.[6] ?? DEFAULT_PRIMARY[6]
-  const scene = usePlanScene(catalog, color)
+  const nodes = useScene((state) => state.nodes) as Record<string, AnyNode>
   const loaded = useScene((state) => state.rootNodeIds.some((id) => roots.includes(id)))
+  const works = useWorks(nodes, catalog)
   const frame = useRef<HTMLDivElement>(null)
-  const sceneGroup = usePlanSceneGroup(frame, loaded)
   const loader = (
     <Box className="grid size-full place-items-center">
       <Loader size="sm" />
@@ -88,16 +81,13 @@ export function MuseumFloorplan({
         <Suspense fallback={loader}>
           <FloorplanPreview
             className="size-full"
-            scene={scene}
             // The level the works are on (else Pascal shows the lowest one, a
             // basement).
-            levelId={scene.levelId}
+            levelId={groundLevelId(nodes)}
             showCompass={false}
             showLevelSelector={false}
           />
-          {sceneGroup && (
-            <MovingLayer scene={sceneGroup} position={position} path={path} color={color} />
-          )}
+          <PlanLayer frame={frame} works={works} position={position} path={path} color={color} />
         </Suspense>
       ) : (
         loader
@@ -106,183 +96,142 @@ export function MuseumFloorplan({
   )
 }
 
+/** Every placed work with its photo: the catalog's, else its asset's own (the standee's). */
+function useWorks(
+  nodes: Record<string, AnyNode>,
+  catalog: readonly { id: string; thumbnail?: string | null }[],
+): Work[] {
+  return useMemo(() => {
+    const photos = new Map(catalog.map((object) => [object.id, object.thumbnail]))
+    return Object.values(nodes).flatMap((node) => {
+      const objectId = museumObjectId(node)
+      if (!objectId) return []
+      const item = node as { position?: Vec3; asset?: { thumbnail?: string } }
+      const src = photos.get(objectId) ?? item.asset?.thumbnail
+      if (!src || !item.position) return []
+      return [{ id: node.id, x: item.position[0], z: item.position[2], src }]
+    })
+  }, [nodes, catalog])
+}
+
+/** Plan sizes in metres: a work's picture, the visitor's and the flag's discs. */
+const WORK_RADIUS = 0.65
+const VISITOR_RADIUS = 0.75
+const FLAG_RADIUS = 0.5
+
 /**
- * The visitor and the route ahead, in plan coordinates, over the plan's own
- * geometry. Portaled into the plan's SVG after its scene group (so the view
- * box pans and zooms it too), with that group's rotation mirrored: Pascal
- * sets it as an attribute, outside React.
+ * The visitor's own layer of the plan, portaled into a `<g>` kept as the last
+ * child of `FloorplanPreview`'s scene group (its rotation applies, and the
+ * layer draws over the plan). Rendered beside the plan in the same Suspense,
+ * so the plan's SVG exists when the layout effect runs; it runs after every
+ * render, which follows every scene change (`nodes`), so a group Pascal adds
+ * never ends up over the layer.
  */
-function MovingLayer({
-  scene,
+function PlanLayer({
+  frame,
+  works,
   position,
   path,
   color,
 }: {
-  scene: SVGGElement
+  frame: React.RefObject<HTMLDivElement | null>
+  works: Work[]
   position: Vec3 | null
   path: Vec3[] | null
   color: string
 }) {
-  const [transform, setTransform] = useState(() => scene.getAttribute('transform'))
-  useEffect(() => {
-    const mirror = () => setTransform(scene.getAttribute('transform'))
-    mirror()
-    const observer = new MutationObserver(mirror)
-    observer.observe(scene, { attributes: true, attributeFilter: ['transform'] })
-    return () => observer.disconnect()
-  }, [scene])
-  const route = path && path.length > 1 ? routePlanGeometry(path, color) : null
+  const [layer] = useState(() => document.createElementNS('http://www.w3.org/2000/svg', 'g'))
+  useLayoutEffect(() => {
+    const scene = frame.current?.querySelector('svg[data-floorplan-preview] > g')
+    if (scene && scene.lastChild !== layer) scene.appendChild(layer)
+  })
+  useLayoutEffect(() => () => layer.remove(), [layer])
+  // One circular clip for every picture (object bounding box units).
+  const clip = `plan-photo-${useId().replace(/:/g, '')}`
+  const end = path && path.length > 1 ? path.at(-1) : undefined
   return createPortal(
-    <g pointerEvents="none" transform={transform ?? undefined}>
-      {route && <FloorplanGeometryRenderer geometry={route} />}
-      {position && <FloorplanGeometryRenderer geometry={visitorPlanGeometry(position, color)} />}
+    <g pointerEvents="none">
+      <defs>
+        <clipPath id={clip} clipPathUnits="objectBoundingBox">
+          <circle cx={0.5} cy={0.5} r={0.5} />
+        </clipPath>
+      </defs>
+      {works.map((work) => (
+        <g key={work.id}>
+          <circle cx={work.x} cy={work.z} r={WORK_RADIUS} fill="#ffffff" />
+          <image
+            href={work.src}
+            x={work.x - WORK_RADIUS}
+            y={work.z - WORK_RADIUS}
+            width={WORK_RADIUS * 2}
+            height={WORK_RADIUS * 2}
+            preserveAspectRatio="xMidYMid slice"
+            clipPath={`url(#${clip})`}
+          />
+          <circle
+            cx={work.x}
+            cy={work.z}
+            r={WORK_RADIUS}
+            fill="none"
+            stroke={color}
+            strokeWidth={WORK_RADIUS * 0.14}
+          />
+        </g>
+      ))}
+      {path && end && (
+        <>
+          <polyline
+            points={path.map(([x, , z]) => `${x},${z}`).join(' ')}
+            fill="none"
+            stroke={color}
+            strokeWidth={5}
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <Disc Icon={Flag} x={end[0]} z={end[2]} r={FLAG_RADIUS} color={color} />
+        </>
+      )}
+      {position && (
+        <Disc
+          Icon={PersonStanding}
+          x={position[0]}
+          z={position[2]}
+          r={VISITOR_RADIUS}
+          color={color}
+        />
+      )}
     </g>,
-    scene.ownerSVGElement ?? scene,
+    layer,
   )
 }
 
-/**
- * The `<g>` of `FloorplanPreview`'s SVG that holds the plan's geometry (its
- * only direct group, carrying the view rotation). Found once the lazy plan
- * has rendered, and again if it is remounted.
- */
-function usePlanSceneGroup(frame: React.RefObject<HTMLDivElement | null>, active: boolean) {
-  const [group, setGroup] = useState<SVGGElement | null>(null)
-  useEffect(() => {
-    const root = frame.current
-    if (!active || !root) return
-    const find = () => {
-      const next = root.querySelector<SVGGElement>('svg[data-floorplan-preview] > g')
-      setGroup((current) => (current === next ? current : next))
-    }
-    find()
-    const observer = new MutationObserver(find)
-    observer.observe(root, { childList: true, subtree: true })
-    return () => observer.disconnect()
-  }, [frame, active])
-  return active ? group : null
-}
-
-/** The live scene with every work's round picture on the ground level. */
-function usePlanScene(
-  catalog: readonly { id: string; thumbnail?: string | null }[],
-  color: string,
-) {
-  const nodes = useScene((state) => state.nodes) as Record<string, AnyNode>
-  const installedPlugins = useScene((state) => state.installedPlugins)
-  const pictures = useRoundPictures(nodes, catalog, color)
-  return useMemo(() => {
-    const levelId = groundLevelId(nodes)
-    if (!levelId || pictures.size === 0) return { nodes, installedPlugins, levelId }
-    const works: string[] = []
-    const next: Record<string, unknown> = { ...nodes }
-    for (const [id, url] of pictures) {
-      const node = nodes[id] as { position?: Vec3 } | undefined
-      if (!node?.position) continue
-      const [x, , z] = node.position
-      const workId = `planWork_${id}`
-      next[workId] = {
-        ...PLAN_NODE_BASE,
-        id: workId,
-        type: PLAN_WORK_NODE_TYPE,
-        parentId: levelId,
-        position: [x, 0, z],
-        url,
-      }
-      works.push(workId)
-    }
-    const level = nodes[levelId] as AnyNode & { children: string[] }
-    next[levelId] = { ...level, children: [...level.children, ...works] }
-    return { nodes: next as Record<string, AnyNode>, installedPlugins, levelId }
-  }, [nodes, installedPlugins, pictures])
-}
-
-/**
- * Each placed work's round picture by node id: its photo from the catalog,
- * else its asset's own picture (the default standee's), in a ring of the
- * primary color. One that fails is left out (the work keeps Pascal's own
- * item symbol) and tried again on the next change.
- */
-function useRoundPictures(
-  nodes: Record<string, AnyNode>,
-  catalog: readonly { id: string; thumbnail?: string | null }[],
-  color: string,
-) {
-  // "node id → photo url" as a string, so a scene refresh with the same works
-  // and photos neither refetches nor changes the plan.
-  const sourcesKey = useMemo(() => {
-    const photos = new Map(catalog.map((object) => [object.id, object.thumbnail]))
-    const entries: [string, string][] = []
-    for (const node of Object.values(nodes)) {
-      const objectId = museumObjectId(node)
-      if (!objectId) continue
-      const src =
-        photos.get(objectId) ?? (node as { asset?: { thumbnail?: string } }).asset?.thumbnail
-      if (src) entries.push([node.id, src])
-    }
-    return JSON.stringify(entries)
-  }, [nodes, catalog])
-  // All at once, so the plan is rebuilt once rather than per photo (a slow
-  // one times out, see `photoDataUrl`); a work no longer placed is skipped by
-  // `usePlanScene`.
-  const [pictures, setPictures] = useState(() => new Map<string, string>())
-  useEffect(() => {
-    let cancelled = false
-    const sources = JSON.parse(sourcesKey) as [string, string][]
-    void Promise.all(sources.map(async ([id, src]) => [id, await photoDataUrl(src)] as const)).then(
-      (entries) => {
-        if (cancelled) return
-        setPictures(
-          new Map(
-            entries.flatMap(([id, photo]) => (photo ? [[id, roundPictureUrl(photo, color)]] : [])),
-          ),
-        )
-      },
-    )
-    return () => {
-      cancelled = true
-    }
-  }, [sourcesKey, color])
-  return pictures
-}
-
-/** Photos as data URLs by src, shared by every plan of the session. */
-const PHOTO_CACHE = new Map<string, Promise<string | null>>()
-
-/**
- * The photo as a data URL: an SVG used as an image may not load anything
- * external, so the round picture embeds it. A failure is not cached.
- */
-function photoDataUrl(src: string): Promise<string | null> {
-  let photo = PHOTO_CACHE.get(src)
-  if (!photo) {
-    photo = fetch(src, { signal: AbortSignal.timeout(15_000) })
-      .then((response) => (response.ok ? response.blob() : Promise.reject(response.status)))
-      .then(
-        (blob) =>
-          new Promise<string>((resolve, reject) => {
-            const reader = new FileReader()
-            reader.onload = () => resolve(String(reader.result))
-            reader.onerror = () => reject(reader.error)
-            reader.readAsDataURL(blob)
-          }),
-      )
-      .catch(() => {
-        PHOTO_CACHE.delete(src)
-        return null
-      })
-    PHOTO_CACHE.set(src, photo)
-  }
-  return photo
-}
-
-/** The photo cropped to a circle with a ring of `ring` color, as an SVG data URL. */
-function roundPictureUrl(photo: string, ring: string) {
-  const svg =
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">` +
-    `<defs><clipPath id="c"><circle cx="50" cy="50" r="46"/></clipPath></defs>` +
-    `<circle cx="50" cy="50" r="46" fill="#ffffff"/>` +
-    `<image href="${photo}" width="100" height="100" preserveAspectRatio="xMidYMid slice" clip-path="url(#c)"/>` +
-    `<circle cx="50" cy="50" r="46" fill="none" stroke="${ring}" stroke-width="7"/></svg>`
-  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+/** A disc of `color` with a white ring and a white icon, as the markers' plan symbols. */
+function Disc({
+  Icon,
+  x,
+  z,
+  r,
+  color,
+}: {
+  Icon: LucideIcon
+  x: number
+  z: number
+  r: number
+  color: string
+}) {
+  const size = r * 1.15
+  return (
+    <>
+      <circle cx={x} cy={z} r={r} fill={color} stroke="#ffffff" strokeWidth={r * 0.18} />
+      <Icon
+        x={x - size / 2}
+        y={z - size / 2}
+        width={size}
+        height={size}
+        color="#ffffff"
+        strokeWidth={2.5}
+      />
+    </>
+  )
 }
