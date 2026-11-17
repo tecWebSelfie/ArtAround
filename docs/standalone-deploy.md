@@ -23,6 +23,22 @@ container's single entrypoint is then
 (the boot moves into the standalone root by itself, so the working directory
 it starts from does not matter). Restart the container after each copy.
 
+- **Uploads** (pictures, maps, models, read-aloud MP3s) live outside the
+  standalone: the container's user can't create folders inside it (EACCES:
+  until this was found, no upload had ever been saved, so content audio
+  never played), and `rsync --delete` would wipe them at every deploy.
+  Once, on the server:
+
+      mkdir /path/to/html/uploads && chmod 777 /path/to/html/uploads
+
+  (or `chown` it to the container's uid, which the boot's `[tts-check]`
+  lines print when `TTS_CHECK=1`), and in the build folder's `.env`:
+  `UPLOADS_DIR=../uploads`. It resolves against the standalone root, the
+  working directory of every process the boot starts, so it is
+  `html/uploads` wherever the container mounts `html`
+  (`src/plugins/uploadsDir.ts`). Each collection keeps its folder inside
+  it. The files count against the deploy folder's quota.
+
 - **Variables:** `next build` copies the build folder's `.env` (and
   `.env.production`) into the standalone, so nothing is placed by hand in the
   deploy folder and `--delete` is safe. Keep no `.env.local` in the build
@@ -78,8 +94,9 @@ the standalone self-sufficient:
   the same — with junctions to their full directories in the store;
 - it copies `scripts/standalone-boot.mjs` next to them.
 
-`scripts/copy-standalone-assets.mjs` (earlier in `pnpm build`) copies `public/`
-and `.next/static/` in.
+`scripts/copy-standalone-assets.mjs` (earlier in `pnpm build`) copies `public/`,
+`.next/static/` and `seed-assets/` (the demo works' photos, ~2 MB, and their
+recorded Wikidata items) in.
 
 ## Boot script
 
@@ -96,7 +113,16 @@ Plain Node ESM, no project imports. In order it:
    documents) — makes a fresh database usable;
 3. runs the reindex bundle (rebuilds the Typesense search collection from the current
    documents);
-4. starts `server.js` and exits with its exit code.
+4. only with `TTS_CHECK=1` or `true` (off by default: it delays the server and pays
+   for Fish Audio), runs the read-aloud diagnostics bundle
+   (`src/scripts/tts-check.ts`, at most two minutes): it logs, prefixed
+   `[tts-check]`, the working directory and user, where each upload
+   collection writes and whether a 2 MB write there succeeds, the content
+   audio jobs and their latest errors, one Fish Audio synthesis, and the
+   generation of one missing content audio with the job's own code. It can
+   also be run by hand from the standalone folder:
+   `node scripts/standalone-tts-check.mjs`;
+5. starts `server.js` and exits with its exit code.
 
 A failed seed or reindex is logged and the app starts anyway: the container
 can't be entered, so a site that serves beats one that never comes up. The
@@ -106,10 +132,16 @@ and a stop during the seed or reindex does not go on to start the server.
 Defaults mirroring the Docker guidance: `HOSTNAME=0.0.0.0`, `PORT=3000`,
 `NODE_OPTIONS=--no-deprecation`; each can be overridden from the environment.
 
-The demo museum of the course specification is not part of the boot seed.
-`pnpm seed:demo` can't reach the deployed database (only code running inside
-the container can), so it is not available in this deploy until it is bundled
-into the boot like the seed.
+The seed also creates the demo museum of the course specification (the
+Pinacoteca, `seedDemoMuseum` in `scripts/seed-demo-museum.ts`) when it is
+missing, so one seed fills everything the demo needs. It never rebuilds an
+existing one: later boots leave the staff's edits alone, except that a demo
+work without a thumbnail gets its photo (for a first boot that could not save
+files). The photos come from `seed-assets/objects/` (Wikimedia Commons images
+saved at 800 px) and their authors, movements and events from
+`seed-assets/wikidata-entities.json` (recorded Wikidata items), so the seed
+never needs the network. `pnpm seed:demo`
+rebuilds it in place on purpose (local databases only).
 
 ## Copying the standalone into the deploy folder
 

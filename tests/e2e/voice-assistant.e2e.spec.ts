@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 
 /**
- * One real voice turn through the orb on the seeded tour, with a WAV file as
+ * One real voice turn through the microphone button on the seeded tour, with a WAV file as
  * the microphone: tap → Silero VAD hears the sentence end and closes the mic
  * → /api/assistant (Groq Whisper + one model call) → the browser runs the
  * chosen command. Needs the seed (scripts/seed-tour-navigation.ts) and either
@@ -46,11 +46,11 @@ test('a spoken request runs the matching command', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('aa-assistant', 'true'))
   await page.goto(routeURL(), { waitUntil: 'domcontentloaded' })
 
-  const orb = page.locator('button[data-state]')
-  await expect(orb).toHaveAttribute('data-state', 'ready', { timeout: 180_000 })
+  const mic = page.locator('button[data-state]')
+  await expect(mic).toHaveAttribute('data-state', 'ready', { timeout: 180_000 })
   const turn = page.waitForResponse((response) => response.url().endsWith('/api/assistant'))
-  await orb.click()
-  await expect(orb).toHaveAttribute('data-state', 'listening')
+  await mic.click()
+  await expect(mic).toHaveAttribute('data-state', 'listening')
 
   // Voice activity detection closes the mic by itself after the sentence.
   const response = await turn

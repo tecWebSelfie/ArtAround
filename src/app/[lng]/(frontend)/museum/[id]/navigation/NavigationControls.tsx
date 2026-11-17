@@ -1,7 +1,16 @@
 'use client'
 
 import type { Museum } from '@/payload-types'
-import { ActionIcon, Button, Group, Kbd, Paper, Tooltip, useMatches } from '@mantine/core'
+import {
+  ActionIcon,
+  Button,
+  Group,
+  Kbd,
+  Paper,
+  SegmentedControl,
+  Tooltip,
+  useMatches,
+} from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { ACCESSIBILITY_COLOR } from '@/theme'
 import { SERVICE_META } from '@/lib/pascal/museum-plugin/markers'
@@ -59,6 +68,7 @@ export function NavigationControls({
   exits,
   sensors,
   proximity,
+  planAvailable,
 }: {
   museum: Museum
   commands: NavigationCommand[]
@@ -75,6 +85,8 @@ export function NavigationControls({
     walk: (east: number, north: number) => { east: number; north: number }
   }
   proximity: React.ReactNode
+  /** Whether the museum has a map to draw as a plan (else no 3D/2D choice). */
+  planAvailable: boolean
 }) {
   const { t } = useTranslation('tour-navigation')
   const command = (id: string) => commands.find((item) => item.id === id)
@@ -108,6 +120,22 @@ export function NavigationControls({
         className={`min-h-0 w-full max-w-sm overflow-y-auto ${overflowing ? 'pointer-events-auto' : 'pointer-events-none'}`}
       >
         <div ref={contentRef} className="pointer-events-auto flex w-fit max-w-full flex-col gap-2">
+          {/* Top left, before any notice: the map as a model or as a plan.
+              A per-device choice, like the guidance settings. */}
+          {planAvailable && (
+            <SegmentedControl
+              aria-label={t('Map view')}
+              value={sensors.settings.mapView}
+              onChange={sensors.settings.setMapView}
+              data={[
+                { value: '3d', label: t('3D') },
+                { value: '2d', label: t('2D') },
+              ]}
+              radius="xl"
+              size="xs"
+              className="self-start shadow-(--mantine-shadow-md)"
+            />
+          )}
           {proximity}
         </div>
       </div>
@@ -131,7 +159,7 @@ export function NavigationControls({
           stays in the middle of the map. The grid takes no pointer events. */}
       <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
         {/* A shutter over its caption-sized action: Scan is the constant
-            anchor (a 52px circle, the orb's size, like a camera's shutter),
+            anchor (a 52px circle, the assistant button's size, like a camera's shutter),
             the contextual action a smaller pill beneath it. On a short screen
             (a phone held sideways) the two sit side by side instead. */}
         <div className="pointer-events-auto col-start-2 row-start-1 flex flex-col items-center gap-2 from-md:row-span-2 [@media(max-height:30rem)]:flex-row">

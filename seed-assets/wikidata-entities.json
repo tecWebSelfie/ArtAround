@@ -1,0 +1,1113 @@
+{
+  "Q109061": {
+    "id": "Q109061",
+    "labels": {
+      "bg": { "value": "Гуидо Рени" },
+      "cs": { "value": "Guido Reni" },
+      "da": { "value": "Guido Reni" },
+      "de": { "value": "Guido Reni" },
+      "el": { "value": "Γκουίντο Ρένι" },
+      "en": { "value": "Guido Reni" },
+      "es": { "value": "Guido Reni" },
+      "et": { "value": "Guido Reni" },
+      "fi": { "value": "Guido Reni" },
+      "fr": { "value": "Guido Reni" },
+      "ga": { "value": "Guido Reni" },
+      "hr": { "value": "Guido Reni" },
+      "hu": { "value": "Guido Reni" },
+      "it": { "value": "Guido Reni" },
+      "lt": { "value": "Guido Reni" },
+      "nl": { "value": "Guido Reni" },
+      "pl": { "value": "Guido Reni" },
+      "pt": { "value": "Guido Reni" },
+      "ro": { "value": "Guido Reni" },
+      "sk": { "value": "Guido Reni" },
+      "sl": { "value": "Guido Reni" },
+      "sv": { "value": "Guido Reni" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore e incisore italiano" },
+      "de": { "value": "italienischer Maler und Radierer (1575–1642)" },
+      "fr": { "value": "peintre italien (1575–1642)" },
+      "en": { "value": "Bolognese painter (1575–1642)" },
+      "nl": { "value": "Italiaans kunstschilder (1575–1642)" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "da": { "value": "italiensk maler (1575-1642)" },
+      "ro": { "value": "pictor italian" },
+      "pl": { "value": "włoski malarz okresu wczesnego baroku" },
+      "cs": { "value": "italský malíř" },
+      "sv": { "value": "italiensk målare" },
+      "ga": { "value": "péintéir Iodálach" },
+      "sl": { "value": "italijanski baročni slikar in graver (1575–1642)" },
+      "es": { "value": "pintor italiano (1575–1642)" },
+      "hu": { "value": "itáliai festő" }
+    },
+    "claims": {
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q37853" } } }, "rank": "normal" }]
+    }
+  },
+  "Q1103801": {
+    "id": "Q1103801",
+    "labels": {
+      "de": { "value": "Die Verzückung der Heiligen Cäcilia" },
+      "fr": { "value": "L'Extase de sainte Cécile" },
+      "en": { "value": "The Ecstasy of Saint Cecilia" },
+      "it": { "value": "Estasi di santa Cecilia" },
+      "nl": { "value": "The Ecstasy of St. Cecilia" },
+      "es": { "value": "El éxtasis de Santa Cecilia" },
+      "pt": { "value": "O Êxtase de Santa Cecília" },
+      "sl": { "value": "Zamaknjenje sv. Cecilije" },
+      "pl": { "value": "Ekstaza Świętej Cecylii" }
+    },
+    "descriptions": {
+      "fr": { "value": "peinture de Raphaël" },
+      "en": { "value": "painting by Raphael" },
+      "it": { "value": "dipinto di Raffaello" },
+      "es": { "value": "cuadro de Rafael Sanzio" },
+      "nl": { "value": "schilderij van Rafaël Santi" },
+      "pt": { "value": "pintura de Rafael" },
+      "de": { "value": "Gemälde von Raffael" },
+      "sv": { "value": "målning av Rafael" },
+      "hu": { "value": "Raffaello Sanzio festménye" },
+      "da": { "value": "maleri af Raffaello Santi" },
+      "ro": { "value": "pictură de Rafael" },
+      "pl": { "value": "obraz Rafaela" },
+      "sl": { "value": "Raffaellova slika" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q5597" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" }]
+    }
+  },
+  "Q122831858": {
+    "id": "Q122831858",
+    "labels": { "en": { "value": "Portrait of the Artist's Mother" } },
+    "descriptions": {},
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q109061" } } }, "rank": "normal" }]
+    }
+  },
+  "Q131405243": {
+    "id": "Q131405243",
+    "labels": { "en": { "value": "Madonna dei Bargellini" } },
+    "descriptions": { "en": { "value": "painting by Ludovico Carracci" } },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q380553" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q891532" } } }, "rank": "normal" }]
+    }
+  },
+  "Q132147993": {
+    "id": "Q132147993",
+    "labels": {
+      "en": { "value": "Martyrdom of Saint Agnes of Rome" },
+      "it": { "value": "Martirio di Sant'Agnese" },
+      "de": { "value": "Das Martyrium der Heiligen Agnes" },
+      "fr": { "value": "Martyre de sainte Agnès" }
+    },
+    "descriptions": {
+      "en": { "value": "painting in the Pinacoteca Nazionale di Bologna, Italy, by Domenichino" },
+      "it": { "value": "dipinto nella Pinacoteca Nazionale di Bologna, opera di Domenichino" },
+      "de": { "value": "Gemälde von Domenichino" },
+      "fr": { "value": "tableau du Dominiquin, à la pinacothèque de Bologne" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q320118" } } }, "rank": "normal" }]
+    }
+  },
+  "Q133857694": {
+    "id": "Q133857694",
+    "labels": { "it": { "value": "Vestizione di san Guglielmo" } },
+    "descriptions": { "it": { "value": "dipinto del Guercino" } },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q334262" } } }, "rank": "normal" }]
+    }
+  },
+  "Q1474884": {
+    "id": "Q1474884",
+    "labels": {
+      "pt": { "value": "Alta Renascença" },
+      "fr": { "value": "Haute Renaissance" },
+      "es": { "value": "Alto Renacimiento" },
+      "en": { "value": "High Renaissance" },
+      "de": { "value": "Hochrenaissance" },
+      "lt": { "value": "Brandusis Renesansas" },
+      "nl": { "value": "hoogrenaissance" },
+      "sv": { "value": "högrenässans" },
+      "fi": { "value": "täysrenessanssi" },
+      "bg": { "value": "Зрял ренесанс" },
+      "it": { "value": "Alto Rinascimento" },
+      "el": { "value": "Ύστερη Αναγέννηση" },
+      "hu": { "value": "érett reneszánsz" },
+      "lv": { "value": "augstākā renesanse" },
+      "da": { "value": "højrenæssance" },
+      "cs": { "value": "vrcholná renesance" },
+      "sl": { "value": "visoka renesansa" },
+      "mt": { "value": "Rinaxximent Għoli" },
+      "ro": { "value": "Renașterea Timpurie" },
+      "ga": { "value": "An tArd-Renaissance" }
+    },
+    "descriptions": {
+      "fr": { "value": "période artistique du début du 16e siècle en Italie" },
+      "es": { "value": "movimiento artístico" },
+      "en": {
+        "value": "short period of the most exceptional artistic production during the Italian Renaissance"
+      },
+      "el": { "value": "καλλιτεχνικό ρεύμα" },
+      "hu": { "value": "művészeti mozgalom" },
+      "de": { "value": "zweite Phase der Renaissance" },
+      "nl": { "value": "korte periode van ongeveer 1495 tot 1520" },
+      "sv": { "value": "konstnärligt stilbildande epok" }
+    }
+  },
+  "Q16038421": {
+    "id": "Q16038421",
+    "labels": {
+      "fr": { "value": "Retable Bentivoglio" },
+      "de": { "value": "Bentivoglio Altar" },
+      "en": { "value": "Altar Bentivoglio" },
+      "it": { "value": "Pala Bentivoglio" },
+      "nl": { "value": "Bentivoglio Altar" },
+      "es": { "value": "La adoración del Niño Jesús" },
+      "pl": { "value": "Adoracja Dzieciątka" },
+      "pt": { "value": "Adoração da Criança" }
+    },
+    "descriptions": {
+      "fr": { "value": "peinture de Francesco Francia" },
+      "en": { "value": "painting by Francesco Francia" },
+      "nl": { "value": "schilderij van Francesco Raibolini" },
+      "it": { "value": "dipinto di Francesco Francia" },
+      "es": { "value": "cuadro de Francesco Francia" },
+      "de": { "value": "Gemälde von Francesco Francia" },
+      "pt": { "value": "pintura de Francesco Francia" },
+      "sv": { "value": "målning av Francesco Francia" },
+      "hu": { "value": "Francesco Francia festménye" },
+      "da": { "value": "maleri af Francesco Francia" },
+      "ro": { "value": "pictură de Francesco Francia" },
+      "pl": { "value": "obraz Francesco Francia" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q260057" } } }, "rank": "normal" }]
+    }
+  },
+  "Q19966583": {
+    "id": "Q19966583",
+    "labels": {
+      "it": {
+        "value": "Madonna col Bambino in trono e i santi Giovannino, Giovanni Evangelista e Caterina d'Alessandria"
+      },
+      "en": {
+        "value": "Madonna and Child with Saints John the Baptist, John the Evangelist, and St. Catherine"
+      }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Annibale Carracci" },
+      "en": { "value": "painting by Annibale Carracci" },
+      "es": { "value": "cuadro de Annibale Carracci" },
+      "sv": { "value": "målning av Annibale Carracci" },
+      "da": { "value": "maleri af Annibale Carracci" },
+      "de": { "value": "Ölgemälde von Annibale Carracci" },
+      "hu": { "value": "Annibale Carracci festménye" },
+      "fr": { "value": "tableau d'Annibale Carracci" },
+      "pt": { "value": "pintura de Annibale Carracci" },
+      "it": { "value": "dipinto di Annibale Carracci" },
+      "ro": { "value": "pictură de Annibale Carracci" },
+      "pl": { "value": "obraz Annibale Carracci" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q7824" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q891532" } } }, "rank": "normal" }]
+    }
+  },
+  "Q2448678": {
+    "id": "Q2448678",
+    "labels": {
+      "pl": { "value": "Rzeź niewiniątek" },
+      "el": { "value": "Η σφαγή των νηπίων" },
+      "fr": { "value": "Le Massacre des Innocents" },
+      "en": { "value": "Massacre of the Innocents" },
+      "it": { "value": "Strage degli innocenti" },
+      "de": { "value": "Der bethlehemitische Kindermord" },
+      "nl": { "value": "De Kindermoord van Bethlehem" },
+      "es": { "value": "Matanza de los inocentes" },
+      "da": { "value": "Massakren på de uskyldige" },
+      "cs": { "value": "Vraždění neviňátek" },
+      "fi": { "value": "Betlehemin lastenmurha" },
+      "hu": { "value": "Aprószentek" },
+      "mt": { "value": "Qerda tal-innoċenti" },
+      "pt": { "value": "Massacre dos Inocentes" },
+      "sl": { "value": "Pokol nedolžnih otrok" },
+      "sv": { "value": "Värnlösa barns dag" }
+    },
+    "descriptions": {
+      "de": { "value": "Gemälde von Guido Reni, Pinacoteca Nazionale di Bologna" },
+      "en": { "value": "painting by Guido Reni in the Pinacoteca Nazionale di Bologna" },
+      "fr": { "value": "peinture de Guido Reni, Pinacoteca Nazionale di Bologna" },
+      "it": { "value": "dipinto di Guido Reni, Pinacoteca Nazionale di Bologna" },
+      "nl": { "value": "schilderij van Guido Reni, Pinacoteca Nazionale di Bologna" },
+      "el": { "value": "πίνακας του Ιταλού ζωγράφου Γκούιντο Ρένι" },
+      "da": { "value": "Maleri af Guido Reni" },
+      "pt": { "value": "pintura de Guido Reni" },
+      "sv": { "value": "målning av Guido Reni" },
+      "hu": { "value": "Guido Reni festménye" },
+      "es": { "value": "cuadro de Guido Reni" },
+      "ro": { "value": "pictură de Guido Reni" },
+      "pl": { "value": "obraz Guido Reni" },
+      "cs": { "value": "malba Guida Reniho" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q109061" } } }, "rank": "normal" }]
+    }
+  },
+  "Q25217589": {
+    "id": "Q25217589",
+    "labels": {
+      "de": { "value": "Pala della Peste" },
+      "it": { "value": "Pala della Peste" },
+      "en": { "value": "Pala della Peste" }
+    },
+    "descriptions": {
+      "it": { "value": "dipinto di Guido Reni" },
+      "nl": { "value": "schilderij van Guido Reni" },
+      "en": { "value": "painting by Guido Reni" },
+      "es": { "value": "cuadro de Guido Reni" },
+      "sv": { "value": "målning av Guido Reni" },
+      "da": { "value": "maleri af Guido Reni" },
+      "de": { "value": "Gemälde von Guido Reni" },
+      "hu": { "value": "Guido Reni festménye" },
+      "fr": { "value": "tableau de Guido Reni" },
+      "pt": { "value": "pintura de Guido Reni" },
+      "ro": { "value": "pictură de Guido Reni" },
+      "pl": { "value": "obraz Guido Reni" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q109061" } } }, "rank": "normal" }]
+    }
+  },
+  "Q2575398": {
+    "id": "Q2575398",
+    "labels": {
+      "pt": { "value": "Vitale da Bologna" },
+      "et": { "value": "Vitale da Bologna" },
+      "fr": { "value": "Vitale da Bologna" },
+      "en": { "value": "Vitale da Bologna" },
+      "it": { "value": "Vitale da Bologna" },
+      "sv": { "value": "Vitale da Bologna" },
+      "es": { "value": "Vitale da Bologna" },
+      "de": { "value": "Vitale da Bologna" },
+      "nl": { "value": "Vitale da Bologna" },
+      "da": { "value": "Vitale da Bologna" },
+      "el": { "value": "Βιτάλε ντα Μπολόνια" },
+      "fi": { "value": "Vitale da Bologna" },
+      "pl": { "value": "Vitale da Bologna" }
+    },
+    "descriptions": {
+      "en": { "value": "Italian painter (1289–1359)" },
+      "de": { "value": "italienischer Maler" },
+      "fr": { "value": "peintre italien" },
+      "nl": { "value": "Italiaans kunstschilder (1289-1359)" },
+      "it": { "value": "pittore italiano (1289-1359)" },
+      "es": { "value": "pintor italiano" },
+      "ro": { "value": "pictor italian" },
+      "et": { "value": "Itaalia maalikunstnik" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "pl": { "value": "włoski malarz (1289–1359)" }
+    }
+  },
+  "Q260057": {
+    "id": "Q260057",
+    "labels": {
+      "de": { "value": "Francesco Francia" },
+      "en": { "value": "Francesco Francia" },
+      "es": { "value": "Francesco Francia" },
+      "fi": { "value": "Francesco Francia" },
+      "fr": { "value": "Francesco Francia" },
+      "it": { "value": "Francesco Francia" },
+      "nl": { "value": "Francesco Raibolini" },
+      "pt": { "value": "Francesco Francia" },
+      "sv": { "value": "Francesco Francia" },
+      "lt": { "value": "Francesco Francia" },
+      "pl": { "value": "Francesco Francia" },
+      "da": { "value": "Francesco Francia" },
+      "bg": { "value": "Франческо Франча" },
+      "cs": { "value": "Francesco Raibolini" },
+      "sk": { "value": "Francesco Francia" },
+      "el": { "value": "Φραντσέσκο Φράντσα" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore, orafo e medaglista italiano" },
+      "es": { "value": "pintor italiano del Renacimiento" },
+      "fr": { "value": "peintre, orfèvre et médailleur italien" },
+      "de": { "value": "italienischer Renaissance-Maler, Goldschmied und Bildhauer" },
+      "nl": { "value": "Italiaans kunstschilder" },
+      "en": { "value": "Italian painter (1450-1517)" },
+      "fi": { "value": "italialainen taidemaalari" },
+      "ro": { "value": "pictor italian" },
+      "et": { "value": "Itaalia maalikunstnik" },
+      "bg": { "value": "италиански ренесансов художник, златар, медалист" },
+      "cs": { "value": "italský malíř" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "sv": { "value": "italiensk målare och guldsmed" }
+    }
+  },
+  "Q27345212": {
+    "id": "Q27345212",
+    "labels": {
+      "en": { "value": "Saint George and the Dragon" },
+      "it": { "value": "San Giorgio e il drago" },
+      "fr": { "value": "Saint Georges et le Dragon" },
+      "pt": { "value": "São Jorge e o Dragão" },
+      "es": { "value": "San Jorge y el dragón" }
+    },
+    "descriptions": {
+      "en": { "value": "painting by Vitale da Bologna" },
+      "it": { "value": "dipinto di Vitale da Bologna" },
+      "fr": { "value": "peinture de Vitale da Bologna" },
+      "nl": { "value": "schilderij van Vitale da Bologna" },
+      "pt": { "value": "pintura de Vitale da Bologna" },
+      "es": { "value": "cuadro de Vitale da Bologna" },
+      "sv": { "value": "målning av Vitale da Bologna" },
+      "da": { "value": "maleri af Vitale da Bologna" },
+      "de": { "value": "Gemälde von Vitale da Bologna" },
+      "hu": { "value": "Vitale da Bologna festménye" },
+      "ro": { "value": "pictură de Vitale da Bologna" },
+      "pl": { "value": "obraz Vitale da Bologna" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q2575398" } } }, "rank": "normal" }]
+    }
+  },
+  "Q316269": {
+    "id": "Q316269",
+    "labels": {
+      "bg": { "value": "Агостино Карачи" },
+      "cs": { "value": "Agostino Carracci" },
+      "da": { "value": "Agostino Carracci" },
+      "de": { "value": "Agostino Carracci" },
+      "el": { "value": "Αγκοστίνο Καρράτσι" },
+      "en": { "value": "Agostino Carracci" },
+      "es": { "value": "Agostino Carracci" },
+      "et": { "value": "Agostino Carracci" },
+      "fi": { "value": "Agostino Carracci" },
+      "fr": { "value": "Agostino Carracci" },
+      "hu": { "value": "Agostino Carracci" },
+      "it": { "value": "Agostino Carracci" },
+      "lt": { "value": "Agostino Carracci" },
+      "mt": { "value": "Agostino Carracci" },
+      "nl": { "value": "Agostino Carracci" },
+      "pl": { "value": "Agostino Carracci" },
+      "pt": { "value": "Agostino Carracci" },
+      "ro": { "value": "Agostino Carracci" },
+      "sk": { "value": "Agostino Carracci" },
+      "sl": { "value": "Agostino Carracci" },
+      "sv": { "value": "Agostino Carracci" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore e incisore italiano" },
+      "de": { "value": "italienischer Maler und Kupferstecher (1557–1602)" },
+      "fr": { "value": "peintre et graveur italien" },
+      "pl": { "value": "włoski malarz i grafik" },
+      "en": { "value": "Bolognese painter of the Baroque (1557-1602)" },
+      "nl": { "value": "Italiaans kunstschilder (1557-1602)" },
+      "cs": { "value": "italský malíř a grafik" },
+      "sv": { "value": "italiensk målare under barocken" },
+      "mt": { "value": "pittur Barokk minn Bologna, l-Italja (1557-1602)" },
+      "hu": { "value": "olasz festő és rézmetsző" },
+      "el": { "value": "Ιταλός ζωγράφος" }
+    }
+  },
+  "Q320118": {
+    "id": "Q320118",
+    "labels": {
+      "bg": { "value": "Доменикино" },
+      "cs": { "value": "Domenichino" },
+      "da": { "value": "Domenichino" },
+      "de": { "value": "Domenichino" },
+      "el": { "value": "Ντομενικίνο" },
+      "en": { "value": "Domenichino" },
+      "es": { "value": "Domenichino" },
+      "et": { "value": "Domenichino" },
+      "fi": { "value": "Domenichino" },
+      "fr": { "value": "Le Dominiquin" },
+      "ga": { "value": "Domenichino" },
+      "it": { "value": "Domenichino" },
+      "lt": { "value": "Domenichino" },
+      "nl": { "value": "Domenichino" },
+      "pl": { "value": "Domenichino" },
+      "pt": { "value": "Domenico Zampieri" },
+      "ro": { "value": "Domenichino" },
+      "sk": { "value": "Domenichino" },
+      "sl": { "value": "Domenichino" },
+      "sv": { "value": "Domenichino" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano" },
+      "fr": { "value": "peintre italien" },
+      "de": { "value": "italienischer Maler (1581–1641)" },
+      "nl": { "value": "Italiaans kunstschilder (1581-1641)" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "es": { "value": "pintor italiano" },
+      "ro": { "value": "pictor italian" },
+      "pl": { "value": "włoski malarz okresu baroku" },
+      "et": { "value": "Itaalia maalikunstnik" },
+      "cs": { "value": "italský malíř" },
+      "sv": { "value": "nE" },
+      "en": { "value": "Italian painter (1581–1641)" },
+      "ga": { "value": "péintéir Iodálach (1581–1641)" }
+    }
+  },
+  "Q3213771": {
+    "id": "Q3213771",
+    "labels": {
+      "fr": { "value": "La Vierge en gloire et saints" },
+      "en": { "value": "Madonna in Glory with Saints" },
+      "it": { "value": "Madonna in gloria e santi" },
+      "nl": { "value": "Madonna in Glory with Saints" },
+      "es": { "value": "Madonna en la Gloria con los santos" },
+      "de": { "value": "Madonna in Gloria mit Heiligen" }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Pietro Perugino, Pinacoteca Nazionale di Bologna" },
+      "en": { "value": "painting by Pietro Perugino, Pinacoteca Nazionale di Bologna" },
+      "fr": { "value": "peinture de Le Pérugin, Pinacoteca Nazionale di Bologna" },
+      "it": {
+        "value": "dipinto a olio su tavola di Pietro Perugino, Pinacoteca Nazionale di Bologna"
+      },
+      "es": { "value": "cuadro de Pietro Perugino" },
+      "de": { "value": "Gemälde von Perugino, Pinacoteca Nazionale di Bologna" },
+      "pt": { "value": "pintura de Pietro Perugino" },
+      "sv": { "value": "målning av Perugino" },
+      "hu": { "value": "Pietro Perugino festménye" },
+      "da": { "value": "maleri af Perugino" },
+      "ro": { "value": "pictură de Pietro Perugino" },
+      "pl": { "value": "obraz Pietro Perugino" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q5827" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" }]
+    }
+  },
+  "Q334262": {
+    "id": "Q334262",
+    "labels": {
+      "pt": { "value": "Guercino" },
+      "pl": { "value": "Giovanni Francesco Barbieri" },
+      "fr": { "value": "Le Guerchin" },
+      "en": { "value": "Guercino" },
+      "es": { "value": "Guercino" },
+      "it": { "value": "Guercino" },
+      "de": { "value": "Guercino" },
+      "cs": { "value": "Guercino" },
+      "sv": { "value": "Guercino" },
+      "nl": { "value": "Guercino" },
+      "lt": { "value": "Guercino" },
+      "el": { "value": "Γκουερτσίνο" },
+      "da": { "value": "Guercino" },
+      "sk": { "value": "Guercino" },
+      "sl": { "value": "Guercino" },
+      "fi": { "value": "Guercino" },
+      "ro": { "value": "Guercino" },
+      "hu": { "value": "Guercino" },
+      "ga": { "value": "Guercino" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano (1591-1666)" },
+      "fr": { "value": "peintre italien" },
+      "de": { "value": "italienischer Maler des Barock (1591–1666)" },
+      "en": { "value": "painter of the Italian 17th century (1591–1666)" },
+      "nl": { "value": "Italiaans kunstschilder (1591–1666)" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "cs": { "value": "italský malíř" },
+      "es": { "value": "pintor barroco italiano" },
+      "ro": { "value": "pictor italian din secolul al XVII-lea" },
+      "da": { "value": "italiensk maler (1591–1666)" }
+    },
+    "claims": {
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q37853" } } }, "rank": "normal" }]
+    }
+  },
+  "Q3685503": {
+    "id": "Q3685503",
+    "labels": {
+      "it": { "value": "Comunione di san Girolamo" },
+      "fr": { "value": "La Dernière Communion de saint Jérôme" },
+      "nl": { "value": "La Dernière Communion de saint Jérôme" },
+      "en": { "value": "The Last Communion of St Jerome" },
+      "da": { "value": "Den hellige Hieronymus' sidste nadver" }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Agostino Carracci" },
+      "fr": { "value": "peinture d'Agostino Carracci" },
+      "en": { "value": "painting by Agostino Carracci" },
+      "it": { "value": "dipinto di Agostino Carracci" },
+      "es": { "value": "cuadro de Agostino Carracci" },
+      "de": { "value": "Gemälde von Agostino Carracci" },
+      "da": { "value": "maleri af Agostino Carracci" },
+      "pt": { "value": "pintura de Agostino Carracci" },
+      "sv": { "value": "målning av Agostino Carracci" },
+      "hu": { "value": "Agostino Carracci festménye" },
+      "ro": { "value": "pictură de Agostino Carracci" },
+      "pl": { "value": "obraz Agostino Carracci" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q316269" } } }, "rank": "normal" }]
+    }
+  },
+  "Q380553": {
+    "id": "Q380553",
+    "labels": {
+      "pt": { "value": "Ludovico Carracci" },
+      "pl": { "value": "Ludovico Carracci" },
+      "fr": { "value": "Lodovico Carracci" },
+      "es": { "value": "Ludovico Carracci" },
+      "en": { "value": "Ludovico Carracci" },
+      "fi": { "value": "Ludovico Carracci" },
+      "it": { "value": "Ludovico Carracci" },
+      "de": { "value": "Ludovico Carracci" },
+      "hr": { "value": "Lodovico Carracci" },
+      "sv": { "value": "Ludovico Carracci" },
+      "nl": { "value": "Ludovico Carracci" },
+      "da": { "value": "Ludovico Carracci" },
+      "lt": { "value": "Ludovico Carracci" },
+      "cs": { "value": "Lodovico Carracci" },
+      "sl": { "value": "Ludovico Carracci" },
+      "ro": { "value": "Ludovico Carracci" },
+      "sk": { "value": "Ludovico Carracci" },
+      "bg": { "value": "Лудовико Карачи" },
+      "el": { "value": "Λουντοβίκο Καρράτσι" },
+      "mt": { "value": "Ludovico Carracci" },
+      "ga": { "value": "Ludovico Carracci" },
+      "hu": { "value": "Ludovico Carracci" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano" },
+      "fr": { "value": "peintre italien" },
+      "de": { "value": "italienischer Maler" },
+      "pl": { "value": "włoski malarz" },
+      "en": { "value": "Bolognese painter of the Baroque (1555-1619)" },
+      "nl": { "value": "Italiaans kunstschilder (1555-1619)" },
+      "sl": { "value": "italijanski zgodnje baročni likovni umetnik" },
+      "cs": { "value": "italský malíř" },
+      "el": { "value": "Ιταλός ζωγράφος" },
+      "mt": { "value": "pittur Barokk Taljan minn Bologna (1555-1619)" },
+      "es": { "value": "pintor italiano" },
+      "hu": { "value": "olasz barokk festő" }
+    },
+    "claims": {
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q37853" } } }, "rank": "normal" }]
+    }
+  },
+  "Q3842737": {
+    "id": "Q3842737",
+    "labels": {
+      "it": { "value": "Madonna di Santa Margherita" },
+      "nl": { "value": "Madonna di Santa Margherita" },
+      "en": { "value": "Madonna of Saint Margaret" },
+      "de": { "value": "Madonna mit Hl. Magaretha, Hl. Petrus, Hl. Hieronymus und Hl. Michael" },
+      "fr": { "value": "Vierge à l'Enfant et saints" }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Parmigianino" },
+      "fr": { "value": "peinture de Parmigianino" },
+      "en": { "value": "painting by Parmigianino" },
+      "it": { "value": "dipinto di Parmigianino" },
+      "es": { "value": "cuadro de Parmigianino" },
+      "de": { "value": "Gemälde von Parmigianino" },
+      "pt": { "value": "pintura de Parmigianino" },
+      "sv": { "value": "målning av Parmigianino" },
+      "hu": { "value": "Parmigianino festménye" },
+      "da": { "value": "maleri af Parmigianino" },
+      "ro": { "value": "pictură de Parmigianino" },
+      "pl": { "value": "obraz Parmigianino" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q9348" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" }]
+    }
+  },
+  "Q3889219": {
+    "id": "Q3889219",
+    "labels": {
+      "it": { "value": "Pala dei Mercanti" },
+      "fr": { "value": "Vierge à l'Enfant en majesté entourée des saints Petronius et Jean" },
+      "nl": { "value": "Vierge à l'Enfant en majesté entourée des saints Petronius et Jean" },
+      "cs": { "value": "Pala dei Mercanti" },
+      "en": {
+        "value": "Madonna enthroned with child and Saints Petronius and John the Evangelist"
+      },
+      "de": { "value": "Thronende Madonna, Hl. Petronius und Hl. Evangelist Johannes" }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Francesco del Cossa" },
+      "fr": { "value": "peinture de Francesco del Cossa" },
+      "en": { "value": "painting by Francesco del Cossa" },
+      "it": { "value": "dipinto di Francesco del Cossa" },
+      "es": { "value": "cuadro de Francesco del Cossa" },
+      "de": { "value": "Gemälde von Francesco del Cossa" },
+      "pt": { "value": "pintura de Francesco del Cossa" },
+      "sv": { "value": "målning av Francesco del Cossa" },
+      "hu": { "value": "Francesco del Cossa festménye" },
+      "da": { "value": "maleri af Francesco del Cossa" },
+      "ro": { "value": "pictură de Francesco del Cossa" },
+      "pl": { "value": "obraz Francesco del Cossa" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q454892" } } }, "rank": "normal" }]
+    }
+  },
+  "Q3907499": {
+    "id": "Q3907499",
+    "labels": {
+      "it": { "value": "Polittico di Bologna" },
+      "nl": { "value": "Polittico di Bologna" },
+      "en": { "value": "Bologna Polyptych" },
+      "fr": { "value": "Polyptyque de Bologne" }
+    },
+    "descriptions": {
+      "nl": { "value": "schilderij van Giotto di Bondone" },
+      "it": { "value": "dipinto di Giotto di Bondone" },
+      "en": { "value": "polyptych by Giotto di Bondone" },
+      "de": { "value": "Gemälde von Giotto di Bondone" },
+      "fr": { "value": "tableau de Giotto di Bondone" },
+      "pt": { "value": "pintura de Giotto di Bondone" },
+      "sv": { "value": "målning av Giotto di Bondone" },
+      "hu": { "value": "Giotto di Bondone festménye" },
+      "es": { "value": "cuadro de Giotto" },
+      "da": { "value": "maleri af Giotto di Bondone" },
+      "ro": { "value": "pictură de Giotto di Bondone" },
+      "pl": { "value": "obraz Giotto di Bondone" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q7814" } } }, "rank": "normal" }],
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q979160" } } }, "rank": "normal" }]
+    }
+  },
+  "Q454892": {
+    "id": "Q454892",
+    "labels": {
+      "pt": { "value": "Francesco del Cossa" },
+      "pl": { "value": "Francesco del Cossa" },
+      "fr": { "value": "Francesco del Cossa" },
+      "en": { "value": "Francesco del Cossa" },
+      "es": { "value": "Francesco del Cossa" },
+      "it": { "value": "Francesco del Cossa" },
+      "de": { "value": "Francesco del Cossa" },
+      "nl": { "value": "Francesco del Cossa" },
+      "sv": { "value": "Francesco del Cossa" },
+      "bg": { "value": "Франческо дел Коса" },
+      "fi": { "value": "Francesco del Cossa" },
+      "cs": { "value": "Francesco del Cossa" },
+      "lt": { "value": "Francesco del Cossa" },
+      "sk": { "value": "Francesco del Cossa" },
+      "da": { "value": "Francesco del Cossa" },
+      "hu": { "value": "Francesco del Cossa" },
+      "sl": { "value": "Francesco del Cossa" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano (1436-1478)" },
+      "fr": { "value": "peintre italien" },
+      "es": { "value": "pintor italiano del Renacimiento" },
+      "de": { "value": "italienischer Maler" },
+      "nl": { "value": "Italiaans kunstschilder" },
+      "en": { "value": "Italian painter (1436-1477)" },
+      "cs": { "value": "italský malíř" },
+      "ro": { "value": "pictor italian" },
+      "et": { "value": "Itaalia maalikunstnik" },
+      "sv": { "value": "italiensk ungrennässansmålare, ca 1435-1477" },
+      "hu": { "value": "olasz festő ((1436-1477)" },
+      "pt": { "value": "pintor italiano" }
+    }
+  },
+  "Q47551": {
+    "id": "Q47551",
+    "labels": {
+      "pl": { "value": "Tycjan" },
+      "es": { "value": "Tiziano" },
+      "hu": { "value": "Tiziano Vecellio" },
+      "et": { "value": "Tizian" },
+      "el": { "value": "Τιτσιάνο" },
+      "sv": { "value": "Tizian" },
+      "nl": { "value": "Titiaan" },
+      "pt": { "value": "Ticiano" },
+      "fi": { "value": "Tizian" },
+      "hr": { "value": "Tizian" },
+      "da": { "value": "Tizian" },
+      "fr": { "value": "Titien" },
+      "lv": { "value": "Ticiāns" },
+      "it": { "value": "Tiziano Vecellio" },
+      "de": { "value": "Tizian" },
+      "en": { "value": "Titian" },
+      "sk": { "value": "Tiziano Vecelli" },
+      "ro": { "value": "Tiziano Vecellio" },
+      "sl": { "value": "Tizian" },
+      "cs": { "value": "Tizian" },
+      "bg": { "value": "Тициан" },
+      "lt": { "value": "Tiziano Vecelli" },
+      "ga": { "value": "Tiziano Vecellio" },
+      "mt": { "value": "Tizjanu" }
+    },
+    "descriptions": {
+      "en": { "value": "Italian painter (c.1490–1576)" },
+      "es": { "value": "pintor italiano del Renacimiento" },
+      "fr": { "value": "peintre et graveur vénitien (c. 1488-1576)" },
+      "de": {
+        "value": "führender Vertreter der venezianischen Malerschule des 16. Jahrhunderts (um 1490–1576)"
+      },
+      "nl": { "value": "Italiaans kunstschilder" },
+      "it": { "value": "pittore italiano" },
+      "hu": { "value": "reneszánsz olasz festő" },
+      "pt": { "value": "Pintor Renascentista" },
+      "ro": { "value": "pictor italian" },
+      "cs": { "value": "italský renesanční malíř" },
+      "et": { "value": "Itaalia maalikunstnik" },
+      "pl": { "value": "włoski malarz renesansowy" },
+      "fi": { "value": "italialainen renessanssiajan taidemaalari" },
+      "sv": { "value": "italiensk målare" },
+      "da": { "value": "berømt italiensk maler" }
+    },
+    "claims": {
+      "P135": [
+        { "mainsnak": { "datavalue": { "value": { "id": "Q610687" } } }, "rank": "normal" },
+        { "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" }
+      ]
+    }
+  },
+  "Q5597": {
+    "id": "Q5597",
+    "labels": {
+      "en": { "value": "Raphael" },
+      "fr": { "value": "Raphaël" },
+      "it": { "value": "Raffaello Sanzio" },
+      "de": { "value": "Raffael" },
+      "bg": { "value": "Рафаело Санцио" },
+      "cs": { "value": "Rafael Santi" },
+      "da": { "value": "Raffaello Santi" },
+      "el": { "value": "Ραφαήλ" },
+      "es": { "value": "Rafael Sanzio" },
+      "et": { "value": "Raffael" },
+      "fi": { "value": "Rafael" },
+      "ga": { "value": "Raffaello Sanzio" },
+      "hr": { "value": "Rafael" },
+      "hu": { "value": "Raffaello Sanzio" },
+      "lt": { "value": "Rafaelis" },
+      "lv": { "value": "Rafaēls" },
+      "nl": { "value": "Rafaël Santi" },
+      "pl": { "value": "Rafael Santi" },
+      "pt": { "value": "Rafael Sanzio" },
+      "ro": { "value": "Rafael" },
+      "sk": { "value": "Raffael" },
+      "sl": { "value": "Raffaello Sanzio" },
+      "sv": { "value": "Rafael" },
+      "mt": { "value": "Raffaello" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore e architetto italiano del Rinascimento (1483-1520)" },
+      "fr": { "value": "peintre et architecte italien de la Renaissance (1483–1520)" },
+      "de": { "value": "italienischer Maler und Architekt (1483–1520)" },
+      "es": { "value": "pintor y arquitecto renacentista italiano" },
+      "el": { "value": "Ιταλός ζωγράφος και αρχιτέκτονας της ύστερης Αναγέννησης" },
+      "pl": { "value": "włoski malarz i architekt (1483–1520)" },
+      "nl": { "value": "Italiaanse kunstschilder en architect uit de renaissance (1483–1520)" },
+      "da": { "value": "italiensk maler og arkitekt (1483-1520)" },
+      "et": { "value": "itaalia maalikunstnik ja arhitekt" },
+      "fi": { "value": "italialainen taidemaalari ja arkkitehti (1483–1520)" },
+      "en": { "value": "Italian painter and architect (1483–1520)" },
+      "pt": { "value": "célebre pintor renascentista italiano" },
+      "sv": { "value": "italiensk konstnär" },
+      "ro": { "value": "pictor și arhitect italian (1483-1520)" },
+      "cs": { "value": "italský malíř a architekt v období vrcholné renesance" },
+      "ga": { "value": "péintéir agus ailtire Iodálach (1483–1520)" },
+      "sl": { "value": "italijanski renesančni slikar in arhitekt (1483–1520)" }
+    },
+    "claims": {
+      "P135": [
+        { "mainsnak": { "datavalue": { "value": { "id": "Q1404472" } } }, "rank": "normal" },
+        { "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" }
+      ]
+    }
+  },
+  "Q5827": {
+    "id": "Q5827",
+    "labels": {
+      "bg": { "value": "Пиетро Перуджино" },
+      "cs": { "value": "Perugino" },
+      "da": { "value": "Perugino" },
+      "de": { "value": "Pietro Perugino" },
+      "el": { "value": "Περουτζίνο" },
+      "en": { "value": "Pietro Perugino" },
+      "es": { "value": "Pietro Perugino" },
+      "et": { "value": "Pietro Perugino" },
+      "fi": { "value": "Pietro Perugino" },
+      "fr": { "value": "Le Pérugin" },
+      "ga": { "value": "Pietro Perugino" },
+      "hr": { "value": "Pietro Perugino" },
+      "hu": { "value": "Pietro Perugino" },
+      "it": { "value": "Perugino" },
+      "lt": { "value": "Perudžinas" },
+      "mt": { "value": "Pietro Perugino" },
+      "nl": { "value": "Pietro Perugino" },
+      "pl": { "value": "Pietro Perugino" },
+      "pt": { "value": "Pietro Perugino" },
+      "ro": { "value": "Pietro Perugino" },
+      "sk": { "value": "Pietro Perugino" },
+      "sl": { "value": "Pietro Perugino" },
+      "sv": { "value": "Perugino" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano del XV secolo e Rinascimento" },
+      "en": { "value": "Italian Renaissance painter of the Umbrian school (1448–1523)" },
+      "fr": { "value": "peintre italien de la Renaissance" },
+      "de": { "value": "italienischer Maler (1448-1523)" },
+      "es": { "value": "pintor renacentista italiano" },
+      "pl": { "value": "włoski malarz (1448–1523)" },
+      "nl": { "value": "Italiaanse Renaissance schilder (1448-1523)" },
+      "el": { "value": "Ιταλός ζωγράφος της Αναγέννησης" },
+      "ro": { "value": "pictor italian (1448-1523)" },
+      "pt": { "value": "pintor italiano da Renascença" },
+      "mt": { "value": "pittur Taljan (1448-1523)" },
+      "cs": { "value": "renesanční malíř a učitel Raffaelův" },
+      "sl": { "value": "italijanski renesančni slikar umbrijske šole (1448–1523)" },
+      "sv": { "value": "italiensk målare" },
+      "da": { "value": "italiensk maler (1448–1523)" }
+    },
+    "claims": {
+      "P135": [
+        { "mainsnak": { "datavalue": { "value": { "id": "Q2478178" } } }, "rank": "normal" },
+        { "mainsnak": { "datavalue": { "value": { "id": "Q4692" } } }, "rank": "normal" }
+      ]
+    }
+  },
+  "Q60840797": {
+    "id": "Q60840797",
+    "labels": {
+      "it": { "value": "Gesù Cristo e il buon ladrone" },
+      "de": { "value": "Christus und der gute Schächer" },
+      "en": { "value": "Christ and the Good Thief" },
+      "es": { "value": "Cristo y el Buen Ladrón" },
+      "fr": { "value": "Le Christ et le bon larron" },
+      "nl": { "value": "Christus en de goede dief" }
+    },
+    "descriptions": {
+      "en": { "value": "painting by Titian" },
+      "nl": { "value": "schilderij van Titiaan" },
+      "es": { "value": "cuadro de Tiziano" },
+      "sv": { "value": "målning av Tizian" },
+      "da": { "value": "maleri af Tizian" },
+      "de": { "value": "Gemälde von Tizian" },
+      "hu": { "value": "Tiziano Vecellio festménye" },
+      "it": { "value": "dipinto di Tiziano Vecellio" },
+      "fr": { "value": "tableau du Titien" },
+      "pt": { "value": "pintura de Ticiano" },
+      "ro": { "value": "pictură de Tiziano Vecellio" },
+      "pl": { "value": "obraz Tycjana" }
+    },
+    "claims": {
+      "P170": [{ "mainsnak": { "datavalue": { "value": { "id": "Q47551" } } }, "rank": "normal" }]
+    }
+  },
+  "Q7814": {
+    "id": "Q7814",
+    "labels": {
+      "it": { "value": "Giotto" },
+      "fr": { "value": "Giotto" },
+      "en": { "value": "Giotto" },
+      "de": { "value": "Giotto di Bondone" },
+      "bg": { "value": "Джото" },
+      "cs": { "value": "Giotto di Bondone" },
+      "da": { "value": "Giotto di Bondone" },
+      "el": { "value": "Τζόττο" },
+      "es": { "value": "Giotto" },
+      "et": { "value": "Giotto di Bondone" },
+      "fi": { "value": "Giotto di Bondone" },
+      "hr": { "value": "Giotto di Bondone" },
+      "hu": { "value": "Giotto di Bondone" },
+      "lt": { "value": "Giotto di Bondone" },
+      "lv": { "value": "Džoto di Bondone" },
+      "nl": { "value": "Giotto di Bondone" },
+      "pl": { "value": "Giotto di Bondone" },
+      "pt": { "value": "Giotto di Bondone" },
+      "ro": { "value": "Giotto" },
+      "sk": { "value": "Giotto di Bondone" },
+      "sl": { "value": "Giotto di Bondone" },
+      "sv": { "value": "Giotto di Bondone" },
+      "ga": { "value": "Giotto di Bondone" },
+      "mt": { "value": "Giotto" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore e architetto italiano del XIV secolo" },
+      "es": { "value": "pintor, escultor y arquitecto italiano (c. 1267–1337)" },
+      "en": { "value": "Italian painter and architect (c. 1267–1337)" },
+      "de": { "value": "italienischer Maler (c. 1267–1337)" },
+      "hu": { "value": "firenzei festő, szobrász" },
+      "fr": { "value": "peintre, sculpteur et architecte italien (c. 1267–1337)" },
+      "nl": { "value": "Italiaans schilder en architect" },
+      "el": { "value": "Ιταλός ζωγράφος και αρχιτέκτονας από την Φλωρεντία" },
+      "pt": { "value": "pintor e arquitecto italiano" },
+      "pl": { "value": "włoski malarz i architekt" },
+      "fi": { "value": "italialainen taidemaalari" },
+      "ga": { "value": "péintéir agus ailtire Iodálach" },
+      "cs": { "value": "italský malíř a architekt" },
+      "mt": { "value": "pittur u arkitett Taljan" },
+      "sv": { "value": "italiensk målare, skulptör och arkitekt" },
+      "ro": { "value": "pictor și arhitect italian (cca. 1267–1337)" },
+      "da": { "value": "italiensk maler og arkitekt" }
+    },
+    "claims": {
+      "P135": [
+        { "mainsnak": { "datavalue": { "value": { "id": "Q979160" } } }, "rank": "normal" },
+        { "mainsnak": { "datavalue": { "value": { "id": "Q46825" } } }, "rank": "normal" }
+      ]
+    }
+  },
+  "Q7824": {
+    "id": "Q7824",
+    "labels": {
+      "bg": { "value": "Анибале Карачи" },
+      "cs": { "value": "Annibale Carracci" },
+      "da": { "value": "Annibale Carracci" },
+      "de": { "value": "Annibale Carracci" },
+      "el": { "value": "Αννίμπαλε Καρράτσι" },
+      "en": { "value": "Annibale Carracci" },
+      "es": { "value": "Annibale Carracci" },
+      "fi": { "value": "Annibale Carracci" },
+      "fr": { "value": "Annibale Carracci" },
+      "hu": { "value": "Annibale Carracci" },
+      "it": { "value": "Annibale Carracci" },
+      "lt": { "value": "Annibale Carracci" },
+      "mt": { "value": "Annibale Carracci" },
+      "nl": { "value": "Annibale Carracci" },
+      "pl": { "value": "Annibale Carracci" },
+      "pt": { "value": "Annibale Carracci" },
+      "ro": { "value": "Annibale Carracci" },
+      "sk": { "value": "Annibale Carracci" },
+      "sl": { "value": "Annibale Carracci" },
+      "sv": { "value": "Annibale Carracci" },
+      "et": { "value": "Annibale Carracci" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano del XVI secolo" },
+      "fr": { "value": "peintre et graveur italien (1560-1609)" },
+      "es": { "value": "pintor y grabador italiano del barroco" },
+      "en": { "value": "Bolognese painter (1560–1609)" },
+      "de": { "value": "italienischer Maler und Kupferstecher" },
+      "pl": { "value": "włoski malarz" },
+      "nl": { "value": "Italiaans kunstschilder (1560–1609)" },
+      "el": { "value": "Ιταλός ζωγράφος της εποχής του Μπαρόκ" },
+      "cs": { "value": "italský malíř" },
+      "pt": { "value": "pintor bolonhês do Barroco" },
+      "sv": { "value": "italiensk målare och grafiker" },
+      "bg": { "value": "италиански художник" },
+      "hu": { "value": "bolognai barokk festő" },
+      "mt": { "value": "pittur Barokk Taljan minn Bologna (1560-1609)" },
+      "fi": { "value": "italialainen taidemaalari" },
+      "et": { "value": "Itaalia maalikunstnik" }
+    },
+    "claims": {
+      "P135": [{ "mainsnak": { "datavalue": { "value": { "id": "Q37853" } } }, "rank": "normal" }]
+    }
+  },
+  "Q891532": {
+    "id": "Q891532",
+    "labels": {
+      "fr": { "value": "École de peinture de Bologne" },
+      "en": { "value": "Bolognese school" },
+      "nl": { "value": "Bolognese School" },
+      "pt": { "value": "escola de Bolonha" },
+      "de": { "value": "Bologneser Schule" },
+      "sv": { "value": "Bolognaskolan" },
+      "it": { "value": "pittura bolognese" },
+      "es": { "value": "escuela boloñesa" },
+      "cs": { "value": "Bolognská škola" },
+      "pl": { "value": "szkoła bolońska" },
+      "hu": { "value": "bolognai iskola" },
+      "sl": { "value": "bolonjska šola" }
+    },
+    "descriptions": {
+      "en": { "value": "art movement" },
+      "cs": { "value": "umělecký spolek ,hnutí" },
+      "de": { "value": "Stilrichtung der italienischen Malerei" },
+      "sv": { "value": "riktning inom italienskt måleri" },
+      "nl": { "value": "kunststroming" },
+      "hu": { "value": "művészeti mozgalom" }
+    }
+  },
+  "Q9348": {
+    "id": "Q9348",
+    "labels": {
+      "it": { "value": "Parmigianino" },
+      "en": { "value": "Parmigianino" },
+      "de": { "value": "Parmigianino" },
+      "bg": { "value": "Пармиджанино" },
+      "cs": { "value": "Parmigianino" },
+      "da": { "value": "Parmigianino" },
+      "es": { "value": "Parmigianino" },
+      "et": { "value": "Parmigianino" },
+      "fi": { "value": "Parmigianino" },
+      "fr": { "value": "Parmigianino" },
+      "hr": { "value": "Parmigianino" },
+      "hu": { "value": "Parmigianino" },
+      "lt": { "value": "Parmidžaninas" },
+      "nl": { "value": "Parmigianino" },
+      "pl": { "value": "Parmigianino" },
+      "pt": { "value": "Parmigianino" },
+      "sv": { "value": "Parmigianino" },
+      "ro": { "value": "Parmigianino" },
+      "sk": { "value": "Parmigianino" },
+      "sl": { "value": "Parmigianino" },
+      "el": { "value": "Παρμιτζιάννο" },
+      "ga": { "value": "Parmigianino" },
+      "mt": { "value": "Parmigianino" }
+    },
+    "descriptions": {
+      "it": { "value": "pittore italiano del XVI secolo, esponente del Manierismo (1503-1540)" },
+      "de": { "value": "italienischer Maler und Radierer des Manierismus" },
+      "es": { "value": "pintor italiano" },
+      "en": { "value": "Italian Mannerist painter and printmaker (1503–1540)" },
+      "fr": { "value": "peintre italien (1503-1540)" },
+      "cs": { "value": "italský malíř" },
+      "nl": { "value": "kunstschilder uit Hertogdom Milaan (1503–1540)" },
+      "sv": { "value": "italiensk manieristisk målare och gravör" },
+      "mt": { "value": "pittur u litografu Manjerist Taljan (1503-1540)" },
+      "da": { "value": "italiensk maler (1503–1540)" },
+      "ro": { "value": "pictor italian manierist" }
+    },
+    "claims": {
+      "P135": [
+        { "mainsnak": { "datavalue": { "value": { "id": "Q1474884" } } }, "rank": "normal" },
+        { "mainsnak": { "datavalue": { "value": { "id": "Q131808" } } }, "rank": "normal" }
+      ]
+    }
+  },
+  "Q979160": {
+    "id": "Q979160",
+    "labels": {
+      "es": { "value": "Prerrenacimiento" },
+      "de": { "value": "Protorenaissance" },
+      "fr": { "value": "Pré-Renaissance" },
+      "lt": { "value": "Protorenesansas" },
+      "nl": { "value": "protorenaissance" },
+      "pt": { "value": "prerrenascimento" },
+      "en": { "value": "Proto-Renaissance" },
+      "it": { "value": "protorinascimento" },
+      "el": { "value": "Πρωτοαναγεννησιακό" },
+      "hu": { "value": "ősreneszánsz" },
+      "cs": { "value": "protorenesance" },
+      "da": { "value": "Proto-renæssance" },
+      "fi": { "value": "esi-renessanssi" },
+      "ga": { "value": "Próta-Renaissance" },
+      "sl": { "value": "predrenesansa" },
+      "bg": { "value": "Предренесанс" },
+      "mt": { "value": "Proto-Rinaxximent" },
+      "et": { "value": "eelrenessanss" }
+    },
+    "descriptions": {
+      "fr": { "value": "mouvement artistique" },
+      "en": { "value": "cultural movement preceding the Italian Renaissance" },
+      "el": { "value": "καλλιτεχνικό ρεύμα προηγούμενο της Αναγέννησης" },
+      "de": { "value": "der italienischen Renaissance vorhergehende Bewegung" },
+      "hu": { "value": "az itáliai reneszánszt megelőző kulturális mozgalom" },
+      "da": { "value": "kulturel bevægelse forud for den italienske renæssance" },
+      "nl": { "value": "stijlperiode" },
+      "mt": { "value": "moviment kulturali ta' qabel ir-Rinaxximent Taljan" }
+    }
+  }
+}

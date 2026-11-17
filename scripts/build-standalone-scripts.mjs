@@ -84,6 +84,8 @@ const scripts = [
   // Production seed (registered in payload.config `bin`, run by `payload seed`).
   { entry: 'src/seed.ts', out: 'standalone-seed.mjs' },
   { entry: 'src/scripts/search-reindex.ts', out: 'standalone-reindex.mjs' },
+  // Read-aloud diagnostics, run by the boot script before the server.
+  { entry: 'src/scripts/tts-check.ts', out: 'standalone-tts-check.mjs' },
 ]
 
 await mkdir(standaloneScripts, { recursive: true })

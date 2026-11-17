@@ -113,7 +113,7 @@ export type DirectionsStatus =
 
 /**
  * The navbar's directions space (most of its width, beside the assistant
- * orb). It shows one step at a time; arrows move between steps, GPS progress
+ * button). It shows one step at a time; arrows move between steps, GPS progress
  * moves them automatically, and tapping the step opens every step at once.
  * Tour status messages (completed, no route) are states of this same space
  * rather than extra rows. Without a confirmed position or a destination there

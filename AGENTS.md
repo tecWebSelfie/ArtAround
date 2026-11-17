@@ -15,6 +15,11 @@ CMS (start from its `SKILL.md`, then `reference/`) and `pascal-plugin-authoring`
 - Never ask for secrets, keys or tokens in chat: they live in the
   environment's variables or in `.env.local`.
 - Keep the git hooks on: no `--no-verify` or `HUSKY=0` unless asked.
+- Patching a dependency (`pnpm patch`, `patches/`, `patchedDependencies`) is a
+  last resort, applied only with the maintainer's consent: first look for the
+  library's own API, a wrapper or a workaround in our code; if none fits,
+  explain why a patch is needed and what it changes, and wait for approval.
+  This covers changes to existing patches too.
 - Ask before optional costly steps (subagent reviews, full translations), and
   never run the visual regression tests (`pnpm test:visual*`, ~8 min) without
   approval for that specific run: propose the command and wait.

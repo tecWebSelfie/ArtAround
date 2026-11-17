@@ -19,7 +19,7 @@ import { expansionChunks } from '@/components/expansion/read-aloud'
  *
  * After the stored audio, it goes on reading the "Tell me more" texts the
  * visitor has opened so far (`src/components/expansion/read-aloud.ts`),
- * through the tour's shared speech player when there is one, so the orb
+ * through the tour's shared speech player when there is one, so the assistant button
  * pulses and no two voices overlap.
  *
  * Rendered only next to a readable body: a locked paid content has no audio

@@ -22,6 +22,7 @@ import {
   useTourIds,
   useVoiceGuidance,
 } from './use-tour-navigation'
+import { MuseumFloorplan } from '@/components/pascal/MuseumFloorplan'
 import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -46,7 +47,7 @@ export type NavigationPageScope =
 /**
  * Composes the map, search, scan, and route guidance: step-by-step directions
  * in the navbar, optional GPS progress, nearby suggestions, and the opt-in
- * voice assistant (the orb). Search, pills and the assistant all run the same
+ * voice assistant (the microphone button). Search, pills and the assistant all run the same
  * URL commands (`navigation-commands.ts`).
  *
  * In a tour it adds the ordered progress, the next stop as the default
@@ -109,6 +110,8 @@ export const TourNavigationPage = ({
     route,
     navMesh,
   })
+  // The plan needs a map to draw: without one the view stays 3D.
+  const planView = settings.mapView === '2d' && Boolean(museumMap.parsed)
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
 
@@ -179,6 +182,23 @@ export const TourNavigationPage = ({
               position={guidance.position}
               path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
+              // Under the floor plan the 3D map stays mounted (routes are
+              // computed on its meshes) but draws no frames, and is hidden
+              // with its DOM labels, which would float over the plan.
+              renderPaused={planView}
+              className={planView ? 'invisible' : undefined}
+            />
+          )
+        }
+        plan={
+          planView &&
+          museumMap.parsed && (
+            <MuseumFloorplan
+              // As on the 3D map: the avatar waits at the route's start.
+              position={guidance.position ?? route?.start ?? null}
+              path={guidance.path ?? route?.path ?? null}
+              catalog={catalog}
+              roots={museumMap.parsed.rootNodeIds}
             />
           )
         }
@@ -192,6 +212,7 @@ export const TourNavigationPage = ({
             exits={markers.exitEntrances}
             sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
+            planAvailable={Boolean(museumMap.parsed)}
           />
         }
       />
@@ -234,7 +255,16 @@ export const TourNavigationPage = ({
  * The map and, over it, the floating controls: only the space between the
  * measured bars belongs to them.
  */
-function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNode }) {
+function NavigationStage({
+  map,
+  plan,
+  controls,
+}: {
+  map: ReactNode
+  /** Pascal's 2D floor plan, drawn over the (paused) 3D map when chosen. */
+  plan: ReactNode
+  controls: ReactNode
+}) {
   const { t } = useTranslation('tour-navigation')
   return (
     <AppShellMain h="100dvh" className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]">
@@ -242,6 +272,7 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
+        {plan}
         {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
             drei's `zIndexRange`), below the app shell's bars (z 100), so a
             notice or a control is never crossed by a label. */}
@@ -255,9 +286,9 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
 
 /**
  * The directions strip: the steps (or the status that replaces them) and the
- * voice assistant's orb. It uses the remaining width; the orb keeps its
+ * voice assistant's button. It uses the remaining width; the button keeps its
  * intrinsic target size instead of reserving a fifth of a narrow screen, and
- * active guidance places the orb beside its arrows at enlarged text, leaving
+ * active guidance places the button beside its arrows at enlarged text, leaving
  * the entire footer width for the sentence. Voice guidance speaks each step
  * from here.
  */

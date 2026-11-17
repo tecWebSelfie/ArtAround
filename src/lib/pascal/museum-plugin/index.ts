@@ -6,8 +6,5 @@ export const museumPlugin: Plugin = {
   id: 'artaround:museum-plugin',
   apiVersion: 1,
   // Plugin registration erases each node's concrete schema type; ParametricDescriptor callbacks make NodeDefinition invariant.
-  nodes: [
-    ServiceDefinition as AnyNodeDefinition,
-    ExitEntranceDefinition as AnyNodeDefinition,
-  ],
+  nodes: [ServiceDefinition as AnyNodeDefinition, ExitEntranceDefinition as AnyNodeDefinition],
 }

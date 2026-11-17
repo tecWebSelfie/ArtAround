@@ -9,7 +9,7 @@ import { Container } from '@mantine/core'
 import { notFound, redirect } from 'next/navigation'
 import { directionsByStop } from '@/lib/tour-logistics'
 import { tourCopyPath, tourEditPath } from '@/lib/tour-routes'
-import { getTourEditorData } from '../../tour-editing'
+import { getTourEditorData, getTourQuizDrafts } from '../../tour-editing'
 
 /** Edit an own tour (author only); others customize a copy via `/tour/new?from=`. */
 export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[id]/edit'>) {
@@ -34,9 +34,10 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
     typeof content === 'string' ? content : content.id,
   )
   // Stops no longer visitable stay in the editor, flagged (not dropped on save).
-  const [{ museum, candidates }, thumbnail] = await Promise.all([
+  const [{ museum, candidates }, thumbnail, { drafts, keptQuestions }] = await Promise.all([
     getTourEditorData(typeof tour.museum === 'string' ? tour.museum : tour.museum.id, stopIds),
     coverImage(payload, 'toursThumbnails', tour.thumbnail),
+    getTourQuizDrafts(tour),
   ])
 
   return (
@@ -53,6 +54,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         visitCopyOf={asId(tour.visitCopyOf)}
         // A planned visit or a visit copy may keep a single stop.
         minStops={minStopsFor(tour)}
+        keptQuestions={keptQuestions}
         initial={{
           title: tour.title,
           description: tour.description ?? '',
@@ -60,6 +62,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
           logistics: tour.logistics ?? '',
           directions: directionsByStop(tour),
           contents: stopIds,
+          quiz: drafts,
         }}
       />
     </Container>

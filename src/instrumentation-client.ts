@@ -10,8 +10,10 @@ Sentry.init({
   // Add optional integrations for additional features
   integrations: [Sentry.replayIntegration()],
 
-  // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
-  tracesSampleRate: 1,
+  // Every trace in development; a tenth in production, where tracing every
+  // navigation exhausted the project's quota and Sentry answered the
+  // `/monitoring` tunnel with 429 (an error in the visitor's console).
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1,
   // Enable logs to be sent to Sentry
   enableLogs: true,
 

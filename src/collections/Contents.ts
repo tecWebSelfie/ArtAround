@@ -45,7 +45,7 @@ import {
   type PayloadRequest,
   type Where,
 } from 'payload'
-import { AUDIO_QUEUE } from '@/lib/content-audio'
+import { AUDIO_QUEUE, audioTextHash, contentAudioText } from '@/lib/content-audio'
 import { estimateSeconds } from '@/lib/duration'
 import { imageUpload } from '../fields/imageUpload'
 
@@ -293,7 +293,11 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
   try {
     await req.payload.jobs.queue({
       task: 'generateContentAudio',
-      input: { contentId: String(doc.id), locale: 'en' },
+      input: {
+        contentId: String(doc.id),
+        locale: 'en',
+        textHash: audioTextHash(contentAudioText(doc)),
+      },
       queue: AUDIO_QUEUE,
       req,
     })

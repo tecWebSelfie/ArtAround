@@ -13,7 +13,18 @@ Related: [tour navigation](tour-navigation.md).
 | Attempt         | `src/collections/QuizAttempts.ts`         | Server-graded run; addressed by random `token`, never by `id`.                                                                            |
 | Ownership rules | `src/lib/quiz-ownership.ts`               | Picker filter, validation, cleanup hooks.                                                                                                 |
 
-Authoring happens in the Payload admin. The Quiz tab picker uses `filterOptions`
+Authors write their tour's quiz in the tour editor (`QuizEditor` in
+`src/components/editing/forms/`, shown by `TourForm` on `/tour/new` and
+`/tour/[id]/edit`): question, correct answer, three wrong answers and an
+optional explanation. Those questions belong to the tour (`relatedTo` empty),
+so removing one from the editor deletes it (the ownership hooks below). The
+save (`saveQuizQuestions`) writes the questions first, in parallel, then the
+tour listing them; if the tour save fails it deletes the questions it just
+created and writes the stored text back over the edited ones. Questions linked
+to contents are authored in the Payload admin; the tour editor doesn't show
+them and puts each back after the nearest question that preceded it
+(`getTourQuizDrafts` records them), dropping those whose contents all left the
+tour, which the tour's validation would refuse. The Quiz tab picker uses `filterOptions`
 over the form `data`, so it already lists questions about contents added but not
 saved yet.
 

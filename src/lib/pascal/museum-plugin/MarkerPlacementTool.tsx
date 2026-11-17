@@ -2,15 +2,12 @@
 
 import { emitter, type AnyNode, type AnyNodeId, type GridEvent, useScene } from '@pascal-app/core'
 import { CursorSphere, useEditor, useRegistryToolContext } from '@pascal-app/editor'
+import { useViewer } from '@pascal-app/viewer'
 import { useEffect, useRef } from 'react'
 import type { Group } from 'three'
 import { EXIT_ENTRANCE_NODE_TYPE, ExitEntranceNode } from './ExitEntranceNode'
-import {
-  EXIT_ENTRANCE_META,
-  SERVICE_META,
-  isExitEntranceDirection,
-  isServiceType,
-} from './markers'
+import { EXIT_ENTRANCE_META, SERVICE_META, isExitEntranceDirection, isServiceType } from './markers'
+import { groundLevelId } from './marker-hierarchy'
 import { SERVICE_NODE_TYPE, ServiceNode } from './ServiceNode'
 
 /**
@@ -26,9 +23,10 @@ type MarkerToolDefaults = { nodeId?: string; service?: string; direction?: strin
  * through Pascal's generic surface-aware mover; this tool handles only initial
  * placement, including legacy service nodes without coordinates.
  *
- * Markers are authored at the scene root with world coordinates: museum
- * buildings sit at the origin, so world positions are also the plan positions
- * used by `floorplan`.
+ * Markers are children of the active level, in level-local coordinates, as
+ * Pascal's own `spawn` tool places its marker: `setScene` drops roots other
+ * than the site (marker-hierarchy.ts). Museum buildings sit at the origin, so
+ * level-local x/z are also the plan positions used by `floorplan`.
  */
 export default function MarkerPlacementTool() {
   const tool = useEditor((state) => state.tool)
@@ -51,6 +49,11 @@ export default function MarkerPlacementTool() {
     const onGridClick = (event: GridEvent) => {
       const scene = useScene.getState()
       const editor = useEditor.getState()
+      // Markers live under a level (marker-hierarchy.ts): with none selected,
+      // the ground level, never the scene root that `setScene` drops on load.
+      // `localPosition` is the building frame, which a level shares in x/z
+      // (Pascal's own spawn tool places the same way).
+      const levelId = useViewer.getState().selection.levelId ?? groundLevelId(scene.nodes)
       const armed = editor.tool
       const current =
         (armed ? (editor.toolDefaults[armed] as MarkerToolDefaults | undefined) : undefined) ?? {}
@@ -62,10 +65,15 @@ export default function MarkerPlacementTool() {
       // Legacy services can exist without a usable position, so give them a
       // first position here; all later movement uses Pascal's generic mover.
       if (current.nodeId) {
-        scene.updateNode(current.nodeId as AnyNodeId, {
-          position: event.position,
-          placed: true,
-        } as Partial<AnyNode>)
+        scene.updateNode(
+          current.nodeId as AnyNodeId,
+          {
+            // Level-local position: move the node under that level too.
+            ...(levelId && { parentId: levelId }),
+            position: event.localPosition,
+            placed: true,
+          } as Partial<AnyNode>,
+        )
         selectNode(current.nodeId as AnyNodeId)
         useEditor.getState().armToolMode({ mode: 'select' })
         return
@@ -74,18 +82,18 @@ export default function MarkerPlacementTool() {
       const node =
         armed === SERVICE_NODE_TYPE
           ? ServiceNode.parse({
-              position: event.position,
+              position: event.localPosition,
               service: isServiceType(current.service) ? current.service : 'infoPoint',
               placed: true,
             })
           : ExitEntranceNode.parse({
-              position: event.position,
+              position: event.localPosition,
               direction: isExitEntranceDirection(current.direction)
                 ? current.direction
                 : 'entrance',
               placed: true,
             })
-      scene.createNode(node as unknown as AnyNode)
+      scene.createNode(node as unknown as AnyNode, (levelId ?? undefined) as AnyNodeId | undefined)
       selectNode(node.id as AnyNodeId)
       useEditor.getState().armToolMode({ mode: 'select' })
     }

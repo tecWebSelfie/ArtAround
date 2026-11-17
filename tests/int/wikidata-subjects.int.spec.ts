@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { PayloadRequest } from 'payload'
-import { claimIds, getWikidataEntities, searchWikidata } from '@/lib/wikidata'
+import {
+  claimIds,
+  getWikidataEntities,
+  recordedWikidataFetch,
+  searchWikidata,
+} from '@/lib/wikidata'
 import { importWikidataSubjects } from '@/tasks/importWikidataSubjects'
 
 /**
@@ -27,21 +32,18 @@ const ENTITIES: Record<string, object> = {
   Q1474884: { id: 'Q1474884', ...label('High Renaissance', 'Alto Rinascimento') },
 }
 
-const fakeFetch = vi.fn(async (input: URL | RequestInfo) => {
+const recorded = recordedWikidataFetch({
+  ...ENTITIES,
+  Q999: { ...ENTITIES.Q1103801, redirects: { from: 'Q999', to: 'Q1103801' } },
+})
+const fakeFetch = vi.fn(async (input: URL | RequestInfo, init?: RequestInit) => {
   const url = new URL(input instanceof Request ? input.url : input)
   if (url.searchParams.get('action') === 'wbsearchentities') {
     return Response.json({
       search: [{ id: 'Q1103801', label: 'Estasi di santa Cecilia', description: 'dipinto' }],
     })
   }
-  const entities: Record<string, object> = {}
-  for (const id of url.searchParams.get('ids')!.split('|')) {
-    if (id === 'Q999')
-      entities.Q1103801 = { ...ENTITIES.Q1103801, redirects: { from: 'Q999', to: 'Q1103801' } }
-    else if (ENTITIES[id]) entities[id] = ENTITIES[id]
-    else entities[id] = { id, missing: '' }
-  }
-  return Response.json({ entities })
+  return recorded(input, init)
 }) as unknown as typeof fetch
 
 /** Local API double: one work, the subjects created so far, recorded writes. */

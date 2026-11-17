@@ -1,14 +1,14 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
 import { expect, fn, userEvent } from 'storybook/test'
-import { AssistantOrb } from './AssistantOrb'
+import { AssistantButton } from './AssistantButton'
 
 // A steady mid-level voice, so listening/speaking stories show the reaction.
 const voice = { current: 0.6 }
 
 const meta = {
-  title: 'Assistant/Orb',
-  component: AssistantOrb,
+  title: 'Assistant/Button',
+  component: AssistantButton,
   // Supplies the i18next instance (interpolated English fallbacks).
   decorators: [
     (Story) => (
@@ -22,26 +22,26 @@ const meta = {
     label: 'Turn on the voice assistant',
     status: 'Voice assistant off',
     onPress: fn(),
-    size: 96,
   },
   parameters: {
-    // The ball is a live WebGL particle animation (React Bits CrystalizedBall).
+    // The listening rings and the voice halo loop forever.
     visual: { disable: true },
+    layout: 'centered',
   },
-} satisfies Meta<typeof AssistantOrb>
+} satisfies Meta<typeof AssistantButton>
 export default meta
 type Story = StoryObj<typeof meta>
 
 export const Off: Story = {
   play: async ({ canvas, args }) => {
-    const orb = canvas.getByRole('button', { name: 'Turn on the voice assistant' })
-    await expect(orb).toHaveAttribute('aria-pressed', 'false')
-    await userEvent.click(orb)
+    const button = canvas.getByRole('button', { name: 'Turn on the voice assistant' })
+    await expect(button).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(button)
     await expect(args.onPress).toHaveBeenCalled()
   },
 }
 
-/** Opted in, mic closed: a slow breathe only. */
+/** Opted in, mic closed: a filled mic button, no rings. */
 export const Ready: Story = {
   args: {
     state: 'ready',
@@ -53,7 +53,7 @@ export const Ready: Story = {
   },
 }
 
-/** The only state with the mic open; `aria-pressed` says so too. */
+/** The only state with the mic open: rings leave the edge; `aria-pressed` says so too. */
 export const Listening: Story = {
   args: { state: 'listening', label: 'Stop listening', status: 'Listening', level: voice },
   play: async ({ canvas }) => {
@@ -64,8 +64,14 @@ export const Listening: Story = {
   },
 }
 
+/** It heard the visitor and is answering: the button's loader, no rings. */
 export const Thinking: Story = {
   args: { state: 'thinking', label: 'Assistant is thinking', status: 'Thinking' },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole('button', { name: 'Assistant is thinking' })).toHaveAttribute(
+      'data-loading',
+    )
+  },
 }
 
 export const Speaking: Story = {

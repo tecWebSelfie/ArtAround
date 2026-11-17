@@ -37,7 +37,7 @@ export type NavigationCommand = {
   id: string
   label: string
   description: string
-  /** `quick` commands are the empty-Spotlight pills; the rest are search results. */
+  /** `quick` commands are the empty-Spotlight pills; the rest are the catalogue's results. */
   group: 'quick' | 'tour' | 'object' | 'content' | 'service' | 'exit'
   href: Route
   /** Same-page URL state (destination, mobility) replaces; modal routes push. */

@@ -1,6 +1,6 @@
 /**
  * Single-container entry point for the standalone deploy: seed → reindex →
- * app. The deploy container can't be entered and runs just this file:
+ * (opt-in read-aloud diagnostics) → app. The deploy container can't be entered and runs just this file:
  *
  *   node .next/standalone/scripts/standalone-boot.mjs
  *
@@ -59,10 +59,28 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   })
 }
 
-/** Runs `node <script>`; resolves with its exit code (non-zero when killed). */
-function run(script) {
+/**
+ * Runs `node <script>`; resolves with its exit code (non-zero when killed).
+ * With `timeoutMs`, a script still running by then gets SIGTERM, then SIGKILL
+ * a few seconds later: a library's SIGTERM handler that doesn't exit must not
+ * keep the boot (and so the server) waiting forever.
+ */
+function run(script, timeoutMs) {
   console.log(`[boot] node ${script}`)
   child = spawn(process.execPath, [script], { stdio: 'inherit' })
+  if (timeoutMs) {
+    const running = child
+    let killTimer
+    const timer = setTimeout(() => {
+      console.error(`[boot] ${script} still running after ${timeoutMs / 1000} s: stopped`)
+      running.kill('SIGTERM')
+      killTimer = setTimeout(() => running.kill('SIGKILL'), 5_000)
+    }, timeoutMs)
+    running.on('exit', () => {
+      clearTimeout(timer)
+      clearTimeout(killTimer)
+    })
+  }
   return new Promise((resolve) => {
     child.on('error', (error) => {
       console.error(`[boot] ${script} could not start:`, error)
@@ -72,8 +90,20 @@ function run(script) {
   })
 }
 
-for (const script of ['scripts/standalone-seed.mjs', 'scripts/standalone-reindex.mjs']) {
-  const code = await run(script)
+// The read-aloud diagnostics (src/scripts/tts-check.ts) write to this log
+// what the content audio chain does on this server. Opt-in with `TTS_CHECK=1`
+// or `true` (e.g. in `.env.production` for one deploy): they hold the server back for up
+// to two minutes and pay for a Fish Audio synthesis plus one content audio,
+// so they must not run on every boot or restart.
+const steps = [
+  { script: 'scripts/standalone-seed.mjs' },
+  { script: 'scripts/standalone-reindex.mjs' },
+  ...(['1', 'true'].includes(process.env.TTS_CHECK?.toLowerCase() ?? '')
+    ? [{ script: 'scripts/standalone-tts-check.mjs', timeoutMs: 120_000 }]
+    : []),
+]
+for (const { script, timeoutMs } of steps) {
+  const code = await run(script, timeoutMs)
   // A stop during the seed or reindex must not go on to start the server.
   if (stopping) process.exit(code)
   if (code !== 0) console.error(`[boot] ${script} failed (exit ${code}); starting the app anyway`)

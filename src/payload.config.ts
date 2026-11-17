@@ -43,6 +43,7 @@ import {
   interactiveObjectModelWorkflow,
 } from './jobs/interactiveObjectModelWorkflow'
 import { autoTranslatePlugin } from './plugins/autoTranslate'
+import { uploadsDirPlugin } from './plugins/uploadsDir'
 import { loadObjectGenerationContext } from './tasks/loadObjectGenerationContext'
 import { persistMintModelAssets } from './tasks/persistMintModelAssets'
 import { pollMintModelOperation } from './tasks/pollMintModelOperation'
@@ -309,6 +310,9 @@ export default buildConfig({
       // Custom callback to check if a user is an admin
       isAdmin: ({ req }) => req.user?.collection === 'users' && Boolean(req.user?.isSuperAdmin),
     }),
+    // Last: places every upload collection's files, those added by the
+    // plugins above included (`UPLOADS_DIR`, src/plugins/uploadsDir.ts).
+    uploadsDirPlugin(),
   ],
   bin: [
     {

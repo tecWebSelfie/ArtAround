@@ -11,7 +11,7 @@ test.beforeEach(() => {
 })
 test.setTimeout(300_000)
 
-// The map's own canvas (the assistant orb draws another one outside `main`).
+// The map's own canvas, inside `main` (nothing outside it is the map).
 const mapCanvas = (page: Page) => page.getByRole('main').locator('canvas')
 
 test('shows the map on desktop and mobile', async ({ page }) => {

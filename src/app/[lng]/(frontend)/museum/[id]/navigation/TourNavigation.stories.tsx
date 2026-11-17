@@ -203,7 +203,7 @@ export const SimulatedGps: Story = {
   },
 }
 
-/** The dormant orb sits at the right of the navbar until the visitor opts in. */
+/** The microphone button sits, off, at the right of the navbar until the visitor opts in. */
 export const AssistantOff: Story = {
   ...RouteBetweenObjects,
   parameters: {

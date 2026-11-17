@@ -11,6 +11,8 @@ import {
   type AnyNodeId,
   type ParsedBuildJson,
 } from '@pascal-app/core'
+import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
+import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { Viewer, type HoverStyles } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
@@ -64,9 +66,8 @@ export function MapViewer({
     (ready: boolean) => {
       onSceneReadyChange?.(ready)
       if (!ready) return
-      // Shown once ready, framed or not: without camera controls (no WebGL,
-      // the viewer's own fallback) there is nothing to frame, and a canvas
-      // kept hidden would hide that fallback too.
+      // Shown once ready, framed or not: without camera controls there is
+      // nothing to frame, and a canvas kept hidden would hide the fallback.
       setFramedMap(map)
       if (!controls.current) return
       const bounds = new Box3()
@@ -94,16 +95,18 @@ export function MapViewer({
     void loadMuseumPlugins()
       .then(() => {
         if (cancelled) return
+        // Legacy markers and asset URLs repaired (setScene drops root markers).
+        const scene = loadableMap(map)
         const nodes: Record<AnyNodeId, AnyNode> = {}
         // Plugin-registered kinds (e.g. museum service markers) are not members
         // of the `AnyNode` union, so `AnyNode.parse` rejects them. Materialize
         // their registered defaults first, then keep `AnyNode.parse` for the
         // built-in kinds and fall back to the stored node for plugin kinds.
-        for (const [id, value] of Object.entries(materializeRegisteredNodeDefaults(map.nodes))) {
+        for (const [id, value] of Object.entries(materializeRegisteredNodeDefaults(scene.nodes))) {
           const node = AnyNode.safeParse(value)
           nodes[id as AnyNodeId] = (node.success ? node.data : value) as AnyNode
         }
-        setScene(nodes, map.rootNodeIds as AnyNodeId[], {
+        setScene(nodes, scene.rootNodeIds as AnyNodeId[], {
           collections: map.collections,
           materials: map.materials,
           installedPlugins: map.installedPlugins,
@@ -128,21 +131,28 @@ export function MapViewer({
 
   return (
     <Box {...props}>
-      {/* Hidden, not unmounted, until framed; then a short fade (none when
-          the visitor asks for reduced motion). */}
-      <Box
-        className={`size-full motion-safe:transition-opacity motion-safe:duration-300 ${framedMap === map ? 'opacity-100' : 'opacity-0'}`}
+      {/* Without WebGL the viewer throws while its canvas mounts: only the
+          map gives way, so a tour keeps its text, audio and controls. The
+          boundary sits outside the fading box, which never shows then. */}
+      <RenderErrorBoundary
+        fallback={<div role="alert">{t('The 3D view is not available on this device.')}</div>}
       >
-        <Viewer
-          selectionManager={selectionManager}
-          onSceneReadyChange={handleSceneReadyChange}
-          renderPaused={renderPaused}
-          hoverStyles={hoverStyles}
+        {/* Hidden, not unmounted, until framed; then a short fade (none when
+            the visitor asks for reduced motion). */}
+        <Box
+          className={`size-full motion-safe:transition-opacity motion-safe:duration-300 ${framedMap === map ? 'opacity-100' : 'opacity-0'}`}
         >
-          <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
-          {children}
-        </Viewer>
-      </Box>
+          <Viewer
+            selectionManager={selectionManager}
+            onSceneReadyChange={handleSceneReadyChange}
+            renderPaused={renderPaused}
+            hoverStyles={hoverStyles}
+          >
+            <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
+            {children}
+          </Viewer>
+        </Box>
+      </RenderErrorBoundary>
     </Box>
   )
 }
