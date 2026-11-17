@@ -32,7 +32,11 @@ requirement; `docs/plan/requisiti-18-33.md`, point 5).
   id.
 - `src/lib/wikidata.ts` is the client (`wbsearchentities`, `wbgetentities`),
   with retries on rate limits (429/503, `Retry-After`).
-- `pnpm seed:demo` runs the import right away for the Pinacoteca's works.
+- The demo seed (`pnpm seed:demo`, and the deploy's boot for a missing
+  Pinacoteca) runs the same import right away, offline: `offlineWikidataFetch`
+  (`scripts/offline-wikidata.ts`) answers it from
+  `seed-assets/wikidata-entities.json`. After adding a demo work or a
+  language, record it again with `pnpm exec tsx scripts/snapshot-wikidata.ts`.
 
 ## UI
 

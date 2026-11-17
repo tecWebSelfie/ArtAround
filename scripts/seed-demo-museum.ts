@@ -42,8 +42,8 @@ import { museumNavMeshOptions, wheelchairNavMeshOptions } from '../src/lib/pasca
 import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
 import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
-import { WIKIDATA_QUEUE } from '../src/lib/wikidata'
 import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
+import { offlineWikidataFetch } from './offline-wikidata'
 import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 const MAP_KEY = 'demo_pinacoteca'
@@ -134,7 +134,7 @@ async function upsert<T extends { id: string | number }>(
     limit: 1,
   })
   // Demo objects have no 3D model: never queue Mint generation for them. The
-  // Wikidata import runs below, right away (queued only past its budget).
+  // Wikidata import runs below, right away, instead of as a queued job.
   const context = { skipMintModelGeneration: true, skipWikidataImport: true }
   const options = { collection, locale: 'en' as const, depth: 0, context, data: data as never }
   return (found.docs[0]
@@ -215,11 +215,26 @@ async function backfillThumbnails(payload: Payload) {
   if (added) console.info(`${added} demo work photos added.`)
 }
 
-/**
- * The specification's accounts (created by the base seed too): the demo
- * contents are theirs, so the examiners can log in as their authors.
- */
-async function demoAuthors(payload: Payload) {
+export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false } = {}) {
+  if (onlyIfMissing) {
+    const existing = await payload.count({
+      collection: 'museums',
+      where: { name: { equals: MUSEUM.name } },
+    })
+    if (existing.totalDocs) {
+      console.info(`Demo museum "${MUSEUM.name}" already exists, skipping`)
+      await backfillThumbnails(payload)
+      return null
+    }
+  }
+  const editorConfig = await editorConfigFactory.default({ config: payload.config })
+
+  const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
+  const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
+  const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
+
+  // The specification's accounts (created by the base seed too): the demo
+  // contents are theirs, so the examiners can log in as their authors.
   const userIdByUsername = new Map<string, string>()
   for (const account of PROJECT_ACCOUNTS) {
     const found = await payload.find({
@@ -231,121 +246,7 @@ async function demoAuthors(payload: Payload) {
     const user = found.docs[0] ?? (await payload.create({ collection: 'users', data: account }))
     userIdByUsername.set(account.username, String(user.id))
   }
-  return (username: DemoAuthor) => userIdByUsername.get(username)!
-}
-
-/**
- * How long the seed links works to Wikidata subjects itself. Each subject is
- * saved once per app language, each save refreshes the search index, and
- * Wikidata may be slow, rate-limited or unreachable from the server: on the
- * deploy this held the boot (and so the app) for minutes, with no output.
- */
-const WIKIDATA_BUDGET_MS = 60_000
-
-/**
- * Authors, movements and events from each work's Wikidata item, best effort:
- * the works left when the budget runs out (or that failed) are queued as
- * `importWikidataSubjects` jobs, which the running server picks up
- * (`jobs.autoRun`), so the boot goes on to start it.
- */
-async function importSubjects(payload: Payload, objectIdByKey: Map<string, string>) {
-  const localReq = await createLocalReq({}, payload)
-  const deadline = Date.now() + WIKIDATA_BUDGET_MS
-  let linkedSubjects = 0
-  const queued: string[] = []
-  for (const [key, id] of objectIdByKey) {
-    if (Date.now() < deadline) {
-      try {
-        linkedSubjects += (await importWikidataSubjects(localReq, id)).subjects
-        console.info(`Wikidata subjects linked for "${key}".`)
-        continue
-      } catch (error) {
-        console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
-      }
-    }
-    queued.push(id)
-  }
-  for (const objectId of queued) {
-    await payload.jobs.queue({
-      task: 'importWikidataSubjects',
-      input: { objectId },
-      queue: WIKIDATA_QUEUE,
-    })
-  }
-  console.info(
-    `${linkedSubjects} subject links from Wikidata` +
-      (queued.length ? `; ${queued.length} works queued for the server.` : '.'),
-  )
-}
-
-/**
- * Contents about a subject rather than a work (an item about an artist), for
- * the subjects that exist. With `createOnly` (every boot of an existing demo
- * museum) only the missing ones are added, once a queued import has created
- * their subject, and nothing the staff edited is overwritten.
- */
-async function seedSubjectContents(
-  payload: Payload,
-  authorId: (username: DemoAuthor) => string,
-  { createOnly = false } = {},
-) {
-  for (const subjectContent of SUBJECT_CONTENTS) {
-    const subject = (
-      await payload.find({
-        collection: 'subjects',
-        where: { wikidataId: { equals: subjectContent.wikidataId } },
-        depth: 0,
-        limit: 1,
-      })
-    ).docs[0]
-    if (!subject) continue
-    if (createOnly) {
-      const existing = await payload.count({
-        collection: 'contents',
-        where: { title: { equals: subjectContent.title } },
-        locale: 'en',
-      })
-      if (existing.totalDocs) continue
-    }
-    const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
-      title: subjectContent.title,
-      bodyHTML: subjectContent.bodyHTML,
-      difficulty: subjectContent.difficulty,
-      audience: 'everyone',
-      sources: subjectContent.sources ?? [],
-      author: authorId(subjectContent.author),
-      objects: {},
-    })
-    const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
-    await payload.update({
-      collection: 'subjects',
-      id: subject.id,
-      depth: 0,
-      data: { contents: [...contents] },
-    })
-  }
-}
-
-export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false } = {}) {
-  if (onlyIfMissing) {
-    const existing = await payload.count({
-      collection: 'museums',
-      where: { name: { equals: MUSEUM.name } },
-    })
-    if (existing.totalDocs) {
-      console.info(`Demo museum "${MUSEUM.name}" already exists, skipping`)
-      await backfillThumbnails(payload)
-      await seedSubjectContents(payload, await demoAuthors(payload), { createOnly: true })
-      return null
-    }
-  }
-  const editorConfig = await editorConfigFactory.default({ config: payload.config })
-
-  const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
-  const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
-  const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
-
-  const authorId = await demoAuthors(payload)
+  const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
 
   // Contents first: an object needs at least one, and owns its contents.
   const contentIdByTitle = new Map<string, string>()
@@ -388,8 +289,49 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
   }
   console.info(`${OBJECTS.length} objects and ${contentIdByTitle.size} contents ready.`)
 
-  await importSubjects(payload, objectIdByKey)
-  await seedSubjectContents(payload, authorId)
+  // Authors, movements and events from each work's Wikidata item, read from
+  // the recorded snapshot: the seed never calls Wikidata (offline boot), and a
+  // live import would save each subject in every language at network speed.
+  const localReq = await createLocalReq({}, payload)
+  const wikidata = await offlineWikidataFetch()
+  let linkedSubjects = 0
+  for (const [key, id] of objectIdByKey) {
+    try {
+      linkedSubjects += (await importWikidataSubjects(localReq, id, wikidata)).subjects
+    } catch (error) {
+      console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
+    }
+  }
+  console.info(`${linkedSubjects} subject links from Wikidata.`)
+
+  // Contents about a subject rather than a work (an item about an artist).
+  for (const subjectContent of SUBJECT_CONTENTS) {
+    const subject = (
+      await payload.find({
+        collection: 'subjects',
+        where: { wikidataId: { equals: subjectContent.wikidataId } },
+        depth: 0,
+        limit: 1,
+      })
+    ).docs[0]
+    if (!subject) continue
+    const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
+      title: subjectContent.title,
+      bodyHTML: subjectContent.bodyHTML,
+      difficulty: subjectContent.difficulty,
+      audience: 'everyone',
+      sources: subjectContent.sources ?? [],
+      author: authorId(subjectContent.author),
+      objects: {},
+    })
+    const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
+    await payload.update({
+      collection: 'subjects',
+      id: subject.id,
+      depth: 0,
+      data: { contents: [...contents] },
+    })
+  }
 
   // Place every object; `museums.objects` is derived from these items on save.
   const map = createRealisticMuseumMap(MAP_KEY)

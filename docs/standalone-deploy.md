@@ -95,7 +95,8 @@ the standalone self-sufficient:
 - it copies `scripts/standalone-boot.mjs` next to them.
 
 `scripts/copy-standalone-assets.mjs` (earlier in `pnpm build`) copies `public/`,
-`.next/static/` and `seed-assets/` (the demo works' photos, ~2 MB) in.
+`.next/static/` and `seed-assets/` (the demo works' photos, ~2 MB, and their
+recorded Wikidata items) in.
 
 ## Boot script
 
@@ -136,7 +137,9 @@ missing, so one seed fills everything the demo needs. It never rebuilds an
 existing one: later boots leave the staff's edits alone, except that a demo
 work without a thumbnail gets its photo (for a first boot that could not save
 files). The photos come from `seed-assets/objects/` (Wikimedia Commons images
-saved at 800 px), so the seed never needs the network. `pnpm seed:demo`
+saved at 800 px) and their authors, movements and events from
+`seed-assets/wikidata-entities.json` (recorded Wikidata items), so the seed
+never needs the network. `pnpm seed:demo`
 rebuilds it in place on purpose (local databases only).
 
 ## Copying the standalone into the deploy folder
