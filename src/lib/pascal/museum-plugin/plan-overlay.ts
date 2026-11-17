@@ -1,4 +1,5 @@
 import { BaseNode, nodeType, objectId, type NodeDefinition } from '@pascal-app/core'
+import { DEFAULT_PRIMARY } from '@/theme'
 import { Flag, PersonStanding } from 'lucide-react'
 import { z } from 'zod'
 import { markerPlanSymbol } from './plan-symbols'
@@ -18,9 +19,22 @@ import { markerPlanSymbol } from './plan-symbols'
 const point = z.tuple([z.number(), z.number(), z.number()])
 const planOnly = {
   schemaVersion: 1,
-  category: 'analysis',
+  // `furnish` keeps them out of the plan's automatic fit (as Pascal's own
+  // items): the view frames the building, and does not move as the visitor
+  // walks or the route changes.
+  category: 'furnish',
   capabilities: { selectable: false, deletable: false, duplicable: false },
 } as const
+
+/** The node fields every plan-only node shares (`MuseumFloorplan` adds them too). */
+export const PLAN_NODE_BASE = {
+  object: 'node',
+  parentId: null,
+  visible: true,
+  metadata: {},
+} as const
+/** The default primary's filled shade, the color of the route and the visitor. */
+const PRIMARY = DEFAULT_PRIMARY[6]
 
 export const PLAN_WORK_NODE_TYPE = 'museum:plan-work'
 export const PlanWorkNode = BaseNode.extend({
@@ -44,10 +58,7 @@ export const PlanWorkDefinition: NodeDefinition<typeof PlanWorkNode> = {
     height: WORK_DIAMETER,
   }),
   defaults: () => ({
-    object: 'node',
-    parentId: null,
-    visible: true,
-    metadata: {},
+    ...PLAN_NODE_BASE,
     position: [0, 0, 0],
     url: '',
   }),
@@ -73,12 +84,9 @@ export const PlanVisitorDefinition: NodeDefinition<typeof PlanVisitorNode> = {
       0.75,
     ),
   defaults: () => ({
-    object: 'node',
-    parentId: null,
-    visible: true,
-    metadata: {},
+    ...PLAN_NODE_BASE,
     position: [0, 0, 0],
-    color: '#0077d1',
+    color: PRIMARY,
   }),
 }
 
@@ -114,11 +122,8 @@ export const PlanRouteDefinition: NodeDefinition<typeof PlanRouteNode> = {
     }
   },
   defaults: () => ({
-    object: 'node',
-    parentId: null,
-    visible: true,
-    metadata: {},
+    ...PLAN_NODE_BASE,
     points: [],
-    color: '#0077d1',
+    color: PRIMARY,
   }),
 }

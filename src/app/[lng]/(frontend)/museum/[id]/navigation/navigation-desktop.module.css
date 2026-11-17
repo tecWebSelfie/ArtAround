@@ -44,7 +44,7 @@
 
   .panelInner {
     /* Clear both measured bars, including enlarged-text footers, so the
-       stepper and the orb stay usable while reading. */
+       stepper and the microphone button stay usable while reading. */
     top: calc(var(--navigation-header-height, 7rem) + var(--mantine-spacing-md));
     bottom: calc(
       var(--navigation-footer-height, var(--app-shell-footer-height, 4rem)) +

@@ -22,7 +22,7 @@
 import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 import {
@@ -143,15 +143,6 @@ async function upsert<T extends { id: string | number }>(
 }
 
 /**
- * Creates (or, with `onlyIfMissing: false`, rebuilds in place) the demo
- * museum. The base seed (`src/seed.ts`, also run by the deploy's boot) calls
- * it with `onlyIfMissing: true`: one seed fills the database the demo needs,
- * and a restart never overwrites what the staff edited since (the map, the
- * contents, the tours). `pnpm seed:demo` rebuilds it on purpose.
- *
- * Returns what the e2e fixture records, or null when it was left as it was.
- */
-/**
  * The work's photo, uploaded once as its thumbnail: a Wikimedia Commons image
  * (`object.image`) saved in the repository at 800 px (`seed-assets/objects/`,
  * copied next to the standalone build by scripts/copy-standalone-assets.mjs),
@@ -168,13 +159,12 @@ async function objectThumbnail(payload: Payload, object: (typeof OBJECTS)[number
   })
   if (existing.docs[0]) return existing.docs[0].id
   try {
-    const data = await readFile(path.resolve('seed-assets/objects', filename))
     const doc = await payload.create({
       collection: 'objectsThumbnails',
       locale: 'en',
       depth: 0,
       data: { alt: object.name },
-      file: { data, mimetype: 'image/jpeg', name: filename, size: data.length },
+      filePath: path.resolve('seed-assets/objects', filename),
     })
     return doc.id
   } catch (error) {
@@ -189,18 +179,24 @@ async function objectThumbnail(payload: Payload, object: (typeof OBJECTS)[number
  * upload folder the container could not write) gets them on the next boot.
  */
 async function backfillThumbnails(payload: Payload) {
+  // One query on every boot; uploads only when something is missing.
+  const { docs } = await payload.find({
+    collection: 'objects',
+    where: {
+      and: [
+        { name: { in: OBJECTS.map((object) => object.name) } },
+        { thumbnail: { exists: false } },
+      ],
+    },
+    locale: 'en',
+    depth: 0,
+    pagination: false,
+    overrideAccess: true,
+  })
   let added = 0
-  for (const object of OBJECTS) {
-    const found = await payload.find({
-      collection: 'objects',
-      where: { and: [{ name: { equals: object.name } }, { thumbnail: { exists: false } }] },
-      depth: 0,
-      limit: 1,
-      overrideAccess: true,
-    })
-    const work = found.docs[0]
-    if (!work) continue
-    const thumbnail = await objectThumbnail(payload, object)
+  for (const work of docs) {
+    const object = OBJECTS.find((candidate) => candidate.name === work.name)
+    const thumbnail = object && (await objectThumbnail(payload, object))
     if (!thumbnail) continue
     await payload.update({
       collection: 'objects',
@@ -215,6 +211,15 @@ async function backfillThumbnails(payload: Payload) {
   if (added) console.info(`${added} demo work photos added.`)
 }
 
+/**
+ * Creates (or, with `onlyIfMissing: false`, rebuilds in place) the demo
+ * museum. The base seed (`src/seed.ts`, also run by the deploy's boot) calls
+ * it with `onlyIfMissing: true`: one seed fills the database the demo needs,
+ * and a restart never overwrites what the staff edited since (the map, the
+ * contents, the tours). `pnpm seed:demo` rebuilds it on purpose.
+ *
+ * Returns what the e2e fixture records, or null when it was left as it was.
+ */
 export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false } = {}) {
   if (onlyIfMissing) {
     const existing = await payload.count({

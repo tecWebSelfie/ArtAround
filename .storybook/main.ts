@@ -44,7 +44,7 @@ const config: StorybookConfig = {
       // builds only do with NEXT_PUBLIC_GPS_SIMULATOR=true (see gps-source.ts).
       define: { 'process.env.NEXT_PUBLIC_GPS_SIMULATOR': JSON.stringify('true') },
       // The voice assistant's API routes live in the Next app: forward them to
-      // a local `pnpm dev`, so the orb can be tried for real in Storybook.
+      // a local `pnpm dev`, so the microphone button can be tried for real in Storybook.
       server: {
         proxy: {
           '/api/assistant': 'http://localhost:3000',

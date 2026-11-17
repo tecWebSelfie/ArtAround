@@ -16,7 +16,7 @@ patchedDependencies:
     hash: eaa1f6b994d58e4dc4d20596ae5b78e83eb84f62c0e9c4922b0ab5f2efb5b101
     path: patches/@asammad48__react-map-place@0.1.0.patch
   '@pascal-app/editor@1.0.4':
-    hash: d0a58fc9d46b2fdf6aa4cf7dc584abcadf7eaaa122b08a0d3b209f01130fee24
+    hash: 44463ff3183b267d61a6c5b643a30b284860c357097062c2809b4214acd893f9
     path: patches/@pascal-app__editor.patch
   payload-phone-number-plugin:
     hash: c8e88b6749e59a4af58f4a4fdeccc2421e28976da10e5912b70c3909887df77c
@@ -124,10 +124,10 @@ importers:
         version: 1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(immer@11.1.21)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
       '@pascal-app/editor':
         specifier: ^1.0.4
-        version: 1.0.4(patch_hash=d0a58fc9d46b2fdf6aa4cf7dc584abcadf7eaaa122b08a0d3b209f01130fee24)(42be37c42869e1cbadd8a54822ab2344)
+        version: 1.0.4(patch_hash=44463ff3183b267d61a6c5b643a30b284860c357097062c2809b4214acd893f9)(42be37c42869e1cbadd8a54822ab2344)
       '@pascal-app/nodes':
         specifier: ^1.0.4
-        version: 1.0.4(1f336aefcba5a46500e49a0005bbe779)
+        version: 1.0.4(8ff1fc3a8e455afe9dc078561c696dfc)
       '@pascal-app/viewer':
         specifier: ^1.0.4
         version: 1.0.4(e1804500833333d50ae016db9dbf455a)
@@ -302,9 +302,6 @@ importers:
       next-i18next:
         specifier: ^16.3.1
         version: 16.3.1(@types/react@19.2.14)(i18next@26.4.2(typescript@7.0.2))(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(react-i18next@17.0.15(i18next@26.4.2(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2))(react@19.2.6)
-      ogl:
-        specifier: ^1.0.11
-        version: 1.0.11
       openai:
         specifier: ^4.104.0
         version: 4.104.0(ws@8.21.3)(zod@4.5.4)
@@ -8570,9 +8567,6 @@ packages:
   ofetch@1.5.1:
     resolution: {integrity: sha512-2W4oUZlVaqAPAil6FUg/difl6YhqhUR7x2eZY4bQCko22UXg3hptq9KLQdqFClV+Wu85UX7hNtdGTngi/1BxcA==}
 
-  ogl@1.0.11:
-    resolution: {integrity: sha512-kUpC154AFfxi16pmZUK4jk3J+8zxwTWGPo03EoYA8QPbzikHoaC82n6pNTbd+oEaJonaE8aPWBlX7ad9zrqLsA==}
-
   ohash@2.0.12:
     resolution: {integrity: sha512-65S/5gk9YSsaRjcyf7Nfa6h/d3E8/1gslpXfI4W7Dxn/oap8IKRuNT5VXkLQ1YFKIEg4apRY4Pj6aiwFzrDdmw==}
 
@@ -13140,7 +13134,7 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@pascal-app/editor@1.0.4(patch_hash=d0a58fc9d46b2fdf6aa4cf7dc584abcadf7eaaa122b08a0d3b209f01130fee24)(42be37c42869e1cbadd8a54822ab2344)':
+  '@pascal-app/editor@1.0.4(patch_hash=44463ff3183b267d61a6c5b643a30b284860c357097062c2809b4214acd893f9)(42be37c42869e1cbadd8a54822ab2344)':
     dependencies:
       '@dnd-kit/core': 6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@dnd-kit/sortable': 10.0.0(@dnd-kit/core@6.3.1(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(react@19.2.6)
@@ -13233,10 +13227,10 @@ snapshots:
     optionalDependencies:
       react: 19.2.6
 
-  '@pascal-app/nodes@1.0.4(1f336aefcba5a46500e49a0005bbe779)':
+  '@pascal-app/nodes@1.0.4(8ff1fc3a8e455afe9dc078561c696dfc)':
     dependencies:
       '@pascal-app/core': 1.0.4(@react-three/drei@10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(babel-plugin-macros@3.1.0)(immer@11.1.21)(react@19.2.6)(three@0.186.1)(use-sync-external-store@1.7.0(react@19.2.6))
-      '@pascal-app/editor': 1.0.4(patch_hash=d0a58fc9d46b2fdf6aa4cf7dc584abcadf7eaaa122b08a0d3b209f01130fee24)(42be37c42869e1cbadd8a54822ab2344)
+      '@pascal-app/editor': 1.0.4(patch_hash=44463ff3183b267d61a6c5b643a30b284860c357097062c2809b4214acd893f9)(42be37c42869e1cbadd8a54822ab2344)
       '@pascal-app/viewer': 1.0.4(e1804500833333d50ae016db9dbf455a)
       '@react-three/drei': 10.7.9(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(@types/react@19.2.14)(@types/three@0.185.4)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)
       '@react-three/fiber': 9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)
@@ -18814,8 +18808,6 @@ snapshots:
       destr: 2.0.5
       node-fetch-native: 1.6.7
       ufo: 1.6.4
-
-  ogl@1.0.11: {}
 
   ohash@2.0.12: {}
 

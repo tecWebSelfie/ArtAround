@@ -5,7 +5,7 @@ import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { Suspense, useEffect, useMemo, useState, type ReactNode, type Ref } from 'react'
+import { Suspense, useEffect, useState, type ReactNode, type Ref } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
@@ -83,14 +83,6 @@ export const TourNavigationPage = ({
 
   const { t } = useTranslation('tour-navigation')
   const [routeUnavailable, setRouteUnavailable] = useState(false)
-  // Each work's photo, for its round picture on the 2D floor plan.
-  const workPhotos = useMemo(
-    () =>
-      new Map(
-        catalog.flatMap((object) => (object.thumbnail ? [[object.id, object.thumbnail]] : [])),
-      ),
-    [catalog],
-  )
   const [route, setRoute] = useState<MuseumRoute | null>(null)
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
@@ -118,6 +110,7 @@ export const TourNavigationPage = ({
     route,
     navMesh,
   })
+  const planView = settings.mapView === '2d'
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
 
@@ -191,18 +184,19 @@ export const TourNavigationPage = ({
               // Under the floor plan the 3D map stays mounted (routes are
               // computed on its meshes) but draws no frames, and is hidden
               // with its DOM labels, which would float over the plan.
-              renderPaused={settings.mapView === '2d'}
-              className={settings.mapView === '2d' ? 'invisible' : undefined}
+              renderPaused={planView}
+              className={planView ? 'invisible' : undefined}
             />
           )
         }
         plan={
-          settings.mapView === '2d' &&
+          planView &&
           museumMap.parsed && (
             <MuseumFloorplan
-              position={guidance.position}
+              // As on the 3D map: the avatar waits at the route's start.
+              position={guidance.position ?? route?.start ?? null}
               path={guidance.path ?? route?.path ?? null}
-              photos={workPhotos}
+              catalog={catalog}
             />
           )
         }

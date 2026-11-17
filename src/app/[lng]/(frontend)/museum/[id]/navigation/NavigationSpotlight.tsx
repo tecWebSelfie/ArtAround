@@ -50,9 +50,6 @@ export function NavigationSpotlight({
   const { t } = useTranslation('tour-navigation')
   const [query, setQuery] = useState('')
   const text = query.trim().toLowerCase()
-  // Every command is searchable, quick actions included: they describe what
-  // the visitor can do now ("Open next stop", "Nearest food"), which is often
-  // what they are typing, and they live only in this list (never in Typesense).
   const results = commands
     .filter((command) => `${command.label} ${command.description}`.toLowerCase().includes(text))
     .slice(0, RESULT_LIMIT)

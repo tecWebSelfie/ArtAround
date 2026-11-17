@@ -1,7 +1,7 @@
 'use client'
 
 import { ActionIcon, Box, Tooltip, VisuallyHidden } from '@mantine/core'
-import { Mic, MicOff, Volume2 } from 'lucide-react'
+import { Mic, MicOff, Volume2, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, type RefObject } from 'react'
 
 /**
@@ -23,14 +23,7 @@ import { useEffect, useRef, type RefObject } from 'react'
  */
 export type AssistantState = 'off' | 'loading' | 'ready' | 'listening' | 'thinking' | 'speaking'
 
-const ICON = {
-  off: MicOff,
-  loading: Mic,
-  ready: Mic,
-  listening: Mic,
-  thinking: Mic,
-  speaking: Volume2,
-}
+const STATE_ICON: Partial<Record<AssistantState, LucideIcon>> = { off: MicOff, speaking: Volume2 }
 
 export function AssistantButton({
   state,
@@ -54,14 +47,21 @@ export function AssistantButton({
   const halo = useRef<HTMLSpanElement>(null)
   useEffect(() => {
     if (!reacting) return
+    let written = -1
     let frame = requestAnimationFrame(function tick() {
-      halo.current?.style.setProperty('--level', String(level?.current ?? 0))
+      const next = level?.current ?? 0
+      // Only a change the eye can see restyles the halo.
+      if (Math.abs(next - written) >= 0.01) {
+        written = next
+        halo.current?.style.setProperty('--level', String(next))
+      }
       frame = requestAnimationFrame(tick)
     })
     return () => cancelAnimationFrame(frame)
   }, [reacting, level])
 
-  const Icon = ICON[state]
+  // A mic in every other state (the loader covers it while loading or thinking).
+  const Icon = STATE_ICON[state] ?? Mic
   const off = state === 'off'
   return (
     <Box pos="relative" className="grid size-[52px] shrink-0 place-items-center">
