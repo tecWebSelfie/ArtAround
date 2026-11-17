@@ -22,7 +22,8 @@
 import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 import {
   BlockNode,
@@ -42,7 +43,6 @@ import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
 import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
 import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
-import { WIKIMEDIA_USER_AGENT } from '../src/lib/wikidata'
 import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
 
 const MAP_KEY = 'demo_pinacoteca'
@@ -150,6 +150,70 @@ async function upsert<T extends { id: string | number }>(
  *
  * Returns what the e2e fixture records, or null when it was left as it was.
  */
+/**
+ * The work's photo, uploaded once as its thumbnail: a Wikimedia Commons image
+ * (`object.image`) saved in the repository at 800 px (`seed-assets/objects/`,
+ * copied next to the standalone build by scripts/copy-standalone-assets.mjs),
+ * so the seed never needs the network. Relative to the working directory: the
+ * repository root, or the standalone root the boot script runs in.
+ */
+async function objectThumbnail(payload: Payload, object: (typeof OBJECTS)[number]) {
+  const filename = `${object.key}.jpg`
+  const existing = await payload.find({
+    collection: 'objectsThumbnails',
+    where: { filename: { equals: filename } },
+    depth: 0,
+    limit: 1,
+  })
+  if (existing.docs[0]) return existing.docs[0].id
+  try {
+    const data = await readFile(path.resolve('seed-assets/objects', filename))
+    const doc = await payload.create({
+      collection: 'objectsThumbnails',
+      locale: 'en',
+      depth: 0,
+      data: { alt: object.name },
+      file: { data, mimetype: 'image/jpeg', name: filename, size: data.length },
+    })
+    return doc.id
+  } catch (error) {
+    console.warn(`No photo for "${object.name}": ${String(error)}`)
+    return undefined
+  }
+}
+
+/**
+ * Gives the demo works that have no thumbnail their photo, leaving anything
+ * the staff set alone: a deploy whose first seed could not save files (an
+ * upload folder the container could not write) gets them on the next boot.
+ */
+async function backfillThumbnails(payload: Payload) {
+  let added = 0
+  for (const object of OBJECTS) {
+    const found = await payload.find({
+      collection: 'objects',
+      where: { and: [{ name: { equals: object.name } }, { thumbnail: { exists: false } }] },
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
+    })
+    const work = found.docs[0]
+    if (!work) continue
+    const thumbnail = await objectThumbnail(payload, object)
+    if (!thumbnail) continue
+    await payload.update({
+      collection: 'objects',
+      id: work.id,
+      data: { thumbnail },
+      depth: 0,
+      overrideAccess: true,
+      context: { skipMintModelGeneration: true },
+    })
+    added += 1
+  }
+  if (added) console.info(`${added} demo work photos added.`)
+}
+
 export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false } = {}) {
   if (onlyIfMissing) {
     const existing = await payload.count({
@@ -158,6 +222,7 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
     })
     if (existing.totalDocs) {
       console.info(`Demo museum "${MUSEUM.name}" already exists, skipping`)
+      await backfillThumbnails(payload)
       return null
     }
   }
@@ -181,42 +246,6 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
     userIdByUsername.set(account.username, String(user.id))
   }
   const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
-
-  /**
-   * A 640 px photo of the work from Wikimedia Commons, uploaded once as the
-   * object's thumbnail. Best effort: without network (or when Commons rate
-   * limits us) the object simply keeps no thumbnail, as before.
-   */
-  async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
-    const filename = `${object.key}.jpg`
-    const existing = await payload.find({
-      collection: 'objectsThumbnails',
-      where: { filename: { equals: filename } },
-      depth: 0,
-      limit: 1,
-    })
-    if (existing.docs[0]) return existing.docs[0].id
-    try {
-      const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(object.image)}?width=640`
-      const response = await fetch(url, {
-        headers: { 'User-Agent': WIKIMEDIA_USER_AGENT },
-        signal: AbortSignal.timeout(20_000),
-      })
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      const data = Buffer.from(await response.arrayBuffer())
-      const doc = await payload.create({
-        collection: 'objectsThumbnails',
-        locale: 'en',
-        depth: 0,
-        data: { alt: object.name },
-        file: { data, mimetype: 'image/jpeg', name: filename, size: data.length },
-      })
-      return doc.id
-    } catch (error) {
-      console.warn(`No Commons photo for "${object.name}": ${String(error)}`)
-      return undefined
-    }
-  }
 
   // Contents first: an object needs at least one, and owns its contents.
   const contentIdByTitle = new Map<string, string>()
@@ -253,7 +282,7 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
       rights: object.rights,
       categories: categoryIds(object.categories),
       contents: contentIds,
-      thumbnail: await commonsThumbnail(object),
+      thumbnail: await objectThumbnail(payload, object),
     })
     objectIdByKey.set(object.key, String(doc.id))
   }

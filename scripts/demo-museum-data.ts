@@ -89,7 +89,10 @@ export type DemoObject = {
   condition: { state: 'excellent' | 'good' | 'fair' | 'poor' | 'restoration'; notes?: string }
   creditLine: string
   rights: string
-  /** Wikimedia Commons file name of a photo of the work (public domain painting). */
+  /**
+   * Wikimedia Commons file name of a photo of the work (public domain
+   * painting): the source of `seed-assets/objects/<key>.jpg`, kept as credit.
+   */
   image: string
   categories: string[]
   position: [number, number]

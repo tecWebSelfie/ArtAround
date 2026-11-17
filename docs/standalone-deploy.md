@@ -94,8 +94,8 @@ the standalone self-sufficient:
   the same — with junctions to their full directories in the store;
 - it copies `scripts/standalone-boot.mjs` next to them.
 
-`scripts/copy-standalone-assets.mjs` (earlier in `pnpm build`) copies `public/`
-and `.next/static/` in.
+`scripts/copy-standalone-assets.mjs` (earlier in `pnpm build`) copies `public/`,
+`.next/static/` and `seed-assets/` (the demo works' photos, ~2 MB) in.
 
 ## Boot script
 
@@ -133,7 +133,10 @@ Defaults mirroring the Docker guidance: `HOSTNAME=0.0.0.0`, `PORT=3000`,
 The seed also creates the demo museum of the course specification (the
 Pinacoteca, `seedDemoMuseum` in `scripts/seed-demo-museum.ts`) when it is
 missing, so one seed fills everything the demo needs. It never rebuilds an
-existing one: later boots leave the staff's edits alone. `pnpm seed:demo`
+existing one: later boots leave the staff's edits alone, except that a demo
+work without a thumbnail gets its photo (for a first boot that could not save
+files). The photos come from `seed-assets/objects/` (Wikimedia Commons images
+saved at 800 px), so the seed never needs the network. `pnpm seed:demo`
 rebuilds it in place on purpose (local databases only).
 
 ## Copying the standalone into the deploy folder

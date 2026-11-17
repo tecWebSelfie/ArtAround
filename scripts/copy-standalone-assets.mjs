@@ -19,6 +19,9 @@ if (!exists) process.exit(0)
 const copies = [
   [new URL('../public/', import.meta.url), new URL('public/', standalone)],
   [new URL('../.next/static/', import.meta.url), new URL('.next/static/', standalone)],
+  // The demo seed's pictures (scripts/seed-demo-museum.ts): the boot seed
+  // runs offline, from the standalone root, and reads them from here.
+  [new URL('../seed-assets/', import.meta.url), new URL('seed-assets/', standalone)],
 ]
 for (const [source, destination] of copies) {
   // Replace instead of merge, so chunks of an older build don't pile up.
