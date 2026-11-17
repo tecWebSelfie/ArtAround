@@ -155,5 +155,12 @@ describe('personal read-aloud access and caching', () => {
         expect.objectContaining({ input: expect.objectContaining({ variantId: 'v5' }) }),
       )
     }
+    // An orphan that can't be removed would be skipped by the job again.
+    api.queue.mockClear()
+    api.delete.mockRejectedValueOnce(new Error('database down'))
+    const failed = await invoke(versionQuery)
+    expect(failed.status).toBe(502)
+    expect(await failed.json()).toEqual({ status: 'failed' })
+    expect(api.queue).not.toHaveBeenCalled()
   })
 })

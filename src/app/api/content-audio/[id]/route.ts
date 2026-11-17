@@ -99,11 +99,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     // the database keeps the records. The job skips an audio whose record is
     // up to date, so the orphan goes first and the audio is generated again
     // below, instead of answering `ready` and then failing to read the file.
-    await payload
+    // If the record can't go, a queued job would skip it again: report the
+    // failure, so the button stops instead of waiting for a file that never comes.
+    const removed = await payload
       .delete({ collection: 'contentAudio', id: audio.id, overrideAccess: true })
-      .catch((error: unknown) =>
-        console.error(`Content audio ${id} (${locale}): orphan record not removed:`, error),
+      .then(
+        () => true,
+        (error: unknown) => {
+          console.error(`Content audio ${id} (${locale}): orphan record not removed:`, error)
+          return false
+        },
       )
+    if (!removed) return json('failed', 502)
   }
   if (!speechAvailable()) return json('unavailable', 503)
   const input = { contentId: id, locale, variantId: variant?.id }
