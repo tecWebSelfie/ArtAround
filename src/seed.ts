@@ -21,6 +21,7 @@ import { PROJECT_ACCOUNTS } from './seed-accounts'
 import { placedObjectIds } from '@/lib/tour-navigation'
 import { placeableObjectAsset } from '@/lib/pascal/object-assets'
 import { refreshVisitableStops } from '@/lib/visitable-stops'
+import { seedDemoMuseum } from '../scripts/seed-demo-museum'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -1311,6 +1312,12 @@ try {
     })
     console.log(`Purchase ${stripeSessionID} created`)
   }
+
+  // The course specification's demo museum (Pinacoteca: three tours of ten
+  // works or more, one with a quiz), created once: a single seed fills what
+  // the demo needs, and later runs leave the staff's edits alone.
+  console.log('Seeding the demo museum...')
+  await seedDemoMuseum(payload, { onlyIfMissing: true })
 
   console.log('Database seeded successfully. Closing connection...')
   await payload.destroy()

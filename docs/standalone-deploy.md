@@ -106,10 +106,11 @@ and a stop during the seed or reindex does not go on to start the server.
 Defaults mirroring the Docker guidance: `HOSTNAME=0.0.0.0`, `PORT=3000`,
 `NODE_OPTIONS=--no-deprecation`; each can be overridden from the environment.
 
-The demo museum of the course specification is not part of the boot seed.
-`pnpm seed:demo` can't reach the deployed database (only code running inside
-the container can), so it is not available in this deploy until it is bundled
-into the boot like the seed.
+The seed also creates the demo museum of the course specification (the
+Pinacoteca, `seedDemoMuseum` in `scripts/seed-demo-museum.ts`) when it is
+missing, so one seed fills everything the demo needs. It never rebuilds an
+existing one: later boots leave the staff's edits alone. `pnpm seed:demo`
+rebuilds it in place on purpose (local databases only).
 
 ## Copying the standalone into the deploy folder
 
