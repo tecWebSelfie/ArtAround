@@ -11,8 +11,9 @@ import {
   type CameraControlsImpl,
 } from '@react-three/drei'
 import { Canvas, useThree } from '@react-three/fiber'
-import { Component, Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
+import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Box3, type Group } from 'three'
+import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
 
 /**
  * An object's 3D model in a card: React Three Fiber with drei, loaded only
@@ -47,7 +48,7 @@ export function ModelViewer({
   const [webgl] = useState(hasWebGL)
   if (!webgl) return <Unavailable>{unavailable}</Unavailable>
   return (
-    <ModelErrorBoundary fallback={<Unavailable>{unavailable}</Unavailable>}>
+    <RenderErrorBoundary fallback={<Unavailable>{unavailable}</Unavailable>}>
       {/* The canvas is a separate React renderer without the app's providers,
           so Mantine UI (the spinner) stays outside it, over the canvas. */}
       {!loaded && (
@@ -83,7 +84,7 @@ export function ModelViewer({
           dollyToCursor={false}
         />
       </Canvas>
-    </ModelErrorBoundary>
+    </RenderErrorBoundary>
   )
 }
 
@@ -147,19 +148,5 @@ function hasWebGL() {
     return Boolean(gl)
   } catch {
     return false
-  }
-}
-
-/** A failed GLB fetch or parse throws during render: catch it here. */
-class ModelErrorBoundary extends Component<
-  { fallback: ReactNode; children: ReactNode },
-  { failed: boolean }
-> {
-  state = { failed: false }
-  static getDerivedStateFromError() {
-    return { failed: true }
-  }
-  render() {
-    return this.state.failed ? this.props.fallback : this.props.children
   }
 }
