@@ -39,7 +39,7 @@ The central promise is adaptability throughout the visit: content preferences an
 - Museum tours, QR routes, multilingual editorial content, and interactive maps are documented in the repository. Those documents describe the current working tree, not proof of production deployment.
 - Desktop and mobile use the ordinary map view.
 - Visitor position changes only through an explicit position confirmation. Opening content or a QR link must not silently change it.
-- Optional GPS adds a separate, device-local *estimated progress* along the current route (confirmed position + movement since it). It advances the shown direction step and drives nearby suggestions, but never replaces the confirmed, shareable position. Indoor GPS inaccuracy is an accepted limitation.
+- Optional GPS adds a separate, device-local _estimated progress_ along the current route (confirmed position + movement since it). It advances the shown direction step and drives nearby suggestions, but never replaces the confirmed, shareable position. Indoor GPS inaccuracy is an accepted limitation.
 - Tour contents retain their authored order while visitors may independently explore other objects and contents or choose another destination.
 - Canonical QR values are ordinary localized object and content routes. Contextual navigation modals must remain reloadable and shareable.
 
@@ -61,7 +61,7 @@ Accessibility-aware routing is a confirmed requirement. Supported access needs, 
 
 ## Brand Commitments
 
-The product name is ArtAround. The user supplied a specific interaction reference for the optional assistance affordance: a crystallized ball that can remain inactive or react to the user's voice. Preserve this reference for later design work rather than expanding it into a global visual system during init.
+The product name is ArtAround. The user first supplied a crystallized ball as the interaction reference for the optional assistance affordance. In use, its states (asleep, ready, listening, answering) could not be told apart, so on 2026-11-17 the maintainer replaced it in navigation with a microphone button whose rings show when it is listening (DESIGN.md → Assistant button). The ember reference survives only in the Plan my visit dictation halo.
 
 [User-supplied crystallized-ball reference](https://reactbits.dev/animations/crystalized-ball?preset=ember&color=FF8A2A&crackle=0.9&flares=0.5&particleCount=12000&fill=0.35&depth=0.7&sway=0.3&twinkle=0.7&haze=1.05&dustSpeed=1.6&strands=5&glow=1&sparks=0.8&particleShape=round&speed=0)
 

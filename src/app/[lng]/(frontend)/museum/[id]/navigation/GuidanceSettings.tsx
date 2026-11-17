@@ -3,6 +3,7 @@
 import { DockButton } from './DockButton'
 import { Button, Popover, SegmentedControl, Stack, Switch, Text } from '@mantine/core'
 import { useLocalStorage } from '@mantine/hooks'
+import type { MapView } from '@/components/pascal/MuseumFloorplan'
 import { SlidersHorizontal } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { GPS_SIMULATOR_ENABLED, type GpsMode } from './gps-source'
@@ -24,6 +25,8 @@ export function useGuidanceSettings() {
     defaultValue: false,
   })
   const [storedGps, setGpsMode] = useLocalStorage<GpsMode>({ key: 'aa-gps', defaultValue: 'off' })
+  // The map as the 3D model or as Pascal's 2D floor plan (MuseumFloorplan).
+  const [mapView, setMapView] = useLocalStorage<MapView>({ key: 'aa-map-view', defaultValue: '3d' })
   // A build without the simulator never runs a stored "simulated" choice.
   const gpsMode = storedGps === 'simulated' && !GPS_SIMULATOR_ENABLED ? 'off' : storedGps
   return {
@@ -35,6 +38,8 @@ export function useGuidanceSettings() {
     setSuggestions,
     gpsMode,
     setGpsMode,
+    mapView,
+    setMapView,
   }
 }
 
@@ -76,7 +81,7 @@ export function GuidanceSettings({
         <Stack gap="sm">
           <Switch
             label={t('Voice assistant')}
-            description={t('Tap the orb, speak, and it acts')}
+            description={t('Tap the microphone, speak, and it acts')}
             checked={settings.assistant}
             onChange={(event) => settings.setAssistant(event.currentTarget.checked)}
           />

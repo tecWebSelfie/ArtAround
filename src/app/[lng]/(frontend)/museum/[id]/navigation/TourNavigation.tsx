@@ -5,7 +5,7 @@ import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { Suspense, useEffect, useState, type ReactNode, type Ref } from 'react'
+import { Suspense, useEffect, useMemo, useState, type ReactNode, type Ref } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
@@ -22,6 +22,7 @@ import {
   useTourIds,
   useVoiceGuidance,
 } from './use-tour-navigation'
+import { MuseumFloorplan } from '@/components/pascal/MuseumFloorplan'
 import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
@@ -46,7 +47,7 @@ export type NavigationPageScope =
 /**
  * Composes the map, search, scan, and route guidance: step-by-step directions
  * in the navbar, optional GPS progress, nearby suggestions, and the opt-in
- * voice assistant (the orb). Search, pills and the assistant all run the same
+ * voice assistant (the microphone button). Search, pills and the assistant all run the same
  * URL commands (`navigation-commands.ts`).
  *
  * In a tour it adds the ordered progress, the next stop as the default
@@ -82,6 +83,14 @@ export const TourNavigationPage = ({
 
   const { t } = useTranslation('tour-navigation')
   const [routeUnavailable, setRouteUnavailable] = useState(false)
+  // Each work's photo, for its round picture on the 2D floor plan.
+  const workPhotos = useMemo(
+    () =>
+      new Map(
+        catalog.flatMap((object) => (object.thumbnail ? [[object.id, object.thumbnail]] : [])),
+      ),
+    [catalog],
+  )
   const [route, setRoute] = useState<MuseumRoute | null>(null)
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
@@ -179,6 +188,21 @@ export const TourNavigationPage = ({
               position={guidance.position}
               path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
+              // Under the floor plan the 3D map stays mounted (routes are
+              // computed on its meshes) but draws no frames, and is hidden
+              // with its DOM labels, which would float over the plan.
+              renderPaused={settings.mapView === '2d'}
+              className={settings.mapView === '2d' ? 'invisible' : undefined}
+            />
+          )
+        }
+        plan={
+          settings.mapView === '2d' &&
+          museumMap.parsed && (
+            <MuseumFloorplan
+              position={guidance.position}
+              path={guidance.path ?? route?.path ?? null}
+              photos={workPhotos}
             />
           )
         }
@@ -234,7 +258,16 @@ export const TourNavigationPage = ({
  * The map and, over it, the floating controls: only the space between the
  * measured bars belongs to them.
  */
-function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNode }) {
+function NavigationStage({
+  map,
+  plan,
+  controls,
+}: {
+  map: ReactNode
+  /** Pascal's 2D floor plan, drawn over the (paused) 3D map when chosen. */
+  plan: ReactNode
+  controls: ReactNode
+}) {
   const { t } = useTranslation('tour-navigation')
   return (
     <AppShellMain h="100dvh" className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]">
@@ -242,6 +275,7 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
+        {plan}
         {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
             drei's `zIndexRange`), below the app shell's bars (z 100), so a
             notice or a control is never crossed by a label. */}
@@ -255,9 +289,9 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
 
 /**
  * The directions strip: the steps (or the status that replaces them) and the
- * voice assistant's orb. It uses the remaining width; the orb keeps its
+ * voice assistant's button. It uses the remaining width; the button keeps its
  * intrinsic target size instead of reserving a fifth of a narrow screen, and
- * active guidance places the orb beside its arrows at enlarged text, leaving
+ * active guidance places the button beside its arrows at enlarged text, leaving
  * the entire footer width for the sentence. Voice guidance speaks each step
  * from here.
  */

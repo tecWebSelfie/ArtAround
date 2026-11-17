@@ -60,6 +60,7 @@ export function createRouteMuseum(modelURL: string) {
   // nearest-service routing, and entrance/exit destinations share this mesh.
   const markers = [
     ServiceNode.parse({
+      parentId: level.id,
       id: 'service_route_toilets',
       name: 'Toilets',
       service: 'bathrooms',
@@ -67,6 +68,7 @@ export function createRouteMuseum(modelURL: string) {
       placed: true,
     }),
     ServiceNode.parse({
+      parentId: level.id,
       id: 'service_route_cafe',
       name: 'Cafe',
       service: 'food',
@@ -74,6 +76,7 @@ export function createRouteMuseum(modelURL: string) {
       placed: true,
     }),
     ServiceNode.parse({
+      parentId: level.id,
       id: 'service_route_shop',
       name: 'Shop',
       service: 'shop',
@@ -81,6 +84,7 @@ export function createRouteMuseum(modelURL: string) {
       placed: true,
     }),
     ServiceNode.parse({
+      parentId: level.id,
       id: 'service_route_info',
       name: 'Information desk',
       service: 'infoPoint',
@@ -88,6 +92,7 @@ export function createRouteMuseum(modelURL: string) {
       placed: true,
     }),
     ExitEntranceNode.parse({
+      parentId: level.id,
       id: 'exitEntrance_route_entrance',
       name: 'Entrance',
       direction: 'entrance',
@@ -95,6 +100,7 @@ export function createRouteMuseum(modelURL: string) {
       placed: true,
     }),
     ExitEntranceNode.parse({
+      parentId: level.id,
       id: 'exitEntrance_route_exit',
       name: 'Exit',
       direction: 'exit',
@@ -135,9 +141,11 @@ export function createRouteMuseum(modelURL: string) {
     slab.id,
     ...items.map(({ id }) => id),
     ...rooms.map(({ id }) => id),
+    // Level children, like Pascal's `spawn` (marker-hierarchy.ts); plugin
+    // kinds are not in core's level child id union.
+    ...(markers.map(({ id }) => id) as unknown as typeof level.children),
   ]
   map.nodes[level.id] = level
-  map.rootNodeIds = [...map.rootNodeIds, ...markers.map(({ id }) => id)]
   map.installedPlugins = ['artaround:museum-plugin']
 
   const floor = new Mesh(new PlaneGeometry(12, 8).rotateX(-Math.PI / 2).translate(6, 0, 4))

@@ -1,6 +1,8 @@
 import 'server-only'
 
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
+import type { QuizDraft } from '@/components/editing/forms/QuizEditor'
+import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
 import { copyableStops } from '@/lib/tour-copy'
@@ -162,4 +164,44 @@ export async function getNewTourEditorData(museumId: string, sourceStopIds: stri
     viewerId: String(user?.id ?? ''),
   })
   return { ...data, stops }
+}
+
+/**
+ * The tour's quiz for its editor: the questions that belong to the tour (no
+ * related contents) as editable drafts, in quiz order, and the ids of the
+ * questions linked to contents, which the editor keeps as they are. Read as
+ * the visitor: the tour's author wrote its own questions.
+ */
+export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
+  const ids = tourQuizQuestionIds(tour).map(String)
+  if (ids.length === 0) return { drafts: [] as QuizDraft[], keptQuestions: [] as string[] }
+  const { payload } = await getSession()
+  const { docs } = await payload.find({
+    collection: 'quizQuestions',
+    where: { id: { in: ids } },
+    depth: 0,
+    pagination: false,
+    locale: 'en',
+    ...(await asViewer()),
+  })
+  const byId = new Map(docs.map((doc) => [String(doc.id), doc]))
+  const drafts: QuizDraft[] = []
+  const keptQuestions: string[] = []
+  for (const id of ids) {
+    const question = byId.get(id)
+    if (question && !question.relatedTo?.length) {
+      const [a = '', b = '', c = ''] = (question.wrongAnswers ?? []).map((row) => row.text)
+      drafts.push({
+        id,
+        prompt: question.prompt,
+        correctAnswer: question.correctAnswer,
+        wrongAnswers: [a, b, c],
+        explanation: question.explanation ?? '',
+      })
+    } else {
+      // Linked to contents, or unreadable here: kept in the quiz untouched.
+      keptQuestions.push(id)
+    }
+  }
+  return { drafts, keptQuestions }
 }

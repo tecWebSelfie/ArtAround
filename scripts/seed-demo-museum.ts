@@ -22,7 +22,8 @@
 import { convertHTMLToLexical, editorConfigFactory } from '@payloadcms/richtext-lexical'
 import { config as loadEnv } from 'dotenv'
 import { JSDOM } from 'jsdom'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import path from 'node:path'
 import { createLocalReq, getPayload, type Payload } from 'payload'
 import {
   BlockNode,
@@ -42,10 +43,7 @@ import { museumNavigationPath } from '../src/lib/pascal/navigation'
 import { placeableObjectAsset } from '../src/lib/pascal/object-assets'
 import { PROJECT_ACCOUNTS } from '../src/seed-accounts'
 import { importWikidataSubjects } from '../src/tasks/importWikidataSubjects'
-import { WIKIMEDIA_USER_AGENT } from '../src/lib/wikidata'
 import { MUSEUM, OBJECTS, SUBJECT_CONTENTS, TOURS, type DemoAuthor } from './demo-museum-data'
-
-loadEnv({ path: ['.env.local', '.env'] })
 
 const MAP_KEY = 'demo_pinacoteca'
 /** Main entrance marker of the realistic map, where every route starts. */
@@ -143,35 +141,23 @@ async function upsert<T extends { id: string | number }>(
     : await payload.create(options)) as unknown as T
 }
 
-const { default: config } = await import('../src/payload.config')
-const payload = await getPayload({ config })
-const editorConfig = await editorConfigFactory.default({ config: payload.config })
-
-const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
-const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
-const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
-
-// The specification's accounts (created by the base seed too): the demo
-// contents are theirs, so the examiners can log in as their authors.
-const userIdByUsername = new Map<string, string>()
-for (const account of PROJECT_ACCOUNTS) {
-  const found = await payload.find({
-    collection: 'users',
-    where: { username: { equals: account.username } },
-    depth: 0,
-    limit: 1,
-  })
-  const user = found.docs[0] ?? (await payload.create({ collection: 'users', data: account }))
-  userIdByUsername.set(account.username, String(user.id))
-}
-const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
-
 /**
- * A 640 px photo of the work from Wikimedia Commons, uploaded once as the
- * object's thumbnail. Best effort: without network (or when Commons rate
- * limits us) the object simply keeps no thumbnail, as before.
+ * Creates (or, with `onlyIfMissing: false`, rebuilds in place) the demo
+ * museum. The base seed (`src/seed.ts`, also run by the deploy's boot) calls
+ * it with `onlyIfMissing: true`: one seed fills the database the demo needs,
+ * and a restart never overwrites what the staff edited since (the map, the
+ * contents, the tours). `pnpm seed:demo` rebuilds it on purpose.
+ *
+ * Returns what the e2e fixture records, or null when it was left as it was.
  */
-async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
+/**
+ * The work's photo, uploaded once as its thumbnail: a Wikimedia Commons image
+ * (`object.image`) saved in the repository at 800 px (`seed-assets/objects/`,
+ * copied next to the standalone build by scripts/copy-standalone-assets.mjs),
+ * so the seed never needs the network. Relative to the working directory: the
+ * repository root, or the standalone root the boot script runs in.
+ */
+async function objectThumbnail(payload: Payload, object: (typeof OBJECTS)[number]) {
   const filename = `${object.key}.jpg`
   const existing = await payload.find({
     collection: 'objectsThumbnails',
@@ -181,13 +167,7 @@ async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
   })
   if (existing.docs[0]) return existing.docs[0].id
   try {
-    const url = `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(object.image)}?width=640`
-    const response = await fetch(url, {
-      headers: { 'User-Agent': WIKIMEDIA_USER_AGENT },
-      signal: AbortSignal.timeout(20_000),
-    })
-    if (!response.ok) throw new Error(`HTTP ${response.status}`)
-    const data = Buffer.from(await response.arrayBuffer())
+    const data = await readFile(path.resolve('seed-assets/objects', filename))
     const doc = await payload.create({
       collection: 'objectsThumbnails',
       locale: 'en',
@@ -197,246 +177,319 @@ async function commonsThumbnail(object: (typeof OBJECTS)[number]) {
     })
     return doc.id
   } catch (error) {
-    console.warn(`No Commons photo for "${object.name}": ${String(error)}`)
+    console.warn(`No photo for "${object.name}": ${String(error)}`)
     return undefined
   }
 }
 
-// Contents first: an object needs at least one, and owns its contents.
-const contentIdByTitle = new Map<string, string>()
-const objectIdByKey = new Map<string, string>()
-const objectByContentTitle = new Map<string, (typeof OBJECTS)[number]>()
-for (const object of OBJECTS) {
-  const contentIds: string[] = []
-  for (const content of object.contents) {
-    const doc = await upsert<{ id: string }>(payload, 'contents', 'title', content.title, {
-      title: content.title,
-      bodyHTML: content.bodyHTML,
-      difficulty: content.difficulty,
-      audience: content.audience ?? 'everyone',
-      price: content.price ?? null,
-      sources: content.sources ?? [],
-      categories: categoryIds(object.categories),
-      author: authorId(content.author),
-      objects: {},
+/**
+ * Gives the demo works that have no thumbnail their photo, leaving anything
+ * the staff set alone: a deploy whose first seed could not save files (an
+ * upload folder the container could not write) gets them on the next boot.
+ */
+async function backfillThumbnails(payload: Payload) {
+  let added = 0
+  for (const object of OBJECTS) {
+    const found = await payload.find({
+      collection: 'objects',
+      where: { and: [{ name: { equals: object.name } }, { thumbnail: { exists: false } }] },
+      depth: 0,
+      limit: 1,
+      overrideAccess: true,
     })
-    contentIds.push(String(doc.id))
-    contentIdByTitle.set(content.title, String(doc.id))
-    objectByContentTitle.set(content.title, object)
+    const work = found.docs[0]
+    if (!work) continue
+    const thumbnail = await objectThumbnail(payload, object)
+    if (!thumbnail) continue
+    await payload.update({
+      collection: 'objects',
+      id: work.id,
+      data: { thumbnail },
+      depth: 0,
+      overrideAccess: true,
+      context: { skipMintModelGeneration: true },
+    })
+    added += 1
   }
-  const doc = await upsert<{ id: string }>(payload, 'objects', 'name', object.name, {
-    name: object.name,
-    wikidataId: object.wikidataId,
-    inventoryNumber: object.inventoryNumber ?? null,
-    artist: object.artist,
-    dating: object.dating,
-    description: object.description,
-    provenance: object.provenance,
-    condition: object.condition,
-    creditLine: object.creditLine,
-    rights: object.rights,
-    categories: categoryIds(object.categories),
-    contents: contentIds,
-    thumbnail: await commonsThumbnail(object),
-  })
-  objectIdByKey.set(object.key, String(doc.id))
+  if (added) console.info(`${added} demo work photos added.`)
 }
-console.info(`${OBJECTS.length} objects and ${contentIdByTitle.size} contents ready.`)
 
-// Authors, movements and events from each work's Wikidata item (best effort:
-// without network the works keep only their own data).
-const localReq = await createLocalReq({}, payload)
-let linkedSubjects = 0
-for (const [key, id] of objectIdByKey) {
-  try {
-    linkedSubjects += (await importWikidataSubjects(localReq, id)).subjects
-  } catch (error) {
-    console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
+export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false } = {}) {
+  if (onlyIfMissing) {
+    const existing = await payload.count({
+      collection: 'museums',
+      where: { name: { equals: MUSEUM.name } },
+    })
+    if (existing.totalDocs) {
+      console.info(`Demo museum "${MUSEUM.name}" already exists, skipping`)
+      await backfillThumbnails(payload)
+      return null
+    }
   }
-}
-console.info(`${linkedSubjects} subject links from Wikidata.`)
+  const editorConfig = await editorConfigFactory.default({ config: payload.config })
 
-// Contents about a subject rather than a work (an item about an artist).
-for (const subjectContent of SUBJECT_CONTENTS) {
-  const subject = (
-    await payload.find({
-      collection: 'subjects',
-      where: { wikidataId: { equals: subjectContent.wikidataId } },
+  const categories = await payload.find({ collection: 'museumCategories', depth: 0, limit: 100 })
+  const categoryId = (slug: string) => categories.docs.find((doc) => doc.slug === slug)?.id
+  const categoryIds = (slugs: string[]) => slugs.flatMap((slug) => categoryId(slug) ?? [])
+
+  // The specification's accounts (created by the base seed too): the demo
+  // contents are theirs, so the examiners can log in as their authors.
+  const userIdByUsername = new Map<string, string>()
+  for (const account of PROJECT_ACCOUNTS) {
+    const found = await payload.find({
+      collection: 'users',
+      where: { username: { equals: account.username } },
       depth: 0,
       limit: 1,
     })
-  ).docs[0]
-  if (!subject) continue
-  const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
-    title: subjectContent.title,
-    bodyHTML: subjectContent.bodyHTML,
-    difficulty: subjectContent.difficulty,
-    audience: 'everyone',
-    sources: subjectContent.sources ?? [],
-    author: authorId(subjectContent.author),
-    objects: {},
-  })
-  const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
-  await payload.update({
-    collection: 'subjects',
-    id: subject.id,
-    depth: 0,
-    data: { contents: [...contents] },
-  })
-}
-
-// Place every object; `museums.objects` is derived from these items on save.
-const map = createRealisticMuseumMap(MAP_KEY)
-const level = LevelNode.parse(Object.values(map.nodes).find((n) => LevelNode.safeParse(n).success))
-for (const object of OBJECTS) {
-  const id = objectIdByKey.get(object.key)!
-  // Demo objects have no Mint model: the default info standee stands in.
-  const asset = placeableObjectAsset({ id, name: object.name, model: null, thumbnail: null })
-  // Pascal's schema accepts plain http only on localhost, and
-  // NEXT_PUBLIC_PAYLOAD_URL may be a LAN address (phone testing).
-  for (const field of ['src', 'thumbnail'] as const) {
-    const url = new URL(asset[field] as string)
-    asset[field] = `http://localhost:3000${url.pathname}`
+    const user = found.docs[0] ?? (await payload.create({ collection: 'users', data: account }))
+    userIdByUsername.set(account.username, String(user.id))
   }
-  const item = ItemNode.parse({
-    id: `item_${MAP_KEY}_${object.key.replace(/-/g, '_')}`,
-    parentId: level.id,
-    position: [object.position[0], 0, object.position[1]],
-    asset,
-  })
-  ;(map.nodes as Record<string, unknown>)[item.id] = item
-  level.children = [...level.children, item.id]
-}
-;(map.nodes as Record<string, unknown>)[level.id] = level
+  const authorId = (username: DemoAuthor) => userIdByUsername.get(username)!
 
-const meshes = navigationMeshes(map)
-const [positions, indices] = getPositionsAndIndices(meshes)
-for (const mesh of meshes) mesh.geometry.dispose()
-console.info('Generating the walking and wheelchair navmeshes…')
-const navMesh = generateSoloNavMesh({ positions, indices }, museumNavMeshOptions).navMesh
-const navMeshWheelchair = generateSoloNavMesh(
-  { positions, indices },
-  wheelchairNavMeshOptions,
-).navMesh
-
-const museum = await upsert<{ id: string }>(payload, 'museums', 'name', MUSEUM.name, {
-  name: MUSEUM.name,
-  shortDescription: MUSEUM.shortDescription,
-  descriptionHTML: MUSEUM.descriptionHTML,
-  categories: categoryIds(MUSEUM.categories),
-  email: MUSEUM.email,
-  accessibility: {
-    isAccessible: true,
-    stepFreeEntrance: true,
-    elevator: false,
-    accessibleBathrooms: true,
-    tactilePaths: false,
-    audioGuides: true,
-    signLanguage: false,
-    serviceAnimals: true,
-    notes: 'The ground floor is step-free; wheelchairs are available at the ticket office.',
-  },
-  location: {
-    address: MUSEUM.address,
-    city: MUSEUM.city,
-    region: MUSEUM.region,
-    postalCode: MUSEUM.postalCode,
-    country: 'IT',
-    latlng: MUSEUM.latlng,
-  },
-  ticketInfo: { label: MUSEUM.ticketLabel, url: MUSEUM.ticketUrl },
-  news: MUSEUM.news,
-  map,
-  navMesh,
-  navMeshWheelchair,
-})
-console.info(`Museum ready: ${museum.id}`)
-
-const tours: { id: string; title: string; url: string; metres?: number }[] = []
-for (const tour of TOURS) {
-  const stops = tour.stops.map((title) => {
-    const object = objectByContentTitle.get(title)
-    if (!object) throw new Error(`Tour "${tour.title}": no content titled "${title}"`)
-    return [object.position[0], 0, object.position[1]] as Vec3
-  })
-  const walking = routeLength(navMesh, stops)
-  const wheelchair = routeLength(navMeshWheelchair, stops)
-  if (walking.failedLeg)
-    throw new Error(`"${tour.title}": no walking route to stop ${walking.failedLeg}`)
-  if (tour.wheelchairAccessible && wheelchair.failedLeg) {
-    throw new Error(`"${tour.title}": no wheelchair route to stop ${wheelchair.failedLeg}`)
-  }
-  const doc = await upsert<{ id: string; quiz?: { questions?: unknown[] | null } }>(
-    payload,
-    'tours',
-    'title',
-    tour.title,
-    {
-      title: tour.title,
-      description: tour.description,
-      // Tours have no `bodyHTML` input (contents and museums do).
-      body: convertHTMLToLexical({ editorConfig, JSDOM, html: tour.bodyHTML }),
-      contents: tour.stops.map((title) => contentIdByTitle.get(title)!),
-      // Logistic directions: the visit's practical information, and how to
-      // reach each stop (`src/lib/tour-logistics.ts`).
-      logistics: tour.logistics,
-      directions: Object.entries(tour.directions).map(([title, text]) => ({
-        content: contentIdByTitle.get(title)!,
-        text,
-      })),
-      museum: museum.id,
-      // Tours are curated by the first author account.
-      author: authorId('autore1'),
-      durationMinutes: tour.durationMinutes,
-      distanceMeters: walking.metres,
-      wheelchairAccessible: tour.wheelchairAccessible,
-      categories: categoryIds(tour.categories),
-    },
-  )
-  // Tour-owned questions (no `relatedTo`), added once: they live and die with the tour.
-  if (tour.quiz.length && !doc.quiz?.questions?.length) {
-    const questions = []
-    for (const { prompt, correctAnswer, wrong } of tour.quiz) {
-      questions.push(
-        await payload.create({
-          collection: 'quizQuestions',
-          locale: 'en',
-          depth: 0,
-          data: {
-            prompt,
-            correctAnswer,
-            wrongAnswers: wrong.map((text) => ({ text })),
-            difficulty: 'medium',
-          },
-        }),
-      )
+  // Contents first: an object needs at least one, and owns its contents.
+  const contentIdByTitle = new Map<string, string>()
+  const objectIdByKey = new Map<string, string>()
+  const objectByContentTitle = new Map<string, (typeof OBJECTS)[number]>()
+  for (const object of OBJECTS) {
+    const contentIds: string[] = []
+    for (const content of object.contents) {
+      const doc = await upsert<{ id: string }>(payload, 'contents', 'title', content.title, {
+        title: content.title,
+        bodyHTML: content.bodyHTML,
+        difficulty: content.difficulty,
+        audience: content.audience ?? 'everyone',
+        price: content.price ?? null,
+        sources: content.sources ?? [],
+        categories: categoryIds(object.categories),
+        author: authorId(content.author),
+        objects: {},
+      })
+      contentIds.push(String(doc.id))
+      contentIdByTitle.set(content.title, String(doc.id))
+      objectByContentTitle.set(content.title, object)
     }
+    const doc = await upsert<{ id: string }>(payload, 'objects', 'name', object.name, {
+      name: object.name,
+      wikidataId: object.wikidataId,
+      inventoryNumber: object.inventoryNumber ?? null,
+      artist: object.artist,
+      dating: object.dating,
+      description: object.description,
+      provenance: object.provenance,
+      condition: object.condition,
+      creditLine: object.creditLine,
+      rights: object.rights,
+      categories: categoryIds(object.categories),
+      contents: contentIds,
+      thumbnail: await objectThumbnail(payload, object),
+    })
+    objectIdByKey.set(object.key, String(doc.id))
+  }
+  console.info(`${OBJECTS.length} objects and ${contentIdByTitle.size} contents ready.`)
+
+  // Authors, movements and events from each work's Wikidata item (best effort:
+  // without network the works keep only their own data).
+  const localReq = await createLocalReq({}, payload)
+  let linkedSubjects = 0
+  for (const [key, id] of objectIdByKey) {
+    try {
+      linkedSubjects += (await importWikidataSubjects(localReq, id)).subjects
+    } catch (error) {
+      console.warn(`No Wikidata subjects for "${key}": ${String(error)}`)
+    }
+  }
+  console.info(`${linkedSubjects} subject links from Wikidata.`)
+
+  // Contents about a subject rather than a work (an item about an artist).
+  for (const subjectContent of SUBJECT_CONTENTS) {
+    const subject = (
+      await payload.find({
+        collection: 'subjects',
+        where: { wikidataId: { equals: subjectContent.wikidataId } },
+        depth: 0,
+        limit: 1,
+      })
+    ).docs[0]
+    if (!subject) continue
+    const doc = await upsert<{ id: string }>(payload, 'contents', 'title', subjectContent.title, {
+      title: subjectContent.title,
+      bodyHTML: subjectContent.bodyHTML,
+      difficulty: subjectContent.difficulty,
+      audience: 'everyone',
+      sources: subjectContent.sources ?? [],
+      author: authorId(subjectContent.author),
+      objects: {},
+    })
+    const contents = new Set([...(subject.contents ?? []).map(String), String(doc.id)])
     await payload.update({
-      collection: 'tours',
-      id: doc.id,
+      collection: 'subjects',
+      id: subject.id,
       depth: 0,
-      data: { quiz: { questions: questions.map(({ id }) => id) } },
+      data: { contents: [...contents] },
     })
   }
-  // Tours open inside their museum's navigation (tourNavigationPath).
-  const url = `http://localhost:3000/en/museum/${museum.id}/navigation/tour/${doc.id}/0`
-  tours.push({ id: String(doc.id), title: tour.title, url, metres: walking.metres })
-  console.info(`${tour.title}: ${tour.stops.length} stops, ${walking.metres} m → ${url}`)
+
+  // Place every object; `museums.objects` is derived from these items on save.
+  const map = createRealisticMuseumMap(MAP_KEY)
+  const level = LevelNode.parse(
+    Object.values(map.nodes).find((n) => LevelNode.safeParse(n).success),
+  )
+  for (const object of OBJECTS) {
+    const id = objectIdByKey.get(object.key)!
+    // Demo objects have no Mint model: the default info standee stands in.
+    const asset = placeableObjectAsset({ id, name: object.name, model: null, thumbnail: null })
+    // Pascal's schema accepts plain http only on localhost, and
+    // NEXT_PUBLIC_PAYLOAD_URL may be a LAN address (phone testing).
+    for (const field of ['src', 'thumbnail'] as const) {
+      const url = new URL(asset[field] as string)
+      asset[field] = `http://localhost:3000${url.pathname}`
+    }
+    const item = ItemNode.parse({
+      id: `item_${MAP_KEY}_${object.key.replace(/-/g, '_')}`,
+      parentId: level.id,
+      position: [object.position[0], 0, object.position[1]],
+      asset,
+    })
+    ;(map.nodes as Record<string, unknown>)[item.id] = item
+    level.children = [...level.children, item.id]
+  }
+  ;(map.nodes as Record<string, unknown>)[level.id] = level
+
+  const meshes = navigationMeshes(map)
+  const [positions, indices] = getPositionsAndIndices(meshes)
+  for (const mesh of meshes) mesh.geometry.dispose()
+  console.info('Generating the walking and wheelchair navmeshes…')
+  const navMesh = generateSoloNavMesh({ positions, indices }, museumNavMeshOptions).navMesh
+  const navMeshWheelchair = generateSoloNavMesh(
+    { positions, indices },
+    wheelchairNavMeshOptions,
+  ).navMesh
+
+  const museum = await upsert<{ id: string }>(payload, 'museums', 'name', MUSEUM.name, {
+    name: MUSEUM.name,
+    shortDescription: MUSEUM.shortDescription,
+    descriptionHTML: MUSEUM.descriptionHTML,
+    categories: categoryIds(MUSEUM.categories),
+    email: MUSEUM.email,
+    accessibility: {
+      isAccessible: true,
+      stepFreeEntrance: true,
+      elevator: false,
+      accessibleBathrooms: true,
+      tactilePaths: false,
+      audioGuides: true,
+      signLanguage: false,
+      serviceAnimals: true,
+      notes: 'The ground floor is step-free; wheelchairs are available at the ticket office.',
+    },
+    location: {
+      address: MUSEUM.address,
+      city: MUSEUM.city,
+      region: MUSEUM.region,
+      postalCode: MUSEUM.postalCode,
+      country: 'IT',
+      latlng: MUSEUM.latlng,
+    },
+    ticketInfo: { label: MUSEUM.ticketLabel, url: MUSEUM.ticketUrl },
+    news: MUSEUM.news,
+    map,
+    navMesh,
+    navMeshWheelchair,
+  })
+  console.info(`Museum ready: ${museum.id}`)
+
+  const tours: { id: string; title: string; url: string; metres?: number }[] = []
+  for (const tour of TOURS) {
+    const stops = tour.stops.map((title) => {
+      const object = objectByContentTitle.get(title)
+      if (!object) throw new Error(`Tour "${tour.title}": no content titled "${title}"`)
+      return [object.position[0], 0, object.position[1]] as Vec3
+    })
+    const walking = routeLength(navMesh, stops)
+    const wheelchair = routeLength(navMeshWheelchair, stops)
+    if (walking.failedLeg)
+      throw new Error(`"${tour.title}": no walking route to stop ${walking.failedLeg}`)
+    if (tour.wheelchairAccessible && wheelchair.failedLeg) {
+      throw new Error(`"${tour.title}": no wheelchair route to stop ${wheelchair.failedLeg}`)
+    }
+    const doc = await upsert<{ id: string; quiz?: { questions?: unknown[] | null } }>(
+      payload,
+      'tours',
+      'title',
+      tour.title,
+      {
+        title: tour.title,
+        description: tour.description,
+        // Tours have no `bodyHTML` input (contents and museums do).
+        body: convertHTMLToLexical({ editorConfig, JSDOM, html: tour.bodyHTML }),
+        contents: tour.stops.map((title) => contentIdByTitle.get(title)!),
+        // Logistic directions: the visit's practical information, and how to
+        // reach each stop (`src/lib/tour-logistics.ts`).
+        logistics: tour.logistics,
+        directions: Object.entries(tour.directions).map(([title, text]) => ({
+          content: contentIdByTitle.get(title)!,
+          text,
+        })),
+        museum: museum.id,
+        // Tours are curated by the first author account.
+        author: authorId('autore1'),
+        durationMinutes: tour.durationMinutes,
+        distanceMeters: walking.metres,
+        wheelchairAccessible: tour.wheelchairAccessible,
+        categories: categoryIds(tour.categories),
+      },
+    )
+    // Tour-owned questions (no `relatedTo`), added once: they live and die with the tour.
+    if (tour.quiz.length && !doc.quiz?.questions?.length) {
+      const questions = []
+      for (const { prompt, correctAnswer, wrong } of tour.quiz) {
+        questions.push(
+          await payload.create({
+            collection: 'quizQuestions',
+            locale: 'en',
+            depth: 0,
+            data: {
+              prompt,
+              correctAnswer,
+              wrongAnswers: wrong.map((text) => ({ text })),
+              difficulty: 'medium',
+            },
+          }),
+        )
+      }
+      await payload.update({
+        collection: 'tours',
+        id: doc.id,
+        depth: 0,
+        data: { quiz: { questions: questions.map(({ id }) => id) } },
+      })
+    }
+    // Tours open inside their museum's navigation (tourNavigationPath).
+    const url = `http://localhost:3000/en/museum/${museum.id}/navigation/tour/${doc.id}/0`
+    tours.push({ id: String(doc.id), title: tour.title, url, metres: walking.metres })
+    console.info(`${tour.title}: ${tour.stops.length} stops, ${walking.metres} m → ${url}`)
+  }
+
+  return {
+    museumId: museum.id,
+    museumUrl: `http://localhost:3000/en/museum/${museum.id}`,
+    tours,
+    objects: Object.fromEntries(objectIdByKey),
+  }
 }
 
-await mkdir('.e2e-fixtures', { recursive: true })
-await writeFile(
-  '.e2e-fixtures/demo-museum.json',
-  JSON.stringify(
-    {
-      museumId: museum.id,
-      museumUrl: `http://localhost:3000/en/museum/${museum.id}`,
-      tours,
-      objects: Object.fromEntries(objectIdByKey),
-    },
-    null,
-    2,
-  ),
-)
-await payload.destroy()
-process.exit(0)
+// `pnpm seed:demo` (tsx): rebuild the demo museum and write the e2e fixture.
+// Imported by `src/seed.ts`, the module only defines `seedDemoMuseum`.
+// Matched by name, not by `import.meta.url`: bundled into the boot's seed,
+// this module shares the bundle's URL and would otherwise run (and exit) there.
+if (/seed-demo-museum\.ts$/.test(process.argv[1] ?? '')) {
+  loadEnv({ path: ['.env.local', '.env'] })
+  const { default: config } = await import('../src/payload.config')
+  const payload = await getPayload({ config })
+  const fixture = await seedDemoMuseum(payload)
+  await mkdir('.e2e-fixtures', { recursive: true })
+  await writeFile('.e2e-fixtures/demo-museum.json', JSON.stringify(fixture, null, 2))
+  await payload.destroy()
+  process.exit(0)
+}

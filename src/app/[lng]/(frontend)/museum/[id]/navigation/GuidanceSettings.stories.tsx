@@ -26,6 +26,8 @@ const meta = {
       setSuggestions: fn(),
       gpsMode: 'device',
       setGpsMode: fn(),
+      mapView: '3d',
+      setMapView: fn(),
     },
     gpsError: null,
     compass: { heading: null, status: 'off', enable: fn(async () => {}), turn: fn() },

@@ -6,6 +6,7 @@ import { ObjectCatalogPanel, useObjectGeneration } from '@/components/pascal/Obj
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'
 import { MuseumServicesToolbar } from '@/components/pascal/MuseumServicesToolbar'
+import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { CREATE_PARAM, PLACE_PARAM } from '@/lib/museum-picker'
 import {
@@ -119,7 +120,9 @@ export function MapEditor({
         polygon.points = polygon.points.map((p) => (Array.isArray(p) ? p : [p?.[0], p?.[1]]))
       }
     }
-    return map
+    // Markers saved as extra roots would be dropped by Pascal's setScene and
+    // lost on the next save, and fallback-origin asset URLs fail: repair both.
+    return loadableMap(map)
   }, [museum?.map])
 
   // Arrival from the objects search (`src/lib/museum-picker.ts`): put the

@@ -539,3 +539,16 @@
     animation: none;
   }
 }
+
+/* The voice assistant's listening rings (src/components/assistant/AssistantButton.tsx):
+   each leaves the button's edge and widens until it fades. */
+@keyframes assistant-ring {
+  from {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}

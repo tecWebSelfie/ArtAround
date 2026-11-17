@@ -87,13 +87,20 @@ export async function generateContentAudio(
   // Fish Audio, or the mock under AI_MOCK=true (src/lib/ai-models.ts).
   const model = await speechModel(AUDIO_MODEL)
   const parts: Uint8Array[] = []
-  for (const chunk of splitForSpeech(text)) {
+  const chunks = splitForSpeech(text)
+  for (const [index, chunk] of chunks.entries()) {
     const { audio } = await generateSpeech({
       model,
       text: chunk,
       voice: AUDIO_VOICE,
       outputFormat: 'mp3',
-    })
+    }).catch(
+      failedAt(
+        `speech of part ${index + 1}/${chunks.length} (${chunk.length} chars)`,
+        contentId,
+        locale,
+      ),
+    )
     parts.push(audio.uint8Array)
   }
   const data = Buffer.concat(parts)
@@ -113,23 +120,28 @@ export async function generateContentAudio(
     model: AUDIO_MODEL,
     voice: AUDIO_VOICE,
   }
+  const saving = `saving ${file.name} (${data.length} bytes)`
   if (existing) {
-    await payload.update({
-      collection: 'contentAudio',
-      id: existing.id,
-      data: fields,
-      file,
-      overrideAccess: true,
-      req,
-    })
+    await payload
+      .update({
+        collection: 'contentAudio',
+        id: existing.id,
+        data: fields,
+        file,
+        overrideAccess: true,
+        req,
+      })
+      .catch(failedAt(saving, contentId, locale))
   } else {
-    await payload.create({
-      collection: 'contentAudio',
-      data: fields,
-      file,
-      overrideAccess: true,
-      req,
-    })
+    await payload
+      .create({
+        collection: 'contentAudio',
+        data: fields,
+        file,
+        overrideAccess: true,
+        req,
+      })
+      .catch(failedAt(saving, contentId, locale))
   }
 
   // Only base source audio replaces the estimate; a variant duration is a request/cache key.
@@ -148,6 +160,18 @@ export async function generateContentAudio(
   }
   return { status: 'generated', seconds }
 }
+
+/**
+ * Logs which stage of a generation failed (the speech of which part, or the
+ * save of the MP3 and its record) before the job records the error, so the
+ * server log of a deployment that can't be entered says where it broke.
+ */
+const failedAt =
+  (stage: string, contentId: string, locale: string) =>
+  (error: unknown): never => {
+    console.error(`[content-audio] ${contentId} (${locale}) failed at ${stage}:`, error)
+    throw error
+  }
 
 export const generateContentAudioTask: TaskConfig<'generateContentAudio'> = {
   slug: 'generateContentAudio',

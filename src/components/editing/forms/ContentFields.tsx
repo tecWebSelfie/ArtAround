@@ -56,6 +56,8 @@ export const NEW_CONTENT_RIGHTS = {
 /** Select value standing for "the author holds the rights" (no museum). */
 const AUTHOR_HOLDER = 'author'
 
+// The labels live in a variable, out of the extractor's sight:
+// t('Easy') t('Medium') t('Hard')
 export const difficultyOptions = (t: (key: string) => string) =>
   (Object.keys(DIFFICULTY_LABEL_KEY) as Difficulty[]).map((value) => ({
     value,

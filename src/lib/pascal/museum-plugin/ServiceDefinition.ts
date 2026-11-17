@@ -1,4 +1,5 @@
 import type { NodeDefinition } from '@pascal-app/core'
+import { markerPlanSymbol } from './plan-symbols'
 import { SERVICE_META } from './markers'
 import { SERVICE_NODE_TYPE, ServiceNode } from './ServiceNode'
 import { ServiceOpeningHoursField } from './components/ServiceOpeningHoursField'
@@ -13,16 +14,9 @@ export const ServiceDefinition: NodeDefinition<typeof ServiceNode> = {
   schema: ServiceNode,
   schemaVersion: 1,
   category: 'analysis',
-  floorplan: (node) => ({
-    kind: 'circle',
-    cx: node.position[0],
-    cy: node.position[2],
-    r: 0.35,
-    fill: SERVICE_META[node.service].hex,
-    fillOpacity: 0.85,
-    stroke: '#ffffff',
-    strokeWidth: 0.04,
-  }),
+  // A colored disc with the marker's icon, as on the 3D map (plan-symbols.ts).
+  floorplan: (node) =>
+    markerPlanSymbol(SERVICE_META[node.service], node.position[0], node.position[2]),
   renderer: {
     kind: 'parametric',
     module: () => import('./components/ServiceRenderer'),

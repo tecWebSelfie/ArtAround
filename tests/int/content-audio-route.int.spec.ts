@@ -6,13 +6,19 @@ import { audioTextHash, contentAudioText, contentAudioWhere } from '@/lib/conten
 import { mockBody } from '@/mocks/content.mock'
 
 /** The actual audio route checks the base entitlement before resolving a saved personal version. */
-const api = vi.hoisted(() => ({ findByID: vi.fn(), find: vi.fn(), queue: vi.fn() }))
+const api = vi.hoisted(() => ({
+  findByID: vi.fn(),
+  find: vi.fn(),
+  queue: vi.fn(),
+  delete: vi.fn(),
+}))
 vi.mock('@/lib/session', () => ({
   asViewer: async () => ({ user: null, overrideAccess: false }),
   getSession: async () => ({
     payload: {
       findByID: api.findByID,
       find: api.find,
+      delete: api.delete,
       jobs: { queue: api.queue },
       collections: { contentAudio: { config: { upload: { staticDir: '/tmp' } } } },
     },
@@ -46,6 +52,7 @@ beforeEach(() => {
   api.find.mockImplementation(async ({ collection }) => ({
     docs: collection === 'contentVariants' ? [variant] : [],
   }))
+  api.delete.mockResolvedValue({})
 })
 afterEach(() => vi.unstubAllEnvs())
 
@@ -126,5 +133,34 @@ describe('personal read-aloud access and caching', () => {
     } finally {
       await rm(dir, { recursive: true })
     }
+  })
+  it('regenerates an audio whose file is gone instead of reporting it ready', async () => {
+    // A redeploy replaces the folder the MP3s live in; the records stay.
+    const hash = audioTextHash(contentAudioText({ ...content, body: variant.body }))
+    api.find.mockImplementation(async ({ collection }) => ({
+      docs:
+        collection === 'contentVariants'
+          ? [variant]
+          : [{ id: 'orphan', filename: 'missing-voice.mp3', textHash: hash }],
+    }))
+    for (const query of [`${versionQuery}&check=1`, versionQuery]) {
+      api.queue.mockClear()
+      const response = await invoke(query)
+      expect(response.status).toBe(202)
+      expect(await response.json()).toEqual({ status: 'pending' })
+      expect(api.delete).toHaveBeenLastCalledWith(
+        expect.objectContaining({ collection: 'contentAudio', id: 'orphan' }),
+      )
+      expect(api.queue).toHaveBeenCalledWith(
+        expect.objectContaining({ input: expect.objectContaining({ variantId: 'v5' }) }),
+      )
+    }
+    // An orphan that can't be removed would be skipped by the job again.
+    api.queue.mockClear()
+    api.delete.mockRejectedValueOnce(new Error('database down'))
+    const failed = await invoke(versionQuery)
+    expect(failed.status).toBe(502)
+    expect(await failed.json()).toEqual({ status: 'failed' })
+    expect(api.queue).not.toHaveBeenCalled()
   })
 })

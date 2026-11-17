@@ -100,6 +100,7 @@ export function MuseumMap({
   onRouteChange,
   position,
   path,
+  renderPaused,
   ...props
 }: ComponentProps<typeof MapViewer> & {
   navMesh?: NavMesh | null
@@ -260,6 +261,9 @@ export function MuseumMap({
     <MapViewer
       map={map}
       {...props}
+      // Paused only once the scene is built: routes are computed on its
+      // meshes, so a map opened under the floor plan still draws them once.
+      renderPaused={Boolean(renderPaused) && ready}
       selectionManager="custom"
       onSceneReadyChange={setReady}
       hoverStyles={workOutlineStyles}
