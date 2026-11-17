@@ -11,24 +11,32 @@ import { SERVICE_NODE_TYPE } from './ServiceNode'
  * Maps saved before this rule kept markers as extra roots, so on load they
  * vanished: no service or exit to route to, no entrance to start from.
  * `nestMarkersInLevel` moves such roots under the ground level; the viewer and
- * the editor apply it to every map they load, and the curator permission diff
- * applies it to both sides, so a legacy map saved again is not counted as a
- * structural edit.
+ * the editor apply it to every map they load (`loadable-map.ts`), and the
+ * curator permission diff applies it to both sides, so a legacy map saved
+ * again is not counted as a structural edit. The stored map converges once a
+ * director or curator saves it from the editor.
  */
 
-type MapLike = { nodes?: Record<string, unknown>; rootNodeIds?: string[] }
+export type MapLike = { nodes?: Record<string, unknown>; rootNodeIds?: string[] }
 type SceneNode = { type?: unknown; parentId?: unknown; children?: unknown; level?: unknown }
 
 const MARKER_TYPES = new Set<unknown>([SERVICE_NODE_TYPE, EXIT_ENTRANCE_NODE_TYPE])
 
-/** The ground level: the lowest `level` among the scene's level nodes. */
+/**
+ * The ground level: `level` 0, else the one closest to it (a basement, -1,
+ * never wins over a ground floor). Legacy markers were placed with world
+ * coordinates at the scene root; museums so far have one floor, so all of
+ * them go to the ground level with their x/z kept.
+ */
 export function groundLevelId(nodes: Record<string, unknown>): string | null {
-  let ground: { id: string; level: number } | null = null
+  let ground: { id: string; rank: number } | null = null
   for (const [id, value] of Object.entries(nodes)) {
     const node = value as SceneNode | null
     if (node?.type !== 'level') continue
     const level = typeof node.level === 'number' ? node.level : 0
-    if (!ground || level < ground.level) ground = { id, level }
+    // 0 first, then 1, -1, 2, -2…: upper floors before basements.
+    const rank = Math.abs(level) * 2 - (level > 0 ? 1 : 0)
+    if (!ground || rank < ground.rank) ground = { id, rank }
   }
   return ground?.id ?? null
 }
@@ -58,9 +66,10 @@ export function nestMarkersInLevel<T extends MapLike>(map: T): T {
     [levelId]: { ...level, children: [...new Set([...children, ...loose])] },
   }
   for (const id of loose) nextNodes[id] = { ...(nodes[id] as object), parentId: levelId }
+  const nested = new Set(loose)
   return {
     ...map,
     nodes: nextNodes,
-    rootNodeIds: map.rootNodeIds?.filter((id) => !loose.includes(id)),
+    rootNodeIds: map.rootNodeIds?.filter((id) => !nested.has(id)),
   }
 }

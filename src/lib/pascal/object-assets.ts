@@ -55,19 +55,18 @@ export function rebaseAssetUrls<T extends { nodes?: Record<string, unknown> }>(
     typeof url === 'string' && url.startsWith(`${FALLBACK_ORIGIN}/`)
       ? origin + url.slice(FALLBACK_ORIGIN.length)
       : url
-  let changed = false
-  const nodes = Object.fromEntries(
-    Object.entries(map.nodes).map(([id, value]) => {
-      const asset = (value as { asset?: { src?: unknown; thumbnail?: unknown } } | null)?.asset
-      if (!asset) return [id, value]
-      const src = rebase(asset.src)
-      const thumbnail = rebase(asset.thumbnail)
-      if (src === asset.src && thumbnail === asset.thumbnail) return [id, value]
-      changed = true
-      return [id, { ...(value as object), asset: { ...asset, src, thumbnail } }]
-    }),
-  )
-  return changed ? { ...map, nodes } : map
+  // Copied on the first change only: most maps have nothing to rebase.
+  let nodes: Record<string, unknown> | null = null
+  for (const [id, value] of Object.entries(map.nodes)) {
+    const asset = (value as { asset?: { src?: unknown; thumbnail?: unknown } } | null)?.asset
+    if (!asset) continue
+    const src = rebase(asset.src)
+    const thumbnail = rebase(asset.thumbnail)
+    if (src === asset.src && thumbnail === asset.thumbnail) continue
+    nodes ??= { ...map.nodes }
+    nodes[id] = { ...(value as object), asset: { ...asset, src, thumbnail } }
+  }
+  return nodes ? { ...map, nodes } : map
 }
 
 function objectThumbnail(object: CatalogObject) {

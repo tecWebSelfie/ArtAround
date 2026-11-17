@@ -63,6 +63,8 @@ export default function MarkerPlacementTool() {
         scene.updateNode(
           current.nodeId as AnyNodeId,
           {
+            // Level-local position: move the node under that level too.
+            ...(levelId && { parentId: levelId }),
             position: event.localPosition,
             placed: true,
           } as Partial<AnyNode>,

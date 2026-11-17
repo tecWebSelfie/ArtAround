@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { createRealisticMuseumMap } from '@/mocks/museum-map.mock'
 import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
-import { nestMarkersInLevel } from '@/lib/pascal/museum-plugin/marker-hierarchy'
+import { groundLevelId, nestMarkersInLevel } from '@/lib/pascal/museum-plugin/marker-hierarchy'
 
 // Pascal's setScene keeps only the site root, so markers must be level
 // children (src/lib/pascal/museum-plugin/marker-hierarchy.ts).
@@ -40,9 +40,21 @@ describe('museum markers in the scene hierarchy', () => {
     expect(nested.nodes[levelId]!.children).toEqual(expect.arrayContaining(markerIds(nested)))
   })
 
+  it('picks the ground floor over a basement', () => {
+    const levels = {
+      b: { type: 'level', level: -1 },
+      g: { type: 'level', level: 0 },
+      u: { type: 'level', level: 1 },
+    }
+    expect(groundLevelId(levels)).toBe('g')
+    expect(groundLevelId({ b: levels.b, u: levels.u })).toBe('u')
+  })
+
   it('a curator saving a legacy map once nested is not editing the markers', () => {
     const stored = legacy(fixture())
     expect(curatorForbiddenChanges(stored, nestMarkersInLevel(stored))).toEqual([])
+    // An editor opened before the change still saves root markers.
+    expect(curatorForbiddenChanges(stored, legacy(fixture()))).toEqual([])
     const moved = nestMarkersInLevel(stored)
     moved.nodes[markerIds(moved)[0]!]!.position = [1, 0, 1]
     expect(curatorForbiddenChanges(stored, moved)).toEqual([markerIds(moved)[0]])
