@@ -19,6 +19,8 @@
  * `node scripts/standalone-tts-check.mjs`. Bundled by
  * `scripts/build-standalone-scripts.mjs`. Never prints a secret.
  */
+// First: the working directory and `.env` files the boot script would give.
+import './standalone-env'
 import { AUDIO_MODEL, AUDIO_QUEUE, AUDIO_VOICE, contentAudioWhere } from '@/lib/content-audio'
 import { speechAvailable, speechModel } from '@/lib/ai-models'
 import { generateContentAudio } from '@/tasks/generateContentAudio'
