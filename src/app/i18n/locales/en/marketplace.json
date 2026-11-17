@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "{{kind}}: {{title}}",
+  "{{kind}}: {{title}}, {{price}}": "{{kind}}: {{title}}, {{price}}",
   "all": "All",
   "anyPrice": "Any price",
   "clearFilters": "Clear filters",
@@ -10,17 +12,20 @@
   "min": "min",
   "noResults": "No results found",
   "noResultsHint": "Try a different search, or clear the filters.",
+  "object": "Object",
+  "objects": "Objects",
   "paid": "Paid",
   "price": "Price",
   "results_one": "{{count}} result",
   "results_other": "{{count}} results",
   "search": "Search",
-  "searchPlaceholder": "Search tours, contents and people",
+  "Search tours, contents, objects and people": "Search tours, contents, objects and people",
   "tour": "Tour",
   "tours": "Tours",
   "type": "Type",
   "user": "User",
   "users": "Users",
   "usersNoPrice": "Profiles don't have a price.",
+  "viewObject": "View object",
   "viewProfile": "View profile"
 }

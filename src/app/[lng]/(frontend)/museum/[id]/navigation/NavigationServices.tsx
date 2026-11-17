@@ -1,9 +1,10 @@
 'use client'
 
-import { ActionIcon, Button, Popover } from '@mantine/core'
+import { Button, Popover } from '@mantine/core'
 import { MapPin, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { DockButton } from './DockButton'
 import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
 
 export type NavigationServiceAction = {
@@ -31,15 +32,12 @@ export function NavigationServices({ actions }: { actions: NavigationServiceActi
       width={280}
     >
       <Popover.Target>
-        <ActionIcon
-          size={44}
-          variant="white"
-          aria-label={t('Services')}
+        <DockButton
+          label={t('Services')}
+          icon={<MapPin size={18} aria-hidden />}
           aria-expanded={opened}
           onClick={() => setOpened((value) => !value)}
-        >
-          <MapPin size={22} aria-hidden />
-        </ActionIcon>
+        />
       </Popover.Target>
       <Popover.Dropdown className="max-w-[calc(100vw-2rem)]">
         <div

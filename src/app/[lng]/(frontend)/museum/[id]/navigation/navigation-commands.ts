@@ -4,8 +4,10 @@ import type { Museum } from '@/payload-types'
 import type { ExitEntranceMarker, ServiceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import {
+  DESTINATION_KEYS,
   navigationBasePath,
   navigationContentPath,
+  navigationScanPath,
   tourNavigationPath,
   withNavigationPosition,
   withNavigationValue,
@@ -87,8 +89,9 @@ export function useNavigationCommands({
       previousStop: t('Previous stop'),
       tour: t('Tour'),
       whatIsThis: t('What is this?'),
-      resumeTour: t('Resume tour route'),
-      clearDestination: t('Clear destination'),
+      resumeTour: t('Back to the tour route'),
+      clearDestination: t('End route'),
+      arrived: t("I'm here"),
       route: t('Route'),
       serviceKind: t('Service'),
       nearestExit: t('Nearest exit'),
@@ -125,7 +128,7 @@ export function useNavigationCommands({
       placedServices: services.filter((node) => node.placed),
       placedExits: exits.filter((node) => node.placed && node.direction === 'exit'),
       labels,
-      focus: navigationFocus({ scope, search, pathname, catalog }),
+      focus: navigationFocus({ scope, pathname, catalog }),
     }
     const all = [
       ...modalCommands(context),
@@ -173,6 +176,7 @@ type CommandLabels = {
   | 'whatIsThis'
   | 'resumeTour'
   | 'clearDestination'
+  | 'arrived'
   | 'route'
   | 'serviceKind'
   | 'nearestExit'
@@ -225,17 +229,18 @@ function only<T>(
 }
 
 /**
- * The tour's stops around the current one, and the work in front of the
- * visitor: the open object or content's work, the stop modal's, else the
- * confirmed position's. Its author and movement (Wikidata subjects) answer
- * "who's the author?" and "what style is it?".
+ * The tour's stops around the current one, and the work the visitor is
+ * looking at. Only an open modal says that: the object modal's work, or the
+ * work behind the open content or stop. A confirmed position or the tour's
+ * current stop doesn't (the visitor may still be walking there), so without
+ * a modal there is no work and the commands about it ("what is this?", the
+ * author, the style) stay out of the Spotlight.
  */
 function navigationFocus({
   scope,
-  search,
   pathname,
   catalog,
-}: Pick<CommandContext, 'scope' | 'search' | 'pathname' | 'catalog'>) {
+}: Pick<CommandContext, 'scope' | 'pathname' | 'catalog'>) {
   const tour = scope.kind === 'tour' ? scope.tour : null
   const step = scope.kind === 'tour' ? scope.step : 0
   const next = tour?.contents[step]
@@ -244,31 +249,31 @@ function navigationFocus({
   const previousId = previous && extractID(previous)
   const openContentId =
     /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
-  const objectOf = (contentId: string | null | undefined) =>
-    contentId
-      ? catalog.find((object) => object.contents.some((content) => content.id === contentId))
-      : undefined
-  const atPosition = catalog.find((object) => object.id === search.get('at'))
-  const work =
-    catalog.find((object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1]) ??
-    objectOf(openContentId) ??
-    atPosition
-  // "Cos'è questo?": the work at the visitor's confirmed position; without
-  // one (the base navigator places nobody), the work being looked at, else
-  // the current tour stop's.
-  const inFront = atPosition ?? work ?? objectOf(nextId)
-  return { tour, nextId, previousId, work, inFront }
+  const openObject = catalog.find(
+    (object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1],
+  )
+  // The work behind the open content: "cos'è questo?" opens its object page.
+  const contentWork = openContentId
+    ? catalog.find((object) => object.contents.some((content) => content.id === openContentId))
+    : undefined
+  return { tour, nextId, previousId, openContentId, contentWork, work: openObject ?? contentWork }
 }
 
-/** The empty Spotlight's pills: tour steps, "what is this?", services, exits, route. */
+/**
+ * The empty Spotlight's pills: tour steps, "what is this?", services, exits,
+ * route. Each exists only where it changes something: a pill that would
+ * reopen what is open or reselect the active destination is left out, so
+ * the voice assistant (same list) can't run it either.
+ */
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
   const { lng, scope, search, here, href, destination, labels } = context
-  const { tour, nextId, previousId, inFront } = context.focus
-  const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
+  const { tour, nextId, previousId, openContentId, contentWork } = context.focus
+  const hasDestination = DESTINATION_KEYS.some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
   const quick = 'quick' as const
   return [
-    ...only(nextId, (id) => ({
+    // Not while that stop is already open: the pill would reopen it.
+    ...only(nextId !== openContentId && nextId, (id) => ({
       id: 'next-stop',
       label: labels.openNextStop,
       description: labels.tour,
@@ -286,7 +291,9 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: href(navigationContentPath(lng, scope, id)),
       replace: false,
     })),
-    ...only(inFront, (work) => ({
+    // Only on an open content (see navigationFocus); on the object modal
+    // the visitor is already reading about the work.
+    ...only(contentWork, (work) => ({
       id: 'what-is-this',
       label: labels.whatIsThis,
       description: work.name,
@@ -294,6 +301,26 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: href(`${here}/object/${work.id}`),
       replace: false,
     })),
+    // "I'm here": the visitor reached the chosen destination. An object
+    // becomes the confirmed position (`at`, the same explicit confirmation
+    // as "Set as my position"); a service or exit has no object, so the
+    // position stays. Either way the destination is done and cleared, and a
+    // tour's route to its next stop comes back. Not for group guests (the
+    // host leads; `guestCommands` keeps an allowlist).
+    ...only(hasDestination, () => {
+      const arrived = new URLSearchParams(search)
+      const reached = arrived.get('to')
+      for (const key of ['to', 'service', 'exit']) arrived.delete(key)
+      if (reached) arrived.set('at', reached)
+      return {
+        id: 'arrived',
+        label: labels.arrived,
+        description: labels.route,
+        group: quick,
+        href: withNavigationPosition(here, arrived.toString()),
+        replace: true,
+      }
+    }),
     // Same id in both modes (the overlay toggles services off with it): a
     // tour resumes its route, free navigation clears the target.
     ...only(hasDestination, () => ({
@@ -305,8 +332,11 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       replace: true,
     })),
     // One "nearest" pill per service type present; the map picks the closest.
-    ...SERVICE_TYPES.filter((type) =>
-      context.placedServices.some((node) => node.service === type),
+    // The active one is left out: the controls toggle it off with resume-tour.
+    ...SERVICE_TYPES.filter(
+      (type) =>
+        search.get('service') !== type &&
+        context.placedServices.some((node) => node.service === type),
     ).map((type) => ({
       id: `service-type:${type}`,
       label: labels.nearestService[type],
@@ -315,7 +345,7 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       href: destination('service', type),
       replace: true,
     })),
-    ...only(context.placedExits.length, () => ({
+    ...only(search.get('exit') !== 'nearest' && context.placedExits.length, () => ({
       id: 'exit:nearest',
       label: labels.nearestExit,
       description: labels.exit,
@@ -341,7 +371,9 @@ function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
       label: labels.scan,
       description: labels.position,
       group: quick,
-      href: href(`${here}/scan`),
+      // Its own page, not over the map: the camera and the map's controls
+      // on one screen were confusing. It comes back here (see QrScanPage).
+      href: navigationScanPath(lng, href(here)),
       replace: false,
     },
   ]
@@ -359,18 +391,20 @@ function tourCommands(
 ): NavigationCommand[] {
   if (scope.kind !== 'free') return []
   const startTour = new URLSearchParams(search)
-  for (const key of ['to', 'service', 'exit']) startTour.delete(key)
-  return tours.map((item) => ({
-    id: `tour:${item.id}`,
-    label: item.title,
-    description: labels.tourStops(item.stops),
-    group: 'tour',
-    href: withNavigationPosition(
-      tourNavigationPath(lng, scope.museumId, item.id, 0),
-      startTour.toString(),
-    ),
-    replace: false,
-  }))
+  for (const key of DESTINATION_KEYS) startTour.delete(key)
+  return tours
+    .filter((item) => item.canStart)
+    .map((item) => ({
+      id: `tour:${item.id}`,
+      label: item.title,
+      description: labels.tourStops(item.stops),
+      group: 'tour',
+      href: withNavigationPosition(
+        tourNavigationPath(lng, scope.museumId, item.id, 0),
+        startTour.toString(),
+      ),
+      replace: false,
+    }))
 }
 
 /** Search results: the works and their contents, each service and exit. */
@@ -450,11 +484,13 @@ function modalCommands(context: CommandContext): NavigationCommand[] {
 
 /**
  * The "Tell me more" angles: they only set `?more=` on the modal URL; asking
- * again for the angle already open goes one step further (`?step=`).
+ * again for the angle already open goes one step further (`?step=`), until
+ * the last step, where the angle has nothing more to give and is left out.
  */
 function expansionCommands({ search, pathname, labels }: CommandContext): NavigationCommand[] {
   const step = Number(search.get('step')) || 1
-  return EXPANSION_ANGLES.map((angle) => {
+  const exhausted = (angle: string) => search.get('more') === angle && step >= MAX_EXPANSION_STEPS
+  return EXPANSION_ANGLES.filter((angle) => !exhausted(angle)).map((angle) => {
     const params = new URLSearchParams(search)
     if (search.get('more') !== angle) params.delete('step')
     else if (step < MAX_EXPANSION_STEPS) params.set('step', String(step + 1))
@@ -470,9 +506,15 @@ function expansionCommands({ search, pathname, labels }: CommandContext): Naviga
   })
 }
 
-/** A content's reading options, each a set of version parameters. */
+/**
+ * A content's reading options, each a set of version parameters. The one
+ * already shown is left out ("Simpler" on the simpler text, "Original" on
+ * the original), as it would change nothing.
+ */
 function versionCommands({ search, pathname, labels }: CommandContext): NavigationCommand[] {
   const version = (label: string, id: string, set: Record<string, string | null>) => {
+    const active = Object.entries(set).every(([key, value]) => search.get(key) === value)
+    if (active) return []
     const params = new URLSearchParams(search)
     for (const [key, value] of Object.entries(set)) {
       if (value === null) params.delete(key)
@@ -480,23 +522,25 @@ function versionCommands({ search, pathname, labels }: CommandContext): Navigati
     }
     params.delete('more')
     params.delete('step')
-    return {
-      id,
-      label,
-      description: labels.readingOptions,
-      group: 'quick' as const,
-      href: `${pathname}?${params}` as Route,
-      replace: true,
-    }
+    return [
+      {
+        id,
+        label,
+        description: labels.readingOptions,
+        group: 'quick' as const,
+        href: `${pathname}?${params}` as Route,
+        replace: true,
+      },
+    ]
   }
   return [
-    version(labels.simpler, 'version:simpler', { level: 'easy' }),
+    ...version(labels.simpler, 'version:simpler', { level: 'easy' }),
     // "Troppo semplice": the most detailed wording.
-    version(labels.harder, 'version:harder', { level: 'hard' }),
+    ...version(labels.harder, 'version:harder', { level: 'hard' }),
     // A short version: half a minute, whatever the original's length.
-    version(labels.shorter, 'version:shorter', { seconds: '30' }),
-    version(labels.children, 'version:children', { audience: 'children' }),
-    version(labels.original, 'version:original', {
+    ...version(labels.shorter, 'version:shorter', { seconds: '30' }),
+    ...version(labels.children, 'version:children', { audience: 'children' }),
+    ...version(labels.original, 'version:original', {
       level: null,
       seconds: null,
       audience: null,

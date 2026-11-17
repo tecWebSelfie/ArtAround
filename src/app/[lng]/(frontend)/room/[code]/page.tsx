@@ -4,6 +4,7 @@ import { normalizeLocale } from '@/lib/localized'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { getSession } from '@/lib/session'
 import { hasNoStopsToVisit } from '@/lib/tour-stops'
+import { getTourStartAccessById } from '@/lib/tour-start-access'
 import { plannedChildrenAges } from '@/lib/reading-profile'
 import { GroupRoomPage } from './GroupRoomPage'
 
@@ -44,6 +45,8 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
   // A group whose tour has nothing left to visit is over for its guests: they
   // see "the group ended" instead of a waiting room that leads nowhere.
   const tour = !readTour || hasNoStopsToVisit(readTour) ? null : readTour
+  // Recheck current access for the host; a stale room code is not an entitlement.
+  const startAccess = tour ? await getTourStartAccessById(payload, tour.id) : null
   const thumbnail = tour && typeof tour.thumbnail === 'object' ? tour.thumbnail : null
 
   return (
@@ -61,6 +64,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
               title: tour.title,
               childrenAges: plannedChildrenAges(tour.generation?.request),
               thumbnail: thumbnail?.url ? { url: thumbnail.url, alt: thumbnail.alt } : null,
+              canStart: startAccess?.canStart ?? false,
             }
           : null
       }

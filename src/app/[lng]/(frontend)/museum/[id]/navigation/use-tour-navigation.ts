@@ -15,6 +15,7 @@ import { museumRooms, type MuseumRooms } from '@/lib/museum-rooms'
 import { logisticNotes } from '@/lib/tour-logistics'
 import type { DirectionStep } from '@/lib/tour-directions'
 import {
+  DESTINATION_KEYS,
   navigationDestination,
   stopObjectId,
   navigationBasePath,
@@ -36,6 +37,7 @@ import { useGpsFix } from './gps-source'
 import { useCompass } from './compass-source'
 import { useRouteGuidance } from './use-route-guidance'
 import type { MuseumRoute } from './MuseumMap'
+import type { NavMesh } from 'navcat'
 
 /**
  * The state behind the navigation page (`TourNavigation.tsx`): the map's
@@ -112,18 +114,24 @@ export function useTourCursor(tour: Tour | null, step: number, catalog: Navigati
   const tourContents = tour?.contents
   // Route guidance follows the next ordered content unless the visitor chose `to`.
   const defaultDestination = stopObjectId(tourContents?.[step], catalog)
-  // Memoized on the URL: the map recomputes its route when the destination changes.
+  // Memoized on the destination parameters only, not the whole URL: the map
+  // recomputes its path (and the directions restart) when this object
+  // changes, and a modal, `?more=` or a reading option must not do that.
+  const destinationQuery = new URLSearchParams(
+    [...search].filter(([key]) => (DESTINATION_KEYS as string[]).includes(key)),
+  ).toString()
   const destination = useMemo<NavigationDestination | null>(
     () =>
-      navigationDestination(search) ??
+      navigationDestination(new URLSearchParams(destinationQuery)) ??
       (defaultDestination ? { kind: 'object', id: defaultDestination } : null),
-    [search, defaultDestination],
+    [destinationQuery, defaultDestination],
   )
   // The author's directions apply while the route leads to the stop (a
   // destination the visitor chose instead has nothing to do with them).
+  const chosen = destinationQuery !== ''
   const notes = useMemo(
-    () => (tour && !navigationDestination(search) ? logisticNotes(tour, step) : []),
-    [tour, step, search],
+    () => (tour && !chosen ? logisticNotes(tour, step) : []),
+    [tour, step, chosen],
   )
   return { defaultDestination, destination, notes }
 }
@@ -175,12 +183,17 @@ export function useTourIds(
 export function directionsStatus(state: {
   complete: boolean
   positioned: boolean
+  /** The confirmed position is the destination itself (e.g. a QR scanned at the next stop). */
+  atDestination: boolean
   routeUnavailable: boolean
   hasDestination: boolean
   hasSteps: boolean
 }): DirectionsStatus | null {
   if (state.complete) return 'complete'
   if (!state.positioned) return 'no-position'
+  // There is no way to give from a place to itself: say where the visitor
+  // is instead of searching a route forever.
+  if (state.atDestination) return 'here'
   if (state.routeUnavailable) return 'unavailable'
   if (!state.hasDestination) return 'no-destination'
   return state.hasSteps ? null : 'loading'
@@ -198,6 +211,7 @@ export function assistantContext({
   destination,
   direction,
   notes,
+  guest = false,
 }: {
   museum: Museum
   tour: Tour | null
@@ -206,6 +220,8 @@ export function assistantContext({
   destination: string | null
   direction: string | null
   notes: string[]
+  /** A group guest: the host leads, so stop and destination commands are not offered. */
+  guest?: boolean
 }) {
   return [
     tour
@@ -217,6 +233,8 @@ export function assistantContext({
     notes.length ? `Tour directions: ${notes.join(' ')}` : '',
     // "Are there obstacles?": what the museum declares about access.
     accessibilityContext(museum),
+    // Why "avanti" or "dov'è il bagno" are missing for a guest (route.ts).
+    guest ? 'Group tour guest: the host leads, guests cannot change stop or destination.' : '',
   ].join(' ')
 }
 
@@ -337,11 +355,14 @@ export function useGuidance({
   currentObjectId,
   rooms,
   route,
+  navMesh,
 }: {
   museumId: string
   currentObjectId: string | null
   rooms: MuseumRooms
   route: MuseumRoute | null
+  /** The navmesh the route uses: the live position stays on it. */
+  navMesh: NavMesh | null
 }) {
   const settings = useGuidanceSettings()
   const gps = useGpsFix(settings.gpsMode)
@@ -353,6 +374,7 @@ export function useGuidance({
     fix: gps.fix,
     startPoint: rooms.objects.find(({ objectId }) => objectId === currentObjectId)?.point,
     anchorScope: positionScope,
+    navMesh,
   })
   // Nearby suggestions follow the GPS estimate, or else the confirmed start.
   const here =

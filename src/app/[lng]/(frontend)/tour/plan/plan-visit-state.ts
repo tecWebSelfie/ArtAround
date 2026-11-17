@@ -2,7 +2,7 @@
 
 import type { PlannedTour } from '@/lib/tour-plan'
 import { createSessionStore } from '@/lib/session-store'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 /**
  * The plan form's data: its answers (kept in sessionStorage with the last
@@ -72,45 +72,161 @@ export const COUNT_INPUT = {
 export type DictationState = 'idle' | 'recording' | 'transcribing'
 export type DictationError = 'microphone' | 'transcription' | null
 
-/** Tap to record, tap again to stop; the words land in the field for editing. */
-export function useDictation(onText: (text: string) => void) {
+/** The Web Speech API's recognizer, which TypeScript's DOM types leave out. */
+type SpeechRecognizer = {
+  lang: string
+  continuous: boolean
+  interimResults: boolean
+  onresult:
+    | ((event: { results: ArrayLike<{ isFinal: boolean; 0?: { transcript: string } }> }) => void)
+    | null
+  onerror: ((event: { error: string }) => void) | null
+  onend: (() => void) | null
+  start: () => void
+  stop: () => void
+  abort: () => void
+}
+type SpeechWindow = Window & {
+  SpeechRecognition?: new () => SpeechRecognizer
+  webkitSpeechRecognition?: new () => SpeechRecognizer
+}
+/** Recognizer errors that mean no microphone, rather than words not understood. */
+const MICROPHONE_ERRORS = new Set(['not-allowed', 'service-not-allowed', 'audio-capture'])
+
+/**
+ * Tap to record, tap again to stop; the words land in the field for editing.
+ * The browser's own speech recognition, where there is one, shows the words
+ * while they are spoken (`interimText`); elsewhere the recording goes to
+ * `/api/transcribe` once stopped. `elapsedSeconds` times the recording, and
+ * `completed` says the last dictation reached the field.
+ */
+export function useDictation(onText: (text: string) => void, language: string) {
   const [state, setState] = useState<DictationState>('idle')
   const [error, setError] = useState<DictationError>(null)
+  const [interimText, setInterimText] = useState('')
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [completed, setCompleted] = useState(false)
   const recorder = useRef<MediaRecorder | null>(null)
+  const recognition = useRef<SpeechRecognizer | null>(null)
+  const stream = useRef<MediaStream | null>(null)
+  const timer = useRef<number | null>(null)
+
+  const startTimer = () => {
+    const startedAt = Date.now()
+    setElapsedSeconds(0)
+    timer.current = window.setInterval(
+      () => setElapsedSeconds(Math.floor((Date.now() - startedAt) / 1000)),
+      1000,
+    )
+  }
+  const stopTimer = () => {
+    if (timer.current !== null) window.clearInterval(timer.current)
+    timer.current = null
+  }
+  const finish = (text: string | undefined) => {
+    if (!text) return
+    onText(text)
+    setCompleted(true)
+  }
+  const recording = () => {
+    startTimer()
+    setState('recording')
+  }
+
+  // Leaving the page mid-dictation releases the microphone and the timer.
+  useEffect(
+    () => () => {
+      stopTimer()
+      recognition.current?.abort()
+      stream.current?.getTracks().forEach((track) => track.stop())
+    },
+    [],
+  )
+
+  const listen = (Recognizer: new () => SpeechRecognizer) => {
+    const instance = new Recognizer()
+    let final = ''
+    instance.lang = language
+    instance.continuous = true
+    instance.interimResults = true
+    instance.onresult = (event) => {
+      // Results accumulate over the session: rebuild both texts from them.
+      const results = Array.from(event.results)
+      const text = (done: boolean) =>
+        results
+          .filter((result) => result.isFinal === done)
+          .map((result) => result[0]?.transcript ?? '')
+          .join('')
+      final = text(true)
+      setInterimText(text(false).trim())
+    }
+    instance.onerror = (event) =>
+      setError(MICROPHONE_ERRORS.has(event.error) ? 'microphone' : 'transcription')
+    instance.onend = () => {
+      stopTimer()
+      finish(final.trim())
+      setInterimText('')
+      setState('idle')
+      recognition.current = null
+    }
+    recognition.current = instance
+    instance.start()
+    recording()
+  }
+
+  const record = async () => {
+    const media = new MediaRecorder(
+      (stream.current = await navigator.mediaDevices.getUserMedia({ audio: true })),
+    )
+    const chunks: Blob[] = []
+    media.ondataavailable = (event) => chunks.push(event.data)
+    media.onstop = async () => {
+      stream.current?.getTracks().forEach((track) => track.stop())
+      stream.current = null
+      recorder.current = null
+      stopTimer()
+      setState('transcribing')
+      try {
+        const form = new FormData()
+        form.append('audio', new Blob(chunks, { type: media.mimeType }), 'interests.webm')
+        const response = await fetch('/api/transcribe', { method: 'POST', body: form })
+        if (!response.ok) throw new Error('transcription')
+        finish(((await response.json()) as { text?: string }).text)
+      } catch {
+        setError('transcription')
+      } finally {
+        setState('idle')
+      }
+    }
+    recorder.current = media
+    media.start()
+    recording()
+  }
 
   const toggle = async () => {
-    if (state === 'recording') return recorder.current?.stop()
+    if (state === 'recording') {
+      if (recognition.current) recognition.current.stop()
+      else recorder.current?.stop()
+      return
+    }
     if (state !== 'idle') return
     setError(null)
+    setCompleted(false)
+    setInterimText('')
+    const { SpeechRecognition, webkitSpeechRecognition } = window as SpeechWindow
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const chunks: Blob[] = []
-      const media = new MediaRecorder(stream)
-      media.ondataavailable = (event) => chunks.push(event.data)
-      media.onstop = async () => {
-        stream.getTracks().forEach((track) => track.stop())
-        setState('transcribing')
-        try {
-          const form = new FormData()
-          form.append('audio', new Blob(chunks, { type: media.mimeType }), 'interests.webm')
-          const response = await fetch('/api/transcribe', { method: 'POST', body: form })
-          if (!response.ok) throw new Error('transcription')
-          const { text } = (await response.json()) as { text?: string }
-          if (text) onText(text)
-        } catch {
-          setError('transcription')
-        } finally {
-          setState('idle')
-        }
-      }
-      recorder.current = media
-      media.start()
-      setState('recording')
+      const Recognizer = SpeechRecognition ?? webkitSpeechRecognition
+      if (Recognizer) listen(Recognizer)
+      else await record()
     } catch {
       // Permission denied, no microphone, or no MediaRecorder: typing still works.
+      stream.current?.getTracks().forEach((track) => track.stop())
+      stream.current = null
+      recognition.current = null
+      stopTimer()
       setError('microphone')
       setState('idle')
     }
   }
-  return { state, error, toggle }
+  return { state, error, interimText, elapsedSeconds, completed, toggle }
 }

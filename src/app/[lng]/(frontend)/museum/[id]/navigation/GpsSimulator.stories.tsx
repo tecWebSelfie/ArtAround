@@ -19,12 +19,13 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-/** Each arrow walks 2 m; north is the top of the map. */
-export const Walk: Story = {
+/** A tapped arrow nudges 1 m (north is the top of the map); holding one walks. */
+export const Nudge: Story = {
   play: async ({ canvas, args }) => {
-    await userEvent.click(canvas.getByRole('button', { name: 'Walk north' }))
-    await expect(args.onMove).toHaveBeenLastCalledWith(0, 2)
-    await userEvent.click(canvas.getByRole('button', { name: 'Walk west' }))
-    await expect(args.onMove).toHaveBeenLastCalledWith(-2, 0)
+    await userEvent.click(canvas.getByRole('application', { name: /Simulated GPS/ }))
+    await userEvent.keyboard('{ArrowUp}')
+    await expect(args.onMove).toHaveBeenLastCalledWith(0, 1)
+    await userEvent.keyboard('{ArrowLeft}')
+    await expect(args.onMove).toHaveBeenLastCalledWith(-1, 0)
   },
 }

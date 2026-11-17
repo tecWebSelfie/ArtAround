@@ -83,7 +83,7 @@ async function linkExternals() {
 const scripts = [
   // Production seed (registered in payload.config `bin`, run by `payload seed`).
   { entry: 'src/seed.ts', out: 'standalone-seed.mjs' },
-  { entry: 'src/scripts/reindex-search.ts', out: 'standalone-reindex.mjs' },
+  { entry: 'src/scripts/search-reindex.ts', out: 'standalone-reindex.mjs' },
 ]
 
 await mkdir(standaloneScripts, { recursive: true })

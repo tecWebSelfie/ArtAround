@@ -41,11 +41,12 @@ test('simulated GPS offers the nearby destination without silently confirming po
 
   // 6 m east and 2 m south: from Object 1 (x 2, z 2) to (8, 4), inside the East
   // hall and clearly past the 5 m first leg once snapped onto the route.
-  const east = page.getByRole('button', { name: 'Walk east' })
-  for (let press = 0; press < 3; press++) await east.click()
-  await page.getByRole('button', { name: 'Walk south' }).click()
+  // Tapped arrows on the joystick nudge 1 m each (holding one would walk).
+  await page.getByRole('application', { name: /Simulated GPS/ }).focus()
+  for (let press = 0; press < 6; press++) await page.keyboard.press('ArrowRight')
+  for (let press = 0; press < 2; press++) await page.keyboard.press('ArrowDown')
 
-  // The estimate snaps onto the route past the hall boundary, so the bar has
+  // The live position is past the hall boundary on the route, so the bar has
   // left the first step (entering the East hall, or arriving).
   await expect(page.getByText(/Step 1 of 3/)).toHaveCount(0)
   // The direction-aware proximity notice replaces the old room-level content carousel.

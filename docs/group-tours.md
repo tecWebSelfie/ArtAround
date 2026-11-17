@@ -7,8 +7,11 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
 ## Agreed behavior
 
 - **Start:** the tour's start page (`/[lng]/museum/{museumId}/navigation/tour/{id}`) offers "Start Tour"
-  (alone) and "Start with a group". The group's creator is its **host** and gives a
-  name shown to the group.
+  (alone) and "Start with a group" only when the visitor can read all paid stops
+  or edit the tour. The group's creator is its **host** and gives a name shown
+  to the group. `/api/rooms` independently checks the host's purchase access
+  before creating a room; the waiting room rechecks it before offering the host
+  the start action, with a link back to review access if it is no longer available.
 - **Join:** the group's name or code, typed on the navigator home or the tour's
   start page, a shared link, or a QR code (the in-tour scanner accepts room links).
   The host may name the group in "Start with a group" ("Fenice rossa", the course
@@ -28,8 +31,8 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   room (`/api/rooms/token`) also sets the httpOnly `aa-group-tour` cookie, a JWT
   signed with `LIVEKIT_API_SECRET` naming the room's tour, valid 4 hours: the
   `tours`/`contents` read access lets its holder read that tour and its contents
-  (guests have no account). Only someone who can read a tour can open a room for
-  it (`/api/rooms` reads the tour as the host).
+  (guests have no account). Reading a tour alone does not authorize starting its
+  paid stops: `/api/rooms` also checks purchase access as the host.
 - **Who asked what:** a guest's reading requests at a stop ("Tell me more",
   curiosities, story, another wording level, shorter, for children) are read from
   their own modal URL by `GroupSync` and published in their `requests` attribute

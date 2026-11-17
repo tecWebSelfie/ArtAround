@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Wszystkie",
   "anyPrice": "Dowolna cena",
   "clearFilters": "Wyczyść filtry",
@@ -10,6 +12,8 @@
   "min": "min",
   "noResults": "Brak wyników",
   "noResultsHint": "Spróbuj innego wyszukiwania lub wyczyść filtry.",
+  "object": "",
+  "objects": "",
   "paid": "Płatne",
   "price": "Cena",
   "results_one": "{{count}} wynik",
@@ -17,12 +21,13 @@
   "results_many": "{{count}} wyników",
   "results_other": "{{count}} wyniku",
   "search": "Szukaj",
-  "searchPlaceholder": "Szukaj tras, treści i osób",
+  "Search tours, contents, objects and people": "",
   "tour": "Trasa",
   "tours": "Trasy",
   "type": "Typ",
   "user": "Użytkownik",
   "users": "Użytkownicy",
   "usersNoPrice": "Profile nie mają ceny.",
+  "viewObject": "",
   "viewProfile": "Zobacz profil"
 }

@@ -231,10 +231,10 @@ export function ArtAroundGlobalSearch({
             size="lg"
             radius="xl"
             w="100%"
-            // What visitors can type (a tour, a museum, a city); it used to
-            // promise only tours. The aria-label names the full scope.
-            placeholder={t('Search tours, museums, cities')}
-            aria-label={t('Search tours, contents and museums')}
+            // The placeholder gives concrete examples; the accessible name
+            // spells out the full result scope, including people and places.
+            placeholder={t('Search tours, objects, museums and cities')}
+            aria-label={t('Search tours, contents, objects, people, museums and cities')}
             value={_value}
             onChange={(e) => {
               handleChange(e.currentTarget.value)

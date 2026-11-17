@@ -16,6 +16,7 @@ import {
   type MuseumRole,
 } from '@/fields/MuseumFunction'
 import { User as UserType } from '@/payload-types'
+import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
 import type {
   Access,
   CollectionAfterChangeHook,
@@ -152,6 +153,9 @@ export const Users: CollectionConfig = {
     beforeValidate: [sanitizePublicSignup],
     beforeChange: [protectPrivilegedFields],
     afterRead: [hidePrivateFields],
+    // Directory entry: display name, username and the museums of their work.
+    afterChange: [searchSyncAfterChange('users')],
+    afterDelete: [searchSyncAfterDelete('users')],
   },
   fields: [
     {

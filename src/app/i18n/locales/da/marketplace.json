@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Alle",
   "anyPrice": "Alle priser",
   "clearFilters": "Ryd filtre",
@@ -10,17 +12,20 @@
   "min": "min.",
   "noResults": "Ingen resultater fundet",
   "noResultsHint": "Prøv en anden søgning, eller ryd filtrene.",
+  "object": "",
+  "objects": "",
   "paid": "Betalt",
   "price": "Pris",
   "results_one": "{{count}} resultat",
   "results_other": "{{count}} resultater",
   "search": "Søg",
-  "searchPlaceholder": "Søg efter ture, indhold og personer",
+  "Search tours, contents, objects and people": "",
   "tour": "Tur",
   "tours": "Ture",
   "type": "Type",
   "user": "Bruger",
   "users": "Brugere",
   "usersNoPrice": "Profiler har ingen pris.",
+  "viewObject": "",
   "viewProfile": "Se profil"
 }

@@ -87,7 +87,7 @@ export const NothingFound: Story = {
  */
 const voiceCommands = [
   command('previous-stop', 'Previous stop', 'quick', { description: 'Tour' }),
-  command('what-is-this', 'What is this?', 'quick', { description: 'Position' }),
+  command('what-is-this', 'What is this?', 'quick', { description: 'The School of Athens' }),
   command('author', 'Who is the author?', 'quick', { description: 'Raphael' }),
   command('style', 'What style is it?', 'quick', { description: 'High Renaissance' }),
 ]

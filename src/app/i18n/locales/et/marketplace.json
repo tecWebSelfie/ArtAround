@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Kõik",
   "anyPrice": "Iga hind",
   "clearFilters": "Tühjenda filtrid",
@@ -10,17 +12,20 @@
   "min": "min",
   "noResults": "Tulemusi ei leitud",
   "noResultsHint": "Proovi teist otsingut või tühjenda filtrid.",
+  "object": "",
+  "objects": "",
   "paid": "Tasuline",
   "price": "Hind",
   "results_one": "{{count}} tulemus",
   "results_other": "{{count}} tulemust",
   "search": "Otsi",
-  "searchPlaceholder": "Otsi tuure, sisu ja inimesi",
+  "Search tours, contents, objects and people": "",
   "tour": "Tuur",
   "tours": "Tuurid",
   "type": "Tüüp",
   "user": "Kasutaja",
   "users": "Kasutajad",
   "usersNoPrice": "Profiilidel pole hinda.",
+  "viewObject": "",
   "viewProfile": "Vaata profiili"
 }

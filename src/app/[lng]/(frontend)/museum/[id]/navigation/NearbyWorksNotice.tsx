@@ -1,15 +1,22 @@
 'use client'
 
-import { ActionIcon, Button, Paper } from '@mantine/core'
-import { Compass, FlagTriangleRight, ImageOff, X } from 'lucide-react'
+import { ActionIcon, Button, Paper, UnstyledButton } from '@mantine/core'
+import { ChevronRight, Compass, FlagTriangleRight, ImageOff, X } from 'lucide-react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
+import { NAVIGATION_COMPACT_ACTION_CLASS, NAVIGATION_HIT_AREA } from './navigation-touch'
 
 export type NearbyWork = { id: string; name: string; thumbnail?: string | null; next: boolean }
 
-/** A compact, nonmodal recognition choice; opening and confirming are separate actions. */
+/**
+ * A compact, nonmodal recognition choice over the map, sized like a list:
+ * one short heading line, then one row per work. Opening and confirming stay
+ * separate actions: the row itself opens the work (a list item's usual tap),
+ * "I'm here" beside it confirms the position. It covers as little of the map
+ * as a notice can while every target keeps 44 px (compact controls carry an
+ * invisible hit ring, see `navigation-touch.ts`).
+ */
 export function NearbyWorksNotice({
   works,
   onOpen,
@@ -30,55 +37,56 @@ export function NearbyWorksNotice({
     heading = next ? t('Your next stop is nearby') : t('Discover a nearby work')
   return (
     <Paper
-      className="pointer-events-auto max-h-[45dvh] w-full max-w-sm overflow-auto rounded-md border border-(--mantine-color-default-border) bg-(--mantine-color-body) p-3 shadow-md"
+      className="pointer-events-auto max-h-[45dvh] w-full max-w-sm overflow-auto rounded-md border border-(--mantine-color-default-border) bg-(--mantine-color-body) px-2 py-1.5 shadow-md"
       role="region"
       aria-label={t('Works near you')}
     >
-      <div className="mb-2 flex items-start gap-2">
-        <Icon size={20} className="mt-1 shrink-0" aria-hidden="true" />
-        <h2 className="grow text-sm font-semibold" aria-live="polite">
+      <div className="flex items-center gap-1.5 ps-1">
+        <Icon size={16} className="shrink-0" aria-hidden="true" />
+        <h2 className="m-0 grow text-xs font-semibold" aria-live="polite">
           {heading}
         </h2>
         <ActionIcon
-          size={44}
+          size={32}
           variant="subtle"
+          className={NAVIGATION_HIT_AREA}
           aria-label={t('Dismiss nearby works')}
           onClick={onDismiss}
         >
-          <X size={18} />
+          <X size={16} />
         </ActionIcon>
       </div>
-      <ul className="m-0 flex list-none flex-col gap-3 p-0">
+      <ul className="m-0 flex list-none flex-col p-0">
         {works.map((work) => (
-          <li key={work.id} className="flex items-start gap-2">
-            <WorkThumbnail key={work.thumbnail} src={work.thumbnail} />
-            <div className="min-w-0 grow">
-              <p className="m-0 text-sm font-semibold break-words">{work.name}</p>
-              <p className="mb-2 text-xs">{work.next ? t('Next stop') : t('Nearby discovery')}</p>
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  className={NAVIGATION_ACTION_CLASS}
-                  size="sm"
-                  autoContrast
-                  variant={work.next ? 'filled' : 'default'}
-                  // The deeper primary shade preserves museum identity and AA contrast.
-                  color={work.next ? 'museum.8' : undefined}
-                  aria-label={t('Open {{name}}', { name: work.name })}
-                  onClick={() => onOpen(work.id)}
+          <li key={work.id} className="flex items-center gap-1">
+            <UnstyledButton
+              aria-label={t('Open {{name}}', { name: work.name })}
+              onClick={() => onOpen(work.id)}
+              className="flex min-h-11 min-w-0 grow items-center gap-2 rounded-sm p-1 hover:bg-(--mantine-color-default-hover)"
+            >
+              <WorkThumbnail key={work.thumbnail} src={work.thumbnail} />
+              <span className="min-w-0 grow">
+                <span className="block truncate text-sm font-semibold">{work.name}</span>
+                {/* The next stop says so in the museum colour, the one
+                    accent: it is the work the route leads to. */}
+                <span
+                  className={`block text-xs ${work.next ? 'text-(--mantine-color-museum-light-color)' : 'text-(--mantine-color-dimmed)'}`}
                 >
-                  {t('Open')}
-                </Button>
-                <Button
-                  className={NAVIGATION_ACTION_CLASS}
-                  size="sm"
-                  variant="subtle"
-                  aria-label={t('Confirm position at {{name}}', { name: work.name })}
-                  onClick={() => onConfirm(work.id)}
-                >
-                  {t('I am here')}
-                </Button>
-              </div>
-            </div>
+                  {work.next ? t('Next stop') : t('Nearby discovery')}
+                </span>
+              </span>
+              <ChevronRight size={16} aria-hidden className="shrink-0 opacity-60" />
+            </UnstyledButton>
+            <Button
+              className={`${NAVIGATION_COMPACT_ACTION_CLASS} shrink-0`}
+              size="compact-sm"
+              variant="light"
+              color={work.next ? 'museum.8' : 'gray'}
+              aria-label={t('Confirm position at {{name}}', { name: work.name })}
+              onClick={() => onConfirm(work.id)}
+            >
+              {t("I'm here")}
+            </Button>
           </li>
         ))}
       </ul>
@@ -90,20 +98,20 @@ export function NearbyWorksNotice({
 function WorkThumbnail({ src }: { src?: string | null }) {
   const [failed, setFailed] = useState(false)
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--mantine-color-default-hover)">
+    <span className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-(--mantine-color-default-hover)">
       {src && !failed ? (
         <Image
           src={src}
           alt=""
-          width={56}
-          height={56}
+          width={40}
+          height={40}
           unoptimized
           className="h-full w-full object-cover"
           onError={() => setFailed(true)}
         />
       ) : (
-        <ImageOff size={24} aria-hidden="true" />
+        <ImageOff size={18} aria-hidden="true" />
       )}
-    </div>
+    </span>
   )
 }

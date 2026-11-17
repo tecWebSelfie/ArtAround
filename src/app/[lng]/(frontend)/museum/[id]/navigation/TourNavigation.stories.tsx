@@ -206,6 +206,16 @@ export const SimulatedGps: Story = {
 /** The dormant orb sits at the right of the navbar until the visitor opts in. */
 export const AssistantOff: Story = {
   ...RouteBetweenObjects,
+  parameters: {
+    nextjs: {
+      navigation: {
+        ...RouteBetweenObjects.parameters?.nextjs?.navigation,
+        // No destination chosen: the map's centre pill is the next stop
+        // (with one, it is "I'm here", see NavigationControls).
+        query: { at: 'route-start' },
+      },
+    },
+  },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('button', { name: 'Turn on the voice assistant' })).toBeVisible()
     // "Open next stop" moved from the navbar to the map overlay.
@@ -247,7 +257,13 @@ export const FreeNavigation: Story = {
     museum: { ...mockMuseumFull, map: null },
     catalog: [],
     tours: [
-      { id: mockTourFull.id, title: mockTourFull.title, stops: mockTourFull.contents.length },
+      {
+        id: mockTourFull.id,
+        title: mockTourFull.title,
+        stops: mockTourFull.contents.length,
+        canStart: true,
+      },
+      { id: 'locked-tour', title: 'Paid tour', stops: 2, canStart: false },
     ],
   },
   parameters: {
@@ -261,12 +277,17 @@ export const FreeNavigation: Story = {
       },
     },
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     // Directions ask for a start before an end: with no position yet, the bar
     // asks for it first (DirectionsBar's "no-position" state).
     await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
+    // No destination yet: the centre pill opens search (NavigationControls).
+    await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
+    const body = within(canvasElement.ownerDocument.body)
+    await expect(body.findByRole('button', { name: mockTourFull.title })).resolves.toBeVisible()
+    await expect(body.queryByRole('button', { name: 'Paid tour' })).toBeNull()
   },
 }
 
@@ -292,6 +313,9 @@ const visitableStopsTour = visitableTour(
 
 export const UnavailableStop: Story = {
   ...RouteBetweenObjects,
+  // A fresh tab: the stops other stories showed (RemovedStopsModal's
+  // sessionStorage) would otherwise read as stops that left the tour.
+  beforeEach: () => sessionStorage.removeItem(`artaround:tour-stops:${mockTourFull.id}`),
   args: {
     ...RouteBetweenObjects.args,
     scope: { kind: 'tour', tour: visitableStopsTour, step: 0 },

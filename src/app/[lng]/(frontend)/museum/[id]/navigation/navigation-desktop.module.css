@@ -27,12 +27,6 @@
     justify-content: center;
   }
 
-  /* Floating next-stop row: starts at the left edge, above the control cluster
-     (Group's `justify` prop is not responsive). */
-  .controlRow {
-    justify-content: flex-start;
-  }
-
   /* Directions strip: a readable line length instead of 4/5 of the bar. */
   .directions {
     flex: 0 1 40rem;

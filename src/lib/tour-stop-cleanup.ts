@@ -1,4 +1,5 @@
-import { relationshipIds, refreshSearchDocs } from '@/lib/search-index'
+import { relationshipIds } from '@/lib/relationship-ids'
+import { resyncSearchDocuments } from '@/lib/search/sync'
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { computeVisitableContentIds, visitableFields } from '@/lib/visitable-stops'
 import type { Museum, Tour } from '@/payload-types'
@@ -121,7 +122,7 @@ export async function removeContentsFromTours({
   }
   // Search is derived data: never fail (and roll back) the content's deletion over it.
   try {
-    await refreshSearchDocs({ payload, collection: 'tours', ids: changed, req })
+    await resyncSearchDocuments({ payload, collection: 'tours', ids: changed, req })
   } catch (error) {
     payload.logger.error({ err: error, msg: 'Could not refresh the search rows of tours' })
   }

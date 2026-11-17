@@ -16,7 +16,7 @@
  */
 import { getPayload } from 'payload'
 import config from '../payload.config'
-import { relationshipIds } from '../lib/search-index'
+import { relationshipIds } from '../lib/relationship-ids'
 import { removeContentsFromTours } from '../lib/tour-stop-cleanup'
 import { refreshVisitableStops } from '../lib/visitable-stops'
 

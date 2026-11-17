@@ -3,8 +3,8 @@
 import { Badge, Combobox, Group, Text, UnstyledButton, useCombobox } from '@mantine/core'
 import IsoCodes from 'iso-639-1'
 import { Languages, Search } from 'lucide-react'
-import { usePathname, useRouter } from 'next/navigation'
-import { useT } from 'next-i18next/client'
+import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useTranslation } from 'react-i18next'
 import type { Route } from 'next'
 import { useState } from 'react'
 import { ClearSearchButton } from './ClearSearchButton'
@@ -26,7 +26,11 @@ function languageName(code: string) {
  * language by its tag better than by its own name.
  */
 export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] }) {
-  const { i18n, t } = useT()
+  // react-i18next, not next-i18next's `useT`: the switcher only reads the
+  // language, which the `/{lng}` segment holds (also where there is no i18n
+  // provider, as in Storybook), and never changes i18next's itself.
+  const { t } = useTranslation()
+  const language = useParams<{ lng?: string }>().lng ?? 'en'
   const pathname = usePathname()
   const router = useRouter()
   const [search, setSearch] = useState('')
@@ -38,8 +42,8 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
     onDropdownOpen: () => combobox.focusSearchInput(),
   })
 
-  const current = languageName(i18n.language)
-  const code = i18n.language.toUpperCase()
+  const current = languageName(language)
+  const code = language.toUpperCase()
   const words = search.trim().toLowerCase()
   const options = supportedLngs
     .map((lng) => ({ value: lng, label: languageName(lng) }))
@@ -64,7 +68,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
       position="bottom-end"
       onOptionSubmit={(value) => {
         combobox.closeDropdown()
-        if (value !== i18n.language) switchLocale(value)
+        if (value !== language) switchLocale(value)
       }}
     >
       <Combobox.Target targetType="button">
@@ -114,7 +118,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
               <Combobox.Option
                 key={option.value}
                 value={option.value}
-                active={option.value === i18n.language}
+                active={option.value === language}
               >
                 <Group gap="xs" wrap="nowrap">
                   <Badge

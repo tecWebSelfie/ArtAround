@@ -22,12 +22,16 @@ import {
   LICENSE_NAME,
   LICENSES,
 } from '@/lib/content-rights'
-import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
-import { refreshToursIncluding } from '@/lib/search-index'
 import { removeContentsFromTours } from '@/lib/tour-stop-cleanup'
 import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
+import {
+  resyncToursIncluding,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -230,18 +234,13 @@ const attachTo = (
   }
 
 /**
- * A tour's search row carries its list price, the sum of its contents' prices
- * (docs/search.md). The search plugin re-indexes this content on save; when the
- * price changed, the rows of the tours that include it are refreshed too.
+ * A tour's search document carries its list price, the sum of its contents'
+ * prices (docs/search.md). A content save re-indexes this content; when the
+ * price changed, the documents of the tours that include it are refreshed too.
  */
 const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
   if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
-  try {
-    await refreshToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
-  } catch (error) {
-    // Search is derived data: never fail the content save over it.
-    req.payload.logger.error({ err: error, msg: `Could not refresh tour prices for ${doc.id}` })
-  }
+  await resyncToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
   return doc
 }
 
@@ -376,7 +375,8 @@ export const Contents: CollectionConfig = {
       refreshTourPrices,
       refreshTourVisitableStops,
       queueContentAudio,
-      hideFromSearch('contents'),
+      // Indexes the content (or removes it when it became private/planned).
+      searchSyncAfterChange('contents'),
     ],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
     afterDelete: [
@@ -391,6 +391,7 @@ export const Contents: CollectionConfig = {
           contentIds: [String(id)],
         })
       },
+      searchSyncAfterDelete('contents'),
     ],
   },
   fields: [

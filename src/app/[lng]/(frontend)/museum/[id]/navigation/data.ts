@@ -13,6 +13,7 @@ import {
 } from '@/lib/tour-navigation'
 import type { Museum, Tour } from '@/payload-types'
 import { asViewer } from '@/lib/session'
+import { getStartableTourIds } from '@/lib/tour-start-access'
 import type { NavigationTourSummary } from './TourNavigationShell'
 export { getLocalizedPageDocument as getNavigationDocument } from '@/lib/localized-page'
 // The shared reads (museum, catalog, one visitable tour) live in `lib`: the
@@ -69,13 +70,20 @@ export const getMuseumNavigationTours = cache(
       ...visitableTour(tour, catalog, placed),
       museum: museum.id,
     }))
+    const startableTourIds = await getStartableTourIds(payload, tours)
     return {
       tours,
       summaries: tours
         // Not one visitor's own tours (planned visits, visit copies): those
         // open from their own link or start page.
         .filter((tour) => (tour.contents?.length ?? 0) > 0 && !isPersonalTour(tour))
-        .map((tour) => ({ id: tour.id, title: tour.title, stops: tour.contents.length })),
+        .map((tour) => ({
+          id: tour.id,
+          title: tour.title,
+          stops: tour.contents.length,
+          // Spotlight and voice commands receive the same server-side verdict.
+          canStart: startableTourIds.has(tour.id),
+        })),
     }
   },
 )

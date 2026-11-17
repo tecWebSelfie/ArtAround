@@ -39,7 +39,7 @@ export async function SearchHeading({
     <Stack gap="xs">
       {/* Up a level: back where the visitor came from (a "See all"), else
           the navigator, the search's home. */}
-      <BackButton href={`/${lng}/navigator` as Route} />
+      <BackButton withLanguage href={`/${lng}/navigator` as Route} />
       <Stack gap={2}>
         <Title order={1} size="h2">
           {title}

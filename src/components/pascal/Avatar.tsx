@@ -6,7 +6,7 @@ import { useAnimations, useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { deltaAngle } from 'maath/misc'
-import { memo, useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Vector3, type Group } from 'three'
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
 
@@ -33,15 +33,22 @@ const CLIPS = { idle: 'Armature|Idle', walk: 'Armature|Walk' } as const
 const worldPosition = new Vector3()
 
 /**
- * Visitor marker placed at the confirmed `at` position on the museum map.
- * It keeps turning to face the camera, playing the in-place Walk clip while it
- * turns and Idle once it faces the viewer. The clips are in place, so the
- * position stays exactly on the route start; only the yaw is driven by code.
+ * Visitor marker placed at the visitor's live position on the museum map.
+ * Standing still, it keeps turning to face the camera, playing the in-place
+ * Walk clip while it turns and Idle once it faces the viewer. While its
+ * parent carries it to a new position (`heading` set, in radians, the yaw
+ * of the movement), it faces the way it goes and keeps walking. The clips
+ * are in place: the parent moves it, only the yaw is driven here.
  *
  * Memoized: it has no props, and re-rendering a cloned skinned GLTF on every
  * navigation-page render (directions, GPS progress) used to make it vanish.
  */
-export const Avatar = memo(function Avatar() {
+export const Avatar = memo(function Avatar({
+  heading,
+}: {
+  /** Yaw of the current movement, or null when standing (read every frame). */
+  heading?: RefObject<number | null>
+}) {
   const { scene, animations } = useGLTF('/models/AvatarMale.glb')
   // useGLTF caches one scene per URL; a skeleton-aware clone gives this marker
   // its own bones, so its mixer never animates another instance of the model.
@@ -68,17 +75,17 @@ export const Avatar = memo(function Avatar() {
     // atan2(dx, dz) is the yaw that points the model's +Z towards the camera,
     // measured from the avatar's world position (its parent sits at the route start).
     group.getWorldPosition(worldPosition)
-    const target = Math.atan2(
-      camera.position.x - worldPosition.x,
-      camera.position.z - worldPosition.z,
-    )
+    const walking = heading?.current ?? null
+    const target =
+      walking ??
+      Math.atan2(camera.position.x - worldPosition.x, camera.position.z - worldPosition.z)
     // dampAngle takes the shortest way round, so crossing ±180° never spins the long way.
     easing.dampAngle(group.rotation, 'y', target, TURN_SMOOTH_TIME, delta)
 
     const remaining = Math.abs(deltaAngle(group.rotation.y, target))
     // useFrame always runs the latest callback, so `turning` is current here.
     // Only flips cross the React boundary; the per-frame yaw stays on the group.
-    const next = turning ? remaining > STOP_TURN : remaining > START_TURN
+    const next = walking !== null || (turning ? remaining > STOP_TURN : remaining > START_TURN)
     if (next !== turning) setTurning(next)
   })
 

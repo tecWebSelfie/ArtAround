@@ -3,33 +3,36 @@
 import { VISIT_MINUTES } from '@/lib/tour-plan'
 import { BackToNavigator } from '@/components/navigation/BackToNavigator'
 import {
-  ActionIcon,
   Alert,
   Button,
   Checkbox,
   Container,
-  Loader,
+  Group,
   SegmentedControl,
   Select,
   Stack,
   Text,
   Textarea,
   Title,
+  UnstyledButton,
 } from '@mantine/core'
-import { CircleAlert, Mic, Square } from 'lucide-react'
+import { CircleAlert } from 'lucide-react'
+import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PlanPreview } from './PlanPreview'
 import { usePlanVisit } from './use-plan-visit'
 import { MoreAboutVisit } from './MoreAboutVisit'
-import { useDictation, type DictationState, type Museum, PLAN_PAGE_CLASS } from './plan-visit-state'
+import { PlanVisitDictationButton } from './PlanVisitDictationButton'
+import { useDictation, type Museum, PLAN_PAGE_CLASS } from './plan-visit-state'
 
 /**
  * The "Plan my visit" form and its preview. Only form controls: the visitor
  * never writes a prompt (interests are an ordinary field, typed or dictated).
  *
  * Flow and invariants:
- * - The form shows what most visits need (museum unless locked, time,
- *   interests, step-free route); first/returning visit and the group sit in a
+ * - The visitor's interests lead, as the page's hero field (DESIGN.md → Plan
+ *   my visit); then what most visits need (time, museum unless locked,
+ *   step-free route). First/returning visit and the group sit in a
  *   "More about your visit" section whose toggle summarizes their values, so
  *   nothing is hidden without being visible at a glance.
  * - Nothing the visitor types is dropped silently: numbers are constrained by
@@ -116,34 +119,40 @@ export function PlanVisitPage({
             {/* Disabled while planning: the answers being planned can't change under it. */}
             <fieldset disabled={planning} className="m-0 min-w-0 border-0 p-0">
               <Stack gap="lg">
-                {!lockedMuseum && (
-                  <Select
-                    size="md"
-                    label={t('Museum')}
-                    description={t('Pick one from the list, or name it in your interests.')}
-                    data={museums}
-                    value={answers.museumId}
-                    onChange={(value) => update('museumId', value)}
-                    searchable
-                    clearable
-                  />
-                )}
-                <VisitTimeField
-                  value={answers.minutes}
-                  onChange={(value) => update('minutes', value)}
-                />
                 <InterestsField
                   value={answers.interests}
                   onChange={(value) => update('interests', value)}
                   dictation={dictation}
                 />
-                <Checkbox
-                  size="md"
-                  label={t('Wheelchair-accessible route')}
-                  description={t('Directions avoid stairs and steps. The stops stay the same.')}
-                  checked={answers.wheelchair}
-                  onChange={(event) => update('wheelchair', event.currentTarget.checked)}
-                />
+                {/* The constraints follow, set apart so they don't compete with the interests. */}
+                <Stack
+                  gap="md"
+                  className="border-t border-solid border-(--mantine-color-default-border) pt-(--mantine-spacing-md)"
+                >
+                  <VisitTimeField
+                    value={answers.minutes}
+                    onChange={(value) => update('minutes', value)}
+                  />
+                  {!lockedMuseum && (
+                    <Select
+                      size="md"
+                      label={t('Museum')}
+                      description={t('Pick one from the list, or name it in your interests.')}
+                      data={museums}
+                      value={answers.museumId}
+                      onChange={(value) => update('museumId', value)}
+                      searchable
+                      clearable
+                    />
+                  )}
+                  <Checkbox
+                    size="md"
+                    label={t('Wheelchair-accessible route')}
+                    description={t('Directions avoid stairs and steps. The stops stay the same.')}
+                    checked={answers.wheelchair}
+                    onChange={(event) => update('wheelchair', event.currentTarget.checked)}
+                  />
+                </Stack>
                 {/* The rest is optional: closed, the toggle still says what is set. */}
                 <MoreAboutVisit
                   answers={answers}
@@ -157,7 +166,12 @@ export function PlanVisitPage({
               </Stack>
             </fieldset>
             {error && (
-              <Alert color="red" variant="light" icon={<CircleAlert size={18} aria-hidden />}>
+              <Alert
+                color="red"
+                variant="light"
+                icon={<CircleAlert size={18} aria-hidden />}
+                role="alert"
+              >
                 {error}
               </Alert>
             )}
@@ -175,10 +189,11 @@ export function PlanVisitPage({
               </Button>
               {/* The wait can take a few seconds: say what is happening. */}
               <Text size="sm" c="dimmed" ta="center" role="status">
-                {planning &&
-                  (chosenName
+                {!planning
+                  ? t('Usually takes a few seconds.')
+                  : chosenName
                     ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
-                    : t('Finding the museum and choosing the stops…'))}
+                    : t('Finding the museum and choosing the stops…')}
               </Text>
             </Stack>
           </Stack>
@@ -188,16 +203,17 @@ export function PlanVisitPage({
   )
 }
 
-/** The dictation button's icon: a spinner while transcribing, stop while recording. */
-function DictationIcon({ state }: { state: DictationState }) {
-  if (state === 'transcribing') return <Loader size={16} />
-  return state === 'recording' ? <Square size={16} /> : <Mic size={20} />
-}
+/** The interests' length limit, also the planner API's. */
+const INTERESTS_MAX = 500
 
 /**
- * The interests, typed or dictated: the microphone button records, the
- * words land in the field for editing, and recording and transcribing are
- * announced and shown under the field.
+ * The interests, typed or dictated: the page's hero field (DESIGN.md → Plan
+ * my visit), an autosizing textarea in the assistant-ember halo
+ * (`.plan-visit-interest` in globals.css) with its character count and the
+ * dictation pill inside its lower edge. Dictated words land in the field for
+ * editing; the browser's interim words show as a quiet preview, and a polite
+ * status line announces recording, transcribing and the words added. The
+ * example chips insert their text at the caret.
  */
 function InterestsField({
   value,
@@ -209,11 +225,10 @@ function InterestsField({
   dictation: ReturnType<typeof useDictation>
 }) {
   const { t } = useTranslation('plan-visit')
-  const recording = dictation.state === 'recording'
-  const dictateLabel = recording ? t('Stop dictating') : t('Dictate')
-  const dictationHelp = {
-    idle: null,
-    recording: t('Listening… Tap the square to stop.'),
+  const field = useRef<HTMLTextAreaElement>(null)
+  const dictationStatus = {
+    idle: dictation.completed ? t('Dictation added to your interests.') : null,
+    recording: t('Listening… Tap the button to stop.'),
     transcribing: t('Writing down your words…'),
   }[dictation.state]
   const dictationError =
@@ -222,39 +237,97 @@ function InterestsField({
       microphone: t('The microphone is not available. You can type instead.'),
       transcription: t('Dictation did not work. Try again, or type instead.'),
     }[dictation.error]
+
+  // Replaces the selection (or inserts at the caret), spaced from its
+  // neighbours and cut to the field's limit, then puts the caret after it.
+  const insert = (suggestion: string) => {
+    const start = field.current?.selectionStart ?? value.length
+    const end = field.current?.selectionEnd ?? value.length
+    const before = value.slice(0, start)
+    const after = value.slice(end)
+    const spaced = `${before && !/\s$/.test(before) ? ' ' : ''}${suggestion}${after && !/^\s/.test(after) ? ' ' : ''}`
+    const inserted = spaced.slice(0, Math.max(INTERESTS_MAX - before.length - after.length, 0))
+    onChange(`${before}${inserted}${after}`)
+    requestAnimationFrame(() => {
+      const caret = before.length + inserted.length
+      field.current?.focus()
+      field.current?.setSelectionRange(caret, caret)
+    })
+  }
+
   return (
-    <Stack gap={4}>
-      <Textarea
-        size="md"
-        label={t('Interests')}
-        description={t(
-          'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
-        )}
-        rows={3}
-        maxLength={500}
-        value={value}
-        onChange={(event) => onChange(event.currentTarget.value)}
-        error={dictationError}
-        rightSectionWidth={52}
-        rightSection={
-          <ActionIcon
-            size="xl"
-            variant={recording ? 'filled' : 'subtle'}
-            color={recording ? 'red' : undefined}
-            radius="xl"
-            aria-label={dictateLabel}
-            title={dictateLabel}
-            onClick={() => void dictation.toggle()}
-            disabled={dictation.state === 'transcribing'}
-          >
-            <DictationIcon state={dictation.state} />
-          </ActionIcon>
-        }
-      />
-      {/* Recording and transcribing are announced, and shown under the field. */}
-      <Text size="sm" c="dimmed" aria-live="polite">
-        {dictationHelp}
+    <Stack gap="sm">
+      {/* Label and help sit outside the halo, which frames the field alone. */}
+      <Stack gap={4}>
+        <Text size="md" fw={600} id="plan-interests-label">
+          {t('Interests')}
+        </Text>
+        <Text size="sm" c="dimmed" id="plan-interests-help">
+          {t(
+            'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
+          )}
+        </Text>
+      </Stack>
+      <div className="plan-visit-interest" data-state={dictation.state}>
+        <Textarea
+          ref={field}
+          size="lg"
+          aria-labelledby="plan-interests-label"
+          aria-describedby="plan-interests-help"
+          autosize
+          minRows={5}
+          maxRows={10}
+          maxLength={INTERESTS_MAX}
+          value={value}
+          onChange={(event) => onChange(event.currentTarget.value)}
+          error={dictationError}
+          bottomSection={
+            <Stack gap="xs" className="plan-visit-hero-bottom">
+              {/* Visual only: the status line below announces the dictation. */}
+              {dictation.interimText && (
+                <Text size="sm" className="plan-visit-interim" aria-hidden>
+                  {dictation.interimText}
+                </Text>
+              )}
+              <Group justify="space-between" align="center" wrap="nowrap" gap="xs">
+                <Text size="xs" c="dimmed" className="tabular-nums">
+                  {value.length}/{INTERESTS_MAX}
+                </Text>
+                <PlanVisitDictationButton
+                  state={dictation.state}
+                  elapsedSeconds={dictation.elapsedSeconds}
+                  labels={{
+                    dictate: t('Dictate'),
+                    idleText: t('Dictation'),
+                    stop: t('Stop dictating'),
+                    transcribing: t('Writing down your words…'),
+                  }}
+                  onToggle={() => void dictation.toggle()}
+                />
+              </Group>
+            </Stack>
+          }
+        />
+      </div>
+      <Text size="sm" c="dimmed" role="status">
+        {dictationStatus}
       </Text>
+      <Group gap="xs">
+        {[
+          t('Must-see masterpieces'),
+          t('Caravaggio and the 17th century'),
+          t('A visit with children'),
+        ].map((suggestion) => (
+          <UnstyledButton
+            key={suggestion}
+            type="button"
+            className="plan-visit-interest-chip"
+            onClick={() => insert(suggestion)}
+          >
+            {suggestion}
+          </UnstyledButton>
+        ))}
+      </Group>
     </Stack>
   )
 }

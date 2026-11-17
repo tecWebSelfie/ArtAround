@@ -1,5 +1,6 @@
 import { asId } from '@/access/museumRoles'
-import { refreshSearchDocs, relationshipIds } from '@/lib/search-index'
+import { relationshipIds } from '@/lib/relationship-ids'
+import { resyncSearchDocuments } from '@/lib/search/sync'
 import {
   museumPlacedObjects,
   visitableTour,
@@ -173,7 +174,7 @@ export async function refreshVisitableStops({
     })
     changed.push(String(tour.id))
   }
-  await refreshSearchDocs({ payload, collection: 'tours', ids: changed, req })
+  await resyncSearchDocuments({ payload, collection: 'tours', ids: changed, req })
   return changed
 }
 

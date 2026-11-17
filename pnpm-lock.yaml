@@ -152,9 +152,6 @@ importers:
       '@payloadcms/plugin-redirects':
         specifier: 3.89.0
         version: 3.89.0(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))
-      '@payloadcms/plugin-search':
-        specifier: 3.89.0
-        version: 3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
       '@payloadcms/plugin-stripe':
         specifier: 3.89.0
         version: 3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
@@ -356,6 +353,9 @@ importers:
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
+      typesense:
+        specifier: 3.2.0
+        version: 3.2.0(@babel/runtime@7.29.7)
       zod:
         specifier: ^4.5.4
         version: 4.5.4
@@ -3280,13 +3280,6 @@ packages:
     peerDependencies:
       payload: 3.89.0
 
-  '@payloadcms/plugin-search@3.89.0':
-    resolution: {integrity: sha512-TerCxA2njTskqu4Lh1KOGunUmUqJrUy8rtpByb0u+tchD0flDSL/w7+Xk9LyQMShHR3C5XbYRakO2DVb+PD9aQ==}
-    peerDependencies:
-      payload: 3.89.0
-      react: ^19.0.1 || ^19.1.2 || ^19.2.1
-      react-dom: ^19.0.1 || ^19.1.2 || ^19.2.1
-
   '@payloadcms/plugin-stripe@3.89.0':
     resolution: {integrity: sha512-YrP8itHwtH/rSf5i8etOrTkxU1I7GZhrNlyl3JGI4jhxo6fVd3T5Kw1n4DA2jEpW9gBUDD/aSmmPMXPZt9o2RA==}
     peerDependencies:
@@ -5923,6 +5916,9 @@ packages:
     resolution: {integrity: sha512-UzGt8zg7Ny8djbYMhxl2zuEevVa7r2gJjYY5Lwr1xM7+XU2nd6CkIWFTVcCIbAP63vSz71NaVyyuSk9lHKcy0A==}
     engines: {node: '>=4'}
 
+  axios@1.21.1:
+    resolution: {integrity: sha512-6eI5Q/Y4u/Um9dDlsRoq5pY2rxnUTv+L4PpLitnbk/i4jb3MxLZ5CsN5Ih3IysbeRYK4pR+P7qfMsOQl9fwwFQ==}
+
   babel-plugin-macros@3.1.0:
     resolution: {integrity: sha512-Cg7TFGpIr01vOQNODXOOaGz2NpCU5gl8x1qJFbb6hbZxR7XrcE2vtbAsTAbJ7/xwJtUuJEw8K8Zr/AE0LHlesg==}
     engines: {node: '>=10', npm: '>=6'}
@@ -7009,6 +7005,15 @@ packages:
 
   focus-trap@7.5.4:
     resolution: {integrity: sha512-N7kHdlgsO/v+iD/dMoJKtsSqs5Dz/dXZVebRgJw23LDk+jMi/974zyiOYDziY2JPp8xivq9BmUGwIJMiuSBi7w==}
+
+  follow-redirects@1.16.3:
+    resolution: {integrity: sha512-toOSoqN6d51Wjf1aOFJYcoVv1aND9rj/CwjLU0Vz40oDuSpWDayCeKe4JpL5NL0WdFvoOOCI3BRo69HahjbR1A==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
 
   fontkit@2.0.4:
     resolution: {integrity: sha512-syetQadaUEDNdxdugga9CpEYVaQIxOwk7GlwZWWZ19//qW4zE5bknOKeMBDYAASwnpaSHKJITRLMF9m1fp3s6g==}
@@ -9053,6 +9058,10 @@ packages:
   proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
+  proxy-from-env@2.1.0:
+    resolution: {integrity: sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==}
+    engines: {node: '>=10'}
+
   pump@3.0.4:
     resolution: {integrity: sha512-VS7sjc6KR7e1ukRFhQSY5LM2uBWAUPiOPa/A3mkKmiMwSmRFUITt0xuj+/lesgnCv+dPIEYlkzrcyXgquIHMcA==}
 
@@ -10078,6 +10087,11 @@ packages:
     resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
     engines: {node: '>=16.20.0'}
     hasBin: true
+
+  typesense@3.2.0:
+    resolution: {integrity: sha512-CeqjNyblDxXR+9okyxMFPzctYXD9W9a0o7LMj9JN6BhzUySFH1gioua8HecKmtQVgCrqv+bBgjCo83p6gj2rjg==}
+    peerDependencies:
+      '@babel/runtime': ^7.23.2
 
   ufo@1.6.4:
     resolution: {integrity: sha512-JFNbkD1Svwe0KvGi8GOeLcP4kAWQ609twvCdcHxq1oSL8svv39ZuSvajcD8B+5D0eL4+s1Is2D/O6KN3qcTeRA==}
@@ -13355,21 +13369,6 @@ snapshots:
       '@payloadcms/translations': 3.89.0
       payload: 3.89.0(graphql@16.14.2)(typescript@7.0.2)
 
-  '@payloadcms/plugin-search@3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
-    dependencies:
-      '@payloadcms/next': 3.89.0(@types/react@19.2.14)(graphql@16.14.2)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
-      '@payloadcms/ui': 3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)
-      payload: 3.89.0(graphql@16.14.2)(typescript@7.0.2)
-      react: 19.2.6
-      react-dom: 19.2.6(react@19.2.6)
-    transitivePeerDependencies:
-      - '@types/react'
-      - graphql
-      - monaco-editor
-      - next
-      - supports-color
-      - typescript
-
   '@payloadcms/plugin-stripe@3.89.0(@types/react@19.2.14)(monaco-editor@0.56.0)(next@16.4.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(@playwright/test@1.63.0)(@types/node@22.20.2)(babel-plugin-macros@3.1.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.105.1))(payload@3.89.0(graphql@16.14.2)(typescript@7.0.2))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(typescript@7.0.2)':
     dependencies:
       '@payloadcms/translations': 3.89.0
@@ -16157,6 +16156,16 @@ snapshots:
 
   axe-core@4.13.0: {}
 
+  axios@1.21.1:
+    dependencies:
+      follow-redirects: 1.16.3
+      form-data: 4.0.6
+      https-proxy-agent: 5.0.1
+      proxy-from-env: 2.1.0
+    transitivePeerDependencies:
+      - debug
+      - supports-color
+
   babel-plugin-macros@3.1.0:
     dependencies:
       '@babel/runtime': 7.29.7
@@ -17268,6 +17277,8 @@ snapshots:
   focus-trap@7.5.4:
     dependencies:
       tabbable: 6.5.0
+
+  follow-redirects@1.16.3: {}
 
   fontkit@2.0.4:
     dependencies:
@@ -19520,6 +19531,8 @@ snapshots:
 
   proxy-from-env@1.1.0: {}
 
+  proxy-from-env@2.1.0: {}
+
   pump@3.0.4:
     dependencies:
       end-of-stream: 1.4.5
@@ -20671,6 +20684,16 @@ snapshots:
       '@typescript/typescript-sunos-x64': 7.0.2
       '@typescript/typescript-win32-arm64': 7.0.2
       '@typescript/typescript-win32-x64': 7.0.2
+
+  typesense@3.2.0(@babel/runtime@7.29.7):
+    dependencies:
+      '@babel/runtime': 7.29.7
+      axios: 1.21.1
+      loglevel: 1.9.2
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - debug
+      - supports-color
 
   ufo@1.6.4: {}
 

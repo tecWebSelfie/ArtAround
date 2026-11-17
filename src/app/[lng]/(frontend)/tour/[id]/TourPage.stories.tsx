@@ -73,16 +73,25 @@ export const Default: Story = {
   },
 }
 
-// A paid content the visitor does not own: the CTA offers buying or replacing.
+// A paid content the visitor does not own: only buying or replacing is available.
 export const WithLockedContents: Story = {
   args: { price: 450, lockedContentIds: [lockedId], isSignedIn: true },
   play: async ({ canvasElement }) => {
     // The purchase modal portals to <body>.
     const body = canvasElement.ownerDocument.body
+    await expect(within(body).queryByRole('link', { name: /Start tour/ })).not.toBeInTheDocument()
     await userEvent.click(await within(body).findByRole('button', { name: /Unlock for/ }))
     await expect(
       within(body).findByRole('link', { name: /Replace the paid contents/ }),
     ).resolves.toHaveAttribute('href', `/en/tour/new?from=${mockTourWithContents.id}`)
+  },
+}
+
+// The tour owner may start their tour even when they cannot read a paid stop.
+export const OwnerWithLockedContents: Story = {
+  args: { price: 450, lockedContentIds: [lockedId], isSignedIn: true, canEdit: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByRole('link', { name: /Start tour/ })).resolves.toBeTruthy()
   },
 }
 

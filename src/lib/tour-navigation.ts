@@ -122,7 +122,7 @@ type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
  * Destination keys are mutually exclusive: the URL carries at most one target,
  * so choosing a service or an exit replaces an object `to` (and vice versa).
  */
-const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
+export const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
 
 const NAVIGATION_KEYS: NavigationKey[] = [
   'at',
@@ -329,4 +329,13 @@ export function tourQuizResultPath(lng: string, tourId: string, token: string) {
 /** Quiz question IDs are never populated on tours (`maxDepth: 0`), so a count is all we read. */
 export function tourHasQuiz(tour: Pick<Tour, 'quiz'>) {
   return Boolean(tour.quiz?.questions?.length)
+}
+
+/**
+ * The QR scanner's own page for a navigation map: `/[lng]/scan` remembers in
+ * `from` the map URL to come back to (position kept), where a scanned
+ * object or content opens as the map's modal (see `QrScanPage`).
+ */
+export function navigationScanPath(lng: string, mapHref: string) {
+  return `/${lng}/scan?${new URLSearchParams({ from: mapHref })}` as Route
 }
