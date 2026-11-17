@@ -338,9 +338,13 @@ function WorkOutlines({ opened }: { opened: string | null }) {
   return null
 }
 
-/** Pascal's outline list made to hold `objects`, rewritten only when it differs. */
+/**
+ * Pascal's outline list made to hold `objects`, rewritten only when it
+ * differs. Item by item: moving from one work to another often keeps the
+ * length and the first item while the works change.
+ */
 function syncOutlined(list: Object3D[], objects: Object3D[]) {
-  if (list.length === objects.length && list[0] === objects[0]) return
+  if (list.length === objects.length && list.every((object, i) => object === objects[i])) return
   list.length = 0
   list.push(...objects)
 }
