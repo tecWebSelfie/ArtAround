@@ -1,5 +1,5 @@
 import { allowRequest } from '@/lib/rate-limit'
-import { matchControlledCommand, unavailableControlledCommand } from '@/lib/voice-vocabulary'
+import { matchControlledCommand } from '@/lib/voice-vocabulary'
 import { parseJson } from '@/lib/parse-json'
 import { textModel, transcriptionModel } from '@/lib/ai-models'
 import { generateText, Output, transcribe } from 'ai'
@@ -58,11 +58,9 @@ export async function POST(request: Request) {
 
     const ids = commands.data.map((command) => command.id)
     const controlled = matchControlledCommand(transcript, ids)
-    if (controlled) return NextResponse.json({ transcript, reply: '', commandId: controlled })
-    // A fixed phrase whose command the navigation state doesn't offer now
-    // ("cos'è questo?" with nothing open): the model says why, in the
-    // visitor's language, rather than mapping it onto another command.
-    const unavailable = unavailableControlledCommand(transcript, ids)
+    if (controlled && !controlled.reason) {
+      return NextResponse.json({ transcript, reply: '', commandId: controlled.command })
+    }
     const { output } = await generateText({
       model: await textModel(),
       // The schema is the whole contract: a short spoken reply, plus either
@@ -81,11 +79,14 @@ export async function POST(request: Request) {
         'directions that are not in the commands or the context.',
         `Reply in the language with code "${language}".`,
         `Context: ${context}`,
-        ...(unavailable
+        // A fixed phrase whose command the navigation state doesn't offer now
+        // ("cos'è questo?" with nothing open): the model says why, in the
+        // visitor's language, rather than mapping it onto another command.
+        ...(controlled
           ? [
-              `The visitor asked for "${unavailable.command}", which is not available right now.`,
-              `Choose "none" and explain why in one sentence. Possible reasons: ${unavailable.reason}`,
-              'In a group tour the host leads: guests cannot change stop or destination.',
+              `The visitor asked for "${controlled.command}", which is not available right now.`,
+              // `Choose "none"` is also what the AI_MOCK model looks for (src/lib/ai-mock.ts).
+              `Choose "none" and explain why in one sentence: a group guest (see the context), or ${controlled.reason}`,
             ]
           : []),
         // `id: label` lines: the AI_MOCK model matches the request against them (src/lib/ai-mock.ts).

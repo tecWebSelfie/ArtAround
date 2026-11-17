@@ -19,7 +19,7 @@ import type { MuseumRoute } from './MuseumMap'
  * cancels the GPS drift collected so far.
  */
 export function useRouteGuidance({
-  route: nextRoute,
+  route,
   rooms,
   fix,
   startPoint,
@@ -33,7 +33,6 @@ export function useRouteGuidance({
   /** Changing GPS source or confirming a different work resets its reference fix. */
   anchorScope?: string
 }) {
-  const route = useSameRoute(nextRoute)
   const steps = useMemo(
     () => buildDirections(route?.path ?? null, rooms, route?.target),
     [route, rooms],
@@ -95,30 +94,4 @@ function useGpsEstimate(start: PolygonPoint2D | null, fix: GpsFix | null, anchor
   else if (!fix && anchor) setAnchor(null)
   if (!start || !fix || anchor?.key !== startKey) return null
   return estimatePlanPoint(start, gpsOffsetMetres(anchor.fix, fix))
-}
-
-/**
- * The route, kept as the same object while its path, start and target are
- * the same. The map rebuilds the route object on every URL change (a modal,
- * `?more=`, a reading option), mostly along the same path: the directions
- * must restart only when the path itself changes (a new destination or
- * start, the step-free navmesh, a rerouted corridor), and then always.
- */
-function useSameRoute(route: MuseumRoute | null) {
-  const [kept, setKept] = useState(route)
-  const same = kept === route || (kept !== null && route !== null && sameRoute(kept, route))
-  if (!same) setKept(route)
-  return same ? kept : route
-}
-
-function samePoints(a: readonly number[] | null, b: readonly number[] | null): boolean {
-  if (!a || !b) return a === b
-  return a.length === b.length && a.every((value, index) => value === b[index])
-}
-
-function sameRoute(a: MuseumRoute, b: MuseumRoute) {
-  if (!samePoints(a.start, b.start) || !samePoints(a.target, b.target)) return false
-  const [pathA, pathB] = [a.path, b.path]
-  if (!pathA || !pathB) return pathA === pathB
-  return pathA.length === pathB.length && pathA.every((point, i) => samePoints(point, pathB[i]))
 }

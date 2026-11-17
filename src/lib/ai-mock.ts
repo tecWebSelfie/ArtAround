@@ -59,12 +59,16 @@ const words = (text: string) => new Set(text.toLowerCase().match(/\p{L}{3,}/gu) 
 /**
  * The enum option whose prompt line (`id: label, …`) shares the most words
  * with the visitor's message; the first real option when none does. "none"
- * only when it is the sole choice. The assistant and plan-tour prompts list
- * their choices as such `id:` lines: keep that shape, or CI's mock answers
- * stop matching.
+ * only when it is the sole choice, or when the system prompt says
+ * `Choose "none"` (the assistant, for a fixed phrase whose command is not
+ * offered now). The assistant and plan-tour prompts list their choices as
+ * such `id:` lines: keep that shape, or CI's mock answers stop matching.
  */
 function pickOption(values: string[], call: CallOptions): string {
   const choices = values.filter((value) => value !== 'none')
+  if (values.includes('none') && promptText(call, 'system').includes('Choose "none"')) {
+    return 'none'
+  }
   if (!choices.length) return values[0] ?? ''
   const user = promptText(call, 'user')
   const asked = words(user)

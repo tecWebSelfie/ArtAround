@@ -118,6 +118,8 @@ export function NavigationControls({
         <div className="flex flex-wrap items-end justify-center gap-2 from-md:justify-start">
           <NavigationServices actions={serviceActions} />
           <Button
+            // Disabled on the scanner itself, where there is no scan command.
+            disabled={!command('scan')}
             onClick={() => runId('scan')}
             size="md"
             className={`${NAVIGATION_ACTION_CLASS} rounded-full`}

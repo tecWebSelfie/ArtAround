@@ -282,6 +282,7 @@ function NavigationFooter({
   voiceGuidance: boolean
 }) {
   const { lng } = useParams<{ lng: string }>()
+  const guest = useIsGroupGuest()
   const destinationName = destination || ''
   const { sentence, speech, currentStep } = useVoiceGuidance({
     guidance,
@@ -301,6 +302,7 @@ function NavigationFooter({
           destination: destination || null,
           direction: currentStep ? sentence(currentStep, destinationName) : null,
           notes,
+          guest,
         })}
         language={lng}
         speech={speech}

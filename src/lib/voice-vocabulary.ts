@@ -199,46 +199,34 @@ function trimFillers(words: string[]) {
 
 /**
  * The command a transcript names, if it is one of the vocabulary's phrases
- * (possibly with polite words around it) and the command is available right
- * now. Longer phrases win ("tappa precedente" over "precedente"). Anything
+ * (possibly with polite words around it). `reason` is null when the command
+ * is available right now; otherwise it is the vocabulary's `unavailable`
+ * text, for the language model to explain (in the visitor's language)
+ * instead of improvising. An available command wins over an unavailable one,
+ * then longer phrases win ("tappa precedente" over "precedente"). Anything
  * else returns null and is left to the language model.
  */
 export function matchControlledCommand(
   transcript: string,
   available: readonly string[],
-): string | null {
-  return matchPhrase(transcript, (command) => available.includes(command))?.command ?? null
-}
-
-/**
- * Why a fixed phrase can't run now: the vocabulary entry it names when that
- * command is not among the available ones, for the language model to explain
- * (in the visitor's language) instead of improvising. Null when the phrase
- * is runnable or not a vocabulary phrase.
- */
-export function unavailableControlledCommand(
-  transcript: string,
-  available: readonly string[],
-): { command: string; reason: string } | null {
-  if (matchControlledCommand(transcript, available)) return null
-  const entry = matchPhrase(transcript, (command) => !available.includes(command))
-  return entry && { command: entry.command, reason: entry.unavailable }
-}
-
-/** The entry among `allowed` whose phrase the transcript is; the longest phrase wins. */
-function matchPhrase(transcript: string, allowed: (command: string) => boolean) {
+): { command: string; reason: string | null } | null {
   const words = normalize(transcript).split(' ').filter(Boolean)
   const said = words.join(' ')
   const core = trimFillers(words).join(' ')
-  let best: { entry: Vocabulary[number]; length: number } | null = null
+  let best: { entry: Vocabulary[number]; runnable: boolean; length: number } | null = null
   for (const entry of VOCABULARY) {
-    if (!allowed(entry.command)) continue
+    const runnable = available.includes(entry.command)
     for (const phrase of entry.phrases) {
       const key = normalize(phrase)
-      if ((said === key || core === key) && (!best || key.length > best.length)) {
-        best = { entry, length: key.length }
-      }
+      if (said !== key && core !== key) continue
+      const better =
+        !best ||
+        (runnable && !best.runnable) ||
+        (runnable === best.runnable && key.length > best.length)
+      if (better) best = { entry, runnable, length: key.length }
     }
   }
-  return best?.entry ?? null
+  return (
+    best && { command: best.entry.command, reason: best.runnable ? null : best.entry.unavailable }
+  )
 }

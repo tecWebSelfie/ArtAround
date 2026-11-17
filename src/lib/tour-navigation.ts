@@ -122,7 +122,7 @@ type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
  * Destination keys are mutually exclusive: the URL carries at most one target,
  * so choosing a service or an exit replaces an object `to` (and vice versa).
  */
-const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
+export const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
 
 const NAVIGATION_KEYS: NavigationKey[] = [
   'at',

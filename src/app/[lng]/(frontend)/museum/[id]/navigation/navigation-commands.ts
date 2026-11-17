@@ -4,6 +4,7 @@ import type { Museum } from '@/payload-types'
 import type { ExitEntranceMarker, ServiceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { SERVICE_TYPES, type ServiceType } from '@/lib/pascal/museum-plugin/ServiceNode'
 import {
+  DESTINATION_KEYS,
   navigationBasePath,
   navigationContentPath,
   tourNavigationPath,
@@ -264,7 +265,7 @@ function navigationFocus({
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
   const { lng, scope, search, pathname, here, href, destination, labels } = context
   const { tour, nextId, previousId, openContentId, contentWork } = context.focus
-  const hasDestination = ['to', 'service', 'exit'].some((key) => search.has(key))
+  const hasDestination = DESTINATION_KEYS.some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
   const quick = 'quick' as const
   return [
@@ -366,7 +367,7 @@ function tourCommands(
 ): NavigationCommand[] {
   if (scope.kind !== 'free') return []
   const startTour = new URLSearchParams(search)
-  for (const key of ['to', 'service', 'exit']) startTour.delete(key)
+  for (const key of DESTINATION_KEYS) startTour.delete(key)
   return tours.map((item) => ({
     id: `tour:${item.id}`,
     label: item.title,
