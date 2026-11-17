@@ -100,7 +100,8 @@ async function writableFolders() {
   ].filter((dir): dir is string => Boolean(dir))
   for (const dir of new Set(candidates)) {
     const probe = path.join(dir, `.tts-check-${process.pid}`)
-    const outcome = await mkdir(probe, { recursive: true })
+    // Not recursive: a missing folder is reported (ENOENT), never created.
+    const outcome = await mkdir(probe)
       .then(() => rm(probe, { recursive: true }))
       .then(
         () => 'writable',
