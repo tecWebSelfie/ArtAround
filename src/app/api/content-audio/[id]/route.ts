@@ -88,9 +88,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // 3. A current audio is served; a missing or stale one is generated.
   const audio = docs[0]
   if (audio?.filename && audio.textHash === textHash) {
-    if (url.searchParams.has('check')) return json('ready', 200)
     const staticDir = payload.collections.contentAudio.config.upload.staticDir || 'contentAudio'
-    return storedAudio(request, path.resolve(staticDir, audio.filename), textHash)
+    const filePath = path.resolve(staticDir, audio.filename)
+    if (await isFile(filePath)) {
+      if (url.searchParams.has('check')) return json('ready', 200)
+      return storedAudio(request, filePath, textHash)
+    }
+    // The record outlived its MP3: a redeploy replaces the standalone folder
+    // the files live in (`rsync --delete`, docs/standalone-deploy.md), while
+    // the database keeps the records. The job skips an audio whose record is
+    // up to date, so the orphan goes first and the audio is generated again
+    // below, instead of answering `ready` and then failing to read the file.
+    await payload
+      .delete({ collection: 'contentAudio', id: audio.id, overrideAccess: true })
+      .catch((error: unknown) =>
+        console.error(`Content audio ${id} (${locale}): orphan record not removed:`, error),
+      )
   }
   if (!speechAvailable()) return json('unavailable', 503)
   const input = { contentId: id, locale, variantId: variant?.id }
@@ -151,6 +164,13 @@ async function queueAudio(
   queuedAt.set(key, Date.now())
   await payload.jobs.queue({ task: 'generateContentAudio', input, queue: AUDIO_QUEUE })
 }
+
+/** Whether the stored MP3 is still on disk. */
+const isFile = (filePath: string) =>
+  stat(filePath).then(
+    (stats) => stats.isFile(),
+    () => false,
+  )
 
 /**
  * The current audio. The player revalidates by fingerprint (the text's hash

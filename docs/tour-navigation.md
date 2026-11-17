@@ -440,7 +440,8 @@ ones only in their metadata (`generation` groups).
   regenerates the English one when the title or text changes; other
   languages are generated on first listen, once the translation exists
   (`/api/content-audio/[id]`, statuses `ready`, `pending`, `translating`,
-  `locked`, `unavailable`). Task `generateContentAudio` on queue `speech`
+  `locked`, `unavailable`); a record whose MP3 is gone (a redeploy replaces
+  the standalone folder the files live in) is deleted and the audio queued again. Task `generateContentAudio` on queue `speech`
   (Fish Audio through AI SDK `generateSpeech`, long texts split by paragraph
   and joined); the source audio's real length replaces the estimated
   `durationSeconds`. The route reads the body as the visitor, so a locked paid
