@@ -53,6 +53,10 @@ export async function POST(request: Request) {
     const { text: transcript } = await transcribe({
       model: await transcriptionModel(),
       audio: new Uint8Array(await audio.arrayBuffer()),
+      // The visitor's language, when it is an ISO 639-1 code: left to guess,
+      // Whisper read short Italian commands as gibberish ("E adesso?" became
+      // "Iadeso", "Prossima tappa" "Prasima tapa") and the vocabulary missed them.
+      ...(/^[a-z]{2}$/.test(language) ? { providerOptions: { groq: { language } } } : {}),
     })
     if (!transcript.trim()) return NextResponse.json({ transcript, reply: '', commandId: null })
 
