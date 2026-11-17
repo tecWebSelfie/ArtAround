@@ -155,7 +155,11 @@ function CardFacts({
     return null
   }
   return (
-    <Group gap="xs" mt="auto">
+    // No `mt="auto"`: the facts stay in the stack's `xs` rhythm right under
+    // whatever precedes them. Pushing them to the stack's bottom left a large
+    // hole between a short card's title and its facts; the leftover height now
+    // sits above the footer instead, where it reads as card breathing room.
+    <Group gap="xs">
       {item.kind === 'tour' && item.durationMinutes ? (
         <Group gap={4}>
           <Clock size={14} aria-hidden />
