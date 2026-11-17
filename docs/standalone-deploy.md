@@ -96,7 +96,15 @@ Plain Node ESM, no project imports. In order it:
    documents) — makes a fresh database usable;
 3. runs the reindex bundle (rebuilds the Typesense search collection from the current
    documents);
-4. starts `server.js` and exits with its exit code.
+4. runs the read-aloud diagnostics bundle (`src/scripts/tts-check.ts`, at
+   most two minutes; `TTS_CHECK=0` skips it): it logs, prefixed
+   `[tts-check]`, the working directory and user, where each upload
+   collection writes and whether a 2 MB write there succeeds, the content
+   audio jobs and their latest errors, one Fish Audio synthesis, and the
+   generation of one missing content audio with the job's own code. It can
+   also be run by hand from the standalone folder:
+   `node scripts/standalone-tts-check.mjs`;
+5. starts `server.js` and exits with its exit code.
 
 A failed seed or reindex is logged and the app starts anyway: the container
 can't be entered, so a site that serves beats one that never comes up. The

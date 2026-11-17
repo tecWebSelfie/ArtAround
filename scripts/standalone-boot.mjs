@@ -1,6 +1,6 @@
 /**
  * Single-container entry point for the standalone deploy: seed → reindex →
- * app. The deploy container can't be entered and runs just this file:
+ * read-aloud diagnostics → app. The deploy container can't be entered and runs just this file:
  *
  *   node .next/standalone/scripts/standalone-boot.mjs
  *
@@ -59,10 +59,21 @@ for (const signal of ['SIGINT', 'SIGTERM']) {
   })
 }
 
-/** Runs `node <script>`; resolves with its exit code (non-zero when killed). */
-function run(script) {
+/**
+ * Runs `node <script>`; resolves with its exit code (non-zero when killed).
+ * With `timeoutMs`, a script still running by then is stopped.
+ */
+function run(script, timeoutMs) {
   console.log(`[boot] node ${script}`)
   child = spawn(process.execPath, [script], { stdio: 'inherit' })
+  if (timeoutMs) {
+    const running = child
+    const timer = setTimeout(() => {
+      console.error(`[boot] ${script} still running after ${timeoutMs / 1000} s: stopped`)
+      running.kill('SIGTERM')
+    }, timeoutMs)
+    running.on('exit', () => clearTimeout(timer))
+  }
   return new Promise((resolve) => {
     child.on('error', (error) => {
       console.error(`[boot] ${script} could not start:`, error)
@@ -72,8 +83,18 @@ function run(script) {
   })
 }
 
-for (const script of ['scripts/standalone-seed.mjs', 'scripts/standalone-reindex.mjs']) {
-  const code = await run(script)
+// The read-aloud diagnostics (src/scripts/tts-check.ts) write to this log
+// what the content audio chain does on this server; at most two minutes, and
+// `TTS_CHECK=0` (e.g. in `.env.production`) skips them.
+const steps = [
+  { script: 'scripts/standalone-seed.mjs' },
+  { script: 'scripts/standalone-reindex.mjs' },
+  ...(process.env.TTS_CHECK === '0'
+    ? []
+    : [{ script: 'scripts/standalone-tts-check.mjs', timeoutMs: 120_000 }]),
+]
+for (const { script, timeoutMs } of steps) {
+  const code = await run(script, timeoutMs)
   // A stop during the seed or reindex must not go on to start the server.
   if (stopping) process.exit(code)
   if (code !== 0) console.error(`[boot] ${script} failed (exit ${code}); starting the app anyway`)
