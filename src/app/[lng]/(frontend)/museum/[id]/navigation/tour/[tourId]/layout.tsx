@@ -5,6 +5,7 @@ import { TranslationPending } from '@/components/TranslationPending'
 import { normalizeLocale, requestTourTranslations } from '@/lib/localized'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
+import { getTourStartAccess } from '@/lib/tour-start-access'
 
 /**
  * Guards the tour branch of the museum navigation: the tour must exist and
@@ -24,14 +25,15 @@ export default async function TourBranchLayout({
   // offers no start, so a stale link, bookmark, QR code or group host's link to
   // any page of this branch (start, steps, their modals) lands there.
   if (tour.contents.length === 0) redirect(`/${lng}/tour/${tourId}`)
+  // Locked paid stops: guard direct links and every nested navigation URL,
+  // not only the visible start actions.
+  const payload = await getPayload({ config })
+  const access = await getTourStartAccess(payload, tourId, tour.contents)
+  if (!access.canStart) redirect(`/${lng}/tour/${tour.id}`)
   // The shell shows this tour's title, directions and stop titles in the
   // visitor's language, falling back to English: queue what is missing and
   // refresh quietly until it arrives.
-  const pending = await requestTourTranslations(
-    await getPayload({ config }),
-    tour,
-    normalizeLocale(lng) ?? 'en',
-  )
+  const pending = await requestTourTranslations(payload, tour, normalizeLocale(lng) ?? 'en')
   return (
     <>
       {children}

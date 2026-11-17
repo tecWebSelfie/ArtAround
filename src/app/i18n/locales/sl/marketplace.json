@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Vse",
   "anyPrice": "Katera koli cena",
   "clearFilters": "Počisti filtre",
@@ -10,6 +12,8 @@
   "min": "min",
   "noResults": "Ni rezultatov",
   "noResultsHint": "Poskusi z drugim iskanjem ali počisti filtre.",
+  "object": "",
+  "objects": "",
   "paid": "Plačljivo",
   "price": "Cena",
   "results_one": "{{count}} rezultat",
@@ -17,12 +21,13 @@
   "results_few": "{{count}} rezultati",
   "results_other": "{{count}} rezultatov",
   "search": "Išči",
-  "searchPlaceholder": "Išči oglede, vsebine in ljudi",
+  "Search tours, contents, objects and people": "",
   "tour": "Ogled",
   "tours": "Ogledi",
   "type": "Vrsta",
   "user": "Uporabnik",
   "users": "Uporabniki",
   "usersNoPrice": "Profili nimajo cene.",
+  "viewObject": "",
   "viewProfile": "Oglej si profil"
 }

@@ -266,7 +266,7 @@ function navigationFocus({
  * the voice assistant (same list) can't run it either.
  */
 function quickCommands(context: CommandContext, wheelchairAvailable: boolean) {
-  const { lng, scope, search, pathname, here, href, destination, labels } = context
+  const { lng, scope, search, here, href, destination, labels } = context
   const { tour, nextId, previousId, openContentId, contentWork } = context.focus
   const hasDestination = DESTINATION_KEYS.some((key) => search.has(key))
   const wheelchairOn = wheelchairAvailable && search.get('mobility') === 'wheelchair'
@@ -392,17 +392,19 @@ function tourCommands(
   if (scope.kind !== 'free') return []
   const startTour = new URLSearchParams(search)
   for (const key of DESTINATION_KEYS) startTour.delete(key)
-  return tours.map((item) => ({
-    id: `tour:${item.id}`,
-    label: item.title,
-    description: labels.tourStops(item.stops),
-    group: 'tour',
-    href: withNavigationPosition(
-      tourNavigationPath(lng, scope.museumId, item.id, 0),
-      startTour.toString(),
-    ),
-    replace: false,
-  }))
+  return tours
+    .filter((item) => item.canStart)
+    .map((item) => ({
+      id: `tour:${item.id}`,
+      label: item.title,
+      description: labels.tourStops(item.stops),
+      group: 'tour',
+      href: withNavigationPosition(
+        tourNavigationPath(lng, scope.museumId, item.id, 0),
+        startTour.toString(),
+      ),
+      replace: false,
+    }))
 }
 
 /** Search results: the works and their contents, each service and exit. */

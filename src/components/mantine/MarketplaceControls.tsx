@@ -22,7 +22,7 @@ import { useState, type FormEvent, type ReactNode } from 'react'
 
 /** Values accepted by the marketplace URL. Kept in one place so the server
  *  page and the client controls cannot drift apart. */
-export type MarketplaceKind = 'all' | 'tours' | 'contents' | 'users'
+export type MarketplaceKind = 'all' | 'tours' | 'contents' | 'objects' | 'users'
 export type MarketplacePrice = 'all' | 'free' | 'paid'
 
 export type MarketplaceLabels = {
@@ -34,6 +34,7 @@ export type MarketplaceLabels = {
   all: string
   tours: string
   contents: string
+  objects: string
   users: string
   usersNoPrice: string
   price: string
@@ -66,9 +67,9 @@ const FILTERS_ID = 'marketplace-filters'
  * change pushes a new URL and the server page refetches, so the result is
  * shareable and survives a reload.
  *
- * Filters expand inline instead of in a floating popover. The results grid sits
- * directly below this block: an overlay would cover the very cards the user is
- * trying to narrow down, while an inline panel simply pushes them down.
+ * Filters expand inline instead of in a floating popover. The result summary
+ * and grid follow this block, so the filter surface shares the search panel's
+ * border rather than adding a second frame around nested controls.
  */
 export function MarketplaceSearch({
   basePath,
@@ -91,7 +92,20 @@ export function MarketplaceSearch({
   })
   const [filtersOpen, setFiltersOpen] = useState(initialKind !== 'all' || initialPrice !== 'all')
 
-  const activeFilterCount = (kind !== 'all' ? 1 : 0) + (kind !== 'users' && price !== 'all' ? 1 : 0)
+  // Browser back/forward changes the URL without remounting this component.
+  // Adjust state during render (React's recommended prop-sync pattern) so a
+  // navigation cannot leave the input showing stale filters.
+  const initialKey = `${initialQuery}|${initialKind}|${initialPrice}`
+  const [syncedKey, setSyncedKey] = useState(initialKey)
+  if (syncedKey !== initialKey) {
+    setSyncedKey(initialKey)
+    setQuery(initialQuery)
+    setKind(initialKind)
+    setPrice(initialPrice)
+  }
+
+  const activeFilterCount =
+    (kind !== 'all' ? 1 : 0) + (kind !== 'users' && kind !== 'objects' && price !== 'all' ? 1 : 0)
 
   const navigate = (next: SearchState) => {
     // Any filter/search change starts again from page 1.
@@ -152,81 +166,117 @@ export function MarketplaceSearch({
           </Button>
         </Group>
 
-        <Collapse expanded={filtersOpen} id={FILTERS_ID}>
-          <Paper withBorder radius="md" p="sm" bg="var(--mantine-color-default-hover)">
-            <Stack gap="sm">
-              <Group justify="space-between" align="center">
-                <Text size="xs" fw={700} c="dimmed" tt="uppercase">
-                  {labels.filters}
-                </Text>
-                {activeFilterCount > 0 && (
-                  <Button
-                    type="button"
-                    variant="subtle"
-                    size="compact-xs"
-                    color="red"
-                    onClick={clearFilters}
-                  >
-                    {labels.clearFilters}
-                  </Button>
-                )}
-              </Group>
-
-              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
-                <FilterField label={labels.type}>
-                  <SegmentedControl
-                    fullWidth
-                    size="xs"
-                    value={kind}
-                    aria-label={labels.type}
-                    onChange={(value) => {
-                      const next = value as MarketplaceKind
-                      // Profiles are free-form directory entries, not sellable
-                      // documents, so a price filter must not survive this switch.
-                      const nextPrice = next === 'users' ? 'all' : price
-                      setKind(next)
-                      setPrice(nextPrice)
-                      navigate({ query, kind: next, price: nextPrice })
-                    }}
-                    data={[
-                      { value: 'all', label: labels.all },
-                      { value: 'tours', label: labels.tours },
-                      { value: 'contents', label: labels.contents },
-                      { value: 'users', label: labels.users },
-                    ]}
-                  />
-                </FilterField>
-
-                <FilterField label={labels.price}>
-                  <SegmentedControl
-                    fullWidth
-                    size="xs"
-                    value={kind === 'users' ? 'all' : price}
-                    disabled={kind === 'users'}
-                    aria-label={labels.price}
-                    onChange={(value) => {
-                      const next = value as MarketplacePrice
-                      setPrice(next)
-                      navigate({ query, kind, price: next })
-                    }}
-                    data={[
-                      { value: 'all', label: labels.anyPrice },
-                      { value: 'free', label: labels.free },
-                      { value: 'paid', label: labels.paid },
-                    ]}
-                  />
-                  {kind === 'users' ? (
-                    <Text size="xs" c="dimmed">
-                      {labels.usersNoPrice}
-                    </Text>
-                  ) : null}
-                </FilterField>
-              </SimpleGrid>
-            </Stack>
-          </Paper>
-        </Collapse>
+        <MarketplaceFilterPanel
+          expanded={filtersOpen}
+          activeFilterCount={activeFilterCount}
+          kind={kind}
+          price={price}
+          labels={labels}
+          onClear={clearFilters}
+          onKindChange={(next) => {
+            // Profiles and catalog objects are not sellable, so changing type
+            // to either one also removes a stale price constraint.
+            const nextPrice = next === 'users' || next === 'objects' ? 'all' : price
+            setKind(next)
+            setPrice(nextPrice)
+            navigate({ query, kind: next, price: nextPrice })
+          }}
+          onPriceChange={(next) => {
+            setPrice(next)
+            navigate({ query, kind, price: next })
+          }}
+        />
       </Stack>
     </Paper>
+  )
+}
+
+/**
+ * The inline panel keeps filter choices beside their search context. Its
+ * tonal surface is nested without another border so the form reads as one unit.
+ */
+function MarketplaceFilterPanel({
+  expanded,
+  activeFilterCount,
+  kind,
+  price,
+  labels,
+  onClear,
+  onKindChange,
+  onPriceChange,
+}: {
+  expanded: boolean
+  activeFilterCount: number
+  kind: MarketplaceKind
+  price: MarketplacePrice
+  labels: MarketplaceLabels
+  onClear: () => void
+  onKindChange: (kind: MarketplaceKind) => void
+  onPriceChange: (price: MarketplacePrice) => void
+}) {
+  return (
+    <Collapse expanded={expanded} id={FILTERS_ID}>
+      <Paper radius="md" p="sm" bg="var(--mantine-color-default-hover)">
+        <Stack gap="sm">
+          <Group justify="space-between" align="center">
+            <Text size="xs" fw={700} c="dimmed" tt="uppercase">
+              {labels.filters}
+            </Text>
+            {activeFilterCount > 0 && (
+              <Button
+                type="button"
+                variant="subtle"
+                size="compact-xs"
+                color="red"
+                onClick={onClear}
+              >
+                {labels.clearFilters}
+              </Button>
+            )}
+          </Group>
+
+          <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="sm">
+            <FilterField label={labels.type}>
+              <SegmentedControl
+                fullWidth
+                size="xs"
+                value={kind}
+                aria-label={labels.type}
+                onChange={(value) => onKindChange(value as MarketplaceKind)}
+                data={[
+                  { value: 'all', label: labels.all },
+                  { value: 'tours', label: labels.tours },
+                  { value: 'contents', label: labels.contents },
+                  { value: 'objects', label: labels.objects },
+                  { value: 'users', label: labels.users },
+                ]}
+              />
+            </FilterField>
+
+            <FilterField label={labels.price}>
+              <SegmentedControl
+                fullWidth
+                size="xs"
+                value={kind === 'users' || kind === 'objects' ? 'all' : price}
+                disabled={kind === 'users' || kind === 'objects'}
+                aria-label={labels.price}
+                onChange={(value) => onPriceChange(value as MarketplacePrice)}
+                data={[
+                  { value: 'all', label: labels.anyPrice },
+                  { value: 'free', label: labels.free },
+                  { value: 'paid', label: labels.paid },
+                ]}
+              />
+              {(kind === 'users' || kind === 'objects') && (
+                <Text size="xs" c="dimmed">
+                  {labels.usersNoPrice}
+                </Text>
+              )}
+            </FilterField>
+          </SimpleGrid>
+        </Stack>
+      </Paper>
+    </Collapse>
   )
 }
 

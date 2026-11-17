@@ -105,6 +105,26 @@ export const NameTaken: Story = {
   },
 }
 
+/** The host must buy the tour before opening a group for its paid stops. */
+export const LockedTour: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('*/api/rooms', () => HttpResponse.json({ error: 'locked' }, { status: 403 })),
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with a group' }))
+    await fillAndOpen('Anna')
+    await expect(
+      await screen.findByText('Unlock this tour before starting a group.', undefined, {
+        timeout: 5_000,
+      }),
+    ).toBeVisible()
+  },
+}
+
 /** The server can't open a room: the visitor is told to retry. */
 export const ServerUnavailable: Story = {
   parameters: {

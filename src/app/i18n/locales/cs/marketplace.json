@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Vše",
   "anyPrice": "Jakákoli cena",
   "clearFilters": "Vymazat filtry",
@@ -10,6 +12,8 @@
   "min": "min",
   "noResults": "Nic nenalezeno",
   "noResultsHint": "Zkus jiné hledání nebo vymaž filtry.",
+  "object": "",
+  "objects": "",
   "paid": "Placené",
   "price": "Cena",
   "results_one": "{{count}} výsledek",
@@ -17,12 +21,13 @@
   "results_many": "{{count}} výsledku",
   "results_other": "{{count}} výsledků",
   "search": "Hledat",
-  "searchPlaceholder": "Hledej prohlídky, obsahy a lidi",
+  "Search tours, contents, objects and people": "",
   "tour": "Prohlídka",
   "tours": "Prohlídky",
   "type": "Typ",
   "user": "Uživatel",
   "users": "Uživatelé",
   "usersNoPrice": "Profily nemají cenu.",
+  "viewObject": "",
   "viewProfile": "Zobrazit profil"
 }

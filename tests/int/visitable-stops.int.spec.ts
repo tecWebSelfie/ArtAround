@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import config from '@/payload.config'
 import { createMuseumMap } from '@/mocks/museum.mock'
 import { isEmptyTour } from '@/lib/tour-stops'
+import { buildSearchDocument, isUnlistedInSearch } from '@/lib/search/documents'
 import { LISTED_TOURS } from '@/lib/visibility'
 import { withVisitableStops, summarizeTour } from '@/lib/tour-summary'
 import type { Tour } from '@/payload-types'
@@ -285,15 +286,19 @@ describe('lists hide a tour with no visitable stop', () => {
           overrideAccess: true,
         })
       ).totalDocs
+    // The rule the search hooks apply on every save (`searchSyncAfterChange`
+    // removes the Typesense row of an unlisted document).
     const inSearch = async () =>
-      (
-        await payload.find({
-          collection: 'search',
-          where: { 'doc.value': { equals: tour.id } },
+      isUnlistedInSearch(
+        await payload.findByID({
+          collection: 'tours',
+          id: tour.id,
           depth: 0,
           overrideAccess: true,
-        })
-      ).totalDocs
+        }),
+      )
+        ? 0
+        : 1
     // A is taken off the map and B's content is gone: nothing left to visit.
     await payload.update({
       collection: 'museums',
@@ -373,13 +378,9 @@ describe('the search row of a tour', () => {
       data: { map: mapWith([objectA.id]) },
       overrideAccess: true,
     })
-    const { docs } = await payload.find({
-      collection: 'search',
-      where: { 'doc.value': { equals: priced.id } },
-      depth: 0,
-      overrideAccess: true,
-    })
-    expect(docs[0]?.priceCents).toBe(0)
+    // The document the hooks and the reindex write to Typesense.
+    const row = await buildSearchDocument({ payload, collection: 'tours', id: priced.id })
+    expect(row?.price_cents).toBe(0)
   })
 })
 

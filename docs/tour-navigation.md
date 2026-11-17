@@ -144,6 +144,12 @@ a tour from the free map only changes the URL and the map stays mounted.
 | End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md))                |
 | Group join page and waiting room      | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
+Paid tours use one start-access rule across entry points: the visitor must be
+able to read every paid stop, unless they may edit the tour. The tour branch
+layout redirects locked visitors to the tour detail page even for direct or
+deep links. Free-navigation summaries carry the server's entitlement verdict,
+so locked tours are omitted from both Spotlight and voice commands.
+
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
 next-content routing, and museum object identification. Build tour URLs with
 `tourStartPath(lng, museumId, tourId)` / `tourNavigationPath(lng, museumId, tourId, step)`
@@ -209,6 +215,9 @@ actions, scanner and commands derive "here" from it through
 | Content / object (modal) | `…/navigation/content/ID`, `…/object/ID`                                                                  |
 | Scanner                  | `/[lng]/scan?from=…/navigation` (its own page; `…/navigation/scan` redirects)                             |
 | Start one of its tours   | Spotlight `tour:ID` → `…/navigation/tour/ID/0`, keeping `at`, `mobility`, `audience` (same shell and map) |
+
+Only tours the current visitor may start are included in the Spotlight's
+commands; its voice-command list is built from the same filtered commands.
 
 - Entry points: "Explore the map" on the museum page, "Find it on the map" on
   a content page (opens `…/content/ID?to=OBJECT`), both from

@@ -36,6 +36,7 @@ export const JoinShowsTourAndHost: Story = {
       museumId: 'museum-1',
       title: 'Masterpieces of the Pinacoteca',
       thumbnail: null,
+      canStart: false,
     },
   },
   play: async ({ canvas }) => {

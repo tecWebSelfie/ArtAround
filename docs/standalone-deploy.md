@@ -64,7 +64,7 @@ the reindex therefore cannot rely on what the trace leaves behind.
 `scripts/build-standalone-scripts.mjs` (the last step of `pnpm build`) makes
 the standalone self-sufficient:
 
-- it compiles `src/seed.ts` and `src/scripts/reindex-search.ts` into
+- it compiles `src/seed.ts` and `src/scripts/search-reindex.ts` into
   self-contained ESM bundles at `.next/standalone/scripts/standalone-seed.mjs`
   and `standalone-reindex.mjs` (esbuild; ESM because both scripts use top-level
   await). Everything not resolvable from the standalone — the payload config,
@@ -94,7 +94,7 @@ Plain Node ESM, no project imports. In order it:
    environment, then `.env.local`, then `.env`;
 2. runs the seed bundle (idempotent: upserts by natural key, skips existing
    documents) — makes a fresh database usable;
-3. runs the reindex bundle (rebuilds the search collection from the current
+3. runs the reindex bundle (rebuilds the Typesense search collection from the current
    documents);
 4. starts `server.js` and exits with its exit code.
 

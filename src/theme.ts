@@ -125,7 +125,7 @@ const lightTextCache = new Map<string, string>()
  *   descriptions and captions it colors. gray.7 (about 8:1) keeps it a step
  *   quieter than body text while passing AA.
  * - Readable placeholders: Mantine's gray.5 is 2.1:1 on a white field, and
- *   placeholders here carry real hints ("Search tours, museums, cities", the
+ *   placeholders here carry real hints ("Search tours, objects, museums and cities", the
  *   group code example). No stock step sits between gray.6 (3.3:1) and gray.7
  *   (8:1, reads as typed text), so a mix of the two reaches about 4.7:1 while
  *   still looking like a hint.

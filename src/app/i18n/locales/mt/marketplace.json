@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Kollha",
   "anyPrice": "Kull prezz",
   "clearFilters": "Neħħi l-filtri",
@@ -10,6 +12,8 @@
   "min": "min",
   "noResults": "Ma nstabu l-ebda riżultati",
   "noResultsHint": "Ipprova tfittxija oħra, jew neħħi l-filtri.",
+  "object": "",
+  "objects": "",
   "paid": "Bi ħlas",
   "price": "Prezz",
   "results_one": "{{count}} riżultat",
@@ -18,12 +22,13 @@
   "results_many": "{{count}} riżultat",
   "results_other": "{{count}} riżultat",
   "search": "Fittex",
-  "searchPlaceholder": "Fittex tours, kontenuti u persuni",
+  "Search tours, contents, objects and people": "",
   "tour": "Tour",
   "tours": "Tours",
   "type": "Tip",
   "user": "Utent",
   "users": "Utenti",
   "usersNoPrice": "Il-profili m'għandhomx prezz.",
+  "viewObject": "",
   "viewProfile": "Ara l-profil"
 }

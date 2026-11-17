@@ -4,6 +4,8 @@ import { createGroupRoom, GroupNameTaken } from '@/lib/group-room'
 import { asViewer } from '@/lib/session'
 import { hasNoStopsToVisit } from '@/lib/tour-stops'
 import { allowRequest } from '@/lib/rate-limit'
+import { getTourStartAccess } from '@/lib/tour-start-access'
+import { withVisitableStops } from '@/lib/tour-summary'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { z } from 'zod'
@@ -29,15 +31,14 @@ export async function POST(request: Request) {
   if (!body.success) return NextResponse.json({ error: 'invalid' }, { status: 400 })
 
   const payload = await getPayload({ config })
-  // Read as the host: only someone who can read the tour (its author, for a
-  // private one) can open a room for it, since the room's guests get the
-  // group cookie that unlocks it (src/lib/visibility.ts).
+  // Read as the host: access to the tour itself is not enough when paid stops
+  // exist; the host must own them or be allowed to edit this tour.
   const tour = await payload
     .findByID({
       collection: 'tours',
       id: body.data.tourId,
       depth: 0,
-      select: { title: true, contents: true, visitableStops: true },
+      select: { contents: true, visitableContents: true, visitableStops: true },
       ...(await asViewer()),
     })
     .catch(() => null)
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
   // A tour with nothing to visit is never offered, so nobody leads a group
   // through it: refused with its own status (409 means "name taken" to the form).
   if (hasNoStopsToVisit(tour)) return NextResponse.json({ error: 'empty' }, { status: 422 })
+  const access = await getTourStartAccess(payload, tour.id, withVisitableStops(tour).contents)
+  if (!access.canStart) return NextResponse.json({ error: 'locked' }, { status: 403 })
 
   try {
     const room = await createGroupRoom(

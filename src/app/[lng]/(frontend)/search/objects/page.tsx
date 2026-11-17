@@ -1,19 +1,23 @@
 import type { Metadata } from 'next'
 import config from '@/payload.config'
 import { ObjectsSearchResults } from '@/components/mantine/ObjectsSearchResults'
-import { SearchShell } from '@/components/mantine/SearchShell'
+import { EntitySearch } from '@/components/mantine/EntitySearch'
 import { SearchHeading } from '@/components/mantine/SearchHeading'
-import { resolveSearchScopes, scopeParams } from '@/lib/search-scope'
+import { SearchShell } from '@/components/mantine/SearchShell'
+import { SearchUnavailableAlert } from '@/components/mantine/SearchUnavailableAlert'
 import { getT } from '@/i18n.server'
 import { activeFiltersToWhere, parseFilterSearchParams } from '@/lib/searchFilters'
-import { Container, Stack, Title } from '@mantine/core'
+import { Container, Group, Stack, Text, Title } from '@mantine/core'
 import type { FilterDefinition } from 'mantine-composite-filters'
-import { getPayload } from 'payload'
-import { museumScope } from '@/lib/museum-mode'
+import { getPayload, type TypedLocale } from 'payload'
+import { museumSearchMuseumId } from '@/lib/museum-mode'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { createObjectHref, museumPickerParams, parseMuseumPicker } from '@/lib/museum-picker'
 import { can } from '@/lib/session'
-import { Group, Text } from '@mantine/core'
+import { docsInHitOrder } from '@/lib/search/hydrate'
+import { searchItems } from '@/lib/search/query'
+import { resolveSearchScopes, scopeParams } from '@/lib/search-scope'
+import type { Object as ArtObject } from '@/payload-types'
 import { ArrowLeft, Sparkles } from 'lucide-react'
 import type { Route } from 'next'
 
@@ -21,11 +25,12 @@ const PAGE_SIZE = 12
 
 /**
  * Objects search. Two modes:
- * - plain search (museum mode limits it to the locked museum's objects);
+ * - plain search, backed by Typesense (objects only; museum
+ *   mode limits it to the locked museum);
  * - museum picker (`?pick=museum&museum=…`, from the map editor's "Browse the
  *   catalog"): the whole catalog, objects already on the map marked "On
- *   show", the others placed on the map in one click. Only for people who may
- *   edit that map; anyone else gets the plain search. See
+ *   show", the others placed on the map in one click. It stays on Payload
+ *   because it is a permission-scoped candidate list, not a site search. See
  *   `src/lib/museum-picker.ts`.
  */
 /** The tab names the search. */
@@ -41,37 +46,25 @@ export default async function SearchObjectsPage(props: {
   const { lng } = await props.params
   const searchParams = await props.searchParams
   const basePath = `/${lng}/search/objects`
-  const requested = parseMuseumPicker(lng, searchParams)
-  // Independent setup reads: started together; the URL scopes (`?at=`,
-  // `?subject=`, a "See all" link's list) as soon as Payload is up.
+  // Independent setup reads: started together, and the URL scopes (`?at=`,
+  // `?subject=`: a "See all" link's list) as soon as Payload is up.
   const payloadReady = getPayload({ config })
-  const setup = Promise.all([payloadReady, museumScope()])
+  const setup = Promise.all([payloadReady, museumSearchMuseumId()])
   const scoping = payloadReady.then((payload) =>
     resolveSearchScopes(payload, 'objects', searchParams, lng),
   )
   // `t` on its own statement, so `i18next-cli extract` sees its namespace;
   // the reads above were started first and keep loading meanwhile.
   const { t } = await getT('search')
-  const [payload, scope] = await setup
+  const [payload, museumId] = await setup
 
-  const definitions: FilterDefinition[] = [
-    {
-      key: 'name',
-      label: t('Name'),
-      type: 'text',
-      operators: ['contains', 'starts_with', 'ends_with', '='],
-    },
-    {
-      key: 'description',
-      label: t('Description'),
-      type: 'text',
-      operators: ['contains', 'starts_with', 'ends_with', '='],
-    },
-  ]
-  const initialFilters = parseFilterSearchParams(searchParams, definitions)
-  const pageParam = Array.isArray(searchParams.page) ? searchParams.page[0] : searchParams.page
-  const page = Math.max(1, Number(pageParam) || 1)
+  const firstValue = (value: string | string[] | undefined) =>
+    Array.isArray(value) ? value[0] : value
+  const query = (firstValue(searchParams.q) ?? '').trim()
+  const page = Math.max(1, Number(firstValue(searchParams.page)) || 1)
+  const { filters, scopes } = await scoping
 
+  const requested = parseMuseumPicker(lng, searchParams)
   const picker =
     requested && (await can('museums', requested.museumId, 'update', 'map')) ? requested : null
   const museum = picker
@@ -86,26 +79,73 @@ export default async function SearchObjectsPage(props: {
     (museum?.objects ?? []).map((object) => (typeof object === 'string' ? object : object.id)),
   )
 
-  const { where: scopeWhere, scopes } = await scoping
-  const result = await payload.find({
-    collection: 'objects',
-    // Museum mode: only the locked museum's objects. The picker browses the
-    // whole catalog: any object can be placed on any map.
-    where: {
-      and: [
-        activeFiltersToWhere(initialFilters, definitions),
-        ...(scope && !picker ? [{ id: { in: scope.objectIds } }] : []),
-        ...(scopeWhere ? [scopeWhere] : []),
-      ],
-    },
-    page,
-    limit: PAGE_SIZE,
-    depth: 1,
-  })
+  // The picker keeps the old Payload read (permission-scoped candidates) and
+  // its composite filters; the plain search is one full-text query on Typesense.
+  const definitions: FilterDefinition[] = picker
+    ? [
+        {
+          key: 'name',
+          label: t('Name'),
+          type: 'text',
+          operators: ['contains', 'starts_with', 'ends_with', '='],
+        },
+        {
+          key: 'description',
+          label: t('Description'),
+          type: 'text',
+          operators: ['contains', 'starts_with', 'ends_with', '='],
+        },
+      ]
+    : []
+  const initialFilters = picker ? parseFilterSearchParams(searchParams, definitions) : []
+
+  let objects: ArtObject[] = []
+  let total = 0
+  let totalPages = 1
+  let searchFailed = false
+  if (picker) {
+    const result = await payload.find({
+      collection: 'objects',
+      where: activeFiltersToWhere(initialFilters, definitions),
+      page,
+      limit: PAGE_SIZE,
+      depth: 1,
+    })
+    objects = result.docs
+    total = result.totalDocs
+    totalPages = result.totalPages ?? 1
+  } else {
+    // Objects only: this page's own bar. Museum mode scopes it through
+    // `museum_id`, a "See all" link through the URL scopes (`filters`).
+    // No Payload fallback: an outage is shown, not replaced by other results.
+    try {
+      const { hits, total: found } = await searchItems({
+        q: query,
+        kinds: ['object'],
+        museumId,
+        page,
+        limit: PAGE_SIZE,
+        queryBy: ['title', 'artist', 'description'],
+        queryByWeights: '5,3,2',
+        filterBy: filters,
+      })
+      total = found
+      objects = await docsInHitOrder<ArtObject>({
+        payload,
+        collection: 'objects',
+        hits,
+        locale: lng as TypedLocale,
+      })
+      totalPages = Math.max(1, Math.ceil(found / PAGE_SIZE))
+    } catch (error) {
+      console.error('[search] Typesense objects search failed', error)
+      searchFailed = true
+    }
+  }
 
   return (
     // Desktop (≥ md): the page sits in the shared `lg` container (≤ 1140px,
-    // centered) so title, filter and the 3-column grid stop stretching across
+    // centered) so title, search and the 3-column grid stop stretching across
     // wide screens. Below md the padding equals the old side margins: no change.
     <Container component="main" size="lg" px={{ base: 'md', sm: 'xl' }} mt="sm">
       <Stack>
@@ -140,25 +180,47 @@ export default async function SearchObjectsPage(props: {
         ) : (
           <SearchHeading
             title={t('Search objects')}
-            total={result.totalDocs}
+            total={total}
             scopes={scopes}
-            filtered={initialFilters.length > 0}
+            // This page has no composite filters: only a scope narrows it.
+            filtered={false}
             basePath={basePath}
             searchParams={searchParams}
           />
         )}
-        <SearchShell
-          definitions={definitions}
-          initialFilters={initialFilters}
-          page={result.page ?? page}
-          totalPages={result.totalPages ?? 1}
-          basePath={basePath}
-          storageKeyPrefix="search-objects"
-          placeholder={t('Filter objects…')}
-          keepParams={picker ? museumPickerParams(picker) : scopeParams(scopes)}
-        >
-          <ObjectsSearchResults objects={result.docs} lng={lng} picker={picker} onShow={onShow} />
-        </SearchShell>
+
+        {picker ? (
+          <SearchShell
+            definitions={definitions}
+            initialFilters={initialFilters}
+            page={page}
+            totalPages={totalPages}
+            basePath={basePath}
+            storageKeyPrefix="search-objects"
+            placeholder={t('Filter objects…')}
+            keepParams={museumPickerParams(picker)}
+          >
+            <ObjectsSearchResults objects={objects} lng={lng} picker={picker} onShow={onShow} />
+          </SearchShell>
+        ) : (
+          <>
+            <EntitySearch
+              basePath={basePath}
+              initialQuery={query}
+              page={page}
+              totalPages={searchFailed ? 1 : totalPages}
+              placeholder={t('Search objects…')}
+              labels={{ search: t('Search') }}
+              // The search box and the pager keep the "See all" scope.
+              keepParams={scopeParams(scopes)}
+            />
+            {searchFailed ? (
+              <SearchUnavailableAlert message={t('Search is not reachable right now.')} />
+            ) : (
+              <ObjectsSearchResults objects={objects} lng={lng} picker={null} onShow={onShow} />
+            )}
+          </>
+        )}
       </Stack>
     </Container>
   )

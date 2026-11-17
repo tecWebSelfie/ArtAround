@@ -104,7 +104,12 @@ export function NavigationSpotlight({
   }
 
   return (
-    <Spotlight.Root shortcut={NAVIGATION_SEARCH_SHORTCUTS} query={query} onQueryChange={setQuery}>
+    <Spotlight.Root
+      shortcut={NAVIGATION_SEARCH_SHORTCUTS}
+      query={query}
+      onQueryChange={setQuery}
+      title={t('Search')}
+    >
       <Spotlight.Search
         placeholder={
           tours.length > 0

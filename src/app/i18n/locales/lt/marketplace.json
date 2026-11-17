@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Visi",
   "anyPrice": "Bet kokia kaina",
   "clearFilters": "Išvalyti filtrus",
@@ -10,6 +12,8 @@
   "min": "min.",
   "noResults": "Rezultatų nerasta",
   "noResultsHint": "Pabandyk kitą paiešką arba išvalyk filtrus.",
+  "object": "",
+  "objects": "",
   "paid": "Mokama",
   "price": "Kaina",
   "results_one": "{{count}} rezultatas",
@@ -17,12 +21,13 @@
   "results_many": "{{count}} rezultato",
   "results_other": "{{count}} rezultatų",
   "search": "Ieškoti",
-  "searchPlaceholder": "Ieškok turų, turinio ir žmonių",
+  "Search tours, contents, objects and people": "",
   "tour": "Turas",
   "tours": "Turai",
   "type": "Tipas",
   "user": "Naudotojas",
   "users": "Naudotojai",
   "usersNoPrice": "Profiliai neturi kainos.",
+  "viewObject": "",
   "viewProfile": "Žiūrėti profilį"
 }

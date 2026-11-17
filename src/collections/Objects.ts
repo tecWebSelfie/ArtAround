@@ -8,8 +8,14 @@ import {
 import { editorial } from '@/fields/editorial'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
 import { WIKIDATA_QUEUE } from '@/lib/wikidata'
-import { refreshSearchDocs, refreshToursIncluding, relationshipIds } from '@/lib/search-index'
 import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
+import {
+  resyncSearchDocuments,
+  resyncToursIncluding,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { objectModelGenerationEndpoints } from '@/endpoints/objectModelGeneration'
 import { Object } from '@/payload-types'
 import type { Access, Field, PayloadRequest, RelationshipFieldValidation } from 'payload'
@@ -73,8 +79,8 @@ const validateExclusiveContents: RelationshipFieldValidation = async (value, opt
 }
 
 /**
- * A work's name and artist are part of the search rows of its contents and of
- * the tours that include them (`worksText` in src/lib/search-index.ts), so
+ * A work's name and artist are part of the search documents of its contents
+ * and of the tours that include them (`src/lib/search/documents.ts`), so
  * searching "Caravaggio" on the home finds the tours that show his works. The
  * relation is authored here, so this object's save refreshes those rows: for
  * the contents it has now and had before, so a detached content loses the work.
@@ -95,8 +101,13 @@ async function refreshWorkSearchRows({
   try {
     // One after the other: both write through `req`'s transaction, and a
     // MongoDB session does not take concurrent operations reliably.
-    await refreshSearchDocs({ payload: req.payload, collection: 'contents', ids: contentIds, req })
-    await refreshToursIncluding({ payload: req.payload, contentIds, req })
+    await resyncSearchDocuments({
+      payload: req.payload,
+      collection: 'contents',
+      ids: contentIds,
+      req,
+    })
+    await resyncToursIncluding({ payload: req.payload, contentIds, req })
   } catch (error) {
     // Search is derived data: never fail the object save over it.
     req.payload.logger.error({
@@ -304,8 +315,11 @@ export const Objects: CollectionConfig = {
           })
         }
       },
+      // Indexes the work (name, artist, description, the museums showing it).
+      searchSyncAfterChange('objects'),
     ] satisfies CollectionAfterChangeHook<Object>[],
-    // A deleted work leaves its contents' and tours' rows.
+    // A deleted work leaves its contents' and tours' rows: the work's own
+    // document goes (its name is part of their text too).
     afterDelete: [
       // Its contents are about no object any more: their tours drop those stops.
       ({ req, doc }) =>
@@ -314,6 +328,7 @@ export const Objects: CollectionConfig = {
           req,
           contentIds: relationshipIds(doc.contents),
         }),
+      searchSyncAfterDelete('objects'),
       ({ req, doc }) =>
         refreshWorkSearchRows({ req, doc: { ...doc, contents: [] }, previousDoc: doc }),
     ],

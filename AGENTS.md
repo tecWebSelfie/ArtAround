@@ -51,9 +51,11 @@ with the code.
   (LiveKit rooms), [Interactive object models](docs/interactive-object-models.md),
   [Subjects and Wikidata](docs/subjects-and-wikidata.md),
   [Permissions and editing](docs/permissions-and-editing.md),
-  [Search](docs/search.md): `@payloadcms/plugin-search` and its `search`
-  collection; marketplace scope tours/contents/users, navigator (home) scope
-  tours/contents/museums plus museum city matching; reindex command.
+  [Search](docs/search.md): Typesense Cloud, one collection written by
+  Payload hooks through the Next server (`src/lib/search/*`; the browser
+  never holds a key, an outage is shown as such); marketplace scope
+  tours/contents/objects/users, navigator (home) scope tours/contents/museums
+  (museum mode: tours/contents/objects of that museum); reindex command.
 - [AI translation](docs/ai-translation.md): editorial content translated on
   demand; read it before any localized read, `editorial()` field or
   translator change. In short: mark translatable fields with `editorial()`
