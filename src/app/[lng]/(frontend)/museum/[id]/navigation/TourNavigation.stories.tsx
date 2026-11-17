@@ -283,7 +283,8 @@ export const FreeNavigation: Story = {
     // Directions ask for a start before an end: with no position yet, the bar
     // asks for it first (DirectionsBar's "no-position" state).
     await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
-    await userEvent.click(canvas.getByRole('button', { name: 'Search' }))
+    // No destination yet: the centre pill opens search (NavigationControls).
+    await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
     const body = within(canvasElement.ownerDocument.body)
     await expect(body.findByRole('button', { name: mockTourFull.title })).resolves.toBeVisible()
     await expect(body.queryByRole('button', { name: 'Paid tour' })).toBeNull()
