@@ -23,6 +23,22 @@ container's single entrypoint is then
 (the boot moves into the standalone root by itself, so the working directory
 it starts from does not matter). Restart the container after each copy.
 
+- **Uploads** (pictures, maps, models, read-aloud MP3s) live outside the
+  standalone: the container's user can't create folders inside it (EACCES:
+  until this was found, no upload had ever been saved, so content audio
+  never played), and `rsync --delete` would wipe them at every deploy.
+  Once, on the server:
+
+      mkdir /path/to/html/uploads && chmod 777 /path/to/html/uploads
+
+  (or `chown` it to the container's uid, which the boot's `[tts-check]`
+  lines print), and in the build folder's `.env`:
+  `UPLOADS_DIR=../uploads`. It resolves against the standalone root, the
+  working directory of every process the boot starts, so it is
+  `html/uploads` wherever the container mounts `html`
+  (`src/plugins/uploadsDir.ts`). Each collection keeps its folder inside
+  it. The files count against the deploy folder's quota.
+
 - **Variables:** `next build` copies the build folder's `.env` (and
   `.env.production`) into the standalone, so nothing is placed by hand in the
   deploy folder and `--delete` is safe. Keep no `.env.local` in the build

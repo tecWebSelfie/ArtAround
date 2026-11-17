@@ -4,7 +4,9 @@
  * Listen) is tried on the real server, and the outcome lands in the
  * container's log, every line prefixed `[tts-check]`.
  *
- *   1. environment: working directory, user, whether a Fish Audio key is set;
+ *   1. environment: working directory, process uid/gid and the owner of the
+ *      standalone folder and of the one above it, `UPLOADS_DIR`, whether a
+ *      Fish Audio key is set; then which folders the process can write in;
  *   2. upload folders: where every upload collection writes (Payload resolves
  *      a relative `staticDir` against the working directory), whether the
  *      folder exists and is writable, free space, and a real 2 MB write;
@@ -25,7 +27,7 @@ import { AUDIO_MODEL, AUDIO_QUEUE, AUDIO_VOICE, contentAudioWhere } from '@/lib/
 import { speechAvailable, speechModel } from '@/lib/ai-models'
 import { generateContentAudio } from '@/tasks/generateContentAudio'
 import { generateSpeech } from 'ai'
-import { access, constants, mkdir, rm, statfs, writeFile } from 'node:fs/promises'
+import { access, constants, mkdir, rm, stat, statfs, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { createLocalReq, getPayload, type Payload } from 'payload'
@@ -66,12 +68,46 @@ async function step(name: string, run: () => Promise<void>) {
   }
 }
 
-function environment() {
+async function environment() {
   log('cwd', process.cwd())
   log('node', process.version, 'platform', process.platform)
-  log('user uid', process.getuid?.(), 'gid', process.getgid?.(), 'name', os.userInfo().username)
+  // By number only: the container's user may have no passwd entry, where
+  // os.userInfo() throws (ENOENT from uv_os_get_passwd).
+  log('process uid', process.getuid?.(), 'gid', process.getgid?.())
+  // Who owns the folders an upload folder would go in: a folder made
+  // writable for that uid (or for everyone) lets the container save files.
+  for (const dir of [process.cwd(), path.dirname(process.cwd())]) {
+    const info = await stat(dir).catch(() => null)
+    log(`${dir}: owner uid ${info?.uid} gid ${info?.gid} mode ${info?.mode.toString(8).slice(-3)}`)
+  }
+  log('UPLOADS_DIR:', process.env.UPLOADS_DIR ?? '(not set: uploads go in the working directory)')
   log('FISH_API_KEY set:', Boolean(process.env.FISH_API_KEY), '| AI_MOCK:', process.env.AI_MOCK)
   log('speech available:', speechAvailable(), '| model', AUDIO_MODEL, '| voice', AUDIO_VOICE)
+}
+
+/**
+ * Which likely homes for `UPLOADS_DIR` this process can write in: the
+ * folder above the standalone (the deploy folder, kept across deploys),
+ * the home folder and the temporary one (lost when the container is
+ * recreated). Nothing is left behind.
+ */
+async function writableFolders() {
+  const candidates = [
+    process.env.UPLOADS_DIR,
+    path.dirname(process.cwd()),
+    os.homedir(),
+    os.tmpdir(),
+  ].filter((dir): dir is string => Boolean(dir))
+  for (const dir of new Set(candidates)) {
+    const probe = path.join(dir, `.tts-check-${process.pid}`)
+    const outcome = await mkdir(probe, { recursive: true })
+      .then(() => rm(probe, { recursive: true }))
+      .then(
+        () => 'writable',
+        (error: NodeJS.ErrnoException) => `not writable (${error.code})`,
+      )
+    log(`${dir}: ${outcome}`)
+  }
 }
 
 /** Every upload collection's folder: the same write the job's save does. */
@@ -176,7 +212,8 @@ async function endToEnd(payload: Payload) {
 
 try {
   const payload = await getPayload({ config })
-  await step('environment', async () => environment())
+  await step('environment', environment)
+  await step('writable folders', writableFolders)
   await step('upload folders', () => uploadFolders(payload))
   await step('speech queue', () => speechQueue(payload))
   await step('Fish Audio', fishAudio)
