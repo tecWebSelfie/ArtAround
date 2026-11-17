@@ -16,6 +16,10 @@ const lngPattern = i18nConfig.supportedLngs.join('|')
 const nextConfig: NextConfig = {
   output: 'standalone',
   typedRoutes: true,
+  // Set by `next upgrade --agent=security` (16.4.2 → 16.4.6): `next dev` and
+  // `next build` nudge coding agents when this Next.js has a security
+  // advisory. Same as Next's default, made explicit as the upgrade asks.
+  experimental: { agentUpgrade: 'security' },
   // Load Payload's server packages with Node in production too, as
   // `withPayload` already does in development. Bundled by Turbopack,
   // evaluating payload.config.ts during `next build` threw "Cannot access 'vu'
