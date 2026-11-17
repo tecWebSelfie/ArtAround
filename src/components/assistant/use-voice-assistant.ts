@@ -2,7 +2,7 @@
 
 import { MicVAD, utils } from '@ricky0123/vad-web'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import type { AssistantState } from './AssistantOrb'
+import type { AssistantState } from './AssistantButton'
 import type { useSpeech } from './use-speech'
 
 /** What the assistant may do, as sent to `/api/assistant`. */
@@ -45,7 +45,7 @@ export function useVoiceAssistant({
   const [starting, setStarting] = useState(false)
   const [listening, setListening] = useState(false)
   const [thinking, setThinking] = useState(false)
-  // Speech probability of the latest mic frame drives the orb while listening.
+  // Speech probability of the latest mic frame drives the button's halo while listening.
   const micLevel = useRef(0)
   const detector = useRef<Promise<MicVAD> | null>(null)
 
@@ -117,7 +117,7 @@ export function useVoiceAssistant({
   else if (thinking) state = 'thinking'
   else if (speech.speaking) state = 'speaking'
 
-  /** The orb's tap: talk, or stop whatever is happening now. */
+  /** The button's tap: talk, or stop whatever is happening now. */
   const press = useCallback(async () => {
     if (state === 'listening') {
       await (await detector.current)?.pause()

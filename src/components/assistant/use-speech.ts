@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 /**
  * Plays text as speech through `/api/speech` and measures how loud it is, so
- * the assistant orb can pulse with its own voice. The loudness goes into a
- * ref (0–1) instead of React state: the orb reads it every animation frame
+ * the assistant button's halo can follow with its own voice. The loudness goes into a
+ * ref (0–1) instead of React state: the button reads it every animation frame
  * without re-rendering the navigation page.
  */
 export function useSpeech() {

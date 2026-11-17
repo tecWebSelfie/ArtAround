@@ -46,7 +46,7 @@ export type NavigationPageScope =
 /**
  * Composes the map, search, scan, and route guidance: step-by-step directions
  * in the navbar, optional GPS progress, nearby suggestions, and the opt-in
- * voice assistant (the orb). Search, pills and the assistant all run the same
+ * voice assistant (the microphone button). Search, pills and the assistant all run the same
  * URL commands (`navigation-commands.ts`).
  *
  * In a tour it adds the ordered progress, the next stop as the default
@@ -179,6 +179,7 @@ export const TourNavigationPage = ({
               position={guidance.position}
               path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
+              view={settings.mapView}
             />
           )
         }
@@ -255,9 +256,9 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
 
 /**
  * The directions strip: the steps (or the status that replaces them) and the
- * voice assistant's orb. It uses the remaining width; the orb keeps its
+ * voice assistant's button. It uses the remaining width; the button keeps its
  * intrinsic target size instead of reserving a fifth of a narrow screen, and
- * active guidance places the orb beside its arrows at enlarged text, leaving
+ * active guidance places the button beside its arrows at enlarged text, leaving
  * the entire footer width for the sentence. Voice guidance speaks each step
  * from here.
  */

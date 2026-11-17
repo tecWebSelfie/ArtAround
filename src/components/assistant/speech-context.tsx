@@ -4,9 +4,9 @@ import { createContext, useContext, type ReactNode } from 'react'
 import { useSpeech } from './use-speech'
 
 /**
- * One speech player for the whole tour navigation (map, navbar orb and the
+ * One speech player for the whole tour navigation (map, navbar assistant button and the
  * modal slot). Sharing it means that text read aloud from a modal ("Tell me
- * more") makes the orb pulse too, and that new speech always stops the
+ * more") makes the assistant button react too, and that new speech always stops the
  * previous one instead of two voices talking over each other.
  */
 const SpeechContext = createContext<ReturnType<typeof useSpeech> | null>(null)

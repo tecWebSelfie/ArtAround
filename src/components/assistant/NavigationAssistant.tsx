@@ -2,13 +2,13 @@
 
 import { notifications } from '@mantine/notifications'
 import { useTranslation } from 'react-i18next'
-import { AssistantOrb, type AssistantState } from './AssistantOrb'
+import { AssistantButton, type AssistantState } from './AssistantButton'
 import type { useSpeech } from './use-speech'
 import { useVoiceAssistant, type AssistantCommand, type AssistantTurn } from './use-voice-assistant'
 
 type Props = {
   enabled: boolean
-  /** Opting in from the orb itself (the settings switch does the same). */
+  /** Opting in from the button itself (the settings switch does the same). */
   onEnable: () => void
   commands: AssistantCommand[]
   context: string
@@ -18,14 +18,14 @@ type Props = {
 }
 
 /**
- * The orb in the navbar. While the visitor has not opted in, it is dormant and
- * a tap turns the assistant on; the voice model only loads after that.
+ * The microphone button in the navbar. While the visitor has not opted in, a
+ * tap turns the assistant on; the voice model only loads after that.
  */
 export function NavigationAssistant({ enabled, onEnable, ...props }: Props) {
   const { t } = useTranslation('tour-navigation')
   if (!enabled) {
     return (
-      <AssistantOrb
+      <AssistantButton
         state="off"
         label={t('Turn on the voice assistant')}
         status={t('Voice assistant off')}
@@ -87,7 +87,7 @@ function ActiveAssistant({
   }
   const [label, status] = labels[assistant.state]
   return (
-    <AssistantOrb
+    <AssistantButton
       state={assistant.state}
       level={assistant.level}
       label={label}

@@ -7,7 +7,7 @@ import { NextResponse } from 'next/server'
 /**
  * Text-to-speech for the assistant's replies and spoken directions: text in,
  * MP3 out. Uses the same Fish Audio voice as the LiveKit agent (`my-agent`).
- * The browser plays the audio through an analyser so the orb follows it.
+ * The browser plays the audio through an analyser so the assistant button follows it.
  * Voice and model are shared with the contents' read-aloud audio
  * (src/lib/content-audio.ts); the model comes from src/lib/ai-models.ts.
  */
