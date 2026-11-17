@@ -29,10 +29,45 @@ const PASCAL_DEFAULT_DIMENSIONS: [number, number, number] = [1, 1, 1]
 /** The fields the adapters read, so narrowed `select` reads (Museums hook) fit too. */
 type CatalogObject = Pick<MuseumObject, 'id' | 'name' | 'model' | 'thumbnail'>
 
+/** The origin assets get when `NEXT_PUBLIC_PAYLOAD_URL` is unset (the seed on the server). */
+const FALLBACK_ORIGIN = 'http://localhost:3000'
+
 // Pascal resolves relative URLs against its own CDN, so Payload uploads and
 // public files must be absolute before entering the catalog or scene graph.
 function absolute(url: string) {
-  return new URL(url, process.env.NEXT_PUBLIC_PAYLOAD_URL || 'http://localhost:3000').href
+  return new URL(url, process.env.NEXT_PUBLIC_PAYLOAD_URL || FALLBACK_ORIGIN).href
+}
+
+/**
+ * The map with every node asset URL written with the fallback origin moved to
+ * `origin` (the page's own); the same object when there is none. Maps saved
+ * where `NEXT_PUBLIC_PAYLOAD_URL` was unset (the production seed runs in the
+ * server container, where only the build had it) point their standees and
+ * uploads at `http://localhost:3000`, which visitors can't reach. Applied by
+ * the viewer and the editor on load; never mutates its input.
+ */
+export function rebaseAssetUrls<T extends { nodes?: Record<string, unknown> }>(
+  map: T,
+  origin: string,
+): T {
+  if (!map.nodes || origin === FALLBACK_ORIGIN) return map
+  const rebase = (url: unknown) =>
+    typeof url === 'string' && url.startsWith(`${FALLBACK_ORIGIN}/`)
+      ? origin + url.slice(FALLBACK_ORIGIN.length)
+      : url
+  let changed = false
+  const nodes = Object.fromEntries(
+    Object.entries(map.nodes).map(([id, value]) => {
+      const asset = (value as { asset?: { src?: unknown; thumbnail?: unknown } } | null)?.asset
+      if (!asset) return [id, value]
+      const src = rebase(asset.src)
+      const thumbnail = rebase(asset.thumbnail)
+      if (src === asset.src && thumbnail === asset.thumbnail) return [id, value]
+      changed = true
+      return [id, { ...(value as object), asset: { ...asset, src, thumbnail } }]
+    }),
+  )
+  return changed ? { ...map, nodes } : map
 }
 
 function objectThumbnail(object: CatalogObject) {

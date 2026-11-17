@@ -1,4 +1,5 @@
 import { museumObjectId } from '@/lib/tour-navigation'
+import { nestMarkersInLevel } from './museum-plugin/marker-hierarchy'
 import { mapNodes } from './museum-plugin/markers-in-map'
 
 /**
@@ -30,7 +31,11 @@ function stable(value: unknown): string {
  * object also edits its parent's `children` list, so object ids are ignored
  * inside `children` when comparing the other nodes.
  */
-export function curatorForbiddenChanges(previousMap: unknown, nextMap: unknown): string[] {
+export function curatorForbiddenChanges(storedMap: unknown, nextMap: unknown): string[] {
+  // The editor nests legacy root markers under the ground level on load
+  // (marker-hierarchy.ts): compare against the stored map in that same shape,
+  // so saving such a map is not a change to the director's markers.
+  const previousMap = isMap(storedMap) ? nestMarkersInLevel(storedMap) : storedMap
   const previous = mapNodes(previousMap) ?? {}
   const next = mapNodes(nextMap) ?? {}
   const objectNodes = new Set(
@@ -57,3 +62,6 @@ export function curatorForbiddenChanges(previousMap: unknown, nextMap: unknown):
   if (roots(previousMap) !== roots(nextMap)) forbidden.push('rootNodeIds')
   return forbidden
 }
+
+const isMap = (map: unknown): map is { nodes?: Record<string, unknown>; rootNodeIds?: string[] } =>
+  Boolean(mapNodes(map))

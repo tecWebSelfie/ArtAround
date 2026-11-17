@@ -12,6 +12,7 @@ import {
   type ParsedBuildJson,
 } from '@pascal-app/core'
 import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
+import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { Viewer, type HoverStyles } from '@pascal-app/viewer'
 import { CameraControls, type CameraControlsImpl } from '@react-three/drei'
@@ -94,16 +95,18 @@ export function MapViewer({
     void loadMuseumPlugins()
       .then(() => {
         if (cancelled) return
+        // Legacy markers and asset URLs repaired (setScene drops root markers).
+        const scene = loadableMap(map)
         const nodes: Record<AnyNodeId, AnyNode> = {}
         // Plugin-registered kinds (e.g. museum service markers) are not members
         // of the `AnyNode` union, so `AnyNode.parse` rejects them. Materialize
         // their registered defaults first, then keep `AnyNode.parse` for the
         // built-in kinds and fall back to the stored node for plugin kinds.
-        for (const [id, value] of Object.entries(materializeRegisteredNodeDefaults(map.nodes))) {
+        for (const [id, value] of Object.entries(materializeRegisteredNodeDefaults(scene.nodes))) {
           const node = AnyNode.safeParse(value)
           nodes[id as AnyNodeId] = (node.success ? node.data : value) as AnyNode
         }
-        setScene(nodes, map.rootNodeIds as AnyNodeId[], {
+        setScene(nodes, scene.rootNodeIds as AnyNodeId[], {
           collections: map.collections,
           materials: map.materials,
           installedPlugins: map.installedPlugins,
