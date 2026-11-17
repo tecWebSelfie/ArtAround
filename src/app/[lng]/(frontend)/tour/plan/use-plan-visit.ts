@@ -41,7 +41,9 @@ export function usePlanVisit(museums: Museum[], lockedMuseum: string | null) {
   }
   const [planning, setPlanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [ageError, setAgeError] = useState(false)
+  // How many submits stopped on a missing child's age (0: none yet): each one
+  // asks `MoreAboutVisit` to focus that age again.
+  const [ageError, setAgeError] = useState(0)
   const [moreOpen, setMoreOpen] = useState(false)
   // Whether this page pushed the `?tour=` entry, so "Change" can pop it.
   const pushedPreview = useRef(false)
@@ -56,11 +58,13 @@ export function usePlanVisit(museums: Museum[], lockedMuseum: string | null) {
   const update = <K extends keyof Answers>(key: K, value: Answers[K]) =>
     setAnswers((current) => ({ ...current, [key]: value }))
 
-  const dictation = useDictation((text) =>
-    setAnswers((current) => ({
-      ...current,
-      interests: (current.interests ? `${current.interests} ${text}` : text).slice(0, 500),
-    })),
+  const dictation = useDictation(
+    (text) =>
+      setAnswers((current) => ({
+        ...current,
+        interests: (current.interests ? `${current.interests} ${text}` : text).slice(0, 500),
+      })),
+    lng,
   )
 
   const showPreview = Boolean(plan && tourParam && plan.id === tourParam)
@@ -98,12 +102,15 @@ export function usePlanVisit(museums: Museum[], lockedMuseum: string | null) {
     }))
 
   const submit = async () => {
-    if (answers.childrenAges.some((age) => age === '')) {
-      setAgeError(true)
+    // Dictation must finish before its words can be planned.
+    if (dictation.state !== 'idle') return
+    if (answers.childrenAges.includes('')) {
+      // Opens the section; `MoreAboutVisit` then focuses the first missing age.
+      setAgeError((count) => count + 1)
       setMoreOpen(true)
       return
     }
-    setAgeError(false)
+    setAgeError(0)
     setPlanning(true)
     setError(null)
     const body: PlanRequest = {

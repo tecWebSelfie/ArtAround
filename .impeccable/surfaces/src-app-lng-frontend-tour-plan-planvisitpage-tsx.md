@@ -28,15 +28,18 @@ The maintainer explicitly authorized completing the remaining planner flow.
 
 THESIS: One itinerary for the family; each device chooses who reads it.
 OWN-WORLD: Preserve Mantine forms, compact museum metadata, existing planner
-column and group waiting room. No new palette, type, assets, or animation.
+column and group waiting room. Keep the user-approved ember treatment local to
+the interests field; add no fonts or assets.
 STORY: Enter available time, previous visits, interests and family composition;
 review the saved route; choose this reader; visit alone or open a group; guests
 choose adult or a planned age before joining. Host leads stops/modal; each
 child requests an exact-age version of the same facts, persisting across stops.
-FIRST VIEWPORT: Existing plan/preview hierarchy remains. A labeled Reading for
-Select precedes Start/Change; Start with a group uses its existing form.
-FORM: code-led refinement using existing Select/Button/Group patterns. No new
-world, concept roll, comp, or decorative material is introduced.
+FIRST VIEWPORT: The interests field leads the form; the saved-plan preview
+hierarchy remains. A labeled Reading for Select precedes Start/Change; Start
+with a group uses its existing form.
+FORM: The textarea remains a natural-language field, not a chat. Example chips
+insert into it; time, museum and step-free constraints follow in a compact
+group. Family composition stays in the existing summary disclosure.
 
 ## Invariants and proof
 
@@ -74,3 +77,7 @@ four focused interaction/a11y stories passed without reported violations.
 Captures: `.impeccable/review/personal-audio/`. This is a local refinement review,
 not a new independent ship verdict. The real public family E2E also passed the
 age-specific audio route/job/file flow with only the provider mocked.
+
+## Plan-my-visit hero refinement (2026-11-15)
+
+The maintainer selected the first live direction: the existing Interests textarea leads the form, with the same amber halo at rest, counter at the lower left, and compact "Dettatura" pill at the lower right. Example chips insert into the field; time, global-mode museum, and step-free controls follow, then the existing family disclosure and submit. Keep the visual order and copy fixed across close style alternatives. While recording, the pill stays near its idle width and shows stop, voice bars and elapsed time; it never grows to the field's full width. Preserve the existing plan/preview URL, sessionStorage, group-tour and family-reader behavior. This page-specific halo is the approved exception to the global assistant-orb color rule, not a new accent for other controls.

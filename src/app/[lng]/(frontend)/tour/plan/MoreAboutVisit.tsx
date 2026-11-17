@@ -12,6 +12,7 @@ import {
   UnstyledButton,
 } from '@mantine/core'
 import { ChevronDown } from 'lucide-react'
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { COUNT_INPUT, MAX_CHILDREN, type Answers } from './plan-visit-state'
 
@@ -34,8 +35,8 @@ export function MoreAboutVisit({
   update: <K extends keyof Answers>(key: K, value: Answers[K]) => void
   setChildren: (count: number) => void
   setAge: (index: number, age: number | '') => void
-  /** A child's age is missing on submit. */
-  ageError: boolean
+  /** Submits stopped on a missing child's age (0: none); each one refocuses it. */
+  ageError: number
   open: boolean
   onToggle: () => void
 }) {
@@ -114,31 +115,66 @@ export function MoreAboutVisit({
             />
           </SimpleGrid>
           {answers.childrenAges.length > 0 && (
-            <Input.Wrapper
-              labelElement="div"
-              label={t("Children's ages")}
-              description={t("Their ages choose easier contents and children's versions.")}
-              error={ageError ? t("Enter each child's age, from 0 to 17.") : undefined}
-            >
-              <SimpleGrid cols={{ base: 3, xs: 4 }} spacing="xs" mt={6}>
-                {answers.childrenAges.map((age, index) => (
-                  <NumberInput
-                    // Children are positional: the nth field is the nth child.
-                    key={index}
-                    {...COUNT_INPUT}
-                    aria-label={t('Age of child {{n}}', { n: index + 1 })}
-                    min={0}
-                    max={17}
-                    value={age}
-                    error={ageError && age === ''}
-                    onChange={(value) => setAge(index, typeof value === 'number' ? value : '')}
-                  />
-                ))}
-              </SimpleGrid>
-            </Input.Wrapper>
+            <ChildrenAges ages={answers.childrenAges} setAge={setAge} ageError={ageError} />
           )}
         </Stack>
       </Collapse>
     </Stack>
+  )
+}
+
+/**
+ * One age field per child (0–17). A submit with an age missing (`ageError`
+ * counts them) marks the missing fields, announces the error and focuses the
+ * first one. The effect runs once the collapsed section is shown again (its
+ * content is a hidden React `Activity` while closed), so focus never lands
+ * on a hidden field.
+ */
+function ChildrenAges({
+  ages,
+  setAge,
+  ageError,
+}: {
+  ages: (number | '')[]
+  setAge: (index: number, age: number | '') => void
+  ageError: number
+}) {
+  const { t } = useTranslation('plan-visit')
+  const fields = useRef<(HTMLInputElement | null)[]>([])
+  // The error clears itself once every age is in.
+  const missing = ageError > 0 && ages.includes('')
+  useEffect(() => {
+    if (ageError) fields.current[ages.indexOf('')]?.focus()
+    // Only a new submit refocuses: typing an age must not move the caret.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ageError])
+  return (
+    <Input.Wrapper
+      labelElement="div"
+      label={t("Children's ages")}
+      description={t("Their ages choose easier contents and children's versions.")}
+      error={missing ? t("Enter each child's age, from 0 to 17.") : undefined}
+      errorProps={{ id: 'plan-age-error', role: 'alert' }}
+    >
+      <SimpleGrid cols={{ base: 3, xs: 4 }} spacing="xs" mt={6}>
+        {ages.map((age, index) => (
+          <NumberInput
+            // Children are positional: the nth field is the nth child.
+            key={index}
+            ref={(field) => {
+              fields.current[index] = field
+            }}
+            {...COUNT_INPUT}
+            aria-label={t('Age of child {{n}}', { n: index + 1 })}
+            aria-describedby={missing && age === '' ? 'plan-age-error' : undefined}
+            min={0}
+            max={17}
+            value={age}
+            error={missing && age === ''}
+            onChange={(value) => setAge(index, typeof value === 'number' ? value : '')}
+          />
+        ))}
+      </SimpleGrid>
+    </Input.Wrapper>
   )
 }
