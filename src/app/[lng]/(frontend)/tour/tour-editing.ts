@@ -3,6 +3,7 @@ import 'server-only'
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
 import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEditor'
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
 import { copyableStops } from '@/lib/tour-copy'
@@ -172,9 +173,11 @@ export async function getNewTourEditorData(museumId: string, sourceStopIds: stri
  * questions linked to contents, which the editor keeps as they are. Read as
  * the visitor: the tour's author wrote its own questions.
  */
-export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
+export async function getTourQuizDrafts(
+  tour: Pick<Tour, 'quiz'>,
+): Promise<{ drafts: QuizDraft[]; keptQuestions: KeptQuestion[] }> {
   const ids = tourQuizQuestionIds(tour).map(String)
-  if (ids.length === 0) return { drafts: [] as QuizDraft[], keptQuestions: [] as KeptQuestion[] }
+  if (ids.length === 0) return { drafts: [], keptQuestions: [] }
   const { payload } = await getSession()
   const { docs } = await payload.find({
     collection: 'quizQuestions',
@@ -203,7 +206,7 @@ export async function getTourQuizDrafts(tour: Pick<Tour, 'quiz'>) {
       keptQuestions.push({
         id,
         index,
-        contents: question ? question.relatedTo!.flatMap((ref) => asId(ref) ?? []) : null,
+        contents: question ? relationshipIds(question.relatedTo) : null,
       })
     }
   }

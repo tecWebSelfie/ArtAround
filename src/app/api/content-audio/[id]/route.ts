@@ -39,7 +39,7 @@ export const runtime = 'nodejs'
  * seconds doesn't queue it again. Per server instance; a duplicate job would
  * only find the audio up to date.
  */
-const queuedAt = new Map<string, number>()
+const queuedAt = new Map<string, { at: number; textHash: string }>()
 const REQUEUE_AFTER_MS = 2 * 60_000
 
 const json = (status: string, code: number) =>
@@ -141,9 +141,8 @@ type AudioJobInput = {
 /**
  * The error of this audio's latest generation job, when it failed within the
  * requeue window; null otherwise (none, still running, succeeded, or failed
- * long enough ago to try again). Only a job for this text counts (or one
- * without a hash, queued by the content save): a failure on the text an
- * editor has just fixed must not hold back the new one.
+ * long enough ago to try again). Only a job for this text counts: a failure
+ * on the text an editor has just fixed must not hold back the new one.
  */
 async function recentFailure(payload: Payload, input: AudioJobInput) {
   const { docs } = await payload.find({
@@ -154,10 +153,7 @@ async function recentFailure(payload: Payload, input: AudioJobInput) {
       'input.locale': { equals: input.locale },
       // A base audio's job has no variant: never mistake a version's job for it.
       'input.variantId': input.variantId ? { equals: input.variantId } : { exists: false },
-      or: [
-        { 'input.textHash': { equals: input.textHash } },
-        { 'input.textHash': { exists: false } },
-      ],
+      'input.textHash': { equals: input.textHash },
     },
     sort: '-updatedAt',
     limit: 1,
@@ -171,11 +167,15 @@ async function recentFailure(payload: Payload, input: AudioJobInput) {
   return (typeof error === 'string' ? error : error?.message) || JSON.stringify(job.error)
 }
 
-/** Queues the audio's generation, once per window and text (`queuedAt`). */
+/**
+ * Queues the audio's generation, once per window (`queuedAt`) unless the text
+ * changed since: one entry per audio, so edits don't grow the map.
+ */
 async function queueAudio(payload: Payload, input: AudioJobInput) {
-  const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}:${input.textHash}`
-  if (Date.now() - (queuedAt.get(key) ?? 0) <= REQUEUE_AFTER_MS) return
-  queuedAt.set(key, Date.now())
+  const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}`
+  const last = queuedAt.get(key)
+  if (last?.textHash === input.textHash && Date.now() - last.at <= REQUEUE_AFTER_MS) return
+  queuedAt.set(key, { at: Date.now(), textHash: input.textHash })
   await payload.jobs.queue({ task: 'generateContentAudio', input, queue: AUDIO_QUEUE })
 }
 

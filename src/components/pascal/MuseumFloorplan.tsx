@@ -122,10 +122,10 @@ const FLAG_RADIUS = 0.5
 /**
  * The visitor's own layer of the plan, portaled into a `<g>` kept as the last
  * child of `FloorplanPreview`'s scene group (its rotation applies, and the
- * layer draws over the plan). A MutationObserver on the frame re-attaches it
- * whenever the plan's DOM changes: the SVG may appear after this layer's
- * first commit (e.g. once the plan has measured itself), and a group Pascal
- * adds later must never end up over the layer.
+ * layer draws over the plan). MutationObservers attach it once the plan's SVG
+ * appears (possibly after this layer's first commit, e.g. once the plan has
+ * measured itself) and keep it last, so a group Pascal adds later never ends
+ * up over the layer.
  */
 function PlanLayer({
   frame,
@@ -144,16 +144,29 @@ function PlanLayer({
   useLayoutEffect(() => {
     const root = frame.current
     if (!root) return
-    const attach = () => {
-      const scene = root.querySelector('svg[data-floorplan-preview] > g')
+    // Until the plan's scene group exists, watch the whole frame for it; then
+    // only that group's own children (a group Pascal appends), not the
+    // layer's subtree, which changes on every step the visitor takes.
+    let scene: Element | null = null
+    const keepLast = () => {
       // A no-op once in place, so the observer's own mutation doesn't loop.
       if (scene && scene.lastChild !== layer) scene.appendChild(layer)
     }
-    attach()
-    const observer = new MutationObserver(attach)
-    observer.observe(root, { childList: true, subtree: true })
+    const sceneObserver = new MutationObserver(keepLast)
+    const find = () => {
+      scene = root.querySelector('svg[data-floorplan-preview] > g')
+      if (!scene) return false
+      keepLast()
+      sceneObserver.observe(scene, { childList: true })
+      return true
+    }
+    const frameObserver = new MutationObserver(() => {
+      if (find()) frameObserver.disconnect()
+    })
+    if (!find()) frameObserver.observe(root, { childList: true, subtree: true })
     return () => {
-      observer.disconnect()
+      frameObserver.disconnect()
+      sceneObserver.disconnect()
       layer.remove()
     }
   }, [frame, layer])

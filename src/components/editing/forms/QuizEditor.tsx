@@ -84,6 +84,9 @@ export async function saveQuizQuestions({
   stops: string[]
 }) {
   const savedById = new Map(saved.flatMap((draft) => (draft.id ? [[draft.id, draft]] : [])))
+  const savedJson = new Map(
+    [...savedById].map(([id, draft]) => [id, JSON.stringify(questionData(draft))]),
+  )
   const edited: QuizDraft[] = []
   const created: string[] = []
   const results = await Promise.allSettled(
@@ -99,7 +102,7 @@ export async function saveQuizQuestions({
         return doc.id
       }
       const before = savedById.get(question.id)
-      if (!before || JSON.stringify(questionData(before)) !== JSON.stringify(data)) {
+      if (savedJson.get(question.id) !== JSON.stringify(data)) {
         await payloadSdk.update({ collection: 'quizQuestions', id: question.id, data })
         if (before) edited.push(before)
       }
@@ -117,15 +120,18 @@ export async function saveQuizQuestions({
         }),
       ),
     ])
-  const failed = results.find((result) => result.status === 'rejected')
-  if (failed) {
-    await discard()
-    throw failed.reason
+  const questions: string[] = []
+  for (const result of results) {
+    if (result.status === 'rejected') {
+      await discard()
+      throw result.reason
+    }
+    questions.push(result.value)
   }
-  const questions = results.map((result) => (result as PromiseFulfilledResult<string>).value)
   // Ascending stored index, so each insertion lands where it was.
+  const stopSet = new Set(stops)
   for (const question of [...kept].sort((a, b) => a.index - b.index)) {
-    if (question.contents && !question.contents.some((content) => stops.includes(content))) continue
+    if (question.contents && !question.contents.some((content) => stopSet.has(content))) continue
     questions.splice(Math.min(question.index, questions.length), 0, question.id)
   }
   return { questions, discard }
