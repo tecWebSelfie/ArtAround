@@ -171,11 +171,17 @@ export class GroupRoom extends Room<{ state: GroupState; client: GroupClient }> 
   }
 }
 
-export const groupServer = defineServer({ rooms: { group: defineRoom(GroupRoom) } })
+// The transport goes in the options: assigned later, Colyseus' async init
+// replaces it with a default one it imports dynamically, which in the
+// standalone resolves outside the bundle (a second @colyseus/core, so the
+// WebSocket never finds the room).
+export const groupServer = defineServer({
+  transport: new WebSocketTransport(),
+  rooms: { group: defineRoom(GroupRoom) },
+})
 
-export function startGroupServer(port: number) {
-  groupServer.transport = new WebSocketTransport()
-  return groupServer.listen(port)
+export function startGroupServer(port: number, hostname?: string) {
+  return groupServer.listen(port, hostname)
 }
 
 export { CloseCode }

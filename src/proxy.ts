@@ -53,7 +53,8 @@ export const config = {
   // The next-i18next README matcher plus `.*\..*`, so static files
   // (/compass.svg, /mockServiceWorker.js, /media/*.jpg, …) are never
   // locale-redirected (createProxy's extension skip-list has no .txt/.json).
+  // PROTOTYPE (throwaway): `colyseus` is the in-process group server (next.config.ts).
   matcher: [
-    '/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js|site.webmanifest|.*\\..*).*)',
+    '/((?!api|colyseus|_next/static|_next/image|assets|favicon.ico|sw.js|site.webmanifest|.*\\..*).*)',
   ],
 }

@@ -14,7 +14,10 @@ import {
 } from '../src/lib/group-room.colyseus-prototype'
 
 const PORT = 2567
-const sdk = new Client(`ws://localhost:${PORT}`)
+// GROUP_SERVER_URL=http://localhost:3000/colyseus drives the server that
+// `next dev` / the standalone runs in-process (instrumentation.ts) instead.
+const URL_ = process.env.GROUP_SERVER_URL ?? `ws://localhost:${PORT}`
+const sdk = new Client(URL_)
 const wait = (ms = 150) => new Promise((resolve) => setTimeout(resolve, ms))
 
 function show(step: string, room: Room<GroupState>) {
@@ -27,7 +30,7 @@ function show(step: string, room: Room<GroupState>) {
     console.log('   member ', device, JSON.stringify(member))
 }
 
-await startGroupServer(PORT)
+if (!process.env.GROUP_SERVER_URL) await startGroupServer(PORT)
 const ticket = await signHostTicket({
   code: 'FENICEROSSA',
   tourId: '42',
@@ -90,7 +93,7 @@ const back = host
 // 7b. Carla reloads the page: a new connection, same device, while her old
 // seat is still held. Her request and quiz progress are still in the room.
 guest.connection.close()
-const reloaded = await new Client(`ws://localhost:${PORT}`).joinById<GroupState>('FENICEROSSA', {
+const reloaded = await new Client(URL_).joinById<GroupState>('FENICEROSSA', {
   device: 'g1',
   name: 'Carla',
 })
@@ -109,5 +112,5 @@ await wait(300)
 await sdk
   .joinById('FENICEROSSA', { device: 'g3', name: 'Eva' })
   .catch((error: Error) => console.log('── joining the ended group:', error.message))
-await groupServer.gracefullyShutdown(false)
+if (!process.env.GROUP_SERVER_URL) await groupServer.gracefullyShutdown(false)
 process.exit(0)

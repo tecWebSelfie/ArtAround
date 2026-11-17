@@ -25,8 +25,12 @@ import { Suspense, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { GroupMembership } from './GroupProvider'
 
-/** The only environment difference: where the group server listens. */
-const client = new Client(process.env.NEXT_PUBLIC_GROUP_SERVER_URL ?? 'ws://localhost:2567')
+/**
+ * Same origin in every environment: Next proxies `/colyseus` (HTTP and
+ * WebSocket) to the group server it runs in-process (instrumentation.ts).
+ * This file is loaded with `ssr: false`, so `location` exists.
+ */
+const client = new Client(`${location.origin}/colyseus`)
 const GROUP_ENDED = 4001
 
 type Membership = Omit<GroupMembership, 'attributes'> & { device: string; ticket?: string }

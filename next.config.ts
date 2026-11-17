@@ -29,6 +29,9 @@ const nextConfig: NextConfig = {
     '@payloadcms/plugin-redirects',
     // Printable QR sheets (src/app/api/qr-sheet): react-pdf runs in Node.
     '@react-pdf/renderer',
+    // PROTOTYPE (throwaway): Colyseus uses dynamic require; Turbopack can't bundle it.
+    '@colyseus/core',
+    '@colyseus/ws-transport',
   ],
   // The PDF font (Latin Extended, Greek, Cyrillic: every app language) is read
   // from disk by the QR sheet route; standalone output must ship it.
@@ -46,6 +49,12 @@ const nextConfig: NextConfig = {
   // PC's LAN address (Next blocks non-localhost origins otherwise), and a
   // Tailscale name (`*.<tailnet>.ts.net`, the cloud preview: docs/cloud-preview.md).
   allowedDevOrigins: ['192.168.1.*', '**.ts.net'],
+  // PROTOTYPE (throwaway): Next proxies rewrites to an external URL, WebSocket
+  // upgrades included, so the in-process Colyseus server (instrumentation.ts)
+  // is reached same-origin, on Next's port, in dev and in the standalone.
+  rewrites: async () => [
+    { source: '/colyseus/:path*', destination: 'http://127.0.0.1:2567/:path*' },
+  ],
   redirects() {
     return [
       {
