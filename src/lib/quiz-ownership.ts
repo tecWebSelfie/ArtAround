@@ -94,7 +94,22 @@ export const validateQuizQuestions: RelationshipFieldValidation = async (value, 
       req,
     })
     if (otherTours.docs.length) {
-      return `Some tour-specific questions already belong to the quiz of «${otherTours.docs[0].title}»`
+      // Name the owning tour only if the caller may read it: a private tour's
+      // title is exactly what its visibility hides (cf. guardTourContents).
+      const readable = await req.payload.find({
+        collection: 'tours',
+        where: { id: { in: [otherTours.docs[0].id] } },
+        depth: 0,
+        limit: 1,
+        pagination: false,
+        select: { title: true },
+        overrideAccess: false,
+        user: req.user,
+        req,
+      })
+      return readable.docs.length
+        ? `Some tour-specific questions already belong to the quiz of «${readable.docs[0].title}»`
+        : 'Some tour-specific questions already belong to the quiz of another tour'
     }
   }
   return true
