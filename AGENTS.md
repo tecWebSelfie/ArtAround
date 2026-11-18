@@ -101,6 +101,9 @@ helpers, grep for an existing one (e.g. `src/lib/session-store.ts`,
   side (e.g. `AppMantineProvider`).
 - Tests: use a library's own test module before faking it (`ai/test`,
   Playwright's `page.route`, MSW handlers in `src/mocks/`).
+- Every bug found, by hand or by nightly QA, first becomes a regression
+  spec: see it fail on the buggy code, then fix it and commit both together.
+  Until the fix is merged that spec stays red on the branches without it.
 - Exact pins, don't upgrade without reading why ([Development](docs/development.md#exact-pins)):
   `oxlint` 1.90.0, `@adobe/leonardo-contrast-colors` 1.0.1 (turns each
   museum's color into the primary in museum mode, DESIGN.md → The Museum

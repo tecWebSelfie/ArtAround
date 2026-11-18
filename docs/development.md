@@ -106,9 +106,11 @@ the sources (AST-aware, so the numbers match Istanbul's).
   in a phone-sized Chromium, on the navigator home and the marketplace, and
   fails when one is not rated "good". It is part of `pnpm test:e2e`, so CI
   checks it on every pull request on the production build; nothing to run
-  while iterating. LCP and INP are budgeted only on the production server
-  (`next dev` compiles routes and chunks on first use); CLS on both. One spec:
-  `pnpm test:e2e tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
+  while iterating. It runs only on the production server and skips itself
+  on `next dev`, which compiles routes and chunks on first use and injects
+  styles from JavaScript: its numbers are neither the real ones nor stable.
+  One spec, after `pnpm build`: `E2E_SERVER=start pnpm test:e2e
+tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
   are printed and attached to the HTML report, with the element to blame.
   Add a page by copying one of its tests (`collectWebVitals` before
   `goto`, `expectGoodVitals` after).

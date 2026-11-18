@@ -1,4 +1,5 @@
 import { devices, expect, test } from '@playwright/test'
+import { isProductionServer } from '../helpers/e2e-server'
 import { collectWebVitals, expectGoodVitals } from '../helpers/web-vitals'
 
 /**
@@ -16,6 +17,12 @@ const origin = process.env.E2E_ORIGIN ?? 'http://localhost:3000'
 const { defaultBrowserType: _browser, ...phone } = devices['Pixel 7']
 test.use(phone)
 test.setTimeout(180_000)
+// `next dev` compiles on first use and injects styles from JavaScript: its
+// numbers are neither the production ones nor stable from run to run.
+test.skip(
+  !isProductionServer(),
+  'Web Vitals are measured on the production build (E2E_SERVER=start)',
+)
 
 test('navigator home stays within the Core Web Vitals budgets', async ({ page }) => {
   await collectWebVitals(page)
