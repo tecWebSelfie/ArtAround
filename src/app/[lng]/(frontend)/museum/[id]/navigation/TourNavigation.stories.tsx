@@ -309,17 +309,17 @@ const stopCatalog = routeCatalog.map((object, index) => ({
     { id: mockContentsList[index * 2]!.id, title: mockContentsList[index * 2]!.title },
   ],
 }))
+// Its own tour id: the stops every other story showed are kept per tour in
+// sessionStorage (RemovedStopsModal), and a story still settling when this one
+// starts could otherwise write them back and raise "a stop left the tour".
 const visitableStopsTour = visitableTour(
-  { ...mockTourFull, museum: mockMuseumFull },
+  { ...mockTourFull, id: 'tour-with-unavailable-stop', museum: mockMuseumFull },
   stopCatalog,
   new Set(routeCatalog.map(({ id }) => id)),
 )
 
 export const UnavailableStop: Story = {
   ...RouteBetweenObjects,
-  // A fresh tab: the stops other stories showed (RemovedStopsModal's
-  // sessionStorage) would otherwise read as stops that left the tour.
-  beforeEach: () => sessionStorage.removeItem(`artaround:tour-stops:${mockTourFull.id}`),
   args: {
     ...RouteBetweenObjects.args,
     scope: { kind: 'tour', tour: visitableStopsTour, step: 0 },
@@ -332,7 +332,7 @@ export const UnavailableStop: Story = {
           ['lng', 'en'],
           // Museum-owned tour URL: `/museum/[id]/navigation/tour/[tourId]/[stepId]`.
           ['id', mockMuseumFull.id],
-          ['tourId', mockTourFull.id],
+          ['tourId', visitableStopsTour.id],
           ['stepId', '0'],
         ],
         query: { at: 'route-start' },

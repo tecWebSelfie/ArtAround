@@ -1,27 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
-import { createInstance } from 'i18next'
-import { I18nextProvider } from 'react-i18next'
 import { expect, userEvent } from 'storybook/test'
 import { JoinGroupForm } from './JoinGroupForm'
-
-// Storybook has no global i18next instance, and without one `t` returns the
-// key as is, `{{min}}` included. Keys are the English text, so an empty
-// instance is enough to interpolate the length rule's limits.
-const i18n = createInstance()
-void i18n.init({ lng: 'en', ns: ['group'], resources: { en: { group: {} } }, initAsync: false })
 
 /** "Joining a group?" on the navigator home, the tour start page and the room page. */
 const meta = {
   title: 'Group/JoinGroupForm',
   component: JoinGroupForm,
-  decorators: [
-    (Story) => (
-      <I18nextProvider i18n={i18n}>
-        <Story />
-      </I18nextProvider>
-    ),
-  ],
   parameters: { nextjs: { appDirectory: true, navigation: { segments: [['lng', 'en']] } } },
 } satisfies Meta<typeof JoinGroupForm>
 

@@ -1,21 +1,7 @@
 import { Center } from '@mantine/core'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, fn, userEvent, within } from 'storybook/test'
-import { createInstance } from 'i18next'
-import { I18nextProvider } from 'react-i18next'
-import common from '@/app/i18n/locales/en/common.json'
-import search from '@/app/i18n/locales/en/search.json'
 import { ArtAroundGlobalSearch, type AutoCompleteItem } from './ArtAroundGlobalSearch'
-
-const i18n = createInstance()
-void i18n.init({
-  lng: 'en',
-  fallbackLng: 'en',
-  ns: ['common', 'search'],
-  defaultNS: 'search',
-  resources: { en: { common, search } },
-  initAsync: false,
-})
 
 const items: AutoCompleteItem[] = [
   {
@@ -68,13 +54,6 @@ const meta = {
   parameters: {
     layout: 'fullscreen',
   },
-  decorators: [
-    (Story) => (
-      <I18nextProvider i18n={i18n}>
-        <Story />
-      </I18nextProvider>
-    ),
-  ],
   render: (args) => (
     <Center my={'sm'}>
       <ArtAroundGlobalSearch {...args} />

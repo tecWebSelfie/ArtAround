@@ -246,6 +246,16 @@ Stories of async Server Components spread `serverComponentStory(Component)`
 in a loader, which Storybook's `experimentalRSC` (only a Suspense wrapper)
 doesn't do.
 
+Translations in stories are real: `src/mocks/i18n.ts` is one i18next
+instance with every namespace's English and Italian JSON bundled (no backend,
+synchronous), so `t` interpolates and pluralizes as in the app. Client
+components find it through `initReactI18next`; Server Components' `getT` is
+aliased to `src/mocks/i18n.server.ts` on the same instance (the real one reads
+the locale files with `fs`). The toolbar's Language switches both. A key
+missing from the locale files fails the story that rendered it: run
+`npx i18next-cli extract`. Don't create an instance in a story; a jsdom spec
+that renders translated components imports `@/mocks/i18n` once.
+
 ## Impeccable
 
 Codex uses `.agents/skills/impeccable/`; Claude uses
