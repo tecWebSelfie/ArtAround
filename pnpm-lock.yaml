@@ -335,6 +335,9 @@ importers:
       sharp:
         specifier: 0.34.2
         version: 0.34.2
+      stats-gl:
+        specifier: 4.2.3
+        version: 4.2.3(three@0.186.1)
       stripe:
         specifier: ^10.17.0
         version: 10.17.0
@@ -369,6 +372,9 @@ importers:
       '@playwright/test':
         specifier: 1.63.0
         version: 1.63.0
+      '@react-three/test-renderer':
+        specifier: 9.1.1
+        version: 9.1.1(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(react@19.2.6)(three@0.186.1)
       '@storybook/addon-a11y':
         specifier: ^10.6.5
         version: 10.6.5(storybook@10.6.5(@types/react@19.2.14)(prettier@3.9.6)(react@19.2.6))
@@ -492,6 +498,9 @@ importers:
       vitest:
         specifier: 4.0.18
         version: 4.0.18(@opentelemetry/api@1.9.1)(@types/node@22.20.2)(@vitest/browser-playwright@4.0.18)(happy-dom@20.14.5)(jiti@2.7.0)(jsdom@28.0.0(@noble/hashes@1.8.0))(lightningcss@1.33.0)(msw@2.13.3(@types/node@22.20.2)(typescript@7.0.2))(sass@1.105.1)(sugarss@5.0.1(postcss@8.5.28))(terser@5.51.2)(tsx@4.22.4)(yaml@2.9.1)
+      web-vitals:
+        specifier: 6.2.3
+        version: 6.2.3
 
 packages:
 
@@ -4042,6 +4051,13 @@ packages:
         optional: true
       react-native:
         optional: true
+
+  '@react-three/test-renderer@9.1.1':
+    resolution: {integrity: sha512-4DmLn0tg+AP8aU0Mb5vekjHqFrwRJ3z11HfQGOJIDj6DxZ/5BjRHRsDxY0Y+g4l8+WHysQ6PeuSdzTDDYoGuXg==}
+    peerDependencies:
+      '@react-three/fiber': '>=9.0.0'
+      react: ^19.0.0
+      three: '>=0.156'
 
   '@redis/bloom@1.2.0':
     resolution: {integrity: sha512-HG2DFjYKbpNmVXsa0keLHp/3leGJz1mjh09f2RLGGLQZzSHpkmZWuwJbAvo3QcRY8p80m5+ZdXZdYOSBLlp7Cg==}
@@ -9675,6 +9691,14 @@ packages:
       '@types/three': '*'
       three: '*'
 
+  stats-gl@4.2.3:
+    resolution: {integrity: sha512-XxDFKl4kpB9siOTQ5szzT095uvJjj6Q3KLd7AbaceH8lJzRTnFARhBt4AnqKOpdY37iJGK+2H8W9bntMIUghYw==}
+    peerDependencies:
+      three: '*'
+    peerDependenciesMeta:
+      three:
+        optional: true
+
   stats.js@0.17.0:
     resolution: {integrity: sha512-hNKz8phvYLPEcRkeG1rsGmV5ChMjKDAWU7/OJJdDErPBNChQXxCo3WZurGpnWc6gZhAzEPFad1aVgyOANH1sMw==}
 
@@ -10422,6 +10446,9 @@ packages:
   web-streams-polyfill@4.0.0-beta.3:
     resolution: {integrity: sha512-QW95TCTaHmsYfHDybGMwO5IJIM93I/6vTRk+daHTWFPhwh+C8Cg7j7XyKrwrj8Ib6vYXe0ocYNrmzY4xAAN6ug==}
     engines: {node: '>= 14'}
+
+  web-vitals@6.2.3:
+    resolution: {integrity: sha512-Dmy+vdO1UPMqXiAtZSNayhl4f794Bxfd94W4HIj2HlYtczEQfEOon969memlcpcHrTuOKLa5baFjX7WbgmOq+A==}
 
   webgl-constants@1.1.1:
     resolution: {integrity: sha512-LkBXKjU5r9vAW7Gcu3T5u+5cvSvh5WwINdr0C+9jpzVB41cjQAP5ePArDtk/WHYdVj0GefCgM73BA7FlIiNtdg==}
@@ -14278,6 +14305,12 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
       - immer
+
+  '@react-three/test-renderer@9.1.1(@react-three/fiber@9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1))(react@19.2.6)(three@0.186.1)':
+    dependencies:
+      '@react-three/fiber': 9.7.0(@types/react@19.2.14)(immer@11.1.21)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(three@0.186.1)
+      react: 19.2.6
+      three: 0.186.1
 
   '@redis/bloom@1.2.0(@redis/client@1.6.1)':
     dependencies:
@@ -20270,6 +20303,10 @@ snapshots:
       '@types/three': 0.185.4
       three: 0.186.1
 
+  stats-gl@4.2.3(three@0.186.1):
+    optionalDependencies:
+      three: 0.186.1
+
   stats.js@0.17.0: {}
 
   statuses@2.0.2: {}
@@ -20987,6 +21024,8 @@ snapshots:
   web-ifc@0.0.77: {}
 
   web-streams-polyfill@4.0.0-beta.3: {}
+
+  web-vitals@6.2.3: {}
 
   webgl-constants@1.1.1: {}
 

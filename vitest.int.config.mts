@@ -8,6 +8,7 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { coverage } from './vitest.coverage.mts'
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
@@ -23,5 +24,7 @@ export default defineConfig({
     // which Node's ESM loader refuses; inlined, Vite resolves it (the proxy
     // spec, tests/int/printed-qr.int.spec.ts, runs `src/proxy.ts`).
     server: { deps: { inline: ['next-i18next'] } },
+    // Off unless asked (`pnpm test:coverage`): see vitest.coverage.mts.
+    coverage,
   },
 })

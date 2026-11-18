@@ -162,6 +162,9 @@ source language `en`, plus the other official EU languages
   skipped spec is not a pass. `E2E_SERVER=start` after `pnpm build` runs e2e
   on the production build, as CI does; with the cloud preview on, build with
   `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
+- Coverage (`pnpm test:coverage`, `test:coverage:all` with the stories),
+  React Three Fiber specs (`@react-three/test-renderer`), the `?perf`
+  frame-time overlay and the Core Web Vitals spec: [Development](docs/development.md#coverage).
 - `AI_MOCK=true` swaps Groq and Fish Audio for mock models (CI, tests);
   never in a deployment.
 - Don't run `oxlint`/`prettier` by hand: the pre-commit hook runs them on

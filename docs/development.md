@@ -47,6 +47,71 @@ workflows for UI work.
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
   repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
 
+## Coverage
+
+V8 coverage through Vitest (`@vitest/coverage-v8`; shared options in
+`vitest.coverage.mts`). Node and Chromium count the executed code
+themselves, so nothing is instrumented or rebuilt; Vitest maps it back to
+the sources (AST-aware, so the numbers match Istanbul's).
+
+- `pnpm test:coverage`: the integration specs only (~40 s in a cloud
+  session). Needs MongoDB, as `pnpm test:int` does.
+- `pnpm test:coverage:all`: the integration specs plus every Storybook story
+  rendered in Chromium (the `storybook` project, without screenshots), in one
+  report. Slower and memory-heavy: run it alone. Locally, with no Playwright
+  browser downloaded, point `PLAYWRIGHT_BROWSERS_PATH` at one.
+- Report in `coverage/` (git-ignored): `index.html` to browse, `lcov.info`
+  for editor gutters, `coverage-summary.json` for scripts. Every file under
+  `src` is listed, at 0% when nothing loads it, except generated code,
+  stories and mocks. It is written even when a spec fails.
+- What it can't see: code only the Playwright e2e suite runs, i.e. pages and
+  route handlers inside `next dev`/`next start`. Counting those would need
+  V8 coverage from the Next server (`NODE_V8_COVERAGE`) and from the browser
+  (Playwright's `page.coverage`), remapped through Next's source maps (e.g.
+  `monocart-coverage-reports`): possible, but a separate build and a slower
+  suite. Cover that logic by moving it into `src/lib` functions the int specs
+  call, or into components with stories.
+
+## 3D scenes: tests and frame times
+
+- `@react-three/test-renderer` renders React Three Fiber in Node, without
+  WebGL: a real scene graph, `advanceFrames` to step `useFrame` by hand,
+  `fireEvent` for pointer handlers. Example: `tests/int/walk-to.int.spec.tsx`
+  (the avatar's walk, `src/components/pascal/use-walk-to.ts`). Keep the
+  logic under test in hooks or components that don't need the Pascal viewer
+  or a loaded GLB (those need a browser: Storybook or e2e). Set
+  `IS_REACT_ACT_ENVIRONMENT` in the spec, as that one does.
+- Frame times: add `?perf` to any page with a 3D canvas (the museum map, an
+  object's model) for the `stats-gl` overlay: FPS, CPU and GPU ms per frame
+  (`src/components/three/PerfStats.tsx`). It loads only with `?perf`, also on
+  the production build, so it can be read on a real phone. stats-gl rather
+  than `r3f-perf`, which is WebGL-only and unmaintained since 2024 while the
+  map draws with Pascal's `WebGPURenderer`. GPU time needs the browser's
+  timer queries (WebGPU `timestamp-query`, WebGL `EXT_disjoint_timer_query`):
+  where they are missing the GPU panel stays empty. For a frame-by-frame
+  breakdown use the Performance panel of Chrome DevTools (or the
+  `chrome-devtools` MCP's `performance_start_trace`).
+
+## Core Web Vitals
+
+- Lab, automatic: `tests/e2e/web-vitals.e2e.spec.ts` measures LCP, CLS and
+  INP (plus FCP and TTFB, reported only) with Google's `web-vitals` library
+  in a phone-sized Chromium, on the navigator home and the marketplace, and
+  fails when one is not rated "good". It is part of `pnpm test:e2e`, so CI
+  checks it on every pull request on the production build; nothing to run
+  while iterating. LCP is budgeted only on the production server (`next dev`
+  compiles each route on its first visit); CLS and INP on both. One spec:
+  `pnpm test:e2e tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
+  are printed and attached to the HTML report, with the element to blame.
+  Add a page by copying one of its tests (`collectWebVitals` before
+  `goto`, `expectGoodVitals` after).
+- Lab, by hand: Lighthouse or the Performance panel in Chrome DevTools on
+  the cloud preview or `pnpm start`, or the `chrome-devtools` MCP
+  (`lighthouse_audit`, `performance_start_trace`) from an agent session.
+- Field: Sentry's browser tracing (`src/instrumentation-client.ts`) records
+  the Web Vitals of the sampled production page loads; see the project's
+  Web Vitals view in Sentry.
+
 ## Visual regression tests
 
 `pnpm test:visual` and `pnpm test:visual:update` screenshot every Storybook

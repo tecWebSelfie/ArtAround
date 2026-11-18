@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 import { playwright } from '@vitest/browser-playwright'
+import { coverage } from './vitest.coverage.mts'
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url))
 
@@ -20,6 +21,8 @@ export default defineConfig({
     // browser session" before a single story, and before the cache was
     // written, so every retry was cold again.
     browser: { connectTimeout: 10 * 60_000 },
+    // Both projects in one report (`pnpm test:coverage:all`): see vitest.coverage.mts.
+    coverage,
     projects: [
       // `int` lives in its own file so `pnpm test:int` skips loading Storybook.
       './vitest.int.config.mts',
