@@ -1,17 +1,7 @@
-// V8 code coverage shared by both Vitest entry points: `pnpm test:coverage`
-// (vitest.int.config.mts, the Node integration specs) and
-// `pnpm test:coverage:all` (vitest.config.mts, the integration specs plus
-// every Storybook story rendered in Chromium). Vitest only reads `coverage`
-// from the config it was started with, never from a project, hence one
-// object imported by both.
-//
-// V8 coverage needs no instrumented build: Node and Chromium count the
-// executed bytes themselves, and Vitest maps them back to the sources through
-// the transform's source maps (AST-aware remapping, the Vitest 4 default, so
-// the numbers match what Istanbul would report). It covers whatever these
-// runs execute: server code reached by the int specs, components reached by
-// the stories. Code that only the Playwright e2e suite executes (route
-// handlers and pages inside `next dev`/`next start`) is not counted; see
+// V8 coverage options shared by both Vitest entry points (`pnpm
+// test:coverage` → vitest.int.config.mts, `pnpm test:coverage:all` →
+// vitest.config.mts): Vitest reads `coverage` only from the config it was
+// started with, never from a project. What it covers and what it can't:
 // docs/development.md → Coverage.
 import type { CoverageOptions } from 'vitest/node'
 

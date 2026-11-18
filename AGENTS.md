@@ -5,6 +5,11 @@ Skills: `.agents/skills/` is the source of truth; Claude Code reads copies in
 skill there again (`impeccable` has its own copy). Use `payload` for Payload
 CMS (start from its `SKILL.md`, then `reference/`) and `pascal-plugin-authoring` for `@pascal-app/*` plugins, node kinds and
 `MapViewer`/museum-map work.
+Playwright's own skills (`pnpm exec playwright init-skills --loop agents`
+after a Playwright upgrade, then copy): `playwright-cli` to drive a browser
+(`pnpm exec playwright cli`, the local version), `playwright-trace` to read
+a failing e2e trace, `playwright-component-testing` (we test components with
+Storybook instead: use it only if asked).
 
 ## Working with the maintainer
 

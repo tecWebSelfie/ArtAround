@@ -16,7 +16,11 @@ workflows for UI work.
 - `pnpm test:int`: the integration specs (`tests/int`, Vitest project `int`,
   in Node). Most need MongoDB running. Filter with a path or `-t`, e.g.
   `pnpm test:int tests/int/objectsAccess.int.spec.ts`; `--changed` runs only
-  the specs that import a changed file.
+  the specs that import a changed file. It leaves out `tests/int/nightly/`.
+- `pnpm test:nightly`: the nightly QA regression specs (`tests/int/nightly/`,
+  [Nightly QA](nightly-qa.md)), which call a running, seeded server over HTTP
+  (`NIGHTLY_BASE_URL`, default `http://localhost:3000`), one file at a time.
+  Some stay red until their fix merges, so CI doesn't run them.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
   `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
   instead, as CI does: no route compiles inside a test's timeout, and the

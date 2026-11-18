@@ -1,7 +1,7 @@
 'use client'
 
 import { addAfterEffect, useThree } from '@react-three/fiber'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 
 /**
  * Opt-in frame-time overlay for any React Three Fiber canvas (the Pascal
@@ -9,22 +9,15 @@ import { useEffect, useState } from 'react'
  * drawn by `stats-gl`. Add `?perf` to the page URL to show it, in
  * development or on the production build on a real phone.
  *
- * Why stats-gl and not r3f-perf: r3f-perf (last release Nov 2024) reads
- * WebGL-only counters, and the museum map renders through Pascal's
- * `WebGPURenderer`; stats-gl 4 times both backends (GPU time where the
- * browser exposes timer/timestamp queries). drei's `<StatsGl>` wraps the
- * older stats-gl 2, which predates three's current WebGPU timestamp API.
- *
- * The library is imported only once `?perf` is present, so visitors never
- * download it.
+ * stats-gl 4 rather than r3f-perf (WebGL-only) or drei's `<StatsGl>`
+ * (stats-gl 2, older than three's WebGPU timestamp API): the map renders
+ * through Pascal's `WebGPURenderer`. See docs/development.md → 3D scenes.
+ * The library is imported only with `?perf`: visitors never download it.
  */
 export function PerfStats() {
   const gl = useThree((state) => state.gl)
-  // Inside a Canvas, so client-only: `location` is always there.
-  const [enabled] = useState(() => new URLSearchParams(location.search).has('perf'))
-
   useEffect(() => {
-    if (!enabled) return
+    if (!new URLSearchParams(location.search).has('perf')) return
     let cancelled = false
     let cleanup: (() => void) | undefined
     void import('stats-gl').then(async ({ default: Stats }) => {
@@ -46,7 +39,7 @@ export function PerfStats() {
       cancelled = true
       cleanup?.()
     }
-  }, [enabled, gl])
+  }, [gl])
 
   return null
 }

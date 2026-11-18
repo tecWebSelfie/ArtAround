@@ -51,11 +51,11 @@ jobs:
       GROQ_API_KEY: ${{ inputs.real_ai && secrets.GROQ_API_KEY || '' }}
       FISH_API_KEY: ${{ inputs.real_ai && secrets.FISH_API_KEY || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # pnpm version from package.json's `packageManager`.
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm

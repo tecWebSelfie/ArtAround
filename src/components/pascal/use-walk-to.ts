@@ -2,7 +2,7 @@
 
 import { useFrame } from '@react-three/fiber'
 import type { Vec3 } from 'navcat'
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import type { Group } from 'three'
 
 /**
@@ -31,6 +31,9 @@ export function useWalkTo(point: Vec3) {
   const group = useRef<Group>(null)
   const heading = useRef<number | null>(null)
   const placed = useRef(false)
+  // One query list, read every frame: matchMedia() itself would build a new
+  // one 60 times a second.
+  const [reducedMotion] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)'))
   const [x, y, z] = point
   useFrame((_, delta) => {
     const avatar = group.current
@@ -38,8 +41,13 @@ export function useWalkTo(point: Vec3) {
     const dx = x - avatar.position.x
     const dz = z - avatar.position.z
     const distance = Math.hypot(dx, dz)
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!placed.current || still || distance > AVATAR_TELEPORT_METRES || distance < 0.02) {
+    if (placed.current && distance === 0) return
+    if (
+      !placed.current ||
+      reducedMotion.matches ||
+      distance > AVATAR_TELEPORT_METRES ||
+      distance < 0.02
+    ) {
       avatar.position.set(x, y, z)
       placed.current = true
       heading.current = null
