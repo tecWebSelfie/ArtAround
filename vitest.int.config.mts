@@ -21,10 +21,10 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.{ts,tsx}'],
     // The nightly QA regression specs (tests/int/nightly/) call a RUNNING,
-    // seeded server over HTTP, and some stay red until their fix merges: they
-    // run only through `pnpm test:nightly` (NIGHTLY=1), against `pnpm start`
-    // or `next dev` after `pnpm seed:e2e`. `pnpm test:int` (and CI, which
-    // runs it before any server exists) leaves them out.
+    // seeded server over HTTP (as the seeded super admin), so they run only
+    // through `pnpm test:nightly` (NIGHTLY=1): in CI against the production
+    // server before the e2e suite, locally against `next dev` or `pnpm start`
+    // after `pnpm seed:e2e`. `pnpm test:int` runs before any server exists.
     exclude: [...configDefaults.exclude, ...(process.env.NIGHTLY ? [] : ['tests/int/nightly/**'])],
     // next-i18next's proxy build imports `next/server` without an extension,
     // which Node's ESM loader refuses; inlined, Vite resolves it (the proxy

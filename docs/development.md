@@ -18,9 +18,11 @@ workflows for UI work.
   `pnpm test:int tests/int/objectsAccess.int.spec.ts`; `--changed` runs only
   the specs that import a changed file. It leaves out `tests/int/nightly/`.
 - `pnpm test:nightly`: the nightly QA regression specs (`tests/int/nightly/`,
-  [Nightly QA](nightly-qa.md)), which call a running, seeded server over HTTP
-  (`NIGHTLY_BASE_URL`, default `http://localhost:3000`), one file at a time.
-  Some stay red until their fix merges, so CI doesn't run them.
+  [Nightly QA](nightly-qa.md)): access-rule and route checks that call a
+  running server over HTTP (`NIGHTLY_BASE_URL`, default
+  `http://localhost:3000`) as the seeded users, one file at a time. They need
+  `pnpm seed:e2e` first (without the seeded super admin they fail). CI runs
+  them against the production server, before the e2e suite.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
   `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
   instead, as CI does: no route compiles inside a test's timeout, and the
@@ -85,16 +87,17 @@ the sources (AST-aware, so the numbers match Istanbul's).
   logic under test in hooks or components that don't need the Pascal viewer
   or a loaded GLB (those need a browser: Storybook or e2e). Set
   `IS_REACT_ACT_ENVIRONMENT` in the spec, as that one does.
-- Frame times: add `?perf` to any page with a 3D canvas (the museum map, an
-  object's model) for the `stats-gl` overlay: FPS, CPU and GPU ms per frame
-  (`src/components/three/PerfStats.tsx`). It loads only with `?perf`, also on
-  the production build, so it can be read on a real phone. stats-gl rather
-  than `r3f-perf`, which is WebGL-only and unmaintained since 2024 while the
-  map draws with Pascal's `WebGPURenderer`. GPU time needs the browser's
-  timer queries (WebGPU `timestamp-query`, WebGL `EXT_disjoint_timer_query`):
-  where they are missing the GPU panel stays empty. For a frame-by-frame
-  breakdown use the Performance panel of Chrome DevTools (or the
-  `chrome-devtools` MCP's `performance_start_trace`).
+- Frame times: add `?perf` to the URL. On the museum map Pascal's viewer
+  draws its own panel (FPS, frame CPU/GPU ms, draw calls, triangles, memory,
+  long tasks), for anyone who adds the flag: it is built into
+  `@pascal-app/viewer`. On an object's 3D model (`ModelViewer`) our
+  `src/components/three/PerfStats.tsx` shows a `stats-gl` overlay (FPS, CPU
+  and GPU ms per frame), always on `next dev`, on the production build only
+  for a signed-in super admin. GPU time needs the browser's timer queries
+  (WebGPU `timestamp-query`, WebGL `EXT_disjoint_timer_query`); without them
+  the GPU figure stays empty. For a frame-by-frame breakdown use the
+  Performance panel of Chrome DevTools (or the `chrome-devtools` MCP's
+  `performance_start_trace`).
 
 ## Core Web Vitals
 

@@ -2,20 +2,21 @@
 
 import { addAfterEffect, useThree } from '@react-three/fiber'
 import { useEffect } from 'react'
+import { fetchCurrentUser } from '@/lib/auth-client'
 
 /**
- * Opt-in frame-time overlay for any React Three Fiber canvas (the Pascal
- * museum map, the object model viewer): FPS, CPU and GPU time per frame,
- * drawn by `stats-gl`. Add `?perf` to the page URL to show it, in
- * development or on the production build on a real phone.
+ * Opt-in frame-time overlay for the object model viewer's React Three Fiber
+ * canvas (`ModelViewer`): FPS, CPU and GPU time per frame, drawn by
+ * `stats-gl`. Add `?perf` to the page URL to show it: always in development;
+ * on the production build (e.g. on a real phone) only for a signed-in super
+ * admin. The check is cosmetic, not a security boundary: no data is shown.
  *
- * stats-gl 4 rather than r3f-perf (WebGL-only) or drei's `<StatsGl>`
- * (stats-gl 2, older than three's WebGPU timestamp API): the map renders
- * through Pascal's `WebGPURenderer`. See docs/development.md → 3D scenes.
- * The library is imported only with `?perf`: visitors never download it.
- * One canvas at a time: R3F's after-effects fire for every root on the page,
- * and an on-demand canvas (the model viewer) shows idle time as low FPS
- * until it is moved.
+ * The museum map needs none of this: Pascal's viewer already draws its own
+ * richer panel with `?perf` (frame and GPU time, draw calls, triangles,
+ * memory, long tasks; `@pascal-app/viewer`'s PerfPanel), for anyone.
+ * stats-gl rather than r3f-perf (unmaintained since 2024). The library is
+ * imported only when allowed, so visitors never download it. An on-demand
+ * canvas shows idle time as low FPS until it is moved.
  */
 export function PerfStats() {
   const gl = useThree((state) => state.gl)
@@ -23,9 +24,11 @@ export function PerfStats() {
     if (!new URLSearchParams(location.search).has('perf')) return
     let cancelled = false
     let cleanup: (() => void) | undefined
-    void import('stats-gl')
-      .then(async ({ default: Stats }) => {
-        if (cancelled) return
+    void allowed()
+      .then((ok) => (ok && !cancelled ? import('stats-gl') : null))
+      .then(async (module) => {
+        if (!module || cancelled) return
+        const Stats = module.default
         const stats = new Stats({ trackGPU: true, trackHz: true })
         await stats.init(gl)
         if (cancelled) return stats.dispose()
@@ -49,4 +52,11 @@ export function PerfStats() {
   }, [gl])
 
   return null
+}
+
+/** Development builds always; production only for a signed-in super admin. */
+async function allowed() {
+  if (process.env.NODE_ENV === 'development') return true
+  const user = await fetchCurrentUser()
+  return Boolean(user?.isSuperAdmin)
 }

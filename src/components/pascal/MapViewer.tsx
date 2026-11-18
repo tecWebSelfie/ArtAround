@@ -12,7 +12,6 @@ import {
   type ParsedBuildJson,
 } from '@pascal-app/core'
 import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
-import { PerfStats } from '@/components/three/PerfStats'
 import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { Viewer, type HoverStyles } from '@pascal-app/viewer'
@@ -150,8 +149,6 @@ export function MapViewer({
             hoverStyles={hoverStyles}
           >
             <CameraControls ref={controls} makeDefault enabled={orbitEnabled} />
-            {/* Frame-time overlay, only with `?perf` in the URL. */}
-            <PerfStats />
             {children}
           </Viewer>
         </Box>
