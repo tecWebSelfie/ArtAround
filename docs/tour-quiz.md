@@ -111,6 +111,10 @@ rating (`LfrsRating`; anonymous visitors see "Sign in to rate"), Share
 (`navigator.share`, clipboard fallback), Retake, and **Back to the navigator** in the
 footer.
 
+The quiz, its answer actions and the result are gated on read access to the tour
+(`getTourQuizForResult` reads it as the viewer, so the group cookie counts): a tour the
+visitor can't read is "unknown" (404), however well the token or tour id is known.
+
 Statistics (`getQuizStats`) are plain indexed `count`s, cached per tour with
 `unstable_cache` and expired by `updateTag()` on each submit. Comparisons need
 `MIN_ATTEMPTS_FOR_STATS` (10) attempts; every attempt counts, anonymous included.

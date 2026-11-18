@@ -9,6 +9,7 @@ import { cache } from 'react'
 import { enqueueTranslation, normalizeLocale, resolveLocalized } from './localized'
 import { tourQuizQuestionIds } from './quiz-ownership'
 import { getNavigationTour } from './navigation-tour.server'
+import { asViewer } from './session'
 import { tourMuseumId } from './tour-navigation'
 import {
   CORRECT_ANSWER,
@@ -98,7 +99,7 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
 
 /**
  * The tour's current quiz in the visitor's language, whatever its stops;
- * `null` for an unknown tour. The result of an attempt already taken reads
+ * `null` for an unknown tour or one the visitor can't read. The result of an attempt already taken reads
  * this: losing its last visitable stop must not hide a score already earned.
  */
 export const getTourQuizForResult = cache(
@@ -109,6 +110,9 @@ export const getTourQuizForResult = cache(
         collection: 'tours',
         id: tourId,
         depth: 0,
+        // Read as the viewer (own session or group cookie): a quiz is only
+        // offered for a tour the visitor may read, a private one is "unknown".
+        ...(await asViewer()),
         // The title heads the quiz and its result: in the visitor's language.
         locale: normalizeLocale(lng) ?? 'en',
         select: { title: true, contents: true, quiz: true, museum: true },
@@ -116,8 +120,8 @@ export const getTourQuizForResult = cache(
       .catch(() => null)
     if (!tour) return null
     // The stops the visitor navigated: unavailable ones are not part of "stops
-    // still ahead" or of what the cursor counted. A tour this visitor can't
-    // read as such (quiz links are public) keeps its stored list.
+    // still ahead" or of what the cursor counted. A tour whose
+    // navigation view fails keeps its stored list.
     const stops = await getNavigationTour(tourId, lng)
       .then((visitable) => visitable.contents)
       .catch(() => tour.contents ?? [])
