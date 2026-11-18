@@ -13,7 +13,6 @@ export const coverage = {
   exclude: [
     // Generated code and type-only declarations.
     'src/payload-types.ts',
-    'src/app/(payload)/admin/importMap.js',
     'src/lib/pascal/mint/client/**',
     'src/@types/**',
     '**/*.d.ts',

@@ -41,7 +41,6 @@ export function useWalkTo(point: Vec3) {
     const dx = x - avatar.position.x
     const dz = z - avatar.position.z
     const distance = Math.hypot(dx, dz)
-    if (placed.current && distance === 0) return
     if (
       !placed.current ||
       reducedMotion.matches ||

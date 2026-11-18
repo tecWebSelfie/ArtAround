@@ -1,8 +1,8 @@
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import type { MetricType } from 'web-vitals'
-import { productionServer } from './e2e-server'
+import { isProductionServer } from './e2e-server'
 
 /**
  * Core Web Vitals measured in a Playwright page by Google's `web-vitals`
@@ -30,7 +30,10 @@ export type Vital = {
 export type Vitals = Partial<Record<VitalName, Vital>>
 
 const library = readFileSync(
-  resolve('node_modules/web-vitals/dist/web-vitals.attribution.iife.js'),
+  // The package doesn't export its IIFE build: found from this file, not the cwd.
+  fileURLToPath(
+    new URL('../../node_modules/web-vitals/dist/web-vitals.attribution.iife.js', import.meta.url),
+  ),
   'utf8',
 )
 
@@ -86,14 +89,15 @@ export function formatWebVitals(vitals: Vitals) {
  * on a shared CI runner says more about the runner than about the page.
  * CLS and INP may be missing: nothing shifted, or no interaction took 16 ms.
  */
-const budgeted: VitalName[] = productionServer ? ['LCP', 'CLS', 'INP'] : ['CLS', 'INP']
-const required: VitalName[] = productionServer ? ['LCP'] : []
 
 /** Waits for the page to settle, attaches the values to the report, checks the budgets. */
 export async function expectGoodVitals(page: Page) {
   // LCP and CLS settle after load; give late images and fonts a moment.
   await page.waitForLoadState('load')
   await page.waitForTimeout(1_000)
+  const production = isProductionServer()
+  const budgeted: VitalName[] = production ? ['LCP', 'CLS', 'INP'] : ['CLS', 'INP']
+  const required: VitalName[] = production ? ['LCP'] : []
   const vitals = await readWebVitals(page)
   const summary = formatWebVitals(vitals)
   console.log(`${page.url()}\n${summary}`)

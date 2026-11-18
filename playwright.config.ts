@@ -5,18 +5,13 @@ import { defineConfig, devices } from '@playwright/test'
  * https://github.com/motdotla/dotenv
  */
 import { config } from 'dotenv'
-import { productionServer } from './tests/helpers/e2e-server'
+import { isProductionServer } from './tests/helpers/e2e-server'
 
 // Cloud/Next setup writes .env.local; plain dotenv/config only reads .env.
 config({ path: process.env.DOTENV_CONFIG_PATH ?? ['.env.local', '.env'] })
 
-/**
- * Which app the specs drive (`productionServer`, tests/helpers/e2e-server.ts). `next dev` while iterating (the one already
- * running is reused, and edits show up without a rebuild); the production
- * build in CI or with `E2E_SERVER=start` after `pnpm build`: no route compiles
- * on first visit inside a test's timeout, production React, closer to what
- * visitors get. `pnpm build` takes ~2 min (cloud session, 4 cores).
- */
+// Which app the specs drive: see tests/helpers/e2e-server.ts.
+const productionServer = isProductionServer()
 
 /**
  * See https://playwright.dev/docs/test-configuration.
