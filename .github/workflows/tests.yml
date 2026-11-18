@@ -1,6 +1,10 @@
-# Full test run on GitHub's runners: integration specs, then, on the
-# production build served by `pnpm start`, the nightly QA regression specs
-# and the Playwright e2e suite.
+# Full test run on GitHub's runners, in two parallel jobs:
+# - `tests`: integration specs, then, on the production build served by
+#   `pnpm start`, the nightly QA regression specs and the Playwright e2e suite;
+# - `stories`: every Storybook story as a test in Chromium (render, play
+#   function, accessibility checks).
+# Integration specs and stories run with V8 coverage: the same tests, which
+# also record the lines they executed (one report per job, as artifacts).
 #
 # Asynchronous: it never blocks pushes, commits or other PRs. Its result shows
 # as a check on the pull request; a merge waits for it only if branch
@@ -74,8 +78,17 @@ jobs:
       # MongoDB and LiveKit from docker-compose.yml, as on a developer machine.
       - run: pnpm services:start
 
+      # `test:int` with coverage: the same specs, plus the report.
       - name: Integration tests
-        run: pnpm test:int
+        run: pnpm test:coverage
+
+      - name: Upload the integration coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-int
+          path: coverage/
+          retention-days: 14
 
       - name: Seed the e2e database
         run: pnpm seed:e2e
@@ -89,22 +102,7 @@ jobs:
 
       - run: pnpm build
 
-      # Chromium cached per Playwright version; the system libraries it
-      # needs are installed every run (apt, not cacheable here).
-      - name: Playwright version
-        id: playwright
-        run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ steps.playwright.outputs.version }}
-      - name: Install Playwright's Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Install Chromium's system libraries
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+      - uses: ./.github/actions/playwright-chromium
 
       # One production server for both suites: the nightly QA regression
       # specs (tests/int/nightly/) call it over HTTP, then Playwright reuses
@@ -130,4 +128,34 @@ jobs:
             playwright-report/
             test-results/
             next-server.log
+          retention-days: 14
+
+  # Stories need no database, server or build: MSW mocks the network. About
+  # 4 minutes and up to ~11 GB of memory, within a public repository's runner
+  # (16 GB).
+  stories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/playwright-chromium
+
+      - name: Story tests
+        run: pnpm test:stories --coverage
+
+      - name: Upload the stories coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-stories
+          path: coverage/
           retention-days: 14

@@ -4,6 +4,7 @@ import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
 import { visitableTour } from '@/lib/tour-navigation'
 import { AppShell } from '@mantine/core'
+import { spotlight } from '@mantine/spotlight'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 import { Notifications } from '@mantine/notifications'
@@ -252,6 +253,9 @@ export const Completed: Story = {
  * leads with the museum's tours.
  */
 export const FreeNavigation: Story = {
+  // Spotlight's store is global: close the search this story opens, or the
+  // next story in the file starts with its dialog still on screen.
+  beforeEach: () => () => spotlight.close(),
   args: {
     scope: { kind: 'free', museumId: mockMuseumFull.id },
     museum: { ...mockMuseumFull, map: null },

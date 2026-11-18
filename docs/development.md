@@ -23,6 +23,10 @@ workflows for UI work.
   `http://localhost:3000`) as the seeded users, one file at a time. They need
   `pnpm seed:e2e` first (without the seeded super admin they fail). CI runs
   them against the production server, before the e2e suite.
+- `pnpm test:stories`: every Storybook story as a test in Chromium (render,
+  play function, accessibility), ~4 min and memory-heavy: run it alone. CI
+  runs it in its own job, with coverage. While iterating, Storybook MCP's
+  `run-story-tests` on the stories you touched.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
   `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
   instead, as CI does: no route compiles inside a test's timeout, and the
@@ -61,7 +65,10 @@ themselves, so nothing is instrumented or rebuilt; Vitest maps it back to
 the sources (AST-aware, so the numbers match Istanbul's).
 
 - `pnpm test:coverage`: the integration specs only (~40 s in a cloud
-  session). Needs MongoDB, as `pnpm test:int` does.
+  session). Needs MongoDB, as `pnpm test:int` does. CI runs this instead of
+  `test:int` (the same specs) and `test:stories --coverage` in the stories
+  job; each job uploads its report as an artifact (`coverage-int`,
+  `coverage-stories`).
 - `pnpm test:coverage:all`: the integration specs plus every Storybook story
   rendered in Chromium (the `storybook` project, without screenshots), in one
   report. Slower and memory-heavy: run it alone. Locally, with no Playwright
