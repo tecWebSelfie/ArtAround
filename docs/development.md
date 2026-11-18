@@ -103,8 +103,8 @@ the sources (AST-aware, so the numbers match Istanbul's).
   in a phone-sized Chromium, on the navigator home and the marketplace, and
   fails when one is not rated "good". It is part of `pnpm test:e2e`, so CI
   checks it on every pull request on the production build; nothing to run
-  while iterating. LCP is budgeted only on the production server (`next dev`
-  compiles each route on its first visit); CLS and INP on both. One spec:
+  while iterating. LCP and INP are budgeted only on the production server
+  (`next dev` compiles routes and chunks on first use); CLS on both. One spec:
   `pnpm test:e2e tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
   are printed and attached to the HTML report, with the element to blame.
   Add a page by copying one of its tests (`collectWebVitals` before

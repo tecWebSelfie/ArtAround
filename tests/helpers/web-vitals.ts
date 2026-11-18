@@ -83,10 +83,11 @@ export function formatWebVitals(vitals: Vitals) {
 
 /**
  * The budgets: the three Core Web Vitals must be rated "good" (LCP ≤ 2.5 s,
- * CLS ≤ 0.1, INP ≤ 200 ms). LCP only on the production server: `next dev`
- * compiles each route on its first visit, so there it is only reported.
- * FCP and TTFB are reported, never budgeted: TTFB of a server-rendered page
- * on a shared CI runner says more about the runner than about the page.
+ * CLS ≤ 0.1, INP ≤ 200 ms) on the production server. On `next dev` only CLS
+ * is budgeted: routes and chunks compile on first use, so LCP and INP there
+ * measured 64–504 ms for the same click; they are only reported. FCP and
+ * TTFB are reported, never budgeted: TTFB of a server-rendered page on a
+ * shared CI runner says more about the runner than about the page.
  * CLS and INP may be missing: nothing shifted, or no interaction took 16 ms.
  */
 
@@ -96,7 +97,7 @@ export async function expectGoodVitals(page: Page) {
   await page.waitForLoadState('load')
   await page.waitForTimeout(1_000)
   const production = isProductionServer()
-  const budgeted: VitalName[] = production ? ['LCP', 'CLS', 'INP'] : ['CLS', 'INP']
+  const budgeted: VitalName[] = production ? ['LCP', 'CLS', 'INP'] : ['CLS']
   const required: VitalName[] = production ? ['LCP'] : []
   const vitals = await readWebVitals(page)
   const summary = formatWebVitals(vitals)
