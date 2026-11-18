@@ -100,7 +100,7 @@
     "@photostructure/tz-lookup": "11.8.0",
     "@react-pdf/renderer": "4.9.0",
     "@react-three/drei": "^10.7.9",
-    "@react-three/fiber": "^9.7.0",
+    "@react-three/fiber": "^9.8.2",
     "@ricky0123/vad-web": "^0.0.31",
     "@sentry/nextjs": "^10.70.0",
     "@tailwindcss/postcss": "^4.3.3",
