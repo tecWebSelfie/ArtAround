@@ -6,6 +6,7 @@ import { hasNoStopsToVisit } from '@/lib/tour-stops'
 import { allowRequest } from '@/lib/rate-limit'
 import { getTourStartAccess } from '@/lib/tour-start-access'
 import { withVisitableStops } from '@/lib/tour-summary'
+import { IGNORE_GROUP_COOKIE } from '@/lib/visibility'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import { z } from 'zod'
@@ -32,13 +33,15 @@ export async function POST(request: Request) {
 
   const payload = await getPayload({ config })
   // Read as the host: access to the tour itself is not enough when paid stops
-  // exist; the host must own them or be allowed to edit this tour.
+  // exist; the host must own them or be allowed to edit this tour. The group
+  // cookie is ignored: it only lets guests follow a room, never open another.
   const tour = await payload
     .findByID({
       collection: 'tours',
       id: body.data.tourId,
       depth: 0,
       select: { contents: true, visitableContents: true, visitableStops: true },
+      context: { [IGNORE_GROUP_COOKIE]: true },
       ...(await asViewer()),
     })
     .catch(() => null)

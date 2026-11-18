@@ -68,6 +68,14 @@ const COOKIE_CACHE = 'groupTourId'
 const CONTENTS_CACHE = 'groupTourContentIds'
 
 /**
+ * Local API `context` flag: read as the visitor's own session, ignoring the
+ * group cookie. The cookie only lets guests FOLLOW a room's tour; actions that
+ * would let the cookie holder lead (opening a room: `POST /api/rooms`) set it,
+ * so the cookie alone never grants them anything.
+ */
+export const IGNORE_GROUP_COOKIE = 'ignoreGroupCookie'
+
+/**
  * The group cookie of the request. REST requests carry it in `req.headers`;
  * Local API reads made by a page or route handler for its visitor
  * (`asViewer`, `resolveLocalized`) get a request with empty headers, so the
@@ -98,6 +106,7 @@ const verifyOnce = cache(verifyGroupTourToken)
 
 /** The tour of the request's group cookie, verified once per request. */
 export function groupTourOf(req: PayloadRequest): Promise<string | null> {
+  if (req.context[IGNORE_GROUP_COOKIE]) return Promise.resolve(null)
   const cached = req.context[COOKIE_CACHE] as Promise<string | null> | undefined
   if (cached) return cached
   const pending = groupCookie(req).then(verifyOnce)

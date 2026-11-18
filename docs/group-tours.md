@@ -32,7 +32,8 @@ friends, a guided visit). Related: [tour navigation](tour-navigation.md),
   signed with `LIVEKIT_API_SECRET` naming the room's tour, valid 4 hours: the
   `tours`/`contents` read access lets its holder read that tour and its contents
   (guests have no account). Reading a tour alone does not authorize starting its
-  paid stops: `/api/rooms` also checks purchase access as the host.
+  paid stops: `/api/rooms` also checks purchase access as the host, and reads the tour
+  ignoring the cookie (`IGNORE_GROUP_COOKIE`): the cookie lets guests follow, never open a room.
 - **Who asked what:** a guest's reading requests at a stop ("Tell me more",
   curiosities, story, another wording level, shorter, for children) are read from
   their own modal URL by `GroupSync` and published in their `requests` attribute
