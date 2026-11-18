@@ -13,6 +13,7 @@ import { updateTag } from 'next/cache'
 import { headers } from 'next/headers'
 import { getPayload } from 'payload'
 import { z } from 'zod'
+import i18nConfig from '@/../i18n.config'
 
 /**
  * Quiz Server Functions. Next exposes each export as a public POST endpoint,
@@ -23,8 +24,11 @@ import { z } from 'zod'
 
 const id = z.string().min(1).max(64)
 const key = z.string().min(1).max(64)
+// Only the app's languages: an arbitrary code would be stored as the attempt's
+// locale and requested as a translation target.
+const lngSchema = z.string().refine((lng) => i18nConfig.supportedLngs.includes(lng))
 
-const checkInput = z.object({ tourId: id, lng: z.string().min(2).max(8), questionId: id, key })
+const checkInput = z.object({ tourId: id, lng: lngSchema, questionId: id, key })
 
 export type CheckQuizAnswerResult =
   | { status: 'ok'; correct: boolean; correctKey: string; explanation: string | null }
@@ -54,7 +58,7 @@ export async function checkQuizAnswer(
 
 const submitInput = z.object({
   tourId: id,
-  lng: z.string().min(2).max(8),
+  lng: lngSchema,
   stepsCompleted: z.number().int().min(0).max(10_000),
   choices: z.record(id, key),
 })
