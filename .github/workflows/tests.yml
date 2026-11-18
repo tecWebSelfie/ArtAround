@@ -47,6 +47,11 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       # tour-guidance drives the simulated GPS (src/.../gps-source.ts).
       NEXT_PUBLIC_GPS_SIMULATOR: 'true'
+      # GitHub's runners have no GPU: maps draw on software WebGL, and two
+      # group-tour pages rendering at full rate starved the host's input
+      # and LiveKit pings (a click never got two stable frames). This makes
+      # tests/helpers/software-webgl.ts throttle their animation frames.
+      E2E_SOFTWARE_WEBGL: 'true'
       AI_MOCK: ${{ inputs.real_ai && 'false' || 'true' }}
       GROQ_API_KEY: ${{ inputs.real_ai && secrets.GROQ_API_KEY || '' }}
       FISH_API_KEY: ${{ inputs.real_ai && secrets.FISH_API_KEY || '' }}
