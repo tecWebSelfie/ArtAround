@@ -53,9 +53,14 @@ workflows for UI work.
   the `pnpm start` server it launches; a `next dev` you start keeps the real
   providers unless you set it. Never in a deployment (the server logs a
   warning when it is on).
-- CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
-  `test:int`, then the e2e suite against the production build, with MongoDB
-  and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
+- CI (`.github/workflows/tests.yml`): on every pull request (and by hand,
+  "Run workflow" on a branch; not on plain pushes), two parallel jobs:
+  `test:coverage`, then the nightly QA specs and the e2e suite against the
+  production build, with MongoDB and LiveKit from `pnpm services:start`; and
+  `test:stories --coverage`. These are the full suites: an agent waits for
+  them instead of running them locally before a delivery, and runs one
+  locally only to reproduce a failure. Not in CI yet: `pnpm lint:type-aware`,
+  `i18next-cli extract --ci` and the visual tests. It runs on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
   repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
