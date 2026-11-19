@@ -59,8 +59,9 @@ workflows for UI work.
   production build, with MongoDB and LiveKit from `pnpm services:start`; and
   `test:stories --coverage`. These are the full suites: an agent waits for
   them instead of running them locally before a delivery, and runs one
-  locally only to reproduce a failure. Not in CI yet: `pnpm lint:type-aware`,
-  `i18next-cli extract --ci` and the visual tests. It runs on GitHub's runners and
+  locally only to reproduce a failure. A third job runs `pnpm typecheck`,
+  `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests
+  stay out. It runs on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
   repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
@@ -185,7 +186,7 @@ src/payload-types.ts` before committing.
 - `pnpm lint:type-aware`: the same config with `--type-aware`
   (`oxlint-tsgolint`, pinned exactly; ~20 s, whole program), which adds the
   type-aware rules: unawaited promises, async callbacks where a void one is
-  expected, non-exhaustive switches. Run by hand, e.g. before a delivery. It
+  expected, non-exhaustive switches. CI runs it on every pull request. It
   also type-checks a wider file set than `tsc`, so `pnpm typecheck` stays
   the only type check: don't add `--type-check`.
 

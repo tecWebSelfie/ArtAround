@@ -92,7 +92,10 @@ async function replaceLegacyPlaceholderModels(payload: Awaited<ReturnType<typeof
     for (const [id, node] of Object.entries(map.nodes)) {
       const asset = node.asset
       if (asset?.src !== LEGACY_PLACEHOLDER_MODEL) continue
-      const standee = placeableObjectAsset({ id: String(asset.id), name: String(asset.name ?? '') })
+      const standee = placeableObjectAsset({
+        id: String(asset.id),
+        name: typeof asset.name === 'string' ? asset.name : '',
+      })
       map.nodes[id] = {
         ...node,
         asset: {

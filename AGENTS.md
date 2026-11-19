@@ -183,8 +183,7 @@ source language `en`, plus the other official EU languages
   `pnpm dev` rewrite `src/payload-types.ts` unformatted: run
   `npx prettier --write src/payload-types.ts` before committing. Lint
   warnings never block a commit, but simplify what they flag in code you
-  touch. `pnpm lint:type-aware` (by hand, before a delivery) adds the
-  type-aware rules; `pnpm typecheck` stays the only type check. Run tools
+  touch. `pnpm lint:type-aware` (CI runs it) adds the type-aware rules; `pnpm typecheck` stays the only type check. Run tools
   from `node_modules/.bin` or `pnpm exec`, not `npx` (~9 s per start).
 - Before every push: `/simplify` and `/code-review` on the unpushed changes,
   fixing what they find; push only once clean (or once the remaining
