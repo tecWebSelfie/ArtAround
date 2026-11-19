@@ -109,9 +109,20 @@ const depthLimitRule: ValidationRule = (context) => ({
         ),
     )
     let fieldCount = 0
+    // Selections visited so far: fragments are re-expanded at every spread, so
+    // a chain of fragments that each spread the next twice is exponential
+    // even with no field in it. Past either budget the walk stops (the
+    // operation is rejected below anyway when fields exceed the cap).
+    let visited = 0
+    let overBudget = false
     // `seen` guards against fragment cycles (reported separately by graphql-js).
-    const depthOf = (set: SelectionSetNode, seen: ReadonlySet<string>): number =>
-      Math.max(
+    const depthOf = (set: SelectionSetNode, seen: ReadonlySet<string>): number => {
+      visited += set.selections.length
+      if (fieldCount > MAX_GRAPHQL_FIELDS || visited > MAX_GRAPHQL_FIELDS * 20) {
+        overBudget = true
+        return 0
+      }
+      return Math.max(
         0,
         ...set.selections.map((sel): number => {
           if (sel.kind === Kind.FIELD) {
@@ -138,8 +149,9 @@ const depthLimitRule: ValidationRule = (context) => ({
           return depthOf(fragment.selectionSet, new Set(seen).add(sel.name.value))
         }),
       )
+    }
     const depth = depthOf(operation.selectionSet, new Set())
-    if (fieldCount > MAX_GRAPHQL_FIELDS) {
+    if (overBudget || fieldCount > MAX_GRAPHQL_FIELDS) {
       context.reportError(
         new GraphQLError(
           `Query selects ${fieldCount} fields, the limit is ${MAX_GRAPHQL_FIELDS}.`,
