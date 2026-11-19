@@ -3,6 +3,7 @@ import { ensureContentAudioVariantIndex } from './lib/content-audio-index'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 import { buildConfig, LocalizationConfig } from 'payload'
+import { GraphQLError, Kind, type SelectionSetNode, type ValidationRule } from 'graphql'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
 
@@ -83,7 +84,54 @@ const localizationConfig: LocalizationConfig = {
   fallback: true,
 }
 
+/**
+ * Nightly QA 2026-11-19 (N9): Payload's `maxComplexity` doesn't weigh join
+ * fields, so `author{authoredContents{docs{author{...}}}}` multiplies the work
+ * ~10x per level and 4 levels kill the Node process. The app and the admin
+ * panel use REST, so this rule only caps how deeply a GraphQL document may
+ * nest fields (introspection `__` fields skipped, fragments followed).
+ */
+const MAX_GRAPHQL_DEPTH = 8
+const depthLimitRule: ValidationRule = (context) => ({
+  OperationDefinition(operation) {
+    const fragments = new Map(
+      context
+        .getDocument()
+        .definitions.flatMap((d) =>
+          d.kind === Kind.FRAGMENT_DEFINITION ? [[d.name.value, d] as const] : [],
+        ),
+    )
+    // `seen` guards against fragment cycles (reported separately by graphql-js).
+    const depthOf = (set: SelectionSetNode, seen: ReadonlySet<string>): number =>
+      Math.max(
+        0,
+        ...set.selections.map((sel): number => {
+          if (sel.kind === Kind.FIELD) {
+            if (sel.name.value.startsWith('__')) return 0
+            return 1 + (sel.selectionSet ? depthOf(sel.selectionSet, seen) : 0)
+          }
+          if (sel.kind === Kind.INLINE_FRAGMENT) return depthOf(sel.selectionSet, seen)
+          const fragment = fragments.get(sel.name.value)
+          if (!fragment || seen.has(sel.name.value)) return 0
+          return depthOf(fragment.selectionSet, new Set(seen).add(sel.name.value))
+        }),
+      )
+    const depth = depthOf(operation.selectionSet, new Set())
+    if (depth > MAX_GRAPHQL_DEPTH) {
+      context.reportError(
+        new GraphQLError(
+          `Query is too deeply nested: ${depth} levels, the limit is ${MAX_GRAPHQL_DEPTH}.`,
+          {
+            nodes: [operation],
+          },
+        ),
+      )
+    }
+  },
+})
+
 export default buildConfig({
+  graphQL: { validationRules: () => [depthLimitRule] },
   onInit: ensureContentAudioVariantIndex,
   endpoints: mintEndpoints,
   localization: localizationConfig,
