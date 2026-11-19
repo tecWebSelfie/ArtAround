@@ -164,9 +164,9 @@ source language `en`, plus the other official EU languages
   after each edit: `pnpm test:int --changed` or one spec file,
   one e2e spec with `-g "<test>" --trace off` against the running `next dev`
   (reuse it: a second one can't start). Full suites run in CI on the pull
-  request (`tests.yml`; "Run workflow" on the branch before opening one):
-  wait for it to pass instead of running them locally, and run one locally
-  only to reproduce a CI failure. Run memory-heavy checks one at a time and
+  request (`tests.yml`; a new push cancels the stale run): leave them to it
+  instead of running them locally, and run one locally only to reproduce a
+  CI failure. Run memory-heavy checks one at a time and
   say which passed and which remain.
 - `pnpm services:start` brings up MongoDB and LiveKit (needed again after a
   cloud container restart). `pnpm seed:e2e` prepares the e2e fixture; a

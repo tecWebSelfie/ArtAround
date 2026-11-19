@@ -57,9 +57,9 @@ workflows for UI work.
   "Run workflow" on a branch; not on plain pushes), two parallel jobs:
   `test:coverage`, then the nightly QA specs and the e2e suite against the
   production build, with MongoDB and LiveKit from `pnpm services:start`; and
-  `test:stories --coverage`. These are the full suites: an agent waits for
-  them instead of running them locally before a delivery, and runs one
-  locally only to reproduce a failure. A third job runs `pnpm typecheck`,
+  `test:stories --coverage`. These are the full suites: an agent leaves
+  them to the pull request's CI instead of running them locally, and runs
+  one locally only to reproduce a failure. A third job runs `pnpm typecheck`,
   `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests
   stay out. It runs on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
