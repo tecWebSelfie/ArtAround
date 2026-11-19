@@ -38,7 +38,10 @@ export async function POST(request: Request) {
   if (!allowRequest(request, 20)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
-  const form = await request.formData()
+  // A body that is not multipart/form-data makes formData() throw: answer 400
+  // like the other AI routes instead of an empty 500 (nightly N11).
+  const form = await request.formData().catch(() => null)
+  if (!form) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   // A text field, or the fallback when it is missing or sent as a file.
   const text = (key: string, fallback: string) => {
     const value = form.get(key)

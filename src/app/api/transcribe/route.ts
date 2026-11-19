@@ -17,7 +17,9 @@ export async function POST(request: Request) {
   if (!allowRequest(request, 20)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
-  const form = await request.formData()
+  // Not multipart/form-data: formData() throws, answer 400 instead of a 500 (nightly N11).
+  const form = await request.formData().catch(() => null)
+  if (!form) return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   const audio = form.get('audio')
   if (!(audio instanceof Blob) || audio.size > MAX_AUDIO_BYTES) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })

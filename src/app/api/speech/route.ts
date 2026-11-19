@@ -17,7 +17,10 @@ export async function POST(request: Request) {
   if (!allowRequest(request, 40)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
   }
-  const { text } = (await request.json().catch(() => ({}))) as { text?: unknown }
+  // The JSON body `null` parses fine, so fall back to {} for it too, not only
+  // for unparsable bodies (destructuring null threw a 500; nightly N11).
+  const body = (await request.json().catch(() => null)) as { text?: unknown } | null
+  const text = body?.text
   if (typeof text !== 'string' || !text.trim() || text.length > 600) {
     return NextResponse.json({ error: 'Invalid request' }, { status: 400 })
   }
