@@ -1,10 +1,12 @@
-# Full test run on GitHub's runners, in two parallel jobs:
+# Full test run on GitHub's runners, in three parallel jobs:
 # - `tests`: integration specs, then, on the production build served by
 #   `pnpm start`, the nightly QA regression specs and the Playwright e2e suite;
 # - `stories`: every Storybook story as a test in Chromium (render, play
 #   function, accessibility checks);
 # - `static`: typecheck, type-aware lint and the i18next key check, the
-#   whole-program checks that no hook runs (pre-commit lints staged files only).
+#   whole-program checks, run here so no one has to run them by hand (the
+#   hooks cover less: pre-commit lints only the staged files, pre-push
+#   only typechecks).
 # Integration specs and stories run with V8 coverage: the same tests, which
 # also record the lines they executed (one report per job, as artifacts).
 #
