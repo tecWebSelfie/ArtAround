@@ -92,6 +92,13 @@ const localizationConfig: LocalizationConfig = {
  * nest fields (introspection `__` fields skipped, fragments followed).
  */
 const MAX_GRAPHQL_DEPTH = 8
+// Breadth caps (N9 follow-up): the same 2-join query under 30 aliases took
+// ~9 s, so also bound the total field nodes per operation (aliases and
+// fragment spreads expanded) and any literal `limit` argument. Limits passed
+// through variables aren't visible to validation; Payload's own
+// `defaultLimit`/`maxLimit` stay the bound there.
+const MAX_GRAPHQL_FIELDS = 50
+const MAX_GRAPHQL_LIMIT = 100
 const depthLimitRule: ValidationRule = (context) => ({
   OperationDefinition(operation) {
     const fragments = new Map(
@@ -101,6 +108,7 @@ const depthLimitRule: ValidationRule = (context) => ({
           d.kind === Kind.FRAGMENT_DEFINITION ? [[d.name.value, d] as const] : [],
         ),
     )
+    let fieldCount = 0
     // `seen` guards against fragment cycles (reported separately by graphql-js).
     const depthOf = (set: SelectionSetNode, seen: ReadonlySet<string>): number =>
       Math.max(
@@ -108,6 +116,20 @@ const depthLimitRule: ValidationRule = (context) => ({
         ...set.selections.map((sel): number => {
           if (sel.kind === Kind.FIELD) {
             if (sel.name.value.startsWith('__')) return 0
+            fieldCount++
+            for (const arg of sel.arguments ?? []) {
+              if (
+                arg.name.value === 'limit' &&
+                arg.value.kind === Kind.INT &&
+                Number(arg.value.value) > MAX_GRAPHQL_LIMIT
+              ) {
+                context.reportError(
+                  new GraphQLError(`Argument "limit" is above ${MAX_GRAPHQL_LIMIT}.`, {
+                    nodes: [arg],
+                  }),
+                )
+              }
+            }
             return 1 + (sel.selectionSet ? depthOf(sel.selectionSet, seen) : 0)
           }
           if (sel.kind === Kind.INLINE_FRAGMENT) return depthOf(sel.selectionSet, seen)
@@ -117,6 +139,16 @@ const depthLimitRule: ValidationRule = (context) => ({
         }),
       )
     const depth = depthOf(operation.selectionSet, new Set())
+    if (fieldCount > MAX_GRAPHQL_FIELDS) {
+      context.reportError(
+        new GraphQLError(
+          `Query selects ${fieldCount} fields, the limit is ${MAX_GRAPHQL_FIELDS}.`,
+          {
+            nodes: [operation],
+          },
+        ),
+      )
+    }
     if (depth > MAX_GRAPHQL_DEPTH) {
       context.reportError(
         new GraphQLError(
