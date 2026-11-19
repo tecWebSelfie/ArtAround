@@ -15,11 +15,11 @@ const server = setupServer(
     writes.push(`create ${id}`)
     return HttpResponse.json({ doc: { id } })
   }),
-  http.patch('*/api/quizQuestions/:id', ({ params }) => {
+  http.patch<{ id: string }>('*/api/quizQuestions/:id', ({ params }) => {
     writes.push(`update ${params.id}`)
     return HttpResponse.json({ doc: { id: params.id } })
   }),
-  http.delete('*/api/quizQuestions/:id', ({ params }) => {
+  http.delete<{ id: string }>('*/api/quizQuestions/:id', ({ params }) => {
     writes.push(`delete ${params.id}`)
     return HttpResponse.json({ doc: { id: params.id } })
   }),

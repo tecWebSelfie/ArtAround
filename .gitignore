@@ -86,3 +86,6 @@ storybook-static
 
 #impeccable critique reports
 .impeccable/critique/
+
+# playwright-cli / playwright trace scratch (extracted traces, sessions)
+/.playwright-cli/

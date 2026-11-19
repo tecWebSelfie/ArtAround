@@ -1,0 +1,25 @@
+# Playwright's Chromium for the jobs that drive a browser (e2e, stories):
+# the browser cached per Playwright version; the system libraries it needs
+# installed every run (apt, not cacheable here). Needs `pnpm install` first.
+name: Playwright Chromium
+description: Install Playwright's Chromium, cached per Playwright version
+runs:
+  using: composite
+  steps:
+    - name: Playwright version
+      id: playwright
+      shell: bash
+      run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
+    - uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ steps.playwright.outputs.version }}
+    - name: Install Playwright's Chromium
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: pnpm exec playwright install --with-deps chromium
+    - name: Install Chromium's system libraries
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
+      shell: bash
+      run: pnpm exec playwright install-deps chromium

@@ -184,7 +184,11 @@ test('a group room whose tour became empty shows as ended, not as an error', asy
   // writes (that module is server-only, so a spec cannot import it).
   const { RoomServiceClient } = await import('livekit-server-sdk')
   // A valid room code: letters and digits without the look-alikes (`ROOM_CODE_ALPHABET`).
-  const code = `ET${[...suffix.slice(0, 4)].map((c) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[c.charCodeAt(0) % 32]).join('')}`
+  const code = `ET${suffix
+    .slice(0, 4)
+    .split('')
+    .map((c) => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[c.charCodeAt(0) % 32])
+    .join('')}`
   const livekit = new RoomServiceClient(
     process.env.LIVEKIT_URL!,
     process.env.LIVEKIT_API_KEY!,

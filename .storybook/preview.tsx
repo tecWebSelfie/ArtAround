@@ -7,12 +7,21 @@ import { ModalsProvider } from '@mantine/modals'
 import { cssVariablesResolver, theme } from '../src/theme'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 import { setStoryCanvas } from './story-canvas'
+import { i18n, missingKeys, STORY_LANGUAGES } from '../src/mocks/i18n'
 
 const preview: Preview = {
   loaders: [mswLoader()],
   // Expose the rendered canvas to the visual-regression hook (vitest.visual.ts);
   // a no-op in the Storybook UI.
-  afterEach: ({ canvasElement }) => setStoryCanvas(canvasElement),
+  afterEach: ({ canvasElement }) => {
+    setStoryCanvas(canvasElement)
+    // A `t()` key that is in no locale file shows its raw key to visitors:
+    // fail the story that rendered it (src/mocks/i18n.ts).
+    const missing = [...missingKeys]
+    missingKeys.clear()
+    if (missing.length)
+      throw new Error(`Translation keys missing from the locale files:\n${missing.join('\n')}`)
+  },
   parameters: {
     nextjs: {
       appDirectory: true,
@@ -38,7 +47,16 @@ const preview: Preview = {
       test: 'todo',
     },
   },
+  initialGlobals: { locale: 'en' },
   globalTypes: {
+    locale: {
+      name: 'Language',
+      description: 'Language of the translated text (src/mocks/i18n.ts)',
+      toolbar: {
+        icon: 'globe',
+        items: STORY_LANGUAGES.map((value) => ({ value, title: value.toUpperCase() })),
+      },
+    },
     theme: {
       name: 'Theme',
       description: 'Mantine color scheme',
@@ -55,6 +73,9 @@ const preview: Preview = {
   decorators: [
     (renderStory, context) => {
       const scheme = (context.globals.theme || 'light') as 'light' | 'dark'
+      // Resources are bundled, so this switches synchronously, before render.
+      const locale = context.globals.locale || 'en'
+      if (i18n.language !== locale) void i18n.changeLanguage(locale)
       return (
         <>
           <ColorSchemeScript />

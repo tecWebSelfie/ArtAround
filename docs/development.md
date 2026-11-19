@@ -16,7 +16,20 @@ workflows for UI work.
 - `pnpm test:int`: the integration specs (`tests/int`, Vitest project `int`,
   in Node). Most need MongoDB running. Filter with a path or `-t`, e.g.
   `pnpm test:int tests/int/objectsAccess.int.spec.ts`; `--changed` runs only
-  the specs that import a changed file.
+  the specs that import a changed file. It leaves out `tests/int/nightly/`.
+- `pnpm test:nightly`: the nightly QA regression specs (`tests/int/nightly/`,
+  [Nightly QA](nightly-qa.md)): access-rule and route checks that call a
+  running server over HTTP (`NIGHTLY_BASE_URL`, default
+  `http://localhost:3000`) as the seeded users, one file at a time. They need
+  `pnpm seed:e2e` first (without the seeded super admin they fail). CI runs
+  them against the production server, before the e2e suite.
+- `pnpm test:stories`: every Storybook story as a test in Chromium (render,
+  play function, accessibility), ~2.5 min and memory-heavy: run it alone.
+  Animation frames run at 5 per second there, so the software-WebGL maps
+  don't starve the stories beside them (`.storybook/vitest.frame-throttle.ts`;
+  visual runs keep real timing). CI
+  runs it in its own job, with coverage. While iterating, Storybook MCP's
+  `run-story-tests` on the stories you touched.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
   `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
   instead, as CI does: no route compiles inside a test's timeout, and the
@@ -40,12 +53,94 @@ workflows for UI work.
   the `pnpm start` server it launches; a `next dev` you start keeps the real
   providers unless you set it. Never in a deployment (the server logs a
   warning when it is on).
-- CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
-  `test:int`, then the e2e suite against the production build, with MongoDB
-  and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
+- CI (`.github/workflows/tests.yml`): on every pull request (and by hand,
+  "Run workflow" on a branch; not on plain pushes), two parallel jobs:
+  `test:coverage`, then the nightly QA specs and the e2e suite against the
+  production build, with MongoDB and LiveKit from `pnpm services:start`; and
+  `test:stories --coverage`. These are the full suites: an agent leaves
+  them to the pull request's CI instead of running them locally, and runs
+  one locally only to reproduce a failure. A third job runs `pnpm typecheck`,
+  `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests
+  stay out. It runs on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
   repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
+
+## Coverage
+
+V8 coverage through Vitest (`@vitest/coverage-v8`; shared options in
+`vitest.coverage.mts`). Node and Chromium count the executed code
+themselves, so nothing is instrumented or rebuilt; Vitest maps it back to
+the sources (AST-aware, so the numbers match Istanbul's).
+
+- `pnpm test:coverage`: the integration specs only (~40 s in a cloud
+  session). Needs MongoDB, as `pnpm test:int` does. CI runs this instead of
+  `test:int` (the same specs) and `test:stories --coverage` in the stories
+  job; each job uploads its report as an artifact (`coverage-int`,
+  `coverage-stories`).
+- `pnpm test:coverage:all`: the integration specs plus every Storybook story
+  rendered in Chromium (the `storybook` project, without screenshots), in one
+  report. Slower and memory-heavy: run it alone. Locally, with no Playwright
+  browser downloaded, point `PLAYWRIGHT_BROWSERS_PATH` at one.
+- Report in `coverage/` (git-ignored): `index.html` to browse, `lcov.info`
+  for editor gutters, `coverage-summary.json` for scripts. Every file under
+  `src` is listed, at 0% when nothing loads it, except generated code,
+  stories and mocks. It is written even when a spec fails.
+- What it can't see: code only the Playwright e2e suite runs, i.e. pages and
+  route handlers inside `next dev`/`next start`. Counting those would need
+  V8 coverage from the Next server (`NODE_V8_COVERAGE`) and from the browser
+  (Playwright's `page.coverage`), remapped through Next's source maps (e.g.
+  `monocart-coverage-reports`): possible, but a separate build and a slower
+  suite. Cover that logic by moving it into `src/lib` functions the int specs
+  call, or into components with stories.
+
+## 3D scenes: tests and frame times
+
+- `@react-three/test-renderer` renders React Three Fiber in Node, without
+  WebGL: a real scene graph, `advanceFrames` to step `useFrame` by hand,
+  `fireEvent` for pointer handlers. Example: `tests/int/walk-to.int.spec.tsx`
+  (the avatar's walk, `src/components/pascal/use-walk-to.ts`). Keep the
+  logic under test in hooks or components that don't need the Pascal viewer
+  or a loaded GLB (those need a browser: Storybook or e2e). Set
+  `IS_REACT_ACT_ENVIRONMENT` in the spec, as that one does.
+- Frame times: add `?perf` to the URL. On the museum map Pascal's viewer
+  draws its own panel (FPS, frame CPU/GPU ms, draw calls, triangles, memory,
+  long tasks), for anyone who adds the flag: it is built into
+  `@pascal-app/viewer`. On an object's 3D model (`ModelViewer`) our
+  `src/components/three/PerfStats.tsx` shows a `stats-gl` overlay (FPS, CPU
+  and GPU ms per frame), always on `next dev`, on the production build only
+  for a signed-in super admin. GPU time needs the browser's timer queries
+  (WebGPU `timestamp-query`, WebGL `EXT_disjoint_timer_query`); without them
+  the GPU figure stays empty. For a frame-by-frame breakdown use the
+  Performance panel of Chrome DevTools (or the `chrome-devtools` MCP's
+  `performance_start_trace`).
+
+## Core Web Vitals
+
+- Lab, automatic: `tests/e2e/web-vitals.e2e.spec.ts` measures LCP, CLS and
+  INP (plus FCP and TTFB, reported only) with Google's `web-vitals` library
+  in a phone-sized Chromium, on the navigator home and the marketplace. CLS
+  and LCP fail the spec unless rated "good"; INP is printed and attached
+  always but fails it only at "poor" (≥ 500 ms), a regression ceiling — the
+  runner's spread puts the CWV "good" boundary inside its own noise (the
+  museum-picker click: 200–336 ms across runners, same code; see
+  `reports/Web Vitals e test in CI e locale.md`). It is part of
+  `pnpm test:e2e`, so CI checks it on every pull request on the production
+  build; nothing to run
+  while iterating. It runs only on the production server and skips itself
+  on `next dev`, which compiles routes and chunks on first use and injects
+  styles from JavaScript: its numbers are neither the real ones nor stable.
+  One spec, after `pnpm build`: `E2E_SERVER=start pnpm test:e2e
+tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
+  are printed and attached to the HTML report, with the element to blame.
+  Add a page by copying one of its tests (`collectWebVitals` before
+  `goto`, `expectGoodVitals` after).
+- Lab, by hand: Lighthouse or the Performance panel in Chrome DevTools on
+  the cloud preview or `pnpm start`, or the `chrome-devtools` MCP
+  (`lighthouse_audit`, `performance_start_trace`) from an agent session.
+- Field: Sentry's browser tracing (`src/instrumentation-client.ts`) records
+  the Web Vitals of the sampled production page loads; see the project's
+  Web Vitals view in Sentry.
 
 ## Visual regression tests
 
@@ -96,7 +191,7 @@ src/payload-types.ts` before committing.
 - `pnpm lint:type-aware`: the same config with `--type-aware`
   (`oxlint-tsgolint`, pinned exactly; ~20 s, whole program), which adds the
   type-aware rules: unawaited promises, async callbacks where a void one is
-  expected, non-exhaustive switches. Run by hand, e.g. before a delivery. It
+  expected, non-exhaustive switches. CI runs it on every pull request. It
   also type-checks a wider file set than `tsc`, so `pnpm typecheck` stays
   the only type check: don't add `--type-check`.
 
@@ -164,6 +259,16 @@ Stories of async Server Components spread `serverComponentStory(Component)`
 `use(Component(props))`: it resolves the component and any nested async ones
 in a loader, which Storybook's `experimentalRSC` (only a Suspense wrapper)
 doesn't do.
+
+Translations in stories are real: `src/mocks/i18n.ts` is one i18next
+instance with every namespace's English and Italian JSON bundled (no backend,
+synchronous), so `t` interpolates and pluralizes as in the app. Client
+components find it through `initReactI18next`; Server Components' `getT` is
+aliased to `src/mocks/i18n.server.ts` on the same instance (the real one reads
+the locale files with `fs`). The toolbar's Language switches both. A key
+missing from the locale files fails the story that rendered it: run
+`npx i18next-cli extract`. Don't create an instance in a story; a jsdom spec
+that renders translated components imports `@/mocks/i18n` once.
 
 ## Impeccable
 

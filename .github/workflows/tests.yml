@@ -1,6 +1,14 @@
-# Full test run on GitHub's runners: integration specs, then the Playwright
-# e2e suite against the production build (playwright.config.ts picks
-# `pnpm start` when CI is set).
+# Full test run on GitHub's runners, in three parallel jobs:
+# - `tests`: integration specs, then, on the production build served by
+#   `pnpm start`, the nightly QA regression specs and the Playwright e2e suite;
+# - `stories`: every Storybook story as a test in Chromium (render, play
+#   function, accessibility checks);
+# - `static`: typecheck, type-aware lint and the i18next key check, the
+#   whole-program checks, run here so no one has to run them by hand (the
+#   hooks cover less: pre-commit lints only the staged files, pre-push
+#   only typechecks).
+# Integration specs and stories run with V8 coverage: the same tests, which
+# also record the lines they executed (one report per job, as artifacts).
 #
 # Asynchronous: it never blocks pushes, commits or other PRs. Its result shows
 # as a check on the pull request; a merge waits for it only if branch
@@ -47,15 +55,20 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       # tour-guidance drives the simulated GPS (src/.../gps-source.ts).
       NEXT_PUBLIC_GPS_SIMULATOR: 'true'
+      # GitHub's runners have no GPU: maps draw on software WebGL, and two
+      # group-tour pages rendering at full rate starved the host's input
+      # and LiveKit pings (a click never got two stable frames). This makes
+      # tests/helpers/software-webgl.ts throttle their animation frames.
+      E2E_SOFTWARE_WEBGL: 'true'
       AI_MOCK: ${{ inputs.real_ai && 'false' || 'true' }}
       GROQ_API_KEY: ${{ inputs.real_ai && secrets.GROQ_API_KEY || '' }}
       FISH_API_KEY: ${{ inputs.real_ai && secrets.FISH_API_KEY || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # pnpm version from package.json's `packageManager`.
       - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: pnpm
@@ -69,8 +82,17 @@ jobs:
       # MongoDB and LiveKit from docker-compose.yml, as on a developer machine.
       - run: pnpm services:start
 
+      # `test:int` with coverage: the same specs, plus the report.
       - name: Integration tests
-        run: pnpm test:int
+        run: pnpm test:coverage
+
+      - name: Upload the integration coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-int
+          path: coverage/
+          retention-days: 14
 
       - name: Seed the e2e database
         run: pnpm seed:e2e
@@ -84,22 +106,19 @@ jobs:
 
       - run: pnpm build
 
-      # Chromium cached per Playwright version; the system libraries it
-      # needs are installed every run (apt, not cacheable here).
-      - name: Playwright version
-        id: playwright
-        run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-      - uses: actions/cache@v4
-        id: playwright-cache
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ steps.playwright.outputs.version }}
-      - name: Install Playwright's Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm exec playwright install --with-deps chromium
-      - name: Install Chromium's system libraries
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm exec playwright install-deps chromium
+      - uses: ./.github/actions/playwright-chromium
+
+      # One production server for both suites: the nightly QA regression
+      # specs (tests/int/nightly/) call it over HTTP, then Playwright reuses
+      # it (`reuseExistingServer`) instead of starting its own.
+      - name: Start the production server
+        run: |
+          pnpm start > next-server.log 2>&1 &
+          for _ in $(seq 60); do curl -sf -o /dev/null http://localhost:3000/en/navigator && exit 0; sleep 2; done
+          cat next-server.log; exit 1
+
+      - name: Nightly QA regression specs
+        run: pnpm test:nightly
 
       - name: E2E tests
         run: pnpm test:e2e
@@ -112,4 +131,53 @@ jobs:
           path: |
             playwright-report/
             test-results/
+            next-server.log
           retention-days: 14
+
+  # Stories need no database, server or build: MSW mocks the network. About
+  # 2.5 minutes and up to ~11 GB of memory, within a public repository's
+  # runner (16 GB).
+  stories:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CI: true
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/playwright-chromium
+
+      - name: Story tests
+        run: pnpm test:stories --coverage
+
+      - name: Upload the stories coverage
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-stories
+          path: coverage/
+          retention-days: 14
+
+  static:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # Also generates the route types the lint below reads.
+      - run: pnpm typecheck
+      - run: pnpm lint:type-aware
+      # Fails when a `t()` call's key is missing from (or stale in) en.json.
+      - run: pnpm exec i18next-cli extract --ci

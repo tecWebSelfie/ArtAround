@@ -79,7 +79,7 @@ const selfOrSuperAdmin: Access = ({ req }) => {
   return { id: { equals: req.user.id } }
 }
 
-const sameUser = (req: PayloadRequest, id: unknown) =>
+const sameUser = (req: PayloadRequest, id: string | number | null | undefined) =>
   Boolean(req.user) && id != null && String(req.user!.id) === String(id)
 
 /**
@@ -95,7 +95,7 @@ const sameUser = (req: PayloadRequest, id: unknown) =>
  * filter on their own email (they read it from `/users/me` instead).
  */
 const selfOrAdminField: FieldAccess = ({ req, doc }) =>
-  isSuperAdmin(req) || (doc != null && sameUser(req, (doc as { id?: unknown }).id))
+  isSuperAdmin(req) || (doc != null && sameUser(req, (doc as { id?: string | number }).id))
 
 // Defence in depth for the email. Field access (`selfOrAdminField` on the
 // redeclared `email` below) already strips it from every access-checked read,

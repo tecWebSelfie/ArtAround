@@ -5,6 +5,11 @@ Skills: `.agents/skills/` is the source of truth; Claude Code reads copies in
 skill there again (`impeccable` has its own copy). Use `payload` for Payload
 CMS (start from its `SKILL.md`, then `reference/`) and `pascal-plugin-authoring` for `@pascal-app/*` plugins, node kinds and
 `MapViewer`/museum-map work.
+Playwright's own skills (`pnpm exec playwright init-skills --loop agents`
+after a Playwright upgrade, then copy): `playwright-cli` to drive a browser
+(`pnpm exec playwright cli`, the local version), `playwright-trace` to read
+a failing e2e trace, `playwright-component-testing` (we test components with
+Storybook instead: use it only if asked).
 
 ## Working with the maintainer
 
@@ -96,6 +101,9 @@ helpers, grep for an existing one (e.g. `src/lib/session-store.ts`,
   side (e.g. `AppMantineProvider`).
 - Tests: use a library's own test module before faking it (`ai/test`,
   Playwright's `page.route`, MSW handlers in `src/mocks/`).
+- Every bug found, by hand or by nightly QA, first becomes a regression
+  spec: see it fail on the buggy code, then fix it and commit both together.
+  Until the fix is merged that spec stays red on the branches without it.
 - Exact pins, don't upgrade without reading why ([Development](docs/development.md#exact-pins)):
   `oxlint` 1.90.0, `@adobe/leonardo-contrast-colors` 1.0.1 (turns each
   museum's color into the primary in museum mode, DESIGN.md → The Museum
@@ -155,13 +163,19 @@ source language `en`, plus the other official EU languages
 - Iterate with focused checks, and run the slow ones once at the end, not
   after each edit: `pnpm test:int --changed` or one spec file,
   one e2e spec with `-g "<test>" --trace off` against the running `next dev`
-  (reuse it: a second one can't start). Full suites before a delivery. Run
-  memory-heavy checks one at a time and say which passed and which remain.
+  (reuse it: a second one can't start). Full suites run in CI on the pull
+  request (`tests.yml`; a new push cancels the stale run): leave them to it
+  instead of running them locally, and run one locally only to reproduce a
+  CI failure. Run memory-heavy checks one at a time and
+  say which passed and which remain.
 - `pnpm services:start` brings up MongoDB and LiveKit (needed again after a
   cloud container restart). `pnpm seed:e2e` prepares the e2e fixture; a
   skipped spec is not a pass. `E2E_SERVER=start` after `pnpm build` runs e2e
   on the production build, as CI does; with the cloud preview on, build with
   `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
+- Coverage (`pnpm test:coverage`, `test:coverage:all` with the stories),
+  React Three Fiber specs (`@react-three/test-renderer`), the `?perf`
+  frame-time overlay and the Core Web Vitals spec: [Development](docs/development.md#coverage).
 - `AI_MOCK=true` swaps Groq and Fish Audio for mock models (CI, tests);
   never in a deployment.
 - Don't run `oxlint`/`prettier` by hand: the pre-commit hook runs them on
@@ -169,8 +183,7 @@ source language `en`, plus the other official EU languages
   `pnpm dev` rewrite `src/payload-types.ts` unformatted: run
   `npx prettier --write src/payload-types.ts` before committing. Lint
   warnings never block a commit, but simplify what they flag in code you
-  touch. `pnpm lint:type-aware` (by hand, before a delivery) adds the
-  type-aware rules; `pnpm typecheck` stays the only type check. Run tools
+  touch. `pnpm lint:type-aware` (CI runs it) adds the type-aware rules; `pnpm typecheck` stays the only type check. Run tools
   from `node_modules/.bin` or `pnpm exec`, not `npx` (~9 s per start).
 - Before every push: `/simplify` and `/code-review` on the unpushed changes,
   fixing what they find; push only once clean (or once the remaining

@@ -14,6 +14,7 @@ import { Canvas, useThree } from '@react-three/fiber'
 import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react'
 import { Box3, type Group } from 'three'
 import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
+import { PerfStats } from '@/components/three/PerfStats'
 
 /**
  * An object's 3D model in a card: React Three Fiber with drei, loaded only
@@ -83,6 +84,8 @@ export function ModelViewer({
           // Two fingers zoom; panning would lose the object off-screen.
           dollyToCursor={false}
         />
+        {/* Frame-time overlay, only with `?perf` in the URL. */}
+        <PerfStats />
       </Canvas>
     </RenderErrorBoundary>
   )

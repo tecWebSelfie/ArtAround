@@ -23,7 +23,7 @@
  * Node rather than a shell script so that it runs the same on Windows.
  */
 import { execFileSync, spawn } from 'node:child_process'
-import { mkdirSync, openSync } from 'node:fs'
+import { existsSync, mkdirSync, openSync, readFileSync, rmSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -53,6 +53,16 @@ if (!succeeds('docker', ['info'])) {
   }
   const cache = path.join(process.env.XDG_CACHE_HOME ?? path.join(homedir(), '.cache'), 'artaround')
   mkdirSync(cache, { recursive: true })
+  // A container restart keeps /run but not the processes: dockerd then reads
+  // the old containerd pid, finds some other process under that number,
+  // waits for a containerd that never answers and gives up ("timeout waiting
+  // for containerd to start"). Drop the pid file unless containerd runs.
+  const containerdPid = '/run/docker/containerd/containerd.pid'
+  if (existsSync(containerdPid)) {
+    const pid = readFileSync(containerdPid, 'utf8').trim()
+    const comm = existsSync(`/proc/${pid}/comm`) ? readFileSync(`/proc/${pid}/comm`, 'utf8') : ''
+    if (!comm.startsWith('containerd')) rmSync(containerdPid, { force: true })
+  }
   const logFile = openSync(path.join(cache, 'dockerd.log'), 'a')
   spawn('dockerd', [], { detached: true, stdio: ['ignore', logFile, logFile] }).unref()
   log('Starting the Docker daemon…')

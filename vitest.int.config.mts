@@ -5,9 +5,10 @@
 // Playwright provider costs ~2.5 s on every run, even with `--project int`.
 // `pnpm test:int` points straight at this file; the root config lists it as
 // one of its projects, so `vitest` from the root (or the IDE) still runs both.
-import { defineConfig } from 'vitest/config'
+import { configDefaults, defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import { coverage } from './vitest.coverage.mts'
 
 export default defineConfig({
   plugins: [tsconfigPaths(), react()],
@@ -19,9 +20,17 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
     include: ['tests/int/**/*.int.spec.{ts,tsx}'],
+    // The nightly QA regression specs (tests/int/nightly/) call a RUNNING,
+    // seeded server over HTTP (as the seeded super admin), so they run only
+    // through `pnpm test:nightly` (NIGHTLY=1): in CI against the production
+    // server before the e2e suite, locally against `next dev` or `pnpm start`
+    // after `pnpm seed:e2e`. `pnpm test:int` runs before any server exists.
+    exclude: [...configDefaults.exclude, ...(process.env.NIGHTLY ? [] : ['tests/int/nightly/**'])],
     // next-i18next's proxy build imports `next/server` without an extension,
     // which Node's ESM loader refuses; inlined, Vite resolves it (the proxy
     // spec, tests/int/printed-qr.int.spec.ts, runs `src/proxy.ts`).
     server: { deps: { inline: ['next-i18next'] } },
+    // Off unless asked (`pnpm test:coverage`): see vitest.coverage.mts.
+    coverage,
   },
 })

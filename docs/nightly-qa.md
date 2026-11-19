@@ -34,7 +34,7 @@ LEAD RULES
 
 2. SETUP + BASELINE (one Sonnet subagent)
 - pnpm install; pnpm services:start; pnpm seed:e2e; if package.json defines `tours:backfill-visitable`, run it after every seed or reseed (it computes the stored visitable stops the app reads); NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000 AI_MOCK=true pnpm build; start `AI_MOCK=true pnpm start` in background and leave it running. Never call real Groq/Fish/external services.
-- pnpm test:int --no-file-parallelism (the nightly specs hit the live :3000 server and flake in parallel), then E2E_SERVER=start pnpm test:e2e, plus tests/e2e/nightly/ and tests/int/nightly/ copied from the previous QA branch. Rerun each failure once in isolation; mark flaky ones separately. A skipped fixture spec is not a pass. A nightly spec whose fix is still unmerged is expected to fail: label it 'fix pending merge'.
+- Copy tests/e2e/nightly/ and tests/int/nightly/ from the previous QA branch first. Then pnpm test:int, pnpm test:nightly (tests/int/nightly/ only, one file at a time: they hit the live :3000 server and flake in parallel; `pnpm test:int` leaves them out) and E2E_SERVER=start pnpm test:e2e. Rerun each failure once in isolation; mark flaky ones separately. A skipped fixture spec is not a pass. A nightly spec whose fix is still unmerged is expected to fail: label it 'fix pending merge'.
 - Returns: build ok/failed (with the first error), passed/failed/flaky/skipped with names and log paths.
 - If the build fails, it is finding #1 (Critical): go straight to phase 5 for it, then write the report.
 
@@ -55,7 +55,7 @@ LEAD RULES
 - Lead review: read the fix diff. Accept, or send it back once with precise feedback; if still wrong, have it reverted and mark it 'fix attempted, not shipped'.
 
 6. FINAL CHECK (one Sonnet subagent)
-- On the fixed branch: pnpm test:int --no-file-parallelism and the e2e suite (rebuild first), then /code-review on the whole branch diff, fixing what it finds. Returns the same structured results as phase 2.
+- On the fixed branch: pnpm test:int, pnpm test:nightly and the e2e suite (rebuild first), then /code-review on the whole branch diff, fixing what it finds. Returns the same structured results as phase 2.
 
 7. OUTPUT (lead)
 - Commit qa-reports/DATE.md on claude/nightly-qa-DATE and push it. Never push to db-populate or any other branch, never merge, never open PRs or issues.

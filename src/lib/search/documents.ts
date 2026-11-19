@@ -43,8 +43,9 @@ function joinParts(...parts: Array<string | null | undefined>) {
 }
 
 function createdAtEpoch(value: unknown): number | undefined {
-  if (!value) return undefined
-  const date = new Date(String(value))
+  // Payload returns ISO strings; anything else has no usable timestamp.
+  if (typeof value !== 'string' && !(value instanceof Date)) return undefined
+  const date = new Date(value)
   return Number.isNaN(date.getTime()) ? undefined : Math.floor(date.getTime() / 1000)
 }
 
