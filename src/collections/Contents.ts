@@ -61,11 +61,45 @@ import { imageUpload } from '../fields/imageUpload'
 const estimatedSeconds = (body: Content['body'] | undefined) =>
   body ? estimateSeconds(convertLexicalToPlaintext({ data: body })) || undefined : undefined
 
+/**
+ * Paid or free is decided from the stored document, never from the `doc`
+ * Payload hands to field access: with `select`/`populate` it is partial and
+ * has no `price`, which used to make every paid body readable. Memoized per
+ * request (the context also carries the author) so a list costs one read per
+ * content.
+ */
+type PaidInfo = { price?: number | null; author?: unknown }
+async function storedPaidInfo(req: PayloadRequest, id: string): Promise<PaidInfo | null> {
+  const cache = ((req.context.paidBodyInfo as Map<string, Promise<PaidInfo | null>> | undefined) ??=
+    new Map())
+  let info = cache.get(id)
+  if (!info) {
+    info = req.payload
+      .findByID({
+        collection: 'contents',
+        id,
+        select: { price: true, author: true },
+        depth: 0,
+        overrideAccess: true,
+        req,
+      })
+      .then((doc) => doc as PaidInfo)
+      .catch(() => null)
+    cache.set(id, info)
+  }
+  return info
+}
+
 const canReadPaidBody: FieldAccess<Content> = async ({ req, doc }) => {
-  if (!doc?.price) return true
+  // No document: a `where` filter on the body, which would be a boolean oracle
+  // on locked text. Only a super admin (who may read every body) can run it.
+  if (!doc?.id) return isSuperAdmin(req)
+  const stored = 'price' in doc && 'author' in doc ? doc : await storedPaidInfo(req, String(doc.id))
+  // An unreadable stored doc fails closed (treated as paid).
+  if (stored && !stored.price) return true
   if (isSuperAdmin(req)) return true
   if (!req.user) return false
-  if (asId(doc.author) === String(req.user.id)) return true
+  if (asId((stored ?? {}).author as never) === String(req.user.id)) return true
   // Staff of a museum exhibiting the content's objects can review it.
   const [museums, roles] = await Promise.all([
     museumIdsForContent(req, String(doc.id)),
