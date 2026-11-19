@@ -3,12 +3,14 @@ import { isProductionServer } from '../helpers/e2e-server'
 import { collectWebVitals, expectGoodVitals } from '../helpers/web-vitals'
 
 /**
- * Core Web Vitals budgets (tests/helpers/web-vitals.ts) on the pages a
- * visitor lands on: lab numbers in a phone-sized Chromium, measured as part
- * of the e2e suite so CI checks them on every pull request with no extra job.
- * The values of every run are printed and attached to the HTML report.
- * Field data from real visitors is Sentry's: see docs/development.md → Core
- * Web Vitals.
+ * Lab performance budgets (tests/helpers/web-vitals.ts) on the pages a
+ * visitor lands on: measured in a phone-sized Chromium as part of the e2e
+ * suite, so CI checks them on every pull request with no extra job. CLS and
+ * LCP must be "good"; INP fails the spec only at "poor", the regression
+ * ceiling a shared runner can judge (the CWV "good" boundary sits inside its
+ * noise). The values of every run are printed and attached to the HTML
+ * report. Field data from real visitors is Sentry's: see
+ * docs/development.md → Core Web Vitals.
  */
 const origin = process.env.E2E_ORIGIN ?? 'http://localhost:3000'
 
@@ -24,7 +26,7 @@ test.skip(
   'Web Vitals are measured on the production build (E2E_SERVER=start)',
 )
 
-test('navigator home stays within the Core Web Vitals budgets', async ({ page }) => {
+test('navigator home stays within the lab performance budgets', async ({ page }) => {
   await collectWebVitals(page)
   await page.goto(`${origin}/en/navigator`)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
@@ -34,7 +36,7 @@ test('navigator home stays within the Core Web Vitals budgets', async ({ page })
   await expectGoodVitals(page)
 })
 
-test('marketplace stays within the Core Web Vitals budgets', async ({ page }) => {
+test('marketplace stays within the lab performance budgets', async ({ page }) => {
   await collectWebVitals(page)
   await page.goto(`${origin}/en/marketplace`)
   await expect(page.getByRole('main')).toBeVisible()

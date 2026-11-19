@@ -119,9 +119,14 @@ the sources (AST-aware, so the numbers match Istanbul's).
 
 - Lab, automatic: `tests/e2e/web-vitals.e2e.spec.ts` measures LCP, CLS and
   INP (plus FCP and TTFB, reported only) with Google's `web-vitals` library
-  in a phone-sized Chromium, on the navigator home and the marketplace, and
-  fails when one is not rated "good". It is part of `pnpm test:e2e`, so CI
-  checks it on every pull request on the production build; nothing to run
+  in a phone-sized Chromium, on the navigator home and the marketplace. CLS
+  and LCP fail the spec unless rated "good"; INP is printed and attached
+  always but fails it only at "poor" (≥ 500 ms), a regression ceiling — the
+  runner's spread puts the CWV "good" boundary inside its own noise (the
+  museum-picker click: 200–336 ms across runners, same code; see
+  `reports/Web Vitals e test in CI e locale.md`). It is part of
+  `pnpm test:e2e`, so CI checks it on every pull request on the production
+  build; nothing to run
   while iterating. It runs only on the production server and skips itself
   on `next dev`, which compiles routes and chunks on first use and injects
   styles from JavaScript: its numbers are neither the real ones nor stable.

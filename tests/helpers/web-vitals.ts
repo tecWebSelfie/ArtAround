@@ -81,14 +81,30 @@ export function formatWebVitals(vitals: Vitals) {
 }
 
 /**
- * The budgets: the three Core Web Vitals must be rated "good" (LCP ≤ 2.5 s,
- * CLS ≤ 0.1, INP ≤ 200 ms); LCP must be reported. Production server only (the
- * spec skips itself on `next dev`). FCP and TTFB are reported, never
- * budgeted: TTFB of a server-rendered page on a shared CI runner says more
- * about the runner than about the page. CLS and INP may be missing: nothing
- * shifted, or no interaction took 16 ms.
+ * The budgets, split by how noisy each metric is on a shared CI runner (no
+ * GPU, software WebGL, MongoDB and LiveKit beside; the methodology and the
+ * evidence are in `reports/Web Vitals e test in CI e locale.md`):
+ * - CLS is deterministic on the seeded fixture: it must be rated "good"
+ *   (≤ 0.1), or the spec fails.
+ * - LCP has a wide real margin (0.3–1.6 s measured against the 2.5 s
+ *   ceiling): it must be rated "good" — and reported at all.
+ * - INP is the noisy one: the museum-picker click measured 200 ms on one
+ *   runner and 256–336 ms on another, same code — the CWV "good" boundary
+ *   (200 ms) sits inside that spread, so budgeting it there flips with the
+ *   runner's load. It is printed and attached always, and fails the spec
+ *   only at "poor" (≥ 500 ms): a click that slow is a regression whatever
+ *   the runner. Where "good" has its official meaning — real visitors — is
+ *   the field data Sentry collects.
+ *
+ * Production server only (the spec skips itself on `next dev`). FCP and TTFB
+ * are reported, never budgeted: TTFB of a server-rendered page on a shared
+ * runner says more about the runner than about the page. CLS and INP may be
+ * missing: nothing shifted, or no interaction took 16 ms.
  */
-const budgeted: VitalName[] = ['LCP', 'CLS', 'INP']
+/** Must be rated "good", or the spec fails. */
+const mustBeGood: VitalName[] = ['CLS', 'LCP']
+/** Must not be rated "poor": a regression ceiling, not a CWV gate. */
+const mustNotBePoor: VitalName[] = ['INP']
 
 /** Waits for the page to settle, attaches the values to the report, checks the budgets. */
 export async function expectGoodVitals(page: Page) {
@@ -100,8 +116,12 @@ export async function expectGoodVitals(page: Page) {
   console.log(`${page.url()}\n${summary}`)
   await test.info().attach('web-vitals', { body: summary, contentType: 'text/plain' })
   expect(vitals.LCP, `LCP was not reported`).toBeDefined()
-  for (const name of budgeted) {
+  for (const name of mustBeGood) {
     const vital = vitals[name]
     if (vital) expect(vital.rating, `${name}\n${summary}`).toBe('good')
+  }
+  for (const name of mustNotBePoor) {
+    const vital = vitals[name]
+    if (vital) expect(vital.rating, `${name}\n${summary}`).not.toBe('poor')
   }
 }
