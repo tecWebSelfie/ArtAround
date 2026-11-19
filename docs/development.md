@@ -24,7 +24,10 @@ workflows for UI work.
   `pnpm seed:e2e` first (without the seeded super admin they fail). CI runs
   them against the production server, before the e2e suite.
 - `pnpm test:stories`: every Storybook story as a test in Chromium (render,
-  play function, accessibility), ~4 min and memory-heavy: run it alone. CI
+  play function, accessibility), ~2.5 min and memory-heavy: run it alone.
+  Animation frames run at 5 per second there, so the software-WebGL maps
+  don't starve the stories beside them (`.storybook/vitest.frame-throttle.ts`;
+  visual runs keep real timing). CI
   runs it in its own job, with coverage. While iterating, Storybook MCP's
   `run-story-tests` on the stories you touched.
 - `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).

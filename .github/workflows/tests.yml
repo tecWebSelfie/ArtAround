@@ -131,8 +131,8 @@ jobs:
           retention-days: 14
 
   # Stories need no database, server or build: MSW mocks the network. About
-  # 4 minutes and up to ~11 GB of memory, within a public repository's runner
-  # (16 GB).
+  # 2.5 minutes and up to ~11 GB of memory, within a public repository's
+  # runner (16 GB).
   stories:
     runs-on: ubuntu-latest
     timeout-minutes: 30
