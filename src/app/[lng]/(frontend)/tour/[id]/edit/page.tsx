@@ -39,15 +39,18 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
     coverImage(payload, 'toursThumbnails', tour.thumbnail),
   ])
 
+  // Up a level: back where the editor was opened from, else the tour.
+  // Cancel leaves for the same place.
+  const upHref = `/${lng}/tour/${tour.id}` as Route
   return (
     <Container size="md" py="md">
-      {/* Up a level: back where the editor was opened from, else the tour. */}
-      <BackButton href={`/${lng}/tour/${tour.id}` as Route} />
+      <BackButton href={upHref} />
       <TourForm
         tourId={tour.id}
         museum={museum}
         candidates={candidates}
         thumbnail={thumbnail}
+        cancelHref={upHref}
         // A visit copy reopened ("Edit" on its start page) edits like the
         // first time: same notice, same return to its start page.
         visitCopyOf={asId(tour.visitCopyOf)}

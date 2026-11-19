@@ -222,10 +222,16 @@ export function QuizIntro({
 }
 
 /**
- * The quiz's sticky header: the way back to the map (not for group guests),
+ * The quiz's sticky header: the way out to the map (not for group guests),
  * the tour, which question this is, and the progress. It sticks under the
  * desktop top bar (≥ md, set by the frontend layout); the variable is 0px on
  * phones, so the header still sticks to the very top there.
+ *
+ * The way out is a Close (X), not a back arrow: leaving preserves the answers
+ * (sessionStorage) and the quiz resumes, so nothing is abandoned. The
+ * browser's Back walks the questions instead (one pushed entry per `?q=`),
+ * so an arrow here would look like the phone's back gesture while doing
+ * something else; the tooltip still names where it lands.
  */
 export function QuizHeader({
   title,
@@ -260,7 +266,7 @@ export function QuizHeader({
             aria-label={t('Leave the quiz and return to the map')}
             title={t('Back to the map')}
           >
-            <ArrowLeft size={18} />
+            <X size={18} aria-hidden />
           </ActionIcon>
         )}
         <Text fw={600} size="sm" truncate="end" flex={1}>

@@ -36,6 +36,7 @@ export function ContentForm({
   initialSubject,
   museum,
   returnTo,
+  cancelHref,
 }: {
   initialObject?: { id: string; name: string } | null
   /** Preselected subject (`?subject=`, from a subject page's "Write about it"). */
@@ -44,6 +45,15 @@ export function ContentForm({
   museum?: { name: string; objectIds: string[] } | null
   /** Writing a tour stop: the tour editor to return to (`backToTourHref`). */
   returnTo?: string | null
+  /**
+   * Where Cancel leaves: the page's own BackButton destination — in the
+   * tour flow the editor with its draft restored (`backToTourHref`, so the
+   * author's unsaved stops survive), else the work, the subject, or the
+   * navigator. A push, not `router.back()`: on a deep link the history
+   * starts outside the app, and reaching the editor without `?draft=1`
+   * would let its mount effect overwrite the stored draft.
+   */
+  cancelHref: Route
 }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
@@ -149,7 +159,14 @@ export function ContentForm({
         )}
         <ContentFields form={form} cover={{ change: cover, onChange: setCover }} isNew />
         <Group justify="end">
-          <Button variant="default" onClick={() => router.back()} disabled={save.isPending}>
+          {/* Cancel pushes to `cancelHref` (the page's parent, never a history
+              step): back could exit the app on a deep link, or reach the tour
+              editor without `?draft=1` and overwrite its draft. */}
+          <Button
+            variant="default"
+            onClick={() => router.push(cancelHref)}
+            disabled={save.isPending}
+          >
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>

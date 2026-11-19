@@ -24,6 +24,14 @@ import classes from './navigation-desktop.module.css'
  * between the header and the navigation bar (`navigation-desktop.module.css`):
  * no dimming and no scroll lock, so the map stays visible and draggable beside
  * the text and a click on another object simply swaps the panel's content.
+ *
+ * Close is structural on purpose: the map shell's URL is the state (the tour
+ * step, ?at/?to), so a detail dialog replaces back to the shell's base URL
+ * instead of stacking history — Back from the map retraces the visit, not
+ * every opened detail. The other half of the rule: an overlay above a stable
+ * parent (the object modal over the museum page) closes temporally with
+ * router.back(). New overlays pick their half deliberately: cursor-flow
+ * shell → replace, stable parent → back.
  */
 export function NavigationModal({
   kind,

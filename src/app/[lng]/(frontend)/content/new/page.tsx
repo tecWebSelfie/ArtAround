@@ -78,6 +78,8 @@ export default async function NewContentPage({
     <Container size="md" py="md">
       <BackButton href={backHref as Route} />
       <ContentForm
+        // Cancel leaves for the same parent as the BackButton above.
+        cancelHref={backHref as Route}
         initialObject={object ? { id: object.id, name: object.name } : null}
         initialSubject={subject ? { id: subject.id, name: subject.name } : null}
         museum={
