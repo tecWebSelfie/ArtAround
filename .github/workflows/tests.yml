@@ -22,10 +22,22 @@
 # time. "Run workflow" with "real AI" checked calls Groq and Fish Audio for
 # real; that needs the repository secrets GROQ_API_KEY and FISH_API_KEY
 # (Settings → Secrets and variables → Actions).
+#
+# Deploy: on the default branch a fourth job, `deploy`, waits for the
+# three above and rsyncs the standalone build to the hosting folder of
+# the `unibo` environment. The nodemon container watching that folder
+# restarts the app by itself, and the deployment the job creates on
+# success is what triggers the web-vitals canary
+# (.github/workflows/web-vitals-canary.yml) against the deployed app.
 name: Tests
 
 on:
   pull_request:
+  # The default branch: a merged PR (or a direct push) runs the same jobs
+  # as a pull request, and a green run is what the `deploy` job below
+  # waits for.
+  push:
+    branches: [db-populate]
   workflow_dispatch:
     inputs:
       real_ai:
@@ -35,7 +47,9 @@ on:
 
 concurrency:
   group: tests-${{ github.ref }}
-  cancel-in-progress: true
+  # A new PR push cancels the run still going for it; runs on the default
+  # branch queue instead, so a push can never kill a deploy mid-rsync.
+  cancel-in-progress: ${{ github.ref != 'refs/heads/db-populate' }}
 
 permissions:
   contents: read
@@ -181,3 +195,81 @@ jobs:
       - run: pnpm lint:type-aware
       # Fails when a `t()` call's key is missing from (or stale in) en.json.
       - run: pnpm exec i18next-cli extract --ci
+
+  # The deploy: the standalone build rsynced to the hosting folder of the
+  # `unibo` environment, after the three jobs above go green. PR runs never
+  # deploy (the `if` below); "Run workflow" from db-populate is the manual
+  # redeploy. Referencing the environment scopes its secrets to this job,
+  # puts the run on the repository's deployments page, and on success fires
+  # the deployment_status that starts the web-vitals canary
+  # (.github/workflows/web-vitals-canary.yml). The nodemon container
+  # watching the deploy folder recreates the app process by itself
+  # (docs/standalone-deploy.md): the rsync is the whole deploy.
+  deploy:
+    needs: [tests, stories, static]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/db-populate'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: unibo
+      # The "View deployment" link on the deployments page.
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # The server's .env is the single source of truth, for the runtime as
+      # always and for the build-time NEXT_PUBLIC_* too: fetched here before
+      # the build, never written back (the rsync below excludes .env*). Its
+      # values must never reach this public repository's logs: only key
+      # names are ever printed.
+      - name: Fetch the server's .env
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_USER: ${{ secrets.SSH__USERNAME }}
+          DEPLOY_FOLDER: ${{ vars.DEPLOY_FOLDER }}
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
+          rsync "$SSH_USER@$SSH_HOST:$DEPLOY_FOLDER/.env" .env
+          test -s .env ||
+            { echo "::error::No .env in the deploy folder yet: place it once by hand (docs/standalone-deploy.md)"; exit 1; }
+          for key in NEXT_PUBLIC_APP_URL NEXT_PUBLIC_PAYLOAD_URL; do
+            grep -q "^$key=" .env ||
+              { echo "::error::The server's .env has no $key: the build would bake an empty origin into the bundle"; exit 1; }
+          done
+
+      - uses: actions/cache@v5
+        with:
+          path: .next/cache
+          key: next-${{ hashFiles('pnpm-lock.yaml') }}-${{ github.sha }}
+          restore-keys: next-${{ hashFiles('pnpm-lock.yaml') }}-
+
+      # No database needed (docs/standalone-deploy.md, "Build without a
+      # database"): the fetched .env rides along, copied into the standalone
+      # by the build, excluded from the rsync below.
+      - run: pnpm build
+
+      # The manual procedure of docs/standalone-deploy.md with the runner as
+      # the build folder: Linux (the pnpm symlinks come out right), outside
+      # any quota. Reuses the fetch step's SSH setup.
+      - name: rsync the standalone to the deploy folder
+        env:
+          SSH_USER: ${{ secrets.SSH__USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          DEPLOY_FOLDER: ${{ vars.DEPLOY_FOLDER }}
+        run: |
+          # -a preserves the pnpm symlinks; --delete refreshes the tree in
+          # place but never the server's .env: excluded, CI reads that file
+          # and never writes it back. uploads/ is a sibling of the deploy
+          # folder, outside this target.
+          rsync -a --delete --exclude='.env*' \
+            .next/standalone/ "$SSH_USER@$SSH_HOST:$DEPLOY_FOLDER/"
