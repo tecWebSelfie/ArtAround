@@ -138,6 +138,14 @@ tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
 - Lab, by hand: Lighthouse or the Performance panel in Chrome DevTools on
   the cloud preview or `pnpm start`, or the `chrome-devtools` MCP
   (`lighthouse_audit`, `performance_start_trace`) from an agent session.
+- Deployed, automatic: the same spec against the deployed site
+  (`.github/workflows/web-vitals-canary.yml`), with `E2E_ORIGIN` from the
+  `unibo` environment's `APP_URL` variable, no build and no local server.
+  It runs after every successful deploy of the `unibo` environment
+  (`on: deployment_status`), nightly on schedule, and by hand from the
+  Actions tab. The job reads the environment with `deployment: false`: it
+  must not create a deployment of its own, or every green canary would
+  retrigger itself through `deployment_status`.
 - Field: Sentry's browser tracing (`src/instrumentation-client.ts`) records
   the Web Vitals of the sampled production page loads; see the project's
   Web Vitals view in Sentry.

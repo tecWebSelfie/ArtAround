@@ -1,0 +1,76 @@
+# The Core Web Vitals gate that runs in CI (tests/e2e/web-vitals.e2e.spec.ts
+# inside the `tests` job) measures the local build. This canary measures the
+# deployed app instead: the very same spec, no edits, with E2E_ORIGIN pointed
+# at the public origin — so the budgets of tests/helpers/web-vitals.ts are
+# checked against the real hosting, network and data, which CI cannot see.
+# PR CI stays the gate; the canary is the tripwire on what is actually live.
+#
+# Triggers: a successful deployment of the `unibo` environment (created by
+# the `deploy` job of tests.yml), a nightly schedule against whatever is
+# live, and manual runs from the Actions tab.
+#
+# The job references the `unibo` environment only to read its APP_URL
+# variable, with `deployment: false`: no deployment is created, so a green
+# canary cannot fire another deployment_status and retrigger this workflow
+# in an endless chain. (Protection rules later added to the environment
+# would also gate this job; APP_URL would then move to the repository
+# level.)
+name: Web vitals canary
+
+on:
+  deployment_status:
+  schedule:
+    # Nightly, against whatever is deployed at the moment.
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  canary:
+    # Only successful deployments of the unibo environment; nightly and
+    # manual runs have no deployment in their payload.
+    if: >-
+      github.event_name != 'deployment_status' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment.environment == 'unibo')
+    environment:
+      name: unibo
+      deployment: false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - uses: ./.github/actions/playwright-chromium
+
+      - name: Run the web vitals spec against the deployed app
+        env:
+          # The environment's APP_URL carries a trailing slash; the spec
+          # concatenates origin and path, so strip it before exporting.
+          APP_URL: ${{ vars.APP_URL }}
+          # No build and no server here: CI marks the target as a
+          # production server (the spec skips itself otherwise) and the
+          # running-server switch disables Playwright's own webServer.
+          CI: 'true'
+          PLAYWRIGHT_USE_RUNNING_SERVER: 'true'
+        run: |
+          export E2E_ORIGIN="${APP_URL%/}"
+          pnpm test:e2e tests/e2e/web-vitals.e2e.spec.ts
+
+      - name: Upload the Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: canary-playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14
