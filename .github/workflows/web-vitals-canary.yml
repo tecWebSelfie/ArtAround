@@ -63,6 +63,11 @@ jobs:
           PLAYWRIGHT_USE_RUNNING_SERVER: 'true'
         run: |
           export E2E_ORIGIN="${APP_URL%/}"
+          # An unset APP_URL leaves E2E_ORIGIN an empty string, which the
+          # spec's localhost fallback ignores (it is set, not nullish): fail
+          # naming the missing variable, not Playwright's "invalid URL".
+          test -n "$E2E_ORIGIN" ||
+            { echo "::error::The unobo environment has no APP_URL variable"; exit 1; }
           pnpm test:e2e tests/e2e/web-vitals.e2e.spec.ts
 
       - name: Upload the Playwright report
