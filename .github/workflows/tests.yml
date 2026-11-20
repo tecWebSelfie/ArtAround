@@ -232,18 +232,24 @@ jobs:
         env:
           SSH_HOST: ${{ secrets.SSH_HOST }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
-          SSH_USER: ${{ secrets.SSH__USERNAME }}
+          SSH_USER: ${{ secrets.SSH_USER }}
           DEPLOY_FOLDER: ${{ vars.DEPLOY_FOLDER }}
         run: |
           mkdir -p ~/.ssh
           printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H "$SSH_HOST" >> ~/.ssh/known_hosts
-          # A missing remote file fails the rsync, and the runner's bash -e
-          # would end the step right there: own that failure here, or the
-          # "place it once by hand" hint never prints for that case.
+          # A secret that is missing or empty maps here to an empty string,
+          # and the rsync below would then knock on the server's door as
+          # "@host": own that case with a message naming the secret, instead
+          # of letting SSH answer with a bare "Permission denied".
+          test -n "$SSH_USER" ||
+            { echo "::error::The SSH_USER secret of the unibo environment is missing or empty"; exit 1; }
+          # The runner's bash -e would end the step right at any rsync
+          # failure: own it here too, naming both real causes (SSH refused
+          # the key, or no .env in the deploy folder yet).
           rsync "$SSH_USER@$SSH_HOST:$DEPLOY_FOLDER/.env" .env ||
-            { echo "::error::No .env in the deploy folder yet: place it once by hand (docs/standalone-deploy.md)"; exit 1; }
+            { echo "::error::Fetching the server's .env failed: SSH rejected the connection (see the lines above) or no .env is in the deploy folder yet — place it once by hand (docs/standalone-deploy.md)"; exit 1; }
           test -s .env ||
             { echo "::error::The .env fetched from the deploy folder is empty"; exit 1; }
           for key in NEXT_PUBLIC_APP_URL NEXT_PUBLIC_PAYLOAD_URL; do
@@ -267,7 +273,7 @@ jobs:
       # any quota. Reuses the fetch step's SSH setup.
       - name: rsync the standalone to the deploy folder
         env:
-          SSH_USER: ${{ secrets.SSH__USERNAME }}
+          SSH_USER: ${{ secrets.SSH_USER }}
           SSH_HOST: ${{ secrets.SSH_HOST }}
           DEPLOY_FOLDER: ${{ vars.DEPLOY_FOLDER }}
         run: |
