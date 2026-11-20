@@ -53,8 +53,9 @@ workflows for UI work.
   the `pnpm start` server it launches; a `next dev` you start keeps the real
   providers unless you set it. Never in a deployment (the server logs a
   warning when it is on).
-- CI (`.github/workflows/tests.yml`): on every pull request (and by hand,
-  "Run workflow" on a branch; not on plain pushes), two parallel jobs:
+- CI (`.github/workflows/tests.yml`): on every pull request, on every push
+  to `db-populate` (a green run there is what the `deploy` job waits for),
+  and by hand, "Run workflow" on a branch. Two parallel jobs:
   `test:coverage`, then the nightly QA specs and the e2e suite against the
   production build, with MongoDB and LiveKit from `pnpm services:start`; and
   `test:stories --coverage`. These are the full suites: an agent leaves
@@ -64,7 +65,10 @@ workflows for UI work.
   stay out. It runs on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
-  repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
+  repository secrets `GROQ_API_KEY` and `FISH_API_KEY`. A green run on
+  `db-populate` continues into the `deploy` job: the standalone rsynced to
+  the unibo hosting ([Standalone deploy](standalone-deploy.md)), whose
+  success starts the Web Vitals canary.
 
 ## Coverage
 
@@ -138,6 +142,14 @@ tests/e2e/web-vitals.e2e.spec.ts --trace off`; the values
 - Lab, by hand: Lighthouse or the Performance panel in Chrome DevTools on
   the cloud preview or `pnpm start`, or the `chrome-devtools` MCP
   (`lighthouse_audit`, `performance_start_trace`) from an agent session.
+- Deployed, automatic: the same spec against the deployed site
+  (`.github/workflows/web-vitals-canary.yml`), with `E2E_ORIGIN` from the
+  `unibo` environment's `APP_URL` variable, no build and no local server.
+  It runs after every successful deploy of the `unibo` environment
+  (`on: deployment_status`), nightly on schedule, and by hand from the
+  Actions tab. The job reads the environment with `deployment: false`: it
+  must not create a deployment of its own, or every green canary would
+  retrigger itself through `deployment_status`.
 - Field: Sentry's browser tracing (`src/instrumentation-client.ts`) records
   the Web Vitals of the sampled production page loads; see the project's
   Web Vitals view in Sentry.
