@@ -21,7 +21,20 @@ container's single entrypoint is then
     node standalone/scripts/standalone-boot.mjs
 
 (the boot moves into the standalone root by itself, so the working directory
-it starts from does not matter). Restart the container after each copy.
+it starts from does not matter). The deploy folder is watched by a container
+running nodemon on Node 22, which recreates the process when a copy makes
+that necessary: the `rsync` alone brings the new build up, no restart by
+hand. Later — to present the project, and arbitrarily before that — a plain
+Node 22 container will be launched on the same folder.
+
+CI deploys this way on every green push to `db-populate`: the `deploy` job
+of `.github/workflows/tests.yml` (environment `unibo`) builds on the GitHub
+runner — a build folder outside any quota, and on Linux, where the pnpm
+symlinks come out right — after fetching the deploy folder's own `.env`, so
+the server's file stays the single source of truth for the build-time
+`NEXT_PUBLIC_*` too. The rsync excludes `.env*`: CI reads that file, never
+writes it back. The manual procedure above remains the fallback for a
+deploy by hand.
 
 - **Uploads** (pictures, maps, models, read-aloud MP3s) live outside the
   standalone: the container's user can't create folders inside it (EACCES:
