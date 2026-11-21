@@ -15,7 +15,8 @@
 # protection marks it as required (repository settings). A new push to the
 # same PR cancels the run still going for the previous one.
 #
-# Visual regression tests (`pnpm test:visual`) stay out: they run on demand.
+# Visual regression tests (`pnpm test:visual`) run in their own lane
+# (.github/workflows/visual.yml): nightly and on demand, never per PR.
 #
 # AI: pull requests run on the AI SDK's mock models (AI_MOCK=true,
 # src/lib/ai-models.ts), so they need no keys and get the same answers every
