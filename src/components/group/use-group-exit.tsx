@@ -45,7 +45,7 @@ export function useGroupExit() {
       centered: true,
       children: <Text size="sm">{t('Everyone leaves the group and continues on their own.')}</Text>,
       labels: { confirm: t('End for everyone'), cancel: t('Cancel') },
-      confirmProps: { color: 'red' },
+      confirmProps: { color: 'red.8' },
       onConfirm: () => void end(),
     })
 

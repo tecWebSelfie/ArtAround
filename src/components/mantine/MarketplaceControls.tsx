@@ -161,7 +161,9 @@ export function MarketplaceSearch({
               </Group>
             }
           />
-          <Button type="submit" size="md" color="red" px={{ base: 'md', sm: 'xl' }}>
+          {/* Red.8, not red.6: a white label on Mantine's red.6 reads at 3.3:1,
+              below AA; the deeper step keeps a white label at 4.5:1. */}
+          <Button type="submit" size="md" color="red.8" px={{ base: 'md', sm: 'xl' }}>
             {labels.search}
           </Button>
         </Group>

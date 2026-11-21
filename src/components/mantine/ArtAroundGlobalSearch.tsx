@@ -380,7 +380,15 @@ function SearchFallback({
         </ComboboxEmpty>
         {canRetry && (
           <ComboboxOption value={RETRY_VALUE}>
-            <Group gap="xs" justify="center" c="var(--mantine-primary-color-filled)">
+            {/* The filled primary step is a background color: as text on the
+                dark dropdown it is 1.3:1. Foreground primary is scheme-aware
+                (DESIGN.md → The Follow-the-System Rule): filled on light, the
+                .4 step on dark. */}
+            <Group
+              gap="xs"
+              justify="center"
+              c="light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4))"
+            >
               <RotateCw size={16} aria-hidden />
               <Text size="sm" fw={600} c="inherit">
                 {t('Try again')}
@@ -414,7 +422,12 @@ function SearchFallback({
       </ComboboxEmpty>
       {browse && (
         <ComboboxOption value={browse.href}>
-          <Group gap="xs" justify="center" c="var(--mantine-primary-color-filled)">
+          {/* Scheme-aware primary, as the "Try again" link above. */}
+          <Group
+            gap="xs"
+            justify="center"
+            c="light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4))"
+          >
             <Text size="sm" fw={600} c="inherit">
               {browse.label}
             </Text>

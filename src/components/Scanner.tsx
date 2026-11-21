@@ -138,7 +138,9 @@ function ScanFrame() {
       {CORNERS.map((corner) => (
         <span
           key={corner}
-          className={`absolute size-[22%] border-(--mantine-primary-color-filled) ${corner}`}
+          // Scheme-aware primary: the filled step is for backgrounds and
+          // disappears on a dark camera feed, so dark takes the .4 step.
+          className={`absolute size-[22%] border-[light-dark(var(--mantine-primary-color-filled),var(--mantine-primary-color-4))] ${corner}`}
         />
       ))}
     </div>

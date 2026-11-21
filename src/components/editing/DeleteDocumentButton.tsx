@@ -54,7 +54,7 @@ export function DeleteDocumentButton({
       centered: true,
       children: <Text size="sm">{t('This cannot be undone.')}</Text>,
       labels: { confirm: t('Delete'), cancel: t('Cancel') },
-      confirmProps: { color: 'red' },
+      confirmProps: { color: 'red.8' },
       onConfirm: () => void remove(),
     })
 

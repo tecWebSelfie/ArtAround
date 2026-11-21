@@ -38,7 +38,7 @@ export function CoverCard({
     <CarouselSlide>
       <Link
         href={href}
-        className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-(--mantine-primary-color-filled)"
+        className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-[light-dark(var(--mantine-primary-color-filled),var(--mantine-primary-color-4))]"
       >
         <AspectRatio ratio={1 / 1}>
           <div
