@@ -190,19 +190,30 @@ if (!museum) {
       navMesh,
     },
   })
-  // Tours own their museum link (`tours.museum`), so they come after it.
-  const existingTour = await payload.find({
-    collection: 'tours',
-    where: { title: { equals: label } },
-    limit: 1,
+}
+
+// Tours own their museum link (`tours.museum`), so they come after the
+// museum — and outside the block above: a fixture museum from an earlier
+// seed can outlive its tour (a test may delete it), and the spec fixture
+// needs the tour back. Stops are the museum's exhibited contents, by title.
+const existingTour = await payload.find({
+  collection: 'tours',
+  where: { title: { equals: label } },
+  limit: 1,
+  depth: 0,
+})
+if (!existingTour.docs[0]) {
+  const stops = await payload.find({
+    collection: 'contents',
+    where: { title: { in: [`${label}: First stop`, `${label}: Second stop`] } },
+    locale: 'en',
+    limit: 2,
     depth: 0,
   })
-  if (!existingTour.docs[0]) {
-    await payload.create({
-      collection: 'tours',
-      data: { title: label, contents: contents.slice(0, 2).map(({ id }) => id), museum: museum.id },
-    })
-  }
+  await payload.create({
+    collection: 'tours',
+    data: { title: label, contents: stops.docs.map(({ id }) => id), museum: museum.id },
+  })
 }
 // Fixtures seeded before route directions existed get their rooms added once.
 const savedMap = museum.map as { nodes?: Record<string, unknown> } | null | undefined

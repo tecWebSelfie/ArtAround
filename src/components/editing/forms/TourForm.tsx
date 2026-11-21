@@ -211,6 +211,7 @@ export function TourForm({
   thumbnail,
   visitCopyOf = null,
   minStops = minStopsFor({ visitCopyOf }),
+  cancelHref,
   keptQuestions = [],
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
@@ -234,6 +235,15 @@ export function TourForm({
    * two unless it is a visit copy.
    */
   minStops?: number
+  /**
+   * Where Cancel leaves: the edited or copied tour's page, else the
+   * museum's — the same parent the page's BackButton above names. Cancel
+   * pushes there (never `router.back()`: the tab's history may start
+   * outside the app on a shared link, and back could also land on the
+   * contents picker instead of the tour) and drops the draft first, so
+   * the abandoned editor leaves no trail behind.
+   */
+  cancelHref: Route
   /**
    * Quiz questions linked to contents (written in the admin): the editor
    * doesn't show them, the save keeps them in their places while one of
@@ -373,8 +383,11 @@ export function TourForm({
           <Button
             variant="default"
             onClick={() => {
+              // Cancel discards the draft (the BackButton above keeps it),
+              // then leaves for `cancelHref`: a fixed in-app destination,
+              // never a history step.
               clearDraft()
-              router.back()
+              router.push(cancelHref)
             }}
             disabled={save.isPending}
           >

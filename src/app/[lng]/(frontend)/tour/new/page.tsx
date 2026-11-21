@@ -70,17 +70,17 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
     getNewTourEditorData(museumId, sourceStops),
     coverImage(payload, 'toursThumbnails', source?.thumbnail),
   ])
+  // Up a level: back where the editor was opened from, else the tour it
+  // copies or the museum it is for. Cancel leaves for the same place.
+  const upHref = (source ? `/${lng}/tour/${source.id}` : `/${lng}/museum/${museumId}`) as Route
   return (
     <Container size="md" py="md">
-      {/* Up a level: back where the editor was opened from, else the tour it
-          copies or the museum it is for. */}
-      <BackButton
-        href={(source ? `/${lng}/tour/${source.id}` : `/${lng}/museum/${museumId}`) as Route}
-      />
+      <BackButton href={upHref} />
       <TourForm
         museum={museum}
         candidates={candidates}
         thumbnail={thumbnail}
+        cancelHref={upHref}
         // Only once the original was read: an unreadable `from` leaves a
         // blank form, which is a new tour, not a copy of anything.
         visitCopyOf={visitSource?.id ?? null}

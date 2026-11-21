@@ -8,11 +8,13 @@ import { Container } from '@mantine/core'
 export default async function NewMuseumPage({ params }: PageProps<'/[lng]/museum/new'>) {
   const { lng } = await params
   await requireUser(lng, `/${lng}/museum/new`)
+  // Up a level: back where the visitor came from, else the navigator.
+  // Cancel leaves for the same place.
+  const upHref = `/${lng}/navigator` as Route
   return (
     <Container size="md" py="md">
-      {/* Up a level: back where the visitor came from, else the navigator. */}
-      <BackButton href={`/${lng}/navigator` as Route} />
-      <MuseumCreateForm />
+      <BackButton href={upHref} />
+      <MuseumCreateForm cancelHref={upHref} />
     </Container>
   )
 }

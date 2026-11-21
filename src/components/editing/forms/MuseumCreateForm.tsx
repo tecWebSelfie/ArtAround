@@ -26,7 +26,7 @@ type MuseumValues = {
  * `appointCreatorAsDirector`) and lands on the museum page, where the
  * remaining metadata and the map can be filled in.
  */
-export function MuseumCreateForm() {
+export function MuseumCreateForm({ cancelHref }: { cancelHref: Route }) {
   const { t } = useTranslation('editing')
   const router = useRouter()
   const { lng } = useParams<{ lng: string }>()
@@ -154,7 +154,14 @@ export function MuseumCreateForm() {
           />
         </Group>
         <Group justify="end">
-          <Button variant="default" onClick={() => router.back()} disabled={save.isPending}>
+          {/* Cancel pushes to `cancelHref` (the navigator, the same parent the
+              page's BackButton names): `router.back()` could leave the app on
+              a deep link, and a labeled in-app control must never do that. */}
+          <Button
+            variant="default"
+            onClick={() => router.push(cancelHref)}
+            disabled={save.isPending}
+          >
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
