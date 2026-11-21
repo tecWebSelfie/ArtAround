@@ -1,0 +1,76 @@
+# The Storybook screenshot suite (`pnpm test:visual`, ~8 min) in its own
+# lane, never on a pull request: every intentional restyle flips the
+# comparison until the references are regenerated (a restyle carries its
+# `pnpm test:visual:update`), so a per-PR gate would tax every change for
+# drift that a day is soon enough to catch. Two triggers:
+# - nightly (03:30 UTC, the maintainer's early morning): visual drift is
+#   found within a day of landing;
+# - "Run workflow", optionally with "Regenerate the references" for
+#   regenerating them away from a PC: the updated __screenshots__ come back
+#   as an artifact to commit locally.
+# The run happens through scripts/test-visual-docker.mjs, inside the same
+# official Playwright image the developer machines use, so the captures
+# compare against the committed Linux reference set pixel for pixel. The
+# runners' Docker storage is throwaway: the container's dependency install
+# (a few minutes) repeats on every run, on purpose — caching it inside the
+# job would need a volume mount the script does not make, and the nightly
+# is in no hurry.
+name: Visual regression
+
+on:
+  schedule:
+    - cron: '30 3 * * *'
+  workflow_dispatch:
+    inputs:
+      update:
+        description: Regenerate the references instead of comparing
+        type: boolean
+        default: false
+
+# One lane: a manual run waits for the nightly instead of racing it.
+concurrency:
+  group: visual
+
+permissions:
+  contents: read
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      # Only so scripts/test-visual-docker.mjs can read the project's
+      # Playwright version and resolve its image tag: the browsers run in
+      # the container, so skip their download here.
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      # The script resolves the image tag from the project's Playwright
+      # version, so the browser matches the one the stories expect.
+      - name: Run the suite in the Playwright image
+        run: node scripts/test-visual-docker.mjs ${{ inputs.update && '--update' || '' }}
+
+      - name: Upload the failing diffs
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: visual-diffs
+          path: .vitest-attachments/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload the regenerated references
+        if: ${{ inputs.update && !cancelled() }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: visual-references
+          path: __screenshots__/
+          retention-days: 14

@@ -61,8 +61,10 @@ workflows for UI work.
   `test:stories --coverage`. These are the full suites: an agent leaves
   them to the pull request's CI instead of running them locally, and runs
   one locally only to reproduce a failure. A third job runs `pnpm typecheck`,
-  `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests
-  stay out. It runs on GitHub's runners and
+  `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests run
+  in their own lane instead ([Visual regression tests](#visual-regression-tests)):
+  `.github/workflows/visual.yml`, nightly and on demand, never per PR. It runs
+  on GitHub's runners and
   blocks nothing unless branch protection requires it. It runs on mocked AI;
   "Run workflow" with "real AI" calls Groq and Fish Audio, with the
   repository secrets `GROQ_API_KEY` and `FISH_API_KEY`. A green run on
@@ -167,6 +169,14 @@ PC and Linux cloud sessions share one Linux reference set. Pass vitest
 filters after the command to run only some stories, e.g.
 `pnpm test:visual:update "src/app/[lng]/(frontend)/(tabs)/navigator/NavigatorPage.stories.tsx"`.
 `pnpm test:visual:run` is the bare run the container executes.
+
+CI runs the suite in its own lane (`.github/workflows/visual.yml`):
+nightly at 03:30 UTC and through "Run workflow", never per pull request —
+an intentional restyle flips the comparison until its references are
+regenerated, and that tax does not belong on every PR. A failing run
+uploads its diffs (`.vitest-attachments/`) as an artifact. "Run workflow"
+with "Regenerate the references" returns the refreshed `__screenshots__/`
+as an artifact on any outcome — green or red — ready to commit locally.
 
 ## Type check and lint
 
