@@ -192,10 +192,22 @@ if (!museum) {
   })
 }
 
+/** A fixture stop's document, found by its English title. */
+const stopByTitle = async (title: string) =>
+  (
+    await payload.find({
+      collection: 'contents',
+      where: { title: { equals: `${label}: ${title}` } },
+      locale: 'en',
+      limit: 1,
+      depth: 0,
+    })
+  ).docs[0]
+
 // Tours own their museum link (`tours.museum`), so they come after the
 // museum — and outside the block above: a fixture museum from an earlier
 // seed can outlive its tour (a test may delete it), and the spec fixture
-// needs the tour back. Stops are the museum's exhibited contents, by title.
+// needs the tour back.
 const existingTour = await payload.find({
   collection: 'tours',
   where: { title: { equals: label } },
@@ -203,16 +215,17 @@ const existingTour = await payload.find({
   depth: 0,
 })
 if (!existingTour.docs[0]) {
-  const stops = await payload.find({
-    collection: 'contents',
-    where: { title: { in: [`${label}: First stop`, `${label}: Second stop`] } },
-    locale: 'en',
-    limit: 2,
-    depth: 0,
-  })
+  // One lookup per title, in visiting order: an `in` query returns its docs
+  // in any order, and the tour's step 0 must stay Object 1's First stop —
+  // the QR spec scans that content into the step 0 `/open` modal.
+  const firstStop = await stopByTitle('First stop')
+  const secondStop = await stopByTitle('Second stop')
+  if (!firstStop || !secondStop) {
+    throw new Error('The fixture stops are gone: seed the base data again (`pnpm seed:e2e`).')
+  }
   await payload.create({
     collection: 'tours',
-    data: { title: label, contents: stops.docs.map(({ id }) => id), museum: museum.id },
+    data: { title: label, contents: [firstStop.id, secondStop.id], museum: museum.id },
   })
 }
 // Fixtures seeded before route directions existed get their rooms added once.
@@ -295,16 +308,6 @@ if (tourId && !fixtureTour.docs[0].quiz?.questions?.length) {
 // stepper (tests/e2e/tour-navigation.e2e.spec.ts). Found by title, so re-runs
 // reuse it.
 const gapTourTitle = `${label}: with an unavailable stop`
-const stopByTitle = async (title: string) =>
-  (
-    await payload.find({
-      collection: 'contents',
-      where: { title: { equals: `${label}: ${title}` } },
-      locale: 'en',
-      limit: 1,
-      depth: 0,
-    })
-  ).docs[0]
 let gapTourId: string | undefined
 let emptyTourId: string | undefined
 const first = await stopByTitle('First stop')
