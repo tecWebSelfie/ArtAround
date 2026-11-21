@@ -223,10 +223,14 @@ function MuseumSwitchTrigger({ name, onOpen }: { name: string | null; onOpen: ()
       className="mantine-focus-auto relative rounded-full border border-(--mantine-color-default-border) bg-(--mantine-color-body) py-px ps-2 pe-2.5 transition-colors after:absolute after:-inset-1 after:content-[''] hover:bg-(--mantine-color-default-hover)"
     >
       <Group gap={6} wrap="nowrap" miw={0}>
+        {/* The landmark takes the primary color, scheme-aware: the filled step
+            is chosen for white labels on filled buttons and sits at 1.5:1 on
+            the dark header, so dark takes the .4 step (DESIGN.md → The
+            Follow-the-System Rule). */}
         <Landmark
           size={16}
           aria-hidden
-          color="var(--mantine-primary-color-filled)"
+          color="light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4))"
           className="shrink-0"
         />
         <Stack gap={0} miw={0}>

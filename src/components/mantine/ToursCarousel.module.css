@@ -39,7 +39,10 @@
   border-radius: var(--mantine-radius-lg);
 
   &:focus-visible {
-    outline: 3px solid var(--mantine-primary-color-filled);
+    /* The filled step is a background color and 1.5:1 on dark; the ring takes
+       the .4 step there (DESIGN.md → The Follow-the-System Rule). */
+    outline: 3px solid
+      light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4));
     outline-offset: 3px;
   }
 }

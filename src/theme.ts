@@ -44,6 +44,13 @@ export const theme = createTheme({
   // places where blue carries its own meaning (markers, accessibility).
   colors: { museum: DEFAULT_PRIMARY },
   primaryColor: 'museum',
+  // Filled labels are white only where white wins: the primary scale clears AA
+  // with a white label, but light fills (the marketplace's red search button,
+  // paid orange, Mantine's red confirm modals) flip to a dark label. Set here
+  // so global mode renders like museum mode — `museumTheme()` already turned
+  // it on whenever a museum palette is active, and the same button must not
+  // change face between the two modes.
+  autoContrast: true,
 })
 
 /**

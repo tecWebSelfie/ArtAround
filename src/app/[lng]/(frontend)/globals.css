@@ -284,7 +284,7 @@
 }
 .skip-link:focus-visible {
   transform: none;
-  outline: 2px solid var(--mantine-primary-color-filled);
+  outline: 2px solid light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4));
   outline-offset: 2px;
 }
 
@@ -298,6 +298,17 @@
     --badge-fz-sm: 0.6875rem;
     --badge-height-xs: 1.125rem;
     --badge-height-sm: 1.25rem;
+  }
+
+  /* Keyboard focus in dark (DESIGN.md → The Follow-the-System Rule): the
+     filled primary step — the AA-on-white blue already, a museum's dark brand
+     much worse — sits at 1.3-3.4:1 on the dark page, where a keyboard visitor
+     cannot see where they are. Every focus ring takes the .4 step instead,
+     above 5:1 on both the page and a card. In `components`, after the mantine
+     layer, so Mantine's own focus styles follow; the few custom rings that
+     live in later layers carry their own light-dark(). */
+  [data-mantine-color-scheme='dark'] :focus-visible {
+    outline-color: var(--mantine-primary-color-4);
   }
 
   /* The approved ember motion belongs only to the plan's focused voice field. */

@@ -85,7 +85,10 @@ export function ArtaroundTabs({
     <MantineTabs variant={variant} value={active} onChange={handleChange} {...rest}>
       <TabsList ref={setRootRef} grow justify="center" pos="relative">
         <FloatingIndicator
-          className="border-b-2 border-b-(--mantine-primary-color-filled)"
+          // The moving underline takes the primary, scheme-aware: the filled
+          // step is a background color and nearly invisible on the dark bar,
+          // so dark takes the .4 step.
+          className="border-b-2 border-b-[light-dark(var(--mantine-primary-color-filled),var(--mantine-primary-color-4))]"
           parent={rootRef}
           target={active ? (controlsRefs[active] ?? null) : null}
         />

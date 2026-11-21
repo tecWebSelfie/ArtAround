@@ -80,7 +80,10 @@ export function JoinGroupForm() {
           classNames={{
             input:
               'font-semibold tracking-[0.08em] uppercase tabular-nums placeholder:font-normal placeholder:tracking-normal placeholder:normal-case',
-            section: 'text-(--mantine-primary-color-filled)',
+            // The field icon takes the primary, scheme-aware: the filled step
+            // is invisible on the dark field, dark takes the .4 step.
+            section:
+              'text-[light-dark(var(--mantine-primary-color-filled),var(--mantine-primary-color-4))]',
             description: 'mt-1 text-(length:--mantine-font-size-xs)',
           }}
           value={code}

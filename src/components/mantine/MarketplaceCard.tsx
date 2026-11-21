@@ -83,7 +83,11 @@ function formatPrice(cents: number, currency: string, locale: string) {
   }).format(amount)
 }
 
-const KIND_COLOR = { tour: 'grape', content: 'teal', user: 'blue', object: 'orange' } as const
+// Shade bumps for the filled kind badges: white on grape.6/blue.6 reads at
+// 4.0:1 and 3.5:1, below AA for their 11px labels; the deeper steps keep
+// white labels above 4.8:1 (teal.6 and the object kind's orange.6 are light
+// enough that `autoContrast` on the badge already flips their labels to black).
+const KIND_COLOR = { tour: 'grape.7', content: 'teal', user: 'blue.8', object: 'orange' } as const
 
 /**
  * Where the result lives and who made it, as a quiet line under the title.
