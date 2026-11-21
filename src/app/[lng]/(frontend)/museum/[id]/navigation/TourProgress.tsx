@@ -2,7 +2,7 @@
 
 import { DurationBadge } from '@/components/mantine/DurationBadge'
 import { Tour } from '@/payload-types'
-import { Badge, Scroller, Stepper, StepperStep } from '@mantine/core'
+import { Scroller, Stepper, StepperStep } from '@mantine/core'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import {
   tourContentPath,
@@ -11,7 +11,7 @@ import {
   withNavigationPosition,
   withNavigationValue,
 } from '@/lib/tour-navigation'
-import { ListChecks, MapPinOff } from 'lucide-react'
+import { ListChecks } from 'lucide-react'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -24,21 +24,18 @@ import classes from './navigation-desktop.module.css'
  * A tour with a quiz ends with a "Quiz" step: visible from the start, so visitors know it is
  * coming, and selectable at any time (the quiz intro warns about stops still ahead).
  * For group guests it is read-only progress: the host chooses the steps.
- * Stops that can no longer be visited (`skipped`, see `unavailableStops`) stay
- * in their place, greyed with a "Skipped" badge and not selectable, so the
- * visitor sees what the tour leaves out rather than a silently shorter list.
+ * `contents` holds the visitable stops only: stops that can no longer be
+ * visited were dropped before navigation (`visitableTour`), so the stepper
+ * never shows a greyed or "skipped" stop.
  */
 export function TourProgress({
   contents,
   step,
   entranceLabel,
   hasQuiz = false,
-  skipped,
 }: {
   contents: Tour['contents']
   step: number
-  /** Cursor indexes of the stops that can no longer be visited. */
-  skipped?: ReadonlySet<number>
   entranceLabel?: string | null
   hasQuiz?: boolean
 }) {
@@ -99,7 +96,7 @@ export function TourProgress({
                   return
                 }
                 const content = contents[index - offset]
-                if (content && !skipped?.has(index - offset)) {
+                if (content) {
                   const contentId = typeof content === 'string' ? content : content.id
                   const path = tourContentPath(
                     lng,
@@ -118,33 +115,20 @@ export function TourProgress({
             key={typeof content === 'string' ? content : content.id}
             label={typeof content === 'string' ? `${index + 1}` : content.title}
             ref={index === step ? activeStep : undefined}
-            // An unavailable stop reads as crossed out and can't be selected.
-            {...(skipped?.has(index)
-              ? {
-                  icon: <MapPinOff size={14} aria-hidden />,
-                  color: 'gray',
-                  allowStepSelect: false,
-                  classNames: { stepLabel: 'line-through opacity-60' },
-                  description: (
-                    <Badge size="xs" variant="light" color="gray">
-                      {t('Skipped')}
-                    </Badge>
-                  ),
-                }
-              : {
-                  // Only the stop's length, small: what the visitor weighs against
-                  // the time they have left. Difficulty is theirs to choose
-                  // (reading options), so it is left off this tight row.
-                  description: typeof content === 'object' && (
-                    <DurationBadge
-                      seconds={content.durationSeconds ?? 0}
-                      lng={lng}
-                      size="xs"
-                      color="museum.8"
-                      autoContrast
-                    />
-                  ),
-                })}
+            // Only the stop's length, small: what the visitor weighs against
+            // the time they have left. Difficulty is theirs to choose
+            // (reading options), so it is left off this tight row.
+            description={
+              typeof content === 'object' && (
+                <DurationBadge
+                  seconds={content.durationSeconds ?? 0}
+                  lng={lng}
+                  size="xs"
+                  color="museum.8"
+                  autoContrast
+                />
+              )
+            }
           />
         ))}
         {hasQuiz && (

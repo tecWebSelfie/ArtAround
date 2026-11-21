@@ -22,10 +22,16 @@ import {
   LICENSE_NAME,
   LICENSES,
 } from '@/lib/content-rights'
-import { hideFromSearch, readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
+import { readContents, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { richTextFromHtml, richTextHtmlInput } from '@/fields/richTextHtml'
 import { detachDeletedContentFromQuestions } from '@/lib/quiz-ownership'
-import { refreshToursIncluding } from '@/lib/search-index'
+import { removeContentsFromTours } from '@/lib/tour-stop-cleanup'
+import { refreshVisitableStopsOfContents } from '@/lib/visitable-stops'
+import {
+  resyncToursIncluding,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
 import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
@@ -39,7 +45,7 @@ import {
   type PayloadRequest,
   type Where,
 } from 'payload'
-import { AUDIO_QUEUE } from '@/lib/content-audio'
+import { AUDIO_QUEUE, audioTextHash, contentAudioText } from '@/lib/content-audio'
 import { estimateSeconds } from '@/lib/duration'
 import { imageUpload } from '../fields/imageUpload'
 
@@ -228,18 +234,37 @@ const attachTo = (
   }
 
 /**
- * A tour's search row carries its list price, the sum of its contents' prices
- * (docs/search.md). The search plugin re-indexes this content on save; when the
- * price changed, the rows of the tours that include it are refreshed too.
+ * A tour's search document carries its list price, the sum of its contents'
+ * prices (docs/search.md). A content save re-indexes this content; when the
+ * price changed, the documents of the tours that include it are refreshed too.
  */
 const refreshTourPrices: CollectionAfterChangeHook<Content> = async ({ doc, previousDoc, req }) => {
   if ((doc.price ?? 0) === (previousDoc?.price ?? 0)) return doc
-  try {
-    await refreshToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
-  } catch (error) {
-    // Search is derived data: never fail the content save over it.
-    req.payload.logger.error({ err: error, msg: `Could not refresh tour prices for ${doc.id}` })
+  await resyncToursIncluding({ payload: req.payload, contentIds: [String(doc.id)], req })
+  return doc
+}
+
+/**
+ * Whether a tour's stop is visitable depends on its content being readable
+ * (public, or its tour author's own): a content that turns private, or changes
+ * author, recomputes the stored visitable stops of the tours that include it
+ * (src/lib/visitable-stops.ts). Deletion removes the content from its tours
+ * instead (`afterDelete`, src/lib/tour-stop-cleanup.ts).
+ */
+const refreshTourVisitableStops: CollectionAfterChangeHook<Content> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
+  if (!previousDoc) return doc
+  if (doc.visibility === previousDoc.visibility && asId(doc.author) === asId(previousDoc.author)) {
+    return doc
   }
+  await refreshVisitableStopsOfContents({
+    payload: req.payload,
+    req,
+    contentIds: [String(doc.id)],
+  })
   return doc
 }
 
@@ -268,7 +293,11 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
   try {
     await req.payload.jobs.queue({
       task: 'generateContentAudio',
-      input: { contentId: String(doc.id), locale: 'en' },
+      input: {
+        contentId: String(doc.id),
+        locale: 'en',
+        textHash: audioTextHash(contentAudioText(doc)),
+      },
       queue: AUDIO_QUEUE,
       req,
     })
@@ -284,12 +313,19 @@ const queueContentAudio: CollectionAfterChangeHook<Content> = async ({
  * someone bought, put in their own tour, or that a public tour shows can't be
  * made private afterwards: it would disappear from under them.
  */
-const guardVisibility: CollectionBeforeChangeHook<Content> = async ({ data, req, originalDoc }) => {
+const guardVisibility: CollectionBeforeChangeHook<Content> = async ({
+  data,
+  req,
+  originalDoc,
+  operation,
+}) => {
   const visibility = data.visibility ?? originalDoc?.visibility
   const price = data.price !== undefined ? data.price : originalDoc?.price
   if (visibility !== 'private') return data
   if (price && price > 0) throw new APIError('A private content cannot be sold.', 400)
-  if (!originalDoc || originalDoc.visibility === 'private') return data
+  // On create Payload passes an empty (truthy) `originalDoc`, so check the
+  // operation: a brand-new content has no buyers or tours to protect.
+  if (operation === 'create' || !originalDoc || originalDoc.visibility === 'private') return data
   const id = String(originalDoc.id)
   const author = asId(originalDoc.author)
   const [bought, adopted] = await Promise.all([
@@ -341,11 +377,26 @@ export const Contents: CollectionConfig = {
       attachTo('objects', 'attachToObject', { skipMintModelGeneration: true }),
       attachTo('subjects', 'attachToSubject'),
       refreshTourPrices,
+      refreshTourVisitableStops,
       queueContentAudio,
-      hideFromSearch('contents'),
+      // Indexes the content (or removes it when it became private/planned).
+      searchSyncAfterChange('contents'),
     ],
     // Quiz questions about a deleted content are unlinked, or deleted when it was their last one.
-    afterDelete: [detachDeletedContentFromQuestions],
+    afterDelete: [
+      detachDeletedContentFromQuestions,
+      // Then it leaves every tour that lists it (stops, directions, quiz, derived
+      // stops and search row), in this same transaction. After the question
+      // cleanup above, so the tours' quizzes are already free of its questions.
+      async ({ req, id }) => {
+        await removeContentsFromTours({
+          payload: req.payload,
+          req,
+          contentIds: [String(id)],
+        })
+      },
+      searchSyncAfterDelete('contents'),
+    ],
   },
   fields: [
     DifficultyField,

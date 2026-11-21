@@ -305,9 +305,11 @@ export function createRealisticMuseumMap(
   )
 
   // Keep navigation and service fixtures in the same scene graph as geometry.
-  // Marker kinds are root nodes and their plugin id makes them render in Pascal.
+  // Markers are level children, as Pascal's own `spawn` marker: setScene
+  // drops every root but the site (marker-hierarchy.ts).
   const markers = [
     ServiceNode.parse({
+      parentId: levelId,
       id: `service_${key}_bathrooms`,
       name: 'Bagni accessibili',
       position: [24, 0, 3],
@@ -315,6 +317,7 @@ export function createRealisticMuseumMap(
       placed: true,
     }),
     ServiceNode.parse({
+      parentId: levelId,
       id: `service_${key}_food`,
       name: 'Caffetteria',
       position: [28, 0, 3],
@@ -332,6 +335,7 @@ export function createRealisticMuseumMap(
       },
     }),
     ServiceNode.parse({
+      parentId: levelId,
       id: `service_${key}_shop`,
       name: 'Bookshop',
       position: [4, 0, 3],
@@ -339,6 +343,7 @@ export function createRealisticMuseumMap(
       placed: true,
     }),
     ServiceNode.parse({
+      parentId: levelId,
       id: `service_${key}_infoPoint`,
       name: 'Biglietteria e informazioni',
       position: [16, 0, 3],
@@ -346,6 +351,7 @@ export function createRealisticMuseumMap(
       placed: true,
     }),
     MuseumExitEntranceNode.parse({
+      parentId: levelId,
       id: `exitEntrance_${key}_main`,
       name: 'Ingresso principale',
       position: [15, 0, 0.5],
@@ -353,6 +359,7 @@ export function createRealisticMuseumMap(
       placed: true,
     }),
     MuseumExitEntranceNode.parse({
+      parentId: levelId,
       id: `exitEntrance_${key}_north`,
       name: 'Uscita di sicurezza',
       position: [5.5, 0, 23.5],
@@ -363,6 +370,7 @@ export function createRealisticMuseumMap(
   if (options.unplacedService) {
     markers.push(
       ServiceNode.parse({
+        parentId: levelId,
         id: `service_${key}_unplaced_${options.unplacedService}`,
         name: 'Servizio da posizionare',
         service: options.unplacedService,
@@ -372,10 +380,12 @@ export function createRealisticMuseumMap(
   }
   // Plugin marker kinds are not part of Pascal's AnyNode union.
   for (const marker of markers) (nodes as Record<string, unknown>)[marker.id] = marker
+  const level = nodes[levelId] as { children: string[] }
+  level.children = [...level.children, ...markers.map((marker) => marker.id)]
 
   return {
     nodes,
-    rootNodeIds: [siteId, ...markers.map((marker) => marker.id)],
+    rootNodeIds: [siteId],
     materials,
     installedPlugins: ['artaround:museum-plugin'],
   }

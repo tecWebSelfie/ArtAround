@@ -35,18 +35,54 @@ and cached build artifacts are not reliable handoff state.
   object) as their position or as an alternative destination.
 - Advancing confirms the completed stop as the position (`at` becomes its object,
   so heading to stop 5 shows the avatar at stop 4) and clears the alternative
-  destination; a stop about no object keeps the previous position. Skipping
-  unavailable stops keeps position. Resuming the tour route also clears that
+  destination; a stop about no object keeps the previous position. Resuming the tour route also clears that
   destination without advancing the cursor.
-- A stop that can no longer be visited (its content is gone, is about no object,
-  or its object is no longer placed on the map; `unavailableStops` in
-  `src/lib/tour-navigation.ts`) stays in the tour. The stepper shows it greyed,
-  struck through and "Skipped", not selectable. When the cursor reaches it,
-  `SkippedStopModal` lists the consecutive unavailable stops and its one action
-  moves the cursor past them (`nextVisitableStep`), keeping position and clearing
-  `to`; skipping the last ones completes the tour. Group guests see the modal
-  without the action (the host's skip moves them). "Open next stop" is withdrawn
-  meanwhile. A museum with no map at all flags nothing ("Map not available").
+- **Navigation shows only visitable stops** (product rule: an unavailable
+  element is intercepted as early as possible and never shown to a visitor, who
+  gains nothing from knowing it exists). A stop that can no longer be visited
+  (its content is gone, is about no object, or its object is no longer placed
+  on the map; `unavailableStops`) stays in the tour for its author, whose editor
+  flags it, but `visitableTour` (`src/lib/tour-navigation.ts`) drops it once,
+  where the navigation data is built: `getNavigationTour` (one tour, as the
+  visitor reads it) and `getMuseumNavigationTours` (the shell's tours and the
+  Spotlight's summaries) in `src/lib/navigation-tour.server.ts`, and the quiz's
+  `getTourQuiz` (`stopCount`, `contentIds`). Every consumer therefore indexes
+  the same filtered list: the URL cursor (`stepId` is an index into the visitable
+  stops), "Stop N of M", the progress bar, the stepper, the start page's stop
+  count and reading time, the logistic notes, the quiz's `from` and its
+  "unvisited stops" warning, the result page's "visited" set, and group sync
+  (host and guests read the same stops, so a shared `.../tour/T/3` means the same
+  stop to both; paid locked stops are visitable and stay). There is no skip
+  logic or badge in navigation; the only notice is the dynamic case below. A museum with no map at all drops nothing
+  ("Map not available"). Stored cursors (`quizAttempts.stepsCompleted`) counted
+  all stops before this rule and are not migrated.
+- **Dynamic case** (a content deleted or an object removed from the map while a
+  visit is under way): the next server render of the tour reads the shorter
+  list. `RemovedStopsModal` (in the navigation folder) remembers, per tab and
+  tour (sessionStorage), the last list it showed: when stops are gone it names
+  them in a modal, and on "Continue the tour" whoever leads (a visitor on their
+  own or a group's host) has the cursor moved back onto the stop they were
+  heading to (`remapStep`: that stop's new index, else the next one still
+  there, else the completed step). Guests only read the notice: the host's
+  corrected cursor moves them. A list that only gained stops gets the same
+  cursor fix without a notice. A cursor that falls beyond the new end (a
+  bookmark, a host's link) is redirected by `requireTourStep` to the completed
+  step (`/{count}`), keeping `at`, so a shifted index can neither crash nor
+  loop. A tab that never saw the old list (a new tab, a link) has nothing to
+  compare, so there the cursor is taken as it is.
+- **Outside navigation the same rule is stored on the tour**
+  (`tours.visitableStops`, `tours.visitableContents`, kept by hooks with the
+  same `visitableTour` definition: see
+  [permissions](permissions-and-editing.md#visitable-stops-derived-server-written)).
+  The tour page (stop list, count, reading time, price, locked list), the tour
+  cards and navigator rails, the marketplace price, the home search and a work's
+  "Tours that stop here" all read the tour through `withVisitableStops`
+  (`src/lib/tour-summary.ts`), so a count never disagrees with "Stop N of M". A
+  tour with no visitable stop is listed nowhere (museum page, profile, rails,
+  search, marketplace, Spotlight). Its direct link still opens the tour page,
+  which says "This tour has no stops to visit right now" and has no "Start
+  tour"; its start page redirects there. Only the author's tour editor lists
+  every stop, flagged "Visitors don't see this stop: replace or remove it".
 - Map interaction opens only museum object items, not walls or other geometry.
 - Canonical QR values are ordinary Next.js paths such as `/object/ID`,
   `/content/ID` or `/tour/ID`. Printed and shared codes are **language-free**: a
@@ -68,7 +104,7 @@ the same routes and close/guest rules, recomposed. Contextual content, object an
 modals (`NavigationModal`) dock as a right-side panel between the header (its height is
 published as `--navigation-header-height` by `TourNavigation`) and the navigation bar,
 with no dimming, no scroll lock and a `slide-left` entrance, so the map stays
-draggable; `SkippedStopModal` stays centered. Controls cluster bottom-left on desktop
+draggable. Controls cluster bottom-left on desktop
 and centre on phones. The directions strip is capped at 40rem and the header
 column at 75rem with the stepper centered. Spotlight opens with mod+K or `/`.
 The site header hides on map URLs but stays on a tour's start page.
@@ -108,12 +144,18 @@ a tour from the free map only changes the URL and the map stays mounted.
 | End-of-tour quiz, if the tour has one | `/[lng]/tour/[id]/quiz?from=N`, outside this layout ([tour quiz](tour-quiz.md))                |
 | Group join page and waiting room      | `/[lng]/room/{code}`; in a group, guests follow the host's URL ([group tours](group-tours.md)) |
 
+Paid tours use one start-access rule across entry points: the visitor must be
+able to read every paid stop, unless they may edit the tour. The tour branch
+layout redirects locked visitors to the tour detail page even for direct or
+deep links. Free-navigation summaries carry the server's entitlement verdict,
+so locked tours are omitted from both Spotlight and voice commands.
+
 `src/lib/tour-navigation.ts` centralizes cursor validation, URL state forwarding,
 next-content routing, and museum object identification. Build tour URLs with
 `tourStartPath(lng, museumId, tourId)` / `tourNavigationPath(lng, museumId, tourId, step)`
 (`tourMuseumId(tour)` reads the id from a populated or unpopulated relationship);
-`navigationBasePath`, `navigationContentPath`, `tourContentPath` and
-`tourAdvanceHref` take tours with their `museum`. `at`, `to`, and the optional
+`navigationBasePath`, `navigationContentPath` and `tourContentPath` take tours
+with their `museum`. `at`, `to`, and the optional
 wheelchair profile are forwarded between canonical and contextual routes.
 
 **Old URLs.** The pre-phase-2 shape `/[lng]/tour/[id]/navigation[/...]` (printed
@@ -174,6 +216,9 @@ actions, scanner and commands derive "here" from it through
 | Scanner                  | `/[lng]/scan?from=…/navigation` (its own page; `…/navigation/scan` redirects)                             |
 | Start one of its tours   | Spotlight `tour:ID` → `…/navigation/tour/ID/0`, keeping `at`, `mobility`, `audience` (same shell and map) |
 
+Only tours the current visitor may start are included in the Spotlight's
+commands; its voice-command list is built from the same filtered commands.
+
 - Entry points: "Explore the map" on the museum page, "Find it on the map" on
   a content page (opens `…/content/ID?to=OBJECT`), both from
   `src/lib/navigation-entry.ts` and offered only when the museum has a saved map.
@@ -185,24 +230,30 @@ actions, scanner and commands derive "here" from it through
 
 ## Code map and reuse boundaries
 
+A hard-deleted content also leaves every tour that listed it (stop, directions,
+quiz questions, derived stops: `src/lib/tour-stop-cleanup.ts`, see
+[permissions-and-editing](permissions-and-editing.md) → Visitable stops); a tour
+left with no stop is kept, empty and unlisted. Map or detach changes never do
+this: they stay derived and reversible.
+
 All navigation paths below are relative to
 `src/app/[lng]/(frontend)/museum/[id]/navigation/`. Map components live at its
 root because free navigation and tours share them; the tour-only route files
 live under `tour/[tourId]/`.
 
-| File                                                                 | Responsibility                                                   |
-| -------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| `layout.tsx`, `TourNavigationShell.tsx`                              | Persistent map, museum tours, shared server data                 |
-| `data.ts`                                                            | Cached museum/tour reads; museum tours; map catalog summaries    |
-| `intercept.ts`                                                       | `Next-Url` → contextual modal URL for the canonical interceptors |
-| `TourNavigation.tsx`                                                 | Composes map, controls, directions navbar, guidance and orb      |
-| `MuseumMap.tsx`                                                      | Museum item clicks, avatar, destination and saved-navmesh route  |
-| `NavigationObjectActions.tsx`                                        | Related content, explicit position/destination actions           |
-| `NavigationModal.tsx`                                                | Shared contextual modal dismissal                                |
-| `scan/page.tsx` (and the tour step's)                                | Old in-map scanner URLs: redirect to `/[lng]/scan?from=`         |
-| `tour/[tourId]/layout.tsx`, `page.tsx`                               | Tour belongs to this museum; start page                          |
-| `tour/[tourId]/[stepId]/@modal/open/StepModal.tsx`                   | Next/complete action, moving `at` to the stop and clearing `to`  |
-| `src/app/[lng]/(frontend)/tour/[id]/navigation/[[...rest]]/route.ts` | 308 from the old tour URLs                                       |
+| File                                                                 | Responsibility                                                    |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `layout.tsx`, `TourNavigationShell.tsx`                              | Persistent map, museum tours, shared server data                  |
+| `data.ts`                                                            | Cached museum/tour reads; museum tours; map catalog summaries     |
+| `intercept.ts`                                                       | `Next-Url` → contextual modal URL for the canonical interceptors  |
+| `TourNavigation.tsx`                                                 | Composes map, controls, directions navbar, guidance and assistant |
+| `MuseumMap.tsx`                                                      | Museum item clicks, avatar, destination and saved-navmesh route   |
+| `NavigationObjectActions.tsx`                                        | Related content, explicit position/destination actions            |
+| `NavigationModal.tsx`                                                | Shared contextual modal dismissal                                 |
+| `scan/page.tsx` (and the tour step's)                                | Old in-map scanner URLs: redirect to `/[lng]/scan?from=`          |
+| `tour/[tourId]/layout.tsx`, `page.tsx`                               | Tour belongs to this museum; start page                           |
+| `tour/[tourId]/[stepId]/@modal/open/StepModal.tsx`                   | Next/complete action, moving `at` to the stop and clearing `to`   |
+| `src/app/[lng]/(frontend)/tour/[id]/navigation/[[...rest]]/route.ts` | 308 from the old tour URLs                                        |
 
 Other shared files:
 
@@ -308,14 +359,18 @@ Added 2026-10-19. One idea ties these together: **every visitor action is a URL
 command** (`navigation-commands.ts`). The Spotlight results, the
 empty-Spotlight pills, the overlay buttons and the voice assistant all run the
 same `NavigationCommand` (`router.replace` for URL state, `router.push` for modals).
+The Spotlight searches that one list: typing finds the quick actions ("Open
+next stop", "Nearest food") beside works, contents and services. Actions are
+built from the navigation state in the browser and are never indexed in
+Typesense; this is the museum navigation's own search only.
 
-| Piece              | Files                                                                          | How it works                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| ------------------ | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `DirectionsBar.tsx`   | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| GPS progress       | `src/lib/gps.ts`, `gps-source.ts`, `use-route-guidance.ts`, `GpsSimulator.tsx` | Anchor = pinned start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z), snapped onto the navmesh = the live position, where the avatar walks (at walking pace between fixes, `WalkingAvatar`). The route is followed as a navcat `pathCorridor` ("Pacman" wayfinding): each live position moves the corridor, the line is string-pulled from the avatar, and a new route is searched only when a wall separates the live position from the corridor; directions keep their steps meanwhile (step by distance walked along the followed route). The simulator's stick walks continuously at up to 1.4 m/s and slides along walls (`moveAlongSurface`); a tapped arrow key nudges 1 m. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                                                                                            |
-| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `use-nearby-suggestions.tsx`                  | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`    | Tap the orb → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. Before the model, the controlled vocabulary (`src/lib/voice-vocabulary.ts`, Italian and English fixed phrases: avanti/indietro, cos'è questo, dimmi di più/meno, non ho capito, troppo semplice, chi è l'autore, qual è lo stile, ci sono ostacoli, uscita, bagno, bar, negozio) runs its command directly. Every phrase has an on-screen pill: `previous-stop`, `what-is-this`, `author`/`style` (the work's Wikidata subjects, open `/subject/[id]`), `version:harder` ("More in depth"); "obstacles" turns on the step-free route, and the museum's declared accessibility is in the assistant's context. |
-| Settings           | `GuidanceSettings.tsx`                                                         | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| Piece              | Files                                                                          | How it works                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| ------------------ | ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directions         | `src/lib/museum-rooms.ts`, `src/lib/tour-directions.ts`, `DirectionsBar.tsx`   | Route sampled every 0.5 m → room of each sample (Pascal `ZoneNode`) → a step per room change, naming the nearest `DoorNode` (≤ 2 m) and the turn from the angle between legs → arrival side. No AI; i18n templates; the first step has no turn because heading is unknown. `use-route-guidance.ts` rebuilds the steps whenever the map hands a new route (new destination or start, step-free navmesh) and restarts from the GPS step, else the first; `useTourCursor` memoizes the destination on `to`/`service`/`exit` only, so a modal or reading option keeps the route and the shown step.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| GPS progress       | `src/lib/gps.ts`, `gps-source.ts`, `use-route-guidance.ts`, `GpsSimulator.tsx` | Anchor = pinned start + the GPS fix taken there. Estimate = anchor + offset (equirectangular metres; map drawn north-up, north = −z), snapped onto the navmesh = the live position, where the avatar walks (at walking pace between fixes, `WalkingAvatar`). The route is followed as a navcat `pathCorridor` ("Pacman" wayfinding): each live position moves the corridor, the line is string-pulled from the avatar, and a new route is searched only when a wall separates the live position from the corridor; directions keep their steps meanwhile (step by distance walked along the followed route). The simulator's stick walks continuously at up to 1.4 m/s and slides along walls (`moveAlongSurface`); a tapped arrow key nudges 1 m. Fixes worse than 50 m are ignored. The estimate never writes `at`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| Nearby suggestions | `src/lib/nearby-suggestions.ts`, `use-nearby-suggestions.tsx`                  | On entering a room, off-tour contents of that room's objects, once per visit, as one Mantine notification (top-center) with Open / Go there; also listed as "Nearby" pills. Paid locked contents show `LockedPriceBadge`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Voice assistant    | `src/components/assistant/*`, `src/app/api/assistant`, `src/app/api/speech`    | Tap the microphone button → one `MicVAD` from `@ricky0123/vad-web` (Silero VAD in the browser), created on the first tap and reused, closes the mic at the end of speech → `/api/assistant`: Groq Whisper transcript + one `generateText` with `Output.object({ reply, commandId })` restricted to the offered command ids → the browser runs the command; `/api/speech` (Fish Audio) speaks the reply. Plain JSON, no streaming. Before the model, the controlled vocabulary (`src/lib/voice-vocabulary.ts`, Italian and English fixed phrases: avanti/indietro, cos'è questo, dimmi di più/meno, non ho capito, troppo semplice, chi è l'autore, qual è lo stile, ci sono ostacoli, uscita, bagno, bar, negozio) runs its command directly. Every phrase has an on-screen pill: `previous-stop`, `what-is-this`, `author`/`style` (the work's Wikidata subjects, open `/subject/[id]`), `version:harder` ("More in depth"); these exist only while a modal shows a work, the one sign that the visitor is looking at it (`what-is-this` on a content or stop, which it opens the work of; `author`/`style` on the object modal too). Every command follows the navigation state (`navigation-commands.ts`): none that would reopen what is open or change nothing (the active service or nearest exit, the reading option already shown, an exhausted "Tell me more" angle). The voice assistant gets the same list; a fixed phrase whose command is missing now reaches the model with the vocabulary's `unavailable` reason, so it explains why instead of guessing. "Obstacles" turns on the step-free route, and the museum's declared accessibility is in the assistant's context. |
+| Settings           | `GuidanceSettings.tsx`                                                         | Opt-in switches (assistant, spoken directions, suggestions) and GPS mode, in localStorage.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
 
 The catalog (`data.ts`) is read **as the viewer** so each content summary carries
 `price` and a server-computed `locked`; the body never reaches the client.
@@ -349,7 +404,7 @@ e2e specs pass against it):
   (`patches/@pascal-app__editor.patch`) and `src/types/pascal-editor-deps.d.ts`
   declares its untyped imports, because Next typechecks Pascal's shipped source.
 
-Stories: `DirectionsBar`, `GpsSimulator`, `NavigationSpotlight`, `Assistant/Orb`,
+Stories: `DirectionsBar`, `GpsSimulator`, `NavigationSpotlight`, `Assistant/Button`,
 and `TourNavigation` `RouteDirections` / `NearbySuggestion` / `AssistantOff`
 (the route mock has two zones, _West hall_ and _East hall_). Unit tests:
 `tests/int/tour-guidance.int.spec.ts` (realistic fixture museum). Full flow on the
@@ -357,7 +412,7 @@ real app: `tests/e2e/tour-guidance.e2e.spec.ts` (simulated GPS → step → sugg
 and `tests/e2e/voice-assistant.e2e.spec.ts` (a WAV as the microphone → command);
 see `tests/e2e/README.tour-navigation.md`. Storybook's map stories need a GPU and
 are tagged `!test`; Storybook proxies `/api/assistant` and `/api/speech` to a local
-`pnpm dev` so the orb can be tried there too.
+`pnpm dev` so the microphone button can be tried there too.
 
 ## Generated texts, planned tours and museum mode
 
@@ -389,7 +444,8 @@ ones only in their metadata (`generation` groups).
   regenerates the English one when the title or text changes; other
   languages are generated on first listen, once the translation exists
   (`/api/content-audio/[id]`, statuses `ready`, `pending`, `translating`,
-  `locked`, `unavailable`). Task `generateContentAudio` on queue `speech`
+  `locked`, `unavailable`); a record whose MP3 is gone (a redeploy replaces
+  the standalone folder the files live in) is deleted and the audio queued again. Task `generateContentAudio` on queue `speech`
   (Fish Audio through AI SDK `generateSpeech`, long texts split by paragraph
   and joined); the source audio's real length replaces the estimated
   `durationSeconds`. The route reads the body as the visitor, so a locked paid

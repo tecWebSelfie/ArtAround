@@ -43,6 +43,13 @@ import { useTranslation } from 'react-i18next'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
+import {
+  QuizEditor,
+  saveQuizQuestions,
+  validateQuiz,
+  type KeptQuestion,
+  type QuizDraft,
+} from './QuizEditor'
 
 /** Content a tour may include (see `getTourEditorData`). */
 export type TourCandidate = {
@@ -65,6 +72,8 @@ type TourValues = {
   logistics: string
   /** Per stop (content id): how to reach it from the previous one. */
   directions: Record<string, string>
+  /** The tour's own quiz questions (`QuizEditor`). */
+  quiz: QuizDraft[]
 }
 
 /**
@@ -123,7 +132,7 @@ function SortableStop({
             <Group gap={4} wrap="nowrap" c="dimmed">
               <MapPinOff size={12} aria-hidden />
               <Text size="xs" fw={500}>
-                {t('No longer on show, visitors skip it')}
+                {t("Visitors don't see this stop: replace or remove it")}
               </Text>
             </Group>
           )}
@@ -203,6 +212,7 @@ export function TourForm({
   visitCopyOf = null,
   minStops = minStopsFor({ visitCopyOf }),
   cancelHref,
+  keptQuestions = [],
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -234,6 +244,12 @@ export function TourForm({
    * the abandoned editor leaves no trail behind.
    */
   cancelHref: Route
+  /**
+   * Quiz questions linked to contents (written in the admin): the editor
+   * doesn't show them, the save keeps them in their places while one of
+   * their contents is still a stop.
+   */
+  keptQuestions?: KeptQuestion[]
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
@@ -250,6 +266,7 @@ export function TourForm({
       visibility: initial?.visibility ?? 'public',
       logistics: initial?.logistics ?? '',
       directions: initial?.directions ?? {},
+      quiz: initial?.quiz ?? [],
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
       // so they stay listed instead of disappearing on save.
       contents: initial?.contents ?? [],
@@ -260,6 +277,9 @@ export function TourForm({
         value.length >= minStops
           ? null
           : t('A tour needs at least {{count}} stops', { count: minStops }),
+      quiz: validateQuiz(
+        t('Every question needs its text, the correct answer and three wrong answers'),
+      ),
     },
   })
 
@@ -284,9 +304,23 @@ export function TourForm({
         museum: museum.id,
         thumbnail: await saveCover(cover, thumbnail, 'toursThumbnails', title),
       }
-      return tourId
-        ? payloadSdk.update({ collection: 'tours', id: tourId, data })
-        : payloadSdk.create({ collection: 'tours', data: { ...data, visitCopyOf } })
+      // Questions first: the tour validates the ids its quiz lists.
+      const quiz = await saveQuizQuestions({
+        quiz: values.quiz,
+        saved: initial?.quiz ?? [],
+        kept: keptQuestions,
+        stops: values.contents,
+      })
+      try {
+        const withQuiz = { ...data, quiz: { questions: quiz.questions } }
+        return await (tourId
+          ? payloadSdk.update({ collection: 'tours', id: tourId, data: withQuiz })
+          : payloadSdk.create({ collection: 'tours', data: { ...withQuiz, visitCopyOf } }))
+      } catch (error) {
+        // No tour lists the questions just created: don't leave them behind.
+        await quiz.discard()
+        throw error
+      }
     },
     (saved) => {
       clearDraft()
@@ -337,6 +371,12 @@ export function TourForm({
           byId={byId}
           museumId={museum.id}
           returnTo={editorUrl}
+        />
+
+        <QuizEditor
+          value={form.values.quiz}
+          onChange={(quiz) => form.setFieldValue('quiz', quiz)}
+          error={form.errors.quiz}
         />
 
         <Group justify="end">
@@ -489,9 +529,7 @@ function TourStopsEditor({
         <Alert color="gray" icon={<MapPinOff size={16} aria-hidden />}>
           <Stack gap="xs" align="start">
             <Text size="sm">
-              {t('This tour has stops that can no longer be visited, and visitors skip them', {
-                count: unavailableSelected.length,
-              })}
+              {t("Visitors don't see stops that can no longer be visited: replace or remove them")}
             </Text>
             <Button
               size="compact-sm"

@@ -181,7 +181,7 @@ async function confirmGroupEnd(page: Page, code: string, status = 204) {
   }
 }
 
-/** "Start with a group" on the tour's start page; returns the room code. */
+/** "Lead the group" on the tour's start page (it opens the "Start with a group" modal); returns the room code. */
 async function openGroup(page: Page, name: string, { showResults = false } = {}) {
   await page.goto(at(`/en/museum/${fixture!.museumId}/navigation/tour/${fixture!.tourId}`), {
     waitUntil: 'domcontentloaded',

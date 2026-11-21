@@ -22,8 +22,9 @@ export async function lockedMuseumId() {
 
 /**
  * What the locked museum shows: its objects (the map-derived index) and their
- * contents. Search pages add these IDs to their queries, so in museum mode
- * every list holds only that museum. `null` in global mode.
+ * contents. Search uses only the `museumId` (through the index's `museum_id`
+ * filter); the object and content ids still scope the map and the pages that
+ * read Payload directly. `null` in global mode.
  * React.cache: the tabs layout and its page both ask within one request.
  */
 export const museumScope = cache(async () => {
@@ -49,46 +50,14 @@ export const museumScope = cache(async () => {
 })
 
 /**
- * Museum mode for the search index (`querySearchIndex({ restrictTo })`): per
- * kind, the source ids the locked museum allows, or `undefined` in global mode
- * (nothing restricted). People are the authors of its tours and contents, so a
- * creator shows up only through work in this museum. Shared by the navigator
- * search and the marketplace, so both scope alike.
+ * Museum mode for the search index: the locked museum's id, or `null` in
+ * global mode. Every indexed document carries the `museum_id` values it
+ * belongs to (a tour its museum, a content/object/user the museums of their
+ * work), so scoping a search is one `filter_by` instead of rebuilding id
+ * lists. Shared by the navigator search, the marketplace and `/search/*`, so
+ * they all scope alike.
  */
-export const museumSearchRestriction = cache(async () => {
-  const scope = await museumScope()
-  if (!scope) return undefined
-  const payload = await getPayload({ config })
-  const [tours, contents] = await Promise.all([
-    payload.find({
-      collection: 'tours',
-      where: { museum: { equals: scope.museumId } },
-      depth: 0,
-      pagination: false,
-      select: { author: true },
-    }),
-    payload.find({
-      collection: 'contents',
-      where: { id: { in: scope.contentIds } },
-      depth: 0,
-      pagination: false,
-      select: { author: true },
-    }),
-  ])
-  const authors = new Set(
-    [...tours.docs, ...contents.docs].flatMap(({ author }) => {
-      const id = typeof author === 'string' ? author : author?.id
-      return id ? [id] : []
-    }),
-  )
-  return {
-    museum: [scope.museumId],
-    tour: tours.docs.map((tour) => tour.id),
-    content: scope.contentIds,
-    object: scope.objectIds,
-    user: [...authors],
-  }
-})
+export const museumSearchMuseumId = cache(async () => (await museumScope())?.museumId ?? null)
 
 /**
  * The contents of a museum's objects: the link is stored on the object

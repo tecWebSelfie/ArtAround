@@ -130,7 +130,6 @@ export interface Config {
     'lfrs-replies': LfrsReply
     'lfrs-shares': LfrsShare
     'lfrs-testimonials': LfrsTestimonial
-    search: Search
     'payload-mcp-api-keys': PayloadMcpApiKey
     'payload-kv': PayloadKv
     'payload-jobs': PayloadJob
@@ -205,7 +204,6 @@ export interface Config {
     'lfrs-replies': LfrsRepliesSelect<false> | LfrsRepliesSelect<true>
     'lfrs-shares': LfrsSharesSelect<false> | LfrsSharesSelect<true>
     'lfrs-testimonials': LfrsTestimonialsSelect<false> | LfrsTestimonialsSelect<true>
-    search: SearchSelect<false> | SearchSelect<true>
     'payload-mcp-api-keys': PayloadMcpApiKeysSelect<false> | PayloadMcpApiKeysSelect<true>
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>
@@ -2272,6 +2270,11 @@ export interface Tour {
       }[]
     | null
   contents: (string | Content)[]
+  /**
+   * Stops visitors can reach (content readable, about a work placed on the museum map). Maintained by the server.
+   */
+  visitableStops?: number | null
+  visitableContents?: (string | Content)[] | null
   thumbnail?: (string | null) | ToursThumbnail
   museum: string | Museum
   author?: (string | null) | User
@@ -3228,45 +3231,6 @@ export interface LfrsTestimonial {
   createdAt: string
 }
 /**
- * Automatically generated search rows. Use the Reindex button after changing search configuration.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "search".
- */
-export interface Search {
-  id: string
-  title?: string | null
-  priority?: number | null
-  doc:
-    | {
-        relationTo: 'tours'
-        value: string | Tour
-      }
-    | {
-        relationTo: 'contents'
-        value: string | Content
-      }
-    | {
-        relationTo: 'users'
-        value: string | User
-      }
-    | {
-        relationTo: 'museums'
-        value: string | Museum
-      }
-    | {
-        relationTo: 'objects'
-        value: string | Object
-      }
-  kind: 'tour' | 'content' | 'user' | 'museum' | 'object'
-  excerpt?: string | null
-  city?: string | null
-  priceCents?: number | null
-  sourceCreatedAt?: string | null
-  updatedAt: string
-  createdAt: string
-}
-/**
  * API keys control which collections, resources, tools, and prompts MCP clients can access
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -3959,10 +3923,6 @@ export interface PayloadLockedDocument {
         value: string | LfrsTestimonial
       } | null)
     | ({
-        relationTo: 'search'
-        value: string | Search
-      } | null)
-    | ({
         relationTo: 'payload-mcp-api-keys'
         value: string | PayloadMcpApiKey
       } | null)
@@ -4571,6 +4531,8 @@ export interface ToursSelect<T extends boolean = true> {
         id?: T
       }
   contents?: T
+  visitableStops?: T
+  visitableContents?: T
   thumbnail?: T
   museum?: T
   author?: T
@@ -5082,22 +5044,6 @@ export interface LfrsTestimonialsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "search_select".
- */
-export interface SearchSelect<T extends boolean = true> {
-  title?: T
-  priority?: T
-  doc?: T
-  kind?: T
-  excerpt?: T
-  city?: T
-  priceCents?: T
-  sourceCreatedAt?: T
-  updatedAt?: T
-  createdAt?: T
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-mcp-api-keys_select".
  */
 export interface PayloadMcpApiKeysSelect<T extends boolean = true> {
@@ -5446,6 +5392,7 @@ export interface TaskGenerateContentAudio {
     contentId: string
     locale: string
     variantId?: string | null
+    textHash?: string | null
   }
   output: {
     status: string

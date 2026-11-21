@@ -66,16 +66,18 @@ export function useRouteGuidance({
   const gpsStep = progress ? stepAtDistance(steps, progress.distance) : null
 
   // The shown step: GPS moves it when progress passes a step, the arrows move
-  // it by hand, and a new route starts again from the first step. Both are
-  // reactions to a change (new steps, new GPS step), tracked by remembering
-  // the last value seen, again during render instead of in effects.
+  // it by hand, and a new path starts again from where GPS puts the visitor
+  // on it (the first step without GPS). Both are reactions to a change (new
+  // steps, new GPS step), tracked by remembering the last value seen, again
+  // during render instead of in effects.
   const [current, setCurrent] = useState(gpsStep ?? 0)
   const [seen, setSeen] = useState({ steps, gpsStep })
-  if (seen.steps !== steps || seen.gpsStep !== gpsStep) {
+  if (seen.steps !== steps) {
     setSeen({ steps, gpsStep })
-    // A GPS step wins over the reset when both change together, as before.
-    if (gpsStep !== null && gpsStep !== seen.gpsStep) setCurrent(gpsStep)
-    else if (seen.steps !== steps) setCurrent(0)
+    setCurrent(gpsStep ?? 0)
+  } else if (seen.gpsStep !== gpsStep) {
+    setSeen({ steps, gpsStep })
+    if (gpsStep !== null) setCurrent(gpsStep)
   }
 
   return {

@@ -1,7 +1,7 @@
 import { asId, isSuperAdmin } from '@/access/museumRoles'
 import { jwtVerify, SignJWT } from 'jose'
 import { createSecretKey } from 'node:crypto'
-import type { Access, CollectionAfterChangeHook, PayloadRequest, Where } from 'payload'
+import type { Access, PayloadRequest, Where } from 'payload'
 import { parseCookies } from 'payload/shared'
 import { cache } from 'react'
 
@@ -15,7 +15,9 @@ import { cache } from 'react'
  * - the guests of a group visit of a tour, who hold the group cookie: a
  *   short-lived token, signed by the server with the LiveKit secret when they
  *   joined the room (`/api/rooms/token`), naming the room's tour. It lets them
- *   read that tour and its contents, nothing else.
+ *   read that tour and the contents the tour's author may share: public ones
+ *   and the author's own private ones. A private content of someone else that
+ *   the tour merely lists stays locked, whatever the tour says.
  *
  * The access functions return query constraints, so every Local API, REST
  * and page read applies the same rule.
@@ -104,8 +106,12 @@ export function groupTourOf(req: PayloadRequest): Promise<string | null> {
 }
 
 /**
- * The contents of the group cookie's tour, read once per request: a page
- * runs `contents.read` for every find, count and join it makes.
+ * The contents the group cookie's tour may unlock, read once per request: a
+ * page runs `contents.read` for every find, count and join it makes. Only
+ * what the tour's author may share: contents that are public or authored by
+ * the tour's author. A tour can list another user's private content (the
+ * save guard only refuses private stops in public tours), so unlocking every
+ * listed id would let anyone with the cookie read it.
  */
 function groupTourContentIds(req: PayloadRequest, tourId: string): Promise<string[]> {
   const cached = req.context[CONTENTS_CACHE] as Promise<string[]> | undefined
@@ -115,11 +121,30 @@ function groupTourContentIds(req: PayloadRequest, tourId: string): Promise<strin
       collection: 'tours',
       id: tourId,
       depth: 0,
-      select: { contents: true },
+      select: { contents: true, author: true },
       overrideAccess: true,
       req,
     })
-    .then((tour) => (tour.contents ?? []).map(asId).filter((id): id is string => Boolean(id)))
+    .then(async (tour) => {
+      const listed = (tour.contents ?? []).map(asId).filter((id): id is string => Boolean(id))
+      const author = asId(tour.author)
+      if (!listed.length || !author) return []
+      const { docs } = await req.payload.find({
+        collection: 'contents',
+        where: {
+          and: [
+            { id: { in: listed } },
+            { or: [{ visibility: { not_equals: 'private' } }, { author: { equals: author } }] },
+          ],
+        },
+        depth: 0,
+        select: {},
+        pagination: false,
+        overrideAccess: true,
+        req,
+      })
+      return docs.map((doc) => String(doc.id))
+    })
     .catch(() => [])
   req.context[CONTENTS_CACHE] = pending
   return pending
@@ -151,30 +176,7 @@ export const readContents = readVisible(async (req, tourId) => {
 })
 
 /**
- * `afterChange` hook: a document that is (or became) private leaves the
- * search index. The search plugin's `skipSync` only skips indexing, it never
- * removes a row saved while the document was public.
- */
-export const hideFromSearch =
-  (collection: 'contents' | 'tours'): CollectionAfterChangeHook =>
-  async ({ doc, req }) => {
-    if (doc.visibility !== 'private') return doc
-    await req.payload.delete({
-      collection: 'search',
-      where: {
-        and: [
-          { 'doc.relationTo': { equals: collection } },
-          { 'doc.value': { equals: String(doc.id) } },
-        ],
-      },
-      overrideAccess: true,
-      req,
-    })
-    return doc
-  }
-
-/**
- * Tours that lists show. Two kinds of tour belong to one visitor and are saved
+ * Tours that lists show. Tours with no visitable stop are left out (below). Two kinds of tour belong to one visitor and are saved
  * as tours only so that a group can follow them by link: a visit planned for
  * them ("Plan my visit", `generation.generated`) and their own copy of a tour
  * for a visit (`visitCopyOf`, "Edit" on a start page). Every list of tours (the
@@ -186,7 +188,12 @@ export const LISTED_TOURS: Where = {
   'generation.generated': { not_equals: true },
   // Payload's `exists: false` on a relationship also matches a stored null.
   visitCopyOf: { exists: false },
+  // A tour with no visitable stop is never offered (`visitableStops`, kept by
+  // src/lib/visitable-stops.ts). A tour that has no stored count yet (saved
+  // before the field, not backfilled) stays listed: failing open keeps a
+  // database that has not run the backfill from emptying every list.
+  or: [{ visitableStops: { exists: false } }, { visitableStops: { greater_than: 0 } }],
 }
 // The same rule as a predicate, defined with the stop minimum it also
 // drives (`src/lib/tour-stops.ts`, client-safe, unlike this module).
-export { isPersonalTour } from '@/lib/tour-stops'
+export { isEmptyTour, isPersonalTour } from '@/lib/tour-stops'

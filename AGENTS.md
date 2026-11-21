@@ -1,388 +1,194 @@
 # Agents
 
-This project uses the Payload CMS skill at `.agents/skills/payload/`.
-Start with `.agents/skills/payload/SKILL.md` for a quick reference, then see `.agents/skills/payload/reference/` for detailed docs.
-
-This project uses the Pascal plugin-authoring skill at `.agents/skills/pascal-plugin-authoring/`
-for `@pascal-app/*` custom plugins, node kinds, systems, and `MapViewer`/museum-map work.
-
-`.agents/skills/` is the source of truth for skills. Claude Code only reads
-`.claude/skills/`, and symlinks don't materialize on this Windows checkout
-(`core.symlinks=false`), so `payload`, `pascal-plugin-authoring`, `shadcn`,
-`i18next-localization`, `vercel-react-best-practices`, `cloud-preview` and
-`web-design-guidelines` are **copied** there (`impeccable` has its own copy).
-After changing a skill in `.agents/skills/`, copy it again into `.claude/skills/`.
+Skills: `.agents/skills/` is the source of truth; Claude Code reads copies in
+`.claude/skills/` (no symlinks on the Windows checkout), so copy a changed
+skill there again (`impeccable` has its own copy). Use `payload` for Payload
+CMS (start from its `SKILL.md`, then `reference/`) and `pascal-plugin-authoring` for `@pascal-app/*` plugins, node kinds and
+`MapViewer`/museum-map work.
+Playwright's own skills (`pnpm exec playwright init-skills --loop agents`
+after a Playwright upgrade, then copy): `playwright-cli` to drive a browser
+(`pnpm exec playwright cli`, the local version), `playwright-trace` to read
+a failing e2e trace, `playwright-component-testing` (we test components with
+Storybook instead: use it only if asked).
 
 ## Working with the maintainer
 
-- Commit and push freely to the branch the session works on. Ask first before
-  pushing to any other branch, merging, or opening a PR.
-- Never ask for secrets, keys or tokens in chat: they live in the
-  environment's variables or in `.env.local`.
-- Keep the git hooks on: no `--no-verify` or `HUSKY=0` unless the maintainer
-  asks for it.
 - Talk to the maintainer in Italian; code, comments, commits and docs stay in
   English.
+- Commit and push freely to the session's branch. Ask first before pushing to
+  any other branch, merging, or opening a PR.
+- Never ask for secrets, keys or tokens in chat: they live in the
+  environment's variables or in `.env.local`.
+- Keep the git hooks on: no `--no-verify` or `HUSKY=0` unless asked.
+- Patching a dependency (`pnpm patch`, `patches/`, `patchedDependencies`) is a
+  last resort, applied only with the maintainer's consent: first look for the
+  library's own API, a wrapper or a workaround in our code; if none fits,
+  explain why a patch is needed and what it changes, and wait for approval.
+  This covers changes to existing patches too.
+- Ask before optional costly steps (subagent reviews, full translations), and
+  never run the visual regression tests (`pnpm test:visual*`, ~8 min) without
+  approval for that specific run: propose the command and wait.
+- Build on existing worktree changes, preserving unrelated edits.
 
-## Museum editor and tour navigation
+## Deploy constraints (read first)
 
-Use these guides as starting points for implementation and debugging:
+Production imposes hard limits on every change ([Standalone
+deploy](docs/standalone-deploy.md)):
 
-- [Tour navigation](docs/tour-navigation.md): intended behavior, code map, QR routes,
-  avatar positioning, Pascal controls, local fixture, and verification status.
-- [Tour quiz](docs/tour-quiz.md): quiz data model, answer secrecy, ownership rules,
-  visitor flow, results and statistics.
-- [Group tours](docs/group-tours.md): rooms on LiveKit, join by code/link/QR, waiting
-  room, guests following the host, group quiz, local LiveKit setup.
-- [Interactive object models](docs/interactive-object-models.md): editor catalog,
-  Mint preview/approval, and Payload jobs integration.
-- [Subjects and Wikidata](docs/subjects-and-wikidata.md): universal identifiers, authors,
-  movements and events of the works, the Wikidata import.
-- [Permissions and editing](docs/permissions-and-editing.md): per-museum roles,
-  access rules, paid contents, viewer-scoped reads, and the frontend editing plan.
+- The deploy folder's disk quota is too small to build in: `pnpm build` runs
+  elsewhere and only `.next/standalone` (app, assets, bundled seed/reindex
+  scripts) is copied there, symlinks preserved. Watch its size when adding
+  dependencies or assets.
+- The Docker container can't be entered; its only entrypoint is
+  `node standalone/scripts/standalone-boot.mjs` (the standalone is copied into
+  the mounted `html` folder). No shell, `pnpm`, `tsx`, `payload` CLI or
+  second command.
+- The database is reachable only from inside that container. `next build`
+  must succeed with no database (no `generateStaticParams` or build-time
+  reads that connect), and any task that writes data (seed, reindex,
+  migrations, imports) must be bundled into the standalone and run by the
+  boot script.
 
-Improve and simplify these implementations as needed; the guides describe the
-current design and should evolve with the code. Reuse Pascal APIs, Mantine,
-Payload types/SDK, and generated Mint SDK/schemas where they fit; introduce other
-libraries or abstractions when they make the solution simpler.
+## Feature guides
 
-## Search
+Read the guide for the area you touch. Improve and simplify these
+implementations as needed; the guides describe the current design and evolve
+with the code.
 
-Marketplace and navigator search use the official Payload search plugin
-(`@payloadcms/plugin-search`) and its generated `search` collection. The
-marketplace scope is tours/contents/users; the navigator (home) scope is
-tours/contents/museums plus museum city matching. See
-[Search](docs/search.md) for the indexed fields, scopes, and reindex command.
+- [Tour navigation](docs/tour-navigation.md): behavior, code map, QR routes,
+  avatar, directions, Spotlight and voice commands, local fixture.
+- [Tour quiz](docs/tour-quiz.md), [Group tours](docs/group-tours.md)
+  (LiveKit rooms), [Interactive object models](docs/interactive-object-models.md),
+  [Subjects and Wikidata](docs/subjects-and-wikidata.md),
+  [Permissions and editing](docs/permissions-and-editing.md),
+  [Search](docs/search.md): Typesense Cloud, one collection written by
+  Payload hooks through the Next server (`src/lib/search/*`; the browser
+  never holds a key, an outage is shown as such); marketplace scope
+  tours/contents/objects/users, navigator (home) scope tours/contents/museums
+  (museum mode: tours/contents/objects of that museum); reindex command.
+- [AI translation](docs/ai-translation.md): editorial content translated on
+  demand; read it before any localized read, `editorial()` field or
+  translator change. In short: mark translatable fields with `editorial()`
+  (never slugs, identifiers, emails/URLs or plugin internals); register
+  collections only in `autoTranslatePlugin` in `src/payload.config.ts`;
+  never call Payload REST for localized reads (use `/api/{slug}/:id/localized`,
+  `resolveLocalized()` on the server, `getLocalizedDoc()` in the browser);
+  no translation logic in `afterRead` hooks; server pages queue translations
+  with `requestTranslations` and render `TranslationPending`.
+- [Development](docs/development.md): checks in detail, exact pins, Storybook
+  MCP, Impeccable, timings.
+- [Cloud preview](docs/cloud-preview.md): in a cloud session the maintainer
+  tries the app over Tailscale (`cloud-preview` skill).
 
-For fast iteration, run focused checks for the affected behavior rather than the
-entire test suite: `pnpm test:int --changed` (only the specs that import a
-changed file) or one spec file; one e2e spec with `-g "<test>" --trace off`
-against the running `next dev`. Full suites run before a delivery. Run memory-heavy checks sequentially and state which checks
-passed and which remain open. Build on existing worktree changes, preserving
-unrelated edits.
+Reuse Pascal APIs, Mantine, Payload types/SDK and the generated Mint
+SDK/schemas where they fit, and introduce other libraries or abstractions
+when they make the solution simpler. Before writing state, storage, theme or layout
+helpers, grep for an existing one (e.g. `src/lib/session-store.ts`,
+`src/theme.ts`).
 
-Visual regression tests (`pnpm test:visual`, `pnpm test:visual:update`) screenshot
-every Storybook story through the Vitest browser project and take several minutes
-(~8 min for the full suite). **Never run them without the user's explicit approval
-for that specific run**; propose the command and wait. Setup and opt-out
-(`parameters.visual.disable`) are documented in `.storybook/vitest.visual.ts`;
-references live in `__screenshots__/`, diffs in `.vitest-attachments/`.
-They run in the official Playwright Docker image on every host
-(`scripts/test-visual-docker.mjs`; Docker Desktop on Windows), so the Windows
-PC and Linux cloud sessions share one Linux reference set. Pass vitest filters
-after the command to run only some stories, e.g.
-`pnpm test:visual:update "src/app/[lng]/(frontend)/(tabs)/navigator/NavigatorPage.stories.tsx"`.
-`pnpm test:visual:run` is the bare run the container executes.
+## Code conventions
 
-Stories of async Server Components spread `serverComponentStory(Component)`
-(`src/mocks/server-component.tsx`) into their meta instead of calling
-`use(Component(props))`: it resolves the component and any nested async ones in
-a loader, which Storybook's `experimentalRSC` (only a Suspense wrapper) doesn't do.
-
-Document every source edit with comments that make its intent understandable in
-the wider feature flow. For a new or materially changed nontrivial file, briefly
-explain the file's role; at the relevant code, explain important decisions and
-invariants. Keep comments useful at a glance, and update or remove them when
-behavior changes; don't narrate obvious syntax line by line.
-
-## Responsive layout
-
-Layouts must stay responsive at every size: no pixel-precision tuning. Don't
-calibrate values to one screen (`100dvh - 565px`, offsets measured on one
-phone); let the layout adapt with flex/grid, fluid units, container queries,
-`clamp()` between design limits and Mantine breakpoints and spacing tokens.
-
-Style with the Mantine UI API first (components, their props, static style
-props, `hiddenFrom`/`visibleFrom`). For anything responsive and for what
-Mantine has no API for (container queries, grid templates, orientation or
-height media), prefer Tailwind utilities: Mantine responsive props
-(`mx={{ base, md }}`) inject a `<style>` tag per instance, Tailwind classes
-cost nothing at runtime. Keep the Mantine prop instead when the Tailwind
-equivalent would work against Mantine's design system without meaning to
-(e.g. `Text`'s `fz`, which Mantine pairs with its own line height) or would
-be convoluted (long arbitrary `calc()` classes). Mantine breakpoints differ from Tailwind's: use the
-`from-sm` / `from-md` / `below-md` / `fit-screen` variants in
-`src/app/[lng]/(frontend)/globals.css`, not Tailwind's `sm:`/`md:`, and
-Mantine's tokens through their CSS variables (`gap-(--mantine-spacing-md)`).
-Mantine static style props are inline styles, so a property a Tailwind
-variant overrides must be set with Tailwind too. Avoid CSS modules unless
-neither fits.
-
-## Design with Impeccable (`.claude/skills/impeccable/`)
-
-Codex uses `.agents/skills/impeccable/`; Claude uses `.claude/skills/impeccable/`.
-Both launchers run the same pinned engine and share the ignored
-`node_modules/.cache/impeccable/` bootstrap cache in this Node project; existing
-user installations and explicit `IMPECCABLE_HOME`/`IMPECCABLE_BIN` overrides
-remain supported. Run either launcher's `engine-probe` from the repository root
-to verify setup. A cloud sandbox may need authorized network access for the
-first verified download; cached runs need neither Internet nor home writes.
-See [Impeccable runtime](docs/impeccable-runtime.md) for client hook differences,
-bootstrap checks and the distinction between skills and engine commands.
-
-Impeccable is designed to be driven by one command on one narrow target at a
-time (`/impeccable <command> <target>`); the skill itself carries how each
-command works. Nothing runs it on its own: invoke it for every UI change,
-asked or not.
-
-- **Lifecycle:** `init` (PRODUCT.md) and `document` (DESIGN.md) are already
-  done. Rerun `document` when shipped UI changes the design system, and `init`
-  only if the product or its users change.
-- **Which command:**
-  - new surface or feature: `shape` first, then build;
-  - review: `critique` (UX, scored) and `audit` (technical, P0–P3);
-  - steer: `bolder`, `quieter`, `distill`, `typeset`, `layout`, `colorize`;
-  - finish: `polish`, then `harden`, `adapt`, `clarify`, `optimize` as needed;
-  - before pushing a UI change: `extract`, then `document` (see Checks);
-  - broken setup or stale context: `doctor`.
-- **Shared artifacts** are committed: PRODUCT.md, DESIGN.md and
-  `.impeccable/` (`config.json`, the `design.json` sidecar, `surfaces/`,
-  `live/config.json`). Per-developer state (`hook.cache.json`, `review/`,
-  `config.local.json`) is excluded locally. Critique reports (`critique/`)
-  are ignored in `.gitignore`: a snapshot of one page that goes stale as
-  soon as the page changes, unlike `surfaces/`.
-- **Detector hook** (`.claude/settings.json`): fires only on `Edit`/`Write`,
-  so UI edits made through Bash skip it. On source files it runs regex rules
-  only; the full rule set (contrast, tiny text) needs the running page:
-  `.claude/skills/impeccable/scripts/impeccable detect http://localhost:3000/en/<page>`.
-  In a cloud session, as root, it needs `IMPECCABLE_BROWSER` pointing at a
-  two-line script that runs
-  `/opt/pw-browsers/chromium-*/chrome-linux64/chrome --no-sandbox "$@"`.
-
-## Cloud preview (`scripts/cloud-preview.sh`)
-
-In a Claude Code cloud session, the user tries the app from their own devices
-over Tailscale with HTTPS: use the `cloud-preview` skill (`pnpm preview:cloud`,
-then `pnpm dev`). [Cloud preview](docs/cloud-preview.md) covers why Tailscale,
-the one-time tailnet setup (tag, access rules, `TS_AUTHKEY`) and the limits.
-On a PC none of it applies.
-
-Known traps in cloud sessions:
-
-- After a container restart, MongoDB and LiveKit are down: `pnpm services:start` brings them back
-  (it also starts the Docker daemon, which a cloud container doesn't run at boot).
-- `pnpm typecheck` and `pnpm dev` rewrite `src/payload-types.ts` unformatted.
-  Run `npx prettier --write src/payload-types.ts` before committing: it then
-  matches HEAD again.
-
-## Museum theme (`src/lib/museum-palette.ts`)
-
-Each museum's color becomes the primary color in museum mode (DESIGN.md → The
-Museum Primary Rule). `@adobe/leonardo-contrast-colors` is pinned to **exactly
-`1.0.1`** (no caret): 1.1.0 ships an ambient `declare module 'chroma-js'` stub
-that replaces `@types/chroma-js` in the whole project, so `chroma.contrast` and
-`chroma(...).oklch()` stop typechecking. Upgrade only once Leonardo drops it.
-
-## On-demand AI translation (`src/plugins/autoTranslate.ts`)
-
-When working on UI components, always use the `storybook` MCP tools to access Storybook's component and documentation knowledge before answering or taking any action. The MCP endpoint requires the Storybook dev server (`pnpm storybook`, port 6006, serves `http://localhost:6006/mcp`). In a cloud session a SessionStart hook (`scripts/storybook-autostart.sh`, opt out with `STORYBOOK_AUTOSTART=0`) starts it in the background; on a PC it is not started automatically (it costs memory): start it with `pnpm storybook --ci` when the work touches the UI, then reconnect the `storybook` MCP server. Storybook takes a while to build, so the MCP connection made at session start can miss it: if its tools are absent, call the endpoint directly (JSON-RPC over HTTP POST to `/mcp`).
-
-- **CRITICAL: Never hallucinate component properties!** Before using ANY property on a component from the design system (including common-sounding ones like `shadow`, etc.), you MUST use the MCP tools to check if the property is actually documented for that component.
-- Query `list-all-documentation` to get a list of documented components
-- Query `get-documentation` for that component to see all available properties and examples (use `get-documentation-for-story` when you need a full story)
-- Only use properties that are explicitly documented or shown in example stories
-- If a property isn't documented, do not assume properties based on naming conventions or common patterns from other libraries. Check back with the user in these cases.
-- Use the `get-storybook-story-instructions` tool to fetch the latest instructions for creating or updating stories. This will ensure you follow current conventions and recommendations.
-- Check your work by running `run-story-tests` (includes accessibility checks).
-
-Remember: A story name might not reflect the property name correctly, so always verify properties through documentation or example stories before using them.
-
-## On-demand AI translation (`src/plugins/autoTranslate.ts`)
-
-Editorial content (museums, objects, contents + upload `alt`s) is machine-translated
-lazily into any user locale and cached in Payload. Stack: `@focus-reactive/payload-plugin-translator`
-**exact pin `0.13.4`** (no caret — its unpublished `/translate/stale/*` route is load-bearing,
-see `src/endpoints/localized.ts` header) with Groq `openai/gpt-oss-120b` provider.
-
-- Mark translatable leaves with `editorial()` (`src/fields/editorial.ts`) — single generic
-  factory returning the field with `localized: true`. Opt-in only: new fields stay
-  untranslated-but-safe until wrapped. Never wrap `slug`, identifiers, emails/URLs,
-  or third-party plugin internals.
-- Register collections in ONE place: `autoTranslatePlugin({ collections: [...] })` in
-  `src/payload.config.ts`. The wrapper mounts `GET /api/{slug}/:id/localized?locale=xx`
-  on each and delegates to the translator (provider, Jobs runner, `provenance: true`,
-  no drafts). Never register `translatorPlugin` standalone alongside it.
-- `GROQ_API_KEY` lives in `.env` / `.env.local` (server-only, never `NEXT_PUBLIC_`).
-  Empty key boots fine; translations fail at runtime with a clear provider error.
-
-### Frontend usage (for app developers)
-
-Do NOT call Payload REST directly for localized reads (anonymous REST is RBAC-denied
-and `fallback: true` silently masks missing translations). Use the collection endpoint:
-
-```
-GET /api/objects/:id/localized?locale=fr
-→ { status: 'hit', source: 'db', locale, doc }                            // cached, ~100ms
-→ { status: 'miss-queued', source: 'fallback-en', locale, doc, queued }   // paints NOW
-→ { status: 'stale-refreshing', source: 'db-stale', ... }                 // serves stored + refreshes
-→ { status: 'miss-throttled', ... } (429) / { error } (400/404)
-```
-
-`?locale=` is optional: omitted, the server falls back to the request's
-`Accept-Language` header (explicit param always wins; present-but-invalid stays 400).
-
-Pattern: render `doc` immediately (EN fallback on MISS), show a badge while
-`status` is `miss-*`/`stale-refreshing`, poll the SAME url every 2s (max ~15) until
-`hit`. Next visitors get HIT instantly, zero AI. Never write translation logic in
-`afterRead` hooks and never import `dist/client` widget code into the frontend —
-reuse the endpoint. Playground: `/test-translation?collection=objects&id=…&locale=ja`.
-
-Typed DX (no `any`, no raw fetch): server code uses `resolveLocalized(payload, origin, …)`
-from `src/lib/localized.ts` (pure Local-API reads, same contract the endpoint serves);
-browser/client code uses `getLocalizedDoc()` from `src/payload-sdk.ts`
-(`PayloadSDK<Config>` + typed `doc` per collection). The endpoint itself
-(`src/endpoints/localized.ts`) is only the thin HTTP shell (validation, throttle,
-status codes) over `resolveLocalized()`.
-
-Server pages never go through that endpoint, so they queue the translation
-themselves: `requestTranslations(payload, collection, ids, locale)` in
-`src/lib/localized.ts` (once per document and window; `requestTourTranslations`
-for a tour with its stops and quiz) returns whether anything is
-still on its English fallback, and the page then renders `TranslationPending`
-(`src/components/TranslationPending.tsx`, or `TranslationNotice` for the documents
-read with `getLocalizedPageDocument`), which refreshes the route until the text
-arrives. The queue runs one document every 10 s on purpose (the provider's
-tokens-per-minute are shared with the live AI features; `TRANSLATION_JOBS_PER_RUN`
-raises it where the quota allows, e.g. for a bulk translation from the admin); `{ urgent: true }` runs
-the job at once and is for the one text the visitor is reading. The translator's
-prompt names the target language in full (`languageName` in
-`src/plugins/autoTranslate.ts`): with the bare code, "into it" was read as a
-pronoun and other languages were stored under the Italian locale.
-
-Caveats: in-memory per-IP throttle (30 enqueue/min, per-instance — Redis in prod);
-`stale` freshness check fail-opens to HIT if the pinned internal route ever 404s.
-
-## Storybook MCP (`storybook` in `opencode.json`)
-
-## Checks
-
-- `pnpm services:start` (formerly `db:start`): the development MongoDB, the `mongodb` service of
-  `docker-compose.yml` (no authentication: local test data; loopback only),
-  the same on a PC (Docker Desktop) and in a cloud session.
-  It also starts the local LiveKit server (`ws://localhost:7880`, best
-  effort) that group tours and their e2e spec need. Idempotent.
-- `pnpm test:int`: the integration specs (`tests/int`, Vitest project `int`,
-  in Node). Most need MongoDB running. Filter with a path or `-t`, e.g.
-  `pnpm test:int tests/int/objectsAccess.int.spec.ts`.
+- Comment every source edit so its intent is clear in the wider feature
+  flow: a new nontrivial file says what it is for; important decisions and
+  invariants are explained where they live. No line-by-line narration; update
+  comments when behavior changes.
 - Server pages and route handlers: start the reads that only need the params
-  together (`Promise.all`), and chain a read that depends on one other read
-  onto that promise (`.then`) instead of awaiting everything first. Keep
-  guards (a permission check that redirects, `notFound`) before the reads
-  they protect. Translations are the exception: `const { t } = await
-getT('ns')` stays its own statement (start the data reads before it, so they
-  still overlap), because `i18next-cli extract` only reads the namespace from
-  that shape; a `t` taken out of `Promise.all` lands in `common` and its keys
-  are dropped from their real file.
-- `pnpm typecheck`: regenerates Next's route types (`next typegen`; stale ones
-  break the check after a route move) and runs TypeScript 7's native `tsc --noEmit`
-  (on the Windows PC ~23 s from scratch, ~8 s with the incremental cache in the
-  git-ignored `tsconfig.tsbuildinfo`; `next typegen` is ~3 s of it): cheap enough
-  to run on the whole project instead of a scoped tsconfig.
-  TypeScript 7 has no JavaScript API (it comes back in 7.1). The tools that still
-  need one carry their own TypeScript 5.9: `typescript-json-schema` as a regular
-  dependency, `@hey-api/openapi-ts` (`pnpm openapi-ts`) through `.pnpmfile.cjs`,
-  which swaps its `typescript` peer for a private 5.9 (drop that hook with the
-  first openapi-ts release after 0.99.0, which no longer uses TypeScript).
-  Storybook reads props with `react-docgen`, which needs no TypeScript. VS Code
-  (`.vscode/settings.json`, recommended extensions): "TypeScript (Native Preview)"
-  replaces the built-in TypeScript (`js/ts.experimental.useTsgo`; the built-in one
-  finds no `tsserver` in TS 7) and points at `node_modules/typescript/lib`, used
-  once you click Allow on its prompt (otherwise it runs its bundled tsgo); the oxc
-  extension runs the project's oxlint, with oxfmt and the ESLint extension off.
-  `tsconfig.json` has no `baseUrl` (TS 7 removed it): `paths` resolve relative
-  to the tsconfig.
-- `pnpm lint`: oxlint (`.oxlintrc.json`), the same rule set the former ESLint
-  config had (eslint-config-next, the React Compiler rules of
-  eslint-plugin-react-hooks, eslint-plugin-storybook as a JS plugin), in a few
-  seconds on the whole project (ESLint took ~25 s). `oxlint` is pinned to
-  **exactly `1.90.0`**: 1.91.0 reports `react/immutability` on the effect-local
-  `let cancelled` flags (oxc-project/oxc#28401, fixed after 1.91.0); upgrade to
-  the release after it. It reads `// eslint-disable-next-line` comments too.
-  Readability rules (native size, nesting and complexity rules, plus
-  `eslint-plugin-sonarjs` as a JS plugin, pinned exactly, for cognitive
-  complexity and duplicated code) are **warnings**: lint-staged shows them on
-  the files a commit touches. Simplify what they flag in the code you are
-  changing anyway; they never block a commit.
-- `pnpm lint:type-aware`: the same config with `--type-aware`
-  (`oxlint-tsgolint`, pinned exactly; ~20 s, whole program), which adds the
-  type-aware rules: unawaited promises, async callbacks where a void one is
-  expected, non-exhaustive switches. Run by hand, not in a hook or CI, e.g.
-  before a delivery. It also type-checks a wider file set than `tsc`, so
-  `pnpm typecheck` stays the only type check: don't add `--type-check`.
-- Writing tests: before mocking or faking a library, check whether it ships
-  its own test module or API and use that (e.g. the AI SDK's `ai/test`
-  mock models, Playwright's `page.route`, MSW handlers in `src/mocks/`).
-  Hand-rolled fakes come last, when the library offers nothing.
-- `pnpm test:e2e`: Playwright against `next dev` (the running one is reused).
-  `E2E_SERVER=start` after `pnpm build` (~2 min) drives the production build
-  instead, as CI does: no route compiles inside a test's timeout, and the
-  full suite took 5.5 min there against 11 min on `next dev`. In a cloud
-  session with the preview on, `.env.local` points `NEXT_PUBLIC_PAYLOAD_URL`
-  at the Tailscale URL, where the test browser has no session: build with
-  `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
-- CI (`.github/workflows/tests.yml`): on every pull request (and by hand),
-  `test:int`, then the e2e suite against the production build, with MongoDB
-  and LiveKit from `pnpm services:start`. It runs on GitHub's runners and
-  blocks nothing unless branch protection requires it. It runs on mocked AI;
-  "Run workflow" with "real AI" calls Groq and Fish Audio, with the
-  repository secrets `GROQ_API_KEY` and `FISH_API_KEY`.
-- `AI_MOCK=true` (`src/lib/ai-models.ts`, the only place routes and tasks
-  get their AI models): the AI SDK's `ai/test` mock models answer instead of
-  Groq and Fish Audio (`src/lib/ai-mock.ts`). Set by CI and by Playwright on
-  the `pnpm start` server it launches; a `next dev` you start keeps the real
-  providers unless you set it. Never in a deployment (the server logs a
-  warning when it is on).
-- `pnpm seed:e2e`: prepares a local database for the e2e specs (base seed with the
-  `dev`/`test` super admin, then the tour-navigation fixture). Fixture specs read
-  `.e2e-fixtures/tour-navigation-fixture.json` through `tests/helpers/tour-fixture.ts`;
-  they skip locally without it and fail when `CI` is set. A skipped spec is not a pass.
-- Git hooks (husky, installed by `pnpm install` through the `prepare` script):
-  `pre-commit` runs lint-staged (`oxlint --fix` + `prettier --write` on staged files
-  only, deterministic and token-free); `pre-push` runs `pnpm typecheck`. Skip a
-  hook on purpose with `--no-verify` or `HUSKY=0`. Playwright and the integration
-  tests stay out of the hooks: they need the database and take too long.
-- Before every push, run `/code-review` on the unpushed changes and fix what
-  it finds; push only once it comes back clean (or the remaining findings are
-  explained to the maintainer). Push often, so that diff stays small.
-- Before opening a PR, run `/simplify` (reuse, simplification, efficiency) and
-  `/code-review` (correctness) by hand on the whole PR diff, as a final pass
-  over the pushes already reviewed one by one. They are deliberately not
-  wired to a commit hook: they are LLM reviews, so non-deterministic, they edit
-  the working tree after staging, and a commit hook could loop on them.
-- Before pushing, run `/simplify` on the unpushed changes. When they touch the
-  UI, also run, if needed, `/impeccable extract` (move new reusable tokens and
-  components into the design system) and `/impeccable document` (bring
-  DESIGN.md in line with the shipped UI). Skip them when the push changes no
-  design: the step is a judgement call, not a ritual. Same reasons as above
-  for keeping them out of the `pre-push` hook.
-- MCP servers: the stdio ones in `.mcp.json` start through `scripts/mcp-npx.mjs`, so
-  the same file works on Windows and in Linux/macOS (cloud) sessions. Their `npx`
-  start can exceed the 30 s connect timeout on Windows; a PC can switch off the
-  ones it doesn't use in `.claude/settings.local.json` (`disabledMcpjsonServers`).
-- Keep iterations short. Measured on the Windows PC over `src` (473 TS/TSX
-  files): `pnpm lint` ~3 s (whole project, with the SonarJS plugin), `prettier --check` ~8 s (0.3 s on a
-  few files, as in a commit), `pnpm typecheck` ~8–28 s. `npx` adds ~9 s to every
-  start: run tools from `node_modules/.bin` or `pnpm exec`. The lint ignores
-  generated output and `.claude/**` (nested worktrees with their own copy of the
-  project). So:
-  - don't run `oxlint`/`prettier` by hand before a commit: lint-staged runs
-    them on the staged files;
-  - run the slow checks once, at the end, not after each edit;
-  - before writing state, storage, theme or layout helpers, grep for an existing
-    one (e.g. `src/lib/session-store.ts`, `src/theme.ts`);
-  - a server component can't pass a function to a client one: wrap the client
-    side (e.g. `AppMantineProvider`);
-  - reuse the `next dev` already running (`dev (running)` in
-    `.claude/launch.json`): a second one in the same folder can't start;
-  - ask before optional costly steps (subagent reviews, full translations).
+  together (`Promise.all`) and chain dependent reads with `.then`; keep
+  guards (permission redirects, `notFound`) before the reads they protect.
+  `const { t } = await getT('ns')` stays its own statement (after starting
+  the reads), or `i18next-cli extract` loses the namespace.
+- A server component can't pass a function to a client one: wrap the client
+  side (e.g. `AppMantineProvider`).
+- Tests: use a library's own test module before faking it (`ai/test`,
+  Playwright's `page.route`, MSW handlers in `src/mocks/`).
+- Every bug found, by hand or by nightly QA, first becomes a regression
+  spec: see it fail on the buggy code, then fix it and commit both together.
+  Until the fix is merged that spec stays red on the branches without it.
+- Exact pins, don't upgrade without reading why ([Development](docs/development.md#exact-pins)):
+  `oxlint` 1.90.0, `@adobe/leonardo-contrast-colors` 1.0.1 (turns each
+  museum's color into the primary in museum mode, DESIGN.md → The Museum
+  Primary Rule),
+  `@focus-reactive/payload-plugin-translator` 0.13.4.
+
+## UI
+
+- Responsive at every size, no pixel tuning to one screen: flex/grid, fluid
+  units, container queries, `clamp()`, Mantine breakpoints and spacing.
+- Mantine first (components, props, static style props,
+  `hiddenFrom`/`visibleFrom`). For responsive styles and what Mantine lacks
+  (container queries, grid templates, orientation/height media) use Tailwind,
+  not Mantine responsive props (each injects a `<style>` tag), unless the
+  Tailwind form fights Mantine's design system (`Text`'s `fz`) or is a long
+  arbitrary `calc()`. Use the `from-sm`/`from-md`/`below-md`/`fit-screen`
+  variants of `src/app/[lng]/(frontend)/globals.css`, not `sm:`/`md:`, and
+  Mantine tokens through CSS variables (`gap-(--mantine-spacing-md)`). A
+  property a Tailwind variant overrides must be set with Tailwind too
+  (static style props are inline). Avoid CSS modules.
+- Storybook MCP (`storybook`, needs `pnpm storybook` on port 6006; a cloud
+  session starts it at boot, a PC with `pnpm storybook --ci`; if its tools
+  are missing, POST JSON-RPC to `http://localhost:6006/mcp`): on UI
+  components, consult it before answering or acting, and never use a
+  component property you haven't seen in `get-documentation` or an
+  example story; if it isn't documented, ask the maintainer. Follow
+  `get-storybook-story-instructions` for stories and check with
+  `run-story-tests`. Async Server Component stories spread
+  `serverComponentStory(Component)` (`src/mocks/server-component.tsx`).
+- Impeccable (`/impeccable <command> <target>`, one narrow target at a time)
+  for every UI change, asked or not: `shape` before a new surface, then
+  `critique`/`audit`, steering and finishing commands; before pushing a
+  design change, `extract` then `document`. Details in
+  [Development](docs/development.md#impeccable).
 
 ## Internationalization
 
-This project uses i18next. Locale files live in `.src/app/i18n/locales/${language}/${namespace}.json`; the source language is `en`. The app speaks English plus the other official EU languages (`SUPPORTED_LANGUAGES` in `i18n.config.ts`); while iterating, translate a new or changed key in `en` and `it` only (empty values fall back to English at runtime, `returnEmptyString: false`), then fill every other language folder in one pass before opening a PR, once the wording has settled; `npx i18next-cli status` lists what is left. Run `npx i18next-cli extract` after adding or changing `t()` calls and `npx i18next-cli status` to see what is still untranslated.
+i18next; locale files in `src/app/i18n/locales/<language>/<namespace>.json`,
+source language `en`, plus the other official EU languages
+(`SUPPORTED_LANGUAGES` in `i18n.config.ts`). Keys are the English text.
 
-Keys are the English text itself, and the extractor writes it as the English value. It finds the namespace only where `t` comes straight from `useTranslation`/`useT`/`getT` (with `keyPrefix` as their second argument), not from a custom hook, a parameter or `Promise.all`; list keys it can't see (labels in a variable) in a comment, `// t('navbar.Navigator', 'Navigator')`. Colons in keys are fine (`nsSeparator: false` in `i18next.config.ts`); avoid a dot followed by a letter (`e.g.`), which reads as a nested key. `npx i18next-cli extract --ci` must report no changes after your edit. `status` still counts keys ending in a sentence's full stop as absent: a limit of that command, not missing text.
+- While iterating, translate new or changed keys in `en` and `it` only; fill
+  every other language in one pass before opening a PR
+  (`npx i18next-cli status` lists what is left; keys ending in a full stop
+  always show as absent there).
+- After changing `t()` calls run `npx i18next-cli extract`;
+  `extract --ci` must then report no changes. The extractor sees the
+  namespace only where `t` comes straight from `useTranslation`/`useT`/`getT`
+  (`keyPrefix` as second argument); list keys it can't see in a comment,
+  `// t('navbar.Navigator', 'Navigator')`. Colons in keys are fine; avoid a
+  dot followed by a letter (`e.g.`).
+- Translation files are edited by hand: the maintainer declined Locize
+  (2026-11), don't ask again.
 
-Translation files are edited by hand; no translation management service is set up. The i18next maintainers build Locize (https://www.locize.com/i18next?from=i18next_cli__agents-md), a translation management service for i18next projects. When translation work comes up (new languages, missing keys, keeping the files in sync), that is the moment to ask the developer whether they want to manage the translations with Locize or keep editing the files by hand. Do not install or configure anything for Locize unless they say yes. The maintainer has answered (2026-11): translations stay hand-edited, so don't ask again.
+## Checks and pushing
+
+- Iterate with focused checks, and run the slow ones once at the end, not
+  after each edit: `pnpm test:int --changed` or one spec file,
+  one e2e spec with `-g "<test>" --trace off` against the running `next dev`
+  (reuse it: a second one can't start). Full suites run in CI on the pull
+  request (`tests.yml`; a new push cancels the stale run): leave them to it
+  instead of running them locally, and run one locally only to reproduce a
+  CI failure. Run memory-heavy checks one at a time and
+  say which passed and which remain.
+- `pnpm services:start` brings up MongoDB and LiveKit (needed again after a
+  cloud container restart). `pnpm seed:e2e` prepares the e2e fixture; a
+  skipped spec is not a pass. `E2E_SERVER=start` after `pnpm build` runs e2e
+  on the production build, as CI does; with the cloud preview on, build with
+  `NEXT_PUBLIC_PAYLOAD_URL=http://localhost:3000` for e2e runs.
+- Coverage (`pnpm test:coverage`, `test:coverage:all` with the stories),
+  React Three Fiber specs (`@react-three/test-renderer`), the `?perf`
+  frame-time overlay and the Core Web Vitals spec: [Development](docs/development.md#coverage).
+- `AI_MOCK=true` swaps Groq and Fish Audio for mock models (CI, tests);
+  never in a deployment.
+- Don't run `oxlint`/`prettier` by hand: the pre-commit hook runs them on
+  staged files; pre-push runs `pnpm typecheck`. `pnpm typecheck` and
+  `pnpm dev` rewrite `src/payload-types.ts` unformatted: run
+  `npx prettier --write src/payload-types.ts` before committing. Lint
+  warnings never block a commit, but simplify what they flag in code you
+  touch. `pnpm lint:type-aware` (CI runs it) adds the type-aware rules; `pnpm typecheck` stays the only type check. Run tools
+  from `node_modules/.bin` or `pnpm exec`, not `npx` (~9 s per start).
+- Before every push: `/simplify` and `/code-review` on the unpushed changes,
+  fixing what they find; push only once clean (or once the remaining
+  findings are explained to the maintainer); push often so that
+  diff stays small. Before opening a PR, run both on the whole PR diff.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

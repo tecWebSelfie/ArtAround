@@ -26,6 +26,9 @@ export const runtime = 'nodejs'
 
 /** About 30 s of 16 kHz mono WAV; longer recordings are not commands. */
 const MAX_AUDIO_BYTES = 1_000_000
+// App languages (i18n.config.ts) missing from Whisper's language list: Groq
+// refuses them, so they are left to auto-detection.
+const WHISPER_UNSUPPORTED = new Set(['ga'])
 
 const CommandList = z
   .array(z.object({ id: z.string(), label: z.string(), description: z.string() }))
@@ -53,12 +56,20 @@ export async function POST(request: Request) {
     const { text: transcript } = await transcribe({
       model: await transcriptionModel(),
       audio: new Uint8Array(await audio.arrayBuffer()),
+      // The visitor's language, when it is an ISO 639-1 code: left to guess,
+      // Whisper read short Italian commands as gibberish ("E adesso?" became
+      // "Iadeso", "Prossima tappa" "Prasima tapa") and the vocabulary missed them.
+      ...(/^[a-z]{2}$/.test(language) && !WHISPER_UNSUPPORTED.has(language)
+        ? { providerOptions: { groq: { language } } }
+        : {}),
     })
     if (!transcript.trim()) return NextResponse.json({ transcript, reply: '', commandId: null })
 
     const ids = commands.data.map((command) => command.id)
     const controlled = matchControlledCommand(transcript, ids)
-    if (controlled) return NextResponse.json({ transcript, reply: '', commandId: controlled })
+    if (controlled && !controlled.reason) {
+      return NextResponse.json({ transcript, reply: '', commandId: controlled.command })
+    }
     const { output } = await generateText({
       model: await textModel(),
       // The schema is the whole contract: a short spoken reply, plus either
@@ -77,6 +88,16 @@ export async function POST(request: Request) {
         'directions that are not in the commands or the context.',
         `Reply in the language with code "${language}".`,
         `Context: ${context}`,
+        // A fixed phrase whose command the navigation state doesn't offer now
+        // ("cos'è questo?" with nothing open): the model says why, in the
+        // visitor's language, rather than mapping it onto another command.
+        ...(controlled
+          ? [
+              `The visitor asked for "${controlled.command}", which is not available right now.`,
+              // `Choose "none"` is also what the AI_MOCK model looks for (src/lib/ai-mock.ts).
+              `Choose "none" and explain why in one sentence: a group guest (see the context), or ${controlled.reason}`,
+            ]
+          : []),
         // `id: label` lines: the AI_MOCK model matches the request against them (src/lib/ai-mock.ts).
         'Available commands (id: label, kind):',
         ...commands.data.map(

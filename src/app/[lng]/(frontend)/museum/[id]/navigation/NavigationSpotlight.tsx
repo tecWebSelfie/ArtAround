@@ -27,6 +27,12 @@ const RESULT_LIMIT = 8
  * exit, wheelchair route, resume tour) and the latest nearby suggestions, so a
  * suggestion missed in its notification can always be found again here.
  *
+ * Typing searches that same list, quick actions included: the pills are
+ * actions, not documents, so "next" finds "Open next stop" and "food" finds
+ * "Nearest food" beside the works and contents. They are built here from the
+ * navigation state and never indexed: only the museum navigation searches
+ * them, unlike the site's Typesense-backed search.
+ *
  * In free navigation the museum's tours lead the empty Spotlight as gradient
  * pills (the tour identity, DESIGN.md → Colors): starting a tour is the main
  * way to use the app, so it is offered before anything else.
@@ -44,13 +50,15 @@ export function NavigationSpotlight({
   const { t } = useTranslation('tour-navigation')
   const [query, setQuery] = useState('')
   const text = query.trim().toLowerCase()
-  const results = commands
-    .filter(
-      (command) =>
-        command.group !== 'quick' &&
-        `${command.label} ${command.description}`.toLowerCase().includes(text),
-    )
-    .slice(0, RESULT_LIMIT)
+  const matches = commands.filter((command) =>
+    `${command.label} ${command.description}`.toLowerCase().includes(text),
+  )
+  // What was searched for (works, contents, tours, services) first, the
+  // matching quick actions after: they must not crowd the results out.
+  const results = [
+    ...matches.filter((command) => command.group !== 'quick'),
+    ...matches.filter((command) => command.group === 'quick'),
+  ].slice(0, RESULT_LIMIT)
   const run = (command: NavigationCommand) => {
     spotlight.close()
     onRun(command)
@@ -104,7 +112,12 @@ export function NavigationSpotlight({
   }
 
   return (
-    <Spotlight.Root shortcut={NAVIGATION_SEARCH_SHORTCUTS} query={query} onQueryChange={setQuery}>
+    <Spotlight.Root
+      shortcut={NAVIGATION_SEARCH_SHORTCUTS}
+      query={query}
+      onQueryChange={setQuery}
+      title={t('Search')}
+    >
       <Spotlight.Search
         placeholder={
           tours.length > 0

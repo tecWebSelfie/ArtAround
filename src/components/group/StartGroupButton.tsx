@@ -48,7 +48,7 @@ export function StartGroupButton({
   const join = useJoinGroup()
   const [opened, modal] = useDisclosure(false)
   const [busy, setBusy] = useState(false)
-  const [failed, setFailed] = useState<false | 'unavailable' | 'taken'>(false)
+  const [failed, setFailed] = useState<false | 'unavailable' | 'taken' | 'locked'>(false)
   const [showResults, setShowResults] = useState(false)
   const [groupName, setGroupName] = useState('')
   const groupNameValid = GroupRoomName.safeParse(groupName).success
@@ -62,17 +62,31 @@ export function StartGroupButton({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tourId, name, showResults, groupName: groupName.trim() }),
       })
-      // 409: another open group has this name. Anything else: not available.
-      if (!response.ok) throw new Error(response.status === 409 ? 'taken' : 'unavailable')
+      // The server checks paid-stop ownership; a 403 is a purchase requirement,
+      // not a transient room-service failure.
+      if (response.status === 409) throw new Error('taken')
+      if (response.status === 403) throw new Error('locked')
+      if (!response.ok) {
+        throw new Error('unavailable')
+      }
       const { code, hostKey } = (await response.json()) as { code: string; hostKey: string }
       join({ code, tourId, name, role: 'host', hostKey })
       // The invite remains language/profile-free; these choices belong only to the host.
       router.push(`${roomPath(lng, code)}${navigationQuery ? `?${navigationQuery}` : ''}` as Route)
     } catch (error) {
-      setFailed(error instanceof Error && error.message === 'taken' ? 'taken' : 'unavailable')
+      const code = error instanceof Error ? error.message : ''
+      if (code === 'taken' || code === 'locked') setFailed(code)
+      else setFailed('unavailable')
       setBusy(false)
     }
   }
+  const errorMessage = failed
+    ? {
+        taken: t('Another group is using this name. Choose a different one.'),
+        locked: t('Unlock this tour before starting a group.'),
+        unavailable: t('The group could not be opened. Try again in a minute.'),
+      }[failed]
+    : undefined
 
   return (
     <>
@@ -101,12 +115,7 @@ export function StartGroupButton({
             onSubmit={(name) => {
               if (groupNameValid) void openGroup(name)
             }}
-            error={
-              failed &&
-              (failed === 'taken'
-                ? t('Another group is using this name. Choose a different one.')
-                : t('The group could not be opened. Try again in a minute.'))
-            }
+            error={errorMessage}
           >
             <TextInput
               label={t('Group name (optional)')}

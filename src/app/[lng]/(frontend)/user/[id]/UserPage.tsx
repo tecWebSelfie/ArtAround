@@ -11,13 +11,15 @@ import { ToursCarousel } from '@/components/mantine/ToursCarousel'
 import { scopedSearchHref } from '@/lib/search-url'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
-import type { Museum, User } from '@/payload-types'
+import type { Museum, Tour, User } from '@/payload-types'
+import Link from 'next/link'
 import type { Route } from 'next'
 import type { ReactNode } from 'react'
 import { ProfileMuseumFilter } from './ProfileMuseumFilter'
 import {
   Avatar,
   Badge,
+  Card,
   Grid,
   GridCol,
   Group,
@@ -50,6 +52,7 @@ export const UserPage = async ({
   user,
   isSelf = false,
   museumFilter,
+  needsFixingTours = [],
   accountActions,
   museumsHref,
 }: {
@@ -61,6 +64,11 @@ export const UserPage = async ({
    * contents passed in are narrowed to it (`?scope=all` lifts it).
    */
   museumFilter?: { name: string; museumOnly: boolean }
+  /**
+   * The owner's own tours with no visitable stop: unlisted for everyone, shown
+   * to their author only, so they can reach the editor and fix them.
+   */
+  needsFixingTours?: Tour[]
   /** Owner-only actions (sign out), rendered by the route so stories stay server-action free. */
   accountActions?: ReactNode
   /**
@@ -135,7 +143,14 @@ export const UserPage = async ({
               {
                 value: t('contents'),
                 icon: <Amphora size={16} />,
-                panel: <AuthoredWork user={user} isSelf={isSelf} museumFilter={museumFilter} />,
+                panel: (
+                  <AuthoredWork
+                    user={user}
+                    isSelf={isSelf}
+                    museumFilter={museumFilter}
+                    needsFixingTours={needsFixingTours}
+                  />
+                ),
               },
               {
                 value: t('info'),
@@ -295,10 +310,12 @@ async function AuthoredWork({
   user,
   isSelf,
   museumFilter,
+  needsFixingTours,
 }: {
   user: User
   isSelf: boolean
   museumFilter?: { name: string; museumOnly: boolean }
+  needsFixingTours: Tour[]
 }) {
   const { t, lng } = await getT('user-page')
   // Authorship is a join (`contents.author` / `tours.author`), hence `.docs`.
@@ -362,6 +379,7 @@ async function AuthoredWork({
           seeAllHref={scopedSearchHref(lng, 'tours', 'author', user.id) as Route}
         />
       )}
+      {isSelf && needsFixingTours.length > 0 && <NeedsFixingTours tours={needsFixingTours} />}
       {populatedContents.length === 0 ? (
         <ArtaroundEmptyState
           kind="content"
@@ -376,6 +394,40 @@ async function AuthoredWork({
           seeAllHref={scopedSearchHref(lng, 'contents', 'author', user.id) as Route}
         />
       )}
+    </Stack>
+  )
+}
+
+/**
+ * The owner's tours with no visitable stop: unlisted for everyone else, so
+ * this is the author's only way back to their editor to fix them.
+ */
+async function NeedsFixingTours({ tours }: { tours: Tour[] }) {
+  const { t, lng } = await getT('user-page')
+  return (
+    <Stack component="section" gap="xs" aria-labelledby="needs-fixing">
+      <Title order={2} size="h5" id="needs-fixing">
+        {t('Needs fixing')}
+      </Title>
+      <Text size="sm" c="dimmed">
+        {t('These tours have no stop visitors can reach, so only you see them.')}
+      </Text>
+      {tours.map((tour) => (
+        // A plain Link around the Card: `component={Link}` can't cross
+        // from this Server Component to Mantine's client Card.
+        <Link key={tour.id} href={`/${lng}/tour/${tour.id}/edit` as Route} className="block">
+          <Card withBorder padding="sm">
+            <Group justify="space-between" wrap="nowrap" gap="sm">
+              <Text fw={600} lineClamp={2} miw={0}>
+                {tour.title}
+              </Text>
+              <Badge color="orange" variant="light" size="sm" flex="none">
+                {t('Needs fixing')}
+              </Badge>
+            </Group>
+          </Card>
+        </Link>
+      ))}
     </Stack>
   )
 }

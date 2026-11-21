@@ -30,7 +30,6 @@ export function NavigationHeader({
   museumName,
   stopObjectId,
   rooms,
-  skipped,
   entranceLabel,
   notes,
 }: {
@@ -41,7 +40,6 @@ export function NavigationHeader({
   /** The work of the stop ahead, for its room. */
   stopObjectId: string | null | undefined
   rooms: MuseumRooms
-  skipped: Set<number>
   /** The entrance the route starts from, while there is no confirmed position. */
   entranceLabel: string | null
   notes: string[]
@@ -51,9 +49,12 @@ export function NavigationHeader({
   const position = useTourPosition(tour, step, rooms, stopObjectId)
   return (
     // Top padding (and the notch's inset): the title no longer touches the
-    // screen's edge, which made the bar read cramped.
+    // screen's edge, which made the bar read cramped. A named region, not a
+    // second page banner beside a dialog title.
     <AppShellHeader
       ref={ref}
+      role="group"
+      aria-label={t('Museum navigation')}
       px="xs"
       pb="xs"
       className="rounded-b-xl pt-[max(var(--mantine-spacing-xs),env(safe-area-inset-top))]"
@@ -112,7 +113,6 @@ export function NavigationHeader({
             <TourProgress
               contents={tour.contents}
               step={step}
-              skipped={skipped}
               entranceLabel={entranceLabel}
               hasQuiz={hasQuiz(tour)}
             />

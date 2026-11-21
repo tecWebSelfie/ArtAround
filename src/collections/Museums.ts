@@ -32,11 +32,17 @@ import { curatorForbiddenChanges } from '@/lib/pascal/map-permissions'
 import { upgradeDefaultModelNode, usesDefaultModel } from '@/lib/pascal/object-assets'
 import { HEX } from '@/lib/museum-color'
 import { museumPalette, nearestAllowed, reservedHue, type ReservedHue } from '@/lib/museum-palette'
-import { museumRelationIds, refreshSearchDocs } from '@/lib/search-index'
+import { relationshipIds } from '@/lib/relationship-ids'
+import {
+  resyncSearchDocuments,
+  searchSyncAfterChange,
+  searchSyncAfterDelete,
+} from '@/lib/search/sync'
 // Import attribute: native ESM (Playwright's loader for e2e helpers that
 // import the Payload config) refuses a JSON module without it.
 import navMeshSchema from '@/lib/schemas/navmesh.schema.json' with { type: 'json' }
-import { museumObjectId } from '@/lib/tour-navigation'
+import { museumObjectId, museumPlacedObjects } from '@/lib/tour-navigation'
+import { refreshVisitableStops } from '@/lib/visitable-stops'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 import { imageUpload } from '../fields/imageUpload'
@@ -192,12 +198,12 @@ const appointCreatorAsDirector: CollectionAfterChangeHook<Museum> = async ({
 }
 
 /**
- * Refreshes the search rows of a museum's tours and objects (docs/search.md):
- * the search plugin re-indexes the museum itself, but its name and city are
- * also part of the search text of its tours and exhibited objects. Tours point
- * at their museum (`tours.museum`), so they are looked up; objects come from
- * the map-derived `museums.objects`, old and new values together so an object
- * removed from the map loses the museum's city too.
+ * Refreshes the search documents of a museum's tours and objects (docs/search.md):
+ * the museum has its own document, but its name and city are also part of the
+ * search text of its tours and exhibited objects. Tours point at their museum
+ * (`tours.museum`), so they are looked up; objects come from the map-derived
+ * `museums.objects`, old and new values together so an object removed from the
+ * map loses the museum's city too.
  */
 async function refreshMuseumDependents({
   doc,
@@ -218,18 +224,15 @@ async function refreshMuseumDependents({
       overrideAccess: true,
       req,
     })
-    const objectIds = [
-      ...museumRelationIds(doc, 'objects'),
-      ...museumRelationIds(previousDoc, 'objects'),
-    ]
+    const objectIds = [...relationshipIds(doc.objects), ...relationshipIds(previousDoc?.objects)]
     await Promise.all([
-      refreshSearchDocs({
+      resyncSearchDocuments({
         payload: req.payload,
         collection: 'tours',
         ids: tours.docs.map((tour) => String(tour.id)),
         req,
       }),
-      refreshSearchDocs({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
+      resyncSearchDocuments({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
     ])
   } catch (error) {
     // Search is derived data: a failure here must not roll back the museum save.
@@ -238,6 +241,53 @@ async function refreshMuseumDependents({
       msg: `Could not refresh dependent search rows for museum ${doc.id}`,
     })
   }
+}
+
+/**
+ * A museum's map decides which tour stops are visitable (a stop whose object
+ * is off the map is unavailable), so when the placed objects change its tours
+ * recompute their stored `visitableStops` (src/lib/visitable-stops.ts). Only
+ * when the placement actually changed (a rename or an opening-hours save
+ * costs nothing), and before `refreshSearchAfterChange` so the search rows it
+ * rebuilds already know which tours became (un)listed. Derived data: a
+ * failure is logged, never fails the museum save.
+ */
+const refreshToursVisitableStops: CollectionAfterChangeHook<Museum> = async ({
+  data,
+  doc,
+  previousDoc,
+  operation,
+  req,
+}) => {
+  // Cheap first: a save that doesn't send the map (a rename, opening hours)
+  // can't change the placement. A map save is parsed even when the derived
+  // `objects` index is unchanged: a map that no longer parses keeps the same
+  // index (`syncMuseumObjects` reads the raw nodes) but leaves no placement
+  // to check (`museumPlacedObjects` returns null: every stop counts as
+  // visitable, as with no map), and back.
+  if (operation === 'create' || data.map === undefined) return doc
+  const before = museumPlacedObjects(previousDoc)
+  const after = museumPlacedObjects(doc)
+  const same =
+    before === after ||
+    (before !== null &&
+      after !== null &&
+      before.size === after.size &&
+      [...before].every((id) => after.has(id)))
+  if (same) return doc
+  try {
+    await refreshVisitableStops({
+      payload: req.payload,
+      req,
+      where: { museum: { equals: String(doc.id) } },
+    })
+  } catch (error) {
+    req.payload.logger.error({
+      err: error,
+      msg: `Could not refresh the visitable stops of the tours of museum ${doc.id}`,
+    })
+  }
+  return doc
 }
 
 const refreshSearchAfterChange: CollectionAfterChangeHook<Museum> = async (args) => {
@@ -279,8 +329,19 @@ export const Museums: CollectionConfig = {
   hooks: {
     beforeValidate: [richTextFromHtml(['description'])],
     beforeChange: [guardCuratorMapEdits, syncMuseumObjects, syncMuseumPalette],
-    afterChange: [appointCreatorAsDirector, refreshSearchAfterChange],
-    afterDelete: [refreshSearchAfterDelete, deleteToursOfDeletedMuseum],
+    afterChange: [
+      appointCreatorAsDirector,
+      refreshToursVisitableStops,
+      // The museum's own row, then its tours and objects (name and city are
+      // part of their search text).
+      searchSyncAfterChange('museums'),
+      refreshSearchAfterChange,
+    ],
+    afterDelete: [
+      searchSyncAfterDelete('museums'),
+      refreshSearchAfterDelete,
+      deleteToursOfDeletedMuseum,
+    ],
   },
   fields: [
     ...[

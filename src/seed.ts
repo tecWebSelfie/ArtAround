@@ -19,6 +19,9 @@ import { mockMuseumFull } from './mocks/museum.mock'
 import { createRealisticMuseumMap } from './mocks/museum-map.mock'
 import { PROJECT_ACCOUNTS } from './seed-accounts'
 import { placedObjectIds } from '@/lib/tour-navigation'
+import { placeableObjectAsset } from '@/lib/pascal/object-assets'
+import { refreshVisitableStops } from '@/lib/visitable-stops'
+import { seedDemoMuseum } from '../scripts/seed-demo-museum'
 
 const editorDefaultConfig = await editorConfigFactory.default({
   config: await config, // Your Payload Config
@@ -52,19 +55,62 @@ function placeObjects(map: ParsedBuildJson, objects: { id: string; name: string 
     const item = ItemNode.parse({
       parentId: level.id,
       position: [x, 0, z],
-      asset: {
-        id: object.id,
-        name: object.name,
-        category: 'museum-objects',
-        // Placeholder model: demo objects have no generated 3D model yet.
-        src: 'http://localhost:3000/models/Avatar.glb',
-        thumbnail: '',
-      },
+      // Demo objects have no Mint model yet: the default standee, as the
+      // editor places it, made absolute on the deploy's public URL (Pascal
+      // resolves relative paths against its own CDN). The Museums hook swaps
+      // in the real model once one is generated (`upgradeDefaultModelNode`).
+      asset: placeableObjectAsset({ id: object.id, name: object.name }),
     })
     nodes[item.id] = item
     level.children = [...(level.children ?? []), item.id]
   })
   return map
+}
+
+/**
+ * Earlier seeds placed demo objects with `http://localhost:3000/models/Avatar.glb`,
+ * a URL baked at seed time: on a deploy the browser fetched it from its own
+ * localhost and the object never rendered. Seeded maps are otherwise never
+ * rewritten (staff may have edited them), so only nodes still pointing at that
+ * exact placeholder are re-pointed at the default standee; the Museums hook
+ * then upgrades them to a real model where one exists. Idempotent.
+ */
+const LEGACY_PLACEHOLDER_MODEL = 'http://localhost:3000/models/Avatar.glb'
+
+async function replaceLegacyPlaceholderModels(payload: Awaited<ReturnType<typeof getPayload>>) {
+  const museums = await payload.find({
+    collection: 'museums',
+    where: { map: { exists: true } },
+    pagination: false,
+    depth: 0,
+    select: { name: true, map: true },
+  })
+  for (const museum of museums.docs) {
+    const map = museum.map as { nodes?: Record<string, { asset?: Record<string, unknown> }> } | null
+    if (!map?.nodes) continue
+    let replaced = 0
+    for (const [id, node] of Object.entries(map.nodes)) {
+      const asset = node.asset
+      if (asset?.src !== LEGACY_PLACEHOLDER_MODEL) continue
+      const standee = placeableObjectAsset({
+        id: String(asset.id),
+        name: typeof asset.name === 'string' ? asset.name : '',
+      })
+      map.nodes[id] = {
+        ...node,
+        asset: {
+          ...asset,
+          src: standee.src,
+          thumbnail: standee.thumbnail,
+          dimensions: standee.dimensions,
+        },
+      }
+      replaced++
+    }
+    if (!replaced) continue
+    await payload.update({ collection: 'museums', id: museum.id, depth: 0, data: { map } })
+    console.log(`Museum "${museum.name}": ${replaced} placeholder models replaced`)
+  }
 }
 
 try {
@@ -910,6 +956,8 @@ try {
     console.log(`Museum "${museum.name}" created`)
   }
 
+  await replaceLegacyPlaceholderModels(payload)
+
   // Persist the tour mock scenarios as connected Payload records. Story mocks
   // use placeholder IDs, so create their contents and objects before tours.
   console.log('Seeding demo tour content and objects...')
@@ -998,7 +1046,7 @@ try {
 
   // Objects join a museum only by being placed on its map (museums.objects is
   // derived from the saved scene). A tour stop whose work is not on the map is
-  // skipped by navigation (`unavailableStops`, src/lib/tour-navigation.ts), so
+  // dropped from navigation (`visitableTour`, src/lib/tour-navigation.ts), so
   // place the stops now: a fresh seed would otherwise create tours nobody can
   // visit. Existing placements are kept, so re-runs do not duplicate items.
   const demoMap = validateBuildJson(demoMuseum.docs[0]!.map).parsed
@@ -1169,6 +1217,9 @@ try {
         })
         console.log(`Tour "${tour.data.title}" already exists, museum/author backfilled`)
       } else {
+        // Saved before the visitable-stops fields existed? Fill them (a no-op
+        // otherwise); every later change keeps them up to date (hooks).
+        await refreshVisitableStops({ payload, where: { id: { equals: foundId } } })
         console.log(`Tour "${tour.data.title}" already exists, skipping`)
       }
       continue
@@ -1264,6 +1315,12 @@ try {
     })
     console.log(`Purchase ${stripeSessionID} created`)
   }
+
+  // The course specification's demo museum (Pinacoteca: three tours of ten
+  // works or more, one with a quiz), created once: a single seed fills what
+  // the demo needs, and later runs leave the staff's edits alone.
+  console.log('Seeding the demo museum...')
+  await seedDemoMuseum(payload, { onlyIfMissing: true })
 
   console.log('Database seeded successfully. Closing connection...')
   await payload.destroy()

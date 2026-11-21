@@ -8,6 +8,7 @@ import { getPayload, type Where } from 'payload'
 import { cache } from 'react'
 import { enqueueTranslation, normalizeLocale, resolveLocalized } from './localized'
 import { tourQuizQuestionIds } from './quiz-ownership'
+import { getNavigationTour } from './navigation-tour.server'
 import { tourMuseumId } from './tour-navigation'
 import {
   CORRECT_ANSWER,
@@ -35,7 +36,11 @@ function secret() {
 export type ServerQuizQuestion = Omit<QuizQuestion, 'image'> & { image: ContentImage | null }
 
 export type TourQuiz = {
-  /** `contentIds` in tour order: index < stepsCompleted means "visited". */
+  /**
+   * `contentIds` in tour order: index < stepsCompleted means "visited". Only
+   * the visitable stops (`visitableTour`): the cursor `stepsCompleted` counts
+   * those, so `stopCount` and `contentIds` must index the same list.
+   */
   /** `museumId`: "back to the map" opens the tour inside its museum's navigation. */
   tour: { id: string; museumId: string; title: string; stopCount: number; contentIds: string[] }
   questions: ServerQuizQuestion[]
@@ -91,30 +96,52 @@ async function loadQuizQuestions(ids: string[], lng: string): Promise<ServerQuiz
   return docs.map((q) => ({ ...q, image: images.find((image) => image.id === q.image) ?? null }))
 }
 
-/** The tour's current quiz in the visitor's language; `null` for an unknown tour. */
-export const getTourQuiz = cache(async (tourId: string, lng: string): Promise<TourQuiz | null> => {
-  const payload = await getPayload({ config })
-  const tour = await payload
-    .findByID({
-      collection: 'tours',
-      id: tourId,
-      depth: 0,
-      // The title heads the quiz and its result: in the visitor's language.
-      locale: normalizeLocale(lng) ?? 'en',
-      select: { title: true, contents: true, quiz: true, museum: true },
-    })
-    .catch(() => null)
-  if (!tour) return null
-  return {
-    tour: {
-      id: tour.id,
-      museumId: tourMuseumId(tour),
-      title: tour.title,
-      stopCount: tour.contents?.length ?? 0,
-      contentIds: (tour.contents ?? []).map((c) => (typeof c === 'string' ? c : c.id)),
-    },
-    questions: await loadQuizQuestions(tourQuizQuestionIds(tour), lng),
-  }
+/**
+ * The tour's current quiz in the visitor's language, whatever its stops;
+ * `null` for an unknown tour. The result of an attempt already taken reads
+ * this: losing its last visitable stop must not hide a score already earned.
+ */
+export const getTourQuizForResult = cache(
+  async (tourId: string, lng: string): Promise<TourQuiz | null> => {
+    const payload = await getPayload({ config })
+    const tour = await payload
+      .findByID({
+        collection: 'tours',
+        id: tourId,
+        depth: 0,
+        // The title heads the quiz and its result: in the visitor's language.
+        locale: normalizeLocale(lng) ?? 'en',
+        select: { title: true, contents: true, quiz: true, museum: true },
+      })
+      .catch(() => null)
+    if (!tour) return null
+    // The stops the visitor navigated: unavailable ones are not part of "stops
+    // still ahead" or of what the cursor counted. A tour this visitor can't
+    // read as such (quiz links are public) keeps its stored list.
+    const stops = await getNavigationTour(tourId, lng)
+      .then((visitable) => visitable.contents)
+      .catch(() => tour.contents ?? [])
+    return {
+      tour: {
+        id: tour.id,
+        museumId: tourMuseumId(tour),
+        title: tour.title,
+        stopCount: stops.length,
+        contentIds: stops.map((c) => (typeof c === 'string' ? c : c.id)),
+      },
+      questions: await loadQuizQuestions(tourQuizQuestionIds(tour), lng),
+    }
+  },
+)
+
+/**
+ * The quiz a visitor can take: `getTourQuizForResult`, but `null` for a tour
+ * with no visitable stop, which has no quiz to offer (its page and answer
+ * actions read it from here): the same "unknown tour" outcome.
+ */
+export const getTourQuiz = cache(async (tourId: string, lng: string) => {
+  const quiz = await getTourQuizForResult(tourId, lng)
+  return quiz?.tour.stopCount ? quiz : null
 })
 
 /**

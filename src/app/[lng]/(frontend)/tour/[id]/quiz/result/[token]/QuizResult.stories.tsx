@@ -84,7 +84,7 @@ type Story = StoryObj<typeof meta>
 
 export const WithComparison: Story = {
   play: async ({ canvas }) => {
-    await expect(canvas.getByText('You did better than {{percent}}% of visitors.')).toBeVisible()
+    await expect(canvas.getByText('You did better than 62% of visitors.')).toBeVisible()
     await expect(canvas.getByRole('link', { name: 'Back to the navigator' })).toHaveAttribute(
       'href',
       '/en/navigator',

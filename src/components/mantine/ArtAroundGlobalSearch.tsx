@@ -97,6 +97,44 @@ const matchesText = (text: string) => (item: AutoCompleteItem) =>
     .toLowerCase()
     .includes(text.toLowerCase())
 
+/**
+ * How much of the layout viewport the on-screen keyboard covers, in px (0
+ * without one, and where the browser shrinks the layout viewport itself).
+ */
+function keyboardHeight() {
+  const viewport = window.visualViewport
+  if (!viewport) return 0
+  return Math.max(0, window.innerHeight - viewport.offsetTop - viewport.height)
+}
+
+/**
+ * On a phone the keyboard takes about half the screen, and the field sits
+ * mid-page (under the navigator's title): only a strip was left below it for
+ * the results. Once the keyboard is up, if less than half of what stays
+ * visible lies below the field, the field scrolls to the top of the screen
+ * so the list gets the room between it and the keyboard. The keyboard opens
+ * after focus (the visual viewport resizes), or is already open on a refocus.
+ */
+function makeRoomForResults(field: HTMLElement) {
+  const viewport = window.visualViewport
+  if (!viewport) return
+  const reveal = () => {
+    if (!keyboardHeight() || document.activeElement !== field) return
+    const roomBelow = viewport.offsetTop + viewport.height - field.getBoundingClientRect().bottom
+    if (roomBelow < viewport.height / 2)
+      field.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  }
+  if (keyboardHeight()) {
+    reveal()
+    return
+  }
+  // The keyboard slides in over several resizes (the first one is still
+  // short): follow them for a second, which also stops waiting on a desktop
+  // focus that never resizes the viewport.
+  viewport.addEventListener('resize', reveal)
+  setTimeout(() => viewport.removeEventListener('resize', reveal), 1000)
+}
+
 export function ArtAroundGlobalSearch({
   items,
   onChange,
@@ -188,15 +226,19 @@ export function ArtAroundGlobalSearch({
         store={combobox}
         offset={0}
         // The list never runs under the phone's tab bar: floating-ui's `size`
-        // gives the room left below the field, and the bar's height (Mantine's
-        // global `--app-shell-footer-offset`, 0 where there is no bar) and a
-        // small margin come off it. The list scrolls inside past that.
+        // gives the room left below the field in the visible viewport, and
+        // the part of the bar still visible (Mantine's global
+        // `--app-shell-footer-offset`, 0 where there is no bar) and a small
+        // margin come off it. With the on-screen keyboard open the visible
+        // viewport ends at the keyboard, which covers the bar: taking the
+        // whole bar off that short room again left an empty sliver.
+        // The list scrolls inside past that.
         middlewares={{
           flip: true,
           shift: true,
           size: {
             apply: ({ availableHeight, elements }) => {
-              elements.floating.style.maxHeight = `calc(${availableHeight}px - var(--app-shell-footer-offset, 0rem) - var(--mantine-spacing-xs))`
+              elements.floating.style.maxHeight = `calc(${availableHeight}px - max(0px, var(--app-shell-footer-offset, 0rem) - ${keyboardHeight()}px) - var(--mantine-spacing-xs))`
             },
           },
         }}
@@ -227,14 +269,17 @@ export function ArtAroundGlobalSearch({
             classNames={{
               wrapper:
                 '[--input-bd:light-dark(var(--mantine-color-violet-7),var(--mantine-color-violet-4))]',
+              // Where `makeRoomForResults` scrolls the field: a small gap
+              // above it, so its border and glow stay on screen.
+              input: 'scroll-mt-(--mantine-spacing-md)',
             }}
             size="lg"
             radius="xl"
             w="100%"
-            // What visitors can type (a tour, a museum, a city); it used to
-            // promise only tours. The aria-label names the full scope.
-            placeholder={t('Search tours, museums, cities')}
-            aria-label={t('Search tours, contents and museums')}
+            // The placeholder gives concrete examples; the accessible name
+            // spells out the full result scope, including people and places.
+            placeholder={t('Search tours, objects, museums and cities')}
+            aria-label={t('Search tours, contents, objects, people, museums and cities')}
             value={_value}
             onChange={(e) => {
               handleChange(e.currentTarget.value)
@@ -242,7 +287,10 @@ export function ArtAroundGlobalSearch({
               combobox.updateSelectedOptionIndex()
             }}
             onClick={() => combobox.openDropdown()}
-            onFocus={() => combobox.openDropdown()}
+            onFocus={(event) => {
+              combobox.openDropdown()
+              makeRoomForResults(event.currentTarget)
+            }}
             onBlur={() => combobox.closeDropdown()}
           />
         </ComboboxTarget>

@@ -16,12 +16,14 @@ import {
   type MuseumRole,
 } from '@/fields/MuseumFunction'
 import { User as UserType } from '@/payload-types'
+import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
 import type {
   Access,
   CollectionAfterChangeHook,
   CollectionAfterReadHook,
   CollectionBeforeChangeHook,
   CollectionConfig,
+  FieldAccess,
   FieldHook,
   PayloadRequest,
 } from 'payload'
@@ -77,12 +79,32 @@ const selfOrSuperAdmin: Access = ({ req }) => {
   return { id: { equals: req.user.id } }
 }
 
-// The email is private: only the owner (and super admins) see it. Done in an
-// afterRead hook rather than by redeclaring the auth-injected `email` field,
-// so Payload keeps its own unique/index/validation setup for it.
+const sameUser = (req: PayloadRequest, id: string | number | null | undefined) =>
+  Boolean(req.user) && id != null && String(req.user!.id) === String(id)
+
+/**
+ * Field-level read access of the private auth fields (`email`, `sessions`).
+ *
+ * Payload evaluates it in two places: with the document, to strip the field
+ * from a response, and WITHOUT one (`getEntityPermissions({ fetchData: false })`)
+ * to validate `where` / `sort` paths, which is what makes a filter on an
+ * unreadable field a 400 on every API (REST, GraphQL, count, relation paths such
+ * as `author.email`). A filter reveals the value as much as a response does, so
+ * without a document only a super admin passes. Field access can only answer
+ * yes or no, never "only for my own row", so not even a signed-in visitor may
+ * filter on their own email (they read it from `/users/me` instead).
+ */
+const selfOrAdminField: FieldAccess = ({ req, doc }) =>
+  isSuperAdmin(req) || (doc != null && sameUser(req, (doc as { id?: string | number }).id))
+
+// Defence in depth for the email. Field access (`selfOrAdminField` on the
+// redeclared `email` below) already strips it from every access-checked read,
+// but Local API calls default to `overrideAccess: true`, which skips field
+// access: server code that forgets `overrideAccess: false` would otherwise
+// hand other people's emails to a page. This hook keeps the email out of those
+// reads too. It cannot protect `where` (that is what the field access does).
 const hidePrivateFields: CollectionAfterReadHook<UserType> = ({ doc, req }) => {
-  const self = Boolean(req.user) && String(req.user!.id) === String(doc.id)
-  if (!self && !isSuperAdmin(req)) delete doc.email
+  if (!sameUser(req, doc.id) && !isSuperAdmin(req)) delete doc.email
   return doc
 }
 
@@ -131,9 +153,32 @@ export const Users: CollectionConfig = {
     beforeValidate: [sanitizePublicSignup],
     beforeChange: [protectPrivilegedFields],
     afterRead: [hidePrivateFields],
+    // Directory entry: display name, username and the museums of their work.
+    afterChange: [searchSyncAfterChange('users')],
+    afterDelete: [searchSyncAfterDelete('users')],
   },
   fields: [
-    // Email added by default (auth); hidden from other visitors by `hidePrivateFields`.
+    {
+      // The auth-injected `email`, redeclared only to add field access: Payload
+      // merges it with its base field (`mergeBaseFields`, a deep merge with
+      // ours winning), so `required`, `unique` (the DB index), the
+      // lowercase/trim hook and `validate: email` all stay. The access makes the
+      // address private to its owner and super admins, in responses AND in
+      // `where`/`sort` (see `selfOrAdminField`): no email oracle.
+      name: 'email',
+      type: 'email',
+      access: { read: selfOrAdminField },
+    },
+    {
+      // Same for the session ids Payload keeps on the user. Its base access
+      // (`user?.id === doc?.id`) is true for an anonymous query, where both
+      // sides are undefined, so `where[sessions.id]` was filterable by anyone.
+      name: 'sessions',
+      type: 'array',
+      access: { read: selfOrAdminField },
+      // Sub-fields come from Payload's base field (merged in).
+      fields: [],
+    },
     nameFieldsGroup,
     { name: 'description', type: 'text', required: false },
     {

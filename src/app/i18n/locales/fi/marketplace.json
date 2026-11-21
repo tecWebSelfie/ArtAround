@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Kaikki",
   "anyPrice": "Mikä tahansa hinta",
   "clearFilters": "Tyhjennä suodattimet",
@@ -10,17 +12,20 @@
   "min": "min",
   "noResults": "Tuloksia ei löytynyt",
   "noResultsHint": "Kokeile toista hakua tai tyhjennä suodattimet.",
+  "object": "",
+  "objects": "",
   "paid": "Maksullinen",
   "price": "Hinta",
   "results_one": "{{count}} tulos",
   "results_other": "{{count}} tulosta",
   "search": "Hae",
-  "searchPlaceholder": "Hae kierroksia, sisältöjä ja ihmisiä",
+  "Search tours, contents, objects and people": "",
   "tour": "Kierros",
   "tours": "Kierrokset",
   "type": "Tyyppi",
   "user": "Käyttäjä",
   "users": "Käyttäjät",
   "usersNoPrice": "Profiileilla ei ole hintaa.",
+  "viewObject": "",
   "viewProfile": "Näytä profiili"
 }

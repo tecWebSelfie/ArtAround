@@ -2,6 +2,7 @@
 
 import { GroupMembers } from '@/components/group/GroupMembers'
 import { GroupNameForm } from '@/components/group/GroupNameForm'
+import { GroupRoomHostActions } from '@/components/group/GroupRoomHostActions'
 import { useGroup, useGroupSettings, useJoinGroup } from '@/components/group/GroupProvider'
 import { GroupRoom } from '@/components/group/GroupRoom'
 import { ShareGroup } from '@/components/group/ShareGroup'
@@ -29,7 +30,6 @@ import {
 } from '@mantine/core'
 import { useMounted } from '@mantine/hooks'
 import { ConnectionState } from 'livekit-client'
-import { Play } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
@@ -43,6 +43,8 @@ type RoomTour = {
   title: string
   thumbnail: { url: string; alt: string } | null
   childrenAges?: number[]
+  /** Server-verified for this visitor; the host uses it to release the group. */
+  canStart: boolean
 }
 
 /**
@@ -232,27 +234,22 @@ function WaitingRoom({
       )}
       <Divider />
       {isHost ? (
-        <Stack gap="xs">
-          <Button
-            size="md"
-            leftSection={<Play size={18} />}
-            onClick={() => {
-              group.start()
-              // Keep this reader's age/accessibility choices when leaving the room.
-              router.push(
-                withNavigationPosition(
-                  tourNavigationPath(lng, tour.museumId, tour.id, 0),
-                  search.toString(),
-                ),
-              )
-            }}
-          >
-            {group.membership.started ? t('Back to the tour') : t('Start the tour')}
-          </Button>
-          <Button variant="subtle" color="red" onClick={confirmEnd}>
-            {t('End the group tour')}
-          </Button>
-        </Stack>
+        <GroupRoomHostActions
+          tourId={tour.id}
+          canStart={tour.canStart}
+          started={Boolean(group.membership.started)}
+          onStart={() => {
+            group.start()
+            // Keep this reader's age/accessibility choices when leaving the room.
+            router.push(
+              withNavigationPosition(
+                tourNavigationPath(lng, tour.museumId, tour.id, 0),
+                search.toString(),
+              ),
+            )
+          }}
+          onEnd={confirmEnd}
+        />
       ) : (
         <Stack gap="xs" align="center">
           <Group gap="xs" wrap="nowrap" role="status">

@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Összes",
   "anyPrice": "Bármilyen ár",
   "clearFilters": "Szűrők törlése",
@@ -10,17 +12,20 @@
   "min": "perc",
   "noResults": "Nincs találat",
   "noResultsHint": "Próbálj más keresést, vagy töröld a szűrőket.",
+  "object": "",
+  "objects": "",
   "paid": "Fizetős",
   "price": "Ár",
   "results_one": "{{count}} találat",
   "results_other": "{{count}} találat",
   "search": "Keresés",
-  "searchPlaceholder": "Túrák, tartalmak és emberek keresése",
+  "Search tours, contents, objects and people": "",
   "tour": "Túra",
   "tours": "Túrák",
   "type": "Típus",
   "user": "Felhasználó",
   "users": "Felhasználók",
   "usersNoPrice": "A profiloknak nincs ára.",
+  "viewObject": "",
   "viewProfile": "Profil megtekintése"
 }

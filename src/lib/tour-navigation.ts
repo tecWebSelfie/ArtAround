@@ -1,5 +1,5 @@
-import type { Content, Object as MuseumObject, Tour } from '@/payload-types'
-import { ItemNode } from '@pascal-app/core'
+import type { Content, Museum, Object as MuseumObject, Tour } from '@/payload-types'
+import { ItemNode, validateBuildJson } from '@pascal-app/core'
 import type { Route } from 'next'
 import { readingAge } from './reading-profile'
 import { museumNavigationPath, tourNavigationPath } from './tour-routes'
@@ -122,7 +122,7 @@ type NavigationSearch = Partial<Record<NavigationKey, string | string[]>>
  * Destination keys are mutually exclusive: the URL carries at most one target,
  * so choosing a service or an exit replaces an object `to` (and vice versa).
  */
-const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
+export const DESTINATION_KEYS: NavigationKey[] = ['to', 'service', 'exit']
 
 const NAVIGATION_KEYS: NavigationKey[] = [
   'at',
@@ -228,6 +228,17 @@ export function placedObjectIds(map: { nodes: Record<string, unknown> } | null |
   return ids
 }
 
+/**
+ * The placed object ids of the museum's map, or `null` when it has no usable
+ * map (then nothing counts as unavailable: see `visitableTour`). Shared by the
+ * navigation reads and by the stored visitable-stop count
+ * (`src/lib/visitable-stops.ts`), so both judge placement the same way.
+ */
+export function museumPlacedObjects(museum: Pick<Museum, 'map'>) {
+  const parsed = validateBuildJson(museum.map).parsed
+  return parsed ? placedObjectIds(parsed) : null
+}
+
 export function contentObjectId(content: Pick<Content, 'objects'>): string | null {
   const object = content.objects?.docs?.[0]
   return typeof object === 'string' ? object : (object?.id ?? null)
@@ -252,8 +263,9 @@ export function stopObjectId(
 /**
  * Stops the visitor can no longer visit: the content is gone (unpopulated),
  * is about no object, or its object is not placed on the museum map any more.
- * The tour keeps them (its author decides), navigation flags and skips them.
- * Returned as cursor indexes into `contents`.
+ * The tour keeps them (its author decides, and the editor flags them);
+ * navigation never shows them: `visitableTour` drops them where its data is
+ * built. Returned as indexes into `contents`.
  */
 export function unavailableStops(
   contents: Tour['contents'],
@@ -269,13 +281,32 @@ export function unavailableStops(
 }
 
 /**
- * Where the cursor lands after skipping the unavailable stops from `step` on:
- * the next visitable stop, or `contents.length` (tour completed).
+ * The tour as a visitor navigates it: only the stops that can be visited, in
+ * their order. This is the ONE place the product rule "an unavailable stop is
+ * never shown during navigation" is applied, where the navigation data is
+ * built (`src/lib/navigation-tour.server.ts`): the cursor in the URL, the
+ * session's quiz hand-off, group sync and every count then index the same
+ * filtered list, so a host and a guest (who read the same stops) agree on
+ * what "step 3" is, and nothing downstream needs skip logic.
+ *
+ * `placed` is `null` when the museum has no usable map at all: that is its
+ * own state ("Map not available"), so placement can't be judged and only the
+ * stops whose content is gone (unpopulated) are dropped. Paid locked stops are
+ * visitable (only their body is withheld), so they stay.
  */
-export function nextVisitableStep(step: number, count: number, skipped: ReadonlySet<number>) {
-  let next = step
-  while (next < count && skipped.has(next)) next++
-  return next
+export function visitableTour<T extends { contents: Tour['contents'] }>(
+  tour: T,
+  catalog: readonly NavigationCatalogObject[],
+  placed: ReadonlySet<string> | null,
+): T {
+  const unavailable = placed
+    ? unavailableStops(tour.contents, catalog, placed)
+    : new Set(
+        tour.contents.flatMap((content, index) => (typeof content === 'string' ? [index] : [])),
+      )
+  return unavailable.size === 0
+    ? tour
+    : { ...tour, contents: tour.contents.filter((_, index) => !unavailable.has(index)) }
 }
 
 /**
@@ -293,31 +324,6 @@ export function tourQuizPath(lng: string, tourId: string, from: number, search: 
 
 export function tourQuizResultPath(lng: string, tourId: string, token: string) {
   return `/${lng}/tour/${tourId}/quiz/result/${encodeURIComponent(token)}` as Route
-}
-
-/**
- * Where moving the cursor to `toStep` leads, keeping the position and dropping
- * the `to` excursion: the map at that step or, when it completes a tour with a
- * quiz, the quiz (its final step). `quiz` tells callers to push, not replace.
- */
-export function tourAdvanceHref(
-  lng: string,
-  tour: Pick<Tour, 'id' | 'contents' | 'quiz' | 'museum'>,
-  toStep: number,
-  search: string,
-): { href: Route; quiz: boolean } {
-  const params = new URLSearchParams(search)
-  params.delete('to')
-  if (toStep === tour.contents.length && tourHasQuiz(tour)) {
-    return { href: tourQuizPath(lng, tour.id, toStep, params.toString()), quiz: true }
-  }
-  return {
-    href: withNavigationPosition(
-      tourNavigationPath(lng, tourMuseumId(tour), tour.id, toStep),
-      params.toString(),
-    ),
-    quiz: false,
-  }
 }
 
 /** Quiz question IDs are never populated on tours (`maxDepth: 0`), so a count is all we read. */

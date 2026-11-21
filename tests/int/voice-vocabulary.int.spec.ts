@@ -38,19 +38,30 @@ describe('controlled vocabulary', () => {
     ["Scusi, dov'è l'uscita?", 'exit:nearest'],
     ['Mi puoi dire qual è lo stile?', 'style'],
   ])('"%s" runs %s', (said, command) => {
-    expect(matchControlledCommand(said, ALL)).toBe(command)
+    expect(matchControlledCommand(said, ALL)).toEqual({ command, reason: null })
   })
 
-  it('leaves other phrasings and unavailable commands to the model', () => {
+  it('leaves other phrasings to the model', () => {
     expect(
       matchControlledCommand('Mi racconti qualcosa di curioso su questo quadro?', ALL),
     ).toBeNull()
-    // In free navigation there is no next stop.
+  })
+})
+
+describe('fixed phrases for commands the navigation state does not offer', () => {
+  it('names the unavailable command and why, for the model to explain', () => {
+    // In free navigation there is no next stop; with nothing open, no work.
     expect(
       matchControlledCommand(
         'Avanti',
         ALL.filter((id) => id !== 'next-stop'),
       ),
-    ).toBeNull()
+    ).toEqual({ command: 'next-stop', reason: expect.stringMatching(/stop/) })
+    expect(
+      matchControlledCommand(
+        "Cos'è questo?",
+        ALL.filter((id) => id !== 'what-is-this'),
+      )?.reason,
+    ).toMatch(/open/)
   })
 })

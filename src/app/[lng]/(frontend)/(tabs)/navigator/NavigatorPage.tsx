@@ -219,14 +219,12 @@ function NavigationHomeTitle() {
         <Trans
           t={t}
           i18nKey="Everything’s <brand>{{name}}</brand>"
-          // Named tags as the English value: from the children alone the
-          // extractor would write `<1>` placeholders into en.json.
+          // Named tags as the English value, and no children: the extractor
+          // would read `<1>` placeholders and a `{APP_NAME}` that never matches.
           defaults="Everything’s <brand>{{name}}</brand>"
           values={{ name: APP_NAME }}
           components={{ brand: <BrandName /> }}
-        >
-          Everything’s <BrandName>{APP_NAME}</BrandName>
-        </Trans>
+        />
       </Title>
       {/* Hidden on short screens: there the start cards need the height
           (the phone home fits one screen). */}

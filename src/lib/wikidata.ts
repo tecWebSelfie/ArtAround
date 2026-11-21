@@ -148,4 +148,30 @@ export function localizedTexts(entity: WikidataEntity, languages: readonly strin
   })
 }
 
+/**
+ * A `fetch` that answers `wbgetentities` from recorded entities, looked up by
+ * the id asked for (a merged item: under its old id, with `redirects`); an unknown id
+ * answers as missing, any other action fails. The offline seed
+ * (`scripts/offline-wikidata.ts`) and the tests use it for `fetchImpl`.
+ */
+export function recordedWikidataFetch(entities: Record<string, object>): Fetch {
+  return async (input) => {
+    const url = new URL(input instanceof Request ? input.url : String(input))
+    if (url.searchParams.get('action') !== 'wbgetentities') {
+      return Response.json({ error: 'not recorded' }, { status: 400 })
+    }
+    const ids = url.searchParams.get('ids')?.split('|') ?? []
+    // Keyed as the API answers: by the entity's own (current) id, so a
+    // merged item comes back under its target with `redirects`.
+    return Response.json({
+      entities: Object.fromEntries(
+        ids.map((id) => {
+          const entity = (entities[id] ?? { id, missing: '' }) as { id?: string }
+          return [entity.id ?? id, entity]
+        }),
+      ),
+    })
+  }
+}
+
 export const wikidataUrl = (id: string) => `https://www.wikidata.org/wiki/${id}`

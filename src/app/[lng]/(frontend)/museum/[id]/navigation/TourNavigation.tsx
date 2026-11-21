@@ -22,22 +22,22 @@ import {
   useTourIds,
   useVoiceGuidance,
 } from './use-tour-navigation'
-import { SkippedStopModal } from './SkippedStopModal'
+import { MuseumFloorplan } from '@/components/pascal/MuseumFloorplan'
 import { DirectionsBar, type DirectionsStatus } from './DirectionsBar'
 import type { NavigationCommand } from './navigation-commands'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { NavigationProximity } from './NavigationProximity'
+import { RemovedStopsModal } from './RemovedStopsModal'
 import { NAVIGATION_ACTION_CLASS } from './navigation-touch'
 import classes from './navigation-desktop.module.css'
 import {
-  tourAdvanceHref,
   tourHasQuiz as hasQuiz,
   tourQuizPath,
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
@@ -47,7 +47,7 @@ export type NavigationPageScope =
 /**
  * Composes the map, search, scan, and route guidance: step-by-step directions
  * in the navbar, optional GPS progress, nearby suggestions, and the opt-in
- * voice assistant (the orb). Search, pills and the assistant all run the same
+ * voice assistant (the microphone button). Search, pills and the assistant all run the same
  * URL commands (`navigation-commands.ts`).
  *
  * In a tour it adds the ordered progress, the next stop as the default
@@ -87,12 +87,7 @@ export const TourNavigationPage = ({
   // The map resolves which entrance the route starts from (it owns the navmesh);
   // the progress bar mirrors that choice as its leading step.
   const [startEntranceId, setStartEntranceId] = useState<string | null>(null)
-  const { skipped, skipTo, stepSkipped, defaultDestination, destination, notes } = useTourCursor(
-    tour,
-    step,
-    catalog,
-    museumMap.parsed,
-  )
+  const { defaultDestination, destination, notes } = useTourCursor(tour, step, catalog)
   // The work the route leads to, if it is one (not a service or an exit).
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
   const currentObjectId = search.get('at')
@@ -115,6 +110,8 @@ export const TourNavigationPage = ({
     route,
     navMesh,
   })
+  // The plan needs a map to draw: without one the view stays 3D.
+  const planView = settings.mapView === '2d' && Boolean(museumMap.parsed)
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
 
@@ -125,9 +122,6 @@ export const TourNavigationPage = ({
     tours,
     catalog,
     markers,
-    // "Open next stop" would open a stop that can't be visited: the skip
-    // modal is the way on instead.
-    withoutNextStop: stepSkipped,
     nearby: {
       enabled: settings.suggestions,
       notify: settings.gpsMode === 'off',
@@ -158,9 +152,6 @@ export const TourNavigationPage = ({
 
   return (
     <>
-      {tour && stepSkipped && (
-        <TourSkipModal tour={tour} step={step} skipTo={skipTo} guest={guest} />
-      )}
       <NavigationHeader
         ref={headerRef}
         tour={tour}
@@ -168,10 +159,12 @@ export const TourNavigationPage = ({
         museumName={museum.name}
         stopObjectId={defaultDestination}
         rooms={rooms}
-        skipped={skipped}
         entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
         notes={notes}
       />
+
+      {/* Stops that stopped being visitable while this tab followed the tour. */}
+      {tour && <RemovedStopsModal tour={tour} step={step} />}
 
       <NavigationStage
         map={
@@ -189,6 +182,23 @@ export const TourNavigationPage = ({
               position={guidance.position}
               path={guidance.path}
               onObjectClick={(id) => runId(`object:${id}`)}
+              // Under the floor plan the 3D map stays mounted (routes are
+              // computed on its meshes) but draws no frames, and is hidden
+              // with its DOM labels, which would float over the plan.
+              renderPaused={planView}
+              className={planView ? 'invisible' : undefined}
+            />
+          )
+        }
+        plan={
+          planView &&
+          museumMap.parsed && (
+            <MuseumFloorplan
+              // As on the 3D map: the avatar waits at the route's start.
+              position={guidance.position ?? route?.start ?? null}
+              path={guidance.path ?? route?.path ?? null}
+              catalog={catalog}
+              roots={museumMap.parsed.rootNodeIds}
             />
           )
         }
@@ -202,6 +212,7 @@ export const TourNavigationPage = ({
             exits={markers.exitEntrances}
             sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
+            planAvailable={Boolean(museumMap.parsed)}
           />
         }
       />
@@ -244,7 +255,16 @@ export const TourNavigationPage = ({
  * The map and, over it, the floating controls: only the space between the
  * measured bars belongs to them.
  */
-function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNode }) {
+function NavigationStage({
+  map,
+  plan,
+  controls,
+}: {
+  map: ReactNode
+  /** Pascal's 2D floor plan, drawn over the (paused) 3D map when chosen. */
+  plan: ReactNode
+  controls: ReactNode
+}) {
   const { t } = useTranslation('tour-navigation')
   return (
     <AppShellMain h="100dvh" className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]">
@@ -252,6 +272,7 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
         <Suspense fallback={<Box>{t('Loading map')}</Box>}>
           {map || <Box>{t('Map not available')}</Box>}
         </Suspense>
+        {plan}
         {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
             drei's `zIndexRange`), below the app shell's bars (z 100), so a
             notice or a control is never crossed by a label. */}
@@ -265,9 +286,9 @@ function NavigationStage({ map, controls }: { map: ReactNode; controls: ReactNod
 
 /**
  * The directions strip: the steps (or the status that replaces them) and the
- * voice assistant's orb. It uses the remaining width; the orb keeps its
+ * voice assistant's button. It uses the remaining width; the button keeps its
  * intrinsic target size instead of reserving a fifth of a narrow screen, and
- * active guidance places the orb beside its arrows at enlarged text, leaving
+ * active guidance places the button beside its arrows at enlarged text, leaving
  * the entire footer width for the sentence. Voice guidance speaks each step
  * from here.
  */
@@ -302,6 +323,7 @@ function NavigationFooter({
   voiceGuidance: boolean
 }) {
   const { lng } = useParams<{ lng: string }>()
+  const guest = useIsGroupGuest()
   const destinationName = destination || ''
   const { sentence, speech, currentStep } = useVoiceGuidance({
     guidance,
@@ -321,6 +343,7 @@ function NavigationFooter({
           destination: destination || null,
           direction: currentStep ? sentence(currentStep, destinationName) : null,
           notes,
+          guest,
         })}
         language={lng}
         speech={speech}
@@ -347,43 +370,6 @@ function NavigationFooter({
         </Box>
       </Group>
     </AppShellFooter>
-  )
-}
-
-/** Stops the visitor can't reach between the cursor and `skipTo`, skipped together. */
-function TourSkipModal({
-  tour,
-  step,
-  skipTo,
-  guest,
-}: {
-  tour: Tour
-  step: number
-  skipTo: number
-  guest: boolean
-}) {
-  const { t } = useTranslation('tour-navigation')
-  const { lng } = useParams<{ lng: string }>()
-  const search = useSearchParams()
-  const router = useRouter()
-  return (
-    <SkippedStopModal
-      titles={tour.contents
-        .slice(step, skipTo)
-        .map((content, index) =>
-          typeof content === 'object'
-            ? content.title
-            : t('Stop {{number}}', { number: step + index + 1 }),
-        )}
-      completes={skipTo === tour.contents.length}
-      guest={guest}
-      onSkip={() => {
-        // Same advance as the step modal: the quiz when it ends the tour.
-        const { href, quiz } = tourAdvanceHref(lng, tour, skipTo, search.toString())
-        if (quiz) router.push(href)
-        else router.replace(href, { scroll: false })
-      }}
-    />
   )
 }
 

@@ -134,9 +134,9 @@ export const mockUserFull: User = createUser({
     alt: 'Ritratto di Mario Bianchi',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    // Seeded like tour.mock.ts: a bare picsum URL is a random photo per request,
-    // which breaks the visual-regression baselines.
-    url: 'https://picsum.photos/seed/avatar-001/200/300',
+    // Local asset served from public/: remote photos would break offline and make
+    // the visual-regression baselines depend on the network.
+    url: '/icons/collection.webp',
     filename: 'mario-bianchi.jpg',
     mimeType: 'image/jpeg',
     width: 512,
@@ -186,7 +186,7 @@ export const mockUserAuthor: User = createUser({
     alt: 'Ritratto di Paolo Neri',
     updatedAt: TIMESTAMP,
     createdAt: TIMESTAMP,
-    url: 'https://picsum.photos/seed/avatar-002/200/300',
+    url: '/icons/collection.webp',
     filename: 'paolo-neri.jpg',
     mimeType: 'image/jpeg',
     width: 512,

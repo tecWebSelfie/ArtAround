@@ -1,7 +1,14 @@
 import { anyMuseumStaff, superAdminOnly } from '@/access/museumRoles'
 import { editorial } from '@/fields/editorial'
 import { uniqueWikidataId, wikidataIdField } from '@/fields/wikidataId'
-import type { CollectionConfig } from 'payload'
+import { relationshipIds } from '@/lib/relationship-ids'
+import { resyncSearchDocuments, resyncToursIncluding } from '@/lib/search/sync'
+import type { Subject } from '@/payload-types'
+import type {
+  CollectionAfterChangeHook,
+  CollectionAfterDeleteHook,
+  CollectionConfig,
+} from 'payload'
 
 /**
  * What a work is related to without being a thing on the map: the people who
@@ -17,6 +24,42 @@ import type { CollectionConfig } from 'payload'
  * `importWikidataSubjects` task when a work gets its own id.
  */
 
+/**
+ * Refreshes the search rows that depend on this relation.
+ *
+ * `subject_ids` in the index (`src/lib/search/documents.ts`) is read backwards
+ * from `subjects.contents`, so linking or unlinking a content must rebuild that
+ * content's row and the tours that stop at it — otherwise `?subject=` would keep
+ * listing a content the subject no longer mentions.
+ */
+const refreshSearchAfterChange: CollectionAfterChangeHook<Subject> = async ({
+  doc,
+  previousDoc,
+  req,
+}) => {
+  const contentIds = [
+    ...new Set([...relationshipIds(doc.contents), ...relationshipIds(previousDoc?.contents)]),
+  ]
+  if (contentIds.length > 0) {
+    await Promise.all([
+      resyncSearchDocuments({ payload: req.payload, collection: 'contents', ids: contentIds, req }),
+      resyncToursIncluding({ payload: req.payload, contentIds, req }),
+    ])
+  }
+  return doc
+}
+
+const refreshSearchAfterDelete: CollectionAfterDeleteHook<Subject> = async ({ doc, req }) => {
+  const contentIds = relationshipIds(doc.contents)
+  if (contentIds.length > 0) {
+    await Promise.all([
+      resyncSearchDocuments({ payload: req.payload, collection: 'contents', ids: contentIds, req }),
+      resyncToursIncluding({ payload: req.payload, contentIds, req }),
+    ])
+  }
+  return doc
+}
+
 export const Subjects: CollectionConfig = {
   slug: 'subjects',
   admin: { useAsTitle: 'name', defaultColumns: ['name', 'kind', 'wikidataId'] },
@@ -26,7 +69,11 @@ export const Subjects: CollectionConfig = {
     update: anyMuseumStaff,
     delete: superAdminOnly,
   },
-  hooks: { beforeValidate: [uniqueWikidataId('subjects')] },
+  hooks: {
+    beforeValidate: [uniqueWikidataId('subjects')],
+    afterChange: [refreshSearchAfterChange],
+    afterDelete: [refreshSearchAfterDelete],
+  },
   fields: [
     {
       name: 'kind',

@@ -1,8 +1,12 @@
 import 'server-only'
 
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
+import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEditor'
+import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
 import { isLocked } from '@/lib/price'
+import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
 import type { Museum, Tour } from '@/payload-types'
 
@@ -121,4 +125,90 @@ async function getUnavailableStops(
       unavailable: true,
     }
   })
+}
+
+/**
+ * Editor data for a NEW tour (`/tour/new`), blank or a COPY of another one
+ * (`?from=<id>`, whose stops are `sourceStopIds`): the museum's
+ * candidates plus the original's stops the visitor can keep and visit, in
+ * order (`copyableStops`). Unlike the editor of an existing tour, nothing is
+ * flagged: the author fixes their own tour's unavailable stops there, a copy
+ * just starts without them. A stop is unavailable exactly when it is not a
+ * candidate (`getUnavailableStops`' own definition), so no stop ids are
+ * passed to `getTourEditorData`, which skips that lookup.
+ */
+export async function getNewTourEditorData(museumId: string, sourceStopIds: string[] = []) {
+  const { payload, user } = await getSession()
+  const data = await getTourEditorData(museumId)
+  const candidateIds = new Set(data.candidates.map((candidate) => candidate.id))
+  const ofCandidates = sourceStopIds.filter((id) => candidateIds.has(id))
+  // The visibility and author of the stops: read as the visitor, so contents
+  // they can't read are absent and drop out with the private ones of others.
+  const { docs } = ofCandidates.length
+    ? await payload.find({
+        collection: 'contents',
+        where: { id: { in: ofCandidates } },
+        depth: 0,
+        pagination: false,
+        select: { visibility: true, author: true },
+        ...(await asViewer()),
+      })
+    : { docs: [] }
+  const stops = copyableStops({
+    stopIds: sourceStopIds,
+    candidateIds,
+    contents: docs.map((doc) => ({
+      id: String(doc.id),
+      visibility: doc.visibility,
+      author: asId(doc.author) ?? '',
+    })),
+    viewerId: String(user?.id ?? ''),
+  })
+  return { ...data, stops }
+}
+
+/**
+ * The tour's quiz for its editor: the questions that belong to the tour (no
+ * related contents) as editable drafts, in quiz order, and the ids of the
+ * questions linked to contents, which the editor keeps as they are. Read as
+ * the visitor: the tour's author wrote its own questions.
+ */
+export async function getTourQuizDrafts(
+  tour: Pick<Tour, 'quiz'>,
+): Promise<{ drafts: QuizDraft[]; keptQuestions: KeptQuestion[] }> {
+  const ids = tourQuizQuestionIds(tour).map(String)
+  if (ids.length === 0) return { drafts: [], keptQuestions: [] }
+  const { payload } = await getSession()
+  const { docs } = await payload.find({
+    collection: 'quizQuestions',
+    where: { id: { in: ids } },
+    depth: 0,
+    pagination: false,
+    locale: 'en',
+    ...(await asViewer()),
+  })
+  const byId = new Map(docs.map((doc) => [String(doc.id), doc]))
+  const drafts: QuizDraft[] = []
+  const keptQuestions: KeptQuestion[] = []
+  for (const [index, id] of ids.entries()) {
+    const question = byId.get(id)
+    if (question && !question.relatedTo?.length) {
+      const [a = '', b = '', c = ''] = (question.wrongAnswers ?? []).map((row) => row.text)
+      drafts.push({
+        id,
+        prompt: question.prompt,
+        correctAnswer: question.correctAnswer,
+        wrongAnswers: [a, b, c],
+        explanation: question.explanation ?? '',
+      })
+    } else {
+      // Linked to contents, or unreadable here: kept in its place untouched.
+      keptQuestions.push({
+        id,
+        after: ids.slice(0, index).reverse(),
+        contents: question ? relationshipIds(question.relatedTo) : null,
+      })
+    }
+  }
+  return { drafts, keptQuestions }
 }

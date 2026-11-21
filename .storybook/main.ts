@@ -40,11 +40,24 @@ const config: StorybookConfig = {
   viteFinal: (viteConfig) =>
     mergeConfig(viteConfig, {
       plugins: [serverActionMocks],
+      // Server Component stories translate with `getT` from `@/i18n.server`,
+      // whose development loader reads the locale files with `fs`: a browser
+      // can't, so stories get the same bundled instance the client components
+      // use (src/mocks/i18n.server.ts → src/mocks/i18n.ts). An alias, applied
+      // before tsconfig paths resolve `@/`.
+      resolve: {
+        alias: [
+          {
+            find: /^@\/i18n\.server$/,
+            replacement: path.resolve(import.meta.dirname, '../src/mocks/i18n.server.ts'),
+          },
+        ],
+      },
       // Stories can always offer the simulated GPS source (its D-pad); app
       // builds only do with NEXT_PUBLIC_GPS_SIMULATOR=true (see gps-source.ts).
       define: { 'process.env.NEXT_PUBLIC_GPS_SIMULATOR': JSON.stringify('true') },
       // The voice assistant's API routes live in the Next app: forward them to
-      // a local `pnpm dev`, so the orb can be tried for real in Storybook.
+      // a local `pnpm dev`, so the microphone button can be tried for real in Storybook.
       server: {
         proxy: {
           '/api/assistant': 'http://localhost:3000',

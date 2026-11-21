@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-13T02:08:34Z",
+  "generatedAt": "2026-11-16T23:16:02Z",
   "title": "Design System: ArtAround",
   "extensions": {
     "colorMeta": {
@@ -657,7 +657,7 @@
       "name": "Unlock button",
       "kind": "button",
       "refersTo": "button-unlock",
-      "description": "Acquisition action: filled paid orange with a trailing shopping-bag icon and the formatted price. Always beside the navigate action.",
+      "description": "Acquisition action: filled paid orange with a trailing shopping-bag icon and the formatted price. On a paid tour, Start appears beside it only when the visitor can read all paid stops or edit the tour; otherwise Unlock is the only start-page action.",
       "html": "<button class=\"ds-btn-unlock\">Unlock for € 4.00<svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z\"/><path d=\"M3 6h18\"/><path d=\"M16 10a4 4 0 0 1-8 0\"/></svg></button>",
       "css": ".ds-btn-unlock{display:inline-flex;align-items:center;gap:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;font-size:14px;font-weight:600;height:36px;padding:0 18px;border:1px solid transparent;border-radius:var(--mantine-radius-sm,4px);cursor:pointer;background:var(--mantine-color-orange-6,#fd7e14);color:#000;transition:background .15s ease}.ds-btn-unlock:hover{background:var(--mantine-color-orange-7,#f76707)}.ds-btn-unlock:focus-visible{outline:2px solid var(--mantine-color-orange-6,#fd7e14);outline-offset:2px}"
     },
@@ -721,7 +721,7 @@
       "name": "Command pills",
       "kind": "chip",
       "refersTo": "command-pill",
-      "description": "Empty-query Spotlight: Nearby and Quick actions as light round pills; a locked content carries its price badge.",
+      "description": "Empty-query Spotlight: Nearby and Quick actions as light round pills; a locked content carries its price badge. Free-navigation tour commands include only tours this visitor may start.",
       "html": "<div class=\"ds-pills\"><span class=\"ds-pills-h\">Nearby</span><div class=\"ds-pills-row\"><button class=\"ds-pill\">Side discovery <span class=\"ds-pill-lock\"><svg width=\"10\" height=\"10\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><rect x=\"3\" y=\"11\" width=\"18\" height=\"11\" rx=\"2\"/><path d=\"M7 11V7a5 5 0 0 1 10 0v4\"/></svg>€2.00</span></button></div><span class=\"ds-pills-h\">Quick actions</span><div class=\"ds-pills-row\"><button class=\"ds-pill\">Nearest toilets</button><button class=\"ds-pill\">Nearest exit</button><button class=\"ds-pill\">Scan a QR code</button></div></div>",
       "css": ".ds-pills{display:flex;flex-direction:column;gap:6px;padding:12px;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif}.ds-pills-h{font-size:12px;font-weight:600;color:#868e96;margin-top:6px}.ds-pills-row{display:flex;flex-wrap:wrap;gap:6px}.ds-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 12px;border:0;border-radius:32px;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:14px;font-weight:600;cursor:pointer}.ds-pill:hover{background:rgba(34,139,230,.16)}.ds-pill:focus-visible{outline:2px solid #228be6;outline-offset:2px}.ds-pill-lock{display:inline-flex;align-items:center;gap:3px;height:16px;padding:0 6px;border-radius:32px;background:rgba(253,126,20,.12);color:#e8590c;font-size:10px;font-weight:700}"
     },
@@ -784,7 +784,7 @@
       "name": "Group waiting room",
       "kind": "list",
       "refersTo": "room-code",
-      "description": "Host view before the start: tour heading, the room code in monospace, share pair, live member list, start and end.",
+      "description": "Host view before the start: tour heading, the room code in monospace, share pair, and live member list. The server-verified Start action appears only while the host can read paid stops or edit the tour; otherwise the host can review access and end the room.",
       "html": "<div class=\"ds-gw\"><p class=\"ds-gw-l\">Group code</p><p class=\"ds-gw-c\">3WM8JY</p><div class=\"ds-gw-r\"><button class=\"ds-gw-b\">Share link</button><button class=\"ds-gw-b\">Show QR code</button></div><hr><p class=\"ds-gw-n\">2 in the group</p><ul class=\"ds-gw-m\"><li><span class=\"ds-gw-a\">AN</span>Anna <em>(you)</em><b>Host</b></li><li><span class=\"ds-gw-a\">MA</span>Marco</li></ul><hr><button class=\"ds-gw-s\">Start the tour</button><button class=\"ds-gw-e\">End the group tour</button></div>",
       "css": ".ds-gw{max-width:360px;padding:16px;background:#fff;font-family:-apple-system,BlinkMacSystemFont,\"Segoe UI\",Roboto,sans-serif;color:#212529;display:flex;flex-direction:column;gap:12px}.ds-gw p{margin:0}.ds-gw-l{text-align:center;font-size:14px;color:#868e96}.ds-gw-c{text-align:center;font:700 40px/1 ui-monospace,monospace;letter-spacing:.12em}.ds-gw-r{display:grid;grid-template-columns:1fr 1fr;gap:12px}.ds-gw-b{height:36px;border:1px solid #dee2e6;border-radius:4px;background:#fff;font-weight:600;cursor:pointer}.ds-gw hr{border:0;border-top:1px solid #dee2e6;margin:0;width:100%}.ds-gw-n{font-size:14px;font-weight:500}.ds-gw-m{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;font-size:14px}.ds-gw-m li{display:flex;align-items:center;gap:12px}.ds-gw-m em{color:#868e96;font-style:normal;margin-left:-8px}.ds-gw-m b{margin-left:auto;background:rgba(34,139,230,.1);color:#1c7ed6;font-size:11px;padding:2px 8px;border-radius:32px;text-transform:uppercase}.ds-gw-a{width:26px;height:26px;border-radius:50%;background:#e7f5ff;color:#1c7ed6;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}.ds-gw-s{height:42px;border:0;border-radius:4px;background:#228be6;color:#fff;font-weight:600;font-size:16px;cursor:pointer}.ds-gw-e{height:36px;border:0;background:transparent;color:#e03131;font-weight:600;cursor:pointer}.ds-gw button:focus-visible{outline:2px solid #228be6;outline-offset:2px}"
     },

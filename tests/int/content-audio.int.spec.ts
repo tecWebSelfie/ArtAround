@@ -15,7 +15,7 @@ vi.mock('ai', async (importOriginal) => ({
   generateSpeech,
 }))
 
-const { audioTextHash, mp3DurationSeconds, silentMp3, splitForSpeech } =
+const { audioTextHash, contentAudioText, mp3DurationSeconds, silentMp3, splitForSpeech } =
   await import('@/lib/content-audio')
 const { generateContentAudio } = await import('@/tasks/generateContentAudio')
 const { Contents } = await import('@/collections/Contents')
@@ -167,7 +167,8 @@ describe('contents: queueContentAudio', () => {
     expect(queue).toHaveBeenCalledWith(
       expect.objectContaining({
         task: 'generateContentAudio',
-        input: { contentId: 'c1', locale: 'en' },
+        // The text's hash ties a failed job to the text it failed on.
+        input: { contentId: 'c1', locale: 'en', textHash: audioTextHash(contentAudioText(doc)) },
       }),
     )
     queue.mockClear()

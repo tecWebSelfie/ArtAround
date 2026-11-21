@@ -1,4 +1,6 @@
 {
+  "{{kind}}: {{title}}": "",
+  "{{kind}}: {{title}}, {{price}}": "",
   "all": "Gach rud",
   "anyPrice": "Praghas ar bith",
   "clearFilters": "Glan na scagairí",
@@ -10,6 +12,8 @@
   "min": "nóim.",
   "noResults": "Níor aimsíodh aon torthaí",
   "noResultsHint": "Bain triail as cuardach eile, nó glan na scagairí.",
+  "object": "",
+  "objects": "",
   "paid": "Íoctha",
   "price": "Praghas",
   "results_one": "{{count}} toradh",
@@ -18,12 +22,13 @@
   "results_many": "{{count}} dtoradh",
   "results_other": "{{count}} toradh",
   "search": "Cuardaigh",
-  "searchPlaceholder": "Cuardaigh turais, ábhar agus daoine",
+  "Search tours, contents, objects and people": "",
   "tour": "Turas",
   "tours": "Turais",
   "type": "Cineál",
   "user": "Úsáideoir",
   "users": "Úsáideoirí",
   "usersNoPrice": "Níl praghas ar phróifílí.",
+  "viewObject": "",
   "viewProfile": "Féach ar an bpróifíl"
 }

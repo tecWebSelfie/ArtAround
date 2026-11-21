@@ -18,8 +18,14 @@ import { cache } from 'react'
  * what REST would return to the same visitor.
  */
 export const getSession = cache(async () => {
+  // The request headers come first on purpose: during `next build`, reading
+  // them bails the shell prerender out to dynamic rendering BEFORE the
+  // database connection is attempted, so a build environment without a
+  // reachable MongoDB does not fail here (see docs/standalone-deploy.md).
+  // At runtime the order changes nothing.
+  const requestHeaders = await headers()
   const payload = await getPayload({ config })
-  const { user } = await payload.auth({ headers: await headers() })
+  const { user } = await payload.auth({ headers: requestHeaders })
   // MCP API keys can authenticate too; frontend pages only care about users.
   const viewer =
     user && user.collection === 'users' ? (user as User & { collection: 'users' }) : null

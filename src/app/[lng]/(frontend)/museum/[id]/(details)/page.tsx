@@ -1,27 +1,23 @@
-import { relationshipIds } from '@/lib/search-index'
+import { relationshipIds } from '@/lib/relationship-ids'
 import { TranslationPending } from '@/components/TranslationPending'
 import { normalizeLocale, requestTranslations } from '@/lib/localized'
 import { lexicalToHTML } from '@/lib/richtext'
 import { museumNavigationEntry } from '@/lib/navigation-entry'
 import { asViewer, can, getSession } from '@/lib/session'
-import config from '@/payload.config'
-import { getPayload } from 'payload'
+import { NotFound } from 'payload'
+import { notFound } from 'next/navigation'
 import MuseumPage from './MuseumPage'
 import type { Metadata } from 'next'
 import { cache } from 'react'
 
-export async function generateStaticParams() {
-  const payload = await getPayload({ config })
-  const museums = await payload.find({
-    collection: 'museums',
-    limit: 100,
-    pagination: false,
-  })
-
-  return museums.docs.map((museum) => ({
-    id: museum.id,
-  }))
-}
+/**
+ * The page reads the visitor's session (`headers()`) on every request, so it
+ * renders dynamically: declaring it keeps Next from attempting the on-demand
+ * static render an unprerendered dynamic param would otherwise get, which
+ * fails on `headers()` (DYNAMIC_SERVER_USAGE). No `generateStaticParams`, so
+ * a build without a database prerenders nothing here either.
+ */
+export const dynamic = 'force-dynamic'
 
 /**
  * The museum, read once per request (React `cache`) for the page and its
@@ -54,7 +50,11 @@ export default async function Museum(props: PageProps<'/[lng]/museum/[id]'>) {
   const locale = normalizeLocale(lng) ?? 'en'
   // The permissions only need the id, so they are read alongside the museum.
   const [museum, canEditDetails, canManageMap] = await Promise.all([
-    readMuseum(id, lng),
+    // A missing or malformed id makes Payload throw `NotFound`: answer 404, not 500.
+    readMuseum(id, lng).catch((error: unknown) => {
+      if (error instanceof NotFound) notFound()
+      throw error
+    }),
     can('museums', id, 'update', 'name'),
     can('museums', id, 'update', 'map'),
   ])

@@ -2,7 +2,9 @@ import { mockMuseumFull } from '@/mocks/museum.mock'
 import { mockContentsList } from '@/mocks/content.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
+import { visitableTour } from '@/lib/tour-navigation'
 import { AppShell } from '@mantine/core'
+import { spotlight } from '@mantine/spotlight'
 import { Meta, StoryObj } from '@storybook/nextjs-vite'
 import { expect, userEvent, within } from 'storybook/test'
 import { Notifications } from '@mantine/notifications'
@@ -202,9 +204,19 @@ export const SimulatedGps: Story = {
   },
 }
 
-/** The dormant orb sits at the right of the navbar until the visitor opts in. */
+/** The microphone button sits, off, at the right of the navbar until the visitor opts in. */
 export const AssistantOff: Story = {
   ...RouteBetweenObjects,
+  parameters: {
+    nextjs: {
+      navigation: {
+        ...RouteBetweenObjects.parameters?.nextjs?.navigation,
+        // No destination chosen: the map's centre pill is the next stop
+        // (with one, it is "I'm here", see NavigationControls).
+        query: { at: 'route-start' },
+      },
+    },
+  },
   play: async ({ canvas }) => {
     await expect(canvas.getByRole('button', { name: 'Turn on the voice assistant' })).toBeVisible()
     // "Open next stop" moved from the navbar to the map overlay.
@@ -241,12 +253,21 @@ export const Completed: Story = {
  * leads with the museum's tours.
  */
 export const FreeNavigation: Story = {
+  // Spotlight's store is global: close the search this story opens, or the
+  // next story in the file starts with its dialog still on screen.
+  beforeEach: () => () => spotlight.close(),
   args: {
     scope: { kind: 'free', museumId: mockMuseumFull.id },
     museum: { ...mockMuseumFull, map: null },
     catalog: [],
     tours: [
-      { id: mockTourFull.id, title: mockTourFull.title, stops: mockTourFull.contents.length },
+      {
+        id: mockTourFull.id,
+        title: mockTourFull.title,
+        stops: mockTourFull.contents.length,
+        canStart: true,
+      },
+      { id: 'locked-tour', title: 'Paid tour', stops: 2, canStart: false },
     ],
   },
   parameters: {
@@ -260,23 +281,50 @@ export const FreeNavigation: Story = {
       },
     },
   },
-  play: async ({ canvas }) => {
+  play: async ({ canvas, canvasElement }) => {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     // Directions ask for a start before an end: with no position yet, the bar
     // asks for it first (DirectionsBar's "no-position" state).
     await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
+    // No destination yet: the centre pill opens search (NavigationControls).
+    await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
+    const body = within(canvasElement.ownerDocument.body)
+    await expect(body.findByRole('button', { name: mockTourFull.title })).resolves.toBeVisible()
+    await expect(body.queryByRole('button', { name: 'Paid tour' })).toBeNull()
   },
 }
 
 /**
- * The next stop's work is no longer on the map (its object was removed): the
- * stepper flags it "Skipped" and a modal explains the skip, with the action
- * that moves the cursor past it. "Open next stop" is withdrawn meanwhile.
+ * A tour with a stop whose work is no longer on the map (the second one):
+ * navigation drops it before the visitor sees anything (`visitableTour`), so
+ * the header counts the two visitable stops, the stepper never lists the
+ * missing one, and there is no "Skipped" badge or blocking modal.
  */
+const stopCatalog = routeCatalog.map((object, index) => ({
+  ...object,
+  // The first and third stops are listed on the map's objects; the second is not.
+  contents: [
+    ...object.contents,
+    { id: mockContentsList[index * 2]!.id, title: mockContentsList[index * 2]!.title },
+  ],
+}))
+// Its own tour id: the stops every other story showed are kept per tour in
+// sessionStorage (RemovedStopsModal), and a story still settling when this one
+// starts could otherwise write them back and raise "a stop left the tour".
+const visitableStopsTour = visitableTour(
+  { ...mockTourFull, id: 'tour-with-unavailable-stop', museum: mockMuseumFull },
+  stopCatalog,
+  new Set(routeCatalog.map(({ id }) => id)),
+)
+
 export const UnavailableStop: Story = {
   ...RouteBetweenObjects,
-  args: { ...RouteBetweenObjects.args, catalog: routeCatalog },
+  args: {
+    ...RouteBetweenObjects.args,
+    scope: { kind: 'tour', tour: visitableStopsTour, step: 0 },
+    catalog: stopCatalog,
+  },
   parameters: {
     nextjs: {
       navigation: {
@@ -284,18 +332,20 @@ export const UnavailableStop: Story = {
           ['lng', 'en'],
           // Museum-owned tour URL: `/museum/[id]/navigation/tour/[tourId]/[stepId]`.
           ['id', mockMuseumFull.id],
-          ['tourId', mockTourFull.id],
+          ['tourId', visitableStopsTour.id],
           ['stepId', '0'],
         ],
         query: { at: 'route-start' },
       },
     },
   },
-  play: async ({ canvasElement }) => {
+  play: async ({ canvas, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body)
-    const dialog = await body.findByRole('dialog', { name: 'These stops can no longer be visited' })
-    await expect(within(dialog).getByText(mockContentsList[0]!.title)).toBeVisible()
-    await expect(within(dialog).getByRole('button', { name: /^Skip/ })).toBeVisible()
-    await expect(body.queryByRole('button', { name: 'Open next stop' })).toBeNull()
+    await expect(canvas.getByText(/Stop 1 of 2/)).toBeVisible()
+    await expect(canvas.getByText(mockContentsList[0]!.title)).toBeVisible()
+    await expect(canvas.getByText(mockContentsList[2]!.title)).toBeVisible()
+    await expect(canvas.queryByText(mockContentsList[1]!.title)).toBeNull()
+    await expect(canvas.queryByText('Skipped')).toBeNull()
+    await expect(body.queryByRole('dialog')).toBeNull()
   },
 }

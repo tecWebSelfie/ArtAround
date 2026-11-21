@@ -1,6 +1,7 @@
 'use client'
 
 import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
+import { useWalkTo } from '@/components/pascal/use-walk-to'
 import { MapViewer } from '@/components/pascal/MapViewer'
 import { MAP_LABEL_CLASS, MAP_LABEL_Z_RANGE, RoomLabels } from '@/components/pascal/RoomLabels'
 import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
@@ -23,7 +24,7 @@ import { useTranslation } from 'react-i18next'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
-import { Box3, Color, Vector3, type Group, type Object3D } from 'three'
+import { Box3, Color, Vector3, type Object3D } from 'three'
 import { useMantineTheme } from '@mantine/core'
 import { useViewer } from '@pascal-app/viewer'
 import { usePathname } from 'next/navigation'
@@ -51,18 +52,6 @@ const AVATAR_VIEW_POLAR = 0.88
  * where it would run through the body (metres, in plan).
  */
 const PATH_START_CLEARANCE = 0.45
-
-/**
- * The avatar walks to each new live position instead of jumping: GPS fixes
- * (about one a second) and the simulator's steps arrive as points, the
- * avatar covers the gap at walking pace or faster, so a steady stream of
- * fixes reads as one continuous walk. A gap wider than `AVATAR_TELEPORT_METRES`
- * is a new pin (a QR, a confirmed work) or a GPS jump: the avatar is put there.
- */
-const AVATAR_WALK_SPEED = 1.4
-/** Catch-up rate (1/s): the farther behind, the faster it walks. */
-const AVATAR_CATCH_UP = 4
-const AVATAR_TELEPORT_METRES = 4
 
 /**
  * The route from the pinned position (`at`, else the derived entrance) to the
@@ -100,6 +89,7 @@ export function MuseumMap({
   onRouteChange,
   position,
   path,
+  renderPaused,
   ...props
 }: ComponentProps<typeof MapViewer> & {
   navMesh?: NavMesh | null
@@ -260,6 +250,9 @@ export function MuseumMap({
     <MapViewer
       map={map}
       {...props}
+      // Paused only once the scene is built: routes are computed on its
+      // meshes, so a map opened under the floor plan still draws them once.
+      renderPaused={Boolean(renderPaused) && ready}
       selectionManager="custom"
       onSceneReadyChange={setReady}
       hoverStyles={workOutlineStyles}
@@ -338,9 +331,13 @@ function WorkOutlines({ opened }: { opened: string | null }) {
   return null
 }
 
-/** Pascal's outline list made to hold `objects`, rewritten only when it differs. */
+/**
+ * Pascal's outline list made to hold `objects`, rewritten only when it
+ * differs. Item by item: moving from one work to another often keeps the
+ * length and the first item while the works change.
+ */
 function syncOutlined(list: Object3D[], objects: Object3D[]) {
-  if (list.length === objects.length && list[0] === objects[0]) return
+  if (list.length === objects.length && list.every((object, i) => object === objects[i])) return
   list.length = 0
   list.push(...objects)
 }
@@ -366,36 +363,11 @@ function useHoveredWork() {
 }
 
 /**
- * The avatar carried to `point` as described at `AVATAR_WALK_SPEED`, facing
- * the way it walks. The group's position is driven per frame, never as a
- * prop: a prop would put it back on the target at every render.
+ * The avatar carried to `point` at walking pace (`useWalkTo`), facing the
+ * way it walks.
  */
 function WalkingAvatar({ point, label }: { point: Vec3; label: string }) {
-  const group = useRef<Group>(null)
-  const heading = useRef<number | null>(null)
-  const placed = useRef(false)
-  const [x, y, z] = point
-  useFrame((_, delta) => {
-    const avatar = group.current
-    if (!avatar) return
-    const dx = x - avatar.position.x
-    const dz = z - avatar.position.z
-    const distance = Math.hypot(dx, dz)
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (!placed.current || still || distance > AVATAR_TELEPORT_METRES || distance < 0.02) {
-      avatar.position.set(x, y, z)
-      placed.current = true
-      heading.current = null
-      return
-    }
-    heading.current = Math.atan2(dx, dz)
-    const step = Math.min(distance, Math.max(AVATAR_WALK_SPEED, distance * AVATAR_CATCH_UP) * delta)
-    avatar.position.set(
-      avatar.position.x + (dx / distance) * step,
-      y,
-      avatar.position.z + (dz / distance) * step,
-    )
-  })
+  const { group, heading } = useWalkTo(point)
   return (
     <group ref={group}>
       <Suspense fallback={null}>

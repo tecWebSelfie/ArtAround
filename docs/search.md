@@ -1,125 +1,115 @@
-# Search (Payload plugin)
+# Search (Typesense)
 
-The site uses the official `@payloadcms/plugin-search` plugin. It keeps a
-generated `search` collection in sync with the source documents; there is no
-external search service.
+Marketplace, navigator (home dropdown) and the `/search/{tours,contents,objects}`
+pages read one Typesense collection. Payload is the source of truth: its
+collection hooks write the index through the Next server (`src/lib/search/*`),
+and every read goes through the Next server too. The browser never talks to
+Typesense and no key ever has a `NEXT_PUBLIC_` prefix.
+
+## Cluster and environment
+
+| Variable                               | Meaning                                                                  |
+| -------------------------------------- | ------------------------------------------------------------------------ |
+| `TYPESENSE_HOST`, `TYPESENSE_API_KEY`  | The cluster (Typesense Cloud) and its admin key. Both required.          |
+| `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` | Default `443` / `https` (Cloud); a self-hosted node can override them.   |
+| `TYPESENSE_COLLECTION`                 | The collection name, default `artaround` (one per environment/database). |
+
+There is no local fallback service and no Payload fallback. Without the two
+required variables, or with the cluster unreachable, reads throw
+`SearchUnavailableError` and each surface shows its error state
+(`SearchUnavailableAlert`, the dropdown's error line); writes are logged and
+skipped, so a Payload save always succeeds. The production container must be
+able to reach the cluster over HTTPS and carry the variables in its environment
+or `.env.production` ([Standalone deploy](standalone-deploy.md)).
 
 ## What is indexed
 
-`searchPlugin()` in `src/payload.config.ts` indexes:
+One document per source document, `id` = `{kind}_{sourceId}`
+(`buildSearchDocument()` in `src/lib/search/documents.ts`; the schema is
+`src/lib/search/schema.ts`, the vocabulary `src/lib/search/types.ts`):
 
-| Payload collection | Search kind | Searchable text                        | City        | Price |
-| ------------------ | ----------- | -------------------------------------- | ----------- | ----- |
-| `tours`            | `tour`      | title, museum name, museum city, works | from museum | yes   |
-| `contents`         | `content`   | title, works                           | –           | yes   |
-| `users`            | `user`      | full name, username                    | –           | –     |
-| `museums`          | `museum`    | name, city, region                     | yes         | –     |
-| `objects`          | `object`    | name, artist, museum name, museum city | from museum | –     |
+| Payload collection | `kind`    | Searched text                                   | Also                                  |
+| ------------------ | --------- | ----------------------------------------------- | ------------------------------------- |
+| `tours`            | `tour`    | title, museum name and city, works of its stops | price, duration, difficulty, subjects |
+| `contents`         | `content` | title, works                                    | price, duration, difficulty, subjects |
+| `objects`          | `object`  | name, artist, museum name and city              | public description                    |
+| `museums`          | `museum`  | name, city, region                              |                                       |
+| `users`            | `user`    | full name, username                             |                                       |
 
-Descriptions are deliberately excluded from the index for every collection:
-`tours.description`, `contents.body` (rich text), `users.description`/`bio`,
-`museums.shortDescription`/`description` (rich text) and `objects.description`.
-Search hence matches titles and the metadata listed above only.
+- Text is indexed in English (`locale: 'en'`) so matching stays stable; cards
+  are hydrated from Payload in the visitor's locale (`src/lib/search/hydrate.ts`
+  and the routes' own hydration), so titles, prices and images stay correct.
+- A content body is never indexed, so a paid body can't leak through a match or
+  a subtitle.
+- `museum_id` lists every museum a document belongs to (museum mode is one
+  `filter_by`); `author_id` and `subject_ids` back the scoped search pages
+  (`?author=`, `?subject=`, `src/lib/search-scope.ts`).
+- A tour counts only its visitable stops (`withVisitableStops`) for its price,
+  duration and difficulty, as its card, page and checkout do.
+- "Works" in tour and content rows: the names and artists of the works behind
+  their stops, searched but never shown, so "Caravaggio" finds the tours and
+  contents that show his works.
 
-`src/lib/search-index.ts` owns the projection:
+Every searchable text field has `infix: true`: `query.ts` sends
+`infix: 'fallback'` (substring match when the prefix one found nothing), and
+Typesense refuses that query without it. Change the schema and the query
+together.
 
-- `buildSearchDoc()` flattens relationship/location data into `title`, `excerpt`,
-  `kind`, `city`, `priceCents` and `sourceCreatedAt`.
-- The index is deliberately English-only (`localize: false`). Cards are hydrated
-  from the original Payload documents in the visitor's locale, so translated
-  titles, prices and images stay correct.
-- The museum of a tour is `tours.museum`; the museum of an object is the one
-  whose map places it (`museums.objects`, derived from the map — see
-  docs/permissions-and-editing.md).
-- `priceCents` follows the paid-content model: a content's `price`, and for a
-  tour the sum of its contents' prices (its list price; a visitor who owns some
-  of them pays less, see `src/lib/checkout-quote.ts`). Currency is EUR.
-- Museum changes refresh the search rows of their tours/objects, because those
-  rows embed the museum name and city. A content's price change refreshes the
-  rows of the tours that include it (`refreshTourPrices` in `Contents`).
+## Keeping the index in step
 
-### Works in tour and content rows
-
-"works" in the table above: a tour's and a content's row also carry the name
-and the artist of the works (objects) behind its contents (`worksText()`), in
-the excerpt, which is searched but never shown. Searching a work ("Mona Lisa")
-or an artist ("Caravaggio") on the home therefore finds the tours and contents
-that show it. In all-museums mode that is the only way works are found: the
-home is for choosing a visit, not a catalog of works. In museum mode the
-museum's works are results of their own too (see Result scopes). The relation
-is authored on the object (`objects.contents`), so an object's save or deletion
-refreshes the rows of its contents and of their tours (`refreshWorkSearchRows`
-in `Objects`, `refreshToursIncluding()`); a tour's own save re-syncs it through
-the plugin.
-
-## Access
-
-The `search` collection is server-side data. The plugin's defaults (public
-`read`, update/delete for any signed-in user) are overridden to super-admin
-only, so REST/GraphQL can't leak excerpts or let visitors rewrite rows (for
-example raise a row's `priority`). All app reads go through
-`querySearchIndex()` with `overrideAccess`, and the plugin syncs through the
-Local API. No rich-text body or description is indexed, so a paid body can't
-leak through a match or a subtitle.
-
-## Result scopes
-
-Both scopes read the same `search` collection through
-`querySearchIndex()` (`src/lib/search-query.ts`):
-
-- **Marketplace** (`src/lib/marketplace.ts`): `tours`, `contents`, `users`.
-  Empty-query browsing and text searches use the same rows. Price filters apply
-  to tours/contents; users are included in "All" only with a text query.
-- **Navigator** (`/api/navigator-search`, the home dropdown): `tours`,
-  `contents`, `museums` (`NAVIGATOR_SEARCH_KINDS`). Every result opens its
-  detail page, whose CTA leads into the map (or to buying a locked content).
-  - The query also matches museum city ("Roma" surfaces museums and tours in
-    Rome).
-  - Ordering: rows sort by `priority` (`SEARCH_PRIORITIES`: tours 10, contents
-    8, museums 6, objects 5, users 4), then the route ranks a pool of
-    `RANK_POOL` (40) rows by exact city, title and partial city match before
-    keeping `limit`, so an exact match is never cut by priority.
-  - Museum mode (`museumScope()`): only what the locked museum holds, its tours
-    and the contents on its map (`restrictTo` in `querySearchIndex()`), never
-    the museum itself (`MUSEUM_MODE_KINDS`). It also returns
-    the works on that map (`object` rows, restricted to `objectIds`) with their
-    artist as subtitle, opening the work's page; in global mode works are not
-    results.
-  - Rows are hydrated in the visitor's locale with what the dropdown shows:
-    length in seconds (a tour's `durationMinutes`, else the sum of its
-    contents' `durationSeconds`; `src/lib/duration.ts`), difficulty (a tour's hardest content), stops, and a paid
-    content's price.
+- `searchSyncAfterChange` / `searchSyncAfterDelete` (`src/lib/search/sync.ts`)
+  on each indexed collection: one upsert or delete per save.
+- Dependent rows: a museum's rename refreshes its tours and objects; a
+  content's price or a work's name refreshes the tours that include it
+  (`resyncToursIncluding`); a tour's visitable stops changing (map edit,
+  deleted content: `src/lib/visitable-stops.ts`, `src/lib/tour-stop-cleanup.ts`)
+  re-syncs those tours (`resyncSearchDocuments`).
+- The collection is created on first use (`ensureSearchCollection`), so
+  `pnpm seed` fills a fresh cluster.
 
 ## What is never listed
 
-`isUnlistedInSearch()` (`src/lib/search-index.ts`) is the one rule for the
-plugin's `skipSync` and for `pnpm search:reindex`: private contents and tours,
-and the visits planned for one visitor (`tours.generation.generated`, "Plan my
-visit") get no search row. The same rule for planned visits, `LISTED_TOURS`
-(a `where`) and `isPlannedVisit` (a predicate) in `src/lib/visibility.ts`, keeps
-them out of every list of tours: the museum page (`museums.tours` join), the
-tours of a work or a content, and the navigation Spotlight.
-They stay reachable by their link, which is how a group follows one.
+`isUnlistedInSearch()` is the one rule for the hooks and the reindex: private
+contents and tours, the tours of one visitor (planned visits, visit copies:
+`isPersonalTour`) and tours with no visitable stop (`isEmptyTour`,
+`tours.visitableStops` is 0: see
+[permissions](permissions-and-editing.md#visitable-stops-derived-server-written))
+get no row; a document that becomes unlisted has its row deleted, and gets it
+back when it is listed again. The same rules (`LISTED_TOURS`, a `where`, in
+`src/lib/visibility.ts`) keep them out of every list of tours.
+
+The museum navigation's actions ("Open next stop", "Nearest food", the
+reading options) are client-side commands built from the navigation state
+(`navigation-commands.ts`), not documents: the map's Spotlight searches them
+beside the catalog, and they never enter the index.
+
+## Result scopes
+
+`searchItems()` (`src/lib/search/query.ts`) is the single read path: each
+surface passes its kinds, fields (`queryBy`) and filters; ranking is relevance,
+then `priority` (tours 10, contents 8, museums 6, objects 5, users 4), then
+recency (browsing without a query: priority and recency only).
+
+- **Marketplace** (`src/lib/marketplace.ts`): tours, contents, objects, users
+  (people only with a text query); price filters on tours and contents.
+- **Navigator** (`/api/navigator-search`): tours, contents and museums; in
+  museum mode (`museumSearchMuseumId`) the locked museum's tours, contents and
+  works instead. The route ranks a pool of 40 hits by exact city, title and
+  partial city match before keeping `limit`, so an exact match is never cut by
+  priority, then hydrates the rows (length, difficulty, stops, price,
+  thumbnail, the museum's position for "near you").
+- **Search pages** (`/search/{tours,contents,objects}`): one kind each, with
+  the URL scopes of `src/lib/search-scope.ts`.
 
 ## Reindex
-
-Normal creates/updates/deletes sync automatically. Rebuild the whole index after
-enabling search, adding a collection, or changing `buildSearchDoc()` or
-`SEARCH_PRIORITIES`:
 
 ```bash
 pnpm search:reindex
 ```
 
-The script clears the `search` collection and recreates one row per source
-document. The plugin's admin **Reindex** button also works, but it iterates every
-configured locale; the CLI script is the faster option for this project.
-
-## Filtering
-
-- `kind` is a select field (`tour`, `content`, `user`, `museum`, `object`).
-- `priceCents` is `0` for free content/tours and for non-sellable rows; `paid`
-  matches `> 0`.
-- `city` is indexed and included in the text query.
-- `sourceCreatedAt` preserves the source document's creation time for
-  newest-first marketplace ordering.
+`src/scripts/search-reindex.ts` drops the collection and rebuilds every row
+with the hooks' own projection. Needed after a schema or projection change, a
+database restore (which fires no hooks), or to repair rows missed while the
+cluster was unreachable. The standalone boot runs it at every start (bundled as
+`standalone-reindex.mjs`), so a deploy always serves a fresh index; a failure
+is logged and the app starts anyway.

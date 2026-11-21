@@ -31,8 +31,8 @@ export const Default: Story = {
     // with difficulty and reading time alongside the title.
     await expect(canvas.findByText('Storia della ceramica attica')).resolves.toBeTruthy()
     await expect(canvas.findByText('Easy')).resolves.toBeTruthy()
-    // Exact lengths in seconds, compact chip notation (src/lib/duration.ts).
-    await expect(canvas.findByText('45"')).resolves.toBeTruthy()
+    // Exact lengths in seconds, in localized units (src/lib/duration.ts).
+    await expect(canvas.findByText('45 sec')).resolves.toBeTruthy()
     await expect(canvas.findByText('2 min 30 sec')).resolves.toBeTruthy()
   },
 }

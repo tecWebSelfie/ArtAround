@@ -73,16 +73,25 @@ export const Default: Story = {
   },
 }
 
-// A paid content the visitor does not own: the CTA offers buying or replacing.
+// A paid content the visitor does not own: only buying or replacing is available.
 export const WithLockedContents: Story = {
   args: { price: 450, lockedContentIds: [lockedId], isSignedIn: true },
   play: async ({ canvasElement }) => {
     // The purchase modal portals to <body>.
     const body = canvasElement.ownerDocument.body
+    await expect(within(body).queryByRole('link', { name: /Start tour/ })).not.toBeInTheDocument()
     await userEvent.click(await within(body).findByRole('button', { name: /Unlock for/ }))
     await expect(
       within(body).findByRole('link', { name: /Replace the paid contents/ }),
     ).resolves.toHaveAttribute('href', `/en/tour/new?from=${mockTourWithContents.id}`)
+  },
+}
+
+// The tour owner may start their tour even when they cannot read a paid stop.
+export const OwnerWithLockedContents: Story = {
+  args: { price: 450, lockedContentIds: [lockedId], isSignedIn: true, canEdit: true },
+  play: async ({ canvas }) => {
+    await expect(canvas.findByRole('link', { name: /Start tour/ })).resolves.toBeTruthy()
   },
 }
 
@@ -100,5 +109,33 @@ export const Rich: Story = {
       'href',
       `/en/museum/${mockMuseumFull.id}`,
     )
+  },
+}
+
+// Only the stored visitable stops are shown and counted: here the last stop is
+// unavailable (`visitableContents`), so two of three appear.
+export const WithUnavailableStop: Story = {
+  args: {
+    tour: {
+      ...mockTourWithContents,
+      visitableContents: mockTourWithContents.contents
+        .slice(0, 2)
+        .map((content) => (typeof content === 'string' ? content : content.id)),
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.findAllByRole('link', { name: /See more about/ })).resolves.toHaveLength(2)
+  },
+}
+
+// Nothing to visit: the page says so and offers no way to start.
+export const NoVisitableStops: Story = {
+  args: { tour: { ...mockTourWithContents, visitableContents: [] } },
+  play: async ({ canvas, canvasElement }) => {
+    await expect(
+      canvas.findByText('This tour has no stops to visit right now.'),
+    ).resolves.toBeTruthy()
+    const page = within(canvasElement.ownerDocument.body)
+    await expect(page.queryByRole('link', { name: /Start tour/ })).toBeNull()
   },
 }

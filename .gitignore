@@ -30,6 +30,9 @@ yarn-error.log*
 
 # local env files
 .env*.local
+# Production values of a deploy build folder (copied into the standalone by
+# `next build`, see docs/standalone-deploy.md): never committed.
+.env.production
 .env.mongo
 .env
 
@@ -83,3 +86,6 @@ storybook-static
 
 #impeccable critique reports
 .impeccable/critique/
+
+# playwright-cli / playwright trace scratch (extracted traces, sessions)
+/.playwright-cli/

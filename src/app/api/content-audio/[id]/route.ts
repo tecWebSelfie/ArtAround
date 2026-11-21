@@ -39,7 +39,7 @@ export const runtime = 'nodejs'
  * seconds doesn't queue it again. Per server instance; a duplicate job would
  * only find the audio up to date.
  */
-const queuedAt = new Map<string, number>()
+const queuedAt = new Map<string, { at: number; textHash: string }>()
 const REQUEUE_AFTER_MS = 2 * 60_000
 
 const json = (status: string, code: number) =>
@@ -88,25 +88,103 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
   // 3. A current audio is served; a missing or stale one is generated.
   const audio = docs[0]
   if (audio?.filename && audio.textHash === textHash) {
-    if (url.searchParams.has('check')) return json('ready', 200)
     const staticDir = payload.collections.contentAudio.config.upload.staticDir || 'contentAudio'
-    return storedAudio(request, path.resolve(staticDir, audio.filename), textHash)
+    const filePath = path.resolve(staticDir, audio.filename)
+    if (await isFile(filePath)) {
+      if (url.searchParams.has('check')) return json('ready', 200)
+      return storedAudio(request, filePath, textHash)
+    }
+    // The record outlived its MP3: a redeploy replaces the standalone folder
+    // the files live in (`rsync --delete`, docs/standalone-deploy.md), while
+    // the database keeps the records. The job skips an audio whose record is
+    // up to date, so the orphan goes first and the audio is generated again
+    // below, instead of answering `ready` and then failing to read the file.
+    // If the record can't go, a queued job would skip it again: report the
+    // failure, so the button stops instead of waiting for a file that never comes.
+    const removed = await payload
+      .delete({ collection: 'contentAudio', id: audio.id, overrideAccess: true })
+      .then(
+        () => true,
+        (error: unknown) => {
+          console.error(`Content audio ${id} (${locale}): orphan record not removed:`, error)
+          return false
+        },
+      )
+    if (!removed) return json('failed', 502)
   }
   if (!speechAvailable()) return json('unavailable', 503)
-  await queueAudio(payload, { contentId: id, locale, variantId: variant?.id })
+  const input = { contentId: id, locale, variantId: variant?.id, textHash }
+  // A generation that just failed (every retry spent) is reported, not
+  // re-queued: the button stops at "Audio not available" instead of waiting
+  // out its polls, and the error reaches the server log and super admins.
+  const failure = await recentFailure(payload, input)
+  if (failure) {
+    console.error(`Content audio ${id} (${locale}) failed:`, failure)
+    const user = viewer.user
+    const detail = user && 'isSuperAdmin' in user && user.isSuperAdmin ? failure : undefined
+    return NextResponse.json(
+      { status: 'failed', ...(detail ? { error: detail } : {}) },
+      { status: 502, headers: { 'Cache-Control': 'no-store' } },
+    )
+  }
+  await queueAudio(payload, input)
   return json('pending', 202)
 }
 
-/** Queues the audio's generation, once per window (`queuedAt`). */
-async function queueAudio(
-  payload: Payload,
-  input: { contentId: string; locale: TypedLocale; variantId?: string },
-) {
+type AudioJobInput = {
+  contentId: string
+  locale: TypedLocale
+  variantId?: string
+  textHash: string
+}
+
+/**
+ * The error of this audio's latest generation job, when it failed within the
+ * requeue window; null otherwise (none, still running, succeeded, or failed
+ * long enough ago to try again). Only a job for this text counts: a failure
+ * on the text an editor has just fixed must not hold back the new one.
+ */
+async function recentFailure(payload: Payload, input: AudioJobInput) {
+  const { docs } = await payload.find({
+    collection: 'payload-jobs',
+    where: {
+      taskSlug: { equals: 'generateContentAudio' },
+      'input.contentId': { equals: input.contentId },
+      'input.locale': { equals: input.locale },
+      // A base audio's job has no variant: never mistake a version's job for it.
+      'input.variantId': input.variantId ? { equals: input.variantId } : { exists: false },
+      'input.textHash': { equals: input.textHash },
+    },
+    sort: '-updatedAt',
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const job = docs[0]
+  if (!job?.hasError || job.processing) return null
+  if (Date.now() - new Date(job.updatedAt).getTime() > REQUEUE_AFTER_MS) return null
+  const error = job.error as { message?: string } | string | null | undefined
+  return (typeof error === 'string' ? error : error?.message) || JSON.stringify(job.error)
+}
+
+/**
+ * Queues the audio's generation, once per window (`queuedAt`) unless the text
+ * changed since: one entry per audio, so edits don't grow the map.
+ */
+async function queueAudio(payload: Payload, input: AudioJobInput) {
   const key = `${input.contentId}:${input.locale}:${input.variantId ?? 'base'}`
-  if (Date.now() - (queuedAt.get(key) ?? 0) <= REQUEUE_AFTER_MS) return
-  queuedAt.set(key, Date.now())
+  const last = queuedAt.get(key)
+  if (last?.textHash === input.textHash && Date.now() - last.at <= REQUEUE_AFTER_MS) return
+  queuedAt.set(key, { at: Date.now(), textHash: input.textHash })
   await payload.jobs.queue({ task: 'generateContentAudio', input, queue: AUDIO_QUEUE })
 }
+
+/** Whether the stored MP3 is still on disk. */
+const isFile = (filePath: string) =>
+  stat(filePath).then(
+    (stats) => stats.isFile(),
+    () => false,
+  )
 
 /**
  * The current audio. The player revalidates by fingerprint (the text's hash

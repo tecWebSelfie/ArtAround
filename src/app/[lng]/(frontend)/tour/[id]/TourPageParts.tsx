@@ -219,6 +219,11 @@ export function TourStops({
           </Text>
         )}
       </Group>
+      {summary.stops === 0 && (
+        <Text size="sm" c="dimmed">
+          {t('This tour has no stops to visit right now.')}
+        </Text>
+      )}
       <Timeline bulletSize={28} lineWidth={2} mt="xs">
         {contents.map((content, index) => {
           const directions = stopDirections(tour, content.id)

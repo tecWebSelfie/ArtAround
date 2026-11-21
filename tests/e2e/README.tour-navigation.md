@@ -37,7 +37,7 @@ node node_modules/@playwright/test/cli.js test tests/e2e/tour-guidance.e2e.spec.
 - `tour-guidance`: simulated GPS (needs `NEXT_PUBLIC_GPS_SIMULATOR=true` in the
   server's env) advances the directions and suggests the East hall's off-tour content.
 - `voice-assistant`: Chromium plays `tests/e2e/fixtures/open-side-discovery.wav`
-  as the microphone; the orb's turn must open that content. Needs `GROQ_API_KEY`
+  as the microphone; the assistant's turn must open that content. Needs `GROQ_API_KEY`
   and `FISH_API_KEY`. In `next dev` the first run can time out while the content
   modal route compiles; rerun it.
 

@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { storybookTest } from '@storybook/addon-vitest/vitest-plugin'
 import { playwright } from '@vitest/browser-playwright'
+import { coverage } from './vitest.coverage.mts'
 const dirname =
   typeof __dirname !== 'undefined' ? __dirname : path.dirname(fileURLToPath(import.meta.url))
 
@@ -20,6 +21,8 @@ export default defineConfig({
     // browser session" before a single story, and before the cache was
     // written, so every retry was cold again.
     browser: { connectTimeout: 10 * 60_000 },
+    // Both projects in one report (`pnpm test:coverage:all`): see vitest.coverage.mts.
+    coverage,
     projects: [
       // `int` lives in its own file so `pnpm test:int` skips loading Storybook.
       './vitest.int.config.mts',
@@ -42,9 +45,11 @@ export default defineConfig({
           // that alone can exceed Vitest's 15s default, so stories that pass in
           // isolation timed out. Passing stories don't wait any longer.
           testTimeout: 60_000,
+          // Frames at 5 per second so software-WebGL scenes don't starve the
+          // stories running beside them (.storybook/vitest.frame-throttle.ts).
           // Visual regression (`pnpm test:visual`): screenshots each story after
           // it renders; a no-op unless VISUAL_REGRESSION=1. See .storybook/vitest.visual.ts.
-          setupFiles: ['./.storybook/vitest.visual.ts'],
+          setupFiles: ['./.storybook/vitest.frame-throttle.ts', './.storybook/vitest.visual.ts'],
           provide: { visualRegression: process.env.VISUAL_REGRESSION === '1' },
           browser: {
             enabled: true,

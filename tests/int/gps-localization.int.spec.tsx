@@ -91,6 +91,42 @@ describe('GPS identification without an active route', () => {
   })
 })
 
+describe('Directions following the route path', () => {
+  const rooms = { rooms: [], doors: [], objects: [] }
+  const route = (path: [number, number, number][]) => ({
+    path,
+    start: path[0],
+    end: path.at(-1)!,
+    target: null,
+  })
+  it('keeps the shown step on the same route and restarts on a new one', () => {
+    // The map keeps the route object until its destination or start changes
+    // (useTourCursor memoizes the destination on its URL parameters only).
+    const along = route([
+      [0, 0, 0],
+      [10, 0, 0],
+    ])
+    const { result, rerender } = renderHook(
+      ({ current }) => useRouteGuidance({ route: current, rooms, fix: null }),
+      { initialProps: { current: along } },
+    )
+    const steps = result.current.steps
+    expect(steps.length).toBeGreaterThan(1)
+    act(() => result.current.setCurrent(1))
+    rerender({ current: along })
+    expect(result.current.current).toBe(1)
+    // A new route (another destination) rebuilds the directions from the first step.
+    rerender({
+      current: route([
+        [0, 0, 0],
+        [0, 0, 10],
+      ]),
+    })
+    expect(result.current.steps).not.toBe(steps)
+    expect(result.current.current).toBe(0)
+  })
+})
+
 describe('pinned at the destination itself', () => {
   // The route story's museum (see live-route.int.spec.ts): a 12 × 8 m floor.
   const { navMesh } = createRouteMuseum('/models/route.glb')

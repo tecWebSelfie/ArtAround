@@ -13,7 +13,18 @@ Related: [tour navigation](tour-navigation.md).
 | Attempt         | `src/collections/QuizAttempts.ts`         | Server-graded run; addressed by random `token`, never by `id`.                                                                            |
 | Ownership rules | `src/lib/quiz-ownership.ts`               | Picker filter, validation, cleanup hooks.                                                                                                 |
 
-Authoring happens in the Payload admin. The Quiz tab picker uses `filterOptions`
+Authors write their tour's quiz in the tour editor (`QuizEditor` in
+`src/components/editing/forms/`, shown by `TourForm` on `/tour/new` and
+`/tour/[id]/edit`): question, correct answer, three wrong answers and an
+optional explanation. Those questions belong to the tour (`relatedTo` empty),
+so removing one from the editor deletes it (the ownership hooks below). The
+save (`saveQuizQuestions`) writes the questions first, in parallel, then the
+tour listing them; if the tour save fails it deletes the questions it just
+created and writes the stored text back over the edited ones. Questions linked
+to contents are authored in the Payload admin; the tour editor doesn't show
+them and puts each back after the nearest question that preceded it
+(`getTourQuizDrafts` records them), dropping those whose contents all left the
+tour, which the tour's validation would refuse. The Quiz tab picker uses `filterOptions`
 over the form `data`, so it already lists questions about contents added but not
 saved yet.
 
@@ -31,7 +42,10 @@ Invariants enforced by hooks and validation:
   validation rejects API attempts).
 - Removing a tour-owned question from its quiz, or deleting the tour, deletes it.
 - Deleting a content unlinks it; a question left with no content is deleted (an
-  empty `relatedTo` would otherwise silently make it tour-owned).
+  empty `relatedTo` would otherwise silently make it tour-owned). The content also
+  leaves the tours listing it (`src/lib/tour-stop-cleanup.ts`), which drops from
+  their quiz the questions that no longer concern any stop (a question about
+  several contents stays while one of them is a stop); tour-owned ones stay.
 - Deleting a question removes it from every quiz.
 
 ### Answers never reach the browser before answering
@@ -66,7 +80,13 @@ Invariants enforced by hooks and validation:
   `quizFrom`), the final "Quiz" step of `TourProgress` (selectable any time: early
   quiz), and "Take the quiz" in the completed-tour footer. All use `tourQuizPath()`,
   which carries `at`/`mobility`, drops `to` and adds `from` (the cursor left). The
-  tour cursor keeps its meaning; the quiz is not a step.
+  tour cursor keeps its meaning; the quiz is not a step. `from`, `stopCount` (the
+  "stops still ahead" warning), `contentIds` and `stepsCompleted` all count the
+  tour's _visitable_ stops (`getTourQuiz` reads them through `getNavigationTour`,
+  see [tour navigation](tour-navigation.md)): an unavailable stop is neither ahead
+  nor visited. A tour with no visitable stop has no quiz to take (`getTourQuiz`
+  returns null: page and answers 404), but an attempt's result stays readable
+  (`getTourQuizForResult`): a score already earned doesn't vanish with the stops.
 - Quiz pages live outside the map layout. "Back to the map" returns to
   `/[lng]/museum/{museumId}/navigation/tour/{id}/{from}` (`tourNavigationPath`; the
   quiz reads the tour's museum for it) with the same position.

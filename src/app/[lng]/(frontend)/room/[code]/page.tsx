@@ -3,6 +3,8 @@ import { findGroupRoom } from '@/lib/group-room'
 import { normalizeLocale } from '@/lib/localized'
 import { tourMuseumId } from '@/lib/tour-navigation'
 import { getSession } from '@/lib/session'
+import { hasNoStopsToVisit } from '@/lib/tour-stops'
+import { getTourStartAccessById } from '@/lib/tour-start-access'
 import { plannedChildrenAges } from '@/lib/reading-profile'
 import { GroupRoomPage } from './GroupRoomPage'
 
@@ -20,17 +22,31 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
     ROOM_CODE_PATTERN.test(code) ? findGroupRoom(code).catch(() => null) : null,
     getSession(),
   ])
-  const tour = room
+  const readTour = room
     ? await payload
         .findByID({
           collection: 'tours',
           id: room.tourId,
           depth: 1,
           locale: normalizeLocale(lng) ?? 'en',
-          select: { title: true, thumbnail: true, museum: true, generation: true },
+          // Only counted (`hasNoStopsToVisit`): keep the populated stops to their title.
+          populate: { contents: { title: true } },
+          select: {
+            title: true,
+            thumbnail: true,
+            museum: true,
+            generation: true,
+            contents: true,
+            visitableStops: true,
+          },
         })
         .catch(() => null)
     : null
+  // A group whose tour has nothing left to visit is over for its guests: they
+  // see "the group ended" instead of a waiting room that leads nowhere.
+  const tour = !readTour || hasNoStopsToVisit(readTour) ? null : readTour
+  // Recheck current access for the host; a stale room code is not an entitlement.
+  const startAccess = tour ? await getTourStartAccessById(payload, tour.id) : null
   const thumbnail = tour && typeof tour.thumbnail === 'object' ? tour.thumbnail : null
 
   return (
@@ -48,6 +64,7 @@ export default async function RoomPage({ params }: PageProps<'/[lng]/room/[code]
               title: tour.title,
               childrenAges: plannedChildrenAges(tour.generation?.request),
               thumbnail: thumbnail?.url ? { url: thumbnail.url, alt: thumbnail.alt } : null,
+              canStart: startAccess?.canStart ?? false,
             }
           : null
       }

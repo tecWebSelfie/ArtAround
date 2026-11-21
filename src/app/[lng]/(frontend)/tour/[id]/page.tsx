@@ -6,9 +6,12 @@ import { isLocked, lockedTotal } from '@/lib/price'
 import { museumAffordances } from '@/lib/qr-museum'
 import { asViewer, can, getSession } from '@/lib/session'
 import { withStopObjects } from '@/lib/stop-objects'
+import { withVisitableStops } from '@/lib/tour-summary'
 import TourPage from './TourPage'
 import type { Metadata } from 'next'
 import { cache } from 'react'
+import { notFound } from 'next/navigation'
+import { NotFound } from 'payload'
 
 /** The tab names the tour (`%s · Artaround`, frontend layout), from the page's own read. */
 export async function generateMetadata({
@@ -75,19 +78,27 @@ export default async function Tour({ params }: PageProps<'/[lng]/tour/[id]'>) {
   // The permissions and the museum affordances only need the id: they are
   // read together with the tour, not after it.
   const [tour, canEdit, canDelete, { printMuseumId, offer }] = await Promise.all([
-    readTour(id, lng),
+    // A missing, malformed or unreadable (someone else's private) tour makes
+    // Payload throw its own `NotFound`, which Next would render as a 500: map
+    // it to the route's 404. Other errors keep propagating.
+    readTour(id, lng).catch((error: unknown) => {
+      if (error instanceof NotFound) notFound()
+      throw error
+    }),
     can('tours', id, 'update'),
     can('tours', id, 'delete'),
     museumAffordances('tour', id),
   ])
-  const contents = filterPopulated(tour.contents)
+  // Visitors only see (and pay for) the stops they can visit.
+  const visible = withVisitableStops(tour)
+  const contents = filterPopulated(visible.contents)
   // The read above falls back to English for whatever is not translated yet:
   // queue the tour and its stops, and let the page refresh until they arrive.
   const pending = await requestTourTranslations(payload, tour, normalizeLocale(lng) ?? 'en')
 
   return (
     <TourPage
-      tour={tour}
+      tour={visible}
       translationNotice={pending && <TranslationPending />}
       price={lockedTotal(contents)}
       lockedContentIds={contents.filter(isLocked).map((content) => content.id)}

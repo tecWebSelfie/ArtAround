@@ -3,11 +3,15 @@ import type { MarketplaceItem } from '@/components/mantine/MarketplaceCard'
 import type { MarketplaceKind, MarketplacePrice } from '@/components/mantine/MarketplaceControls'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import { PRICE_CURRENCY } from '@/lib/price'
-import { querySearchIndex, type SearchHit } from '@/lib/search-query'
-import type { SearchDocKind } from '@/lib/search-index'
+import { withVisitableStops } from '@/lib/tour-summary'
+import { searchItems } from '@/lib/search/query'
+import type { SearchDocKind, SearchHit } from '@/lib/search/types'
 import type {
   Content,
   ContentImage,
+  Museum,
+  Object as ArtObject,
+  ObjectsThumbnail,
   Tour,
   ToursThumbnail,
   User,
@@ -22,8 +26,15 @@ export type MarketplaceResults = {
   total: number
 }
 
-function mapTour(tour: Tour): MarketplaceItem {
+function mapTour(source: Tour): MarketplaceItem {
+  // Only the stops a visitor can visit count towards the list price.
+  const tour = withVisitableStops(source)
   const thumbnail = isPopulated<ToursThumbnail>(tour.thumbnail) ? tour.thumbnail : null
+  // Context for choosing (DESIGN.md → Marketplace results): the card shows
+  // where the tour runs and who made it. Both relationships are populated by
+  // the hydrating read (depth 1), so no extra query is needed.
+  const museum = isPopulated<Museum>(tour.museum) ? tour.museum : null
+  const author = isPopulated<User>(tour.author) ? tour.author : null
   return {
     key: `tour:${tour.id}`,
     kind: 'tour',
@@ -32,6 +43,8 @@ function mapTour(tour: Tour): MarketplaceItem {
     description: tour.description,
     imageUrl: thumbnail?.url,
     imageAlt: thumbnail?.alt,
+    museumName: museum?.name,
+    authorName: author ? displayName(author) : null,
     // List price: a tour costs its paid contents (src/lib/price.ts). What a
     // given visitor pays can be less; the tour page shows that amount.
     priceCents: filterPopulated<Content>(tour.contents).reduce(
@@ -46,6 +59,9 @@ function mapTour(tour: Tour): MarketplaceItem {
 
 function mapContent(content: Content): MarketplaceItem {
   const thumbnail = filterPopulated<ContentImage>(content.images)[0] ?? null
+  // A content has no museum of its own (its objects do), and reaching it would
+  // need a deeper read; the author is the context that costs nothing.
+  const author = isPopulated<User>(content.author) ? content.author : null
   return {
     key: `content:${content.id}`,
     kind: 'content',
@@ -53,6 +69,7 @@ function mapContent(content: Content): MarketplaceItem {
     title: content.title,
     imageUrl: thumbnail?.url,
     imageAlt: thumbnail?.alt,
+    authorName: author ? displayName(author) : null,
     priceCents: content.price ?? 0,
     currency: PRICE_CURRENCY,
     createdAt: content.createdAt,
@@ -79,12 +96,32 @@ function mapUser(user: User): MarketplaceItem {
   }
 }
 
+function mapObject(object: ArtObject): MarketplaceItem {
+  const thumbnail = isPopulated<ObjectsThumbnail>(object.thumbnail) ? object.thumbnail : null
+  // Objects are shown in their museums; the join's first populated doc is the
+  // museum (an object can be on show in more than one, the card shows one).
+  const museum = filterPopulated<Museum>(object.museums?.docs)[0] ?? null
+  return {
+    key: `object:${object.id}`,
+    kind: 'object',
+    id: object.id,
+    title: object.name,
+    description: object.description,
+    imageUrl: thumbnail?.url,
+    imageAlt: thumbnail?.alt ?? object.name,
+    museumName: museum?.name,
+    createdAt: object.createdAt,
+    artist: object.artist,
+  }
+}
+
 /**
  * Which indexed kinds the marketplace searches for a given filter combination.
  *
- * Users are only included in "all" when there is an actual text query, so the
- * default marketplace still reads as a catalog of things to visit/read. Price
- * filters apply only to tours and contents, which are the sellable documents.
+ * Searchable things are tours, contents and objects; people join the default
+ * catalog only when there is an actual text query, so browsing still reads as
+ * a catalog of what to visit and read. Price filters apply only to tours and
+ * contents, the sellable documents.
  */
 export function marketplaceKindsFor(
   kind: MarketplaceKind,
@@ -93,17 +130,18 @@ export function marketplaceKindsFor(
 ): SearchDocKind[] {
   if (kind === 'tours') return ['tour']
   if (kind === 'contents') return ['content']
+  if (kind === 'objects') return ['object']
   if (kind === 'users') return ['user']
   if (price !== 'all') return ['tour', 'content']
-  return hasQuery ? ['tour', 'content', 'user'] : ['tour', 'content']
+  return hasQuery ? ['tour', 'content', 'object', 'user'] : ['tour', 'content', 'object']
 }
 
 /**
- * Hydrates search rows with localized Payload documents.
+ * Hydrates search hits with localized Payload documents.
  *
- * The search collection owns which documents match, their order and the
- * marketplace filters. Payload is the presentation source for translated
- * titles, prices, images and profile data.
+ * Typesense owns which documents match, their order and the filters; Payload
+ * is the presentation source for translated titles, prices, images and
+ * profile data.
  */
 async function hydrateSearchHits({
   payload,
@@ -118,15 +156,16 @@ async function hydrateSearchHits({
     tours: [] as string[],
     contents: [] as string[],
     users: [] as string[],
+    objects: [] as string[],
   }
 
   for (const hit of hits) {
-    if (hit.collection === 'tours' || hit.collection === 'contents' || hit.collection === 'users') {
-      idsByCollection[hit.collection].push(hit.sourceId)
+    if (hit.collection in idsByCollection) {
+      idsByCollection[hit.collection as keyof typeof idsByCollection].push(hit.sourceId)
     }
   }
 
-  const [toursResult, contentsResult, usersResult] = await Promise.all([
+  const [toursResult, contentsResult, usersResult, objectsResult] = await Promise.all([
     idsByCollection.tours.length > 0
       ? payload.find({
           collection: 'tours',
@@ -157,6 +196,15 @@ async function hydrateSearchHits({
           overrideAccess: true,
         })
       : Promise.resolve(null),
+    idsByCollection.objects.length > 0
+      ? payload.find({
+          collection: 'objects',
+          where: { id: { in: idsByCollection.objects } },
+          locale,
+          depth: 1,
+          limit: idsByCollection.objects.length,
+        })
+      : Promise.resolve(null),
   ])
 
   const byKey = new Map<string, MarketplaceItem>()
@@ -169,6 +217,9 @@ async function hydrateSearchHits({
   for (const user of usersResult?.docs ?? []) {
     byKey.set(`users:${user.id}`, mapUser(user))
   }
+  for (const object of objectsResult?.docs ?? []) {
+    byKey.set(`objects:${object.id}`, mapObject(object))
+  }
 
   return hits
     .map((hit) => byKey.get(`${hit.collection}:${hit.sourceId}`))
@@ -176,10 +227,14 @@ async function hydrateSearchHits({
 }
 
 /**
- * Marketplace listing is backed by the Payload search collection.
+ * Marketplace listing is backed by the Typesense search collection.
  *
- * Empty-query browsing uses the same index (`where` without a text condition),
- * so the displayed set cannot diverge between browsing and searching.
+ * Empty-query browsing uses the same index (a wildcard query), so the displayed
+ * set cannot diverge between browsing and searching. In museum mode every kind
+ * is scoped to the locked museum through `museum_id`.
+ *
+ * A cluster failure is thrown to the page, which renders the "search not
+ * reachable" state: there is no Payload fallback.
  */
 export async function getMarketplaceResults(options: {
   payload: Payload
@@ -188,21 +243,20 @@ export async function getMarketplaceResults(options: {
   kind: MarketplaceKind
   price: MarketplacePrice
   page: number
-  /** Museum mode: per kind, the ids the locked museum allows (`museumSearchRestriction`). */
-  restrictTo?: Parameters<typeof querySearchIndex>[0]['restrictTo']
+  /** Museum mode: only documents belonging to this museum. */
+  museumId?: string | null
 }): Promise<MarketplaceResults> {
-  const { payload, locale, query, kind, price, page, restrictTo } = options
+  const { payload, locale, query, kind, price, page, museumId } = options
+  const kinds = marketplaceKindsFor(kind, price, Boolean(query.trim()))
+  const effectivePrice = kind === 'users' || kind === 'objects' ? 'all' : price
 
-  const result = await querySearchIndex({
-    payload,
-    query,
-    kinds: marketplaceKindsFor(kind, price, Boolean(query.trim())),
-    price: kind === 'users' ? 'all' : price,
+  const result = await searchItems({
+    q: query,
+    kinds,
+    price: effectivePrice,
     page,
     limit: MARKETPLACE_PAGE_SIZE,
-    sort: '-sourceCreatedAt',
-    locale,
-    restrictTo,
+    museumId,
   })
 
   const items = await hydrateSearchHits({ payload, locale, hits: result.hits })
