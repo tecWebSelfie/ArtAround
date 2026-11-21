@@ -49,10 +49,13 @@ async function main() {
   }
 
   // The update runs the collection hooks, so the palette is derived, not sent.
+  // `depth: 0`: an update needs no populated relationships, and populating a
+  // map-derived `objects` index crashed Payload's afterRead on some museums.
   const saved = await payload.update({
     collection: 'museums',
     id: museum.id,
     data: { brandColor: brand },
+    depth: 0,
     overrideAccess: true,
   })
 
