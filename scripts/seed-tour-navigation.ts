@@ -181,6 +181,12 @@ if (!museum) {
     data: {
       name: label,
       accessibility: { isAccessible: false },
+      // The fixture museum's theme (DESIGN.md → The Museum Primary Rule): a
+      // dark, non-reserved violet, so the dark-contrast spec can lock the
+      // museum-mode invariants against a palette that is invisible on the
+      // dark page when drawn with the filled step. Set only on creation, like
+      // every other fixture field: an existing record is never touched.
+      brandColor: '#4a2d8e',
       shortDescription: 'A local fixture for tour navigation testing.',
       ticketInfo: { label: 'Development fixture — free entry' },
       location: { address: 'Development fixture', city: 'Test', latlng: [9.19, 45.46] },

@@ -36,7 +36,12 @@
    variables were never set and every such color was invalid (the plan
    page's dimmed descriptions rendered black). Set them from Mantine's
    attribute, exactly as Lightning CSS would. Mantine props (`c="light-dark(…)"`)
-   are inline styles and never needed this. */
+   are inline styles and never needed this.
+   Plain (non-Tailwind) declarations in this file are the remaining trap: the
+   build lowers their light-dark() to its FIRST ARGUMENT, silently dropping
+   the dark branch (only .module.css files lower scheme-aware). Write scheme
+   overrides on the attribute for them, as --tour-text-* and the skip-link
+   focus ring below do — not light-dark(). */
 [data-mantine-color-scheme='light'] {
   --lightningcss-light: initial;
   --lightningcss-dark: ;
@@ -284,8 +289,17 @@
 }
 .skip-link:focus-visible {
   transform: none;
-  outline: 2px solid light-dark(var(--mantine-primary-color-filled), var(--mantine-primary-color-4));
+  outline: 2px solid var(--mantine-primary-color-filled);
   outline-offset: 2px;
+}
+
+/* Dark takes the .4 step, written as an attribute override on purpose: the
+   build's pipeline lowers light-dark() in plain (non-Tailwind) rules of this
+   file to its first argument, dropping the dark branch (the .module.css rules
+   keep the scheme instead — their compiler lowers correctly). Same pattern
+   as --tour-text-* above; see the light-dark note at the top of this file. */
+[data-mantine-color-scheme='dark'] .skip-link:focus-visible {
+  outline-color: var(--mantine-primary-color-4);
 }
 
 /* Badge text floor (DESIGN.md → Badges): Mantine draws `xs` and `sm` badges at
