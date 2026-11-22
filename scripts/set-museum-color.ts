@@ -49,8 +49,15 @@ async function main() {
   }
 
   // The update runs the collection hooks, so the palette is derived, not sent.
-  // `depth: 0`: an update needs no populated relationships, and populating a
-  // map-derived `objects` index crashed Payload's afterRead on some museums.
+  // `depth: 0`: an update needs no populated relationships (the default depth
+  // would also populate the map-derived `objects` index).
+  // Payload 3.89.0 note: a museum doc with a *stored* join field — legacy
+  // junk the pre-2026-10-19 seeds wrote (`tours: [id]` in the create data;
+  // Payload stores join fields verbatim) — crashed this update at any depth:
+  // the update path skips the join query that find runs to replace the value,
+  // so the stored array reached afterRead in a shape its populate() cannot
+  // write (TypeError on `.docs[0]`). Fixed by unsetting the junk in Mongo; a
+  // fresh seed can no longer produce it.
   const saved = await payload.update({
     collection: 'museums',
     id: museum.id,
