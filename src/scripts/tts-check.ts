@@ -163,8 +163,7 @@ async function speechQueue(payload: Payload) {
     ...new Set(docs.map((job) => job.queue)),
   ])
   for (const job of failed.slice(0, 3)) {
-    const lastError =
-      [...(job.log ?? [])].reverse().find((entry) => entry.error)?.error ?? job.error
+    const lastError = (job.log ?? []).findLast((entry) => entry.error)?.error ?? job.error
     log(`failed job ${job.id} (${job.createdAt}):`, JSON.stringify(lastError).slice(0, 800))
   }
 }

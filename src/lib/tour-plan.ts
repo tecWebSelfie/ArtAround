@@ -44,7 +44,7 @@ export function planRequestKey(museumId: string, request: PlanRequest) {
     minutes: request.minutes,
     returning: request.returning,
     adults: request.adults,
-    childrenAges: [...request.childrenAges].sort((a, b) => a - b),
+    childrenAges: request.childrenAges.toSorted((a, b) => a - b),
     interests: request.interests.trim().toLowerCase().replace(/\s+/g, ' '),
     lng: request.lng,
   })

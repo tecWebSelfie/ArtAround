@@ -348,7 +348,7 @@ export async function GET(request: Request) {
       if (city.includes(needle)) return 1
       return 0
     }
-    const rankedHits = [...hits].sort((a, b) => score(b) - score(a)).slice(0, limit)
+    const rankedHits = hits.toSorted((a, b) => score(b) - score(a)).slice(0, limit)
 
     const items = await hydrateNavigatorHits({ payload, locale, hits: rankedHits })
     return Response.json({ items })

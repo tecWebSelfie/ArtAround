@@ -52,9 +52,10 @@ export function MapEditor({
   const [sceneLoaded, setSceneLoaded] = useState(false)
   const handleLoaderChange = useCallback((visible: boolean) => {
     if (visible) {
-      sceneReady.current.promise ??= new Promise<void>((resolve) => {
-        sceneReady.current.resolve = resolve
-      })
+      // withResolvers parks the resolve handle next to the promise it settles.
+      const ready = Promise.withResolvers<void>()
+      sceneReady.current.promise ??= ready.promise
+      sceneReady.current.resolve ??= ready.resolve
     } else {
       sceneReady.current.resolve?.()
       sceneReady.current = {}
