@@ -40,7 +40,7 @@ import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigat
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
-import { StartEntranceItem } from './StartEntranceItem'
+import { StartEntranceItem, type EntranceChoice } from './StartEntranceItem'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
@@ -80,6 +80,18 @@ type TourValues = {
   directions: Record<string, string>
   /** The tour's own quiz questions (`QuizEditor`). */
   quiz: QuizDraft[]
+}
+
+/**
+ * The start entrance the form opens with: only one of the choices offered.
+ * An entrance staff have since removed, or the only one (the automatic pick
+ * anyway, and one the author can't change), reads and saves as automatic, so
+ * the form never keeps an id the author can't see or change.
+ */
+function initialStartEntrance(entrances: EntranceChoice[] = [], saved?: string | null) {
+  return entrances.length > 1 && entrances.some((entrance) => entrance.id === saved)
+    ? (saved ?? '')
+    : ''
 }
 
 /**
@@ -223,7 +235,7 @@ export function TourForm({
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
   /** With its placed entrances, among which the tour's start entrance is chosen. */
-  museum: { id: string; name: string; entrances?: { id: string; name: string | null }[] }
+  museum: { id: string; name: string; entrances?: EntranceChoice[] }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
   /**
@@ -272,12 +284,7 @@ export function TourForm({
       description: initial?.description ?? '',
       visibility: initial?.visibility ?? 'public',
       logistics: initial?.logistics ?? '',
-      // Only one of the choices offered: an entrance staff have since removed
-      // (or the only one, which is the automatic pick anyway) reads and saves
-      // as automatic, so the form never keeps an id it can't show.
-      startEntrance: museum.entrances?.some((entrance) => entrance.id === initial?.startEntrance)
-        ? (initial?.startEntrance ?? '')
-        : '',
+      startEntrance: initialStartEntrance(museum.entrances, initial?.startEntrance),
       directions: initial?.directions ?? {},
       quiz: initial?.quiz ?? [],
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
@@ -488,8 +495,9 @@ function useTourDraft(
 /**
  * The stops, in visiting order: notices about paid, unvisitable or
  * unexplained stops, the timeline (the fixed start entrance, then the
- * sortable stops: drag, arrows, per-stop directions), then the ways to add one: the quick select for a known
- * title, or the contents search and the content editor in picker mode.
+ * sortable stops: drag, arrows, per-stop directions), then the ways to add
+ * one: the quick select for a known title, or the contents search and the
+ * content editor in picker mode.
  */
 function TourStopsEditor({
   form,
@@ -504,7 +512,7 @@ function TourStopsEditor({
   byId: Map<string, TourCandidate>
   museumId: string
   /** The museum's placed entrances: the first, fixed item of the timeline. */
-  entrances: { id: string; name: string | null }[]
+  entrances: EntranceChoice[]
   /** The editor's own URL, where the contents picker comes back. */
   returnTo: string
 }) {
@@ -514,12 +522,6 @@ function TourStopsEditor({
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
   const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
-  const move = (index: number, delta: number) => {
-    const next = [...selected]
-    const [item] = next.splice(index, 1)
-    next.splice(index + delta, 0, item!)
-    form.setFieldValue('contents', next)
-  }
   return (
     <Stack gap="xs">
       <Text fw={600}>{t('Stops, in visiting order')}</Text>
@@ -564,7 +566,7 @@ function TourStopsEditor({
           </Stack>
         </Alert>
       )}
-      <StopsTimeline form={form} byId={byId} entrances={entrances} onMove={move} />
+      <StopsTimeline form={form} byId={byId} entrances={entrances} />
       <Select
         label={t('Add a stop')}
         placeholder={t('Search the museum’s contents')}
@@ -615,16 +617,20 @@ function StopsTimeline({
   form,
   byId,
   entrances,
-  onMove: move,
 }: {
   form: UseFormReturnType<TourValues>
   byId: Map<string, TourCandidate>
-  entrances: { id: string; name: string | null }[]
-  onMove: (index: number, delta: number) => void
+  entrances: EntranceChoice[]
 }) {
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
   const selected = form.values.contents
+  const move = (index: number, delta: number) => {
+    const next = [...selected]
+    const [item] = next.splice(index, 1)
+    next.splice(index + delta, 0, item!)
+    form.setFieldValue('contents', next)
+  }
   return (
     <DragDropProvider
       onDragEnd={(event) => {
@@ -635,14 +641,10 @@ function StopsTimeline({
         move(source.initialIndex, source.index - source.initialIndex)
       }}
     >
-      {/* The start entrance, when the map has one, is the timeline's
-          first item (all items up to the last stop are active). */}
-      <Timeline
-        bulletSize={28}
-        lineWidth={2}
-        active={selected.length - (entrances.length > 0 ? 0 : 1)}
-      >
-        {/* Conditional here, not inside: Timeline counts its children. */}
+      {/* Every item is active: `active` at or past the last index. */}
+      <Timeline bulletSize={28} lineWidth={2} active={selected.length}>
+        {/* Left out here, not inside the item: Timeline counts its
+            children, even one that renders nothing. */}
         {entrances.length > 0 && (
           <StartEntranceItem
             entrances={entrances}

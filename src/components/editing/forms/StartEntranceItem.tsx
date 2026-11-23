@@ -5,6 +5,9 @@ import { DoorOpen } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useEntranceNames } from '@/hooks/use-named-entrances'
 
+/** A placed entrance of the museum map, as the server sends it to the editor. */
+export type EntranceChoice = { id: string; name: string | null }
+
 /**
  * Where the tour starts, as the first item of the stops timeline (the editor
  * counterpart of the "Start" bookend of the navigation's tour progress): a
@@ -15,10 +18,8 @@ import { useEntranceNames } from '@/hooks/use-named-entrances'
  * With two or more placed entrances it chooses one of them, or automatically
  * the one nearest the first stop (the empty value, the default), which
  * follows the stops if the author reorders them; with one it just names it;
- * the caller leaves it out when there is none (Timeline counts its
- * children, so it can't just render nothing). A saved
- * entrance the staff later removed reads as automatic: navigation already
- * falls back so.
+ * with none the caller leaves it out. A saved entrance the staff later
+ * removed reads as automatic: navigation already falls back so.
  *
  * Like the stops, it forwards the layout props Mantine's Timeline passes to
  * its direct children.
@@ -30,7 +31,7 @@ export function StartEntranceItem({
   ...timelineProps
 }: Omit<TimelineItemProps, 'onChange'> & {
   /** The museum's placed entrances: at least one. */
-  entrances: { id: string; name: string | null }[]
+  entrances: EntranceChoice[]
   value: string
   onChange: (value: string) => void
 }) {

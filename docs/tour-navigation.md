@@ -46,8 +46,9 @@ and cached build artifacts are not reliable handoff state.
   entrance marker's node id), else the one nearest the first stop. In the
   editor it is the stops timeline's first, fixed item (`StartEntranceItem`:
   a door bullet, never dragged or moved): a choice with two or more
-  entrances, just the name with one, absent with none. A choice that stops being a
-  placed entrance (staff moved the marker) falls back to the nearest; the
+  entrances, just the name with one, absent with none. A choice that stops
+  being a placed entrance (staff moved the marker) falls back to the
+  nearest; the
   server refuses saving one that isn't (`checkStartEntrance`, through
   `isPlacedEntrance`; an unchanged one is not checked again, so a removed
   marker never blocks an edit), and the editor offers only placed ones and
