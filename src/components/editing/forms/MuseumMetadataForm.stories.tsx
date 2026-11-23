@@ -33,7 +33,15 @@ const meta = {
       </ModelGenerationProviders>
     ),
   ],
-  parameters: { msw: { handlers: [museumAddressHandler, museumBasemapHandler, updateHandler] } },
+  parameters: {
+    msw: { handlers: [museumAddressHandler, museumBasemapHandler, updateHandler] },
+    // The map canvas behind this form rasterizes its destination pin ±1 LSB
+    // per host whenever the camera puts it on a fractional pixel (desktop
+    // geometry; the mobile one lands whole). Masked rather than disabled so
+    // the form states keep their visual coverage; the map itself stays
+    // covered, unmasked, by its own story file (Museum/Geographic Location).
+    visual: { mask: ['.museum-location-map'] },
+  },
   beforeEach: () => {
     saved.mockClear()
   },

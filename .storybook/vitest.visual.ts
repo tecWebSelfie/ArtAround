@@ -26,7 +26,12 @@
  *
  * A story opts out with `parameters: { visual: { disable: true } }` when it
  * renders content that never settles even so, such as the live WebGL map, the
- * camera, or the cycling hero word.
+ * camera, or the cycling hero word. A narrower tool exists for content that
+ * settles but does not anchor: `parameters: { visual: { mask: [sel, …] } }`
+ * paints the matched elements solid in every shot (references included), so
+ * the rest of the story stays compared while the un-anchorable pixels - the
+ * MuseumMetadataForm map canvas, whose pin rasterizes ±1 LSB per host on
+ * fractional pixels - become constants.
  *
  * NOTE (vitest 4.0.18): a FAILED comparison reports the artifact recorder's
  * error ("Cannot record a test artifact outside of the test run", caused by
@@ -48,7 +53,10 @@ declare module 'vitest' {
 
 /** The part of the composed story that `testStory` puts on the test context. */
 type StoryContext = {
-  story?: { id: string; parameters: { visual?: { disable?: boolean } } }
+  story?: {
+    id: string
+    parameters: { visual?: { disable?: boolean; mask?: readonly string[] } }
+  }
 }
 
 /** Phone first (iPhone 12–15 CSS size), then a common laptop size. */
@@ -73,10 +81,29 @@ afterEach(async (context) => {
     await page.viewport(viewport.width, viewport.height)
     // A zero-height canvas means everything visible is portalled to <body>.
     const target = canvas.getBoundingClientRect().height > 0 ? canvas : canvas.ownerDocument.body
+    // A story may exclude content the renderer cannot anchor pixel-for-pixel
+    // across hosts without giving up the comparison: `visual.mask` selectors
+    // are painted solid by Playwright over every shot - references included -
+    // so those pixels compare as constants (the MuseumMetadataForm map canvas:
+    // its destination pin rasterizes ±1 LSB per host when the camera puts it
+    // on a fractional pixel; the mobile one lands whole and was
+    // byte-identical). The matcher only accepts DOM elements or its own
+    // locators as mask entries - raw selector strings are rejected by its
+    // conversion, and the runtime page shim, unlike its declared types, has
+    // no locator() - so each selector is resolved in the story document
+    // instead; one that matches nothing just contributes no mask.
+    const mask = story.parameters.visual?.mask?.flatMap((selector) => {
+      const element = canvas.ownerDocument.querySelector(selector)
+      return element ? [element] : []
+    })
     await expect
       .element(page.elementLocator(target))
       .toMatchScreenshot(`${story.id}-${viewport.name}`, {
-        screenshotOptions: { animations: 'disabled', caret: 'hide' },
+        screenshotOptions: {
+          animations: 'disabled',
+          caret: 'hide',
+          ...(mask?.length ? { mask } : {}),
+        },
         // The matcher retakes shots until two in a row match. With every file
         // running in parallel, its 5s default ran out even on static stories
         // that capture in ~1s on their own.
