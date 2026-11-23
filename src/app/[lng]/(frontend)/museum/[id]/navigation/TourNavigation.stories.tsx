@@ -1,4 +1,5 @@
 import { mockMuseumFull } from '@/mocks/museum.mock'
+import { positionPromptKey, positionPromptStore } from './use-tour-navigation'
 import { mockContentsList } from '@/mocks/content.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
@@ -257,9 +258,7 @@ export const FreeNavigation: Story = {
   // next story in the file starts with its dialog still on screen.
   beforeEach: () => {
     // "Where are you?" opens afresh: a previous run folded it in this tab.
-    for (const key of Object.keys(window.sessionStorage)) {
-      if (key.startsWith('position-prompt:')) window.sessionStorage.removeItem(key)
-    }
+    positionPromptStore.save(positionPromptKey(mockMuseumFull.id), null)
     return () => spotlight.close()
   },
   args: {

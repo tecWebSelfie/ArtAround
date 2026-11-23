@@ -49,6 +49,8 @@ const AVATAR_LABEL_GAP = 0.7
  */
 const MIN_VIEW_DISTANCE = 20
 const VIEW_POLAR = 0.88
+/** Milliseconds a resized canvas must hold still before the journey is reframed. */
+const RESIZE_SETTLE_MS = 120
 /** Metres of floor kept around the framed journey, so its ends never touch an edge. */
 const JOURNEY_MARGIN = 2
 /**
@@ -80,6 +82,12 @@ export type MuseumRoute = {
   target: [number, number] | null
   /** Whether `start` is the visitor's confirmed position, not an entrance guessed for a preview. */
   confirmed: boolean
+  /**
+   * The visitor's confirmed position: `start` when confirmed, else null. What
+   * the GPS anchors on and nearby suggestions start from read this, never
+   * `start`, so a guessed entrance can't pass for the visitor.
+   */
+  position: Vec3 | null
   /** The entrance the route starts from (confirmed or previewed), which leads the progress bar. */
   startEntranceId: string | null
 }
@@ -202,13 +210,16 @@ export function MuseumMap({
     // Where the route starts and whether that is the visitor's confirmed
     // position (`at`: a work or an entrance) or an entrance guessed to
     // preview the route to `end` (`routeStart`, src/lib/route-start.ts).
+    // The points are resolved once (scene scan, navmesh lookup) for both calls.
+    const workPoint = point(currentObjectId)
+    const entrancePoints = entrances.map((node) => ({ id: node.id, point: markerPoint(node.id) }))
     const startFrom = (end: Vec3 | null) =>
       routeStart({
         at: currentObjectId,
-        workPoint: point(currentObjectId),
-        entrances: entrances.map((node) => ({ id: node.id, point: markerPoint(node.id) })),
+        workPoint,
+        entrances: entrancePoints,
         end,
-        distance: (from, to) => Math.hypot(from[0] - to[0], from[2] - to[2]),
+        distance,
       })
     // The confirmed position alone: services and exits route to the closest
     // instance from it.
@@ -250,6 +261,7 @@ export function MuseumMap({
       end,
       target: targetObject ? planCentre(targetObject) : null,
       confirmed,
+      position: confirmed ? start : null,
       startEntranceId: entranceId,
       path: start && end ? museumNavigationPath(navMesh, start, end) : null,
     }
@@ -472,34 +484,45 @@ function FrameJourney({
     // visitor has not moved the camera: the vertical field of view is fixed,
     // so a taller canvas sees less to the sides and would cut the journey.
     if (framed.current === route && touched.current) return
-    framed.current = route
-    touched.current = false
-    const ends = [route.start, route.end].filter((point): point is Vec3 => Boolean(point))
-    const points = route.path && route.path.length > 1 ? route.path : ends
-    const bounds = canvas.getBoundingClientRect()
-    const insets = overlayInsets(bounds, overlays)
-    const side = Math.min(LABEL_GUTTER.side, bounds.width * LABEL_GUTTER.sideShare)
-    const view = journeyView({
-      points,
-      fov: camera.fov ?? 50,
-      width,
-      height,
-      insets: {
-        top: insets.top + LABEL_GUTTER.top,
-        bottom: insets.bottom,
-        left: insets.left + side,
-        right: insets.right + side,
-      },
-      azimuth: controls.azimuthAngle,
-      polar: VIEW_POLAR,
-      margin: JOURNEY_MARGIN,
-      minDistance: MIN_VIEW_DISTANCE,
-    })
-    if (!view) return
-    // Read now, not through a hook whose first value is a default: the very
-    // first framing must already respect the setting.
-    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    void controls.setLookAt(...view.position, ...view.target, smooth)
+    const frameJourney = () => {
+      const ends = [route.start, route.end].filter((point): point is Vec3 => Boolean(point))
+      const points = route.path && route.path.length > 1 ? route.path : ends
+      const bounds = canvas.getBoundingClientRect()
+      const insets = overlayInsets(bounds, overlays)
+      const side = Math.min(LABEL_GUTTER.side, width * LABEL_GUTTER.sideShare)
+      const view = journeyView({
+        points,
+        fov: camera.fov ?? 50,
+        width,
+        height,
+        insets: {
+          top: insets.top + LABEL_GUTTER.top,
+          bottom: insets.bottom,
+          left: side,
+          right: side,
+        },
+        azimuth: controls?.azimuthAngle ?? 0,
+        polar: VIEW_POLAR,
+        margin: JOURNEY_MARGIN,
+        minDistance: MIN_VIEW_DISTANCE,
+      })
+      if (!view) return
+      // Read now, not through a hook whose first value is a default: the very
+      // first framing must already respect the setting.
+      const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      void controls?.setLookAt(...view.position, ...view.target, smooth)
+    }
+    const resized = framed.current === route
+    const frame = () => {
+      framed.current = route
+      touched.current = false
+      frameJourney()
+    }
+    // A resize comes as a burst of size updates (the strip opening or
+    // folding): reframe once it settles, not on every step.
+    if (!resized) return frame()
+    const settle = window.setTimeout(frame, RESIZE_SETTLE_MS)
+    return () => window.clearTimeout(settle)
   }, [controls, camera, canvas, route, overlays, width, height])
   return null
 }
@@ -514,7 +537,7 @@ export type MapOverlays = {
 }
 
 /**
- * How far the overlays reach into the canvas from each edge, measured at the
+ * How far the overlays reach into the canvas from its top and bottom, measured at the
  * moment of framing, so a wrapped title or a larger text size counts.
  */
 function overlayInsets(canvas: DOMRect, overlays: MapOverlays = {}) {
@@ -523,8 +546,6 @@ function overlayInsets(canvas: DOMRect, overlays: MapOverlays = {}) {
   return {
     top: top?.height ? Math.max(0, top.bottom - canvas.top) : 0,
     bottom: bottom?.height ? Math.max(0, canvas.bottom - bottom.top) : 0,
-    left: 0,
-    right: 0,
   }
 }
 

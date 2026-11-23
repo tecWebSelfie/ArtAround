@@ -33,6 +33,7 @@ import { existsSync, mkdirSync, openSync, readFileSync, rmSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { parseEnv } from 'node:util'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const seedIfNew = process.argv.includes('--seed-if-new')
@@ -93,18 +94,24 @@ const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 // image pulls and starts overlap MongoDB's; then wait for each healthcheck
 // (a `ping` through mongosh for MongoDB, `/health` for Typesense). LiveKit
 // and Typesense stay best effort (see the header).
-const startDetached = (service) => {
-  try {
-    run('docker', ['compose', 'up', '--detach', service], { stdio: 'inherit' })
-    return true
-  } catch {
-    return false
-  }
-}
-const livekitStarted = startDetached('livekit')
-const typesenseStarted = startDetached('typesense')
+// One non-blocking compose call for both, so their pulls run alongside
+// MongoDB's start instead of before it.
+const optional = new Promise((resolve) => {
+  spawn('docker', ['compose', 'up', '--detach', 'livekit', 'typesense'], {
+    cwd: root,
+    stdio: 'inherit',
+  })
+    .on('exit', (code) => resolve(code === 0))
+    .on('error', () => resolve(false))
+})
 log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
+// `up` of several services fails as a whole when one fails: each is then
+// still waited for on its own below, and only the one that is down warns.
+const optionalStarted = await optional
+const livekitStarted = optionalStarted || succeeds('docker', ['compose', 'up', '--detach', 'livekit'])
+const typesenseStarted =
+  optionalStarted || succeeds('docker', ['compose', 'up', '--detach', 'typesense'])
 log('MongoDB is ready on mongodb://127.0.0.1:27017.')
 
 // 4. Typesense for search.
@@ -114,12 +121,11 @@ try {
   log('Typesense is ready on http://127.0.0.1:8108 (run `pnpm search:reindex` to fill it).')
   // An .env older than the node has no TYPESENSE_* lines: the app would still
   // report search as unavailable, so say what to copy.
-  const envText = ['.env', '.env.local']
+  const configured = ['.env', '.env.local']
     .map((file) => path.join(root, file))
     .filter((file) => existsSync(file))
-    .map((file) => readFileSync(file, 'utf8'))
-    .join('\n')
-  if (!process.env.TYPESENSE_HOST && !/^TYPESENSE_HOST=\S/m.test(envText)) {
+    .some((file) => Boolean(parseEnv(readFileSync(file, 'utf8')).TYPESENSE_HOST))
+  if (!process.env.TYPESENSE_HOST && !configured) {
     console.warn('No TYPESENSE_HOST in .env: copy the Typesense block of .env.example to use it.')
   }
 } catch {

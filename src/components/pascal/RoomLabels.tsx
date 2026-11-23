@@ -34,14 +34,14 @@ const LABEL_HEIGHT = 2.2
  * covering only their own strokes (a solid pill hid what stood behind it).
  * Callers add the text color.
  */
-export const MAP_LABEL_CLASS =
+const MAP_LABEL_CLASS =
   'block text-sm leading-tight font-bold whitespace-nowrap select-none [text-shadow:0_0_1px_var(--mantine-color-body),0_0_2px_var(--mantine-color-body),0_0_3px_var(--mantine-color-body),0_0_4px_var(--mantine-color-body)]'
 
 /**
  * drei `Html`'s z-index range for map labels: under the navigation's
  * controls layer (z-20 in `TourNavigation`), which must stay on top.
  */
-export const MAP_LABEL_Z_RANGE: [number, number] = [10, 0]
+const MAP_LABEL_Z_RANGE: [number, number] = [10, 0]
 
 /**
  * One label over the map at `position` (metres): text with the halo above,

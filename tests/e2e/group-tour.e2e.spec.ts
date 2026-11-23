@@ -7,14 +7,8 @@ import {
 } from '@playwright/test'
 import { showQrToCamera } from '../helpers/qr-camera'
 import { requireLiveKit } from '../helpers/livekit'
-import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { requireTourFixture, tourFixture, SCAN_BUTTON } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
-
-/**
- * The scanner's button: the map's shutter, or, while "Where are you?" is
- * opened (no confirmed position yet), the prompt's own, which replaces it.
- */
-const SCAN_BUTTON = /^Scan a (QR code|work's QR code)$/
 
 /**
  * Group tours with two real browsers, a host and a guest, on the real Next

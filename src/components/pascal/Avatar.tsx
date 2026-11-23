@@ -37,7 +37,7 @@ const worldPosition = new Vector3()
  * entrance guessed for a route preview). Faint enough to read as a
  * suggestion, solid enough to find on the plan.
  */
-const GHOST_OPACITY = 0.4
+export const GHOST_OPACITY = 0.4
 
 /**
  * The ghost's translucent copy of each of the model's materials, made once

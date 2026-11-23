@@ -383,14 +383,14 @@ export function useGuidance({
   // (never an entrance only guessed to preview the route).
   const here =
     guidance.estimate ??
-    (route?.start && route.confirmed
-      ? ([route.start[0], route.start[2]] as [number, number])
-      : null)
+    (route?.position ? ([route.position[0], route.position[2]] as [number, number]) : null)
   return { settings, gps, compass, positionScope, guidance, here }
 }
 
 /** Whether "Where are you?" is opened, per tab and museum (folded by "Hide"). */
-const positionPromptStore = createSessionStore<boolean>((stored) => stored !== false)
+export const positionPromptStore = createSessionStore<boolean>((stored) => stored !== false)
+/** The stored key of a museum's "Where are you?" open state. */
+export const positionPromptKey = (museumId: string) => `position-prompt:${museumId}`
 
 /**
  * The museum's placed entrances with the names visitors see: staff's name,
@@ -433,7 +433,7 @@ export function usePositionPrompt({
   onEntrance: (id: string) => void
   onScan: () => void
 }) {
-  const key = `position-prompt:${museumId}`
+  const key = positionPromptKey(museumId)
   // Opened until the stored choice is read (null before hydration).
   const opened = positionPromptStore.useValue(key) ?? true
   if (guest) return undefined

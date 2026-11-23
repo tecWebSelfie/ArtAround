@@ -119,6 +119,9 @@ export function NavigationControls({
   // the destination, else the tour's next stop, else choosing where to go.
   const arrived = command('arrived')
   const lead = arrived ?? nextStop
+  // While "Where are you?" asks, it offers scan and search itself.
+  const scan = !asking && command('scan')
+  const offerSearch = !asking
   const capsule = 'pointer-events-auto flex flex-col items-stretch gap-1'
   const pill = `${NAVIGATION_COMPACT_ACTION_CLASS} shadow-(--mantine-shadow-md)`
 
@@ -179,7 +182,7 @@ export function NavigationControls({
           {/* Only when the visitor has the command. Group guests lack it,
               as the host leads (see guestCommands); a button that does
               nothing is worse than none. */}
-          {command('scan') && !asking && (
+          {scan && (
             <Tooltip
               label={t('Scan a QR code')}
               disabled={!desktop}
@@ -218,7 +221,7 @@ export function NavigationControls({
               {lead.label}
             </Button>
           ) : (
-            !asking && (
+            offerSearch && (
               <Button
                 color="museum.8"
                 autoContrast
@@ -236,7 +239,7 @@ export function NavigationControls({
         </div>
         {/* Start edge: search (when the centre isn't already search) and
             leaving the chosen destination. */}
-        {((lead && !asking) || resume) && (
+        {((lead && offerSearch) || resume) && (
           <Paper
             radius="xl"
             shadow="md"
@@ -246,7 +249,7 @@ export function NavigationControls({
             aria-label={t('Find a work')}
             className={`${capsule} col-start-1 row-start-1 justify-self-start from-md:row-start-2`}
           >
-            {lead && !asking && (
+            {lead && offerSearch && (
               <Tooltip
                 disabled={!desktop}
                 events={{ hover: true, focus: true, touch: false }}

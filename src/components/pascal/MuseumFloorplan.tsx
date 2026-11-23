@@ -1,5 +1,6 @@
 'use client'
 
+import { GHOST_OPACITY } from './Avatar'
 import { groundLevelId } from '@/lib/pascal/museum-plugin/marker-hierarchy'
 import { museumObjectId } from '@/lib/tour-navigation'
 import { DEFAULT_PRIMARY } from '@/theme'
@@ -227,7 +228,7 @@ function PlanLayer({
       )}
       {position && (
         <Disc
-          opacity={estimated ? 0.45 : 1}
+          opacity={estimated ? GHOST_OPACITY : 1}
           Icon={PersonStanding}
           x={position[0]}
           z={position[2]}

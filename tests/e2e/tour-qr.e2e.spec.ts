@@ -1,13 +1,7 @@
 import { expect as baseExpect, test } from '@playwright/test'
 import { showQrToCamera } from '../helpers/qr-camera'
-import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { requireTourFixture, tourFixture, SCAN_BUTTON } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
-
-/**
- * The scanner's button: the map's shutter, or, while "Where are you?" is
- * opened (no confirmed position yet), the prompt's own, which replaces it.
- */
-const SCAN_BUTTON = /^Scan a (QR code|work's QR code)$/
 
 const expect = baseExpect.configure({ timeout: 30_000 })
 

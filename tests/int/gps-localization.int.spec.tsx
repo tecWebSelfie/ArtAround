@@ -99,6 +99,7 @@ describe('Directions following the route path', () => {
     end: path.at(-1)!,
     target: null,
     confirmed: true,
+    position: path[0],
     startEntranceId: null,
   })
   it('keeps the shown step on the same route and restarts on a new one', () => {
@@ -142,6 +143,7 @@ describe('pinned at the destination itself', () => {
     end: here,
     target: null,
     confirmed: true,
+    position: here,
     startEntranceId: null,
   }
 
@@ -174,6 +176,7 @@ describe('a start only guessed to preview the route', () => {
       end: stop,
       target: null,
       confirmed: false,
+      position: null,
       startEntranceId: 'entrance-main',
     }
     const { result } = renderHook(() => useRouteGuidance({ route, rooms, fix, navMesh }))
