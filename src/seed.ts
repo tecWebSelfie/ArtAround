@@ -910,7 +910,10 @@ try {
       },
       ticketInfo: { label: museum.ticketLabel, url: museum.ticketUrl },
       map: placeObjects(
-        createRealisticMuseumMap(`seed-${museum.key}`),
+        // Borghese has two entrances: the seed's museum with a choice of them.
+        createRealisticMuseumMap(`seed-${museum.key}`, {
+          gardenEntrance: museum.key === 'borghese',
+        }),
         objectId ? [{ id: objectId, name: museum.object }] : [],
       ),
       news: museum.news

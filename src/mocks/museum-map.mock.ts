@@ -29,7 +29,15 @@ const rectangle = (x: number, z: number, width: number, depth: number): Point[] 
 /** Fictional 720 m² museum, open at the roof so its circulation is visible. */
 export function createRealisticMuseumMap(
   museumId: string,
-  options: { unplacedService?: ServiceType } = {},
+  options: {
+    unplacedService?: ServiceType
+    /**
+     * A second entrance, on the north side by the emergency exit: a museum
+     * with a choice of entrances ("Where are you?", the tour editor's start
+     * entrance).
+     */
+    gardenEntrance?: boolean
+  } = {},
 ): ParsedBuildJson {
   const key = museumId.replace(/[^a-zA-Z0-9_]/g, '_')
   const siteId = `site_${key}` as const
@@ -367,6 +375,18 @@ export function createRealisticMuseumMap(
       placed: true,
     }),
   ]
+  if (options.gardenEntrance) {
+    markers.push(
+      MuseumExitEntranceNode.parse({
+        parentId: levelId,
+        id: `exitEntrance_${key}_garden`,
+        name: 'Ingresso del giardino',
+        position: [7.5, 0, 23.5],
+        direction: 'entrance',
+        placed: true,
+      }),
+    )
+  }
   if (options.unplacedService) {
     markers.push(
       ServiceNode.parse({
