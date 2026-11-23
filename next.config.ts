@@ -23,12 +23,17 @@ const nextConfig: NextConfig = {
   // HTML/manifests list chunk files that were never written to disk: the
   // 23 Nov 2026 deploy shipped 15 such chunks, leaving every page unhydrated
   // and the dynamic routes erroring (the restored-stale-read family,
-  // vercel/next.js#100326). A cold build costs minutes and re-emits every
-  // file; re-enable only after the deploy guard in .github/workflows/tests.yml
-  // has stayed green, ideally on a release with the cache hardening PRs.
+  // vercel/next.js#100326). The dangerous shape is CI's: a cache restored
+  // from a *different* commit beside a fresh checkout whose output folder is
+  // empty. A warm build of the same local working tree is instead the
+  // scenario the cache is designed for, so: warm locally, cold on CI
+  // (GitHub sets CI=true), with the deploy guard in
+  // .github/workflows/tests.yml as the net that catches a build naming
+  // files it never wrote. Revisit when a stable release ships the cache
+  // hardening PRs (canary as of Nov 2026).
   experimental: {
     agentUpgrade: 'security',
-    turbopackFileSystemCacheForBuild: false,
+    turbopackFileSystemCacheForBuild: process.env.CI !== 'true',
   },
   // Load Payload's server packages with Node in production too, as
   // `withPayload` already does in development. Bundled by Turbopack,
