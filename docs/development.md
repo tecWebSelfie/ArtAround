@@ -173,8 +173,12 @@ filters after the command to run only some stories, e.g.
 CI runs the suite in its own lane (`.github/workflows/visual.yml`):
 nightly at 03:30 UTC and through "Run workflow", never per pull request —
 an intentional restyle flips the comparison until its references are
-regenerated, and that tax does not belong on every PR. A failing run
-uploads its diffs (`.vitest-attachments/`) as an artifact. "Run workflow"
+regenerated, and that tax does not belong on every PR. Caveat: on the
+pinned vitest 4.0.18 a failing comparison masks its real verdict (the
+failure-artifact recorder throws on the already-finished test), so the
+diff upload arrives empty — read a red run by its failing story names,
+or regenerate to compare. Details and the drafted upstream report:
+`docs/upstream-reports.md`. "Run workflow"
 with "Regenerate the references" returns the refreshed `__screenshots__/`
 as an artifact on any outcome — green or red — ready to commit locally.
 
