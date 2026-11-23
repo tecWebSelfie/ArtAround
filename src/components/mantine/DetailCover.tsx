@@ -30,11 +30,15 @@ const ModelViewer = lazy(() => import('./ModelViewer').then((m) => ({ default: m
  * - Without a picture the shared placeholder stands in (`KIND_FALLBACK`), or the
  *   neutral placeholder for objects.
  *
- * `clamp(160px, 32dvh, 360px)`: about a third of the screen on any phone
+ * `clamp(160px, 32svh, 360px)`: about a third of the screen on any phone
  * (≈270px at 844px tall), never a sliver on a short landscape screen and never
- * a wall on a tall desktop. Controls follow the Overlay Opt-In Rule.
+ * a wall on a tall desktop. svh, not dvh: the cover sits on pages that
+ * scroll, and dvh would grow it — recropping the picture, which reads as a
+ * zoom — the moment the browser collapses its URL bar; svh is what dvh
+ * equals at load, with the toolbars expanded. Controls follow the Overlay
+ * Opt-In Rule.
  */
-const COVER_HEIGHT = 'clamp(160px, 32dvh, 360px)'
+const COVER_HEIGHT = 'clamp(160px, 32svh, 360px)'
 
 /** The small white buttons over the media (DESIGN.md → Media card). */
 const OVERLAY_BUTTON = { size: 'compact-sm', variant: 'white', color: 'dark' } as const

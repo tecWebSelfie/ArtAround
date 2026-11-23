@@ -77,7 +77,9 @@ export function GuidanceSettings({
           icon={<SlidersHorizontal size={18} aria-hidden />}
         />
       </Popover.Target>
-      <Popover.Dropdown className="max-h-[60dvh] max-w-[calc(100vw-2rem)] overflow-y-auto">
+      {/* svh, not dvh: the cap stays put if the browser collapses its URL
+          bar mid-scroll (svh equals dvh at load). */}
+      <Popover.Dropdown className="max-h-[60svh] max-w-[calc(100vw-2rem)] overflow-y-auto">
         <Stack gap="sm">
           <Switch
             label={t('Voice assistant')}

@@ -107,16 +107,18 @@ export default function NavigatorHomePage({
           so the space above the title can take what the ways in leave free
           even though the rails below make the page scroll. */}
       <Stack gap="md" className="fit-screen:min-h-(--tabs-first-screen)">
-        {/* Space above the title: 10dvh (6dvh from md, under the site
-          header). In fit mode it shares the free height equally with the
-          spacer under the group form, so the ways in sit centred on the
-          first screen: capping only this one sent every pixel the content
-          left free (a tall phone, larger start blocks) under Join, as one
-          wide gap before the rails. A margin that can flex, hence cancelling
-          the gap after it. */}
+        {/* Space above the title: 10svh (6svh from md, under the site
+          header). svh, dvh's value at load: the URL bar collapsing
+          mid-scroll never grows it, so the title's place never reflows. In
+          fit mode it shares the free height equally with the spacer under
+          the group form, so the ways in sit centred on the first screen:
+          capping only this one sent every pixel the content left free (a
+          tall phone, larger start blocks) under Join, as one wide gap
+          before the rails. A margin that can flex, hence cancelling the
+          gap after it. */}
         <Box
           aria-hidden
-          className="-mb-(--stack-gap) h-[10dvh] from-md:h-[6dvh] fit-screen:h-auto fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
+          className="-mb-(--stack-gap) h-[10svh] from-md:h-[6svh] fit-screen:h-auto fit-screen:min-h-(--mantine-spacing-sm) fit-screen:flex-[1_1_0]"
         />
         {/* The search keeps a search-sized measure on wide screens. */}
         <Stack gap="xl" w="100%" className="from-md:mx-auto from-md:max-w-[45rem]">

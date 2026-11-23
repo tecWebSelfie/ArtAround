@@ -14,7 +14,10 @@
   --sp-radius: var(--mantine-radius-md);
   /* Seats a chip on an edge (Start Tour's icon, the cover's "Edit"). */
   --sp-ring: 0 0 0 3px var(--mantine-color-body);
-  min-height: calc(100dvh - var(--site-header-height, 0px));
+  /* svh, not dvh: this page scrolls on short screens, and dvh would grow
+     with the URL-bar collapse mid-scroll, reflowing the whole column. svh
+     is dvh's load-time value, so nothing moves. */
+  min-height: calc(100svh - var(--site-header-height, 0px));
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -37,8 +40,9 @@
   max-width: 24rem;
   /* Title and cover sit centred in the space over the dock, a touch above
      where an even split would put them: clear of the
-     controls, yet not reaching the museum badge in the top corner. */
-  padding-top: 7dvh;
+     controls, yet not reaching the museum badge in the top corner. svh as
+     .root's min-height above: never grown by the URL-bar collapse. */
+  padding-top: 7svh;
 
   /* The page's one heading: a step past Mantine's h2 and heavier, in the
      full text colour, so it reads as the tour's name and not as a label. */
