@@ -13,6 +13,7 @@ import type { SearchDocument } from '@/lib/search/types'
  * search spec is not a pass (AGENTS.md).
  */
 const collection = `artaround_spec_${process.pid}_${Date.now()}`
+const appCollection = process.env.TYPESENSE_COLLECTION
 process.env.TYPESENSE_COLLECTION = collection
 
 const { isTypesenseConfigured, typesense } = await import('@/lib/search/client')
@@ -62,6 +63,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (isTypesenseConfigured()) await dropSearchCollection()
+  // Back to the app's collection for whatever shares this process next.
+  if (appCollection === undefined) delete process.env.TYPESENSE_COLLECTION
+  else process.env.TYPESENSE_COLLECTION = appCollection
 })
 
 describe('search on the local Typesense node', () => {

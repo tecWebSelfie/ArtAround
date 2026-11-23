@@ -8,11 +8,11 @@ Typesense and no key ever has a `NEXT_PUBLIC_` prefix.
 
 ## Cluster and environment
 
-| Variable                               | Meaning                                                                  |
-| -------------------------------------- | ------------------------------------------------------------------------ |
-| `TYPESENSE_HOST`, `TYPESENSE_API_KEY`  | The cluster (Typesense Cloud) and its admin key. Both required.          |
-| `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` | Default `443` / `https` (Cloud); a self-hosted node can override them.   |
-| `TYPESENSE_COLLECTION`                 | The collection name, default `artaround` (one per environment/database). |
+| Variable                               | Meaning                                                                                                                                                   |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TYPESENSE_HOST`, `TYPESENSE_API_KEY`  | The cluster (Typesense Cloud) and its admin key. Both required.                                                                                           |
+| `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` | Default `443` / `https` (Cloud); the local node uses `8108` / `http`. A deployment sets both explicitly, since a build's `.env` may carry the local ones. |
+| `TYPESENSE_COLLECTION`                 | The collection name, default `artaround` (one per environment/database).                                                                                  |
 
 **Locally and in CI** the same variables point at the compose `typesense`
 node that `pnpm services:start` runs (Typesense 30.1, `127.0.0.1:8108`,

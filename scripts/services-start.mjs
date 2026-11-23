@@ -112,6 +112,16 @@ try {
   if (!typesenseStarted) throw new Error('not started')
   run('docker', ['compose', 'up', '--detach', '--wait', 'typesense'], { stdio: 'inherit' })
   log('Typesense is ready on http://127.0.0.1:8108 (run `pnpm search:reindex` to fill it).')
+  // An .env older than the node has no TYPESENSE_* lines: the app would still
+  // report search as unavailable, so say what to copy.
+  const envText = ['.env', '.env.local']
+    .map((file) => path.join(root, file))
+    .filter((file) => existsSync(file))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n')
+  if (!process.env.TYPESENSE_HOST && !/^TYPESENSE_HOST=\S/m.test(envText)) {
+    console.warn('No TYPESENSE_HOST in .env: copy the Typesense block of .env.example to use it.')
+  }
 } catch {
   console.warn('Typesense did not start: search will read as unavailable.')
 }

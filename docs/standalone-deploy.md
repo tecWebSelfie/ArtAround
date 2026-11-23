@@ -60,6 +60,11 @@ deploy by hand.
   deploy folder and `--delete` is safe. Keep no `.env.local` in the build
   folder: the build would read it (e.g. for `NEXT_PUBLIC_*`, inlined at build
   time) but not copy it, so the server would run with other values.
+  Set **all four** `TYPESENSE_*` variables there (Cloud host, admin key,
+  `TYPESENSE_PORT=443`, `TYPESENSE_PROTOCOL=https`): a `.env` started from
+  `.env.example` carries the local node's `8108`/`http`, which would otherwise
+  reach the standalone and point it at the Cloud host on the wrong port
+  ([Search](search.md)).
 - **`-a`** keeps the symlinks (see below); `--delete` removes the files of
   the previous build.
 
