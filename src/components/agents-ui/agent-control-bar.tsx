@@ -68,7 +68,13 @@ interface AgentChatInputProps {
   className?: string;
 }
 
-function AgentChatInput({ chatOpen, onSend = async () => {}, className }: AgentChatInputProps) {
+/**
+ * Presentational and LiveKit-free by design; exported for its regression
+ * spec (tests/int/agent-chat-ime.int.spec.tsx), which exercises the IME-safe
+ * Enter handling without a room mock. The control bar stays its only app
+ * consumer.
+ */
+export function AgentChatInput({ chatOpen, onSend = async () => {}, className }: AgentChatInputProps) {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const [isSending, setIsSending] = useState(false);
   const [message, setMessage] = useState<string>('');
@@ -92,7 +98,15 @@ function AgentChatInput({ chatOpen, onSend = async () => {}, className }: AgentC
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter would insert a newline; submitting replaces that default.
       e.preventDefault();
+      // The Enter confirming an IME composition (CJK input) must reach the
+      // converter, not the send button: isComposing covers most browsers, the
+      // 229 VK_PROCESSKEY keyCode covers Safari's out-of-order delivery
+      // (modern-web-guidance: ime-safe-enter-submit).
+      if (e.nativeEvent.isComposing || e.keyCode === 229) {
+        return;
+      }
       handleSend();
     }
   };
