@@ -19,7 +19,17 @@ const nextConfig: NextConfig = {
   // Set by `next upgrade --agent=security` (16.4.2 → 16.4.6): `next dev` and
   // `next build` nudge coding agents when this Next.js has a security
   // advisory. Same as Next's default, made explicit as the upgrade asks.
-  experimental: { agentUpgrade: 'security' },
+  // The Turbopack build cache (default-on since 16.3) can emit builds whose
+  // HTML/manifests list chunk files that were never written to disk: the
+  // 23 Nov 2026 deploy shipped 15 such chunks, leaving every page unhydrated
+  // and the dynamic routes erroring (the restored-stale-read family,
+  // vercel/next.js#100326). A cold build costs minutes and re-emits every
+  // file; re-enable only after the deploy guard in .github/workflows/tests.yml
+  // has stayed green, ideally on a release with the cache hardening PRs.
+  experimental: {
+    agentUpgrade: 'security',
+    turbopackFileSystemCacheForBuild: false,
+  },
   // Load Payload's server packages with Node in production too, as
   // `withPayload` already does in development. Bundled by Turbopack,
   // evaluating payload.config.ts during `next build` threw "Cannot access 'vu'
