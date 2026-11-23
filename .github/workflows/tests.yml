@@ -319,5 +319,22 @@ jobs:
           # would flag everything on every deploy — and skipped files keep
           # their stored mtime, so a redundant deploy of identical content
           # leaves nodemon alone.
-          rsync -azc --delete --exclude='.env*' \
-            .next/standalone/ "$SSH_USER@$SSH_HOST:$DEPLOY_FOLDER/"
+          # --stats reports what actually moved, and drives the restart
+          # below: a change confined to .next/ (a dot directory nodemon does
+          # not watch by default) otherwise never restarts the running app —
+          # the 23 Nov 2026 deploy delivered a complete build that kept
+          # serving the old one until it was restarted by hand.
+          stats=$(rsync -azc --stats --delete --exclude='.env*' \
+            .next/standalone/ "$SSH_USER@$SSH_HOST:$DEPLOY_FOLDER/")
+          echo "$stats"
+          transferred=$(echo "$stats" \
+            | sed -n 's/^Number of regular files transferred: \([0-9]*\).*/\1/p')
+          if [ "${transferred:-0}" -gt 0 ]; then
+            # server.js is a plain .js at the standalone root, outside any
+            # dot directory: only its mtime changes, and only when the
+            # bundle really did.
+            ssh "$SSH_USER@$SSH_HOST" "touch '$DEPLOY_FOLDER/server.js'"
+            echo "restarted the app: $transferred file(s) transferred"
+          else
+            echo "nothing transferred, no restart"
+          fi
