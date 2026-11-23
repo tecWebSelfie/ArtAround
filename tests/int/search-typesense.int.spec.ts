@@ -50,10 +50,11 @@ const documents: SearchDocument[] = [
 ]
 
 beforeAll(async () => {
-  expect(
-    isTypesenseConfigured(),
-    'Typesense is not configured: run `pnpm services:start` and set TYPESENSE_* (.env.example).',
-  ).toBe(true)
+  if (!isTypesenseConfigured()) {
+    throw new Error(
+      'Typesense is not configured: run `pnpm services:start` and set TYPESENSE_* (.env.example).',
+    )
+  }
   await ensureSearchCollection()
   await typesense()
     .collections<SearchDocument>(collection)

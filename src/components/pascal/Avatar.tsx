@@ -94,11 +94,8 @@ export const Avatar = memo(function Avatar({
       if (!mesh.isMesh) return
       let original = solidMaterials.get(mesh)
       if (!original) solidMaterials.set(mesh, (original = mesh.material))
-      mesh.material = !ghost
-        ? original
-        : Array.isArray(original)
-          ? original.map(fadedCopy)
-          : fadedCopy(original)
+      if (!ghost) mesh.material = original
+      else mesh.material = Array.isArray(original) ? original.map(fadedCopy) : fadedCopy(original)
     })
   }, [model, ghost])
   const { actions } = useAnimations(animations, model)

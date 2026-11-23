@@ -50,12 +50,9 @@ export function useRouteGuidance({
   // Prefer the map's reachable pinned point; use the work's centre only
   // while no navmesh route/start has been resolved yet. An entrance only
   // guessed to preview the route is no pin: GPS never anchors on a guess.
-  const pin: PolygonPoint2D | null =
-    route?.start && route.confirmed
-      ? [route.start[0], route.start[2]]
-      : route && !route.confirmed
-        ? null
-        : (startPoint ?? null)
+  let pin: PolygonPoint2D | null = startPoint ?? null
+  if (route && !route.confirmed) pin = null
+  else if (route?.start) pin = [route.start[0], route.start[2]]
   const estimate = useGpsEstimate(pin, fix, anchorScope)
   const position = useLivePosition(estimate, route?.start ?? null, navMesh)
   const path = useActivePath(route, position, navMesh)

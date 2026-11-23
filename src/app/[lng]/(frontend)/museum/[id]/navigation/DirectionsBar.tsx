@@ -161,30 +161,18 @@ export function DirectionsBar({
   const [opened, { open, close }] = useDisclosure(false)
   const step = steps[current]
 
-  if (status === 'no-position' && positionPrompt) {
-    const { opened, onOpenedChange, ...prompt } = positionPrompt
-    if (opened) {
-      return (
-        <DirectionsLayout trailingControl={trailingControl} tall>
-          <PositionPrompt {...prompt} onSearch={onSearch} onHide={() => onOpenedChange(false)} />
-        </DirectionsLayout>
-      )
-    }
-  }
-
-  if (status === 'no-position' || status === 'no-destination') {
+  if (status === 'no-position') {
     return (
-      <AskForEnds
-        position={status === 'no-position'}
-        // Folded, the line opens "Where are you?" again, which offers search too.
-        onSearch={
-          status === 'no-position' && positionPrompt
-            ? () => positionPrompt.onOpenedChange(true)
-            : onSearch
-        }
+      <AskForPosition
+        prompt={positionPrompt}
+        onSearch={onSearch}
         trailingControl={trailingControl}
       />
     )
+  }
+
+  if (status === 'no-destination') {
+    return <AskForEnds position={false} onSearch={onSearch} trailingControl={trailingControl} />
   }
 
   if (status || !step) {
@@ -301,6 +289,37 @@ export function DirectionsBar({
         </Timeline>
       </Modal>
     </>
+  )
+}
+
+/**
+ * The `no-position` state: "Where are you?" opened (`PositionPrompt`), or,
+ * folded or without a prompt (a group guest), the one-line call; folded, that
+ * line opens the prompt again, which offers search too.
+ */
+function AskForPosition({
+  prompt,
+  onSearch,
+  trailingControl,
+}: {
+  prompt: ComponentProps<typeof DirectionsBar>['positionPrompt']
+  onSearch?: () => void
+  trailingControl?: React.ReactNode
+}) {
+  if (prompt?.opened) {
+    const { opened: _opened, onOpenedChange, ...answers } = prompt
+    return (
+      <DirectionsLayout trailingControl={trailingControl} tall>
+        <PositionPrompt {...answers} onSearch={onSearch} onHide={() => onOpenedChange(false)} />
+      </DirectionsLayout>
+    )
+  }
+  return (
+    <AskForEnds
+      position
+      onSearch={prompt ? () => prompt.onOpenedChange(true) : onSearch}
+      trailingControl={trailingControl}
+    />
   )
 }
 
