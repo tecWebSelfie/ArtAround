@@ -98,6 +98,7 @@ describe('Directions following the route path', () => {
     start: path[0],
     end: path.at(-1)!,
     target: null,
+    confirmed: true,
   })
   it('keeps the shown step on the same route and restarts on a new one', () => {
     // The map keeps the route object until its destination or start changes
@@ -134,7 +135,7 @@ describe('pinned at the destination itself', () => {
   const fix = { latitude: 45, longitude: 9, accuracy: 4 }
   // A QR scanned at the next stop: the pin and the destination are one point.
   const here = snapToNavMesh(navMesh, [10, 2], 0)!
-  const route = { path: null, start: here, end: here, target: null }
+  const route = { path: null, start: here, end: here, target: null, confirmed: true }
 
   it('gives no directions while there, and leads back once the visitor walks away', () => {
     const { result, rerender } = renderHook(

@@ -7,7 +7,7 @@ import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { deltaAngle } from 'maath/misc'
 import { memo, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { Vector3, type Group } from 'three'
+import { Vector3, type Group, type Material, type Mesh } from 'three'
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
 
 /**
@@ -33,6 +33,13 @@ const CLIPS = { idle: 'Armature|Idle', walk: 'Armature|Walk' } as const
 const worldPosition = new Vector3()
 
 /**
+ * Opacity of the "ghost" avatar: a start the visitor has not confirmed (an
+ * entrance guessed for a route preview). Faint enough to read as a
+ * suggestion, solid enough to find on the plan.
+ */
+const GHOST_OPACITY = 0.4
+
+/**
  * Visitor marker placed at the visitor's live position on the museum map.
  * Standing still, it keeps turning to face the camera, playing the in-place
  * Walk clip while it turns and Idle once it faces the viewer. While its
@@ -45,14 +52,47 @@ const worldPosition = new Vector3()
  */
 export const Avatar = memo(function Avatar({
   heading,
+  ghost = false,
 }: {
   /** Yaw of the current movement, or null when standing (read every frame). */
   heading?: RefObject<number | null>
+  /** Drawn translucent: a guessed start, not the visitor's confirmed position. */
+  ghost?: boolean
 }) {
   const { scene, animations } = useGLTF('/models/AvatarMale.glb')
   // useGLTF caches one scene per URL; a skeleton-aware clone gives this marker
   // its own bones, so its mixer never animates another instance of the model.
-  const model = useMemo(() => cloneSkinned(scene), [scene])
+  // The clone shares the cached materials, so a ghost gets its own copies
+  // before it fades them (the other instance, or the next one, stays solid).
+  const { model, faded } = useMemo(() => {
+    const clone = cloneSkinned(scene)
+    const faded: Material[] = []
+    if (ghost) {
+      clone.traverse((object) => {
+        const mesh = object as Mesh
+        if (!mesh.isMesh) return
+        const fade = (material: Material) => {
+          const copy = material.clone()
+          copy.transparent = true
+          copy.opacity = GHOST_OPACITY
+          // Without depth writes the faded body never hides its own far side
+          // in patches; the route line is drawn over it anyway.
+          copy.depthWrite = false
+          faded.push(copy)
+          return copy
+        }
+        mesh.material = Array.isArray(mesh.material) ? mesh.material.map(fade) : fade(mesh.material)
+      })
+    }
+    return { model: clone, faded }
+  }, [scene, ghost])
+  // The copies are this instance's own (the scene renders with dispose={null}).
+  useEffect(
+    () => () => {
+      for (const material of faded) material.dispose()
+    },
+    [faded],
+  )
   const { actions } = useAnimations(animations, model)
 
   const yaw = useRef<Group>(null)

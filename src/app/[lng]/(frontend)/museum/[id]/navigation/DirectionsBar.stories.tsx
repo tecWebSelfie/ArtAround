@@ -164,3 +164,80 @@ export const NeedsDestination: Story = {
     await expect(args.onSearch).toHaveBeenCalled()
   },
 }
+
+/**
+ * "Where are you?" opened (`PositionPrompt`): the `no-position` state when
+ * the page passes `positionPrompt`. Stateful, so "Hide" really folds it into
+ * the one-line call and a tap on that line opens it again.
+ */
+const promptRender: Story['render'] = function Render(args) {
+  const [opened, setOpened] = useState(true)
+  const prompt = args.positionPrompt
+  return (
+    <div style={{ width: 360 }}>
+      <DirectionsBar
+        {...args}
+        positionPrompt={prompt && { ...prompt, opened, onOpenedChange: setOpened }}
+      />
+    </div>
+  )
+}
+
+const promptArgs = (entrances: { id: string; name: string }[]) => ({
+  status: 'no-position' as const,
+  steps: [],
+  onSearch: fn(),
+  positionPrompt: {
+    opened: true,
+    onOpenedChange: fn(),
+    entrances,
+    onEntrance: fn(),
+    onScan: fn(),
+  },
+})
+
+/** One entrance: a single "I'm at …" confirms it as the position. */
+export const WhereAreYou: Story = {
+  args: promptArgs([{ id: 'entrance-main', name: 'Main entrance' }]),
+  render: promptRender,
+  play: async ({ canvas, args }) => {
+    await expect(canvas.getByRole('region', { name: 'Where are you?' })).toBeVisible()
+    await userEvent.click(canvas.getByRole('button', { name: "I'm at Main entrance" }))
+    await expect(args.positionPrompt?.onEntrance).toHaveBeenCalledWith('entrance-main')
+    await userEvent.click(canvas.getByRole('button', { name: "Scan a work's QR code" }))
+    await expect(args.positionPrompt?.onScan).toHaveBeenCalled()
+    await userEvent.click(canvas.getByRole('button', { name: 'Find the work in front of you' }))
+    await expect(args.onSearch).toHaveBeenCalled()
+  },
+}
+
+/** Several entrances: one button per entrance, so the visitor says which one. */
+export const WhereAreYouSeveralEntrances: Story = {
+  args: promptArgs([
+    { id: 'entrance-main', name: 'Via delle Belle Arti' },
+    { id: 'entrance-garden', name: 'Garden entrance' },
+  ]),
+  render: promptRender,
+  play: async ({ canvas, args }) => {
+    const entrances = canvas.getByRole('group', { name: 'Entrances' })
+    await expect(within(entrances).getAllByRole('button')).toHaveLength(2)
+    await userEvent.click(within(entrances).getByRole('button', { name: 'Garden entrance' }))
+    await expect(args.positionPrompt?.onEntrance).toHaveBeenCalledWith('entrance-garden')
+  },
+}
+
+/** "Hide" folds it into the one-line call, whose tap opens it again. */
+export const WhereAreYouFolded: Story = {
+  args: promptArgs([]),
+  render: promptRender,
+  play: async ({ canvas }) => {
+    // A map with no entrance marker offers the QR code and search only.
+    await expect(canvas.queryByRole('group', { name: 'Entrances' })).toBeNull()
+    await userEvent.click(canvas.getByRole('button', { name: 'Hide' }))
+    await expect(canvas.queryByRole('region', { name: 'Where are you?' })).toBeNull()
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Where are you? Find the work in front of you' }),
+    )
+    await expect(canvas.getByRole('region', { name: 'Where are you?' })).toBeVisible()
+  },
+}

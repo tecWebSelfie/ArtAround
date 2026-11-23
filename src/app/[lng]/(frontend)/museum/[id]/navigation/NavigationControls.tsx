@@ -157,7 +157,9 @@ export function NavigationControls({
           thumbs' reach. From md the right of the map belongs to docked
           panels, so both support capsules stack on the left and the centre
           stays in the middle of the map. The grid takes no pointer events. */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+      {/* `data-map-overlay`: the map frames the visitor's journey above this
+          row (FrameJourney in MuseumMap), so the route never hides under it. */}
+      <div data-map-overlay="bottom" className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
         {/* A shutter over its caption-sized action: Scan is the constant
             anchor (a 52px circle, the assistant button's size, like a camera's shutter),
             the contextual action a smaller pill beneath it. On a short screen

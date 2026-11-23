@@ -38,6 +38,8 @@ import { useCompass } from './compass-source'
 import { useRouteGuidance } from './use-route-guidance'
 import type { MuseumRoute } from './MuseumMap'
 import type { NavMesh } from 'navcat'
+import { createSessionStore } from '@/lib/session-store'
+import type { PromptEntrance } from './PositionPrompt'
 
 /**
  * The state behind the navigation page (`TourNavigation.tsx`): the map's
@@ -381,4 +383,46 @@ export function useGuidance({
     guidance.estimate ??
     (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
   return { settings, gps, compass, positionScope, guidance, here }
+}
+
+/** Whether "Where are you?" is opened, per tab and museum (folded by "Hide"). */
+const positionPromptStore = createSessionStore<boolean>((stored) => stored !== false)
+
+/**
+ * "Where are you?" (`PositionPrompt`): the museum's placed entrances, named
+ * (a nameless one gets a number when there are several), and whether the
+ * prompt is opened. It opens on every museum's first visit in the tab, and a
+ * visitor who folds it keeps it folded there until they open it again from
+ * the strip. Absent for group guests: the host's position is theirs.
+ */
+export function usePositionPrompt({
+  museumId,
+  exitEntrances,
+  guest,
+}: {
+  museumId: string
+  exitEntrances: ExitEntranceMarker[]
+  guest: boolean
+}) {
+  const { t } = useTranslation('tour-navigation')
+  const key = `position-prompt:${museumId}`
+  // Opened until the stored choice is read (null before hydration).
+  const opened = positionPromptStore.useValue(key) ?? true
+  const entrances = useMemo<PromptEntrance[]>(() => {
+    const placed = exitEntrances.filter((node) => node.placed && node.direction === 'entrance')
+    return placed.map((node, index) => ({
+      id: node.id,
+      name:
+        node.name ||
+        (placed.length > 1 ? t('Entrance {{number}}', { number: index + 1 }) : t('Entrance')),
+    }))
+  }, [exitEntrances, t])
+  if (guest) return { entrances, prompt: undefined }
+  return {
+    entrances,
+    prompt: {
+      opened,
+      onOpenedChange: (next: boolean) => positionPromptStore.save(key, next),
+    },
+  }
 }

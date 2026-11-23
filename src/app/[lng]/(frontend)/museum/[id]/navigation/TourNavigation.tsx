@@ -5,7 +5,7 @@ import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { Suspense, useEffect, useState, type ReactNode, type Ref } from 'react'
+import { Suspense, useEffect, useState, type ComponentProps, type ReactNode, type Ref } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
@@ -16,6 +16,7 @@ import {
   useDestinationName,
   useMeasuredBars,
   useMuseumMapData,
+  usePositionPrompt,
   useTourCursor,
   useGuidance,
   useTourCommands,
@@ -90,10 +91,12 @@ export const TourNavigationPage = ({
   const { defaultDestination, destination, notes } = useTourCursor(tour, step, catalog)
   // The work the route leads to, if it is one (not a service or an exit).
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
+  // A work's id, or an entrance's node id when the visitor said they stand there.
   const currentObjectId = search.get('at')
-  // With a confirmed position the visitor's own start replaces the entrance step.
-  const startEntrance =
-    !currentObjectId && markers.exitEntrances.find((node) => node.id === startEntranceId)
+  // The entrance the route starts from (confirmed, or previewed before the
+  // visitor says where they are) leads the progress bar; a work as the
+  // confirmed position replaces that step.
+  const startEntrance = markers.exitEntrances.find((node) => node.id === startEntranceId)
   // A stale/shared wheelchair URL still uses the standard mesh when this
   // museum has no wheelchair-specific mesh saved.
   const wheelchairRoute =
@@ -114,6 +117,18 @@ export const TourNavigationPage = ({
   const planView = settings.mapView === '2d' && Boolean(museumMap.parsed)
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
+
+  // The map's label over the destination flag: the next stop with its number
+  // (the stepper's), else whatever the visitor chose.
+  const destinationLabel =
+    tour && destination?.kind === 'object' && destination.id === defaultDestination && !complete
+      ? t('Stop {{number}} · {{name}}', { number: step + 1, name: destinationName })
+      : destinationName
+  const positionPrompt = usePositionPrompt({
+    museumId: museum.id,
+    exitEntrances: markers.exitEntrances,
+    guest,
+  })
 
   const { tourContentIds, tourObjectIds } = useTourIds(tour?.contents, catalog)
   const { commands, run, runId, nearbyCommands, setNavigation } = useTourCommands({
@@ -181,6 +196,7 @@ export const TourNavigationPage = ({
               onRouteChange={setRoute}
               position={guidance.position}
               path={guidance.path}
+              destinationLabel={destinationLabel}
               onObjectClick={(id) => runId(`object:${id}`)}
               // Under the floor plan the 3D map stays mounted (routes are
               // computed on its meshes) but draws no frames, and is hidden
@@ -197,6 +213,7 @@ export const TourNavigationPage = ({
               // As on the 3D map: the avatar waits at the route's start.
               position={guidance.position ?? route?.start ?? null}
               path={guidance.path ?? route?.path ?? null}
+              estimated={Boolean(route?.start && !route.confirmed)}
               catalog={catalog}
               roots={museumMap.parsed.rootNodeIds}
             />
@@ -246,6 +263,14 @@ export const TourNavigationPage = ({
           tour && complete && hasQuiz(tour) && !guest && <QuizAction tour={tour} step={step} />
         }
         voiceGuidance={settings.voiceGuidance && Boolean(currentObjectId)}
+        positionPrompt={
+          positionPrompt.prompt && {
+            ...positionPrompt.prompt,
+            entrances: positionPrompt.entrances,
+            onEntrance: (id: string) => setNavigation('at', id),
+            onScan: () => runId('scan'),
+          }
+        }
       />
     </>
   )
@@ -306,6 +331,7 @@ function NavigationFooter({
   status,
   action,
   voiceGuidance,
+  positionPrompt,
 }: {
   ref: Ref<HTMLElement>
   museum: Museum
@@ -321,6 +347,7 @@ function NavigationFooter({
   status: DirectionsStatus | null
   action: ReactNode
   voiceGuidance: boolean
+  positionPrompt: ComponentProps<typeof DirectionsBar>['positionPrompt']
 }) {
   const { lng } = useParams<{ lng: string }>()
   const guest = useIsGroupGuest()
@@ -366,6 +393,7 @@ function NavigationFooter({
             // "set as my position" and "go here".
             onSearch={spotlight.open}
             action={action}
+            positionPrompt={positionPrompt}
           />
         </Box>
       </Group>

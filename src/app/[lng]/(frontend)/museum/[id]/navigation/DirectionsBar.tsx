@@ -21,8 +21,9 @@ import {
   Navigation,
   type LucideIcon,
 } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PositionPrompt } from './PositionPrompt'
 
 /**
  * Localized sentence for one direction step. The UI shows it, and voice
@@ -128,6 +129,7 @@ export function DirectionsBar({
   onSearch,
   action,
   trailingControl,
+  positionPrompt,
 }: {
   steps: DirectionStep[]
   current: number
@@ -141,17 +143,42 @@ export function DirectionsBar({
   action?: React.ReactNode
   /** Assistant shares the arrow row when enlarged text needs the full width. */
   trailingControl?: React.ReactNode
+  /**
+   * The opened "Where are you?" (`PositionPrompt`) for the `no-position`
+   * state, with its open state kept by the page. Without it (a group guest,
+   * whose position is the host's) that state stays the one-line call.
+   */
+  positionPrompt?: Omit<ComponentProps<typeof PositionPrompt>, 'onSearch' | 'onHide'> & {
+    opened: boolean
+    onOpenedChange: (opened: boolean) => void
+  }
 }) {
   const { t } = useTranslation('tour-navigation')
   const sentence = useStepSentence()
   const [opened, { open, close }] = useDisclosure(false)
   const step = steps[current]
 
+  if (status === 'no-position' && positionPrompt) {
+    const { opened, onOpenedChange, ...prompt } = positionPrompt
+    if (opened) {
+      return (
+        <DirectionsLayout trailingControl={trailingControl}>
+          <PositionPrompt {...prompt} onSearch={onSearch} onHide={() => onOpenedChange(false)} />
+        </DirectionsLayout>
+      )
+    }
+  }
+
   if (status === 'no-position' || status === 'no-destination') {
     return (
       <AskForEnds
         position={status === 'no-position'}
-        onSearch={onSearch}
+        // Folded, the line opens "Where are you?" again, which offers search too.
+        onSearch={
+          status === 'no-position' && positionPrompt
+            ? () => positionPrompt.onOpenedChange(true)
+            : onSearch
+        }
         trailingControl={trailingControl}
       />
     )

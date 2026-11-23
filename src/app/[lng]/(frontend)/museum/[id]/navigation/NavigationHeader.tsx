@@ -51,8 +51,10 @@ export function NavigationHeader({
     // Top padding (and the notch's inset): the title no longer touches the
     // screen's edge, which made the bar read cramped. A named region, not a
     // second page banner beside a dialog title.
+    // `data-map-overlay`: the map frames the visitor's journey below it (FrameJourney).
     <AppShellHeader
       ref={ref}
+      data-map-overlay="top"
       role="group"
       aria-label={t('Museum navigation')}
       px="xs"

@@ -285,8 +285,13 @@ export const FreeNavigation: Story = {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     // Directions ask for a start before an end: with no position yet, the bar
-    // asks for it first (DirectionsBar's "no-position" state).
-    await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
+    // opens "Where are you?" (DirectionsBar's "no-position" state); this
+    // mock map has no entrance marker, so it offers the QR code and search.
+    const prompt = canvas.getByRole('region', { name: 'Where are you?' })
+    await expect(prompt).toBeVisible()
+    await expect(
+      within(prompt).getByRole('button', { name: "Scan a work's QR code" }),
+    ).toBeVisible()
     // No destination yet: the centre pill opens search (NavigationControls).
     await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
     const body = within(canvasElement.ownerDocument.body)
