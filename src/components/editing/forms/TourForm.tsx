@@ -272,7 +272,12 @@ export function TourForm({
       description: initial?.description ?? '',
       visibility: initial?.visibility ?? 'public',
       logistics: initial?.logistics ?? '',
-      startEntrance: initial?.startEntrance ?? '',
+      // Only one of the choices offered: an entrance staff have since removed
+      // (or the only one, which is the automatic pick anyway) reads and saves
+      // as automatic, so the form never keeps an id it can't show.
+      startEntrance: museum.entrances?.some((entrance) => entrance.id === initial?.startEntrance)
+        ? (initial?.startEntrance ?? '')
+        : '',
       directions: initial?.directions ?? {},
       quiz: initial?.quiz ?? [],
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),

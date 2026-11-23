@@ -237,7 +237,8 @@ const checkStartEntrance: CollectionBeforeChangeHook<TourType> = async ({
   req,
   originalDoc,
 }) => {
-  const entrance = data.startEntrance ?? originalDoc?.startEntrance
+  // An explicit null or '' clears it (automatic): nothing to check.
+  const entrance = 'startEntrance' in data ? data.startEntrance : originalDoc?.startEntrance
   if (!entrance) return data
   // Unchanged (the form sends it on every save): nothing to check, and an
   // entrance staff have since removed must not block an unrelated edit.

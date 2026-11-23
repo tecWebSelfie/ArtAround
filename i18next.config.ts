@@ -8,6 +8,8 @@ export default defineConfig({
       'src/app/**/*.{js,jsx,ts,tsx}',
       'src/components/**/*.{js,jsx,ts,tsx}',
       'src/lib/pascal/**/*.{ts,tsx}',
+      // Shared hooks that translate (useEntranceNames).
+      'src/hooks/**/*.{ts,tsx}',
       '!**/*.stories.{js,jsx,ts,tsx}',
     ],
     output: 'src/app/i18n/locales/{{language}}/{{namespace}}.json',

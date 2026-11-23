@@ -39,6 +39,7 @@
   "End": "Loppu",
   "End route": "Lopeta reitti",
   "Entrance": "Sisäänkäynti",
+  "Entrance {{number}}": "Sisäänkäynti {{number}}",
   "Entrances": "Sisäänkäynnit",
   "Exit": "Uloskäynti",
   "Find a work": "Etsi teos",

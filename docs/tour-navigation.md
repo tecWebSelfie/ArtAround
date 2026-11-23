@@ -46,9 +46,11 @@ and cached build artifacts are not reliable handoff state.
   entrance marker's node id; the editor offers it when the map has two or
   more), else the one nearest the first stop. A choice that stops being a
   placed entrance (staff moved the marker) falls back to the nearest; the
-  server refuses saving one that isn't (`checkStartEntrance`). One pure
-  resolver, `tourStartEntrance` (`src/lib/tour-entrance.ts`), serves the
-  editor, the server and navigation. It is named under the progress bar's
+  server refuses saving one that isn't (`checkStartEntrance`, through
+  `isPlacedEntrance`; an unchanged one is not checked again, so a removed
+  marker never blocks an edit), and the editor offers only placed ones and
+  reads a removed one as automatic. Navigation resolves the entrance with
+  `tourStartEntrance` (`src/lib/tour-entrance.ts`). It is named under the progress bar's
   **"Start"** step, which leads the bar for the whole visit; the bar ends with
   **"Quiz"** (selectable) or, without a quiz, **"End"** (not selectable).
 - **The camera frames the journey** (`FrameJourney` in `MuseumMap.tsx`,

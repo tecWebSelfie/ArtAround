@@ -245,6 +245,32 @@ describe('the server keeps startEntrance to a placed entrance', () => {
     })
   })
 
+  it('clears the entrance while moving the tour to another museum', async () => {
+    const tour = await tourWith(entrances.far.id)
+    created.push({ collection: 'tours', id: tour.id })
+    const other = await payload.create({
+      collection: 'museums',
+      data: {
+        name: `SE other museum ${suffix}`,
+        accessibility: { isAccessible: false },
+        shortDescription: 'Start entrance spec',
+        ticketInfo: { label: 'free' },
+        location: { address: 'x', city: 'Test', latlng: [9.19, 45.46] },
+      } as never,
+      overrideAccess: true,
+    })
+    created.push({ collection: 'museums', id: other.id })
+    // An explicit null is "automatic": the old museum's id is not checked
+    // against the new museum's map.
+    const moved = await payload.update({
+      collection: 'tours',
+      id: tour.id,
+      data: { museum: other.id, startEntrance: null } as never,
+      overrideAccess: true,
+    })
+    expect(moved.startEntrance ?? null).toBeNull()
+  })
+
   it('refuses an exit, an unplaced marker or an unknown id', async () => {
     for (const id of [entrances.exit.id, entrances.unplaced.id, 'not-a-marker']) {
       await expect(tourWith(id)).rejects.toThrow(/start entrance/)
