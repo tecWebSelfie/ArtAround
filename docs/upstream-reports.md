@@ -5,9 +5,9 @@ day we decide to file it. Filing is the maintainer's call (2026-11-23:
 not yet — the focus stays on the project); this page keeps the
 diagnosis and the evidence from ever being re-collected.
 
-Both were verified against the pinned versions in `package.json` AND
-against each project's `main` — no upgrade available today fixes
-either.
+All three were verified against the pinned versions in `package.json`
+AND against each project's current sources — no upgrade available today
+fixes any of them.
 
 ## payload: stored join fields crash Local API updates
 
@@ -73,6 +73,48 @@ error replace the matcher's own.
 **While it is unfixed:** read a red lane by the failing story names
 and by regenerating to compare — the error text is not evidence of
 anything (`.storybook/vitest.visual.ts` points here too).
+
+## vitest: the toMatchScreenshot mask types lie twice
+
+**Where it bit us:** the `visual.mask` support this report ships with
+(the MuseumMetadataForm branch): the first implementation was written
+straight off the declared types, typechecked clean, and failed all 7
+stories with `TypeError: page.locator is not a function`.
+
+**The bug, two type lies on one path:**
+
+- `ScreenshotMatcherArguments` (`@vitest/browser`
+  `dist/shared/screenshotMatcher/types.d.ts`) declares
+  `screenshotOptions.mask?: readonly string[]` — but that is the
+  POST-conversion RPC shape. The client matcher (`expect-element.js`)
+  runs every entry through `convertToSelector`, which accepts only DOM
+  `Element`s (→ a unique CSS selector) or vitest Locators
+  (`Symbol.for('$$vitest:locator')`, → their `.selector` string) and
+  THROWS on a raw string ("Expected element or locator to be an
+  instance of Element or Locator").
+- the `page` object exported from 'vitest/browser' is typed with the
+  full Playwright `Page` surface (so `page.locator(selector)`
+  compiles) but at runtime is a provider shim without `locator()`;
+  `page.elementLocator()` is the only factory, and its declared
+  signature takes an `Element`.
+
+The construction path the types suggest — strings → `page.locator()` —
+therefore cannot run, and nothing catches it before the test does.
+
+**Report draft:** the repro is a browser-mode test doing
+`expect.element(locator).toMatchScreenshot(name, { screenshotOptions:
+{ mask: ['.foo'] } })` — compiles, throws at runtime. Suggest: accept
+raw strings in `convertToSelector` (they are already the wire format
+the server side consumes), or declare the pre-conversion entry type
+(`Element | Locator`) in `ScreenshotMatcherArguments` and expose a
+public locator factory on the page shim.
+
+**While it is unfixed:** resolve mask selectors in the story document
+and pass the elements themselves — what `.storybook/vitest.visual.ts`
+does now.
+
+Verified against the pinned 4.0.18 bundle; the current-repo index
+(DeepWiki) describes the same conversion, so no bump is in sight.
 
 ## related, no report needed: --maxWorkers is a no-op for projects
 
