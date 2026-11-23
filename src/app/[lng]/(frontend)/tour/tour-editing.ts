@@ -5,11 +5,7 @@ import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEdi
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
-import {
-  collectMuseumMarkers,
-  mapNodes,
-  placedEntrances,
-} from '@/lib/pascal/museum-plugin/markers-in-map'
+import { mapPlacedEntrances } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
 import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
@@ -45,7 +41,7 @@ export async function existingVisitCopy(
  * among them with two or more, the one name with one.
  */
 function startEntranceChoices(map: Museum['map']) {
-  return placedEntrances(collectMuseumMarkers(mapNodes(map)).exitEntrances).map(({ id, name }) => ({
+  return mapPlacedEntrances(map).map(({ id, name }) => ({
     id,
     name: name ?? null,
   }))

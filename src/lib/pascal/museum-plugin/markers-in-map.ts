@@ -38,6 +38,11 @@ export function placedEntrances(markers: readonly ExitEntranceMarker[]) {
   return markers.filter((marker) => marker.placed && marker.direction === 'entrance')
 }
 
+/** A Payload `map` JSON field's placed entrances (`placedEntrances`), parsed. */
+export function mapPlacedEntrances(map: unknown) {
+  return placedEntrances(collectMuseumMarkers(mapNodes(map)).exitEntrances)
+}
+
 /** Read the `nodes` record out of a Payload `map` JSON field without trusting its shape. */
 export function mapNodes(map: unknown): Record<string, unknown> | null {
   if (!map || typeof map !== 'object') return null

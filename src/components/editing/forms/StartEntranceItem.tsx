@@ -6,6 +6,9 @@ import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEntranceNames } from '@/hooks/use-named-entrances'
 
+/** The select's value for "nearest to the first stop" (the form's ''). */
+const AUTOMATIC = 'automatic'
+
 /** A placed entrance of the museum map, as the server sends it to the editor. */
 export type EntranceChoice = { id: string; name: string | null }
 
@@ -19,8 +22,8 @@ export type EntranceChoice = { id: string; name: string | null }
  * With two or more placed entrances it chooses one of them, or automatically
  * the one nearest the first stop (the empty value, the default), which
  * follows the stops if the author reorders them; with one it just names it;
- * with none the caller leaves it out. A saved entrance the staff later
- * removed reads as automatic: navigation already falls back so.
+ * with none the caller leaves it out. The value is always one of the
+ * entrances or '' (the form's `initialStartEntrance` sees to it).
  *
  * Like the stops, it forwards the layout props Mantine's Timeline passes to
  * its direct children.
@@ -39,8 +42,6 @@ export function StartEntranceItem({
   const { t } = useTranslation('editing')
   const named = useEntranceNames(entrances)
   const titleId = useId()
-  const automatic = 'automatic'
-  const known = named.some((entrance) => entrance.id === value)
   return (
     <TimelineItem
       {...timelineProps}
@@ -54,12 +55,12 @@ export function StartEntranceItem({
           aria-labelledby={titleId}
           description={t('Where the tour begins: its first stop is reached from here.')}
           data={[
-            { value: automatic, label: t('Nearest to the first stop') },
+            { value: AUTOMATIC, label: t('Nearest to the first stop') },
             ...named.map((entrance) => ({ value: entrance.id, label: entrance.name })),
           ]}
-          value={known ? value : automatic}
+          value={value || AUTOMATIC}
           allowDeselect={false}
-          onChange={(next) => onChange(!next || next === automatic ? '' : next)}
+          onChange={(next) => onChange(next === AUTOMATIC ? '' : (next ?? ''))}
         />
       ) : (
         <Text size="sm" c="dimmed">

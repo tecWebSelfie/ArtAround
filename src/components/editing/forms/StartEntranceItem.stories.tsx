@@ -57,16 +57,6 @@ export const ChooseAmongEntrances: Story = {
   },
 }
 
-/** A saved entrance staff have since removed reads as automatic. */
-export const RemovedEntrance: Story = {
-  args: { value: 'removed-marker' },
-  play: async ({ canvas }) => {
-    await expect(canvas.getByRole('combobox', { name: 'Start entrance' })).toHaveValue(
-      'Nearest to the first stop',
-    )
-  },
-}
-
 /** One entrance: nothing to choose, the item just names where the tour starts. */
 export const SingleEntrance: Story = {
   args: { entrances: [{ id: 'main', name: null }] },

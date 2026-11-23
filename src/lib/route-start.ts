@@ -55,6 +55,19 @@ export function routeStart<P>({
   if (preferred?.point) {
     return { start: preferred.point, confirmed: false }
   }
+  return { start: nearestEntrance(entrances, end, distance)?.point ?? null, confirmed: false }
+}
+
+/**
+ * The resolvable entrance nearest `end`, the guess when nothing else says
+ * where a route starts; also the tour's default start entrance
+ * (`tourStartEntrance`), so both pick by the same rule.
+ */
+export function nearestEntrance<P>(
+  entrances: readonly { id: string; point: P | null }[],
+  end: P,
+  distance: (from: P, to: P) => number,
+): { id: string; point: P } | null {
   let nearest: { id: string; point: P } | null = null
   let best = Number.POSITIVE_INFINITY
   for (const { id, point } of entrances) {
@@ -65,5 +78,5 @@ export function routeStart<P>({
       nearest = { id, point }
     }
   }
-  return { start: nearest?.point ?? null, confirmed: false }
+  return nearest
 }

@@ -237,7 +237,7 @@ export const TourNavigationPage = ({
         museumName={museum.name}
         stopObjectId={defaultDestination}
         rooms={rooms}
-        entranceLabel={tourEntranceName ?? null}
+        entranceLabel={tourEntranceName}
         notes={notes}
       />
 

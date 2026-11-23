@@ -260,6 +260,28 @@ export const Completed: Story = {
 }
 
 /**
+ * A tour with a quiz ends on "Quiz" instead of "End", and that step opens it:
+ * it stays selectable (the End/Quiz bookend is one step whose
+ * `allowStepSelect` follows the quiz).
+ */
+export const CompletedWithQuiz: Story = {
+  args: {
+    ...Completed.args,
+    scope: {
+      kind: 'tour',
+      tour: { ...mockTourFull, museum: mockMuseumFull, quiz: { questions: ['question-1'] } },
+      step: mockTourFull.contents.length,
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByText('End')).toBeNull()
+    const quiz = canvas.getByText('Quiz').closest('button')
+    await expect(quiz).toHaveAttribute('data-allow-click')
+    await expect(quiz).not.toHaveAttribute('tabindex', '-1')
+  },
+}
+
+/**
  * Free navigation (`/museum/[id]/navigation`): the header names the museum,
  * there is no tour progress or default destination, and the empty Spotlight
  * leads with the museum's tours.

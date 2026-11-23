@@ -42,7 +42,7 @@ export function TourProgress({
 }: {
   contents: Tour['contents']
   step: number
-  entranceLabel?: string | null
+  entranceLabel?: string
   hasQuiz?: boolean
 }) {
   const activeStep = useRef<HTMLButtonElement | null>(null)
@@ -51,8 +51,6 @@ export function TourProgress({
   const search = useSearchParams()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
-  // The stepper's first index belongs to "Start".
-  const offset = 1
   const guest = useIsGroupGuest()
 
   useEffect(() => {
@@ -70,7 +68,8 @@ export function TourProgress({
       className="[&_.mantine-Stepper-step]:min-h-11"
     >
       <Stepper
-        active={step + offset}
+        // Index 0 is "Start", so stop `step` is index `step + 1`.
+        active={step + 1}
         size={'xs'}
         iconSize={24}
         wrap={false}
@@ -96,11 +95,11 @@ export function TourProgress({
                   return
                 }
                 // The step after the last stop is the quiz ("End" can't be selected).
-                if (hasQuiz && index - offset === contents.length) {
+                if (index - 1 === contents.length) {
                   router.push(tourQuizPath(lng, tourId, step, search.toString()))
                   return
                 }
-                const content = contents[index - offset]
+                const content = contents[index - 1]
                 if (content) {
                   const contentId = typeof content === 'string' ? content : content.id
                   const path = tourContentPath(
@@ -116,7 +115,7 @@ export function TourProgress({
       >
         <StepperStep
           label={t('Start')}
-          description={entranceLabel ?? undefined}
+          description={entranceLabel}
           icon={<DoorOpen size={14} aria-hidden />}
         />
         {contents.map((content, index) => (
@@ -140,20 +139,13 @@ export function TourProgress({
             }
           />
         ))}
-        {hasQuiz ? (
-          <StepperStep
-            label={t('Quiz')}
-            icon={<ListChecks size={14} aria-hidden />}
-            ref={step === contents.length ? activeStep : undefined}
-          />
-        ) : (
-          <StepperStep
-            label={t('End')}
-            icon={<Flag size={14} aria-hidden />}
-            allowStepSelect={false}
-            ref={step === contents.length ? activeStep : undefined}
-          />
-        )}
+        {/* The quiz when the tour has one (selectable), else "End". */}
+        <StepperStep
+          label={hasQuiz ? t('Quiz') : t('End')}
+          icon={hasQuiz ? <ListChecks size={14} aria-hidden /> : <Flag size={14} aria-hidden />}
+          allowStepSelect={hasQuiz}
+          ref={step === contents.length ? activeStep : undefined}
+        />
       </Stepper>
     </Scroller>
   )

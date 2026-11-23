@@ -1,10 +1,7 @@
 import type { PlacedObject } from '@/lib/museum-rooms'
-import {
-  collectMuseumMarkers,
-  placedEntrances,
-  type ExitEntranceMarker,
-} from '@/lib/pascal/museum-plugin/markers-in-map'
-import { routeStart } from '@/lib/route-start'
+import { ExitEntranceNode } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
+import { placedEntrances, type ExitEntranceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
+import { nearestEntrance } from '@/lib/route-start'
 
 /**
  * The entrance a tour starts from (docs/tour-navigation.md → Tour entrance),
@@ -15,7 +12,7 @@ import { routeStart } from '@/lib/route-start'
  * longer a placed entrance of the map (staff moved or removed the marker), it
  * is the placed entrance nearest the tour's first stop (with no first stop on
  * the map, the first entrance), which is what a tour without the field always
- * did. "Nearest" is `routeStart`'s own rule, over plan distances between the
+ * did. "Nearest" is `nearestEntrance`, `routeStart`'s own rule, over plan distances between the
  * markers' and works' stored positions, as the visit planner measures them
  * (`src/app/api/plan-tour/route.ts`).
  *
@@ -44,20 +41,17 @@ export function tourStartEntrance(
   }
   const first = map.objects.find((object) => object.objectId === firstObjectId)?.point
   const nearest = first
-    ? routeStart({
-        at: null,
-        workPoint: null,
-        entrances,
-        end: first,
-        distance: (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]),
-      }).start
+    ? nearestEntrance(entrances, first, (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]))
     : null
-  return entrances.find((entrance) => entrance.point === nearest)?.id ?? entrances[0]?.id ?? null
+  return nearest?.id ?? entrances[0]?.id ?? null
 }
 
-/** Whether `id` names a placed entrance of the map's nodes: what `startEntrance` may hold. */
+/**
+ * Whether `id` names a placed entrance of the map's nodes: what
+ * `startEntrance` may hold. Nodes are keyed by id, so only that one node is
+ * parsed, not the whole map.
+ */
 export function isPlacedEntrance(id: string, nodes: Record<string, unknown> | null) {
-  return placedEntrances(collectMuseumMarkers(nodes).exitEntrances).some(
-    (entrance) => entrance.id === id,
-  )
+  const node = ExitEntranceNode.safeParse(nodes?.[id])
+  return node.success && placedEntrances([node.data]).length === 1
 }

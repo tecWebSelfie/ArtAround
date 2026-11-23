@@ -88,10 +88,9 @@ type TourValues = {
  * anyway, and one the author can't change), reads and saves as automatic, so
  * the form never keeps an id the author can't see or change.
  */
-function initialStartEntrance(entrances: EntranceChoice[] = [], saved?: string | null) {
-  return entrances.length > 1 && entrances.some((entrance) => entrance.id === saved)
-    ? (saved ?? '')
-    : ''
+function initialStartEntrance(entrances: EntranceChoice[], saved?: string | null): string {
+  if (!saved || entrances.length < 2) return ''
+  return entrances.some((entrance) => entrance.id === saved) ? saved : ''
 }
 
 /**
@@ -235,7 +234,7 @@ export function TourForm({
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
   /** With its placed entrances, among which the tour's start entrance is chosen. */
-  museum: { id: string; name: string; entrances?: EntranceChoice[] }
+  museum: { id: string; name: string; entrances: EntranceChoice[] }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
   /**
@@ -391,7 +390,7 @@ export function TourForm({
           candidates={candidates}
           byId={byId}
           museumId={museum.id}
-          entrances={museum.entrances ?? []}
+          entrances={museum.entrances}
           returnTo={editorUrl}
         />
 
@@ -447,7 +446,7 @@ function useTourDraft(
   form: UseFormReturnType<TourValues>,
   editorUrl: string,
   isCandidate: (id: string) => boolean,
-  entrances: EntranceChoice[] | undefined,
+  entrances: EntranceChoice[],
 ) {
   const router = useRouter()
   const searchParams = useSearchParams()
