@@ -27,6 +27,14 @@
  * A story opts out with `parameters: { visual: { disable: true } }` when it
  * renders content that never settles even so, such as the live WebGL map, the
  * camera, or the cycling hero word.
+ *
+ * NOTE (vitest 4.0.18): a FAILED comparison reports the artifact recorder's
+ * error ("Cannot record a test artifact outside of the test run", caused by
+ * "Matcher did not succeed in time") instead of the matcher's real verdict -
+ * a missing reference or a pixel count - because this hook runs once the
+ * story test is already finalized 'pass'. The error text is not evidence:
+ * read a red run by the failing story names, or regenerate to compare. The
+ * drafted upstream report lives in docs/upstream-reports.md.
  */
 import { afterEach, expect, inject } from 'vitest'
 import { page } from 'vitest/browser'
