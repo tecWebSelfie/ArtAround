@@ -278,6 +278,10 @@ export function MuseumMap({
   }, [route, onRouteUnavailable])
 
   const shownPath = path ?? route?.path
+  // A group guest can't answer "Are you here?" (the host's position is
+  // theirs): their ghost just names the entrance.
+  let avatarLabel = t('You')
+  if (!route?.confirmed) avatarLabel = guest ? t('Entrance') : t('Are you here?')
   return (
     <MapViewer
       map={map}
@@ -299,9 +303,7 @@ export function MuseumMap({
         // the visitor is there: a "you are here" must never be ambiguous.
         <WalkingAvatar
           point={position ?? route.start}
-          // A group guest can't answer (the host's position is theirs): the
-          // ghost just names the entrance.
-          label={route.confirmed ? t('You') : guest ? t('Entrance') : t('Are you here?')}
+          label={avatarLabel}
           ghost={!route.confirmed}
         />
       )}
