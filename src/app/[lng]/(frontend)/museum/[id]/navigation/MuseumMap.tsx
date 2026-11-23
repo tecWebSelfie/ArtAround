@@ -22,6 +22,7 @@ import {
   type RefObject,
 } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
 import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
@@ -142,6 +143,7 @@ export function MuseumMap({
 }) {
   const [ready, setReady] = useState(false)
   const { t } = useTranslation('tour-navigation')
+  const guest = useIsGroupGuest()
   // The outline in the museum's own colour (its primary, DESIGN.md → The
   // Museum Primary Rule), steady rather than pulsing like the editor's hover:
   // it marks what is a work, it doesn't call for attention. Pascal adds the
@@ -297,7 +299,9 @@ export function MuseumMap({
         // the visitor is there: a "you are here" must never be ambiguous.
         <WalkingAvatar
           point={position ?? route.start}
-          label={route.confirmed ? t('You') : t('Are you here?')}
+          // A group guest can't answer (the host's position is theirs): the
+          // ghost just names the entrance.
+          label={route.confirmed ? t('You') : guest ? t('Entrance') : t('Are you here?')}
           ghost={!route.confirmed}
         />
       )}
@@ -499,7 +503,7 @@ function FrameJourney({
           top: insets.top + LABEL_GUTTER.top,
           bottom: insets.bottom,
           left: side,
-          right: side,
+          right: insets.right + side,
         },
         azimuth: controls?.azimuthAngle ?? 0,
         polar: VIEW_POLAR,
@@ -534,18 +538,22 @@ function FrameJourney({
 export type MapOverlays = {
   top?: RefObject<HTMLElement | null>
   bottom?: RefObject<HTMLElement | null>
+  /** The panel docked on the right (desktop), when one is open. */
+  right?: () => Element | null
 }
 
 /**
- * How far the overlays reach into the canvas from its top and bottom, measured at the
+ * How far the overlays reach into the canvas from its top, bottom and right, measured at the
  * moment of framing, so a wrapped title or a larger text size counts.
  */
 function overlayInsets(canvas: DOMRect, overlays: MapOverlays = {}) {
   const top = overlays.top?.current?.getBoundingClientRect()
   const bottom = overlays.bottom?.current?.getBoundingClientRect()
+  const right = overlays.right?.()?.getBoundingClientRect()
   return {
     top: top?.height ? Math.max(0, top.bottom - canvas.top) : 0,
     bottom: bottom?.height ? Math.max(0, canvas.bottom - bottom.top) : 0,
+    right: right?.width ? Math.max(0, canvas.right - right.left) : 0,
   }
 }
 

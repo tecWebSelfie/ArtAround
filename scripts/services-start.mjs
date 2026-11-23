@@ -33,7 +33,8 @@ import { existsSync, mkdirSync, openSync, readFileSync, rmSync } from 'node:fs'
 import { homedir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { parseEnv } from 'node:util'
+// dotenv's parser: node:util's parseEnv needs a newer Node than `engines` allows.
+import { parse } from 'dotenv'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const seedIfNew = process.argv.includes('--seed-if-new')
@@ -94,8 +95,12 @@ const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 // image pulls and starts overlap MongoDB's; then wait for each healthcheck
 // (a `ping` through mongosh for MongoDB, `/health` for Typesense). LiveKit
 // and Typesense stay best effort (see the header).
-// One non-blocking compose call for both, so their pulls run alongside
-// MongoDB's start instead of before it.
+// MongoDB is created first (without waiting for its healthcheck): that also
+// creates the compose project's network, which two `up` calls started at
+// once could both try to create and one would fail. Then one non-blocking
+// call for LiveKit and Typesense, whose pulls overlap MongoDB's start-up.
+log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
+run('docker', ['compose', 'up', '--detach', 'mongodb'], { stdio: 'inherit' })
 const optional = new Promise((resolve) => {
   spawn('docker', ['compose', 'up', '--detach', 'livekit', 'typesense'], {
     cwd: root,
@@ -104,7 +109,6 @@ const optional = new Promise((resolve) => {
     .on('exit', (code) => resolve(code === 0))
     .on('error', () => resolve(false))
 })
-log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
 // `up` of several services fails as a whole when one fails: each is then
 // still waited for on its own below, and only the one that is down warns.
@@ -124,7 +128,7 @@ try {
   const configured = ['.env', '.env.local']
     .map((file) => path.join(root, file))
     .filter((file) => existsSync(file))
-    .some((file) => Boolean(parseEnv(readFileSync(file, 'utf8')).TYPESENSE_HOST))
+    .some((file) => Boolean(parse(readFileSync(file, 'utf8')).TYPESENSE_HOST))
   if (!process.env.TYPESENSE_HOST && !configured) {
     console.warn('No TYPESENSE_HOST in .env: copy the Typesense block of .env.example to use it.')
   }

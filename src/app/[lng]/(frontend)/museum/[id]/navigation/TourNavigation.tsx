@@ -52,6 +52,9 @@ import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
+/** Mantine's `md`, where contextual modals dock as a side panel (navigation-desktop.module.css). */
+const DOCKED_PANEL_FROM = '62em'
+
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
   { kind: 'tour'; tour: Tour; step: number } | { kind: 'free'; museumId: string }
@@ -135,15 +138,28 @@ export const TourNavigationPage = ({
   // The UI over the map, which the camera keeps the journey clear of.
   const header = useRef<HTMLElement>(null)
   const controlsRow = useRef<HTMLDivElement>(null)
-  const overlays = useMemo(() => ({ top: header, bottom: controlsRow }), [])
+  const overlays = useMemo(
+    () => ({
+      top: header,
+      bottom: controlsRow,
+      // From md a work, content or stop opens as a panel docked on the right
+      // (NavigationModal), over the map; below md it is a full dialog.
+      right: () =>
+        window.matchMedia(`(min-width: ${DOCKED_PANEL_FROM})`).matches
+          ? document.querySelector(`.${classes.panelInner} > *`)
+          : null,
+    }),
+    [],
+  )
   const measuredHeaderRef = useMergedRef(headerRef, header)
 
   // The map's label over the destination flag: the next stop with its number
   // (the stepper's), else whatever the visitor chose.
+  const flagName = useDestinationName(destination, catalog, markers, { standalone: true })
   const destinationLabel =
     tour && destination?.kind === 'object' && destination.id === defaultDestination && !complete
-      ? t('Stop {{number}} · {{name}}', { number: step + 1, name: destinationName })
-      : destinationName
+      ? t('Stop {{number}} · {{name}}', { number: step + 1, name: flagName })
+      : flagName
   const { tourContentIds, tourObjectIds } = useTourIds(tour?.contents, catalog)
   const { commands, run, runId, nearbyCommands, setNavigation } = useTourCommands({
     museum,

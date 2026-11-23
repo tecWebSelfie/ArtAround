@@ -81,7 +81,11 @@ export function accessibilityContext(museum: Museum) {
   ].join(' ')
 }
 
-/** Human name of the current destination, for directions and their title. */
+/**
+ * Human name of the current destination, for directions and their title.
+ * Unnamed ones fall back to words that sit inside a sentence ("the exit"),
+ * or, `standalone`, to a name that stands alone (the map's flag label: "Exit").
+ */
 export function useDestinationName(
   destination: NavigationDestination | null,
   catalog: NavigationCatalogObject[],
@@ -89,19 +93,26 @@ export function useDestinationName(
     services,
     exitEntrances: exits,
   }: { services: ServiceMarker[]; exitEntrances: ExitEntranceMarker[] },
+  { standalone = false }: { standalone?: boolean } = {},
 ) {
   const { t } = useTranslation('tour-navigation')
   if (!destination) return ''
   if (destination.kind === 'object') {
-    return catalog.find((object) => object.id === destination.id)?.name ?? t('your destination')
+    return (
+      catalog.find((object) => object.id === destination.id)?.name ??
+      (standalone ? t('Artwork') : t('your destination'))
+    )
   }
   if (destination.kind === 'exit') {
-    return exits.find((node) => node.id === destination.target)?.name ?? t('the exit')
+    return (
+      exits.find((node) => node.id === destination.target)?.name ??
+      (standalone ? t('Exit') : t('the exit'))
+    )
   }
   const service = services.find(
     (node) => node.id === destination.target || node.service === destination.target,
   )
-  return service?.name ?? t('the service')
+  return service?.name ?? (standalone ? t('Service') : t('the service'))
 }
 
 /**

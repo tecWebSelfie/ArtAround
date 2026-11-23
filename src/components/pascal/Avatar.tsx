@@ -6,7 +6,7 @@ import { useAnimations, useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { deltaAngle } from 'maath/misc'
-import { memo, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Vector3, type Group, type Material, type Mesh } from 'three'
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
 
@@ -87,8 +87,9 @@ export const Avatar = memo(function Avatar({
   const model = useMemo(() => cloneSkinned(scene), [scene])
   // The clone shares the cached materials: a ghost swaps in faded copies
   // (shared by every ghost, see `fadedCopy`) and back, keeping the skeleton
-  // and its animation running instead of building a new model.
-  useEffect(() => {
+  // and its animation running instead of building a new model. A layout
+  // effect: swapped before the frame is drawn, a guess never flashes solid.
+  useLayoutEffect(() => {
     model.traverse((object) => {
       const mesh = object as Mesh
       if (!mesh.isMesh) return

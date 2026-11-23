@@ -9,8 +9,8 @@ import type { SearchDocument } from '@/lib/search/types'
  *
  * Each run writes to its own throwaway collection, never the app's: the
  * collection name is read when the client module loads, so it is set first.
- * Without a configured node the spec fails instead of skipping: a skipped
- * search spec is not a pass (AGENTS.md).
+ * Without a configured local node the spec fails instead of skipping: a
+ * skipped search spec is not a pass (AGENTS.md); it refuses any other host.
  */
 const collection = `artaround_spec_${process.pid}_${Date.now()}`
 const appCollection = process.env.TYPESENSE_COLLECTION
@@ -53,6 +53,13 @@ beforeAll(async () => {
   if (!isTypesenseConfigured()) {
     throw new Error(
       'Typesense is not configured: run `pnpm services:start` and set TYPESENSE_* (.env.example).',
+    )
+  }
+  // Collections are created and dropped with the admin key: only ever on
+  // the local node, never on a Cloud cluster a developer's .env may name.
+  if (!['127.0.0.1', 'localhost', '::1'].includes(process.env.TYPESENSE_HOST ?? '')) {
+    throw new Error(
+      `TYPESENSE_HOST is ${process.env.TYPESENSE_HOST}: this spec runs only on the local node (127.0.0.1).`,
     )
   }
   await ensureSearchCollection()
