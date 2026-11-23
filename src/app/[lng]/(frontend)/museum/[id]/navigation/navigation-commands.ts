@@ -248,7 +248,7 @@ function navigationFocus({
   const previous = step > 0 ? tour?.contents[step - 1] : undefined
   const previousId = previous && extractID(previous)
   const openContentId =
-    /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (/\/open$/.test(pathname) ? nextId : null)
+    /\/content\/([^/]+)$/.exec(pathname)?.[1] ?? (pathname.endsWith('/open') ? nextId : null)
   const openObject = catalog.find(
     (object) => object.id === /\/object\/([^/]+)$/.exec(pathname)?.[1],
   )
