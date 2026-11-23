@@ -8,6 +8,12 @@
  * cloud session, so there is no second MongoDB installation to keep in step.
  * Idempotent: an already running database is left as it is.
  *
+ * It also starts the local Typesense node (`typesense`, development key
+ * `xyz`, loopback only), which the search pages, Payload's indexing hooks and
+ * the integration specs reach through the TYPESENSE_* variables of
+ * .env.example (deployments point them at Typesense Cloud). If it can't
+ * start, the script warns and goes on: search then reads as unavailable.
+ *
  * It then starts the local LiveKit server too (`livekit`, included from
  * my-agent/compose.livekit.yaml, `--dev` keys `devkey`/`secret`): group tours
  * and their e2e spec need a real one, and a cloud container restart stops it
@@ -83,20 +89,34 @@ const config = JSON.parse(run('docker', ['compose', 'config', '--format', 'json'
 const volume = config.volumes['mongo-data'].name
 const isNew = !succeeds('docker', ['volume', 'inspect', volume])
 
-// 3. Start both, LiveKit first without waiting, so its image pull and start
-// overlap MongoDB's; then wait for each healthcheck (a `ping` through
-// mongosh for MongoDB). LiveKit stays best effort (see the header).
-let livekitStarted = true
-try {
-  run('docker', ['compose', 'up', '--detach', 'livekit'], { stdio: 'inherit' })
-} catch {
-  livekitStarted = false
+// 3. Start them all, LiveKit and Typesense first without waiting, so their
+// image pulls and starts overlap MongoDB's; then wait for each healthcheck
+// (a `ping` through mongosh for MongoDB, `/health` for Typesense). LiveKit
+// and Typesense stay best effort (see the header).
+const startDetached = (service) => {
+  try {
+    run('docker', ['compose', 'up', '--detach', service], { stdio: 'inherit' })
+    return true
+  } catch {
+    return false
+  }
 }
+const livekitStarted = startDetached('livekit')
+const typesenseStarted = startDetached('typesense')
 log(isNew ? 'Creating the MongoDB volume and starting MongoDB…' : 'Starting MongoDB…')
 run('docker', ['compose', 'up', '--detach', '--wait', 'mongodb'], { stdio: 'inherit' })
 log('MongoDB is ready on mongodb://127.0.0.1:27017.')
 
-// 4. LiveKit for group tours.
+// 4. Typesense for search.
+try {
+  if (!typesenseStarted) throw new Error('not started')
+  run('docker', ['compose', 'up', '--detach', '--wait', 'typesense'], { stdio: 'inherit' })
+  log('Typesense is ready on http://127.0.0.1:8108 (run `pnpm search:reindex` to fill it).')
+} catch {
+  console.warn('Typesense did not start: search will read as unavailable.')
+}
+
+// 5. LiveKit for group tours.
 try {
   if (!livekitStarted) throw new Error('not started')
   run('docker', ['compose', 'up', '--detach', '--wait', 'livekit'], { stdio: 'inherit' })

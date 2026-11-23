@@ -1,0 +1,89 @@
+import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import type { SearchDocument } from '@/lib/search/types'
+
+/**
+ * The search against a real Typesense node: the compose `typesense` of
+ * `pnpm services:start` (TYPESENSE_* from .env / tests.yml, docs/search.md).
+ * It checks what a mock cannot: the schema the app creates is accepted, and
+ * the query `searchItems()` sends (infix fallback, typos, filters) runs on it.
+ *
+ * Each run writes to its own throwaway collection, never the app's: the
+ * collection name is read when the client module loads, so it is set first.
+ * Without a configured node the spec fails instead of skipping: a skipped
+ * search spec is not a pass (AGENTS.md).
+ */
+const collection = `artaround_spec_${process.pid}_${Date.now()}`
+process.env.TYPESENSE_COLLECTION = collection
+
+const { isTypesenseConfigured, typesense } = await import('@/lib/search/client')
+const { ensureSearchCollection, dropSearchCollection } = await import('@/lib/search/schema')
+const { searchItems } = await import('@/lib/search/query')
+
+const documents: SearchDocument[] = [
+  {
+    id: 'object_1',
+    source_id: '1',
+    kind: 'object',
+    title: 'Ecstasy of Saint Teresa',
+    artist: 'Gian Lorenzo Bernini',
+    excerpt: 'Marble group by Bernini',
+    priority: 2,
+  },
+  {
+    id: 'tour_1',
+    source_id: '2',
+    kind: 'tour',
+    title: 'Baroque Rome',
+    excerpt: 'From Bernini to Borromini',
+    price_cents: 500,
+    priority: 3,
+  },
+  {
+    id: 'content_1',
+    source_id: '3',
+    kind: 'content',
+    title: 'Giotto signs his name',
+    excerpt: 'A polyptych and its signature',
+    priority: 1,
+  },
+]
+
+beforeAll(async () => {
+  expect(
+    isTypesenseConfigured(),
+    'Typesense is not configured: run `pnpm services:start` and set TYPESENSE_* (.env.example).',
+  ).toBe(true)
+  await ensureSearchCollection()
+  await typesense()
+    .collections<SearchDocument>(collection)
+    .documents()
+    .import(documents, { action: 'upsert' })
+})
+
+afterAll(async () => {
+  if (isTypesenseConfigured()) await dropSearchCollection()
+})
+
+describe('search on the local Typesense node', () => {
+  it('finds a work by its title', async () => {
+    const { hits } = await searchItems({ q: 'saint teresa', kinds: [] })
+    expect(hits.map((hit) => hit.searchId)).toContain('object_1')
+  })
+
+  it('tolerates a typo', async () => {
+    const { hits } = await searchItems({ q: 'giotoo', kinds: [] })
+    expect(hits.map((hit) => hit.searchId)).toContain('content_1')
+  })
+
+  it('narrows to the requested kinds and price', async () => {
+    const tours = await searchItems({ q: 'bernini', kinds: ['tour'] })
+    expect(tours.hits.map((hit) => hit.searchId)).toEqual(['tour_1'])
+    const free = await searchItems({ q: 'bernini', kinds: [], price: 'free' })
+    expect(free.hits.map((hit) => hit.searchId)).not.toContain('tour_1')
+  })
+
+  it('browses everything with an empty query', async () => {
+    const { total } = await searchItems({ q: '', kinds: [] })
+    expect(total).toBe(documents.length)
+  })
+})

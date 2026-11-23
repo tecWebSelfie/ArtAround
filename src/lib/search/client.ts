@@ -1,14 +1,16 @@
 import { Client } from 'typesense'
 
 /**
- * The one Typesense client (Typesense Cloud in every environment).
+ * The one Typesense client: Typesense Cloud in deployments, the compose
+ * `typesense` node of `pnpm services:start` locally and in CI, both named by
+ * the same TYPESENSE_* variables (.env.example).
  *
  * Every read and write goes through the Next server (server components, route
  * handlers, Payload hooks): the browser never talks to Typesense and no key is
  * ever exposed with a `NEXT_PUBLIC_` prefix. `TYPESENSE_API_KEY` is the admin
  * key of the cluster.
  *
- * There is no local fallback service: without `TYPESENSE_HOST` and
+ * There is no fallback in code: without `TYPESENSE_HOST` and
  * `TYPESENSE_API_KEY` the search is reported as unavailable instead of quietly
  * querying a Docker container. Reads then surface an error and writes are
  * skipped (a Payload save must still succeed without search).
