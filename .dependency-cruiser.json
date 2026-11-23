@@ -1,0 +1,14 @@
+{
+  "forbidden": [
+    {
+      "name": "no-typesense-in-the-browser",
+      "comment": "The Typesense admin key lives in src/lib/search/client.ts, and the browser must never reach it, not even transitively: client components and stories ask the Next server instead (SSR search pages, /api/navigator-search, Payload hooks - docs/search.md). src/app is not in the from-set on purpose: it mixes server components that legitimately import the search modules with client ones, so a static rule there would be all noise; UI code lives in src/components.",
+      "severity": "error",
+      "from": { "path": "^src/(components|stories)/" },
+      "to": { "path": "^src/lib/search/client\\.ts$", "reachable": true }
+    }
+  ],
+  "options": {
+    "doNotFollow": ["^node_modules"]
+  }
+}

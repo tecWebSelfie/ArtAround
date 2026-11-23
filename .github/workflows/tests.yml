@@ -3,8 +3,9 @@
 #   `pnpm start`, the nightly QA regression specs and the Playwright e2e suite;
 # - `stories`: every Storybook story as a test in Chromium (render, play
 #   function, accessibility checks);
-# - `static`: typecheck, type-aware lint and the i18next key check, the
-#   whole-program checks, run here so no one has to run them by hand (the
+# - `static`: typecheck, type-aware lint, the dependency-boundary and
+#   naming checks, and the i18next key check - the whole-program checks,
+#   run here so no one has to run them by hand (the
 #   hooks cover less: pre-commit lints only the staged files, pre-push
 #   only typechecks).
 # Integration specs and stories run with V8 coverage: the same tests, which
@@ -194,6 +195,10 @@ jobs:
       # Also generates the route types the lint below reads.
       - run: pnpm typecheck
       - run: pnpm lint:type-aware
+      # Static guards, a few seconds each (docs/development.md): the
+      # browser/Typesense boundary and the file naming conventions.
+      - run: pnpm lint:deps
+      - run: pnpm lint:names
       # Fails when a `t()` call's key is missing from (or stale in) en.json.
       - run: pnpm exec i18next-cli extract --ci
 

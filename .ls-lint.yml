@@ -1,0 +1,50 @@
+# Naming conventions as they exist in the tree today (this file codifies
+# them, it does not invent new ones - a name outside these patterns is a
+# mistake, not a style opinion to migrate):
+# - components/pages (.tsx) are PascalCase, Next.js reserved files
+#   (page/layout/route/...) and the ui/ helpers are kebab-case;
+# - library/spec/script files (.ts) are kebab-case, with camelCase hooks
+#   and a few historical lib files, kept as an accepted variant;
+# - directories are kebab-case; the @-prefixed TypeScript namespace dirs
+#   (src/@types, the generated mint/client/@tanstack) and Next.js route
+#   segments and groups ([id], (frontend), @slot, catch-alls, __mocks__)
+#   are allowed under src.
+ls:
+  .tsx: PascalCase | kebab-case
+  .ts: kebab-case | camelCase
+  .mjs: kebab-case
+  .css: kebab-case | regex:^(globals|layout)$
+  src:
+    .dir: kebab-case | regex:^@.*$
+    app:
+      .dir: kebab-case | regex:^(@|\[|\(|__).*
+    hooks:
+      .ts: kebab-case | camelCase
+    components:
+      .dir: kebab-case
+      ui:
+        .tsx: kebab-case
+  scripts:
+    .ts: kebab-case
+    .mjs: kebab-case
+  tests:
+    .ts: kebab-case | camelCase | regex:^[a-z0-9]+(?:[-.][a-z0-9]+)*$
+    .tsx: kebab-case
+# Build output and vendored/generated trees: no naming rules apply there.
+ignore:
+  - node_modules
+  # my-agent has its own node_modules; the plain pattern above only
+  # matches the root one.
+  - my-agent/node_modules
+  # Nested worktree copies of past sessions (see docs/development.md).
+  - .claude
+  - .next
+  - coverage
+  - storybook-static
+  - playwright-report
+  - blob-report
+  - test-results
+  - .e2e-fixtures
+  - .vitest-attachments
+  - .playwright-cli
+  - .playwright-mcp

@@ -61,7 +61,8 @@ workflows for UI work.
   `test:stories --coverage`. These are the full suites: an agent leaves
   them to the pull request's CI instead of running them locally, and runs
   one locally only to reproduce a failure. A third job runs `pnpm typecheck`,
-  `pnpm lint:type-aware` and `i18next-cli extract --ci`. The visual tests run
+  `pnpm lint:type-aware`, `pnpm lint:deps`, `pnpm lint:names` and
+  `i18next-cli extract --ci`. The visual tests run
   in their own lane instead ([Visual regression tests](#visual-regression-tests)):
   `.github/workflows/visual.yml`, nightly and on demand, never per PR. It runs
   on GitHub's runners and
@@ -231,6 +232,28 @@ src/payload-types.ts` before committing.
   plan, never commit blockers. CI runs it on every pull request. It
   also type-checks a wider file set than `tsc`, so `pnpm typecheck` stays
   the only type check: don't add `--type-check`.
+- `pnpm lint:deps`: dependency-cruiser (`.dependency-cruiser.json`, pinned
+  exactly; ~4 s, src + scripts, node_modules not followed) with one
+  forbidden rule — the browser/Typesense boundary: nothing under
+  `src/components` or `src/stories` may reach
+  `src/lib/search/client.ts`, not even transitively (`reachable`). That
+  module holds the admin key and is deliberately not `server-only`
+  (the reindex script and the Payload hooks import it outside Next's
+  React tree, its header comment says so), so the documented rule —
+  the browser never holds a key ([Search](search.md)) — is what CI
+  enforces statically. `src/app` stays out of the from-set on purpose:
+  it mixes server components that legitimately import the search
+  modules with client ones, so a static rule there would be all noise;
+  UI code lives in `src/components`. Today it finds nothing: it exists
+  so a careless import fails the CI instead of shipping the key.
+- `pnpm lint:names`: ls-lint (`.ls-lint.yml`; <1 s), the file and
+  directory naming conventions as they exist today — PascalCase
+  components and pages, kebab-case files and directories with
+  camelCase hooks as an accepted variant, Next.js route segments and
+  groups and the @-prefixed TypeScript dirs allowed. It codifies what
+  is there: a violation is a name outside the conventions, not a
+  migration to a new style. Build output, node_modules (my-agent's
+  own included) and the nested `.claude` worktree copies are ignored.
 
 ## Exact pins
 
@@ -261,7 +284,7 @@ src/payload-types.ts` before committing.
 
 Measured on the Windows PC over `src` (473 TS/TSX files): `pnpm lint` ~3 s,
 `prettier --check` ~8 s (0.3 s on a few files, as in a commit),
-`pnpm typecheck` ~8–28 s. `npx` adds ~9 s to every start: run tools from
+`pnpm typecheck` ~8–28 s, `pnpm lint:deps` ~4 s, `pnpm lint:names` ~1 s. `npx` adds ~9 s to every start: run tools from
 `node_modules/.bin` or `pnpm exec`. The lint ignores generated output and
 `.claude/**` (nested worktrees with their own copy of the project).
 
