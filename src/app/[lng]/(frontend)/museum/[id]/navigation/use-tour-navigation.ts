@@ -379,10 +379,13 @@ export function useGuidance({
     anchorScope: positionScope,
     navMesh,
   })
-  // Nearby suggestions follow the GPS estimate, or else the confirmed start.
+  // Nearby suggestions follow the GPS estimate, or else the confirmed start
+  // (never an entrance only guessed to preview the route).
   const here =
     guidance.estimate ??
-    (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
+    (route?.start && route.confirmed
+      ? ([route.start[0], route.start[2]] as [number, number])
+      : null)
   return { settings, gps, compass, positionScope, guidance, here }
 }
 
@@ -398,11 +401,14 @@ export function useNamedEntrances(exitEntrances: ExitEntranceMarker[]) {
   const { t } = useTranslation('tour-navigation')
   return useMemo<PromptEntrance[]>(() => {
     const placed = placedEntrances(exitEntrances)
-    return placed.map((node, index) => ({
+    // Only nameless entrances are numbered, among themselves: no gaps.
+    const nameless = placed.filter((node) => !node.name).length
+    let number = 0
+    return placed.map((node) => ({
       id: node.id,
       name:
         node.name ||
-        (placed.length > 1 ? t('Entrance {{number}}', { number: index + 1 }) : t('Entrance')),
+        (nameless > 1 ? t('Entrance {{number}}', { number: ++number }) : t('Entrance')),
     }))
   }, [exitEntrances, t])
 }

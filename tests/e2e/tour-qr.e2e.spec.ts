@@ -3,6 +3,12 @@ import { showQrToCamera } from '../helpers/qr-camera'
 import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
+/**
+ * The scanner's button: the map's shutter, or, while "Where are you?" is
+ * opened (no confirmed position yet), the prompt's own, which replaces it.
+ */
+const SCAN_BUTTON = /^Scan a (QR code|work's QR code)$/
+
 const expect = baseExpect.configure({ timeout: 30_000 })
 
 // The seeded tour's first step (tests/helpers/tour-fixture.ts): run
@@ -49,9 +55,7 @@ for (const target of ['object', 'content'] as const) {
     // page (`/[lng]/scan?from=…`) is reached. The wait allows its first
     // compile on `next dev`; once there, the map's button is gone.
     await expect(async () => {
-      await page
-        .getByRole('button', { name: 'Scan a QR code', exact: true })
-        .click({ timeout: 10_000 })
+      await page.getByRole('button', { name: SCAN_BUTTON }).click({ timeout: 10_000 })
       await expect(page).toHaveURL(/\/scan\?from=/, { timeout: 20_000 })
     }).toPass({ timeout: 90_000 })
     await expect
@@ -92,9 +96,7 @@ test('closing the scan page returns to the tour as it was', async ({ page }) => 
   await page.goto(base.toString(), { waitUntil: 'domcontentloaded' })
   await expect(page.getByRole('main').locator('canvas')).toBeVisible({ timeout: 60_000 })
   await expect(async () => {
-    await page
-      .getByRole('button', { name: 'Scan a QR code', exact: true })
-      .click({ timeout: 10_000 })
+    await page.getByRole('button', { name: SCAN_BUTTON }).click({ timeout: 10_000 })
     await expect(page).toHaveURL(/\/scan\?from=/, { timeout: 20_000 })
   }).toPass({ timeout: 90_000 })
   await page.getByRole('button', { name: 'Close the scanner', exact: true }).click()

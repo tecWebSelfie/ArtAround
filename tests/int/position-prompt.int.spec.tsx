@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import '@/mocks/i18n'
 import { ExitEntranceNode } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
 import {
   useNamedEntrances,
@@ -9,8 +10,8 @@ import {
 
 /**
  * "Where are you?" (`usePositionPrompt`, `useNamedEntrances`): which
- * entrances it offers and how it remembers being folded. Without an i18next
- * instance `t` returns the key, which is enough to see the numbering.
+ * entrances it offers, what it calls them, and how it remembers being
+ * folded (`@/mocks/i18n`: the English strings, interpolated).
  */
 afterEach(() => {
   cleanup()
@@ -33,16 +34,18 @@ describe('useNamedEntrances', () => {
     expect(result.current[0].id).toBe(markers[0].id)
   })
 
-  it('numbers nameless entrances only when there are several', () => {
+  // Regression: nameless entrances were numbered by their place among all
+  // entrances, so a named one in between left a gap ("Entrance 1", "Entrance 3").
+  it('numbers nameless entrances among themselves, only when there are several', () => {
     const one = renderHook(() => useNamedEntrances([entrance({})]))
     expect(one.result.current.map(({ name }) => name)).toEqual(['Entrance'])
     const several = renderHook(() =>
       useNamedEntrances([entrance({}), entrance({ name: 'Garden' }), entrance({})]),
     )
     expect(several.result.current.map(({ name }) => name)).toEqual([
-      'Entrance {{number}}',
+      'Entrance 1',
       'Garden',
-      'Entrance {{number}}',
+      'Entrance 2',
     ])
   })
 })

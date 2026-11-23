@@ -45,6 +45,8 @@ const GHOST_OPACITY = 0.4
  * useGLTF), so fading never builds a new GPU pipeline per avatar.
  */
 const fadedCopies = new WeakMap<Material, Material>()
+/** Each avatar mesh's own material, to swap back when the ghost is confirmed. */
+const solidMaterials = new WeakMap<Mesh, Mesh['material']>()
 function fadedCopy(material: Material) {
   let copy = fadedCopies.get(material)
   if (!copy) {
@@ -90,7 +92,8 @@ export const Avatar = memo(function Avatar({
     model.traverse((object) => {
       const mesh = object as Mesh
       if (!mesh.isMesh) return
-      const original = (mesh.userData.solidMaterial ??= mesh.material) as Mesh['material']
+      let original = solidMaterials.get(mesh)
+      if (!original) solidMaterials.set(mesh, (original = mesh.material))
       mesh.material = !ghost
         ? original
         : Array.isArray(original)

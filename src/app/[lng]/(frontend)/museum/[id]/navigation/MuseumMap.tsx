@@ -29,7 +29,6 @@ import { Box3, Color, Vector3, type Object3D, type PerspectiveCamera } from 'thr
 import { journeyView } from '@/lib/pascal/journey-view'
 import { routeStart } from '@/lib/route-start'
 import { useMantineTheme } from '@mantine/core'
-import { useReducedMotion } from '@mantine/hooks'
 import { useViewer } from '@pascal-app/viewer'
 import { usePathname } from 'next/navigation'
 
@@ -450,7 +449,6 @@ function FrameJourney({
   route: { start: Vec3 | null; end: Vec3 | null; path: Vec3[] | null }
   overlays?: MapOverlays
 }) {
-  const reducedMotion = useReducedMotion()
   const controls = useThree((state) => state.controls) as CameraControlsImpl | null
   const camera = useThree((state) => state.camera) as PerspectiveCamera
   const canvas = useThree((state) => state.gl.domElement)
@@ -498,8 +496,11 @@ function FrameJourney({
       minDistance: MIN_VIEW_DISTANCE,
     })
     if (!view) return
-    void controls.setLookAt(...view.position, ...view.target, !reducedMotion)
-  }, [controls, camera, canvas, route, overlays, width, height, reducedMotion])
+    // Read now, not through a hook whose first value is a default: the very
+    // first framing must already respect the setting.
+    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    void controls.setLookAt(...view.position, ...view.target, smooth)
+  }, [controls, camera, canvas, route, overlays, width, height])
   return null
 }
 

@@ -101,6 +101,11 @@ export const TourNavigationPage = ({
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
   // A work's id, or an entrance's node id when the visitor said they stand there.
   const currentObjectId = search.get('at')
+  // Positioned once the map resolved `at` to a work or an entrance on it (an
+  // `at` naming nothing there, e.g. an entrance since removed, is no
+  // position: the map shows a guess, so the strip asks again). Without a
+  // resolved route yet (or a museum with no map) the URL is all there is.
+  const positioned = route ? route.confirmed : Boolean(currentObjectId)
   // The map resolves which entrance the route starts from (confirmed, or
   // previewed before the visitor says where they are; it owns the navmesh):
   // it leads the progress bar, named as in "Where are you?". A work as the
@@ -164,11 +169,10 @@ export const TourNavigationPage = ({
   })
   const status = directionsStatus({
     complete,
-    positioned: Boolean(currentObjectId),
+    positioned,
     // Only while there is no way back to give: once the visitor walks
     // away, directions lead them back to it.
-    atDestination:
-      Boolean(currentObjectId) && currentObjectId === nextObjectId && guidance.steps.length === 0,
+    atDestination: positioned && currentObjectId === nextObjectId && guidance.steps.length === 0,
     routeUnavailable,
     hasDestination: Boolean(destination),
     hasSteps: guidance.steps.length > 0,
@@ -180,7 +184,7 @@ export const TourNavigationPage = ({
   // GPS notices about the works around. A guessed entrance is never treated
   // as the visitor's position; group guests keep following the host,
   // including `at`.
-  const proximity = !guest && currentObjectId && settings.gpsMode !== 'off' && (
+  const proximity = !guest && positioned && currentObjectId && settings.gpsMode !== 'off' && (
     <NavigationProximity
       point={guidance.estimate}
       heading={compass.heading}
@@ -283,7 +287,7 @@ export const TourNavigationPage = ({
         action={
           tour && complete && hasQuiz(tour) && !guest && <QuizAction tour={tour} step={step} />
         }
-        voiceGuidance={settings.voiceGuidance && Boolean(currentObjectId)}
+        voiceGuidance={settings.voiceGuidance && positioned}
         positionPrompt={positionPrompt}
       />
     </>

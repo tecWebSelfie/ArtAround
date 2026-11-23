@@ -11,6 +11,12 @@ import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 /**
+ * The scanner's button: the map's shutter, or, while "Where are you?" is
+ * opened (no confirmed position yet), the prompt's own, which replaces it.
+ */
+const SCAN_BUTTON = /^Scan a (QR code|work's QR code)$/
+
+/**
  * Group tours with two real browsers, a host and a guest, on the real Next
  * app and a real LiveKit server (`pnpm services:start` starts the local one; the
  * group tests fail at once without it, see tests/helpers/livekit.ts):
@@ -436,9 +442,7 @@ test('the host scans a work and the guest follows into it', async ({ browser }) 
 
   // The host scans: the scan page is the host's alone…
   await expect(async () => {
-    await host
-      .getByRole('button', { name: 'Scan a QR code', exact: true })
-      .click({ timeout: 10_000 })
+    await host.getByRole('button', { name: SCAN_BUTTON }).click({ timeout: 10_000 })
     await expect(host).toHaveURL(/\/scan\?from=|\/object\//, { timeout: 20_000 })
   }).toPass({ timeout: 90_000 })
   // …then the work opens over the tour for both, the position unchanged.

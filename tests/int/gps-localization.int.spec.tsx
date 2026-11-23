@@ -157,3 +157,26 @@ describe('pinned at the destination itself', () => {
     expect(result.current.path?.at(-1)?.[0]).toBeCloseTo(here[0], 0)
   })
 })
+
+describe('a start only guessed to preview the route', () => {
+  const { navMesh } = createRouteMuseum('/models/route.glb')
+  const rooms = { rooms: [], doors: [], objects: [] }
+  const fix = { latitude: 45, longitude: 9, accuracy: 4 }
+  const entrance = snapToNavMesh(navMesh, [1, 2], 0)!
+  const stop = snapToNavMesh(navMesh, [10, 2], 0)!
+
+  // Regression: the GPS anchored on the entrance the map had only guessed,
+  // so the "live position" walked from where the visitor never said they were.
+  it('never anchors the GPS on it', () => {
+    const route = {
+      path: [entrance, stop],
+      start: entrance,
+      end: stop,
+      target: null,
+      confirmed: false,
+      startEntranceId: 'entrance-main',
+    }
+    const { result } = renderHook(() => useRouteGuidance({ route, rooms, fix, navMesh }))
+    expect(result.current.estimate).toBeNull()
+  })
+})
