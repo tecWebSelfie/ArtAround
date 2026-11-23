@@ -279,6 +279,27 @@ jobs:
       # by the build, excluded from the rsync below.
       - run: pnpm build
 
+      # The incident guard (23 Nov 2026): a Turbopack build can list chunk
+      # files in its HTML/manifests that it never wrote to disk, and nothing
+      # else in the pipeline compares the two — such a deploy leaves every
+      # page unhydrated ("client-side exception") and the dynamic routes
+      # erroring, with no red anywhere. Red here means the build is broken:
+      # ship nothing until it is green. Extract every chunk name the build
+      # itself references and require each to exist on disk.
+      - name: Every referenced chunk must exist on disk
+        run: |
+          grep -rhoE 'chunks/[A-Za-z0-9._-]+\.(js|css)' .next/standalone/.next/server \
+            | sed 's|^chunks/||' | sort -u > referenced.txt
+          miss=0
+          while read -r f; do
+            [ -e ".next/standalone/.next/static/chunks/$f" ] ||
+              [ -e ".next/standalone/.next/server/chunks/$f" ] ||
+              { echo "MISSING: $f"; miss=$((miss+1)); }
+          done < referenced.txt
+          echo "referenced chunks: $(wc -l < referenced.txt), missing: $miss"
+          test "$miss" -eq 0 ||
+            { echo "::error::The build references $miss chunk(s) it never wrote to disk — a deploy would ship pages that never hydrate (Turbopack cache/emission bug)"; exit 1; }
+
       # The manual procedure of docs/standalone-deploy.md with the runner as
       # the build folder: Linux (the pnpm symlinks come out right), outside
       # any quota. Reuses the fetch step's SSH setup.
