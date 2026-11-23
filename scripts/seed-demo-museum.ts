@@ -505,7 +505,7 @@ export async function seedDemoMuseum(payload: Payload, { onlyIfMissing = false }
 // Imported by `src/seed.ts`, the module only defines `seedDemoMuseum`.
 // Matched by name, not by `import.meta.url`: bundled into the boot's seed,
 // this module shares the bundle's URL and would otherwise run (and exit) there.
-if (/seed-demo-museum\.ts$/.test(process.argv[1] ?? '')) {
+if ((process.argv[1] ?? '').endsWith('seed-demo-museum.ts')) {
   loadEnv({ path: ['.env.local', '.env'] })
   const { default: config } = await import('../src/payload.config')
   const payload = await getPayload({ config })

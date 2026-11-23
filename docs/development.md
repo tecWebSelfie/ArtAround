@@ -209,15 +209,26 @@ src/payload-types.ts` before committing.
   config had (eslint-config-next, the React Compiler rules of
   eslint-plugin-react-hooks, eslint-plugin-storybook as a JS plugin), in a
   few seconds on the whole project. It reads `// eslint-disable-next-line`
-  comments too. Readability rules (native size, nesting and complexity
-  rules, plus `eslint-plugin-sonarjs` as a JS plugin, pinned exactly, for
-  cognitive complexity and duplicated code) are **warnings**: lint-staged
-  shows them on the files a commit touches. Simplify what they flag in the
-  code you are changing anyway; they never block a commit.
+  comments too. The `plugins` field replaces oxlint's defaults, so the
+  defaults are listed: the unicorn/oxc correctness rules (empty files,
+  useless spreads, `endsWith` over a `$`-anchored regex, ...) fail the
+  lint; `my-agent/**` is ignored (own tooling, as in the root tsconfig).
+  Spec files carry a vitest guard: focused tests are errors, conditional
+  tests warnings; the plugin's other correctness rules are off on purpose
+  (they demand churn on working tests for no bug). Readability rules
+  (native size, nesting and complexity rules, plus
+  `eslint-plugin-sonarjs` as a JS plugin, pinned exactly, for cognitive
+  complexity and duplicated code) are **warnings**: lint-staged shows them
+  on the files a commit touches. Simplify what they flag in the code you
+  are changing anyway; they never block a commit.
 - `pnpm lint:type-aware`: the same config with `--type-aware`
   (`oxlint-tsgolint`, pinned exactly; ~20 s, whole program), which adds the
   type-aware rules: unawaited promises, async callbacks where a void one is
-  expected, non-exhaustive switches. CI runs it on every pull request. It
+  expected, non-exhaustive switches, and `typescript/no-deprecated` as a
+  warning — the deprecations in actual use (the translator's `inlineMarks`
+  leaves in its next major, the AI SDK's `system`/`onFinish`/
+  `toTextStreamResponse`, tanstack's `fetchQuery`) are listed as debt to
+  plan, never commit blockers. CI runs it on every pull request. It
   also type-checks a wider file set than `tsc`, so `pnpm typecheck` stays
   the only type check: don't add `--type-check`.
 
