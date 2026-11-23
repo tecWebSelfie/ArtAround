@@ -8,6 +8,7 @@ import { validateBuildJson } from '@pascal-app/core'
 import {
   collectMuseumMarkers,
   mapNodes,
+  placedEntrances,
   type ExitEntranceMarker,
   type ServiceMarker,
 } from '@/lib/pascal/museum-plugin/markers-in-map'
@@ -389,27 +390,14 @@ export function useGuidance({
 const positionPromptStore = createSessionStore<boolean>((stored) => stored !== false)
 
 /**
- * "Where are you?" (`PositionPrompt`): the museum's placed entrances, named
- * (a nameless one gets a number when there are several), and whether the
- * prompt is opened. It opens on every museum's first visit in the tab, and a
- * visitor who folds it keeps it folded there until they open it again from
- * the strip. Absent for group guests: the host's position is theirs.
+ * The museum's placed entrances with the names visitors see: staff's name,
+ * else "Entrance" (numbered when there are several). One list for "Where are
+ * you?" and the progress bar's leading step, so both call it the same.
  */
-export function usePositionPrompt({
-  museumId,
-  exitEntrances,
-  guest,
-}: {
-  museumId: string
-  exitEntrances: ExitEntranceMarker[]
-  guest: boolean
-}) {
+export function useNamedEntrances(exitEntrances: ExitEntranceMarker[]) {
   const { t } = useTranslation('tour-navigation')
-  const key = `position-prompt:${museumId}`
-  // Opened until the stored choice is read (null before hydration).
-  const opened = positionPromptStore.useValue(key) ?? true
-  const entrances = useMemo<PromptEntrance[]>(() => {
-    const placed = exitEntrances.filter((node) => node.placed && node.direction === 'entrance')
+  return useMemo<PromptEntrance[]>(() => {
+    const placed = placedEntrances(exitEntrances)
     return placed.map((node, index) => ({
       id: node.id,
       name:
@@ -417,12 +405,37 @@ export function usePositionPrompt({
         (placed.length > 1 ? t('Entrance {{number}}', { number: index + 1 }) : t('Entrance')),
     }))
   }, [exitEntrances, t])
-  if (guest) return { entrances, prompt: undefined }
+}
+
+/**
+ * "Where are you?" (`PositionPrompt`), ready for the directions strip: the
+ * entrances, what each answer does, and whether it is opened. It opens on a
+ * museum's first visit in the tab; a visitor who folds it keeps it folded
+ * there until they open it again from the strip. Undefined for group guests:
+ * the host's position is theirs.
+ */
+export function usePositionPrompt({
+  museumId,
+  entrances,
+  guest,
+  onEntrance,
+  onScan,
+}: {
+  museumId: string
+  entrances: PromptEntrance[]
+  guest: boolean
+  onEntrance: (id: string) => void
+  onScan: () => void
+}) {
+  const key = `position-prompt:${museumId}`
+  // Opened until the stored choice is read (null before hydration).
+  const opened = positionPromptStore.useValue(key) ?? true
+  if (guest) return undefined
   return {
+    opened,
+    onOpenedChange: (next: boolean) => positionPromptStore.save(key, next),
     entrances,
-    prompt: {
-      opened,
-      onOpenedChange: (next: boolean) => positionPromptStore.save(key, next),
-    },
+    onEntrance,
+    onScan,
   }
 }

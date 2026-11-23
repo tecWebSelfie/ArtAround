@@ -35,14 +35,18 @@ export function PositionPrompt({
 }: {
   entrances: PromptEntrance[]
   onEntrance: (id: string) => void
-  /** Absent when the visitor cannot scan here (a group guest). */
-  onScan?: () => void
+  onScan: () => void
   onSearch?: () => void
   onHide: () => void
 }) {
   const { t } = useTranslation('tour-navigation')
   const titleId = useId()
   const action = NAVIGATION_COMPACT_ACTION_CLASS
+  // Answers fill the strip in as many equal columns as fit (two on a phone
+  // beside the assistant, more on a wide strip), so short and long labels
+  // line up instead of leaving a ragged row; labels wrap, targets stay 44px.
+  const answers =
+    'grid grid-cols-[repeat(auto-fit,minmax(min(100%,10rem),1fr))] gap-(--mantine-spacing-xs)'
   return (
     <Stack component="section" aria-labelledby={titleId} gap="xs" className="py-1">
       <Group gap="xs" wrap="nowrap" justify="space-between">
@@ -71,12 +75,13 @@ export function PositionPrompt({
         {t('Tell the map where you are and it shows you the way.')}
       </Text>
       {entrances.length > 0 && (
-        <Group gap="xs" role="group" aria-label={t('Entrances')}>
+        <div role="group" aria-label={t('Entrances')} className={answers}>
           {entrances.map((entrance) => (
             <Button
               key={entrance.id}
               size="sm"
               radius="xl"
+              fullWidth
               color="museum.8"
               autoContrast
               leftSection={<DoorOpen size={16} aria-hidden />}
@@ -88,24 +93,24 @@ export function PositionPrompt({
                 : entrance.name}
             </Button>
           ))}
-        </Group>
+        </div>
       )}
-      <Group gap="xs">
-        {onScan && (
-          <Button
-            size="sm"
-            radius="xl"
-            variant="default"
-            leftSection={<ScanQrCode size={16} aria-hidden />}
-            onClick={onScan}
-            className={action}
-          >
-            {t("Scan a work's QR code")}
-          </Button>
-        )}
+      <div className={answers}>
         <Button
           size="sm"
           radius="xl"
+          fullWidth
+          variant="default"
+          leftSection={<ScanQrCode size={16} aria-hidden />}
+          onClick={onScan}
+          className={action}
+        >
+          {t("Scan a work's QR code")}
+        </Button>
+        <Button
+          size="sm"
+          radius="xl"
+          fullWidth
           variant="default"
           leftSection={<Search size={16} aria-hidden />}
           onClick={onSearch}
@@ -113,7 +118,7 @@ export function PositionPrompt({
         >
           {t('Find the work in front of you')}
         </Button>
-      </Group>
+      </div>
     </Stack>
   )
 }

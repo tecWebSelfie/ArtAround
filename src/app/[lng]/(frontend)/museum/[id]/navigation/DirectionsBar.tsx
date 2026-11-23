@@ -79,10 +79,13 @@ function DirectionsLayout({
   children,
   trailingControl,
   active = false,
+  tall = false,
 }: {
   children: React.ReactNode
   trailingControl?: React.ReactNode
   active?: boolean
+  /** Several rows (the opened "Where are you?"): the assistant sits by the first. */
+  tall?: boolean
 }) {
   return (
     <div className="@container">
@@ -90,7 +93,7 @@ function DirectionsLayout({
         className={
           active
             ? 'grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 @min-[22rem]:grid-cols-[auto_minmax(0,1fr)_auto_auto]'
-            : 'flex items-center gap-2'
+            : `flex gap-2 ${tall ? 'items-start' : 'items-center'}`
         }
       >
         <div className={active ? 'contents' : 'min-w-0 flex-1'}>{children}</div>
@@ -162,7 +165,7 @@ export function DirectionsBar({
     const { opened, onOpenedChange, ...prompt } = positionPrompt
     if (opened) {
       return (
-        <DirectionsLayout trailingControl={trailingControl}>
+        <DirectionsLayout trailingControl={trailingControl} tall>
           <PositionPrompt {...prompt} onSearch={onSearch} onHide={() => onOpenedChange(false)} />
         </DirectionsLayout>
       )

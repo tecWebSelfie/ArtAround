@@ -2,7 +2,11 @@ import { toMinutes } from '@/lib/duration'
 import config from '@/payload.config'
 import { museumRooms, roomAt } from '@/lib/museum-rooms'
 import { lockedMuseumId } from '@/lib/museum-mode'
-import { collectMuseumMarkers, mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
+import {
+  collectMuseumMarkers,
+  mapNodes,
+  placedEntrances,
+} from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
 import { allowRequest } from '@/lib/rate-limit'
 import { asViewer, getSession } from '@/lib/session'
@@ -151,9 +155,7 @@ export async function POST(request: Request) {
       ? preferred
       : fitTimeBudget(candidates, answers.minutes).slice(0, 1)
     if (!fitted.length) return NextResponse.json({ error: 'budget' }, { status: 422 })
-    const entrance = collectMuseumMarkers(nodes).exitEntrances.find(
-      (marker) => marker.placed && marker.direction === 'entrance',
-    )
+    const [entrance] = placedEntrances(collectMuseumMarkers(nodes).exitEntrances)
     const order = orderStops(
       fitted.map((stop) => ({ id: stop.id, point: pointOf.get(stop.objectId) ?? null })),
       rooms,

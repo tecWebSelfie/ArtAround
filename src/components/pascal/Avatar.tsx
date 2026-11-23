@@ -40,6 +40,26 @@ const worldPosition = new Vector3()
 const GHOST_OPACITY = 0.4
 
 /**
+ * The ghost's translucent copy of each of the model's materials, made once
+ * and shared by every ghost (the model's materials are themselves cached by
+ * useGLTF), so fading never builds a new GPU pipeline per avatar.
+ */
+const fadedCopies = new WeakMap<Material, Material>()
+function fadedCopy(material: Material) {
+  let copy = fadedCopies.get(material)
+  if (!copy) {
+    copy = material.clone()
+    copy.transparent = true
+    copy.opacity = GHOST_OPACITY
+    // Without depth writes the faded body never hides its own far side in
+    // patches; the route line is drawn over it anyway.
+    copy.depthWrite = false
+    fadedCopies.set(material, copy)
+  }
+  return copy
+}
+
+/**
  * Visitor marker placed at the visitor's live position on the museum map.
  * Standing still, it keeps turning to face the camera, playing the in-place
  * Walk clip while it turns and Idle once it faces the viewer. While its
@@ -62,37 +82,22 @@ export const Avatar = memo(function Avatar({
   const { scene, animations } = useGLTF('/models/AvatarMale.glb')
   // useGLTF caches one scene per URL; a skeleton-aware clone gives this marker
   // its own bones, so its mixer never animates another instance of the model.
-  // The clone shares the cached materials, so a ghost gets its own copies
-  // before it fades them (the other instance, or the next one, stays solid).
-  const { model, faded } = useMemo(() => {
-    const clone = cloneSkinned(scene)
-    const faded: Material[] = []
-    if (ghost) {
-      clone.traverse((object) => {
-        const mesh = object as Mesh
-        if (!mesh.isMesh) return
-        const fade = (material: Material) => {
-          const copy = material.clone()
-          copy.transparent = true
-          copy.opacity = GHOST_OPACITY
-          // Without depth writes the faded body never hides its own far side
-          // in patches; the route line is drawn over it anyway.
-          copy.depthWrite = false
-          faded.push(copy)
-          return copy
-        }
-        mesh.material = Array.isArray(mesh.material) ? mesh.material.map(fade) : fade(mesh.material)
-      })
-    }
-    return { model: clone, faded }
-  }, [scene, ghost])
-  // The copies are this instance's own (the scene renders with dispose={null}).
-  useEffect(
-    () => () => {
-      for (const material of faded) material.dispose()
-    },
-    [faded],
-  )
+  const model = useMemo(() => cloneSkinned(scene), [scene])
+  // The clone shares the cached materials: a ghost swaps in faded copies
+  // (shared by every ghost, see `fadedCopy`) and back, keeping the skeleton
+  // and its animation running instead of building a new model.
+  useEffect(() => {
+    model.traverse((object) => {
+      const mesh = object as Mesh
+      if (!mesh.isMesh) return
+      const original = (mesh.userData.solidMaterial ??= mesh.material) as Mesh['material']
+      mesh.material = !ghost
+        ? original
+        : Array.isArray(original)
+          ? original.map(fadedCopy)
+          : fadedCopy(original)
+    })
+  }, [model, ghost])
   const { actions } = useAnimations(animations, model)
 
   const yaw = useRef<Group>(null)

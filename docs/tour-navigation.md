@@ -36,14 +36,16 @@ and cached build artifacts are not reliable handoff state.
   placed entrance (named by staff; "I'm at …" when there is one), "Scan a
   work's QR code" and "Find the work in front of you" (search). "Hide" folds
   it into the one-line strip, whose tap opens it again; the choice is kept per
-  tab and museum (`usePositionPrompt`). Group guests never see it: the host's
-  position is theirs.
+  tab and museum (`usePositionPrompt`). While it is opened the map's controls
+  leave out scan, search and "Where to?" (`NavigationControls`' `asking`).
+  Group guests never see it: the host's position is theirs. The start rule
+  itself is `routeStart` (`src/lib/route-start.ts`).
 - **The camera frames the journey** (`FrameJourney` in `MuseumMap.tsx`,
   geometry in `src/lib/pascal/journey-view.ts`): whenever the route changes
   (entering the museum or a tour, a new position, a new destination, advancing
   a stop) the start, the route and the destination are framed together in
-  the band of the canvas left free by the elements marked
-  `data-map-overlay` (the header, the controls' bottom row) plus a gutter
+  the band of the canvas left free by the header and the controls' bottom
+  row (refs the page passes as `overlays`) plus a gutter
   for the labels, keeping the compass direction and never closer than 20 m.
   One end alone is centred; nothing leaves the whole museum. A resized canvas
   reframes the same route only until the visitor moves the camera. The flag

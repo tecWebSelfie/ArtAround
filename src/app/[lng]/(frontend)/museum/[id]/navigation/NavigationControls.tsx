@@ -58,6 +58,11 @@ import type { useCompass } from './compass-source'
  * resuming the tour / clearing the destination, services and guidance
  * settings. Centre pills are 36px and labelled; edge tools are quiet icons,
  * labelled from md (`DockButton`); all keep 44px targets.
+ *
+ * While "Where are you?" is opened in the strip below (`asking`), it holds
+ * scan and search: the map leaves them out (and "Where to?", as a route
+ * needs a start first), so each answer is offered once and the map keeps
+ * more room. A tour's next stop stays: reading it needs no position.
  */
 export function NavigationControls({
   museum,
@@ -69,6 +74,8 @@ export function NavigationControls({
   sensors,
   proximity,
   planAvailable,
+  asking = false,
+  bottomRowRef,
 }: {
   museum: Museum
   commands: NavigationCommand[]
@@ -87,6 +94,10 @@ export function NavigationControls({
   proximity: React.ReactNode
   /** Whether the museum has a map to draw as a plan (else no 3D/2D choice). */
   planAvailable: boolean
+  /** "Where are you?" is opened in the strip, offering scan and search itself. */
+  asking?: boolean
+  /** The bottom row of controls, which the map keeps the journey clear of. */
+  bottomRowRef?: React.Ref<HTMLDivElement>
 }) {
   const { t } = useTranslation('tour-navigation')
   const command = (id: string) => commands.find((item) => item.id === id)
@@ -157,9 +168,9 @@ export function NavigationControls({
           thumbs' reach. From md the right of the map belongs to docked
           panels, so both support capsules stack on the left and the centre
           stays in the middle of the map. The grid takes no pointer events. */}
-      {/* `data-map-overlay`: the map frames the visitor's journey above this
-          row (FrameJourney in MuseumMap), so the route never hides under it. */}
-      <div data-map-overlay="bottom" className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
+      {/* `bottomRowRef`: the map frames the visitor's journey above this row
+          (FrameJourney in MuseumMap), so the route never hides under it. */}
+      <div ref={bottomRowRef} className="grid grid-cols-[1fr_auto_1fr] items-end gap-2">
         {/* A shutter over its caption-sized action: Scan is the constant
             anchor (a 52px circle, the assistant button's size, like a camera's shutter),
             the contextual action a smaller pill beneath it. On a short screen
@@ -168,7 +179,7 @@ export function NavigationControls({
           {/* Only when the visitor has the command. Group guests lack it,
               as the host leads (see guestCommands); a button that does
               nothing is worse than none. */}
-          {command('scan') && (
+          {command('scan') && !asking && (
             <Tooltip
               label={t('Scan a QR code')}
               disabled={!desktop}
@@ -207,23 +218,25 @@ export function NavigationControls({
               {lead.label}
             </Button>
           ) : (
-            <Button
-              color="museum.8"
-              autoContrast
-              radius="xl"
-              size="sm"
-              leftSection={<Search size={16} aria-hidden />}
-              aria-keyshortcuts="/ Control+K Meta+K"
-              className={pill}
-              onClick={spotlight.open}
-            >
-              {t('Where to?')}
-            </Button>
+            !asking && (
+              <Button
+                color="museum.8"
+                autoContrast
+                radius="xl"
+                size="sm"
+                leftSection={<Search size={16} aria-hidden />}
+                aria-keyshortcuts="/ Control+K Meta+K"
+                className={pill}
+                onClick={spotlight.open}
+              >
+                {t('Where to?')}
+              </Button>
+            )
           )}
         </div>
         {/* Start edge: search (when the centre isn't already search) and
             leaving the chosen destination. */}
-        {(lead || resume) && (
+        {((lead && !asking) || resume) && (
           <Paper
             radius="xl"
             shadow="md"
@@ -233,7 +246,7 @@ export function NavigationControls({
             aria-label={t('Find a work')}
             className={`${capsule} col-start-1 row-start-1 justify-self-start from-md:row-start-2`}
           >
-            {lead && (
+            {lead && !asking && (
               <Tooltip
                 disabled={!desktop}
                 events={{ hover: true, focus: true, touch: false }}

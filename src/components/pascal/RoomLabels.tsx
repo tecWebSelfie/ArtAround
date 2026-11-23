@@ -43,6 +43,32 @@ export const MAP_LABEL_CLASS =
  */
 export const MAP_LABEL_Z_RANGE: [number, number] = [10, 0]
 
+/**
+ * One label over the map at `position` (metres): text with the halo above,
+ * in the color its caller gives (`className`). Room names, the avatar's
+ * "You" and the destination's name all use it.
+ */
+export function MapLabel({
+  position,
+  className,
+  children,
+}: {
+  position: [number, number, number]
+  className: string
+  children: React.ReactNode
+}) {
+  return (
+    <Html
+      center
+      position={position}
+      zIndexRange={MAP_LABEL_Z_RANGE}
+      style={{ pointerEvents: 'none' }}
+    >
+      <span className={`${MAP_LABEL_CLASS} ${className}`}>{children}</span>
+    </Html>
+  )
+}
+
 export function RoomLabels() {
   const nodes = useScene((state) => state.nodes)
   const labels = useMemo(
@@ -58,17 +84,13 @@ export function RoomLabels() {
   )
 
   return labels.map((label) => (
-    <Html
+    // Text color on body: full contrast in both themes.
+    <MapLabel
       key={label.id}
-      center
       position={[...label.position]}
-      zIndexRange={MAP_LABEL_Z_RANGE}
-      style={{ pointerEvents: 'none' }}
+      className="tracking-wide text-(--mantine-color-text)"
     >
-      {/* Text color on body: full contrast in both themes. */}
-      <span className={`${MAP_LABEL_CLASS} tracking-wide text-(--mantine-color-text)`}>
-        {label.name}
-      </span>
-    </Html>
+      {label.name}
+    </MapLabel>
   ))
 }

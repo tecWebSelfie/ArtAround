@@ -29,6 +29,15 @@ export function collectMuseumMarkers(nodes: Record<string, unknown> | null | und
   return { services, exitEntrances }
 }
 
+/**
+ * The entrances visitors can start from: placed on the map (an unplaced
+ * marker has no position to route from). One definition for the map's route
+ * start, "Where are you?" and the visit planner.
+ */
+export function placedEntrances(markers: readonly ExitEntranceMarker[]) {
+  return markers.filter((marker) => marker.placed && marker.direction === 'entrance')
+}
+
 /** Read the `nodes` record out of a Payload `map` JSON field without trusting its shape. */
 export function mapNodes(map: unknown): Record<string, unknown> | null {
   if (!map || typeof map !== 'object') return null

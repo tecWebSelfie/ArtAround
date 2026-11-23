@@ -255,7 +255,13 @@ export const Completed: Story = {
 export const FreeNavigation: Story = {
   // Spotlight's store is global: close the search this story opens, or the
   // next story in the file starts with its dialog still on screen.
-  beforeEach: () => () => spotlight.close(),
+  beforeEach: () => {
+    // "Where are you?" opens afresh: a previous run folded it in this tab.
+    for (const key of Object.keys(window.sessionStorage)) {
+      if (key.startsWith('position-prompt:')) window.sessionStorage.removeItem(key)
+    }
+    return () => spotlight.close()
+  },
   args: {
     scope: { kind: 'free', museumId: mockMuseumFull.id },
     museum: { ...mockMuseumFull, map: null },
@@ -292,6 +298,13 @@ export const FreeNavigation: Story = {
     await expect(
       within(prompt).getByRole('button', { name: "Scan a work's QR code" }),
     ).toBeVisible()
+    // Regression: the map's controls offered scan, search and "Where to?" a
+    // second time beside the opened prompt. They step aside while it asks…
+    await expect(canvas.queryByRole('button', { name: 'Scan a QR code' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Where to?' })).toBeNull()
+    // …and come back once it is folded.
+    await userEvent.click(within(prompt).getByRole('button', { name: 'Hide' }))
+    await expect(canvas.getByRole('button', { name: 'Scan a QR code' })).toBeVisible()
     // No destination yet: the centre pill opens search (NavigationControls).
     await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
     const body = within(canvasElement.ownerDocument.body)

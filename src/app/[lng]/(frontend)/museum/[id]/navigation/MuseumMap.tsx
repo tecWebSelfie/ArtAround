@@ -3,12 +3,12 @@
 import { Avatar, AVATAR_FACE_HEIGHT } from '@/components/pascal/Avatar'
 import { useWalkTo } from '@/components/pascal/use-walk-to'
 import { MapViewer } from '@/components/pascal/MapViewer'
-import { MAP_LABEL_CLASS, MAP_LABEL_Z_RANGE, RoomLabels } from '@/components/pascal/RoomLabels'
-import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
+import { MapLabel, RoomLabels } from '@/components/pascal/RoomLabels'
+import { collectMuseumMarkers, placedEntrances } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { museumNavigationPath, objectNavigationPoint } from '@/lib/pascal/navigation'
 import { museumObjectId, type NavigationDestination } from '@/lib/tour-navigation'
 import { emitter, sceneRegistry, useScene, type ItemEvent } from '@pascal-app/core'
-import { Html, useGLTF, type CameraControlsImpl } from '@react-three/drei'
+import { useGLTF, type CameraControlsImpl } from '@react-three/drei'
 import { extend, useFrame, useThree } from '@react-three/fiber'
 import type { NavMesh, Vec3 } from 'navcat'
 import {
@@ -19,6 +19,7 @@ import {
   useRef,
   useState,
   type ComponentProps,
+  type RefObject,
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { LineGeometry } from 'three/addons/lines/LineGeometry.js'
@@ -26,7 +27,9 @@ import { Line2 } from 'three/addons/lines/webgpu/Line2.js'
 import { Line2NodeMaterial } from 'three/webgpu'
 import { Box3, Color, Vector3, type Object3D, type PerspectiveCamera } from 'three'
 import { journeyView } from '@/lib/pascal/journey-view'
+import { routeStart } from '@/lib/route-start'
 import { useMantineTheme } from '@mantine/core'
+import { useReducedMotion } from '@mantine/hooks'
 import { useViewer } from '@pascal-app/viewer'
 import { usePathname } from 'next/navigation'
 
@@ -45,8 +48,8 @@ const AVATAR_LABEL_GAP = 0.7
  * read as a plan (metres; polar angle from the vertical, so ~50° looks down
  * at the floor plan at a slant).
  */
-const AVATAR_VIEW_DISTANCE = 20
-const AVATAR_VIEW_POLAR = 0.88
+const MIN_VIEW_DISTANCE = 20
+const VIEW_POLAR = 0.88
 /** Metres of floor kept around the framed journey, so its ends never touch an edge. */
 const JOURNEY_MARGIN = 2
 /**
@@ -78,6 +81,8 @@ export type MuseumRoute = {
   target: [number, number] | null
   /** Whether `start` is the visitor's confirmed position, not an entrance guessed for a preview. */
   confirmed: boolean
+  /** The entrance the route starts from (confirmed or previewed), which leads the progress bar. */
+  startEntranceId: string | null
 }
 
 /** Plan centre [x, z] of a scene object, from its world bounds. */
@@ -99,11 +104,11 @@ export function MuseumMap({
   destination,
   onObjectClick,
   onRouteUnavailable,
-  onStartEntranceChange,
   onRouteChange,
   position,
   path,
   destinationLabel,
+  overlays,
   renderPaused,
   ...props
 }: ComponentProps<typeof MapViewer> & {
@@ -112,12 +117,11 @@ export function MuseumMap({
   destination?: NavigationDestination | null
   onObjectClick?: (id: string) => void
   onRouteUnavailable?: (unavailable: boolean) => void
-  /** Reports the entrance the route started from, so the progress bar mirrors it. */
-  onStartEntranceChange?: (entranceId: string | null) => void
   /**
    * Reports the resolved route so the page can build directions from it:
    * the path, its start, and the destination's own plan centre [x, z]
-   * (the path ends beside the destination, not inside it).
+   * (the path ends beside the destination, not inside it), and the entrance
+   * it starts from, which the progress bar mirrors.
    */
   onRouteChange?: (route: MuseumRoute | null) => void
   /** The live position (pin moved by GPS) where the avatar stands; the pin if absent. */
@@ -126,6 +130,8 @@ export function MuseumMap({
   path?: Vec3[] | null
   /** Written over the destination's flag, e.g. "Stop 2 · Giotto signs his name". */
   destinationLabel?: string | null
+  /** The UI drawn over the map: the camera frames the journey between them. */
+  overlays?: MapOverlays
 }) {
   const [ready, setReady] = useState(false)
   const { t } = useTranslation('tour-navigation')
@@ -151,7 +157,7 @@ export function MuseumMap({
   )
   useObjectClicks(onObjectClick)
 
-  const route = useMemo(() => {
+  const route = useMemo((): MuseumRoute | null => {
     if (!ready || !navMesh) return null
     const markers = collectMuseumMarkers(useScene.getState().nodes as Record<string, unknown>)
 
@@ -192,15 +198,22 @@ export function MuseumMap({
 
     const placedServices = markers.services.filter((node) => node.placed)
     const placedExits = markers.exitEntrances.filter((node) => node.placed)
-    const placedEntrances = markers.exitEntrances.filter(
-      (node) => node.placed && node.direction === 'entrance',
-    )
+    const entrances = placedEntrances(markers.exitEntrances)
 
-    // `at` holds a work's id or, since a visitor may confirm they stand at
-    // one of the museum's entrances, an entrance marker's node id.
-    const confirmedEntrance = placedEntrances.find((node) => node.id === currentObjectId)
-    const reference =
-      point(currentObjectId) ?? (confirmedEntrance ? markerPoint(confirmedEntrance.id) : null)
+    // Where the route starts and whether that is the visitor's confirmed
+    // position (`at`: a work or an entrance) or an entrance guessed to
+    // preview the route to `end` (`routeStart`, src/lib/route-start.ts).
+    const startFrom = (end: Vec3 | null) =>
+      routeStart({
+        at: currentObjectId,
+        workPoint: point(currentObjectId),
+        entrances: entrances.map((node) => ({ id: node.id, point: markerPoint(node.id) })),
+        end,
+        distance: (from, to) => Math.hypot(from[0] - to[0], from[2] - to[2]),
+      })
+    // The confirmed position alone: services and exits route to the closest
+    // instance from it.
+    const reference = startFrom(null).start
     // A service button routes to the closest instance of that type (an exit
     // button, to the closest exit); spotlight entries carry the exact node id
     // and win over the "closest" fallback.
@@ -223,20 +236,7 @@ export function MuseumMap({
     }
     const end = routeEnd()
 
-    // Without a confirmed `at`, a route to a destination is previewed from an
-    // entrance: the closest one to where the visitor is heading. It is only a
-    // guess (drawn as such: a ghost avatar and a dashed line), derived, never
-    // written back to the URL. With no destination there is nothing to
-    // preview, and a museum with several entrances gives no basis to pick one:
-    // no avatar is drawn until the visitor says where they are.
-    const entrance =
-      reference || !end
-        ? null
-        : nearest(
-            placedEntrances.map((node) => node.id),
-            end,
-          )
-    const start = reference ?? entrance?.point ?? null
+    const { start, confirmed, entranceId } = startFrom(end)
     // Directions say which side an object stands on, so they need the object's
     // own centre; markers (services, exits) are small enough to be "ahead".
     const targetNode =
@@ -250,30 +250,15 @@ export function MuseumMap({
       start,
       end,
       target: targetObject ? planCentre(targetObject) : null,
-      confirmed: Boolean(reference),
-      startEntranceId: reference ? (confirmedEntrance?.id ?? null) : (entrance?.id ?? null),
+      confirmed,
+      startEntranceId: entranceId,
       path: start && end ? museumNavigationPath(navMesh, start, end) : null,
     }
   }, [ready, navMesh, currentObjectId, destination])
 
   useEffect(() => {
-    onRouteChange?.(
-      route
-        ? {
-            path: route.path,
-            start: route.start,
-            end: route.end,
-            target: route.target,
-            confirmed: route.confirmed,
-          }
-        : null,
-    )
+    onRouteChange?.(route)
   }, [route, onRouteChange])
-
-  const startEntranceId = route?.startEntranceId ?? null
-  useEffect(() => {
-    onStartEntranceChange?.(startEntranceId)
-  }, [startEntranceId, onStartEntranceChange])
 
   useEffect(() => {
     onRouteUnavailable?.(Boolean(route?.start && route.end && !route.path))
@@ -307,7 +292,7 @@ export function MuseumMap({
       )}
       {/* The camera follows the route, not every GPS step: re-centring on
           each fix would fight the visitor's own panning. */}
-      {route && <FrameJourney route={route} />}
+      {route && <FrameJourney route={route} overlays={overlays} />}
       {/* Room names over the plan, once the scene (and its zones) is ready. */}
       {ready && <RoomLabels />}
       {route?.end && (
@@ -316,7 +301,17 @@ export function MuseumMap({
           <Suspense fallback={null}>
             <DestinationFlag />
           </Suspense>
-          {destinationLabel && <DestinationLabel label={destinationLabel} />}
+          {/* The destination's name over its flag, so the flag answers "where
+              am I going?" by itself: in the text color (the museum color is
+              the visitor's "You"). */}
+          {destinationLabel && (
+            <MapLabel
+              position={[0, DESTINATION_LABEL_HEIGHT, 0]}
+              className="max-w-[12rem] truncate text-(--mantine-color-text)"
+            >
+              {destinationLabel}
+            </MapLabel>
+          )}
         </group>
       )}
       {shownPath && shownPath.length > 1 && (
@@ -418,21 +413,15 @@ function WalkingAvatar({ point, label, ghost }: { point: Vec3; label: string; gh
         <Avatar heading={heading} ghost={ghost} />
       </Suspense>
       {/* "You": a map's "you are here", so a visitor landing on a shared or
-          QR link finds themselves at a glance among the room names. Same
-          halo as the room labels (see `RoomLabels`), in the museum color so
-          it never reads as one of them; it walks with the avatar. */}
-      <Html
-        center
+          QR link finds themselves at a glance among the room names, in the
+          museum color so it never reads as one of them; it walks with the
+          avatar. */}
+      <MapLabel
         position={[0, AVATAR_FACE_HEIGHT + AVATAR_LABEL_GAP, 0]}
-        zIndexRange={MAP_LABEL_Z_RANGE}
-        style={{ pointerEvents: 'none' }}
+        className="text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))]"
       >
-        <span
-          className={`${MAP_LABEL_CLASS} text-[light-dark(var(--mantine-color-museum-8),var(--mantine-color-museum-4))]`}
-        >
-          {label}
-        </span>
-      </Html>
+        {label}
+      </MapLabel>
     </group>
   )
 }
@@ -445,7 +434,7 @@ function WalkingAvatar({ point, label, ghost }: { point: Vec3; label: string; gh
  * controls leave free (`journeyView`), so the visitor sees at once where
  * they are, where they are going and the way between. With only one end
  * (a position and no destination, or a destination and no start) that end
- * is centred from `AVATAR_VIEW_DISTANCE`. Nothing to show leaves the camera on
+ * is centred from `MIN_VIEW_DISTANCE`. Nothing to show leaves the camera on
  * the whole museum, as `MapViewer` framed it.
  *
  * Only a new route moves the camera, never a GPS step of the live position
@@ -456,9 +445,12 @@ function WalkingAvatar({ point, label, ghost }: { point: Vec3; label: string; gh
  */
 function FrameJourney({
   route,
+  overlays,
 }: {
   route: { start: Vec3 | null; end: Vec3 | null; path: Vec3[] | null }
+  overlays?: MapOverlays
 }) {
+  const reducedMotion = useReducedMotion()
   const controls = useThree((state) => state.controls) as CameraControlsImpl | null
   const camera = useThree((state) => state.camera) as PerspectiveCamera
   const canvas = useThree((state) => state.gl.domElement)
@@ -487,7 +479,7 @@ function FrameJourney({
     const ends = [route.start, route.end].filter((point): point is Vec3 => Boolean(point))
     const points = route.path && route.path.length > 1 ? route.path : ends
     const bounds = canvas.getBoundingClientRect()
-    const insets = overlayInsets(bounds)
+    const insets = overlayInsets(bounds, overlays)
     const side = Math.min(LABEL_GUTTER.side, bounds.width * LABEL_GUTTER.sideShare)
     const view = journeyView({
       points,
@@ -501,58 +493,38 @@ function FrameJourney({
         right: insets.right + side,
       },
       azimuth: controls.azimuthAngle,
-      polar: AVATAR_VIEW_POLAR,
+      polar: VIEW_POLAR,
       margin: JOURNEY_MARGIN,
-      minDistance: AVATAR_VIEW_DISTANCE,
+      minDistance: MIN_VIEW_DISTANCE,
     })
     if (!view) return
-    const smooth = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    void controls.setLookAt(...view.position, ...view.target, smooth)
-  }, [controls, camera, canvas, route, width, height])
+    void controls.setLookAt(...view.position, ...view.target, !reducedMotion)
+  }, [controls, camera, canvas, route, overlays, width, height, reducedMotion])
   return null
 }
 
 /**
- * How far the UI drawn over the map reaches into the canvas on each side:
- * the elements marked `data-map-overlay="top" | "bottom" | "left" | "right"`
- * (the navigation header, the controls' bottom row). Measured at the moment
- * of framing, so a wrapped title or a larger text size is taken into account.
+ * The UI drawn over the map's top and bottom edges (the navigation header,
+ * the controls' bottom row), handed in by the page that lays it out.
  */
-function overlayInsets(canvas: DOMRect) {
-  const insets = { top: 0, bottom: 0, left: 0, right: 0 }
-  for (const element of document.querySelectorAll<HTMLElement>('[data-map-overlay]')) {
-    const box = element.getBoundingClientRect()
-    if (!box.width || !box.height) continue
-    const side = element.dataset.mapOverlay
-    if (side === 'top') insets.top = Math.max(insets.top, box.bottom - canvas.top)
-    if (side === 'bottom') insets.bottom = Math.max(insets.bottom, canvas.bottom - box.top)
-    if (side === 'left') insets.left = Math.max(insets.left, box.right - canvas.left)
-    if (side === 'right') insets.right = Math.max(insets.right, canvas.right - box.left)
-  }
-  return insets
+export type MapOverlays = {
+  top?: RefObject<HTMLElement | null>
+  bottom?: RefObject<HTMLElement | null>
 }
 
 /**
- * The destination's name over its flag, so the flag answers "where am I
- * going?" by itself. A map label like "You" and the room names (text with a
- * halo, never a box), in the text color: the museum color is the visitor's.
+ * How far the overlays reach into the canvas from each edge, measured at the
+ * moment of framing, so a wrapped title or a larger text size counts.
  */
-function DestinationLabel({ label }: { label: string }) {
-  return (
-    <Html
-      center
-      position={[0, DESTINATION_LABEL_HEIGHT, 0]}
-      zIndexRange={MAP_LABEL_Z_RANGE}
-      style={{ pointerEvents: 'none' }}
-    >
-      <span
-        data-testid="destination-label"
-        className={`${MAP_LABEL_CLASS} max-w-[12rem] truncate text-(--mantine-color-text)`}
-      >
-        {label}
-      </span>
-    </Html>
-  )
+function overlayInsets(canvas: DOMRect, overlays: MapOverlays = {}) {
+  const top = overlays.top?.current?.getBoundingClientRect()
+  const bottom = overlays.bottom?.current?.getBoundingClientRect()
+  return {
+    top: top?.height ? Math.max(0, top.bottom - canvas.top) : 0,
+    bottom: bottom?.height ? Math.max(0, canvas.bottom - bottom.top) : 0,
+    left: 0,
+    right: 0,
+  }
 }
 
 /**
