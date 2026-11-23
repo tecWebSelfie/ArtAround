@@ -59,7 +59,7 @@ describe('demo museum', () => {
     for (const tour of TOURS) {
       expect(
         tour.stops.every((title) => contentTitles.includes(title)),
-        tour.title,
+        `${tour.title}`,
       ).toBe(true)
     }
     expect(TOURS.filter(({ quiz }) => quiz.length > 0)).toHaveLength(1)
@@ -80,15 +80,15 @@ describe('demo museum', () => {
     expect(new Set(levels).size).toBeGreaterThanOrEqual(3)
     for (const tour of TOURS) {
       const works = tour.stops.map((title) => objectByContent.get(title))
-      expect(new Set(works).size, tour.title).toBeLessThan(works.length)
+      expect(new Set(works).size, `${tour.title}`).toBeLessThan(works.length)
     }
   })
 
   it('gives every tour its logistic directions, only for its own stops', () => {
     for (const tour of TOURS) {
-      expect(tour.logistics, tour.title).toBeTruthy()
+      expect(tour.logistics, `${tour.title}`).toBeTruthy()
       for (const title of Object.keys(tour.directions)) {
-        expect(tour.stops, tour.title).toContain(title)
+        expect(tour.stops, `${tour.title}`).toContain(title)
       }
     }
   })

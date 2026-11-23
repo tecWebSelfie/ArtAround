@@ -66,7 +66,10 @@ export async function contentNavigationEntry(
     (museum.objects ?? []).map((entry) => (typeof entry === 'string' ? entry : entry.id)),
   )
   const objectId = objectIds.find((id) => placed.has(id))
-  return withNavigationPosition(`${museumNavigationPath(lng, museum.id)}/content/${contentId}`, {
-    ...(objectId ? { to: objectId } : {}),
-  })
+  return withNavigationPosition(
+    `${museumNavigationPath(lng, museum.id)}/content/${contentId}`,
+    // The "?to=" destination, present only when the map places one of the
+    // content's objects.
+    objectId ? { to: objectId } : {},
+  )
 }

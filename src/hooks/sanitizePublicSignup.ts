@@ -48,7 +48,8 @@ export const sanitizePublicSignup: CollectionBeforeValidateHook = ({ data, opera
     return data
   }
 
-  const sanitized = { ...(data ?? {}) } as Record<string, unknown>
+  // `data` can be null here: spreading null is a no-op, no fallback needed.
+  const sanitized = { ...data } as Record<string, unknown>
 
   for (const field of PRIVILEGED_USER_FIELDS) {
     delete sanitized[field]

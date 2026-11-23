@@ -61,7 +61,7 @@ describe('museumPalette', () => {
 
   it('keeps shade 6 readable on white for any brand color (buttons, links, focus)', () => {
     for (const { hex, palette } of samplePalettes) {
-      expect(contrastOnWhite(palette[PRIMARY_SHADE]), hex).toBeGreaterThanOrEqual(AA - 0.05)
+      expect(contrastOnWhite(palette[PRIMARY_SHADE]), `${hex}`).toBeGreaterThanOrEqual(AA - 0.05)
     }
   })
 
@@ -76,7 +76,7 @@ describe('museumPalette', () => {
   it('makes the hover shade (7) visibly different from shade 6 unless already near black', () => {
     for (const { hex, palette } of samplePalettes) {
       if (contrastOnWhite(palette[PRIMARY_SHADE]) > 15) continue
-      expect(ratio(palette[7], palette[6]), hex).toBeGreaterThan(1.03)
+      expect(ratio(palette[7], palette[6]), `${hex}`).toBeGreaterThan(1.03)
     }
   })
 
@@ -94,13 +94,13 @@ describe('museumPalette', () => {
   it('darkens colors that are too light, keeping the family', () => {
     for (const hex of ['#fab005', '#15aabf', '#94d82d', '#a5d8ff']) {
       const result = museumPalette(hex)
-      expect(result.adjusted, hex).toBe(true)
+      expect(result.adjusted, `${hex}`).toBe(true)
       expect(contrastOnWhite(result.palette[PRIMARY_SHADE])).toBeGreaterThanOrEqual(AA - 0.05)
       // Hue stays close (a readable yellow is an ochre, so allow some drift).
       const drift = Math.abs(
         chroma(hex).oklch()[2] - chroma(result.palette[PRIMARY_SHADE]).oklch()[2],
       )
-      expect(Math.min(drift, 360 - drift), hex).toBeLessThan(25)
+      expect(Math.min(drift, 360 - drift), `${hex}`).toBeLessThan(25)
     }
   })
 
@@ -128,13 +128,13 @@ describe('reserved and similar hues', () => {
       '#1b2a4a',
       '#808080',
     ]) {
-      expect(reservedHue(hex), hex).toBeNull()
+      expect(reservedHue(hex), `${hex}`).toBeNull()
     }
   })
 
   it('offers an alternative that is no longer reserved', () => {
     for (const hex of ['#e03131', '#fd7e14', '#c92a2a']) {
-      expect(reservedHue(nearestAllowed(hex)), hex).toBeNull()
+      expect(reservedHue(nearestAllowed(hex)), `${hex}`).toBeNull()
     }
   })
 
@@ -156,7 +156,9 @@ describe('default theme contrast', () => {
 
   it('keeps light-variant text at AA on shade 1 for every Mantine color', () => {
     for (const [name, shades] of Object.entries(DEFAULT_THEME.colors)) {
-      expect(ratio(lightVariantText(shades), shades[1]), name).toBeGreaterThanOrEqual(AA - 0.05)
+      expect(ratio(lightVariantText(shades), shades[1]), `${name}`).toBeGreaterThanOrEqual(
+        AA - 0.05,
+      )
     }
   })
 })
