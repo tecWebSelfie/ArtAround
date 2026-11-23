@@ -43,8 +43,10 @@ and cached build artifacts are not reliable handoff state.
   itself is `routeStart` (`src/lib/route-start.ts`).
 - **Tour entrance.** A tour starts from one of the museum's placed entrances:
   the one its author chose in the tour editor (`tours.startEntrance`, an
-  entrance marker's node id; the editor offers it when the map has two or
-  more), else the one nearest the first stop. A choice that stops being a
+  entrance marker's node id), else the one nearest the first stop. In the
+  editor it is the stops timeline's first, fixed item (`StartEntranceItem`:
+  a door bullet, never dragged or moved): a choice with two or more
+  entrances, just the name with one, absent with none. A choice that stops being a
   placed entrance (staff moved the marker) falls back to the nearest; the
   server refuses saving one that isn't (`checkStartEntrance`, through
   `isPlacedEntrance`; an unchanged one is not checked again, so a removed

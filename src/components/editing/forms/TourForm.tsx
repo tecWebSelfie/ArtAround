@@ -40,7 +40,7 @@ import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigat
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
-import { StartEntranceInput } from './StartEntranceInput'
+import { StartEntranceItem } from './StartEntranceItem'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
@@ -379,17 +379,12 @@ export function TourForm({
           maxLength={1000}
           {...form.getInputProps('logistics')}
         />
-        <StartEntranceInput
-          entrances={museum.entrances ?? []}
-          value={form.values.startEntrance}
-          onChange={(value) => form.setFieldValue('startEntrance', value)}
-        />
-
         <TourStopsEditor
           form={form}
           candidates={candidates}
           byId={byId}
           museumId={museum.id}
+          entrances={museum.entrances ?? []}
           returnTo={editorUrl}
         />
 
@@ -492,8 +487,8 @@ function useTourDraft(
 
 /**
  * The stops, in visiting order: notices about paid, unvisitable or
- * unexplained stops, the sortable timeline (drag, arrows, per-stop
- * directions), then the ways to add one: the quick select for a known
+ * unexplained stops, the timeline (the fixed start entrance, then the
+ * sortable stops: drag, arrows, per-stop directions), then the ways to add one: the quick select for a known
  * title, or the contents search and the content editor in picker mode.
  */
 function TourStopsEditor({
@@ -501,12 +496,15 @@ function TourStopsEditor({
   candidates,
   byId,
   museumId,
+  entrances,
   returnTo,
 }: {
   form: UseFormReturnType<TourValues>
   candidates: TourCandidate[]
   byId: Map<string, TourCandidate>
   museumId: string
+  /** The museum's placed entrances: the first, fixed item of the timeline. */
+  entrances: { id: string; name: string | null }[]
   /** The editor's own URL, where the contents picker comes back. */
   returnTo: string
 }) {
@@ -566,49 +564,7 @@ function TourStopsEditor({
           </Stack>
         </Alert>
       )}
-      <DragDropProvider
-        onDragEnd={(event) => {
-          // dnd-kit reorders the DOM optimistically while dragging; commit
-          // the move to form state once the drop is final.
-          const { source } = event.operation
-          if (event.canceled || !isSortable(source)) return
-          move(source.initialIndex, source.index - source.initialIndex)
-        }}
-      >
-        <Timeline bulletSize={28} lineWidth={2} active={selected.length - 1}>
-          {selected.map((id, index) => {
-            const content = byId.get(id)!
-            return (
-              <SortableStop
-                key={id}
-                id={id}
-                index={index}
-                bullet={<Text size="xs">{index + 1}</Text>}
-                // A deleted content has no title left to show.
-                title={content.title || t('A content that no longer exists')}
-                content={content}
-                lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
-                first={index === 0}
-                last={index === selected.length - 1}
-                onMove={(delta) => move(index, delta)}
-                directions={form.values.directions[id] ?? ''}
-                onDirectionsChange={(value) =>
-                  form.setFieldValue('directions', {
-                    ...form.values.directions,
-                    [id]: value,
-                  })
-                }
-                onRemove={() =>
-                  form.setFieldValue(
-                    'contents',
-                    selected.filter((other) => other !== id),
-                  )
-                }
-              />
-            )
-          })}
-        </Timeline>
-      </DragDropProvider>
+      <StopsTimeline form={form} byId={byId} entrances={entrances} onMove={move} />
       <Select
         label={t('Add a stop')}
         placeholder={t('Search the museum’s contents')}
@@ -647,5 +603,85 @@ function TourStopsEditor({
         </Button>
       </Group>
     </Stack>
+  )
+}
+
+/**
+ * The tour's timeline: the fixed start entrance (when the map has one), then
+ * the stops, sortable among themselves (drag, arrows), each with its
+ * directions.
+ */
+function StopsTimeline({
+  form,
+  byId,
+  entrances,
+  onMove: move,
+}: {
+  form: UseFormReturnType<TourValues>
+  byId: Map<string, TourCandidate>
+  entrances: { id: string; name: string | null }[]
+  onMove: (index: number, delta: number) => void
+}) {
+  const { t } = useTranslation('editing')
+  const { lng } = useParams<{ lng: string }>()
+  const selected = form.values.contents
+  return (
+    <DragDropProvider
+      onDragEnd={(event) => {
+        // dnd-kit reorders the DOM optimistically while dragging; commit
+        // the move to form state once the drop is final.
+        const { source } = event.operation
+        if (event.canceled || !isSortable(source)) return
+        move(source.initialIndex, source.index - source.initialIndex)
+      }}
+    >
+      {/* The start entrance, when the map has one, is the timeline's
+          first item (all items up to the last stop are active). */}
+      <Timeline
+        bulletSize={28}
+        lineWidth={2}
+        active={selected.length - (entrances.length > 0 ? 0 : 1)}
+      >
+        {/* Conditional here, not inside: Timeline counts its children. */}
+        {entrances.length > 0 && (
+          <StartEntranceItem
+            entrances={entrances}
+            value={form.values.startEntrance}
+            onChange={(value) => form.setFieldValue('startEntrance', value)}
+          />
+        )}
+        {selected.map((id, index) => {
+          const content = byId.get(id)!
+          return (
+            <SortableStop
+              key={id}
+              id={id}
+              index={index}
+              bullet={<Text size="xs">{index + 1}</Text>}
+              // A deleted content has no title left to show.
+              title={content.title || t('A content that no longer exists')}
+              content={content}
+              lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
+              first={index === 0}
+              last={index === selected.length - 1}
+              onMove={(delta) => move(index, delta)}
+              directions={form.values.directions[id] ?? ''}
+              onDirectionsChange={(value) =>
+                form.setFieldValue('directions', {
+                  ...form.values.directions,
+                  [id]: value,
+                })
+              }
+              onRemove={() =>
+                form.setFieldValue(
+                  'contents',
+                  selected.filter((other) => other !== id),
+                )
+              }
+            />
+          )
+        })}
+      </Timeline>
+    </DragDropProvider>
   )
 }
