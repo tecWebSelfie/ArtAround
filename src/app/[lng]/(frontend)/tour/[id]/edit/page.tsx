@@ -63,6 +63,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
           description: tour.description ?? '',
           visibility: tour.visibility ?? 'public',
           logistics: tour.logistics ?? '',
+          startEntrance: tour.startEntrance ?? '',
           directions: directionsByStop(tour),
           contents: stopIds,
           quiz: drafts,

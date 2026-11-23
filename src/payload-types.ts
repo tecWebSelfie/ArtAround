@@ -2257,6 +2257,10 @@ export interface Tour {
    */
   logistics?: string | null
   /**
+   * Entrance marker id from the museum map. Empty: the entrance nearest the first stop.
+   */
+  startEntrance?: string | null
+  /**
    * How to reach a stop from the previous one (from the entrance for the first).
    */
   directions?:
@@ -4523,6 +4527,7 @@ export interface ToursSelect<T extends boolean = true> {
   body?: T
   description?: T
   logistics?: T
+  startEntrance?: T
   directions?:
     | T
     | {

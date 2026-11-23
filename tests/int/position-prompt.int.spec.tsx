@@ -3,10 +3,8 @@ import { act, cleanup, renderHook } from '@testing-library/react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import '@/mocks/i18n'
 import { ExitEntranceNode } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
-import {
-  useNamedEntrances,
-  usePositionPrompt,
-} from '@/app/[lng]/(frontend)/museum/[id]/navigation/use-tour-navigation'
+import { useNamedEntrances } from '@/hooks/use-named-entrances'
+import { usePositionPrompt } from '@/app/[lng]/(frontend)/museum/[id]/navigation/use-tour-navigation'
 
 /**
  * "Where are you?" (`usePositionPrompt`, `useNamedEntrances`): which

@@ -22,6 +22,8 @@ import {
 import { nonCommercialConflicts } from '@/lib/content-rights'
 import { readTours, VISIBILITY_OPTIONS } from '@/lib/visibility'
 import { keptDirections } from '@/lib/tour-logistics'
+import { isPlacedEntrance } from '@/lib/tour-entrance'
+import { mapNodes } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { computeVisitableContentIds, visitableFields } from '@/lib/visitable-stops'
 import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
 import {
@@ -224,6 +226,38 @@ const syncVisitableStops: CollectionBeforeChangeHook<TourType> = async ({
 }
 
 /**
+ * The tour's start entrance (`startEntrance`) must be one of its museum's
+ * placed entrances when it is set, checked when it or the museum changes. It
+ * may later stop being one (staff move a marker): navigation then falls back
+ * to the entrance nearest the first stop (`tourStartEntrance`), so a saved
+ * tour never breaks.
+ */
+const checkStartEntrance: CollectionBeforeChangeHook<TourType> = async ({
+  data,
+  req,
+  originalDoc,
+}) => {
+  if (data.startEntrance === undefined && data.museum === undefined) return data
+  const entrance = data.startEntrance ?? originalDoc?.startEntrance
+  if (!entrance) return data
+  const museumId = asId(data.museum ?? originalDoc?.museum)
+  const museum = museumId
+    ? await req.payload.findByID({
+        collection: 'museums',
+        id: museumId,
+        depth: 0,
+        select: { map: true },
+        overrideAccess: true,
+        req,
+      })
+    : null
+  if (!isPlacedEntrance(entrance, mapNodes(museum?.map))) {
+    throw new APIError("The tour's start entrance isn't an entrance placed on its museum map.", 400)
+  }
+  return data
+}
+
+/**
  * A visit copy (`visitCopyOf`) is one visitor's tour, followed at most by
  * their group: always private, whatever the form sent. Before
  * `guardTourContents`, so a copy of a tour whose own-author private stops
@@ -253,6 +287,7 @@ export const Tour: CollectionConfig = {
       assignAuthor,
       keepVisitCopyPrivate,
       guardTourContents,
+      checkStartEntrance,
       pruneDirections,
       syncVisitableStops,
     ],
@@ -305,6 +340,21 @@ export const Tour: CollectionConfig = {
                   'Practical information for the visit: entrance, tickets, cloakroom, opening hours.',
               },
             }),
+            {
+              // Where the tour starts: an entrance marker's node id on the
+              // museum map (not translatable: an identifier). Optional: empty,
+              // or no longer placed, means the entrance nearest the first stop
+              // (`src/lib/tour-entrance.ts`). It leads the navigation's
+              // progress bar and the route previewed before the visitor says
+              // where they are (docs/tour-navigation.md).
+              name: 'startEntrance',
+              type: 'text',
+              required: false,
+              admin: {
+                description:
+                  'Entrance marker id from the museum map. Empty: the entrance nearest the first stop.',
+              },
+            },
             {
               name: 'directions',
               type: 'array',

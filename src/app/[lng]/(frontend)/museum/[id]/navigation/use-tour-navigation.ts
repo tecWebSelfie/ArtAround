@@ -8,7 +8,6 @@ import { validateBuildJson } from '@pascal-app/core'
 import {
   collectMuseumMarkers,
   mapNodes,
-  placedEntrances,
   type ExitEntranceMarker,
   type ServiceMarker,
 } from '@/lib/pascal/museum-plugin/markers-in-map'
@@ -40,6 +39,7 @@ import { useRouteGuidance } from './use-route-guidance'
 import type { MuseumRoute } from './MuseumMap'
 import type { NavMesh } from 'navcat'
 import { createSessionStore } from '@/lib/session-store'
+import { tourStartEntrance } from '@/lib/tour-entrance'
 import type { PromptEntrance } from './PositionPrompt'
 
 /**
@@ -404,27 +404,6 @@ export const positionPromptStore = createSessionStore<boolean>((stored) => store
 export const positionPromptKey = (museumId: string) => `position-prompt:${museumId}`
 
 /**
- * The museum's placed entrances with the names visitors see: staff's name,
- * else "Entrance" (numbered when there are several). One list for "Where are
- * you?" and the progress bar's leading step, so both call it the same.
- */
-export function useNamedEntrances(exitEntrances: ExitEntranceMarker[]) {
-  const { t } = useTranslation('tour-navigation')
-  return useMemo<PromptEntrance[]>(() => {
-    const placed = placedEntrances(exitEntrances)
-    // Only nameless entrances are numbered, among themselves: no gaps.
-    const nameless = placed.filter((node) => !node.name).length
-    let number = 0
-    return placed.map((node) => ({
-      id: node.id,
-      name:
-        node.name ||
-        (nameless > 1 ? t('Entrance {{number}}', { number: ++number }) : t('Entrance')),
-    }))
-  }, [exitEntrances, t])
-}
-
-/**
  * "Where are you?" (`PositionPrompt`), ready for the directions strip: the
  * entrances, what each answer does, and whether it is opened. It opens on a
  * museum's first visit in the tab; a visitor who folds it keeps it folded
@@ -455,4 +434,64 @@ export function usePositionPrompt({
     onEntrance,
     onScan,
   }
+}
+
+/**
+ * The tour's start entrance (the author's, else the one nearest its first
+ * stop: `tourStartEntrance`, src/lib/tour-entrance.ts), named under the
+ * progress bar's "Start", and the entrance the route is previewed from while
+ * the visitor hasn't said where they are: the tour's own at its start, on its
+ * route; mid-tour, or heading somewhere the visitor chose, none, so the map
+ * keeps the entrance nearest the destination.
+ */
+export function useTourEntrance({
+  tour,
+  step,
+  catalog,
+  map,
+  onTourRoute,
+}: {
+  tour: Tour | null
+  step: number
+  catalog: NavigationCatalogObject[]
+  map: Museum['map']
+  onTourRoute: boolean
+}) {
+  const tourEntrance = useMemo(
+    () =>
+      tour
+        ? tourStartEntrance(
+            {
+              startEntrance: tour.startEntrance,
+              firstObjectId: stopObjectId(tour.contents[0], catalog),
+            },
+            mapNodes(map),
+          )
+        : null,
+    [tour, catalog, map],
+  )
+  const previewEntranceId = step === 0 && onTourRoute ? (tourEntrance?.id ?? null) : null
+  return { tourEntrance, previewEntranceId }
+}
+
+/**
+ * The map's label over the destination flag: the tour's next stop with its
+ * number (the stepper's), else whatever the visitor chose, named so it stands
+ * alone ("Exit", never "the exit").
+ */
+export function useFlagLabel({
+  destination,
+  catalog,
+  markers,
+  stop,
+}: {
+  destination: NavigationDestination | null
+  catalog: NavigationCatalogObject[]
+  markers: { services: ServiceMarker[]; exitEntrances: ExitEntranceMarker[] }
+  /** The stop's number when the flag marks the tour's next stop. */
+  stop: number | null
+}) {
+  const { t } = useTranslation('tour-navigation')
+  const name = useDestinationName(destination, catalog, markers, { standalone: true })
+  return stop === null ? name : t('Stop {{number}} · {{name}}', { number: stop, name })
 }

@@ -5,6 +5,11 @@ import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEdi
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
+import {
+  collectMuseumMarkers,
+  mapNodes,
+  placedEntrances,
+} from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
 import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
@@ -46,11 +51,12 @@ export async function existingVisitCopy(
 export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
-  const museum: Pick<Museum, 'id' | 'name' | 'objects'> = await payload.findByID({
+  const museum: Pick<Museum, 'id' | 'name' | 'objects' | 'map'> = await payload.findByID({
     collection: 'museums',
     id: museumId,
     depth: 0,
-    select: { name: true, objects: true },
+    // The map for its entrances: the tour's start entrance is one of them.
+    select: { name: true, objects: true, map: true },
     ...viewer,
   })
   const objectIds = (museum.objects ?? []).map((object) =>
@@ -84,7 +90,12 @@ export async function getTourEditorData(museumId: string, stopIds: string[] = []
     ),
   )
   return {
-    museum: { id: String(museum.id), name: museum.name },
+    museum: {
+      id: String(museum.id),
+      name: museum.name,
+      // Only the placed entrances leave the server, not the whole map.
+      entrances: placedEntrances(collectMuseumMarkers(mapNodes(museum.map)).exitEntrances),
+    },
     candidates: [...candidates, ...(await getUnavailableStops(stopIds, candidates))],
   }
 }

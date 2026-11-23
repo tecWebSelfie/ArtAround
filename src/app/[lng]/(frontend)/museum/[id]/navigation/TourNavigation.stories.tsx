@@ -66,6 +66,17 @@ export const Default: Story = {
     museum: createRouteMuseum(ROUTE_MODEL_URL),
     catalog: visitableRouteCatalog,
   },
+  play: async ({ canvas }) => {
+    // The progress bar's bookends: "Start" over the tour's entrance (the
+    // map's only one, nearest the first stop), and "End" for a tour without
+    // a quiz, which only marks the finish and can't be selected.
+    await expect(canvas.getByText('Start')).toBeVisible()
+    await expect(canvas.getByText('Entrance')).toBeVisible()
+    const end = canvas.getByText('End').closest('button')
+    // Out of the tab order, no click affordance: there is nothing to open.
+    await expect(end).toHaveAttribute('tabindex', '-1')
+    await expect(end).not.toHaveAttribute('data-allow-click')
+  },
 }
 
 export const RouteBetweenObjects: Story = {

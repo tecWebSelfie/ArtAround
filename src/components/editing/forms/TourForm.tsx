@@ -40,6 +40,8 @@ import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigat
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
+import { StartEntranceInput } from './StartEntranceInput'
+import type { ExitEntranceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
@@ -70,6 +72,11 @@ type TourValues = {
   visibility: 'public' | 'private'
   /** The visit's practical information (src/lib/tour-logistics.ts). */
   logistics: string
+  /**
+   * The entrance the tour starts from (an entrance marker's node id), or ''
+   * for the one nearest the first stop (src/lib/tour-entrance.ts).
+   */
+  startEntrance: string
   /** Per stop (content id): how to reach it from the previous one. */
   directions: Record<string, string>
   /** The tour's own quiz questions (`QuizEditor`). */
@@ -216,7 +223,8 @@ export function TourForm({
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
-  museum: { id: string; name: string }
+  /** With its placed entrances, among which the tour's start entrance is chosen. */
+  museum: { id: string; name: string; entrances?: ExitEntranceMarker[] }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
   /**
@@ -265,6 +273,7 @@ export function TourForm({
       description: initial?.description ?? '',
       visibility: initial?.visibility ?? 'public',
       logistics: initial?.logistics ?? '',
+      startEntrance: initial?.startEntrance ?? '',
       directions: initial?.directions ?? {},
       quiz: initial?.quiz ?? [],
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
@@ -295,6 +304,8 @@ export function TourForm({
         description: values.description.trim() || null,
         visibility: values.visibility,
         logistics: values.logistics.trim() || null,
+        // Empty: the entrance nearest the first stop, worked out when navigating.
+        startEntrance: values.startEntrance || null,
         // One row per stop with a note, in visiting order.
         directions: values.contents.flatMap((content) => {
           const text = values.directions[content]?.trim()
@@ -363,6 +374,11 @@ export function TourForm({
           description={t('Entrance, tickets, cloakroom: what visitors read before the first stop.')}
           maxLength={1000}
           {...form.getInputProps('logistics')}
+        />
+        <StartEntranceInput
+          entrances={museum.entrances ?? []}
+          value={form.values.startEntrance}
+          onChange={(value) => form.setFieldValue('startEntrance', value)}
         />
 
         <TourStopsEditor

@@ -11,7 +11,7 @@ import {
   withNavigationPosition,
   withNavigationValue,
 } from '@/lib/tour-navigation'
-import { ListChecks } from 'lucide-react'
+import { DoorOpen, Flag, ListChecks } from 'lucide-react'
 import { useIsGroupGuest } from '@/components/group/GroupProvider'
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -19,10 +19,16 @@ import classes from './navigation-desktop.module.css'
 
 /**
  * The ordered contents are the main quest; selecting one opens it without
- * moving the cursor. When the route starts from an entrance (no confirmed `at`),
- * that entrance leads the stepper as the starting step.
- * A tour with a quiz ends with a "Quiz" step: visible from the start, so visitors know it is
- * coming, and selectable at any time (the quiz intro warns about stops still ahead).
+ * moving the cursor. Two bookends frame them, always there so the bar keeps
+ * one shape for the whole visit:
+ * - "Start", the tour's start entrance named under it (the author's, else the
+ *   one nearest the first stop: `tourStartEntrance`); done from the moment the
+ *   tour begins. Selecting it returns to the plain tour route (it clears a
+ *   destination the visitor chose), never moving their position.
+ * - "Quiz" when the tour has one: selectable at any time (the quiz intro warns
+ *   about stops still ahead). Otherwise "End", which only marks the finish:
+ *   it can't be selected, since nothing lies there to open, and it becomes the
+ *   active step once every stop is done.
  * For group guests it is read-only progress: the host chooses the steps.
  * `contents` holds the visitable stops only: stops that can no longer be
  * visited were dropped before navigation (`visitableTour`), so the stepper
@@ -45,9 +51,8 @@ export function TourProgress({
   const search = useSearchParams()
   const router = useRouter()
   const { t } = useTranslation('tour-navigation')
-  const hasEntrance = Boolean(entranceLabel)
-  // The stepper's first index belongs to the entrance when it is shown.
-  const offset = hasEntrance ? 1 : 0
+  // The stepper's first index belongs to "Start".
+  const offset = 1
   const guest = useIsGroupGuest()
 
   useEffect(() => {
@@ -76,9 +81,9 @@ export function TourProgress({
           guest
             ? undefined
             : (index) => {
-                // The starting step means "back to the plain tour route": it clears the
+                // "Start" means "back to the plain tour route": it clears the
                 // chosen destination without ever writing a position.
-                if (hasEntrance && index === 0) {
+                if (index === 0) {
                   router.replace(
                     withNavigationValue(
                       tourNavigationPath(lng, museumId, tourId, step),
@@ -90,8 +95,8 @@ export function TourProgress({
                   )
                   return
                 }
-                // The step after the last stop is the quiz.
-                if (index - offset === contents.length) {
+                // The step after the last stop is the quiz ("End" can't be selected).
+                if (hasQuiz && index - offset === contents.length) {
                   router.push(tourQuizPath(lng, tourId, step, search.toString()))
                   return
                 }
@@ -109,7 +114,11 @@ export function TourProgress({
               }
         }
       >
-        {hasEntrance && <StepperStep label={entranceLabel ?? t('Entrance')} />}
+        <StepperStep
+          label={t('Start')}
+          description={entranceLabel ?? undefined}
+          icon={<DoorOpen size={14} aria-hidden />}
+        />
         {contents.map((content, index) => (
           <StepperStep
             key={typeof content === 'string' ? content : content.id}
@@ -131,10 +140,17 @@ export function TourProgress({
             }
           />
         ))}
-        {hasQuiz && (
+        {hasQuiz ? (
           <StepperStep
             label={t('Quiz')}
             icon={<ListChecks size={14} aria-hidden />}
+            ref={step === contents.length ? activeStep : undefined}
+          />
+        ) : (
+          <StepperStep
+            label={t('End')}
+            icon={<Flag size={14} aria-hidden />}
+            allowStepSelect={false}
             ref={step === contents.length ? activeStep : undefined}
           />
         )}

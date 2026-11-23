@@ -91,6 +91,8 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
                 description: source.description ?? '',
                 // The copy visits the same building: its directions still apply.
                 logistics: source.logistics ?? '',
+                // …and starts from the same entrance.
+                startEntrance: source.startEntrance ?? '',
                 directions: copiedDirections(source, stops),
                 contents: stops,
               }
