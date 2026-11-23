@@ -2,6 +2,7 @@
 
 import { Select, Text, TimelineItem, type TimelineItemProps } from '@mantine/core'
 import { DoorOpen } from 'lucide-react'
+import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useEntranceNames } from '@/hooks/use-named-entrances'
 
@@ -37,18 +38,20 @@ export function StartEntranceItem({
 }) {
   const { t } = useTranslation('editing')
   const named = useEntranceNames(entrances)
+  const titleId = useId()
   const automatic = 'automatic'
   const known = named.some((entrance) => entrance.id === value)
   return (
     <TimelineItem
       {...timelineProps}
       bullet={<DoorOpen size={14} aria-hidden />}
-      title={t('Start entrance')}
+      // The item's title is the select's visible label.
+      title={<span id={titleId}>{t('Start entrance')}</span>}
     >
       {named.length > 1 ? (
         <Select
           mt="xs"
-          aria-label={t('Start entrance')}
+          aria-labelledby={titleId}
           description={t('Where the tour begins: its first stop is reached from here.')}
           data={[
             { value: automatic, label: t('Nearest to the first stop') },

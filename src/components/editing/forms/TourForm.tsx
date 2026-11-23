@@ -303,7 +303,7 @@ export function TourForm({
     },
   })
 
-  const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id))
+  const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id), museum.entrances)
 
   // Not in the form values: a picked file can't go into the sessionStorage draft.
   const [cover, setCover] = useState<CoverChange>(null)
@@ -447,6 +447,7 @@ function useTourDraft(
   form: UseFormReturnType<TourValues>,
   editorUrl: string,
   isCandidate: (id: string) => boolean,
+  entrances: EntranceChoice[] | undefined,
 ) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -472,7 +473,10 @@ function useTourDraft(
     const added = searchParams.get(ADD_PARAM)
     const contents = base.contents.filter(isCandidate)
     if (added && isCandidate(added) && !contents.includes(added)) contents.push(added)
-    form.setValues({ ...base, contents })
+    // Like the stops, the start entrance must still be one the editor offers
+    // (staff may have removed it meanwhile), or the author couldn't see it.
+    const startEntrance = initialStartEntrance(entrances, base.startEntrance)
+    form.setValues({ ...base, contents, startEntrance })
     router.replace(editorUrl as Route, { scroll: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

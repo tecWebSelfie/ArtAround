@@ -41,14 +41,6 @@ export async function existingVisitCopy(
 }
 
 /**
- * Data for the tour editor: the contents a tour of this museum can include,
- * i.e. the contents of the objects its map exhibits (`museums.objects`).
- * Read as the visitor, so `locked` reflects what they can actually read.
- * `stopIds` (the tour being edited or copied) adds its stops that are no
- * longer candidates, flagged (see `getUnavailableStops`).
- */
-
-/**
  * The museum's placed entrances, the editor's start entrance item: a choice
  * among them with two or more, the one name with one.
  */
@@ -59,6 +51,13 @@ function startEntranceChoices(map: Museum['map']) {
   }))
 }
 
+/**
+ * Data for the tour editor: the contents a tour of this museum can include,
+ * i.e. the contents of the objects its map exhibits (`museums.objects`).
+ * Read as the visitor, so `locked` reflects what they can actually read.
+ * `stopIds` (the tour being edited or copied) adds its stops that are no
+ * longer candidates, flagged (see `getUnavailableStops`).
+ */
 export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
