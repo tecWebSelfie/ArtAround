@@ -28,10 +28,14 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
   // (`--tabs-top-row`, which the row keeps as its height) and the room the
   // tab bar takes (`--tabs-bottom`). A page that scrolls past one screen
   // (the navigator home, with its rails) sizes its first screen with it.
+  // Both heights are svh (the viewport with the browser toolbars expanded):
+  // dvh would grow the moment a scroll collapses the URL bar, reflowing the
+  // first screen mid-read — and svh is what dvh equals at load, so nothing
+  // moves on the way in.
   return (
     <Stack
       gap={0}
-      className="below-md:min-h-dvh [--tabs-top-row:3rem] below-md:[--tabs-bottom:calc(var(--app-shell-footer-offset,0rem)+env(safe-area-inset-bottom)+var(--mantine-spacing-md))] [--tabs-first-screen:calc(100dvh-var(--tabs-top-row)-var(--tabs-bottom))]"
+      className="below-md:min-h-svh [--tabs-top-row:3rem] below-md:[--tabs-bottom:calc(var(--app-shell-footer-offset,0rem)+env(safe-area-inset-bottom)+var(--mantine-spacing-md))] [--tabs-first-screen:calc(100svh-var(--tabs-top-row)-var(--tabs-bottom))]"
     >
       {/* The app's name, then the context controls (language, museum scope):
           up here so the bottom bar keeps only the tabs and account entries.

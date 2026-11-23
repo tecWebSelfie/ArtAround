@@ -40,8 +40,10 @@ export function NavigationServices({ actions }: { actions: NavigationServiceActi
         />
       </Popover.Target>
       <Popover.Dropdown className="max-w-[calc(100vw-2rem)]">
+        {/* svh, not dvh: the cap stays put if the browser collapses its URL
+            bar mid-scroll (svh equals dvh at load). */}
         <div
-          className="flex max-h-[50dvh] flex-col gap-2 overflow-y-auto"
+          className="flex max-h-[50svh] flex-col gap-2 overflow-y-auto"
           role="group"
           aria-label={t('Services')}
         >

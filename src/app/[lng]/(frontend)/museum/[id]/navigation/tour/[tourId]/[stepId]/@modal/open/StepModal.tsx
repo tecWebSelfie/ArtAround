@@ -55,12 +55,16 @@ export function StepModal({
   const picture = stopPicture(content)
   return (
     <Stack>
+      {/* Shorter than DetailCover's own default (this modal holds more
+          than the picture), and svh: the modal scrolls, and dvh would
+          recrop the picture — it reads as a zoom — when the browser
+          collapses its URL bar mid-scroll. */}
       {picture && (
         <DetailCover
           pictures={[picture]}
           title={content.title}
           lightbox={false}
-          height="clamp(120px, 26dvh, 280px)"
+          height="clamp(120px, 26svh, 280px)"
         />
       )}
       <ContentVersion content={content}>

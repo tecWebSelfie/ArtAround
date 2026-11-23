@@ -15,7 +15,9 @@ export type NearbyWork = { id: string; name: string; thumbnail?: string | null; 
  * separate actions: the row itself opens the work (a list item's usual tap),
  * "I'm here" beside it confirms the position. It covers as little of the map
  * as a notice can while every target keeps 44 px (compact controls carry an
- * invisible hit ring, see `navigation-touch.ts`).
+ * invisible hit ring, see `navigation-touch.ts`). Its height cap is svh,
+ * not dvh: svh equals dvh at load and never grows when the browser
+ * collapses its URL bar mid-scroll, so the list stays put over the map.
  */
 export function NearbyWorksNotice({
   works,
@@ -37,7 +39,7 @@ export function NearbyWorksNotice({
     heading = next ? t('Your next stop is nearby') : t('Discover a nearby work')
   return (
     <Paper
-      className="pointer-events-auto max-h-[45dvh] w-full max-w-sm overflow-auto rounded-md border border-(--mantine-color-default-border) bg-(--mantine-color-body) px-2 py-1.5 shadow-md"
+      className="pointer-events-auto max-h-[45svh] w-full max-w-sm overflow-auto rounded-md border border-(--mantine-color-default-border) bg-(--mantine-color-body) px-2 py-1.5 shadow-md"
       role="region"
       aria-label={t('Works near you')}
     >
