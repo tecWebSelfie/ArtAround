@@ -30,6 +30,9 @@ yarn-error.log*
 
 # local env files
 .env*.local
+# Local credentials for the unibo hosting (docs/standalone-deploy.md):
+# never committed, same rule as the production values below.
+.env.unibo
 # Production values of a deploy build folder (copied into the standalone by
 # `next build`, see docs/standalone-deploy.md): never committed.
 .env.production
