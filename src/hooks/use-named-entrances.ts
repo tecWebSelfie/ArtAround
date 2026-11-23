@@ -8,22 +8,27 @@ import { useTranslation } from 'react-i18next'
 export type NamedEntrance = { id: string; name: string }
 
 /**
- * The museum's placed entrances with the names people see: staff's name, else
- * "Entrance" (numbered among the nameless ones when there are several). One
- * list for navigation's "Where are you?" and progress bar and for the tour
- * editor's start entrance, so all three call an entrance the same.
+ * Entrances with the names people see: staff's name, else "Entrance"
+ * (numbered among the nameless ones when there are several). One rule for
+ * navigation's "Where are you?" and progress bar and for the tour editor's
+ * start entrance, so all three call an entrance the same.
  */
-export function useNamedEntrances(exitEntrances: readonly ExitEntranceMarker[]) {
+export function useEntranceNames(entrances: readonly { id: string; name?: string | null }[]) {
   const { t } = useTranslation('tour-navigation')
   return useMemo<NamedEntrance[]>(() => {
-    const placed = placedEntrances(exitEntrances)
-    const nameless = placed.filter((node) => !node.name).length
+    const nameless = entrances.filter((entrance) => !entrance.name).length
     let number = 0
-    return placed.map((node) => ({
-      id: node.id,
+    return entrances.map((entrance) => ({
+      id: entrance.id,
       name:
-        node.name ||
+        entrance.name ||
         (nameless > 1 ? t('Entrance {{number}}', { number: ++number }) : t('Entrance')),
     }))
-  }, [exitEntrances, t])
+  }, [entrances, t])
+}
+
+/** The map's placed entrances among its entrance/exit markers, named (`useEntranceNames`). */
+export function useNamedEntrances(exitEntrances: readonly ExitEntranceMarker[]) {
+  const placed = useMemo(() => placedEntrances(exitEntrances), [exitEntrances])
+  return useEntranceNames(placed)
 }

@@ -123,14 +123,15 @@ export const TourNavigationPage = ({
   // resolved route yet (or a museum with no map) the URL is all there is.
   const positioned = route ? route.confirmed : Boolean(currentObjectId)
   const entrances = useNamedEntrances(markers.exitEntrances)
-  const { tourEntrance, previewEntranceId } = useTourEntrance({
+  const { tourEntranceId, previewEntranceId } = useTourEntrance({
     tour,
     step,
     catalog,
-    map: museum.map,
+    exitEntrances: markers.exitEntrances,
+    objects: rooms.objects,
     onTourRoute,
   })
-  const tourEntranceName = entrances.find((entrance) => entrance.id === tourEntrance?.id)?.name
+  const tourEntranceName = entrances.find((entrance) => entrance.id === tourEntranceId)?.name
   // A stale/shared wheelchair URL still uses the standard mesh when this
   // museum has no wheelchair-specific mesh saved.
   const wheelchairRoute =

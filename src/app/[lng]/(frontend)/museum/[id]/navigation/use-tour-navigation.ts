@@ -40,7 +40,7 @@ import type { MuseumRoute } from './MuseumMap'
 import type { NavMesh } from 'navcat'
 import { createSessionStore } from '@/lib/session-store'
 import { tourStartEntrance } from '@/lib/tour-entrance'
-import type { PromptEntrance } from './PositionPrompt'
+import type { NamedEntrance } from '@/hooks/use-named-entrances'
 
 /**
  * The state behind the navigation page (`TourNavigation.tsx`): the map's
@@ -418,7 +418,7 @@ export function usePositionPrompt({
   onScan,
 }: {
   museumId: string
-  entrances: PromptEntrance[]
+  entrances: NamedEntrance[]
   guest: boolean
   onEntrance: (id: string) => void
   onScan: () => void
@@ -448,16 +448,19 @@ export function useTourEntrance({
   tour,
   step,
   catalog,
-  map,
+  exitEntrances,
+  objects,
   onTourRoute,
 }: {
   tour: Tour | null
   step: number
   catalog: NavigationCatalogObject[]
-  map: Museum['map']
+  /** The map's markers and placed works, as `useMuseumMapData` read them. */
+  exitEntrances: ExitEntranceMarker[]
+  objects: MuseumRooms['objects']
   onTourRoute: boolean
 }) {
-  const tourEntrance = useMemo(
+  const tourEntranceId = useMemo(
     () =>
       tour
         ? tourStartEntrance(
@@ -465,13 +468,13 @@ export function useTourEntrance({
               startEntrance: tour.startEntrance,
               firstObjectId: stopObjectId(tour.contents[0], catalog),
             },
-            mapNodes(map),
+            { exitEntrances, objects },
           )
         : null,
-    [tour, catalog, map],
+    [tour, catalog, exitEntrances, objects],
   )
-  const previewEntranceId = step === 0 && onTourRoute ? (tourEntrance?.id ?? null) : null
-  return { tourEntrance, previewEntranceId }
+  const previewEntranceId = step === 0 && onTourRoute ? tourEntranceId : null
+  return { tourEntranceId, previewEntranceId }
 }
 
 /**

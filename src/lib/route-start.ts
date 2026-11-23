@@ -23,8 +23,6 @@ export type RouteStart<P> = {
   start: P | null
   /** `start` is the visitor's confirmed position, not a guessed entrance. */
   confirmed: boolean
-  /** The entrance the route starts from, confirmed or guessed. */
-  entranceId: string | null
 }
 
 export function routeStart<P>({
@@ -47,15 +45,15 @@ export function routeStart<P>({
   /** The entrance to preview from instead of the nearest one, when resolvable. */
   preferredEntranceId?: string | null
 }): RouteStart<P> {
-  if (workPoint) return { start: workPoint, confirmed: true, entranceId: null }
+  if (workPoint) return { start: workPoint, confirmed: true }
   const confirmed = entrances.find((entrance) => entrance.id === at && entrance.point)
   if (confirmed?.point) {
-    return { start: confirmed.point, confirmed: true, entranceId: confirmed.id }
+    return { start: confirmed.point, confirmed: true }
   }
-  if (!end) return { start: null, confirmed: false, entranceId: null }
+  if (!end) return { start: null, confirmed: false }
   const preferred = entrances.find((entrance) => entrance.id === preferredEntranceId)
   if (preferred?.point) {
-    return { start: preferred.point, confirmed: false, entranceId: preferred.id }
+    return { start: preferred.point, confirmed: false }
   }
   let nearest: { id: string; point: P } | null = null
   let best = Number.POSITIVE_INFINITY
@@ -67,5 +65,5 @@ export function routeStart<P>({
       nearest = { id, point }
     }
   }
-  return { start: nearest?.point ?? null, confirmed: false, entranceId: nearest?.id ?? null }
+  return { start: nearest?.point ?? null, confirmed: false }
 }

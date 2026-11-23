@@ -5,6 +5,8 @@ import config from '@/payload.config'
 import { createMuseumMap } from '@/mocks/museum.mock'
 import { ExitEntranceNode } from '@/lib/pascal/museum-plugin/ExitEntranceNode'
 import { isPlacedEntrance, tourStartEntrance } from '@/lib/tour-entrance'
+import { collectMuseumMarkers } from '@/lib/pascal/museum-plugin/markers-in-map'
+import { museumRooms } from '@/lib/museum-rooms'
 import { routeStart } from '@/lib/route-start'
 import { requireMongoDB } from '../helpers/mongodb'
 
@@ -47,31 +49,32 @@ function museumMap(objectId: string) {
 describe('tourStartEntrance', () => {
   const { map, far, near, unplaced, exit } = museumMap('work-1')
   const nodes = map.nodes as Record<string, unknown>
+  // What the navigation page has already read from the map.
+  const read = {
+    exitEntrances: collectMuseumMarkers(nodes).exitEntrances,
+    objects: museumRooms(nodes).objects,
+  }
 
   it("keeps the author's choice", () => {
-    expect(tourStartEntrance({ startEntrance: far.id, firstObjectId: 'work-1' }, nodes)).toEqual({
-      id: far.id,
-      chosen: true,
-    })
+    expect(tourStartEntrance({ startEntrance: far.id, firstObjectId: 'work-1' }, read)).toBe(far.id)
   })
 
   it('defaults to the entrance nearest the first stop', () => {
-    expect(tourStartEntrance({ firstObjectId: 'work-1' }, nodes)).toEqual({
-      id: near.id,
-      chosen: false,
-    })
+    expect(tourStartEntrance({ firstObjectId: 'work-1' }, read)).toBe(near.id)
   })
 
   it('falls back to the nearest when the choice is no longer a placed entrance', () => {
     for (const stale of [unplaced.id, exit.id, 'removed-marker']) {
-      expect(tourStartEntrance({ startEntrance: stale, firstObjectId: 'work-1' }, nodes)?.id).toBe(
+      expect(tourStartEntrance({ startEntrance: stale, firstObjectId: 'work-1' }, read)).toBe(
         near.id,
       )
     }
   })
 
   it('has none on a map without entrances', () => {
-    expect(tourStartEntrance({ firstObjectId: 'work-1' }, null)).toBeNull()
+    expect(
+      tourStartEntrance({ firstObjectId: 'work-1' }, { exitEntrances: [], objects: [] }),
+    ).toBeNull()
   })
 
   it('accepts only placed entrances', () => {
@@ -99,7 +102,7 @@ describe('routeStart with the tour entrance', () => {
         distance,
         preferredEntranceId: 'main',
       }),
-    ).toEqual({ start: [0, 0], confirmed: false, entranceId: 'main' })
+    ).toEqual({ start: [0, 0], confirmed: false })
   })
 
   it('never lets the preference override a confirmed position', () => {
@@ -112,7 +115,7 @@ describe('routeStart with the tour entrance', () => {
         distance,
         preferredEntranceId: 'main',
       }),
-    ).toEqual({ start: [11, 3], confirmed: true, entranceId: 'garden' })
+    ).toEqual({ start: [11, 3], confirmed: true })
   })
 })
 
@@ -213,6 +216,33 @@ describe('the server keeps startEntrance to a placed entrance', () => {
     const tour = await tourWith(entrances.far.id)
     created.push({ collection: 'tours', id: tour.id })
     expect(tour.startEntrance).toBe(entrances.far.id)
+  })
+
+  it('lets an unrelated edit through once the chosen entrance is gone', async () => {
+    const tour = await tourWith(entrances.far.id)
+    created.push({ collection: 'tours', id: tour.id })
+    // Staff remove that entrance from the map: the tour still saves.
+    const map = structuredClone(entrances.map)
+    delete map.nodes[entrances.far.id]
+    await payload.update({
+      collection: 'museums',
+      id: museumId,
+      data: { map } as never,
+      overrideAccess: true,
+    })
+    const renamed = await payload.update({
+      collection: 'tours',
+      id: tour.id,
+      data: { title: `SE renamed ${suffix}`, startEntrance: entrances.far.id } as never,
+      overrideAccess: true,
+    })
+    expect(renamed.title).toBe(`SE renamed ${suffix}`)
+    await payload.update({
+      collection: 'museums',
+      id: museumId,
+      data: { map: entrances.map } as never,
+      overrideAccess: true,
+    })
   })
 
   it('refuses an exit, an unplaced marker or an unknown id', async () => {

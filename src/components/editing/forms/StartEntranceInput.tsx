@@ -2,8 +2,7 @@
 
 import { Select } from '@mantine/core'
 import { useTranslation } from 'react-i18next'
-import { useNamedEntrances } from '@/hooks/use-named-entrances'
-import type { ExitEntranceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
+import { useEntranceNames } from '@/hooks/use-named-entrances'
 
 /**
  * Where the tour starts: one of the museum's placed entrances, or
@@ -18,12 +17,13 @@ export function StartEntranceInput({
   value,
   onChange,
 }: {
-  entrances: ExitEntranceMarker[]
+  /** The museum's placed entrances (empty unless there are two or more). */
+  entrances: { id: string; name: string | null }[]
   value: string
   onChange: (value: string) => void
 }) {
   const { t } = useTranslation('editing')
-  const named = useNamedEntrances(entrances)
+  const named = useEntranceNames(entrances)
   if (named.length < 2) return null
   const automatic = 'automatic'
   const known = named.some((entrance) => entrance.id === value)

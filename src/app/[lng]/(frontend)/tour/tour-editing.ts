@@ -48,6 +48,12 @@ export async function existingVisitCopy(
  * longer candidates, flagged (see `getUnavailableStops`).
  */
 
+/** The museum's placed entrances as the editor offers them, when there are two or more. */
+function startEntranceChoices(map: Museum['map']) {
+  const placed = placedEntrances(collectMuseumMarkers(mapNodes(map)).exitEntrances)
+  return placed.length > 1 ? placed.map(({ id, name }) => ({ id, name: name ?? null })) : []
+}
+
 export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
@@ -93,8 +99,9 @@ export async function getTourEditorData(museumId: string, stopIds: string[] = []
     museum: {
       id: String(museum.id),
       name: museum.name,
-      // Only the placed entrances leave the server, not the whole map.
-      entrances: placedEntrances(collectMuseumMarkers(mapNodes(museum.map)).exitEntrances),
+      // The start entrance's choices: only ids and names leave the server,
+      // and only when there is a choice to make (two or more).
+      entrances: startEntranceChoices(museum.map),
     },
     candidates: [...candidates, ...(await getUnavailableStops(stopIds, candidates))],
   }

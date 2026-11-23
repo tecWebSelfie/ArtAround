@@ -41,7 +41,6 @@ import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
 import { StartEntranceInput } from './StartEntranceInput'
-import type { ExitEntranceMarker } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
@@ -224,7 +223,7 @@ export function TourForm({
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
   /** With its placed entrances, among which the tour's start entrance is chosen. */
-  museum: { id: string; name: string; entrances?: ExitEntranceMarker[] }
+  museum: { id: string; name: string; entrances?: { id: string; name: string | null }[] }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
   /**

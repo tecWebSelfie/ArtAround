@@ -237,9 +237,12 @@ const checkStartEntrance: CollectionBeforeChangeHook<TourType> = async ({
   req,
   originalDoc,
 }) => {
-  if (data.startEntrance === undefined && data.museum === undefined) return data
   const entrance = data.startEntrance ?? originalDoc?.startEntrance
   if (!entrance) return data
+  // Unchanged (the form sends it on every save): nothing to check, and an
+  // entrance staff have since removed must not block an unrelated edit.
+  const sameMuseum = data.museum === undefined || asId(data.museum) === asId(originalDoc?.museum)
+  if (entrance === originalDoc?.startEntrance && sameMuseum) return data
   const museumId = asId(data.museum ?? originalDoc?.museum)
   const museum = museumId
     ? await req.payload.findByID({
