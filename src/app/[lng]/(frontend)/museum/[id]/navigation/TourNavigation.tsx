@@ -428,7 +428,7 @@ function NavigationFooter({
   )
   return (
     <AppShellFooter ref={ref} className="h-auto rounded-t-md">
-      <Group className="min-h-16 py-1" px="xs" gap="xs" align="center">
+      <Group className={`min-h-16 py-1 ${classes.footerRow}`} px="xs" gap="xs" align="center">
         <Box className={`min-w-0 basis-64 grow ${classes.directions}`}>
           <DirectionsBar
             trailingControl={assistant}
