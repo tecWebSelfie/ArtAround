@@ -80,15 +80,14 @@ export default async function MyMuseumsPage({ params }: PageProps<'/[lng]/my-mus
   }
 
   const [myMuseums, activeMuseumId] = await read
-  const museums = [...myMuseums]
+  const museums = myMuseums.toSorted(
     // The museum the app is locked to (museum mode: the visitor is in it)
     // first, then by role and name.
-    .sort(
-      (a, b) =>
-        Number(b.museum.id === activeMuseumId) - Number(a.museum.id === activeMuseumId) ||
-        MUSEUM_FUNCTION_RANK[b.role] - MUSEUM_FUNCTION_RANK[a.role] ||
-        a.museum.name.localeCompare(b.museum.name, lng),
-    )
+    (a, b) =>
+      Number(b.museum.id === activeMuseumId) - Number(a.museum.id === activeMuseumId) ||
+      MUSEUM_FUNCTION_RANK[b.role] - MUSEUM_FUNCTION_RANK[a.role] ||
+      a.museum.name.localeCompare(b.museum.name, lng),
+  )
 
   const rows = museums.map(({ museum, role }) => (
     <MuseumRow

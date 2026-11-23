@@ -36,7 +36,7 @@ export function GroupMembers() {
 /** The host comes first; the visitor's own row says "(you)". No LiveKit needed (stories). */
 export function GroupMemberList({ members }: { members: GroupMember[] }) {
   const { t } = useTranslation('group')
-  const sorted = [...members].sort(
+  const sorted = members.toSorted(
     (a, b) => Number(b.identity === HOST_IDENTITY) - Number(a.identity === HOST_IDENTITY),
   )
 

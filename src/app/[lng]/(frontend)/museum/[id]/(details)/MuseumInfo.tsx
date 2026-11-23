@@ -64,7 +64,7 @@ export async function MuseumInfo({
   const { t, lng } = await getT('museum-page')
   const visit = visitBlocks(museum, t, lng)
   const contacts = contactBlocks(museum, t)
-  const news = [...(museum.news ?? [])].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
+  const news = (museum.news ?? []).toSorted((a, b) => b.date.localeCompare(a.date)).slice(0, 3)
 
   return (
     <Stack gap="xl">
