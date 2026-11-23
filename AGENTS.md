@@ -61,7 +61,8 @@ with the code.
   (LiveKit rooms), [Interactive object models](docs/interactive-object-models.md),
   [Subjects and Wikidata](docs/subjects-and-wikidata.md),
   [Permissions and editing](docs/permissions-and-editing.md),
-  [Search](docs/search.md): Typesense Cloud, one collection written by
+  [Search](docs/search.md): Typesense (Cloud in deployments, the compose
+  node of `pnpm services:start` locally and in CI), one collection written by
   Payload hooks through the Next server (`src/lib/search/*`; the browser
   never holds a key, an outage is shown as such); marketplace scope
   tours/contents/objects/users, navigator (home) scope tours/contents/museums
@@ -168,7 +169,7 @@ source language `en`, plus the other official EU languages
   instead of running them locally, and run one locally only to reproduce a
   CI failure. Run memory-heavy checks one at a time and
   say which passed and which remain.
-- `pnpm services:start` brings up MongoDB and LiveKit (needed again after a
+- `pnpm services:start` brings up MongoDB, Typesense and LiveKit (needed again after a
   cloud container restart). `pnpm seed:e2e` prepares the e2e fixture; a
   skipped spec is not a pass. `E2E_SERVER=start` after `pnpm build` runs e2e
   on the production build, as CI does; with the cloud preview on, build with

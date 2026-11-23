@@ -1,4 +1,5 @@
 import { mockMuseumFull } from '@/mocks/museum.mock'
+import { positionPromptKey, positionPromptStore } from './use-tour-navigation'
 import { mockContentsList } from '@/mocks/content.mock'
 import { mockTourFull } from '@/mocks/tour.mock'
 import { createRouteMuseum, routeCatalog } from '@/mocks/tour-navigation.mock'
@@ -255,7 +256,11 @@ export const Completed: Story = {
 export const FreeNavigation: Story = {
   // Spotlight's store is global: close the search this story opens, or the
   // next story in the file starts with its dialog still on screen.
-  beforeEach: () => () => spotlight.close(),
+  beforeEach: () => {
+    // "Where are you?" opens afresh: a previous run folded it in this tab.
+    positionPromptStore.save(positionPromptKey(mockMuseumFull.id), null)
+    return () => spotlight.close()
+  },
   args: {
     scope: { kind: 'free', museumId: mockMuseumFull.id },
     museum: { ...mockMuseumFull, map: null },
@@ -285,8 +290,20 @@ export const FreeNavigation: Story = {
     await expect(canvas.getByText('Free visit')).toBeVisible()
     await expect(canvas.queryByLabelText('Tour progress')).toBeNull()
     // Directions ask for a start before an end: with no position yet, the bar
-    // asks for it first (DirectionsBar's "no-position" state).
-    await expect(canvas.getByText('Where are you? Find the work in front of you')).toBeVisible()
+    // opens "Where are you?" (DirectionsBar's "no-position" state); this
+    // mock map has no entrance marker, so it offers the QR code and search.
+    const prompt = canvas.getByRole('region', { name: 'Where are you?' })
+    await expect(prompt).toBeVisible()
+    await expect(
+      within(prompt).getByRole('button', { name: "Scan a work's QR code" }),
+    ).toBeVisible()
+    // Regression: the map's controls offered scan, search and "Where to?" a
+    // second time beside the opened prompt. They step aside while it asks…
+    await expect(canvas.queryByRole('button', { name: 'Scan a QR code' })).toBeNull()
+    await expect(canvas.queryByRole('button', { name: 'Where to?' })).toBeNull()
+    // …and come back once it is folded.
+    await userEvent.click(within(prompt).getByRole('button', { name: 'Hide' }))
+    await expect(canvas.getByRole('button', { name: 'Scan a QR code' })).toBeVisible()
     // No destination yet: the centre pill opens search (NavigationControls).
     await userEvent.click(canvas.getByRole('button', { name: 'Where to?' }))
     const body = within(canvasElement.ownerDocument.body)

@@ -4,8 +4,18 @@ import { NavigationAssistant } from '@/components/assistant/NavigationAssistant'
 import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
+import { useMergedRef } from '@mantine/hooks'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
-import { Suspense, useEffect, useState, type ReactNode, type Ref } from 'react'
+import {
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+  type Ref,
+} from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
@@ -16,6 +26,8 @@ import {
   useDestinationName,
   useMeasuredBars,
   useMuseumMapData,
+  useNamedEntrances,
+  usePositionPrompt,
   useTourCursor,
   useGuidance,
   useTourCommands,
@@ -39,6 +51,9 @@ import type { NavigationTourSummary } from './TourNavigationShell'
 import Link from 'next/link'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+
+/** Mantine's `md`, where contextual modals dock as a side panel (navigation-desktop.module.css). */
+const DOCKED_PANEL_FROM = '62em'
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
@@ -84,16 +99,22 @@ export const TourNavigationPage = ({
   const { t } = useTranslation('tour-navigation')
   const [routeUnavailable, setRouteUnavailable] = useState(false)
   const [route, setRoute] = useState<MuseumRoute | null>(null)
-  // The map resolves which entrance the route starts from (it owns the navmesh);
-  // the progress bar mirrors that choice as its leading step.
-  const [startEntranceId, setStartEntranceId] = useState<string | null>(null)
   const { defaultDestination, destination, notes } = useTourCursor(tour, step, catalog)
   // The work the route leads to, if it is one (not a service or an exit).
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
+  // A work's id, or an entrance's node id when the visitor said they stand there.
   const currentObjectId = search.get('at')
-  // With a confirmed position the visitor's own start replaces the entrance step.
-  const startEntrance =
-    !currentObjectId && markers.exitEntrances.find((node) => node.id === startEntranceId)
+  // Positioned once the map resolved `at` to a work or an entrance on it (an
+  // `at` naming nothing there, e.g. an entrance since removed, is no
+  // position: the map shows a guess, so the strip asks again). Without a
+  // resolved route yet (or a museum with no map) the URL is all there is.
+  const positioned = route ? route.confirmed : Boolean(currentObjectId)
+  // The map resolves which entrance the route starts from (confirmed, or
+  // previewed before the visitor says where they are; it owns the navmesh):
+  // it leads the progress bar, named as in "Where are you?". A work as the
+  // confirmed position replaces that step.
+  const entrances = useNamedEntrances(markers.exitEntrances)
+  const startEntrance = entrances.find((entrance) => entrance.id === route?.startEntranceId)
   // A stale/shared wheelchair URL still uses the standard mesh when this
   // museum has no wheelchair-specific mesh saved.
   const wheelchairRoute =
@@ -114,7 +135,31 @@ export const TourNavigationPage = ({
   const planView = settings.mapView === '2d' && Boolean(museumMap.parsed)
   const destinationName = useDestinationName(destination, catalog, markers)
   const { headerRef, footerRef } = useMeasuredBars()
+  // The UI over the map, which the camera keeps the journey clear of.
+  const header = useRef<HTMLElement>(null)
+  const controlsRow = useRef<HTMLDivElement>(null)
+  const overlays = useMemo(
+    () => ({
+      top: header,
+      bottom: controlsRow,
+      // From md a work, content or stop opens as a panel docked on the right
+      // (NavigationModal), over the map; below md it is a full dialog.
+      right: () =>
+        window.matchMedia(`(min-width: ${DOCKED_PANEL_FROM})`).matches
+          ? document.querySelector(`.${classes.panelInner} > *`)
+          : null,
+    }),
+    [],
+  )
+  const measuredHeaderRef = useMergedRef(headerRef, header)
 
+  // The map's label over the destination flag: the next stop with its number
+  // (the stepper's), else whatever the visitor chose.
+  const flagName = useDestinationName(destination, catalog, markers, { standalone: true })
+  const destinationLabel =
+    tour && destination?.kind === 'object' && destination.id === defaultDestination && !complete
+      ? t('Stop {{number}} · {{name}}', { number: step + 1, name: flagName })
+      : flagName
   const { tourContentIds, tourObjectIds } = useTourIds(tour?.contents, catalog)
   const { commands, run, runId, nearbyCommands, setNavigation } = useTourCommands({
     museum,
@@ -131,10 +176,31 @@ export const TourNavigationPage = ({
     },
   })
 
+  const positionPrompt = usePositionPrompt({
+    museumId: museum.id,
+    entrances,
+    guest,
+    onEntrance: (id) => setNavigation('at', id),
+    onScan: () => runId('scan'),
+  })
+  const status = directionsStatus({
+    complete,
+    positioned,
+    // Only while there is no way back to give: once the visitor walks
+    // away, directions lead them back to it.
+    atDestination: positioned && currentObjectId === nextObjectId && guidance.steps.length === 0,
+    routeUnavailable,
+    hasDestination: Boolean(destination),
+    hasSteps: guidance.steps.length > 0,
+  })
+  // "Where are you?" is opened in the strip: it carries scan and search, so
+  // the map's controls leave them out instead of offering them twice.
+  const asking = status === 'no-position' && Boolean(positionPrompt?.opened)
+
   // GPS notices about the works around. A guessed entrance is never treated
   // as the visitor's position; group guests keep following the host,
   // including `at`.
-  const proximity = !guest && currentObjectId && settings.gpsMode !== 'off' && (
+  const proximity = !guest && positioned && currentObjectId && settings.gpsMode !== 'off' && (
     <NavigationProximity
       point={guidance.estimate}
       heading={compass.heading}
@@ -153,13 +219,13 @@ export const TourNavigationPage = ({
   return (
     <>
       <NavigationHeader
-        ref={headerRef}
+        ref={measuredHeaderRef}
         tour={tour}
         step={step}
         museumName={museum.name}
         stopObjectId={defaultDestination}
         rooms={rooms}
-        entranceLabel={startEntrance ? (startEntrance.name ?? t('Entrance')) : null}
+        entranceLabel={startEntrance?.name ?? null}
         notes={notes}
       />
 
@@ -177,10 +243,11 @@ export const TourNavigationPage = ({
               currentObjectId={currentObjectId}
               destination={destination}
               onRouteUnavailable={setRouteUnavailable}
-              onStartEntranceChange={setStartEntranceId}
               onRouteChange={setRoute}
               position={guidance.position}
               path={guidance.path}
+              destinationLabel={destinationLabel}
+              overlays={overlays}
               onObjectClick={(id) => runId(`object:${id}`)}
               // Under the floor plan the 3D map stays mounted (routes are
               // computed on its meshes) but draws no frames, and is hidden
@@ -197,6 +264,7 @@ export const TourNavigationPage = ({
               // As on the 3D map: the avatar waits at the route's start.
               position={guidance.position ?? route?.start ?? null}
               path={guidance.path ?? route?.path ?? null}
+              estimated={Boolean(route?.start && !route.confirmed)}
               catalog={catalog}
               roots={museumMap.parsed.rootNodeIds}
             />
@@ -213,6 +281,8 @@ export const TourNavigationPage = ({
             sensors={{ settings, gps, compass, walk: guidance.walk }}
             proximity={proximity}
             planAvailable={Boolean(museumMap.parsed)}
+            asking={asking}
+            bottomRowRef={controlsRow}
           />
         }
       />
@@ -228,24 +298,13 @@ export const TourNavigationPage = ({
         settings={settings}
         commands={commands}
         onCommand={runId}
-        status={directionsStatus({
-          complete,
-          positioned: Boolean(currentObjectId),
-          // Only while there is no way back to give: once the visitor walks
-          // away, directions lead them back to it.
-          atDestination:
-            Boolean(currentObjectId) &&
-            currentObjectId === nextObjectId &&
-            guidance.steps.length === 0,
-          routeUnavailable,
-          hasDestination: Boolean(destination),
-          hasSteps: guidance.steps.length > 0,
-        })}
+        status={status}
         // A completed tour with a quiz offers it right where "Tour completed" shows.
         action={
           tour && complete && hasQuiz(tour) && !guest && <QuizAction tour={tour} step={step} />
         }
-        voiceGuidance={settings.voiceGuidance && Boolean(currentObjectId)}
+        voiceGuidance={settings.voiceGuidance && positioned}
+        positionPrompt={positionPrompt}
       />
     </>
   )
@@ -306,6 +365,7 @@ function NavigationFooter({
   status,
   action,
   voiceGuidance,
+  positionPrompt,
 }: {
   ref: Ref<HTMLElement>
   museum: Museum
@@ -321,6 +381,7 @@ function NavigationFooter({
   status: DirectionsStatus | null
   action: ReactNode
   voiceGuidance: boolean
+  positionPrompt: ComponentProps<typeof DirectionsBar>['positionPrompt']
 }) {
   const { lng } = useParams<{ lng: string }>()
   const guest = useIsGroupGuest()
@@ -366,6 +427,7 @@ function NavigationFooter({
             // "set as my position" and "go here".
             onSearch={spotlight.open}
             action={action}
+            positionPrompt={positionPrompt}
           />
         </Box>
       </Group>

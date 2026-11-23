@@ -104,7 +104,9 @@ test('keeps side exploration separate, shares position through reload, and compl
   })
   await page.goto(tourURL!, { waitUntil: 'domcontentloaded' })
   await expect(mapCanvas(page)).toBeVisible({ timeout: 60_000 })
-  await page.getByRole('button', { name: 'Search', exact: true }).click()
+  // Search: the map's tool, or "Where are you?"'s own while it is opened
+  // (no confirmed position yet), which replaces it.
+  await page.getByRole('button', { name: /^(Search|Find the work in front of you)$/ }).click()
   await page.getByRole('textbox', { name: 'Search', exact: true }).fill('Object 3')
   await page
     .getByRole('button', { name: '[DEV] Tour navigation: Object 3 Object', exact: true })

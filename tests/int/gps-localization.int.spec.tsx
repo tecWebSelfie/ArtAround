@@ -98,6 +98,9 @@ describe('Directions following the route path', () => {
     start: path[0],
     end: path.at(-1)!,
     target: null,
+    confirmed: true,
+    position: path[0],
+    startEntranceId: null,
   })
   it('keeps the shown step on the same route and restarts on a new one', () => {
     // The map keeps the route object until its destination or start changes
@@ -134,7 +137,15 @@ describe('pinned at the destination itself', () => {
   const fix = { latitude: 45, longitude: 9, accuracy: 4 }
   // A QR scanned at the next stop: the pin and the destination are one point.
   const here = snapToNavMesh(navMesh, [10, 2], 0)!
-  const route = { path: null, start: here, end: here, target: null }
+  const route = {
+    path: null,
+    start: here,
+    end: here,
+    target: null,
+    confirmed: true,
+    position: here,
+    startEntranceId: null,
+  }
 
   it('gives no directions while there, and leads back once the visitor walks away', () => {
     const { result, rerender } = renderHook(
@@ -146,5 +157,29 @@ describe('pinned at the destination itself', () => {
     rerender({ current: moveFix(fix, -4, 0) })
     expect(result.current.steps.length).toBeGreaterThan(0)
     expect(result.current.path?.at(-1)?.[0]).toBeCloseTo(here[0], 0)
+  })
+})
+
+describe('a start only guessed to preview the route', () => {
+  const { navMesh } = createRouteMuseum('/models/route.glb')
+  const rooms = { rooms: [], doors: [], objects: [] }
+  const fix = { latitude: 45, longitude: 9, accuracy: 4 }
+  const entrance = snapToNavMesh(navMesh, [1, 2], 0)!
+  const stop = snapToNavMesh(navMesh, [10, 2], 0)!
+
+  // Regression: the GPS anchored on the entrance the map had only guessed,
+  // so the "live position" walked from where the visitor never said they were.
+  it('never anchors the GPS on it', () => {
+    const route = {
+      path: [entrance, stop],
+      start: entrance,
+      end: stop,
+      target: null,
+      confirmed: false,
+      position: null,
+      startEntranceId: 'entrance-main',
+    }
+    const { result } = renderHook(() => useRouteGuidance({ route, rooms, fix, navMesh }))
+    expect(result.current.estimate).toBeNull()
   })
 })

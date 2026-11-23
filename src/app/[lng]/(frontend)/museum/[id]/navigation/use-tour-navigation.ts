@@ -8,6 +8,7 @@ import { validateBuildJson } from '@pascal-app/core'
 import {
   collectMuseumMarkers,
   mapNodes,
+  placedEntrances,
   type ExitEntranceMarker,
   type ServiceMarker,
 } from '@/lib/pascal/museum-plugin/markers-in-map'
@@ -38,6 +39,8 @@ import { useCompass } from './compass-source'
 import { useRouteGuidance } from './use-route-guidance'
 import type { MuseumRoute } from './MuseumMap'
 import type { NavMesh } from 'navcat'
+import { createSessionStore } from '@/lib/session-store'
+import type { PromptEntrance } from './PositionPrompt'
 
 /**
  * The state behind the navigation page (`TourNavigation.tsx`): the map's
@@ -78,7 +81,11 @@ export function accessibilityContext(museum: Museum) {
   ].join(' ')
 }
 
-/** Human name of the current destination, for directions and their title. */
+/**
+ * Human name of the current destination, for directions and their title.
+ * Unnamed ones fall back to words that sit inside a sentence ("the exit"),
+ * or, `standalone`, to a name that stands alone (the map's flag label: "Exit").
+ */
 export function useDestinationName(
   destination: NavigationDestination | null,
   catalog: NavigationCatalogObject[],
@@ -86,19 +93,26 @@ export function useDestinationName(
     services,
     exitEntrances: exits,
   }: { services: ServiceMarker[]; exitEntrances: ExitEntranceMarker[] },
+  { standalone = false }: { standalone?: boolean } = {},
 ) {
   const { t } = useTranslation('tour-navigation')
   if (!destination) return ''
   if (destination.kind === 'object') {
-    return catalog.find((object) => object.id === destination.id)?.name ?? t('your destination')
+    return (
+      catalog.find((object) => object.id === destination.id)?.name ??
+      (standalone ? t('Artwork') : t('your destination'))
+    )
   }
   if (destination.kind === 'exit') {
-    return exits.find((node) => node.id === destination.target)?.name ?? t('the exit')
+    return (
+      exits.find((node) => node.id === destination.target)?.name ??
+      (standalone ? t('Exit') : t('the exit'))
+    )
   }
   const service = services.find(
     (node) => node.id === destination.target || node.service === destination.target,
   )
-  return service?.name ?? t('the service')
+  return service?.name ?? (standalone ? t('Service') : t('the service'))
 }
 
 /**
@@ -376,9 +390,69 @@ export function useGuidance({
     anchorScope: positionScope,
     navMesh,
   })
-  // Nearby suggestions follow the GPS estimate, or else the confirmed start.
+  // Nearby suggestions follow the GPS estimate, or else the confirmed start
+  // (never an entrance only guessed to preview the route).
   const here =
     guidance.estimate ??
-    (route?.start ? ([route.start[0], route.start[2]] as [number, number]) : null)
+    (route?.position ? ([route.position[0], route.position[2]] as [number, number]) : null)
   return { settings, gps, compass, positionScope, guidance, here }
+}
+
+/** Whether "Where are you?" is opened, per tab and museum (folded by "Hide"). */
+export const positionPromptStore = createSessionStore<boolean>((stored) => stored !== false)
+/** The stored key of a museum's "Where are you?" open state. */
+export const positionPromptKey = (museumId: string) => `position-prompt:${museumId}`
+
+/**
+ * The museum's placed entrances with the names visitors see: staff's name,
+ * else "Entrance" (numbered when there are several). One list for "Where are
+ * you?" and the progress bar's leading step, so both call it the same.
+ */
+export function useNamedEntrances(exitEntrances: ExitEntranceMarker[]) {
+  const { t } = useTranslation('tour-navigation')
+  return useMemo<PromptEntrance[]>(() => {
+    const placed = placedEntrances(exitEntrances)
+    // Only nameless entrances are numbered, among themselves: no gaps.
+    const nameless = placed.filter((node) => !node.name).length
+    let number = 0
+    return placed.map((node) => ({
+      id: node.id,
+      name:
+        node.name ||
+        (nameless > 1 ? t('Entrance {{number}}', { number: ++number }) : t('Entrance')),
+    }))
+  }, [exitEntrances, t])
+}
+
+/**
+ * "Where are you?" (`PositionPrompt`), ready for the directions strip: the
+ * entrances, what each answer does, and whether it is opened. It opens on a
+ * museum's first visit in the tab; a visitor who folds it keeps it folded
+ * there until they open it again from the strip. Undefined for group guests:
+ * the host's position is theirs.
+ */
+export function usePositionPrompt({
+  museumId,
+  entrances,
+  guest,
+  onEntrance,
+  onScan,
+}: {
+  museumId: string
+  entrances: PromptEntrance[]
+  guest: boolean
+  onEntrance: (id: string) => void
+  onScan: () => void
+}) {
+  const key = positionPromptKey(museumId)
+  // Opened until the stored choice is read (null before hydration).
+  const opened = positionPromptStore.useValue(key) ?? true
+  if (guest) return undefined
+  return {
+    opened,
+    onOpenedChange: (next: boolean) => positionPromptStore.save(key, next),
+    entrances,
+    onEntrance,
+    onScan,
+  }
 }

@@ -6,8 +6,8 @@ import { useAnimations, useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import { easing } from 'maath'
 import { deltaAngle } from 'maath/misc'
-import { memo, useEffect, useMemo, useRef, useState, type RefObject } from 'react'
-import { Vector3, type Group } from 'three'
+import { memo, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { Vector3, type Group, type Material, type Mesh } from 'three'
 import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js'
 
 /**
@@ -33,6 +33,35 @@ const CLIPS = { idle: 'Armature|Idle', walk: 'Armature|Walk' } as const
 const worldPosition = new Vector3()
 
 /**
+ * Opacity of the "ghost" avatar: a start the visitor has not confirmed (an
+ * entrance guessed for a route preview). Faint enough to read as a
+ * suggestion, solid enough to find on the plan.
+ */
+export const GHOST_OPACITY = 0.4
+
+/**
+ * The ghost's translucent copy of each of the model's materials, made once
+ * and shared by every ghost (the model's materials are themselves cached by
+ * useGLTF), so fading never builds a new GPU pipeline per avatar.
+ */
+const fadedCopies = new WeakMap<Material, Material>()
+/** Each avatar mesh's own material, to swap back when the ghost is confirmed. */
+const solidMaterials = new WeakMap<Mesh, Mesh['material']>()
+function fadedCopy(material: Material) {
+  let copy = fadedCopies.get(material)
+  if (!copy) {
+    copy = material.clone()
+    copy.transparent = true
+    copy.opacity = GHOST_OPACITY
+    // Without depth writes the faded body never hides its own far side in
+    // patches; the route line is drawn over it anyway.
+    copy.depthWrite = false
+    fadedCopies.set(material, copy)
+  }
+  return copy
+}
+
+/**
  * Visitor marker placed at the visitor's live position on the museum map.
  * Standing still, it keeps turning to face the camera, playing the in-place
  * Walk clip while it turns and Idle once it faces the viewer. While its
@@ -45,14 +74,31 @@ const worldPosition = new Vector3()
  */
 export const Avatar = memo(function Avatar({
   heading,
+  ghost = false,
 }: {
   /** Yaw of the current movement, or null when standing (read every frame). */
   heading?: RefObject<number | null>
+  /** Drawn translucent: a guessed start, not the visitor's confirmed position. */
+  ghost?: boolean
 }) {
   const { scene, animations } = useGLTF('/models/AvatarMale.glb')
   // useGLTF caches one scene per URL; a skeleton-aware clone gives this marker
   // its own bones, so its mixer never animates another instance of the model.
   const model = useMemo(() => cloneSkinned(scene), [scene])
+  // The clone shares the cached materials: a ghost swaps in faded copies
+  // (shared by every ghost, see `fadedCopy`) and back, keeping the skeleton
+  // and its animation running instead of building a new model. A layout
+  // effect: swapped before the frame is drawn, a guess never flashes solid.
+  useLayoutEffect(() => {
+    model.traverse((object) => {
+      const mesh = object as Mesh
+      if (!mesh.isMesh) return
+      let original = solidMaterials.get(mesh)
+      if (!original) solidMaterials.set(mesh, (original = mesh.material))
+      if (!ghost) mesh.material = original
+      else mesh.material = Array.isArray(original) ? original.map(fadedCopy) : fadedCopy(original)
+    })
+  }, [model, ghost])
   const { actions } = useAnimations(animations, model)
 
   const yaw = useRef<Group>(null)

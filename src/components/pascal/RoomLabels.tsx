@@ -34,14 +34,40 @@ const LABEL_HEIGHT = 2.2
  * covering only their own strokes (a solid pill hid what stood behind it).
  * Callers add the text color.
  */
-export const MAP_LABEL_CLASS =
+const MAP_LABEL_CLASS =
   'block text-sm leading-tight font-bold whitespace-nowrap select-none [text-shadow:0_0_1px_var(--mantine-color-body),0_0_2px_var(--mantine-color-body),0_0_3px_var(--mantine-color-body),0_0_4px_var(--mantine-color-body)]'
 
 /**
  * drei `Html`'s z-index range for map labels: under the navigation's
  * controls layer (z-20 in `TourNavigation`), which must stay on top.
  */
-export const MAP_LABEL_Z_RANGE: [number, number] = [10, 0]
+const MAP_LABEL_Z_RANGE: [number, number] = [10, 0]
+
+/**
+ * One label over the map at `position` (metres): text with the halo above,
+ * in the color its caller gives (`className`). Room names, the avatar's
+ * "You" and the destination's name all use it.
+ */
+export function MapLabel({
+  position,
+  className,
+  children,
+}: {
+  position: [number, number, number]
+  className: string
+  children: React.ReactNode
+}) {
+  return (
+    <Html
+      center
+      position={position}
+      zIndexRange={MAP_LABEL_Z_RANGE}
+      style={{ pointerEvents: 'none' }}
+    >
+      <span className={`${MAP_LABEL_CLASS} ${className}`}>{children}</span>
+    </Html>
+  )
+}
 
 export function RoomLabels() {
   const nodes = useScene((state) => state.nodes)
@@ -58,17 +84,13 @@ export function RoomLabels() {
   )
 
   return labels.map((label) => (
-    <Html
+    // Text color on body: full contrast in both themes.
+    <MapLabel
       key={label.id}
-      center
       position={[...label.position]}
-      zIndexRange={MAP_LABEL_Z_RANGE}
-      style={{ pointerEvents: 'none' }}
+      className="tracking-wide text-(--mantine-color-text)"
     >
-      {/* Text color on body: full contrast in both themes. */}
-      <span className={`${MAP_LABEL_CLASS} tracking-wide text-(--mantine-color-text)`}>
-        {label.name}
-      </span>
-    </Html>
+      {label.name}
+    </MapLabel>
   ))
 }

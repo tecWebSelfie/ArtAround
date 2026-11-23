@@ -53,3 +53,9 @@ export function requireTourFixture(): TourFixture {
   // Unreachable: `test.skip(true)` stops the test.
   throw new Error(MISSING)
 }
+
+/**
+ * The scanner's button: the map's shutter, or, while "Where are you?" is
+ * opened (no confirmed position yet), the prompt's own, which replaces it.
+ */
+export const SCAN_BUTTON = /^Scan a (QR code|work's QR code)$/

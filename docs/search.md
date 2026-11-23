@@ -8,13 +8,22 @@ Typesense and no key ever has a `NEXT_PUBLIC_` prefix.
 
 ## Cluster and environment
 
-| Variable                               | Meaning                                                                  |
-| -------------------------------------- | ------------------------------------------------------------------------ |
-| `TYPESENSE_HOST`, `TYPESENSE_API_KEY`  | The cluster (Typesense Cloud) and its admin key. Both required.          |
-| `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` | Default `443` / `https` (Cloud); a self-hosted node can override them.   |
-| `TYPESENSE_COLLECTION`                 | The collection name, default `artaround` (one per environment/database). |
+| Variable                               | Meaning                                                                                                                                                   |
+| -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `TYPESENSE_HOST`, `TYPESENSE_API_KEY`  | The cluster (Typesense Cloud) and its admin key. Both required.                                                                                           |
+| `TYPESENSE_PORT`, `TYPESENSE_PROTOCOL` | Default `443` / `https` (Cloud); the local node uses `8108` / `http`. A deployment sets both explicitly, since a build's `.env` may carry the local ones. |
+| `TYPESENSE_COLLECTION`                 | The collection name, default `artaround` (one per environment/database).                                                                                  |
 
-There is no local fallback service and no Payload fallback. Without the two
+**Locally and in CI** the same variables point at the compose `typesense`
+node that `pnpm services:start` runs (Typesense 30.1, `127.0.0.1:8108`,
+`http`, development key `xyz`, loopback only): `.env.example` and
+`tests.yml` carry those values, so the search pages, the indexing hooks and
+integration specs work without a Cloud cluster. A new local database is
+indexed as it is seeded (the hooks write on save); an existing one needs
+`pnpm search:reindex` once.
+
+There is no fallback in code and no Payload fallback: the node is reached only
+because the variables name it. Without the two
 required variables, or with the cluster unreachable, reads throw
 `SearchUnavailableError` and each surface shows its error state
 (`SearchUnavailableAlert`, the dropdown's error line); writes are logged and

@@ -1,5 +1,6 @@
 'use client'
 
+import { GHOST_OPACITY } from './Avatar'
 import { groundLevelId } from '@/lib/pascal/museum-plugin/marker-hierarchy'
 import { museumObjectId } from '@/lib/tour-navigation'
 import { DEFAULT_PRIMARY } from '@/theme'
@@ -39,6 +40,7 @@ type Work = { id: string; x: number; z: number; src: string }
 export function MuseumFloorplan({
   position,
   path,
+  estimated = false,
   catalog,
   roots,
 }: {
@@ -48,6 +50,11 @@ export function MuseumFloorplan({
   position: Vec3 | null
   /** The route still ahead. */
   path: Vec3[] | null
+  /**
+   * The start is a guess (an entrance previewing the route), not the
+   * visitor's confirmed position: drawn faded and dashed, as on the 3D map.
+   */
+  estimated?: boolean
   /**
    * The museum map's root ids: the plan waits until the shared scene store
    * holds this map (`MapViewer` loads it), not the museum seen before.
@@ -87,7 +94,14 @@ export function MuseumFloorplan({
             showCompass={false}
             showLevelSelector={false}
           />
-          <PlanLayer frame={frame} works={works} position={position} path={path} color={color} />
+          <PlanLayer
+            frame={frame}
+            works={works}
+            position={position}
+            path={path}
+            estimated={estimated}
+            color={color}
+          />
         </Suspense>
       ) : (
         loader
@@ -132,12 +146,14 @@ function PlanLayer({
   works,
   position,
   path,
+  estimated,
   color,
 }: {
   frame: React.RefObject<HTMLDivElement | null>
   works: Work[]
   position: Vec3 | null
   path: Vec3[] | null
+  estimated: boolean
   color: string
 }) {
   const [layer] = useState(() => document.createElementNS('http://www.w3.org/2000/svg', 'g'))
@@ -201,6 +217,9 @@ function PlanLayer({
             stroke={color}
             strokeWidth={5}
             vectorEffect="non-scaling-stroke"
+            // A preview from a guessed start: dashed (screen pixels, as the
+            // stroke does not scale).
+            strokeDasharray={estimated ? '10 9' : undefined}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -209,6 +228,7 @@ function PlanLayer({
       )}
       {position && (
         <Disc
+          opacity={estimated ? GHOST_OPACITY : 1}
           Icon={PersonStanding}
           x={position[0]}
           z={position[2]}
@@ -228,16 +248,18 @@ function Disc({
   z,
   r,
   color,
+  opacity = 1,
 }: {
   Icon: LucideIcon
   x: number
   z: number
   r: number
   color: string
+  opacity?: number
 }) {
   const size = r * 1.15
   return (
-    <>
+    <g opacity={opacity}>
       <circle cx={x} cy={z} r={r} fill={color} stroke="#ffffff" strokeWidth={r * 0.18} />
       <Icon
         x={x - size / 2}
@@ -247,6 +269,6 @@ function Disc({
         color="#ffffff"
         strokeWidth={2.5}
       />
-    </>
+    </g>
   )
 }

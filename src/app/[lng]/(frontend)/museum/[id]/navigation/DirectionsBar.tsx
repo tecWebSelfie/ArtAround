@@ -21,8 +21,9 @@ import {
   Navigation,
   type LucideIcon,
 } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, type ComponentProps } from 'react'
 import { useTranslation } from 'react-i18next'
+import { PositionPrompt } from './PositionPrompt'
 
 /**
  * Localized sentence for one direction step. The UI shows it, and voice
@@ -78,10 +79,13 @@ function DirectionsLayout({
   children,
   trailingControl,
   active = false,
+  tall = false,
 }: {
   children: React.ReactNode
   trailingControl?: React.ReactNode
   active?: boolean
+  /** Several rows (the opened "Where are you?"): the assistant sits by the first. */
+  tall?: boolean
 }) {
   return (
     <div className="@container">
@@ -89,7 +93,7 @@ function DirectionsLayout({
         className={
           active
             ? 'grid min-h-12 grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-1 @min-[22rem]:grid-cols-[auto_minmax(0,1fr)_auto_auto]'
-            : 'flex items-center gap-2'
+            : `flex gap-2 ${tall ? 'items-start' : 'items-center'}`
         }
       >
         <div className={active ? 'contents' : 'min-w-0 flex-1'}>{children}</div>
@@ -128,6 +132,7 @@ export function DirectionsBar({
   onSearch,
   action,
   trailingControl,
+  positionPrompt,
 }: {
   steps: DirectionStep[]
   current: number
@@ -141,20 +146,33 @@ export function DirectionsBar({
   action?: React.ReactNode
   /** Assistant shares the arrow row when enlarged text needs the full width. */
   trailingControl?: React.ReactNode
+  /**
+   * The opened "Where are you?" (`PositionPrompt`) for the `no-position`
+   * state, with its open state kept by the page. Without it (a group guest,
+   * whose position is the host's) that state stays the one-line call.
+   */
+  positionPrompt?: Omit<ComponentProps<typeof PositionPrompt>, 'onSearch' | 'onHide'> & {
+    opened: boolean
+    onOpenedChange: (opened: boolean) => void
+  }
 }) {
   const { t } = useTranslation('tour-navigation')
   const sentence = useStepSentence()
   const [opened, { open, close }] = useDisclosure(false)
   const step = steps[current]
 
-  if (status === 'no-position' || status === 'no-destination') {
+  if (status === 'no-position') {
     return (
-      <AskForEnds
-        position={status === 'no-position'}
+      <AskForPosition
+        prompt={positionPrompt}
         onSearch={onSearch}
         trailingControl={trailingControl}
       />
     )
+  }
+
+  if (status === 'no-destination') {
+    return <AskForEnds position={false} onSearch={onSearch} trailingControl={trailingControl} />
   }
 
   if (status || !step) {
@@ -271,6 +289,37 @@ export function DirectionsBar({
         </Timeline>
       </Modal>
     </>
+  )
+}
+
+/**
+ * The `no-position` state: "Where are you?" opened (`PositionPrompt`), or,
+ * folded or without a prompt (a group guest), the one-line call; folded, that
+ * line opens the prompt again, which offers search too.
+ */
+function AskForPosition({
+  prompt,
+  onSearch,
+  trailingControl,
+}: {
+  prompt: ComponentProps<typeof DirectionsBar>['positionPrompt']
+  onSearch?: () => void
+  trailingControl?: React.ReactNode
+}) {
+  if (prompt?.opened) {
+    const { opened: _opened, onOpenedChange, ...answers } = prompt
+    return (
+      <DirectionsLayout trailingControl={trailingControl} tall>
+        <PositionPrompt {...answers} onSearch={onSearch} onHide={() => onOpenedChange(false)} />
+      </DirectionsLayout>
+    )
+  }
+  return (
+    <AskForEnds
+      position
+      onSearch={prompt ? () => prompt.onOpenedChange(true) : onSearch}
+      trailingControl={trailingControl}
+    />
   )
 }
 

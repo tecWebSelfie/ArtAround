@@ -67,6 +67,11 @@ jobs:
       LIVEKIT_URL: ws://localhost:7880
       LIVEKIT_API_KEY: devkey
       LIVEKIT_API_SECRET: secret
+      # The compose Typesense node (docker-compose.yml), as in .env.example.
+      TYPESENSE_HOST: 127.0.0.1
+      TYPESENSE_PORT: '8108'
+      TYPESENSE_PROTOCOL: http
+      TYPESENSE_API_KEY: xyz
       NEXT_PUBLIC_PAYLOAD_URL: http://localhost:3000
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       # tour-guidance drives the simulated GPS (src/.../gps-source.ts).
@@ -95,7 +100,7 @@ jobs:
       - name: Write .env
         run: echo "PAYLOAD_SECRET=$(openssl rand -hex 24)" > .env
 
-      # MongoDB and LiveKit from docker-compose.yml, as on a developer machine.
+      # MongoDB, Typesense and LiveKit from docker-compose.yml, as on a developer machine.
       - run: pnpm services:start
 
       # `test:int` with coverage: the same specs, plus the report.

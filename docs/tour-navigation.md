@@ -1,6 +1,6 @@
 # Tour navigation: implementation and agent handoff
 
-Last reviewed: 2026-10-18. This document describes the working tree, including
+Last reviewed: 2026-11-23. This document describes the working tree, including
 uncommitted changes. Check source and Git status before resuming; local process IDs
 and cached build artifacts are not reliable handoff state.
 
@@ -15,14 +15,41 @@ and cached build artifacts are not reliable handoff state.
   voice assistant gets them as context. The tour page shows them too
   (`src/lib/tour-logistics.ts`).
 - Two positions, kept apart (`src/lib/live-route.ts`). The **pinned** one is
-  `at` (else the derived entrance): only explicit acts set it, never GPS
-  alone: "I'm here" on a QR or a nearby work, "Set as my position", arriving,
+  `at`: only explicit acts set it, never GPS
+  alone: "I'm here" on a QR or a nearby work, "Set as my position", an
+  entrance chosen in "Where are you?", arriving,
   completing a stop, or opening a link that carries `at`. Opening a QR link or
-  reading content must not change it. The **live** one is the pin moved by the
+  reading content must not change it. `at` holds a work's id or an entrance
+  marker's node id (a museum may have several entrances; the visitor says
+  which). The **live** one is the pin moved by the
   GPS (real or simulated) since it was set, snapped onto the navmesh: the
   avatar walks there and the route leaves from there. A new pin resets the
-  GPS reference, so the avatar returns onto it and the camera re-centres;
-  live movement never moves the camera.
+  GPS reference, so the avatar returns onto it; live movement never moves the
+  camera.
+- **Without `at`** nothing pretends to know where the visitor is. With a
+  destination (a tour's next stop), the route is _previewed_ from the entrance
+  nearest to it: a translucent "ghost" avatar labelled "Are you here?" and a
+  dashed line (dashed and faded on the 2D plan too), while the directions
+  strip withholds steps. With no destination (a free visit) no avatar is drawn.
+  The strip's `no-position` state opens **"Where are you?"**
+  (`PositionPrompt.tsx`), not a modal (the map stays usable): one button per
+  placed entrance (named by staff; "I'm at …" when there is one), "Scan a
+  work's QR code" and "Find the work in front of you" (search). "Hide" folds
+  it into the one-line strip, whose tap opens it again; the choice is kept per
+  tab and museum (`usePositionPrompt`). While it is opened the map's controls
+  leave out scan, search and "Where to?" (`NavigationControls`' `asking`).
+  Group guests never see it: the host's position is theirs. The start rule
+  itself is `routeStart` (`src/lib/route-start.ts`).
+- **The camera frames the journey** (`FrameJourney` in `MuseumMap.tsx`,
+  geometry in `src/lib/pascal/journey-view.ts`): whenever the route changes
+  (entering the museum or a tour, a new position, a new destination, advancing
+  a stop) the start, the route and the destination are framed together in
+  the band of the canvas left free by the header and the controls' bottom
+  row (refs the page passes as `overlays`) plus a gutter
+  for the labels, keeping the compass direction and never closer than 20 m.
+  One end alone is centred; nothing leaves the whole museum. A resized canvas
+  reframes the same route only until the visitor moves the camera. The flag
+  carries the destination's name ("Stop 2 · …" for the tour's next stop).
 - Pinned at the destination itself (a QR scanned at the next stop, or a link
   whose `at` is that stop): the directions say "You are at …" instead of
   searching a route. Once the live position is over 1.5 m away, directions

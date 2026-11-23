@@ -3,9 +3,11 @@ import { z } from 'zod'
 
 /**
  * Entrances and exits of the museum. They are not necessarily doors: staff
- * explicitly drop a marker where visitors enter or leave. Tour navigation uses
- * the nearest entrance as the default start and the nearest exit as a route
- * destination, and both are searchable from the spotlight.
+ * explicitly drop a marker where visitors enter or leave. In tour navigation a
+ * visitor can confirm they stand at an entrance (its node id becomes `at`),
+ * the nearest entrance previews a route until they say where they are, the
+ * nearest exit is a route destination, and both are searchable from the
+ * spotlight.
  */
 export const EXIT_ENTRANCE_NODE_TYPE = 'museum:exit-entrance'
 

@@ -7,7 +7,7 @@ import {
 } from '@playwright/test'
 import { showQrToCamera } from '../helpers/qr-camera'
 import { requireLiveKit } from '../helpers/livekit'
-import { requireTourFixture, tourFixture } from '../helpers/tour-fixture'
+import { requireTourFixture, tourFixture, SCAN_BUTTON } from '../helpers/tour-fixture'
 import { prepareSoftwareWebGL } from '../helpers/software-webgl'
 
 /**
@@ -436,9 +436,7 @@ test('the host scans a work and the guest follows into it', async ({ browser }) 
 
   // The host scans: the scan page is the host's alone…
   await expect(async () => {
-    await host
-      .getByRole('button', { name: 'Scan a QR code', exact: true })
-      .click({ timeout: 10_000 })
+    await host.getByRole('button', { name: SCAN_BUTTON }).click({ timeout: 10_000 })
     await expect(host).toHaveURL(/\/scan\?from=|\/object\//, { timeout: 20_000 })
   }).toPass({ timeout: 90_000 })
   // …then the work opens over the tour for both, the position unchanged.
