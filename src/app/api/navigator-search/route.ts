@@ -3,6 +3,7 @@ import { isMuseumPoint, type MuseumPoint } from '@/lib/museum-location'
 import { museumAccent } from '@/lib/museum-color'
 import { museumSearchMuseumId } from '@/lib/museum-mode'
 import { PICTURE_SELECT, pictureSrc, type Picture } from '@/lib/picture'
+import { asViewer } from '@/lib/session'
 import { searchItems } from '@/lib/search/query'
 import type { SearchHit } from '@/lib/search/types'
 import { isEmptyTour } from '@/lib/tour-stops'
@@ -134,10 +135,12 @@ async function hydrateNavigatorHits({
   payload,
   locale,
   hits,
+  viewer,
 }: {
   payload: Payload
   locale: TypedLocale
   hits: SearchHit[]
+  viewer: Awaited<ReturnType<typeof asViewer>>
 }): Promise<NavigatorSearchItem[]> {
   const idsOf = (collection: string) =>
     hits.filter((hit) => hit.collection === collection).map((hit) => hit.sourceId)
@@ -149,7 +152,7 @@ async function hydrateNavigatorHits({
           locale,
           depth: 0,
           pagination: false,
-          overrideAccess: true,
+          ...viewer,
         })
       : null
 
@@ -168,7 +171,7 @@ async function hydrateNavigatorHits({
           locale,
           depth: 0,
           pagination: false,
-          overrideAccess: true,
+          ...viewer,
         })
       : null,
   ])
@@ -320,7 +323,11 @@ export async function GET(request: Request) {
   try {
     // The museum-mode cookie does not need the search: resolve it together
     // with Payload.
-    const [payload, museumId] = await Promise.all([getPayload({ config }), museumSearchMuseumId()])
+    const [payload, museumId, viewer] = await Promise.all([
+      getPayload({ config }),
+      museumSearchMuseumId(),
+      asViewer(),
+    ])
 
     // A Typesense failure is not hidden: it reaches the catch below, which
     // answers 500 and lets the dropdown show its error state (no Payload
@@ -350,7 +357,7 @@ export async function GET(request: Request) {
     }
     const rankedHits = hits.toSorted((a, b) => score(b) - score(a)).slice(0, limit)
 
-    const items = await hydrateNavigatorHits({ payload, locale, hits: rankedHits })
+    const items = await hydrateNavigatorHits({ payload, locale, hits: rankedHits, viewer })
     return Response.json({ items })
   } catch (error) {
     console.error('[search] navigator search failed', error)

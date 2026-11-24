@@ -67,7 +67,16 @@ together.
 ## Keeping the index in step
 
 - `searchSyncAfterChange` / `searchSyncAfterDelete` (`src/lib/search/sync.ts`)
-  on each indexed collection: one upsert or delete per save.
+  on each indexed collection: one sync per save. Writes for one row go through
+  a per-document queue and decide upsert vs delete from a fresh read of the
+  stored document (never the hook's own doc), after the save's transaction has
+  finished (Payload has no after-commit hook: the task waits for
+  `req.transactionID` to clear), so concurrent saves always end with the row
+  matching the latest stored state. In-process; `pnpm search:reindex` repairs
+  anything else.
+- Reads never trust the index for access: `docsInHitOrder` and the navigator
+  hydrate as the visitor (`asViewer`), so a stale row of a document the
+  visitor can't read simply drops out.
 - Dependent rows: a museum's rename refreshes its tours and objects; a
   content's price or a work's name refreshes the tours that include it
   (`resyncToursIncluding`); a tour's visitable stops changing (map edit,
