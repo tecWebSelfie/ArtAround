@@ -62,7 +62,9 @@ const MAX_PAGE = 10_000
 export function normalizeSearchInput(q: string, page: number) {
   const safePage = Number.isFinite(page) ? Math.floor(page) : 1
   return {
-    q: q.trim().slice(0, MAX_QUERY_LENGTH),
+    // Cut by code points: a UTF-16 slice could split a surrogate pair and leave a
+    // lone surrogate, which makes URL encoding throw (reported as an outage).
+    q: Array.from(q.trim()).slice(0, MAX_QUERY_LENGTH).join(''),
     page: Math.min(MAX_PAGE, Math.max(1, safePage)),
   }
 }

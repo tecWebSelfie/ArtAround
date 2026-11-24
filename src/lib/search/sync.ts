@@ -104,7 +104,13 @@ async function waitForCommit(req?: PayloadRequest) {
   }
 }
 
-type Slot = { tail: Promise<void>; waiting?: Set<PayloadRequest | undefined> }
+// `run` is the pending run's own promise: joiners return it (not `tail`, which
+// swallows failures for the queue's sake) so every caller sees the run's error.
+type Slot = {
+  tail: Promise<void>
+  waiting?: Set<PayloadRequest | undefined>
+  run?: Promise<void>
+}
 const queues = new Map<string, Slot>()
 
 /**
@@ -118,7 +124,7 @@ function enqueue(key: string, req: PayloadRequest | undefined, task: () => Promi
   const slot = queues.get(key) ?? { tail: Promise.resolve() }
   if (slot.waiting) {
     slot.waiting.add(req)
-    return slot.tail
+    return slot.run ?? slot.tail
   }
   const waiting = new Set<PayloadRequest | undefined>([req])
   slot.waiting = waiting
@@ -128,6 +134,7 @@ function enqueue(key: string, req: PayloadRequest | undefined, task: () => Promi
     await Promise.all([...waiting].map(waitForCommit))
     await task()
   })
+  slot.run = run
   slot.tail = run.catch(() => undefined)
   queues.set(key, slot)
   // Drop the entry once idle so the map does not grow with every document.
