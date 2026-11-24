@@ -47,6 +47,26 @@ export type SearchItemsOptions = {
   sortBy?: string
 }
 
+/**
+ * Typesense answers 400 to a request whose whole query string (`q` plus the
+ * filter, query_by... parameters, all URL-encoded) exceeds 4000 characters, and
+ * to a `page` that is not an unsigned integer. Those are request errors, not
+ * outages, but every caller reports any Typesense failure as one, so the input
+ * is normalized here, once, for all search surfaces.
+ */
+/** Well under 4000 even when every character is URL-encoded to 3 bytes (multi-byte text) and the filters add their share. */
+const MAX_QUERY_LENGTH = 512
+/** Far beyond any real pager, small enough to stay a safe integer offset. */
+const MAX_PAGE = 10_000
+
+export function normalizeSearchInput(q: string, page: number) {
+  const safePage = Number.isFinite(page) ? Math.floor(page) : 1
+  return {
+    q: q.trim().slice(0, MAX_QUERY_LENGTH),
+    page: Math.min(MAX_PAGE, Math.max(1, safePage)),
+  }
+}
+
 function quote(value: string) {
   // Backticks are Typesense's escape for values with commas/spaces.
   return `\`${value.replaceAll('`', '')}\``
@@ -109,7 +129,7 @@ export async function searchItems({
   // 404; the seed or a save then fills it.
   await ensureSearchCollection()
 
-  const trimmed = q.trim()
+  const { q: trimmed, page: safePage } = normalizeSearchInput(q, page)
   const filter = buildFilterBy({ kinds, price, museumId, filterBy })
 
   const result = await typesense()
@@ -121,7 +141,7 @@ export async function searchItems({
       query_by_weights: queryByWeights,
       filter_by: filter || undefined,
       sort_by: sortBy ?? (trimmed ? DEFAULT_SORT_BY : BROWSING_SORT_BY),
-      page,
+      page: safePage,
       per_page: limit,
       prefix: true,
       // Serves hits in the middle of a word ("ernini" → Bernini) when no
