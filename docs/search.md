@@ -77,7 +77,10 @@ together.
 - Reads never trust the index for access: `docsInHitOrder` and the navigator
   hydrate as the visitor (`asViewer`), so a stale row of a document the
   visitor can't read simply drops out.
-- Dependent rows: a museum's rename refreshes its tours and objects; a
+- Dependent rows: a museum's rename refreshes its tours and objects, and the
+  contents of its objects with their authors' user rows (so does a map edit,
+  for the objects added or removed: `museum_id`/`museum_name` follow the
+  museum that exhibits the object); a
   content's price or a work's name refreshes the tours that include it
   (`resyncToursIncluding`); a tour's visitable stops changing (map edit,
   deleted content: `src/lib/visitable-stops.ts`, `src/lib/tour-stop-cleanup.ts`)

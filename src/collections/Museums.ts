@@ -198,7 +198,8 @@ const appointCreatorAsDirector: CollectionAfterChangeHook<Museum> = async ({
 }
 
 /**
- * Refreshes the search documents of a museum's tours and objects (docs/search.md):
+ * Refreshes the search documents of a museum's tours, objects, the contents of
+ * the objects whose placement changed and those contents' authors (docs/search.md):
  * the museum has its own document, but its name and city are also part of the
  * search text of its tours and exhibited objects. Tours point at their museum
  * (`tours.museum`), so they are looked up; objects come from the map-derived
@@ -225,6 +226,50 @@ async function refreshMuseumDependents({
       req,
     })
     const objectIds = [...relationshipIds(doc.objects), ...relationshipIds(previousDoc?.objects)]
+    // Contents (and their authors' user rows) take `museum_id`/`museum_name`
+    // from the museums that exhibit their object, so they follow the objects
+    // whose placement changed (added or removed); a rename or a delete
+    // changes the museum's text on every one of its objects.
+    const before = new Set(relationshipIds(previousDoc?.objects))
+    const after = new Set(relationshipIds(doc.objects))
+    const renamed =
+      !previousDoc ||
+      previousDoc.name !== doc.name ||
+      previousDoc.location?.city !== doc.location?.city
+    const contentObjectIds = renamed
+      ? objectIds
+      : objectIds.filter((id) => before.has(id) !== after.has(id))
+    const contentIds = new Set<string>()
+    const authorIds = new Set<string>()
+    if (contentObjectIds.length > 0) {
+      // One batched read of the objects' contents, then one of their authors.
+      const objects = await req.payload.find({
+        collection: 'objects',
+        where: { id: { in: contentObjectIds } },
+        select: { contents: true },
+        depth: 0,
+        pagination: false,
+        overrideAccess: true,
+        req,
+      })
+      for (const object of objects.docs)
+        for (const id of relationshipIds(object.contents)) contentIds.add(id)
+      if (contentIds.size > 0) {
+        const contents = await req.payload.find({
+          collection: 'contents',
+          where: { id: { in: [...contentIds] } },
+          select: { author: true },
+          depth: 0,
+          pagination: false,
+          overrideAccess: true,
+          req,
+        })
+        for (const content of contents.docs) {
+          const author = typeof content.author === 'object' ? content.author?.id : content.author
+          if (author) authorIds.add(String(author))
+        }
+      }
+    }
     await Promise.all([
       resyncSearchDocuments({
         payload: req.payload,
@@ -233,6 +278,18 @@ async function refreshMuseumDependents({
         req,
       }),
       resyncSearchDocuments({ payload: req.payload, collection: 'objects', ids: objectIds, req }),
+      resyncSearchDocuments({
+        payload: req.payload,
+        collection: 'contents',
+        ids: [...contentIds],
+        req,
+      }),
+      resyncSearchDocuments({
+        payload: req.payload,
+        collection: 'users',
+        ids: [...authorIds],
+        req,
+      }),
     ])
   } catch (error) {
     // Search is derived data: a failure here must not roll back the museum save.
