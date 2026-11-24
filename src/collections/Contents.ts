@@ -135,13 +135,18 @@ const assignAuthor: CollectionBeforeChangeHook<Content> = ({ data, req, operatio
 const guardPaidContent: CollectionBeforeChangeHook<Content> = async ({
   data,
   req,
+  operation,
   originalDoc,
 }) => {
   if (!req.user || isSuperAdmin(req)) return data
   if (!data.price || data.price === originalDoc?.price) return data
-  const museums = originalDoc
-    ? await museumIdsForContent(req, String(originalDoc.id))
-    : await museumIdsForObjects(req, data.attachToObject ? [data.attachToObject] : [])
+  // On create Payload passes an empty (truthy) `originalDoc`, so pick the
+  // branch from `operation`: a new content has no id yet and is judged by the
+  // object it is attached to (N18).
+  const museums =
+    operation === 'update'
+      ? await museumIdsForContent(req, String(originalDoc?.id))
+      : await museumIdsForObjects(req, data.attachToObject ? [data.attachToObject] : [])
   const roles = await getMuseumRoles(req)
   if (!museums.some((id) => hasRank(roles.get(id), MUSEUM_FUNCTION_VERIFIED))) {
     throw new APIError(
