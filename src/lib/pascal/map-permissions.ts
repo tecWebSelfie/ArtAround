@@ -27,7 +27,8 @@ function stable(value: unknown): string {
 }
 
 /**
- * Ids of nodes a curator changed but may not touch. Adding or removing an
+ * Ids of nodes (and names of top-level scene keys) a curator changed but may
+ * not touch. Adding or removing an
  * object also edits its parent's `children` list, so object ids are ignored
  * inside `children` when comparing the other nodes.
  */
@@ -40,10 +41,16 @@ export function curatorForbiddenChanges(storedMap: unknown, savedMap: unknown): 
   const nextMap = nested(savedMap)
   const previous = mapNodes(previousMap) ?? {}
   const next = mapNodes(nextMap) ?? {}
+  // An id is a curator-owned object only when every side that has it holds a
+  // `museum-objects` item: adding or removing an item is allowed, but an
+  // existing id whose node changes kind (item -> wall/service/...) is a
+  // structure edit and falls through to the regular diff below.
   const objectNodes = new Set(
-    [...Object.entries(previous), ...Object.entries(next)]
-      .filter(([, node]) => museumObjectId(node))
-      .map(([id]) => id),
+    [...new Set([...Object.keys(previous), ...Object.keys(next)])].filter(
+      (id) =>
+        (!(id in previous) || museumObjectId(previous[id])) &&
+        (!(id in next) || museumObjectId(next[id])),
+    ),
   )
   const normalize = (node: unknown) => {
     if (!node || typeof node !== 'object') return stable(node)
@@ -62,5 +69,14 @@ export function curatorForbiddenChanges(storedMap: unknown, savedMap: unknown): 
   const roots = (map: unknown) =>
     stable((map as { rootNodeIds?: unknown } | null)?.rootNodeIds ?? [])
   if (roots(previousMap) !== roots(nextMap)) forbidden.push('rootNodeIds')
+  // Every other top-level key (installedPlugins, materials, ...) is part of
+  // the director's scene configuration: curators must leave it untouched.
+  const topLevel = (map: unknown) =>
+    map && typeof map === 'object' ? (map as Record<string, unknown>) : {}
+  const [beforeTop, afterTop] = [topLevel(previousMap), topLevel(nextMap)]
+  for (const key of new Set([...Object.keys(beforeTop), ...Object.keys(afterTop)])) {
+    if (key === 'nodes' || key === 'rootNodeIds') continue
+    if (stable(beforeTop[key]) !== stable(afterTop[key])) forbidden.push(key)
+  }
   return forbidden
 }

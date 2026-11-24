@@ -64,7 +64,8 @@ Super admins bypass all of the above.
 - Map ownership: curators may only add, move or remove `museum-objects`
   items. `guardCuratorMapEdits` diffs the stored and incoming scenes
   (`src/lib/pascal/map-permissions.ts`) and rejects any other node change
-  with a 403 listing the nodes. The editor hides the structure and services
+  (including an item id turned into another node type) or top-level scene key
+  change (`installedPlugins`, `materials`...) with a 403 listing them. The editor hides the structure and services
   tools for curators (`canManageStructure`).
 - `objects.contents` stays the authored object → content relation (tour
   navigation reads it). Creating a content with the write-only
