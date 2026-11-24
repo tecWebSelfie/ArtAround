@@ -36,6 +36,7 @@ import { Content } from '@/payload-types'
 import { convertLexicalToPlaintext } from '@payloadcms/richtext-lexical/plaintext'
 import {
   APIError,
+  NotFound,
   type Access,
   type CollectionAfterChangeHook,
   type CollectionBeforeChangeHook,
@@ -220,21 +221,47 @@ const attachTo = (
   async function attach({ doc, data, req, operation }) {
     const id = data?.[input]
     if (operation !== 'create' || typeof id !== 'string' || !id) return doc
-    const target = await req.payload.findByID({
+    // Atomic append, not read-modify-write: parallel creates about the same
+    // work would all read the same `contents` and the last writer would drop
+    // the others (N19). `$addToSet` on the adapter's model is one server-side
+    // update (joining `req`'s session when it has a transaction), so no link
+    // is lost. A regular `payload.update` is the only thing that runs the
+    // target's `afterChange` hooks (visitable stops of the tours including the
+    // content, search rows), so they are run here by hand on the same
+    // before/after pair an update would have produced.
+    const { db } = req.payload
+    // The adapter's session of this request's transaction, when it has one.
+    const transactionID = await req.transactionID
+    const session = transactionID ? db.sessions[transactionID] : undefined
+    const result = await db.collections[collection]!.updateOne(
+      { _id: id },
+      { $addToSet: { contents: String(doc.id) }, $set: { updatedAt: new Date() } },
+      { session },
+    )
+    if (!result.matchedCount) throw new NotFound(req.t)
+    const after = await req.payload.findByID({
       collection,
       id,
       depth: 0,
-      select: { contents: true },
+      overrideAccess: true,
       req,
     })
-    await req.payload.update({
-      collection,
-      id,
-      data: { contents: [...(target.contents ?? []).map(asId), String(doc.id)] as string[] },
-      depth: 0,
-      context,
-      req,
-    })
+    const previousDoc = {
+      ...after,
+      contents: (after.contents ?? []).filter((entry) => asId(entry) !== String(doc.id)),
+    }
+    const config = req.payload.collections[collection].config
+    for (const hook of config.hooks.afterChange) {
+      await hook({
+        collection: config,
+        context: { ...req.context, ...context },
+        data: {},
+        doc: after,
+        operation: 'update',
+        previousDoc,
+        req,
+      } as never)
+    }
     return doc
   }
 
