@@ -1,5 +1,8 @@
 import 'server-only'
 
+import { notFound } from 'next/navigation'
+import { NotFound } from 'payload'
+
 import type { TourCandidate } from '@/components/editing/forms/TourForm'
 import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEditor'
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
@@ -41,18 +44,26 @@ export async function existingVisitCopy(
  * Read as the visitor, so `locked` reflects what they can actually read.
  * `stopIds` (the tour being edited or copied) adds its stops that are no
  * longer candidates, flagged (see `getUnavailableStops`).
+ *
+ * An unknown or malformed museum id makes Payload throw `NotFound`: that is a
+ * 404 for every caller (picker, new tour, editor), not a 500; other errors
+ * still throw.
  */
-
 export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
-  const museum: Pick<Museum, 'id' | 'name' | 'objects'> = await payload.findByID({
-    collection: 'museums',
-    id: museumId,
-    depth: 0,
-    select: { name: true, objects: true },
-    ...viewer,
-  })
+  const museum: Pick<Museum, 'id' | 'name' | 'objects'> = await payload
+    .findByID({
+      collection: 'museums',
+      id: museumId,
+      depth: 0,
+      select: { name: true, objects: true },
+      ...viewer,
+    })
+    .catch((error: unknown) => {
+      if (error instanceof NotFound) notFound()
+      throw error
+    })
   const objectIds = (museum.objects ?? []).map((object) =>
     typeof object === 'string' ? object : object.id,
   )
