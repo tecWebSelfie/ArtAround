@@ -88,8 +88,12 @@ export async function POST(request: Request) {
         depth: 0,
         ...viewer,
       }),
-      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }),
+      // A museum id that doesn't exist or is malformed is the client's mistake,
+      // not a downstream failure: read it as null and answer 422 below instead
+      // of letting the catch turn Payload's NotFound into a 502.
+      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }).catch(() => null),
     ])
+    if (!museum) return NextResponse.json({ error: 'museum' }, { status: 422 })
     const nodes = mapNodes(museum.map)
     const { rooms, objects: placed } = museumRooms(nodes)
     const pointOf = new Map(placed.map((entry) => [entry.objectId, entry.point]))
