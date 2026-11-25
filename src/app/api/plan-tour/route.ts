@@ -90,8 +90,13 @@ export async function POST(request: Request) {
       }),
       // A museum id that doesn't exist or is malformed is the client's mistake,
       // not a downstream failure: read it as null and answer 422 below instead
-      // of letting the catch turn Payload's NotFound into a 502.
-      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }).catch(() => null),
+      // of letting the catch turn Payload's NotFound into a 502. Any other
+      // error (database outage) still rejects and reaches that 502.
+      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }).catch((error) => {
+        const status = (error as { status?: number }).status
+        if (status === 404 || status === 400) return null
+        throw error
+      }),
     ])
     if (!museum) return NextResponse.json({ error: 'museum' }, { status: 422 })
     const nodes = mapNodes(museum.map)

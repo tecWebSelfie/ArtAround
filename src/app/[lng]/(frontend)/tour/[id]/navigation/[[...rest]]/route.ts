@@ -28,7 +28,7 @@ async function redirectToMuseumNavigation(
   const payload = await getPayload({ config })
   // Read as the visitor (cookie user, `readTours`): a private tour they may not
   // read answers 404 exactly like an unknown id, so neither its existence nor
-  // its museum leaks; its author and group guests still get the redirect.
+  // its museum leaks; its author still gets the redirect.
   const tour = await payload
     .findByID({
       collection: 'tours',
