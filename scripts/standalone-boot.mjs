@@ -19,6 +19,7 @@
  * that never comes up.
  */
 import { spawn } from 'node:child_process'
+import { readdirSync, readFileSync, readlinkSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -49,14 +50,66 @@ process.env.PORT ||= '3000'
 
 // As the container's PID 1 this process gets `docker stop`'s SIGTERM: forward
 // it to whichever child runs (seed, reindex or server) from the start, so the
-// stop never waits for the kill timeout.
+// stop never waits for the kill timeout. The deploy container's nodemon
+// restarts this script with SIGUSR2 (its default), and SIGHUP is the other
+// "your terminal/supervisor is gone" signal: Node's default for both is to
+// exit at once, which left the server.js child orphaned on the port, still
+// serving the previous build after every deploy (25 Nov 2026 canary). Every
+// one of them now stops the child gracefully (SIGTERM, which Next handles)
+// and this process exits only once it has, so the port is free for the
+// restarted boot. tests/int/standalone-boot-restart.int.spec.ts guards it.
 let child
 let stopping = false
-for (const signal of ['SIGINT', 'SIGTERM']) {
+for (const signal of ['SIGINT', 'SIGTERM', 'SIGHUP', 'SIGUSR2']) {
   process.on(signal, () => {
     stopping = true
-    child?.kill(signal)
+    child?.kill(signal === 'SIGINT' ? 'SIGINT' : 'SIGTERM')
   })
+}
+
+/**
+ * Stops any `node server.js` still running from this standalone folder: the
+ * orphan an earlier boot left behind when it was killed without a chance to
+ * stop its child (SIGKILL, or the SIGUSR2 restarts of boots before the
+ * handler above). It holds the port, so the new server could not listen and
+ * the orphan would keep rendering the previous build, whose chunks the
+ * deploy's rsync --delete has removed. Linux /proc only (the container has
+ * no `ps`); elsewhere it does nothing. Matches on argv and working directory,
+ * never on a pid file, so it also catches orphans of boots that wrote none.
+ */
+async function stopStaleServers() {
+  let pids
+  try {
+    pids = readdirSync('/proc').filter((name) => /^\d+$/.test(name) && Number(name) !== process.pid)
+  } catch {
+    return
+  }
+  const cwd = process.cwd()
+  const stale = pids.map(Number).filter((pid) => {
+    try {
+      const argv = readFileSync(`/proc/${pid}/cmdline`, 'utf8').split('\0')
+      return argv[1] === 'server.js' && readlinkSync(`/proc/${pid}/cwd`) === cwd
+    } catch {
+      // Gone meanwhile, or another user's process: not ours to stop.
+      return false
+    }
+  })
+  if (stale.length === 0) return
+  console.log(`[boot] stopping the server.js an earlier boot left running (pid ${stale.join(', ')})`)
+  const isAlive = (pid) => {
+    try {
+      process.kill(pid, 0)
+      return true
+    } catch {
+      return false
+    }
+  }
+  for (const pid of stale) process.kill(pid, 'SIGTERM')
+  // Next closes gracefully on SIGTERM; give it ten seconds, then SIGKILL.
+  for (let waited = 0; waited < 10_000 && stale.some(isAlive); waited += 200) {
+    await new Promise((resolve) => setTimeout(resolve, 200))
+  }
+  for (const pid of stale.filter(isAlive)) process.kill(pid, 'SIGKILL')
 }
 
 /**
@@ -111,5 +164,7 @@ for (const { script, timeoutMs } of steps) {
 
 // The server is the container's long-lived process: its exit code becomes the
 // container's, so a restart policy sees crashes (a requested stop exits 0).
+await stopStaleServers()
+if (stopping) process.exit(0)
 const code = await run('server.js')
 process.exit(stopping ? 0 : code)
