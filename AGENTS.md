@@ -186,10 +186,12 @@ source language `en`, plus the other official EU languages
   warnings never block a commit, but simplify what they flag in code you
   touch. `pnpm lint:type-aware` (CI runs it) adds the type-aware rules; `pnpm typecheck` stays the only type check. Run tools
   from `node_modules/.bin` or `pnpm exec`, not `npx` (~9 s per start).
-- Before every push: `/simplify` and `/code-review` on the unpushed changes,
-  fixing what they find; push only once clean (or once the remaining
-  findings are explained to the maintainer); push often so that
-  diff stays small. Before opening a PR, run both on the whole PR diff.
+- `/simplify` and `/code-review` cost a lot of the maintainer's usage limit:
+  don't run them routinely before a push or a PR. Run them when the
+  maintainer asks, and propose them (ask first) only for broad changes or
+  critical areas: permissions and access control, data writes and
+  migrations, seed/boot/deploy scripts. Otherwise the hooks and CI are the
+  check; push often so each diff stays small.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

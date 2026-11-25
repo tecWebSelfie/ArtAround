@@ -66,6 +66,17 @@ export const Default: Story = {
     museum: createRouteMuseum(ROUTE_MODEL_URL),
     catalog: visitableRouteCatalog,
   },
+  play: async ({ canvas }) => {
+    // The progress bar's bookends: "Start" over the tour's entrance (the
+    // map's only one, nearest the first stop), and "End" for a tour without
+    // a quiz, which only marks the finish and can't be selected.
+    await expect(canvas.getByText('Start')).toBeVisible()
+    await expect(canvas.getByText('Entrance')).toBeVisible()
+    const end = canvas.getByText('End').closest('button')
+    // Out of the tab order, no click affordance: there is nothing to open.
+    await expect(end).toHaveAttribute('tabindex', '-1')
+    await expect(end).not.toHaveAttribute('data-allow-click')
+  },
 }
 
 export const RouteBetweenObjects: Story = {
@@ -245,6 +256,28 @@ export const Completed: Story = {
   },
   play: async ({ canvas }) => {
     await expect(canvas.getByText('Tour completed')).toBeVisible()
+  },
+}
+
+/**
+ * A tour with a quiz ends on "Quiz" instead of "End", and that step opens it:
+ * it stays selectable (the End/Quiz bookend is one step whose
+ * `allowStepSelect` follows the quiz).
+ */
+export const CompletedWithQuiz: Story = {
+  args: {
+    ...Completed.args,
+    scope: {
+      kind: 'tour',
+      tour: { ...mockTourFull, museum: mockMuseumFull, quiz: { questions: ['question-1'] } },
+      step: mockTourFull.contents.length,
+    },
+  },
+  play: async ({ canvas }) => {
+    await expect(canvas.queryByText('End')).toBeNull()
+    const quiz = canvas.getByText('Quiz').closest('button')
+    await expect(quiz).toHaveAttribute('data-allow-click')
+    await expect(quiz).not.toHaveAttribute('tabindex', '-1')
   },
 }
 

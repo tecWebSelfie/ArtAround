@@ -4,10 +4,8 @@ import { ActionIcon, Button, Group, Stack, Text } from '@mantine/core'
 import { ChevronDown, DoorOpen, MapPinOff, ScanQrCode, Search } from 'lucide-react'
 import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
+import type { NamedEntrance } from '@/hooks/use-named-entrances'
 import { NAVIGATION_COMPACT_ACTION_CLASS } from './navigation-touch'
-
-/** An entrance the visitor can say they stand at (an entrance marker of the map). */
-export type PromptEntrance = { id: string; name: string }
 
 /**
  * "Where are you?", opened: the directions strip's `no-position` state when
@@ -33,7 +31,7 @@ export function PositionPrompt({
   onSearch,
   onHide,
 }: {
-  entrances: PromptEntrance[]
+  entrances: NamedEntrance[]
   onEntrance: (id: string) => void
   onScan: () => void
   onSearch?: () => void

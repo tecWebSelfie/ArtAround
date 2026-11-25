@@ -41,7 +41,7 @@ export function NavigationHeader({
   stopObjectId: string | null | undefined
   rooms: MuseumRooms
   /** The entrance the route starts from, while there is no confirmed position. */
-  entranceLabel: string | null
+  entranceLabel: string | undefined
   notes: string[]
 }) {
   const { t } = useTranslation('tour-navigation')

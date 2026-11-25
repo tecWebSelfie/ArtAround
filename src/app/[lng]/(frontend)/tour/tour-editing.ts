@@ -5,6 +5,7 @@ import type { KeptQuestion, QuizDraft } from '@/components/editing/forms/QuizEdi
 import { tourQuizQuestionIds } from '@/lib/quiz-ownership'
 import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
+import { mapPlacedEntrances } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
 import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
@@ -36,21 +37,32 @@ export async function existingVisitCopy(
 }
 
 /**
+ * The museum's placed entrances, the editor's start entrance item: a choice
+ * among them with two or more, the one name with one.
+ */
+function startEntranceChoices(map: Museum['map']) {
+  return mapPlacedEntrances(map).map(({ id, name }) => ({
+    id,
+    name: name ?? null,
+  }))
+}
+
+/**
  * Data for the tour editor: the contents a tour of this museum can include,
  * i.e. the contents of the objects its map exhibits (`museums.objects`).
  * Read as the visitor, so `locked` reflects what they can actually read.
  * `stopIds` (the tour being edited or copied) adds its stops that are no
  * longer candidates, flagged (see `getUnavailableStops`).
  */
-
 export async function getTourEditorData(museumId: string, stopIds: string[] = []) {
   const { payload } = await getSession()
   const viewer = await asViewer()
-  const museum: Pick<Museum, 'id' | 'name' | 'objects'> = await payload.findByID({
+  const museum: Pick<Museum, 'id' | 'name' | 'objects' | 'map'> = await payload.findByID({
     collection: 'museums',
     id: museumId,
     depth: 0,
-    select: { name: true, objects: true },
+    // The map for its entrances: the tour's start entrance is one of them.
+    select: { name: true, objects: true, map: true },
     ...viewer,
   })
   const objectIds = (museum.objects ?? []).map((object) =>
@@ -84,7 +96,12 @@ export async function getTourEditorData(museumId: string, stopIds: string[] = []
     ),
   )
   return {
-    museum: { id: String(museum.id), name: museum.name },
+    museum: {
+      id: String(museum.id),
+      name: museum.name,
+      // The start entrance's choices: only ids and names leave the server.
+      entrances: startEntranceChoices(museum.map),
+    },
     candidates: [...candidates, ...(await getUnavailableStops(stopIds, candidates))],
   }
 }

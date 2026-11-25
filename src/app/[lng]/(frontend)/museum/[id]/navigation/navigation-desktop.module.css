@@ -6,9 +6,9 @@
  *
  * On a wide screen the map stays the loudest thing: the floating controls
  * gather in one bottom-left cluster instead of spreading across the width,
- * the directions strip keeps a bounded reading width, and contextual content
- * docks as a panel on the right between the header and the navigation bar,
- * leaving the map visible and draggable beside it.
+ * the directions strip keeps a bounded reading width, centred in the bar,
+ * and contextual content docks as a panel on the right between the header
+ * and the navigation bar, leaving the map visible and draggable beside it.
  *
  * Mantine's styles are imported as a cascade layer (`styles.layer.css`) and
  * Tailwind's utilities live in one too, so these unlayered rules win over
@@ -27,7 +27,15 @@
     justify-content: center;
   }
 
-  /* Directions strip: a readable line length instead of 4/5 of the bar. */
+  /*
+   * Directions strip: a readable line length instead of 4/5 of the bar,
+   * centred in it like the header's column and stepper above, so the bar
+   * reads as balanced rather than stopping halfway on the left.
+   */
+  .footerRow {
+    justify-content: center;
+  }
+
   .directions {
     flex: 0 1 40rem;
   }

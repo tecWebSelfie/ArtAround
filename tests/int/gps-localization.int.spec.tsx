@@ -100,7 +100,6 @@ describe('Directions following the route path', () => {
     target: null,
     confirmed: true,
     position: path[0],
-    startEntranceId: null,
   })
   it('keeps the shown step on the same route and restarts on a new one', () => {
     // The map keeps the route object until its destination or start changes
@@ -144,7 +143,6 @@ describe('pinned at the destination itself', () => {
     target: null,
     confirmed: true,
     position: here,
-    startEntranceId: null,
   }
 
   it('gives no directions while there, and leads back once the visitor walks away', () => {
@@ -177,7 +175,6 @@ describe('a start only guessed to preview the route', () => {
       target: null,
       confirmed: false,
       position: null,
-      startEntranceId: 'entrance-main',
     }
     const { result } = renderHook(() => useRouteGuidance({ route, rooms, fix, navMesh }))
     expect(result.current.estimate).toBeNull()

@@ -40,6 +40,7 @@ import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigat
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
 import { useTranslation } from 'react-i18next'
+import { StartEntranceItem, type EntranceChoice } from './StartEntranceItem'
 import { useSave } from '../saving'
 import { CoverImageInput, saveCover, type CoverChange, type CurrentImage } from '../CoverImageInput'
 import { VisibilityInput } from '../VisibilityInput'
@@ -70,10 +71,26 @@ type TourValues = {
   visibility: 'public' | 'private'
   /** The visit's practical information (src/lib/tour-logistics.ts). */
   logistics: string
+  /**
+   * The entrance the tour starts from (an entrance marker's node id), or ''
+   * for the one nearest the first stop (src/lib/tour-entrance.ts).
+   */
+  startEntrance: string
   /** Per stop (content id): how to reach it from the previous one. */
   directions: Record<string, string>
   /** The tour's own quiz questions (`QuizEditor`). */
   quiz: QuizDraft[]
+}
+
+/**
+ * The start entrance the form opens with: only one of the choices offered.
+ * An entrance staff have since removed, or the only one (the automatic pick
+ * anyway, and one the author can't change), reads and saves as automatic, so
+ * the form never keeps an id the author can't see or change.
+ */
+function initialStartEntrance(entrances: EntranceChoice[], saved?: string | null): string {
+  if (!saved || entrances.length < 2) return ''
+  return entrances.some((entrance) => entrance.id === saved) ? saved : ''
 }
 
 /**
@@ -216,7 +233,8 @@ export function TourForm({
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
-  museum: { id: string; name: string }
+  /** With its placed entrances, among which the tour's start entrance is chosen. */
+  museum: { id: string; name: string; entrances: EntranceChoice[] }
   candidates: TourCandidate[]
   initial?: Partial<TourValues>
   /**
@@ -265,6 +283,7 @@ export function TourForm({
       description: initial?.description ?? '',
       visibility: initial?.visibility ?? 'public',
       logistics: initial?.logistics ?? '',
+      startEntrance: initialStartEntrance(museum.entrances, initial?.startEntrance),
       directions: initial?.directions ?? {},
       quiz: initial?.quiz ?? [],
       // Every stop is a candidate, unvisitable ones too (flagged `unavailable`),
@@ -283,7 +302,7 @@ export function TourForm({
     },
   })
 
-  const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id))
+  const clearDraft = useTourDraft(form, editorUrl, (id) => byId.has(id), museum.entrances)
 
   // Not in the form values: a picked file can't go into the sessionStorage draft.
   const [cover, setCover] = useState<CoverChange>(null)
@@ -295,6 +314,8 @@ export function TourForm({
         description: values.description.trim() || null,
         visibility: values.visibility,
         logistics: values.logistics.trim() || null,
+        // Empty: the entrance nearest the first stop, worked out when navigating.
+        startEntrance: values.startEntrance || null,
         // One row per stop with a note, in visiting order.
         directions: values.contents.flatMap((content) => {
           const text = values.directions[content]?.trim()
@@ -364,12 +385,12 @@ export function TourForm({
           maxLength={1000}
           {...form.getInputProps('logistics')}
         />
-
         <TourStopsEditor
           form={form}
           candidates={candidates}
           byId={byId}
           museumId={museum.id}
+          entrances={museum.entrances}
           returnTo={editorUrl}
         />
 
@@ -425,6 +446,7 @@ function useTourDraft(
   form: UseFormReturnType<TourValues>,
   editorUrl: string,
   isCandidate: (id: string) => boolean,
+  entrances: EntranceChoice[],
 ) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -450,7 +472,10 @@ function useTourDraft(
     const added = searchParams.get(ADD_PARAM)
     const contents = base.contents.filter(isCandidate)
     if (added && isCandidate(added) && !contents.includes(added)) contents.push(added)
-    form.setValues({ ...base, contents })
+    // Like the stops, the start entrance must still be one the editor offers
+    // (staff may have removed it meanwhile), or the author couldn't see it.
+    const startEntrance = initialStartEntrance(entrances, base.startEntrance)
+    form.setValues({ ...base, contents, startEntrance })
     router.replace(editorUrl as Route, { scroll: false })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -472,21 +497,25 @@ function useTourDraft(
 
 /**
  * The stops, in visiting order: notices about paid, unvisitable or
- * unexplained stops, the sortable timeline (drag, arrows, per-stop
- * directions), then the ways to add one: the quick select for a known
- * title, or the contents search and the content editor in picker mode.
+ * unexplained stops, the timeline (the fixed start entrance, then the
+ * sortable stops: drag, arrows, per-stop directions), then the ways to add
+ * one: the quick select for a known title, or the contents search and the
+ * content editor in picker mode.
  */
 function TourStopsEditor({
   form,
   candidates,
   byId,
   museumId,
+  entrances,
   returnTo,
 }: {
   form: UseFormReturnType<TourValues>
   candidates: TourCandidate[]
   byId: Map<string, TourCandidate>
   museumId: string
+  /** The museum's placed entrances: the first, fixed item of the timeline. */
+  entrances: EntranceChoice[]
   /** The editor's own URL, where the contents picker comes back. */
   returnTo: string
 }) {
@@ -496,12 +525,6 @@ function TourStopsEditor({
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
   const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
-  const move = (index: number, delta: number) => {
-    const next = [...selected]
-    const [item] = next.splice(index, 1)
-    next.splice(index + delta, 0, item!)
-    form.setFieldValue('contents', next)
-  }
   return (
     <Stack gap="xs">
       <Text fw={600}>{t('Stops, in visiting order')}</Text>
@@ -546,49 +569,7 @@ function TourStopsEditor({
           </Stack>
         </Alert>
       )}
-      <DragDropProvider
-        onDragEnd={(event) => {
-          // dnd-kit reorders the DOM optimistically while dragging; commit
-          // the move to form state once the drop is final.
-          const { source } = event.operation
-          if (event.canceled || !isSortable(source)) return
-          move(source.initialIndex, source.index - source.initialIndex)
-        }}
-      >
-        <Timeline bulletSize={28} lineWidth={2} active={selected.length - 1}>
-          {selected.map((id, index) => {
-            const content = byId.get(id)!
-            return (
-              <SortableStop
-                key={id}
-                id={id}
-                index={index}
-                bullet={<Text size="xs">{index + 1}</Text>}
-                // A deleted content has no title left to show.
-                title={content.title || t('A content that no longer exists')}
-                content={content}
-                lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
-                first={index === 0}
-                last={index === selected.length - 1}
-                onMove={(delta) => move(index, delta)}
-                directions={form.values.directions[id] ?? ''}
-                onDirectionsChange={(value) =>
-                  form.setFieldValue('directions', {
-                    ...form.values.directions,
-                    [id]: value,
-                  })
-                }
-                onRemove={() =>
-                  form.setFieldValue(
-                    'contents',
-                    selected.filter((other) => other !== id),
-                  )
-                }
-              />
-            )
-          })}
-        </Timeline>
-      </DragDropProvider>
+      <StopsTimeline form={form} byId={byId} entrances={entrances} />
       <Select
         label={t('Add a stop')}
         placeholder={t('Search the museum’s contents')}
@@ -627,5 +608,85 @@ function TourStopsEditor({
         </Button>
       </Group>
     </Stack>
+  )
+}
+
+/**
+ * The tour's timeline: the fixed start entrance (when the map has one), then
+ * the stops, sortable among themselves (drag, arrows), each with its
+ * directions.
+ */
+function StopsTimeline({
+  form,
+  byId,
+  entrances,
+}: {
+  form: UseFormReturnType<TourValues>
+  byId: Map<string, TourCandidate>
+  entrances: EntranceChoice[]
+}) {
+  const { t } = useTranslation('editing')
+  const { lng } = useParams<{ lng: string }>()
+  const selected = form.values.contents
+  const move = (index: number, delta: number) => {
+    const next = [...selected]
+    const [item] = next.splice(index, 1)
+    next.splice(index + delta, 0, item!)
+    form.setFieldValue('contents', next)
+  }
+  return (
+    <DragDropProvider
+      onDragEnd={(event) => {
+        // dnd-kit reorders the DOM optimistically while dragging; commit
+        // the move to form state once the drop is final.
+        const { source } = event.operation
+        if (event.canceled || !isSortable(source)) return
+        move(source.initialIndex, source.index - source.initialIndex)
+      }}
+    >
+      {/* Every item is active: `active` at or past the last index. */}
+      <Timeline bulletSize={28} lineWidth={2} active={selected.length}>
+        {/* Left out here, not inside the item: Timeline counts its
+            children, even one that renders nothing. */}
+        {entrances.length > 0 && (
+          <StartEntranceItem
+            entrances={entrances}
+            value={form.values.startEntrance}
+            onChange={(value) => form.setFieldValue('startEntrance', value)}
+          />
+        )}
+        {selected.map((id, index) => {
+          const content = byId.get(id)!
+          return (
+            <SortableStop
+              key={id}
+              id={id}
+              index={index}
+              bullet={<Text size="xs">{index + 1}</Text>}
+              // A deleted content has no title left to show.
+              title={content.title || t('A content that no longer exists')}
+              content={content}
+              lockedLabel={content.locked ? formatPrice(content.price, lng) : null}
+              first={index === 0}
+              last={index === selected.length - 1}
+              onMove={(delta) => move(index, delta)}
+              directions={form.values.directions[id] ?? ''}
+              onDirectionsChange={(value) =>
+                form.setFieldValue('directions', {
+                  ...form.values.directions,
+                  [id]: value,
+                })
+              }
+              onRemove={() =>
+                form.setFieldValue(
+                  'contents',
+                  selected.filter((other) => other !== id),
+                )
+              }
+            />
+          )
+        })}
+      </Timeline>
+    </DragDropProvider>
   )
 }

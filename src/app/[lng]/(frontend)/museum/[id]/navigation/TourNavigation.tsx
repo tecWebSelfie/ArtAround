@@ -5,6 +5,7 @@ import { Museum, Tour } from '@/payload-types'
 import { AppShellFooter, AppShellMain, AppShellMainProps, Box, Button, Group } from '@mantine/core'
 import { spotlight } from '@mantine/spotlight'
 import { useMergedRef } from '@mantine/hooks'
+import { useNamedEntrances } from '@/hooks/use-named-entrances'
 import { prewarmQrScanner } from '@/lib/qr-scanner-module'
 import {
   Suspense,
@@ -24,11 +25,12 @@ import {
   destinationKey,
   directionsStatus,
   useDestinationName,
+  useFlagLabel,
   useMeasuredBars,
   useMuseumMapData,
-  useNamedEntrances,
   usePositionPrompt,
   useTourCursor,
+  useTourEntrance,
   useGuidance,
   useTourCommands,
   useTourIds,
@@ -54,6 +56,15 @@ import { useTranslation } from 'react-i18next'
 
 /** Mantine's `md`, where contextual modals dock as a side panel (navigation-desktop.module.css). */
 const DOCKED_PANEL_FROM = '62em'
+
+/**
+ * The open panel docked on the right, if any: from md a work, content or stop
+ * opens as a panel over the map (NavigationModal); below md it is a full dialog.
+ */
+const dockedPanel = () =>
+  window.matchMedia(`(min-width: ${DOCKED_PANEL_FROM})`).matches
+    ? document.querySelector(`.${classes.panelInner} > *`)
+    : null
 
 /** The tour (with its cursor) the map follows, or free navigation of the museum. */
 export type NavigationPageScope =
@@ -96,10 +107,12 @@ export const TourNavigationPage = ({
   useEffect(prewarmQrScanner, [])
   const { museumMap, markers, rooms } = useMuseumMapData(museum.map)
 
-  const { t } = useTranslation('tour-navigation')
   const [routeUnavailable, setRouteUnavailable] = useState(false)
   const [route, setRoute] = useState<MuseumRoute | null>(null)
   const { defaultDestination, destination, notes } = useTourCursor(tour, step, catalog)
+  // In a tour, heading to its next stop (not somewhere the visitor chose).
+  const onTourRoute =
+    tour !== null && destination?.kind === 'object' && destination.id === defaultDestination
   // The work the route leads to, if it is one (not a service or an exit).
   const nextObjectId = destination?.kind === 'object' ? destination.id : null
   // A work's id, or an entrance's node id when the visitor said they stand there.
@@ -109,12 +122,16 @@ export const TourNavigationPage = ({
   // position: the map shows a guess, so the strip asks again). Without a
   // resolved route yet (or a museum with no map) the URL is all there is.
   const positioned = route ? route.confirmed : Boolean(currentObjectId)
-  // The map resolves which entrance the route starts from (confirmed, or
-  // previewed before the visitor says where they are; it owns the navmesh):
-  // it leads the progress bar, named as in "Where are you?". A work as the
-  // confirmed position replaces that step.
   const entrances = useNamedEntrances(markers.exitEntrances)
-  const startEntrance = entrances.find((entrance) => entrance.id === route?.startEntranceId)
+  const { tourEntranceId, previewEntranceId } = useTourEntrance({
+    tour,
+    step,
+    catalog,
+    exitEntrances: markers.exitEntrances,
+    objects: rooms.objects,
+    onTourRoute,
+  })
+  const tourEntranceName = entrances.find((entrance) => entrance.id === tourEntranceId)?.name
   // A stale/shared wheelchair URL still uses the standard mesh when this
   // museum has no wheelchair-specific mesh saved.
   const wheelchairRoute =
@@ -142,24 +159,19 @@ export const TourNavigationPage = ({
     () => ({
       top: header,
       bottom: controlsRow,
-      // From md a work, content or stop opens as a panel docked on the right
-      // (NavigationModal), over the map; below md it is a full dialog.
-      right: () =>
-        window.matchMedia(`(min-width: ${DOCKED_PANEL_FROM})`).matches
-          ? document.querySelector(`.${classes.panelInner} > *`)
-          : null,
+      right: dockedPanel,
     }),
     [],
   )
   const measuredHeaderRef = useMergedRef(headerRef, header)
 
-  // The map's label over the destination flag: the next stop with its number
-  // (the stepper's), else whatever the visitor chose.
-  const flagName = useDestinationName(destination, catalog, markers, { standalone: true })
-  const destinationLabel =
-    tour && destination?.kind === 'object' && destination.id === defaultDestination && !complete
-      ? t('Stop {{number}} · {{name}}', { number: step + 1, name: flagName })
-      : flagName
+  const destinationLabel = useFlagLabel({
+    destination,
+    catalog,
+    markers,
+    // The flag marks the tour's next stop: it carries the stop's number.
+    stop: onTourRoute && !complete ? step + 1 : null,
+  })
   const { tourContentIds, tourObjectIds } = useTourIds(tour?.contents, catalog)
   const { commands, run, runId, nearbyCommands, setNavigation } = useTourCommands({
     museum,
@@ -225,7 +237,7 @@ export const TourNavigationPage = ({
         museumName={museum.name}
         stopObjectId={defaultDestination}
         rooms={rooms}
-        entranceLabel={startEntrance?.name ?? null}
+        entranceLabel={tourEntranceName}
         notes={notes}
       />
 
@@ -248,6 +260,7 @@ export const TourNavigationPage = ({
               path={guidance.path}
               destinationLabel={destinationLabel}
               overlays={overlays}
+              previewEntranceId={previewEntranceId}
               onObjectClick={(id) => runId(`object:${id}`)}
               // Under the floor plan the 3D map stays mounted (routes are
               // computed on its meshes) but draws no frames, and is hidden
@@ -264,7 +277,8 @@ export const TourNavigationPage = ({
               // As on the 3D map: the avatar waits at the route's start.
               position={guidance.position ?? route?.start ?? null}
               path={guidance.path ?? route?.path ?? null}
-              estimated={Boolean(route?.start && !route.confirmed)}
+              // A guessed start (no start at all draws no visitor disc).
+              estimated={route?.confirmed === false}
               catalog={catalog}
               roots={museumMap.parsed.rootNodeIds}
             />
@@ -414,7 +428,7 @@ function NavigationFooter({
   )
   return (
     <AppShellFooter ref={ref} className="h-auto rounded-t-md">
-      <Group className="min-h-16 py-1" px="xs" gap="xs" align="center">
+      <Group className={`min-h-16 py-1 ${classes.footerRow}`} px="xs" gap="xs" align="center">
         <Box className={`min-w-0 basis-64 grow ${classes.directions}`}>
           <DirectionsBar
             trailingControl={assistant}

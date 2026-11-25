@@ -89,8 +89,6 @@ export type MuseumRoute = {
    * `start`, so a guessed entrance can't pass for the visitor.
    */
   position: Vec3 | null
-  /** The entrance the route starts from (confirmed or previewed), which leads the progress bar. */
-  startEntranceId: string | null
 }
 
 /** Plan centre [x, z] of a scene object, from its world bounds. */
@@ -116,6 +114,7 @@ export function MuseumMap({
   position,
   path,
   destinationLabel,
+  previewEntranceId,
   overlays,
   renderPaused,
   ...props
@@ -138,6 +137,12 @@ export function MuseumMap({
   path?: Vec3[] | null
   /** Written over the destination's flag, e.g. "Stop 2 · Giotto signs his name". */
   destinationLabel?: string | null
+  /**
+   * The entrance to preview the route from while the visitor hasn't said
+   * where they are: the tour's own at its start, else none (the entrance
+   * nearest the destination). See `routeStart`.
+   */
+  previewEntranceId?: string | null
   /** The UI drawn over the map: the camera frames the journey between them. */
   overlays?: MapOverlays
 }) {
@@ -222,6 +227,7 @@ export function MuseumMap({
         entrances: entrancePoints,
         end,
         distance,
+        preferredEntranceId: previewEntranceId,
       })
     // The confirmed position alone: services and exits route to the closest
     // instance from it.
@@ -248,7 +254,7 @@ export function MuseumMap({
     }
     const end = routeEnd()
 
-    const { start, confirmed, entranceId } = startFrom(end)
+    const { start, confirmed } = startFrom(end)
     // Directions say which side an object stands on, so they need the object's
     // own centre; markers (services, exits) are small enough to be "ahead".
     const targetNode =
@@ -264,10 +270,9 @@ export function MuseumMap({
       target: targetObject ? planCentre(targetObject) : null,
       confirmed,
       position: confirmed ? start : null,
-      startEntranceId: entranceId,
       path: start && end ? museumNavigationPath(navMesh, start, end) : null,
     }
-  }, [ready, navMesh, currentObjectId, destination])
+  }, [ready, navMesh, currentObjectId, destination, previewEntranceId])
 
   useEffect(() => {
     onRouteChange?.(route)

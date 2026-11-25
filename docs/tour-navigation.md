@@ -27,8 +27,9 @@ and cached build artifacts are not reliable handoff state.
   GPS reference, so the avatar returns onto it; live movement never moves the
   camera.
 - **Without `at`** nothing pretends to know where the visitor is. With a
-  destination (a tour's next stop), the route is _previewed_ from the entrance
-  nearest to it: a translucent "ghost" avatar labelled "Are you here?" and a
+  destination, the route is _previewed_ from an entrance: at the start of a
+  tour (step 0, no destination chosen) the tour's own start entrance, else the
+  entrance nearest the destination. A translucent "ghost" avatar labelled "Are you here?" and a
   dashed line (dashed and faded on the 2D plan too), while the directions
   strip withholds steps. With no destination (a free visit) no avatar is drawn.
   The strip's `no-position` state opens **"Where are you?"**
@@ -40,6 +41,21 @@ and cached build artifacts are not reliable handoff state.
   leave out scan, search and "Where to?" (`NavigationControls`' `asking`).
   Group guests never see it: the host's position is theirs. The start rule
   itself is `routeStart` (`src/lib/route-start.ts`).
+- **Tour entrance.** A tour starts from one of the museum's placed entrances:
+  the one its author chose in the tour editor (`tours.startEntrance`, an
+  entrance marker's node id), else the one nearest the first stop. In the
+  editor it is the stops timeline's first, fixed item (`StartEntranceItem`: a
+  door bullet, never dragged or moved): a choice with two or more entrances,
+  just the name with one, absent with none. A choice that stops being a placed
+  entrance (staff moved the marker) falls back to the nearest; the server
+  refuses saving one that isn't (`checkStartEntrance`, through
+  `isPlacedEntrance`; an unchanged one is not checked again, so a removed
+  marker never blocks an edit), and the editor offers only placed ones and
+  reads a removed one as automatic. Navigation resolves the entrance with
+  `tourStartEntrance` (`src/lib/tour-entrance.ts`). It is named under the
+  progress bar's **"Start"** step, which leads the bar for the whole visit;
+  the bar ends with **"Quiz"** (selectable) or, without a quiz, **"End"** (not
+  selectable).
 - **The camera frames the journey** (`FrameJourney` in `MuseumMap.tsx`,
   geometry in `src/lib/pascal/journey-view.ts`): whenever the route changes
   (entering the museum or a tour, a new position, a new destination, advancing
