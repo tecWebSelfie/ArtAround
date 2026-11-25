@@ -2,6 +2,7 @@ import config from '@/payload.config'
 import { getPayload } from 'payload'
 import type { NextRequest } from 'next/server'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
+import i18nConfig from '../../../../../../../i18n.config'
 
 /**
  * Permanent redirect of the pre-phase-2 tour navigation URLs
@@ -18,6 +19,11 @@ async function redirectToMuseumNavigation(
   { params }: RouteContext<'/[lng]/tour/[id]/navigation/[[...rest]]'>,
 ) {
   const { lng, id, rest = [] } = await params
+  // `lng` goes straight into `Location`, and the i18n proxy skips paths with a
+  // dot, so it can be `/evil.com` or `\\evil.com` (a protocol-relative open
+  // redirect). Only a supported language is a real legacy URL.
+  if (!(i18nConfig.supportedLngs as readonly string[]).includes(lng))
+    return new Response('Not found', { status: 404 })
   const payload = await getPayload({ config })
   const tour = await payload
     .findByID({ collection: 'tours', id, depth: 0, select: { museum: true } })
