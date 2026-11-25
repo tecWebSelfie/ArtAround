@@ -583,68 +583,44 @@
 /* The museum map's loading state (src/components/pascal/MapLoading.tsx): the
    museum builds itself, columns rising left to right, then the pediment
    settling on them; the pediment lifts off, the columns fade, and the cycle
-   starts again. */
-.map-loading-column,
-.map-loading-roof {
-  transform-box: fill-box;
-  animation: 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite backwards;
-}
+   starts again. Each column reads its stagger from --i, set in the JSX, so
+   the order is data rather than a selector position. `inline` copies the
+   value into the utility, so var(--i) resolves on each path, not on :root.
+   The component applies them with `motion-safe:`, so reduced motion keeps the
+   whole icon still. */
+@theme inline {
+  --animate-map-rise: map-loading-rise 2.4s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--i, 0) * 120ms)
+    infinite backwards;
+  --animate-map-settle: map-loading-settle 2.4s cubic-bezier(0.16, 1, 0.3, 1) 0.5s infinite
+    backwards;
 
-.map-loading-column {
-  transform-origin: bottom;
-  animation-name: map-loading-rise;
-}
-
-.map-loading-column:nth-of-type(3) {
-  animation-delay: 0.12s;
-}
-
-.map-loading-column:nth-of-type(4) {
-  animation-delay: 0.24s;
-}
-
-.map-loading-column:nth-of-type(5) {
-  animation-delay: 0.36s;
-}
-
-.map-loading-roof {
-  animation-name: map-loading-settle;
-  animation-delay: 0.5s;
-}
-
-@keyframes map-loading-rise {
-  from {
-    transform: scaleY(0);
+  @keyframes map-loading-rise {
+    from {
+      transform: scaleY(0);
+    }
+    30%,
+    80% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
   }
-  30%,
-  80% {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
 
-/* The pediment lifts off before the columns fade, so it is gone when the
-   first column rises again (its delay would otherwise leave it floating). */
-@keyframes map-loading-settle {
-  from,
-  80%,
-  to {
-    transform: translateY(-3px);
-    opacity: 0;
-  }
-  30%,
-  60% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .map-loading-column,
-  .map-loading-roof {
-    animation: none;
+  /* The pediment lifts off before the columns fade, so it is gone when the
+     first column rises again (its delay would otherwise leave it floating). */
+  @keyframes map-loading-settle {
+    from,
+    80%,
+    to {
+      transform: translateY(-3px);
+      opacity: 0;
+    }
+    30%,
+    60% {
+      transform: translateY(0);
+      opacity: 1;
+    }
   }
 }
