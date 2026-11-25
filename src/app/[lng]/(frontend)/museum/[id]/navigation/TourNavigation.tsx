@@ -18,6 +18,7 @@ import {
   type Ref,
 } from 'react'
 import { MuseumMap, type MuseumRoute } from './MuseumMap'
+import { MapLoading } from '@/components/pascal/MapLoading'
 import { NavigationControls } from './NavigationControls'
 import { NavigationHeader } from './NavigationHeader'
 import {
@@ -342,9 +343,7 @@ function NavigationStage({
   return (
     <AppShellMain h="100dvh" className="overflow-hidden pb-[var(--navigation-footer-height,4rem)]">
       <Box pos="relative" h="100%">
-        <Suspense fallback={<Box>{t('Loading map')}</Box>}>
-          {map || <Box>{t('Map not available')}</Box>}
-        </Suspense>
+        <Suspense fallback={<MapLoading />}>{map || <Box>{t('Map not available')}</Box>}</Suspense>
         {plan}
         {/* z-20: above the map's DOM labels (room names, "You", z ≤ 10 via
             drei's `zIndexRange`), below the app shell's bars (z 100), so a

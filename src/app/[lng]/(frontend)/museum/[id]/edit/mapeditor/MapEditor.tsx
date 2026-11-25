@@ -6,6 +6,7 @@ import { ObjectCatalogPanel, useObjectGeneration } from '@/components/pascal/Obj
 import { MuseumCreationToolbar } from '@/components/pascal/MuseumCreationToolbar'
 import { MuseumServicesPanel } from '@/components/pascal/MuseumServicesPanel'
 import { MuseumServicesToolbar } from '@/components/pascal/MuseumServicesToolbar'
+import { MapLoading } from '@/components/pascal/MapLoading'
 import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { CREATE_PARAM, PLACE_PARAM } from '@/lib/museum-picker'
@@ -155,7 +156,7 @@ export function MapEditor({
     }
   }, [sceneLoaded, searchParams, pathname, openGeneration])
 
-  if (!ready || isLoading) return <div role="status">{tCommon('Loading map…')}</div>
+  if (!ready || isLoading) return <MapLoading />
   if (isError || !museum)
     return (
       <div role="alert">{tCommon('The map could not load. Reload the page to try again.')}</div>
