@@ -12,6 +12,7 @@ import {
   type ParsedBuildJson,
 } from '@pascal-app/core'
 import { RenderErrorBoundary } from '@/components/RenderErrorBoundary'
+import { MapLoading } from '@/components/pascal/MapLoading'
 import { loadableMap } from '@/lib/pascal/loadable-map'
 import { loadMuseumPlugins } from '@/lib/pascal/plugins'
 import { Viewer, type HoverStyles } from '@pascal-app/viewer'
@@ -127,20 +128,28 @@ export function MapViewer({
 
   if (failedMap === map)
     return <div role="alert">{t('The map could not load. Reload the page to try again.')}</div>
-  if (loadedMap !== map) return <div role="status">{t('Loading map…')}</div>
+  if (loadedMap !== map) return <MapLoading />
 
   return (
-    <Box {...props}>
+    <Box pos="relative" {...props}>
       {/* Without WebGL the viewer throws while its canvas mounts: only the
           map gives way, so a tour keeps its text, audio and controls. The
           boundary sits outside the fading box, which never shows then. */}
       <RenderErrorBoundary
         fallback={<div role="alert">{t('The 3D view is not available on this device.')}</div>}
       >
+        {/* The loading state stays under the scene until it is framed, so
+            the wait shows a museum being built, not an empty box. */}
+        {framedMap !== map && (
+          <div className="absolute inset-0">
+            <MapLoading />
+          </div>
+        )}
         {/* Hidden, not unmounted, until framed; then a short fade (none when
-            the visitor asks for reduced motion). */}
+            the visitor asks for reduced motion) over the loading state:
+            `relative` lifts it above that absolute layer. */}
         <Box
-          className={`size-full motion-safe:transition-opacity motion-safe:duration-300 ${framedMap === map ? 'opacity-100' : 'opacity-0'}`}
+          className={`relative size-full motion-safe:transition-opacity motion-safe:duration-300 ${framedMap === map ? 'opacity-100' : 'opacity-0'}`}
         >
           <Viewer
             selectionManager={selectionManager}
