@@ -278,7 +278,9 @@ src/payload-types.ts` before committing.
   hooks: they need the database and take too long.
 - `/simplify` and `/code-review` are LLM reviews, so non-deterministic, and
   they edit the working tree after staging: they are deliberately not wired
-  to a hook, where they could loop.
+  to a hook, where they could loop. They are also costly in usage, so
+  they run only on request or for broad and critical changes (AGENTS.md →
+  Checks and pushing).
 
 ## Keeping iterations short
 
