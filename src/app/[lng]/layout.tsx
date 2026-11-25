@@ -4,6 +4,7 @@ import { fallbackLng, generateI18nStaticParams, getResources, getT } from '@/i18
 import { mantineHtmlProps } from '@mantine/core'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { Viewport } from 'next'
+import { notFound } from 'next/navigation'
 import { I18nProvider } from 'next-i18next/client'
 import i18nConfig from '../../../i18n.config'
 import Providers from '../providers'
@@ -24,6 +25,9 @@ export async function generateStaticParams() {
 
 export default async function RootLayout({ children, params }: LayoutProps<'/[lng]'>) {
   const { lng } = await params
+  // The proxy skips paths with a dot, so any segment can arrive here (`e..n`,
+  // `/evil.com`); `LanguageSwitcher` would throw a RangeError (500) on it.
+  if (!(i18nConfig.supportedLngs as readonly string[]).includes(lng)) notFound()
   const { i18n } = await getT()
   const resources = getResources(i18n, undefined, [lng, fallbackLng])
 
