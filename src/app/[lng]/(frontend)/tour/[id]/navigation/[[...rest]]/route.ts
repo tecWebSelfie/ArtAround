@@ -1,8 +1,9 @@
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 import type { NextRequest } from 'next/server'
+import { asViewer } from '@/lib/session'
 import { tourMuseumId, tourStartPath } from '@/lib/tour-navigation'
-import i18nConfig from '../../../../../../../i18n.config'
+import i18nConfig from '@/../i18n.config'
 
 /**
  * Permanent redirect of the pre-phase-2 tour navigation URLs
@@ -25,8 +26,17 @@ async function redirectToMuseumNavigation(
   if (!(i18nConfig.supportedLngs as readonly string[]).includes(lng))
     return new Response('Not found', { status: 404 })
   const payload = await getPayload({ config })
+  // Read as the visitor (cookie user, `readTours`): a private tour they may not
+  // read answers 404 exactly like an unknown id, so neither its existence nor
+  // its museum leaks; its author and group guests still get the redirect.
   const tour = await payload
-    .findByID({ collection: 'tours', id, depth: 0, select: { museum: true } })
+    .findByID({
+      collection: 'tours',
+      id,
+      depth: 0,
+      select: { museum: true },
+      ...(await asViewer()),
+    })
     .catch(() => null)
   const museumId = tour && tourMuseumId(tour)
   if (!museumId) return new Response('Not found', { status: 404 })
