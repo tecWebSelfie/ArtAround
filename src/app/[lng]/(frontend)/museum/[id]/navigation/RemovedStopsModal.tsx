@@ -82,8 +82,12 @@ export function RemovedStopsModal({ tour, step }: { tour: Tour; step: number }) 
 
   // First visit in this tab: remember the list. A list that only gained stops
   // (one visitable again) needs no notice, just the same cursor fix.
+  // `seen` is null on the hydration render even when a list is stored (the
+  // server snapshot), and this effect runs in that same commit: deciding "first
+  // visit" from `seen` would overwrite the remembered list before the real
+  // value is read and lose the notice on a slow hydration. So ask the store.
   useEffect(() => {
-    if (seen === null) store.save(key, current)
+    if (store.get(key) === null) store.save(key, current)
     else if (changed && removed.length === 0) acknowledge()
   })
 
