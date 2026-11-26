@@ -179,7 +179,15 @@ export function followHref(
   search: URLSearchParams,
 ) {
   const [hostPath, hostQuery = ''] = hostLocation.split('?')
-  const params = new URLSearchParams(hostQuery)
+  // Only the params groupLocation publishes are taken from the host: its
+  // client is untrusted, and e.g. `?museum=` on a tour path would make the
+  // proxy plant the museum-mode cookie on the guest's device.
+  const hostParams = new URLSearchParams(hostQuery)
+  const params = new URLSearchParams()
+  for (const key of SHARED_PARAMS) {
+    const value = hostParams.get(key)
+    if (value) params.set(key, value)
+  }
   const samePage = withoutLanguage(pathname) === hostPath
   for (const key of [...PERSONAL_PARAMS, ...(samePage ? MODAL_PARAMS : [])]) {
     const value = search.get(key)
