@@ -97,7 +97,22 @@ export async function submitQuizAttempt(
   return { status: 'ok', token }
 }
 
-const tokensInput = z.object({ tourId: id, tokens: z.array(z.string().min(1).max(64)).max(200) })
+// Tokens are published by guests as LiveKit attributes they control, so a
+// hostile guest can send junk. `tourId` is validated strictly, but the token
+// list is only a lookup key set: we sanitize it (see `sanitizeTokens`) instead
+// of rejecting it, so one bad token can't blank every other guest's score.
+const tokensInput = z.object({ tourId: id, tokens: z.array(z.unknown()) })
+
+const MAX_TOKENS = 200
+
+/** Keeps the valid (1-64 chars string), unique tokens, capped after filtering. */
+function sanitizeTokens(tokens: unknown[]): string[] {
+  const valid = tokens.filter(
+    (token): token is string =>
+      typeof token === 'string' && token.length >= 1 && token.length <= 64,
+  )
+  return [...new Set(valid)].slice(0, MAX_TOKENS)
+}
 
 export type GroupQuizScore = { token: string; score: number; total: number; percent: number }
 
@@ -110,12 +125,14 @@ export async function groupQuizScores(
   input: z.input<typeof tokensInput>,
 ): Promise<GroupQuizScore[]> {
   const parsed = tokensInput.safeParse(input)
-  if (!parsed.success || !parsed.data.tokens.length) return []
+  if (!parsed.success) return []
+  const tokens = sanitizeTokens(parsed.data.tokens)
+  if (!tokens.length) return []
   const payload = await getPayload({ config })
   const { docs } = await payload.find({
     collection: 'quizAttempts',
-    where: { token: { in: parsed.data.tokens }, tour: { equals: parsed.data.tourId } },
-    limit: parsed.data.tokens.length,
+    where: { token: { in: tokens }, tour: { equals: parsed.data.tourId } },
+    limit: tokens.length,
     depth: 0,
     select: { token: true, score: true, total: true, percent: true },
   })
