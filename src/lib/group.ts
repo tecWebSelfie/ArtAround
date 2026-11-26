@@ -150,7 +150,10 @@ export function isTourLocation(location: string, tourId: string) {
   // must not smuggle another page past the prefix check below: refuse dot
   // segments (`/tour/T/../../account`, also percent-encoded), backslashes and
   // empty segments (`//`), the trailing slash excepted.
-  const segments = path.split('/').slice(1, -1)
+  // The last segment counts too (`/tour/T/..`), unless it is the empty one a
+  // trailing slash leaves.
+  const segments = path.split('/').slice(1)
+  if (segments.at(-1) === '') segments.pop()
   if (/%2e|%2f|%5c|\\/i.test(path) || segments.some((s) => s === '' || s === '.' || s === '..')) {
     return false
   }
@@ -166,6 +169,9 @@ export function isTourLocation(location: string, tourId: string) {
 export function isQuizLocation(location: string, tourId: string) {
   return location.startsWith(`/tour/${tourId}/quiz`)
 }
+
+/** Longest value of a shared param a guest accepts from the host. */
+const MAX_SHARED_PARAM_LENGTH = 200
 
 /**
  * Where a guest goes to follow the host: the host's location in the guest's
@@ -186,7 +192,8 @@ export function followHref(
   const params = new URLSearchParams()
   for (const key of SHARED_PARAMS) {
     const value = hostParams.get(key)
-    if (value) params.set(key, value)
+    // Bounded: a hostile host must not hand guests an oversized URL.
+    if (value && value.length <= MAX_SHARED_PARAM_LENGTH) params.set(key, value)
   }
   const samePage = withoutLanguage(pathname) === hostPath
   for (const key of [...PERSONAL_PARAMS, ...(samePage ? MODAL_PARAMS : [])]) {

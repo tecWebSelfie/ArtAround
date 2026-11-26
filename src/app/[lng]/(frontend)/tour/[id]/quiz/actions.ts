@@ -101,7 +101,10 @@ export async function submitQuizAttempt(
 // hostile guest can send junk. `tourId` is validated strictly, but the token
 // list is only a lookup key set: we sanitize it (see `sanitizeTokens`) instead
 // of rejecting it, so one bad token can't blank every other guest's score.
-const tokensInput = z.object({ tourId: id, tokens: z.array(z.unknown()) })
+// Generous bound on the raw list (the 200 cap applies after filtering), so junk
+// entries are tolerated but a huge array is rejected before any work.
+const MAX_INPUT_TOKENS = 1000
+const tokensInput = z.object({ tourId: id, tokens: z.array(z.unknown()).max(MAX_INPUT_TOKENS) })
 
 const MAX_TOKENS = 200
 
