@@ -1,5 +1,6 @@
 import { ROOM_CODE_PATTERN } from '@/lib/group'
 import { endGroupRoom, findGroupRoom, isHostKey } from '@/lib/group-room'
+import { allowRequest } from '@/lib/rate-limit'
 import { NextResponse } from 'next/server'
 
 /**
@@ -9,7 +10,14 @@ import { NextResponse } from 'next/server'
  * - DELETE: "End the group tour"; only the host key can close it for everyone.
  */
 
-export async function GET(_request: Request, { params }: RouteContext<'/api/rooms/[code]'>) {
+export async function GET(request: Request, { params }: RouteContext<'/api/rooms/[code]'>) {
+  // The code is the only secret of a room, so this answer is a guessing oracle:
+  // one budget per client for ALL codes (a fixed bucket, not the per-code path).
+  // Legit callers ask once in a while (the join page, a device whose token
+  // request failed), well under 30 a minute.
+  if (!allowRequest(request, 30, '/api/rooms/[code]')) {
+    return NextResponse.json({ error: 'busy' }, { status: 429 })
+  }
   const { code } = await params
   const room = ROOM_CODE_PATTERN.test(code) ? await findGroupRoom(code) : null
   if (!room) return NextResponse.json({ error: 'ended' }, { status: 404 })

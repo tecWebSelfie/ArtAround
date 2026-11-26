@@ -10,10 +10,12 @@ import 'server-only'
 const WINDOW_MS = 60_000
 const hits = new Map<string, number[]>()
 
-export function allowRequest(request: Request, limit: number) {
+export function allowRequest(request: Request, limit: number, bucket?: string) {
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local'
   // Counted per route, so many expansions don't use up the tour planner's budget.
-  const key = `${ip} ${new URL(request.url).pathname}`
+  // A route whose path carries a secret guess (`/api/rooms/{code}`) passes a fixed
+  // `bucket`, or each guessed code would get its own budget and nothing would be limited.
+  const key = `${ip} ${bucket ?? new URL(request.url).pathname}`
   const now = Date.now()
   const recent = (hits.get(key) ?? []).filter((time) => now - time < WINDOW_MS)
   if (recent.length >= limit) return false
