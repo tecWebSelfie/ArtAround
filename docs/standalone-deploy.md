@@ -39,6 +39,21 @@ mtime is always new, which would otherwise make every file look changed on
 every deploy. The manual procedure above remains the fallback for a
 deploy by hand.
 
+The CI deploy copies in two passes around the restart: an rsync without
+`--delete` (the running server still renders pages listing the previous
+build's chunks; deleting them first answers those 500, pages that never
+hydrate), a `touch` of `server.js`, a wait until the live HTML carries the
+new build ID (`"b":"<id>"`, compared with `.next/BUILD_ID`), and only then
+the `--delete` pass. A deploy whose app never comes back on the new build
+goes red and keeps the old files, so the site stays up on the old build.
+
+The boot survives nodemon's restarts: nodemon stops it with `SIGUSR2`, which
+the boot forwards to `server.js` as `SIGTERM`, exiting only once the server
+has; and before starting the server it stops any `node server.js` still
+running from the same folder (the orphan of a boot killed without that
+chance), which would otherwise hold the port and keep serving the previous
+build (the 23 and 25 Nov 2026 incidents).
+
 - **Uploads** (pictures, maps, models, read-aloud MP3s) live outside the
   standalone: the container's user can't create folders inside it (EACCES:
   until this was found, no upload had ever been saved, so content audio
