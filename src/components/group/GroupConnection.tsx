@@ -258,6 +258,9 @@ function GroupSync({ group }: { group: GroupContextValue }) {
   const hostPath = host.path
   useEffect(() => {
     if (membership.role !== 'guest' || !hostPath || location === hostPath) return
+    // The path is whatever the host's client published: follow it only inside
+    // the group's own tour (the host side already publishes just those).
+    if (!isTourLocation(hostPath, membership.tourId)) return
     if (
       isQuizLocation(hostPath, membership.tourId) &&
       isQuizLocation(location, membership.tourId)

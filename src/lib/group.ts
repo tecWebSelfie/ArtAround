@@ -146,6 +146,14 @@ export function groupLocation(pathname: string, search: URLSearchParams) {
  */
 export function isTourLocation(location: string, tourId: string) {
   const path = location.split('?')[0]
+  // Guests follow the host's published path (GroupSync), so a hostile host
+  // must not smuggle another page past the prefix check below: refuse dot
+  // segments (`/tour/T/../../account`, also percent-encoded), backslashes and
+  // empty segments (`//`), the trailing slash excepted.
+  const segments = path.split('/').slice(1, -1)
+  if (/%2e|%2f|%5c|\\/i.test(path) || segments.some((s) => s === '' || s === '.' || s === '..')) {
+    return false
+  }
   if (path.startsWith(`/tour/${tourId}/`)) return true
   // `/museum/{museumId}/navigation/tour/{tourId}[/...]`. Parsed here rather
   // than with parseNavigationPathname: tour-navigation pulls in the Pascal
