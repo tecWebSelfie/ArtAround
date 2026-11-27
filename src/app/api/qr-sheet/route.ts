@@ -101,7 +101,26 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const museums = await itemMuseums(kind, id, payload)
+    // Read the item as the viewer once, before any format: `itemMuseums` reads
+    // with overrideAccess, so on its own it would confirm (in svg/png, which
+    // read nothing else) that a private tour or content exists. What the
+    // viewer cannot read answers exactly like an unknown id (403), in every
+    // format; the title is reused by the PDF.
+    const read = { id, locale, depth: 0, ...viewer }
+    const [museums, title] = await Promise.all([
+      itemMuseums(kind, id, payload),
+      kind === 'object'
+        ? payload
+            .findByID({ collection: 'objects', select: { name: true }, ...read })
+            .then((o) => o.name)
+        : payload
+            .findByID({
+              collection: kind === 'tour' ? 'tours' : 'contents',
+              select: { title: true },
+              ...read,
+            })
+            .then((doc) => doc.title),
+    ]).catch(() => [[], ''] as const)
     const museumId = await staffMuseumId(museums.map((museum) => museum.id))
     if (!museumId) return forbidden()
     const url = printedCodeUrl(origin, `${kind}/${id}`, museumId)
@@ -120,17 +139,6 @@ export async function GET(request: NextRequest) {
       return file(new Uint8Array(png), 'image/png', `${name}.png`)
     }
 
-    const read = { id, locale, depth: 0, ...viewer }
-    const title =
-      kind === 'object'
-        ? (await payload.findByID({ collection: 'objects', select: { name: true }, ...read })).name
-        : (
-            await payload.findByID({
-              collection: kind === 'tour' ? 'tours' : 'contents',
-              select: { title: true },
-              ...read,
-            })
-          ).title
     const sheet = await singleSheet({
       museum: museums.find((museum) => museum.id === museumId)?.name ?? '',
       hint,
