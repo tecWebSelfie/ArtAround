@@ -1,6 +1,7 @@
 import { getSession } from '@/lib/session'
 import { normalizeLocale } from '@/lib/localized'
 import { lockedMuseumId } from '@/lib/museum-mode'
+import { isMuseumPoint } from '@/lib/museum-location'
 import { PlanVisitPage } from './PlanVisitPage'
 import { getT } from '@/i18n.server'
 import type { Metadata } from 'next'
@@ -29,7 +30,8 @@ export default async function PlanVisit({ params }: PageProps<'/[lng]/tour/plan'
       limit: 200,
       depth: 0,
       locale: normalizeLocale(lng) ?? 'en',
-      select: { name: true, location: { city: true } },
+      // latlng powers the "where are you?" proximity suggestions.
+      select: { name: true, location: { city: true, latlng: true } },
       sort: 'name',
       ...(locked ? { where: { id: { equals: locked } } } : {}),
     }),
@@ -40,8 +42,10 @@ export default async function PlanVisit({ params }: PageProps<'/[lng]/tour/plan'
       museums={docs.map((museum) => ({
         value: museum.id,
         name: museum.name,
-        // The city tells same-named museums apart in the Select.
+        // The city tells same-named museums apart on the suggestion cards.
         label: museum.location?.city ? `${museum.name}, ${museum.location.city}` : museum.name,
+        // GeoJSON [lng, lat]: the distance anchor for the nearest-museum cards.
+        latlng: isMuseumPoint(museum.location?.latlng) ? museum.location.latlng : null,
       }))}
       lockedMuseum={lockedMuseum}
     />

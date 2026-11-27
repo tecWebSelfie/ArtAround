@@ -552,6 +552,286 @@
     );
     background-color: color-mix(in srgb, var(--plan-visit-ember) 8%, var(--mantine-color-body));
   }
+
+  /* The numbered-steps layout (accepted live variant): composer column, then
+     the "Your visit" panel. The marker column width and connector match the
+     numbers; a step bounds to its grid track so wide content can't push it
+     past the column edge. */
+  .plan-visit-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    column-gap: var(--mantine-spacing-sm);
+    padding-bottom: var(--mantine-spacing-lg);
+    min-width: 0;
+  }
+
+  .plan-visit-step:not(.plan-visit-step-final)::after {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 1.9rem;
+    bottom: 2px;
+    width: 1px;
+    background: var(--mantine-color-default-border);
+  }
+
+  .plan-visit-step-n {
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.75;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: color-mix(in srgb, var(--mantine-color-museum-6) 65%, transparent);
+  }
+
+  .plan-visit-step-copy {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mantine-spacing-sm);
+    min-width: 0;
+  }
+
+  .plan-visit-step-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    font-size: var(--mantine-font-size-md);
+    font-weight: 600;
+  }
+
+  .plan-visit-step-title svg {
+    flex: 0 0 auto;
+    color: color-mix(in srgb, var(--mantine-color-museum-6) 80%, transparent);
+  }
+
+  /* Frames the visit's frame; Mantine Stack keeps the column and gap. */
+  .plan-visit-panel {
+    padding: var(--mantine-spacing-lg);
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-lg);
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 2.8%, var(--mantine-color-body));
+  }
+
+  .plan-visit-panel-cta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mantine-spacing-xs);
+    margin-top: auto;
+    padding-top: var(--mantine-spacing-lg);
+    border-top: 1px solid var(--mantine-color-default-border);
+  }
+
+  /* What inserts into the interests, said before it has to be guessed. */
+  .plan-visit-chips-label {
+    margin: 0 0 var(--mantine-spacing-xs);
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-dimmed);
+  }
+
+  .plan-visit-time-readout {
+    margin: 0;
+    font-size: 1.375rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* "Where are you?": a full-width bar, a locate icon at its end, adorned
+     scroll-snap suggestion cards ordered by distance, or a remembered pick. */
+  .plan-visit-place {
+    display: flex;
+    flex-direction: column;
+    gap: var(--mantine-spacing-sm);
+    min-width: 0;
+  }
+
+  .plan-visit-search {
+    display: flex;
+    align-items: center;
+    gap: var(--mantine-spacing-sm);
+    height: 2.6rem;
+    padding-inline: 0.75rem;
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-sm);
+    background: var(--mantine-color-body);
+  }
+
+  .plan-visit-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    font-size: var(--mantine-font-size-md);
+    color: var(--mantine-color-text);
+  }
+
+  .plan-visit-search input::placeholder {
+    color: var(--mantine-color-placeholder);
+  }
+
+  .plan-visit-locate {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 8%, var(--mantine-color-body));
+    color: var(--mantine-color-museum-6);
+    cursor: pointer;
+  }
+
+  .plan-visit-place-status {
+    margin: 0;
+    font-size: var(--mantine-font-size-sm);
+    color: var(--mantine-color-dimmed);
+  }
+
+  .plan-visit-sugg {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--mantine-spacing-sm);
+    min-width: 0;
+    padding-bottom: 4px;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+  }
+
+  .plan-visit-sugg-card {
+    display: flex;
+    align-items: center;
+    gap: var(--mantine-spacing-sm);
+    flex: 0 0 auto;
+    width: 15.5rem;
+    max-width: 100%;
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--mantine-color-default-border);
+    border-radius: var(--mantine-radius-sm);
+    background: transparent;
+    color: var(--mantine-color-text);
+    scroll-snap-align: start;
+    cursor: pointer;
+    transition:
+      border-color 140ms ease,
+      background-color 140ms ease;
+  }
+
+  .plan-visit-sugg-card:hover,
+  .plan-visit-sugg-card:has(input:checked) {
+    border-color: color-mix(
+      in srgb,
+      var(--mantine-color-museum-6) 45%,
+      var(--mantine-color-default-border)
+    );
+  }
+
+  .plan-visit-sugg-card:hover {
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 7%, var(--mantine-color-body));
+  }
+
+  .plan-visit-sugg-card:has(input:checked) {
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 9%, var(--mantine-color-body));
+  }
+
+  .plan-visit-sugg-card:has(input:focus-visible) {
+    outline: 2px solid var(--mantine-primary-color-4);
+    outline-offset: 1px;
+  }
+
+  /* The radio itself: focusable and in the accessibility tree, visually a
+     card. It stays out of pointer targeting; the card is the label. */
+  .plan-visit-sugg-card input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .plan-visit-sugg-thumb {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--mantine-radius-sm);
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 22%, var(--mantine-color-body));
+    color: var(--mantine-color-museum-6);
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
+  .plan-visit-sugg-copy {
+    min-width: 0;
+  }
+
+  .plan-visit-sugg-copy b {
+    display: block;
+    overflow-wrap: anywhere;
+    font-size: var(--mantine-font-size-sm);
+    font-weight: 500;
+  }
+
+  .plan-visit-sugg-copy small {
+    display: block;
+    font-size: 11px;
+    color: var(--mantine-color-dimmed);
+  }
+
+  .plan-visit-sugg-near {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 30%, var(--mantine-color-body));
+    color: var(--mantine-color-text);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .plan-visit-sugg-distance {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 12%, var(--mantine-color-body));
+    font-size: var(--mantine-font-size-xs);
+    font-variant-numeric: tabular-nums;
+    color: var(--mantine-color-dimmed);
+  }
+
+  /* A chosen museum, remembered until the visitor changes it. */
+  .plan-visit-selected {
+    display: flex;
+    align-items: center;
+    gap: var(--mantine-spacing-sm);
+    padding: 0.6rem 0.75rem;
+    border: 1px solid
+      color-mix(in srgb, var(--mantine-color-museum-6) 32%, var(--mantine-color-default-border));
+    border-radius: var(--mantine-radius-sm);
+    background: color-mix(in srgb, var(--mantine-color-museum-6) 7%, var(--mantine-color-body));
+  }
+
+  .plan-visit-selected svg {
+    flex: 0 0 auto;
+    color: var(--mantine-color-museum-6);
+  }
+
+  .plan-visit-selected b {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .plan-visit-selected-change {
+    flex: 0 0 auto;
+    border: 0;
+    background: transparent;
+    color: var(--mantine-color-museum-6);
+    font-size: var(--mantine-font-size-sm);
+    cursor: pointer;
+  }
 }
 
 @property --plan-visit-angle {

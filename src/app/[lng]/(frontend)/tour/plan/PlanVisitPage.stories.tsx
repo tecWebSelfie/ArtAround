@@ -16,7 +16,7 @@ const meta = {
     ),
   ],
   args: {
-    museums: [{ value: 'm', label: 'Pinacoteca, Bologna', name: 'Pinacoteca' }],
+    museums: [{ value: 'm', label: 'Pinacoteca, Bologna', name: 'Pinacoteca', latlng: null }],
     lockedMuseum: null,
   },
   parameters: {
@@ -91,6 +91,35 @@ export const Form: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Caravaggio and the 17th century' }))
     await expect(interests).toHaveValue('Caravaggio and the 17th century')
     await expect(canvas.getByText('Usually takes a few seconds.')).toBeVisible()
+    // The accepted shape: numbered steps, labelled controls, named examples,
+    // and the panel's hero action beside "All set?".
+    await expect(canvas.getByText('All set?')).toBeVisible()
+    await expect(canvas.getByRole('button', { name: 'Plan my visit' })).toBeVisible()
+    await expect(canvas.getByRole('region', { name: 'Interests' })).toHaveAttribute(
+      'aria-labelledby',
+      'plan-interests',
+    )
+    await expect(
+      canvas.getByRole('checkbox', { name: 'Wheelchair-accessible route' }),
+    ).toHaveAttribute('aria-labelledby', 'plan-route')
+    await expect(canvas.getByText('Need a starting point? Tap an example:')).toBeVisible()
+    await expect(canvas.getByText('Where are you?')).toBeVisible()
+    await expect(canvas.getByText('01')).toBeVisible()
+    await expect(canvas.getByText('02')).toBeVisible()
+    await expect(canvas.getByText('03')).toBeVisible()
+    await expect(canvas.getByText('04')).toBeVisible()
+    await expect(canvas.getByText('05')).toBeVisible()
+    await expect(canvas.getByText('Your visit')).toBeVisible()
+
+    const slider = canvas.getByRole('slider', { name: 'How much time do you have?' })
+    await expect(slider).toHaveAttribute('aria-valuemin', '15')
+    await expect(slider).toHaveAttribute('aria-valuemax', '240')
+    await expect(slider).toHaveAttribute('aria-valuenow', '60')
+    await expect(slider).toHaveAttribute('aria-valuetext', '1 h')
+    slider.focus()
+    await userEvent.keyboard('{ArrowRight}')
+    await expect(slider).toHaveAttribute('aria-valuenow', '65')
+    await expect(slider).toHaveAttribute('aria-valuetext', '1 h 5 min')
   },
 }
 

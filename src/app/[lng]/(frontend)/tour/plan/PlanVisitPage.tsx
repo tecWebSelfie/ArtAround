@@ -2,22 +2,22 @@
 
 import { VISIT_MINUTES } from '@/lib/tour-plan'
 import { BackToNavigator } from '@/components/navigation/BackToNavigator'
+import { VisitPlaceSearch } from './VisitPlaceSearch'
 import {
   Alert,
   Button,
   Checkbox,
   Container,
   Group,
-  SegmentedControl,
-  Select,
+  Slider,
   Stack,
   Text,
   Textarea,
   Title,
   UnstyledButton,
 } from '@mantine/core'
-import { CircleAlert } from 'lucide-react'
-import { useRef } from 'react'
+import { Accessibility, ArrowRight, CircleAlert, Clock, MapPin, PenLine, Users } from 'lucide-react'
+import { useRef, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PlanPreview } from './PlanPreview'
 import { usePlanVisit } from './use-plan-visit'
@@ -30,16 +30,14 @@ import { useDictation, type Museum, PLAN_PAGE_CLASS } from './plan-visit-state'
  * never writes a prompt (interests are an ordinary field, typed or dictated).
  *
  * Flow and invariants:
- * - The visitor's interests lead, as the page's hero field (DESIGN.md → Plan
- *   my visit); then what most visits need (time, museum unless locked,
- *   step-free route). First/returning visit and the group sit in a
- *   "More about your visit" section whose toggle summarizes their values, so
- *   nothing is hidden without being visible at a glance.
- * - Wide screens (from-md) are two columns: the interests lead in the wide
- *   left column, the visit's frame and the submit follow in a right rail.
- *   Below md it is one column in the same order as before, and the fieldset
- *   holds the submit because its inert window (planning) is exactly the
- *   fieldset's disabled one.
+ * - The plan reads as numbered steps (DESIGN.md → Plan my visit): where the
+ *   visitor is (nearest museums first), what interests them, then the visit's
+ *   frame in a "Your visit" panel — time, step-free route, the optional
+ *   "More about your visit" — ending in the "All set?" action. In museum mode
+ *   the museum is fixed, its step is gone and the intro names the museum.
+ * - Below the desktop breakpoint the same steps stack in one column, in the
+ *   same order, and the fieldset holds the submit because its inert window
+ *   (planning) is exactly the fieldset's disabled one.
  * - Nothing the visitor types is dropped silently: numbers are constrained by
  *   their inputs, and a missing child's age is an inline error on submit.
  * - Submitting asks `/api/plan-tour` for a tour (it may take a few seconds:
@@ -102,9 +100,9 @@ export function PlanVisitPage({
 
   return (
     <main className={PLAN_PAGE_CLASS}>
-      {/* Wide screens get the two-column form (below, the grid keeps one column
-          and this stays the phone layout), so the container widens from xs. */}
-      <Container size="xs" py="xl" className="from-md:max-w-[66rem]">
+      {/* Wide screens get the accepted two-column steps layout (below md the
+          grid keeps one column in the same order), so the container widens. */}
+      <Container size="xs" py="xl" className="from-md:max-w-[72rem]">
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -113,15 +111,15 @@ export function PlanVisitPage({
         >
           <Stack gap="lg">
             <BackToNavigator />
-            <Stack gap="xs">
+            {/* The masthead owns its measure: title, then the intro. */}
+            <Stack gap="sm">
               <Title order={1}>{t('Plan my visit')}</Title>
-              {/* The intro keeps a readable measure once the form widens. */}
               <Text c="dimmed" className="from-md:max-w-[75ch]">
                 {lockedMuseum && chosenName
                   ? t('Tell us about your visit to {{museum}} and we will choose the stops.', {
                       museum: chosenName,
                     })
-                  : t('Tell us about your visit and we will choose the stops.')}
+                  : t('Tell us where you are and what interests you: we will choose the stops.')}
               </Text>
             </Stack>
             {/* Disabled while planning: the answers being planned can't change
@@ -129,78 +127,187 @@ export function PlanVisitPage({
                 exactly the fieldset's: while planning both are inert, and the
                 loading state still names the button. */}
             <fieldset disabled={planning} className="m-0 min-w-0 border-0 p-0">
-              {/* Desktop (from-md): the visitor's words lead in the left column,
-                  the visit's frame and the action follow in the right rail.
-                  Below md it is one column in the same order as before. */}
-              <div className="grid gap-(--mantine-spacing-lg) from-md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-                <InterestsField
-                  value={answers.interests}
-                  onChange={(value) => update('interests', value)}
-                  dictation={dictation}
-                />
-                <Stack
-                  gap="lg"
-                  className="from-md:border-l from-md:border-solid from-md:border-(--mantine-color-default-border) from-md:pl-(--mantine-spacing-lg)"
-                >
-                  {/* The constraints follow, set apart so they don't compete
-                      with the interests; the rail's edge replaces the border
-                      that separated them in one column. */}
-                  <Stack
-                    gap="md"
-                    className="border-t border-solid border-(--mantine-color-default-border) pt-(--mantine-spacing-md) from-md:border-t-0 from-md:pt-0"
-                  >
-                    <VisitTimeField
-                      value={answers.minutes}
-                      onChange={(value) => update('minutes', value)}
-                    />
-                    {!lockedMuseum && (
-                      <Select
-                        size="md"
-                        label={t('Museum')}
-                        description={t('Pick one from the list, or name it in your interests.')}
-                        data={museums}
+              {/* The visitor's own words lead in the composer column; the
+                  visit's frame and the action follow in the panel. Below md
+                  it is one column in the same order. */}
+              <div className="grid gap-(--mantine-spacing-lg) from-md:grid-cols-[minmax(0,1fr)_minmax(0,24rem)]">
+                <Stack gap="lg">
+                  {!lockedMuseum && (
+                    <PlanStep
+                      n="01"
+                      id="plan-where"
+                      icon={<MapPin size={16} aria-hidden />}
+                      title={t('Where are you?')}
+                    >
+                      <VisitPlaceSearch
+                        museums={museums}
                         value={answers.museumId}
                         onChange={(value) => update('museumId', value)}
-                        searchable
-                        clearable
+                        labelledBy="plan-where"
                       />
-                    )}
-                    <Checkbox
-                      size="md"
-                      label={t('Wheelchair-accessible route')}
-                      description={t('Directions avoid stairs and steps. The stops stay the same.')}
-                      checked={answers.wheelchair}
-                      onChange={(event) => update('wheelchair', event.currentTarget.checked)}
-                    />
-                  </Stack>
-                  {/* The rest is optional: closed, the toggle still says what is set. */}
-                  <MoreAboutVisit
-                    answers={answers}
-                    update={update}
-                    setChildren={setChildren}
-                    setAge={setAge}
-                    ageError={ageError}
-                    open={moreOpen}
-                    onToggle={() => setMoreOpen((open) => !open)}
-                  />
-                  {error && (
-                    <Alert
-                      color="red"
-                      variant="light"
-                      icon={<CircleAlert size={18} aria-hidden />}
-                      role="alert"
-                    >
-                      {error}
-                    </Alert>
+                    </PlanStep>
                   )}
-                  <PlanSubmit planning={planning} chosenName={chosenName} />
+                  <PlanStep
+                    n={lockedMuseum ? '01' : '02'}
+                    id="plan-interests"
+                    icon={<PenLine size={16} aria-hidden />}
+                    title={t('Interests')}
+                    final
+                  >
+                    <InterestsField
+                      value={answers.interests}
+                      onChange={(value) => update('interests', value)}
+                      dictation={dictation}
+                    />
+                  </PlanStep>
                 </Stack>
+                {/* The visit's frame reads back as one panel: what most
+                    visits need, the optional family, and the action. */}
+                <YourVisitPanel
+                  answers={answers}
+                  update={update}
+                  setChildren={setChildren}
+                  setAge={setAge}
+                  ageError={ageError}
+                  moreOpen={moreOpen}
+                  setMoreOpen={setMoreOpen}
+                  planning={planning}
+                  chosenName={chosenName}
+                  error={error}
+                  lockedMuseum={lockedMuseum}
+                />
               </div>
             </fieldset>
           </Stack>
         </form>
       </Container>
     </main>
+  )
+}
+
+/** The "Your visit" panel keeps frame, recovery, and action in one stack. */
+function YourVisitPanel({
+  answers,
+  update,
+  setChildren,
+  setAge,
+  ageError,
+  moreOpen,
+  setMoreOpen,
+  planning,
+  chosenName,
+  error,
+  lockedMuseum,
+}: Pick<
+  ReturnType<typeof usePlanVisit>,
+  | 'answers'
+  | 'update'
+  | 'setChildren'
+  | 'setAge'
+  | 'ageError'
+  | 'moreOpen'
+  | 'setMoreOpen'
+  | 'planning'
+  | 'chosenName'
+  | 'error'
+> & { lockedMuseum: string | null }) {
+  const { t } = useTranslation('plan-visit')
+  return (
+    <Stack gap="lg" className="plan-visit-panel">
+      <Text fw={600}>{t('Your visit')}</Text>
+      <PlanStep
+        n={lockedMuseum ? '02' : '03'}
+        id="plan-time"
+        icon={<Clock size={16} aria-hidden />}
+        title={t('How much time do you have?')}
+      >
+        <VisitTimeField value={answers.minutes} onChange={(value) => update('minutes', value)} />
+      </PlanStep>
+      <PlanStep
+        n={lockedMuseum ? '03' : '04'}
+        id="plan-route"
+        icon={<Accessibility size={16} aria-hidden />}
+        title={t('Wheelchair-accessible route')}
+      >
+        <Checkbox
+          size="md"
+          aria-labelledby="plan-route"
+          description={t('Directions avoid stairs and steps. The stops stay the same.')}
+          checked={answers.wheelchair}
+          onChange={(event) => update('wheelchair', event.currentTarget.checked)}
+        />
+      </PlanStep>
+      <PlanStep
+        n={lockedMuseum ? '04' : '05'}
+        id="plan-who"
+        icon={<Users size={16} aria-hidden />}
+        title={t('Who is coming?')}
+        final
+      >
+        <MoreAboutVisit
+          answers={answers}
+          update={update}
+          setChildren={setChildren}
+          setAge={setAge}
+          ageError={ageError}
+          open={moreOpen}
+          onToggle={() => setMoreOpen((open) => !open)}
+        />
+      </PlanStep>
+      {error && (
+        <Alert
+          color="red"
+          variant="light"
+          icon={<CircleAlert size={18} aria-hidden />}
+          role="alert"
+        >
+          {error}
+        </Alert>
+      )}
+      <div className="plan-visit-panel-cta">
+        <Text fw={600}>{t('All set?')}</Text>
+        <PlanSubmit planning={planning} chosenName={chosenName} />
+      </div>
+    </Stack>
+  )
+}
+
+/**
+ * One numbered step of the plan: the marker column, the connector to the
+ * next step (every step except the last of its column draws it), and the
+ * icon + title row that names what the step asks.
+ */
+function PlanStep({
+  n,
+  id,
+  icon,
+  title,
+  final = false,
+  children,
+}: {
+  n: string
+  id: string
+  icon: ReactNode
+  title: string
+  final?: boolean
+  children: ReactNode
+}) {
+  return (
+    <section
+      aria-labelledby={id}
+      className={`plan-visit-step${final ? ' plan-visit-step-final' : ''}`}
+    >
+      <span className="plan-visit-step-n tabular-nums" aria-hidden>
+        {n}
+      </span>
+      <div className="plan-visit-step-copy">
+        <div className="plan-visit-step-title" id={id}>
+          {icon}
+          {title}
+        </div>
+        {children}
+      </div>
+    </section>
   )
 }
 
@@ -217,7 +324,15 @@ function PlanSubmit({ planning, chosenName }: { planning: boolean; chosenName: s
   else status = t('Finding the museum and choosing the stops…')
   return (
     <Stack gap="xs">
-      <Button type="submit" size="md" fullWidth loading={planning} color="museum.8" autoContrast>
+      <Button
+        type="submit"
+        size="lg"
+        fullWidth
+        loading={planning}
+        color="museum.8"
+        autoContrast
+        rightSection={<ArrowRight size={18} aria-hidden />}
+      >
         {t('Plan my visit')}
       </Button>
       <Text size="sm" c="dimmed" ta="center" role="status">
@@ -281,22 +396,18 @@ function InterestsField({
 
   return (
     <Stack gap="sm">
-      {/* Label and help sit outside the halo, which frames the field alone. */}
-      <Stack gap={4}>
-        <Text size="md" fw={600} id="plan-interests-label">
-          {t('Interests')}
-        </Text>
-        <Text size="sm" c="dimmed" id="plan-interests-help">
-          {t(
-            'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
-          )}
-        </Text>
-      </Stack>
+      {/* The step's title (PlanStep, id plan-interests) labels the field; this
+          help line stays outside the halo, which frames the field alone. */}
+      <Text size="sm" c="dimmed" id="plan-interests-help">
+        {t(
+          'A topic, an artist, a period, or nothing at all. For example: a thesis on Parmigianino.',
+        )}
+      </Text>
       <div className="plan-visit-interest" data-state={dictation.state}>
         <Textarea
           ref={field}
           size="lg"
-          aria-labelledby="plan-interests-label"
+          aria-labelledby="plan-interests"
           aria-describedby="plan-interests-help"
           autosize
           minRows={5}
@@ -336,47 +447,63 @@ function InterestsField({
       <Text size="sm" c="dimmed" role="status">
         {dictationStatus}
       </Text>
-      <Group gap="xs">
-        {[
-          t('Must-see masterpieces'),
-          t('Caravaggio and the 17th century'),
-          t('A visit with children'),
-        ].map((suggestion) => (
-          <UnstyledButton
-            key={suggestion}
-            type="button"
-            className="plan-visit-interest-chip"
-            onClick={() => insert(suggestion)}
-          >
-            {suggestion}
-          </UnstyledButton>
-        ))}
-      </Group>
+      {/* The chips say what they do before the visitor has to guess. */}
+      <div>
+        <p className="plan-visit-chips-label">{t('Need a starting point? Tap an example:')}</p>
+        <Group gap="xs">
+          {[
+            t('Must-see masterpieces'),
+            t('Caravaggio and the 17th century'),
+            t('A visit with children'),
+          ].map((suggestion) => (
+            <UnstyledButton
+              key={suggestion}
+              type="button"
+              className="plan-visit-interest-chip"
+              onClick={() => insert(suggestion)}
+            >
+              {suggestion}
+            </UnstyledButton>
+          ))}
+        </Group>
+      </div>
     </Stack>
   )
 }
 
-/** How long the visit can take, as the planner's fixed choices (minutes or hours). */
+/** How long the visit can take: an exact number of minutes (15–240, step 5);
+    the historical choices stay as marks on the track. */
 function VisitTimeField({ value, onChange }: { value: string; onChange: (value: string) => void }) {
   const { t } = useTranslation('plan-visit')
+  // Readable time: '30 min' / '1 h' / '1 h 30' (keys in plan-visit.json).
+  const format = (minutes: number) => {
+    const hours = Math.floor(minutes / 60)
+    const rest = minutes % 60
+    if (hours === 0) return t('{{count}} min', { count: rest })
+    if (rest === 0) return t('{{count}} h', { count: hours })
+    return t('{{hours}} h {{minutes}} min', { hours, minutes: rest })
+  }
+  const minutes =
+    value !== '' && Number.isFinite(Number(value)) ? Math.min(240, Math.max(15, Number(value))) : 60
   return (
-    <Stack gap={6}>
-      <Text size="md" fw={500} id="plan-time">
-        {t('How much time do you have?')}
-      </Text>
-      <SegmentedControl
+    <Stack gap="md">
+      <p className="plan-visit-time-readout tabular-nums">{format(minutes)}</p>
+      <Slider
         size="md"
-        aria-labelledby="plan-time"
-        value={value}
-        onChange={onChange}
-        data={VISIT_MINUTES.map((value) => ({
-          value: String(value),
-          label:
-            value < 60
-              ? t('{{count}} min', { count: value })
-              : t('{{count}} h', { count: value / 60 }),
-        }))}
+        mb="sm"
+        min={15}
+        max={240}
+        step={5}
+        value={minutes}
+        onChange={(n) => onChange(String(n))}
+        marks={VISIT_MINUTES.map((mark) => ({ value: mark, label: format(mark) }))}
+        label={format}
+        thumbLabel={t('How much time do you have?')}
+        thumbValueText={format}
       />
+      <Text size="sm" c="dimmed">
+        {t('Drag to the exact time you have - 15 minutes to 4 hours.')}
+      </Text>
     </Stack>
   )
 }

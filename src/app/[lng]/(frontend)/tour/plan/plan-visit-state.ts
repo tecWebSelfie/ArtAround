@@ -1,6 +1,7 @@
 'use client'
 
 import type { PlannedTour } from '@/lib/tour-plan'
+import type { MuseumPoint } from '@/lib/museum-location'
 import { createSessionStore } from '@/lib/session-store'
 import { useEffect, useRef, useState } from 'react'
 
@@ -9,8 +10,14 @@ import { useEffect, useRef, useState } from 'react'
  * plan), the count fields' shared props, and dictation for the interests.
  */
 
-/** `label` is "Name, City" for the Select; `name` alone names it in copy. */
-export type Museum = { value: string; label: string; name: string }
+/** `label` is "Name, City" for recognition; `name` alone names it in copy. */
+export type Museum = {
+  value: string
+  label: string
+  name: string
+  /** GeoJSON [lng, lat]: the anchor for the nearest-museum suggestions. */
+  latlng: MuseumPoint | null
+}
 
 /** The form's answers, as kept in state and in sessionStorage. */
 export type Answers = {

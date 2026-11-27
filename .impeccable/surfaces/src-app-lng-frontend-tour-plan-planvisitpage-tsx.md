@@ -66,6 +66,17 @@ the tour start retains its identity with deeper existing shades. Independent
 finish disposition: ship for this scoped extension. Design documentation and
 sidecar reconciled. No new shipping rasters or global design tokens.
 
+## Numbered steps + Your visit — accepted live variant 19 (2026-11-27)
+
+- **Mode:** Operate; preserve the established Mantine planner, ember Interests field, local Plan my visit patterns, and existing family/planning behavior. No new fonts, assets, services, global tokens, or Carousel dependency.
+- **Knobs:** `panel: balanced`, `panel-tint: 0.35`. Panel is `24rem`, hairline-bordered, `museum.6` tint at `0.35 × 8% = 2.8%`; panel CTA is `All set?` + full-width `Plan my visit`. Grid is `minmax(0, 1fr)` + `minmax(0, 24rem)`, 72rem container; same DOM order on mobile.
+- **Steps:** numbered `PlanStep` 01–05 in global mode; hidden decorative numbers, connectors, icons, accessible names. Global order: **Where are you? → Interests → Your visit/time → Wheelchair-accessible route → Who is coming?**; museum mode removes location and renumbers 01–04. Interests is not hidden on landing.
+- **Place search:** `VisitPlaceSearch`, typed place + `Use my location`, Photon min 3 / 300ms / cache / 8000ms / `NEXT_PUBLIC_PHOTON_ENDPOINT`, GeoJSON `location.latlng`, `distanceKm`, nearest five. Native scroll-snap **radio cards** (not `@mantine/carousel`), Nearest + `Intl.NumberFormat`, loading/empty/error, remembered selected museum + `Change`.
+- **Time:** real Mantine `Slider`, `min=15 max=240 step=5`, 30/60/90/120 marks, readable label + `aria-valuetext`, minutes string state, readable `1 h` / `1 h 30`, localized `{{hours}} h {{minutes}} min`; not restricted to marks.
+- **Access:** `aria-labelledby` on Interests and route, labelled chips with `Need a starting point? Tap an example:`, no horizontal page overflow, keyboard/focus preserved; fieldset disabled while planning.
+- **Copy/i18n:** all new strings in `plan-visit`, all 24 languages; `Change` reused. English uses `e.g. Bologna, via Indipendenza`, `All set?`, `Who is coming?`, `Your visit`, `Drag to the exact time you have — 15 minutes to 4 hours.` (extractor key uses `-`; translated value keeps `—`).
+- **Proof:** `pnpm typecheck`; `pnpm test:stories PlanVisitPage.stories.tsx`; `pnpm test:int tests/int/visit-place-search.int.spec.tsx tests/int/tour-plan.int.spec.ts`; `pnpm test:stories PlanVisitDictationButton.stories.tsx`; `pnpm exec i18next-cli extract --ci`; rendered desktop + mobile inspection. No visual-regression suite.
+
 ## Read-aloud hardening refinement (2026-11-07)
 
 The existing Listen primitive now accompanies the displayed saved personal
