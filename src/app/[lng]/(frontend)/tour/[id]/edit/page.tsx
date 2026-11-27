@@ -9,11 +9,18 @@ import { Container } from '@mantine/core'
 import { notFound, redirect } from 'next/navigation'
 import { directionsByStop } from '@/lib/tour-logistics'
 import { tourCopyPath, tourEditPath } from '@/lib/tour-routes'
+import { withNavigationPosition } from '@/lib/tour-navigation'
 import { getTourEditorData, getTourQuizDrafts } from '../../tour-editing'
 
 /** Edit an own tour (author only); others customize a copy via `/tour/new?from=`. */
-export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[id]/edit'>) {
+export default async function EditTourPage({
+  params,
+  searchParams,
+}: PageProps<'/[lng]/tour/[id]/edit'>) {
   const { lng, id } = await params
+  // A visit copy reopened from the planner keeps the visitor's navigation
+  // choices on the way to its start page (`/tour/new` forwards them).
+  const navigation = withNavigationPosition('', await searchParams).slice(1)
   await requireUser(lng, tourEditPath(lng, id))
   const { payload } = await getSession()
   // Read as the visitor: a deleted tour, or someone else's private one, is a
@@ -58,6 +65,7 @@ export default async function EditTourPage({ params }: PageProps<'/[lng]/tour/[i
         // A planned visit or a visit copy may keep a single stop.
         minStops={minStopsFor(tour)}
         keptQuestions={keptQuestions}
+        navigation={navigation}
         initial={{
           title: tour.title,
           description: tour.description ?? '',

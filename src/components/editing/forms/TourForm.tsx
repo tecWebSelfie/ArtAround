@@ -242,6 +242,7 @@ export function TourForm({
   cancelHref,
   keptQuestions = [],
   anonymous = false,
+  navigation = '',
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -282,6 +283,11 @@ export function TourForm({
   keptQuestions?: KeptQuestion[]
   /** Not signed in: stops-only customization, saved by `/api/tour-copy`. */
   anonymous?: boolean
+  /**
+   * Validated navigation choices (step-free route, reading profile; a query
+   * without `?`) the visit copy's start page carries on to the tour.
+   */
+  navigation?: string
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
@@ -361,7 +367,9 @@ export function TourForm({
     (saved) => {
       clearDraft()
       router.push(
-        visitCopy ? tourStartPath(lng, museum.id, saved.id) : (`/${lng}/tour/${saved.id}` as Route),
+        visitCopy
+          ? (`${tourStartPath(lng, museum.id, saved.id)}${navigation ? `?${navigation}` : ''}` as Route)
+          : (`/${lng}/tour/${saved.id}` as Route),
       )
     },
   )

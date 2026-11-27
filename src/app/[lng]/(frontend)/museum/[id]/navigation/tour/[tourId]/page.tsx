@@ -2,14 +2,19 @@ import NavigationStartPage from './NavigationStartPage'
 import { getNavigationTour } from '../../data'
 import { normalizeLocale } from '@/lib/localized'
 import { asViewer } from '@/lib/session'
+import { withNavigationPosition } from '@/lib/tour-navigation'
 import config from '@/payload.config'
 import { getPayload } from 'payload'
 
 /** Entry page before a tour starts (no map yet); the URL cursor begins after this screen. */
 export default async function NavigationStart({
   params,
+  searchParams,
 }: PageProps<'/[lng]/museum/[id]/navigation/tour/[tourId]'>) {
   const { lng, tourId } = await params
+  // Choices made before the start (step-free route, reading profile: a
+  // customized planned visit) carried on to the tour, validated.
+  const navigation = withNavigationPosition('', await searchParams).slice(1)
   const payload = await getPayload({ config })
   // The shared tour read is the source document (the layout's guard and every
   // step use it); this page shows the title, so it reads that in the
@@ -27,5 +32,11 @@ export default async function NavigationStart({
       })
       .catch(() => null),
   ])
-  return <NavigationStartPage tour={{ ...tour, title: localized?.title ?? tour.title }} lng={lng} />
+  return (
+    <NavigationStartPage
+      tour={{ ...tour, title: localized?.title ?? tour.title }}
+      lng={lng}
+      navigation={navigation}
+    />
+  )
 }

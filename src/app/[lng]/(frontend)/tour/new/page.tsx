@@ -6,6 +6,7 @@ import { coverImage } from '@/lib/cover-image'
 import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { tourCopyPath, tourEditPath, VISIT_COPY_PARAM } from '@/lib/tour-routes'
+import { withNavigationPosition } from '@/lib/tour-navigation'
 import { Alert, Container } from '@mantine/core'
 import { redirect } from 'next/navigation'
 import { extractID } from 'payload/shared'
@@ -34,9 +35,12 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   const from = typeof query.from === 'string' ? query.from : null
   const museumParam = typeof query.museum === 'string' ? query.museum : null
   const forVisit = query[VISIT_COPY_PARAM] === '1'
+  // The visitor's navigation choices (step-free route, reading profile),
+  // validated: kept through sign-in and on to the copy's start page.
+  const navigation = withNavigationPosition('', query).slice(1)
   // Back here after signing in, with the same intent (a visit copy included).
   const returnTo = from
-    ? tourCopyPath(lng, from, { visit: forVisit })
+    ? tourCopyPath(lng, from, { visit: forVisit, navigation })
     : `/${lng}/tour/new?museum=${museumParam ?? ''}`
   const { payload, user } = await getSession()
   if (!from) await requireUser(lng, returnTo)
@@ -52,7 +56,8 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   const visitSource = forVisit || anonymous ? source : null
   if (visitSource) {
     const copyId = await existingVisitCopy(visitSource)
-    if (copyId) redirect(tourEditPath(lng, copyId))
+    if (copyId)
+      redirect(`${tourEditPath(lng, copyId)}${navigation ? `?${navigation}` : ''}` as Route)
   }
   // Museum mode: with no museum in the URL, a new tour is for the locked museum.
   const museumId = source ? extractID(source.museum) : (museumParam ?? (await lockedMuseumId()))
@@ -94,6 +99,7 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         // blank form, which is a new tour, not a copy of anything.
         visitCopyOf={visitSource?.id ?? null}
         anonymous={anonymous}
+        navigation={navigation}
         initial={
           source
             ? {

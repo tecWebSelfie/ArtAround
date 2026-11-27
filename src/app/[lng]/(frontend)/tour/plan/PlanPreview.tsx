@@ -129,7 +129,7 @@ export function PlanPreview({
               (a stop they don't like, too hard, …) without new answers. */}
           <Button
             component={Link}
-            href={tourCopyPath(lng, plan.id, { visit: true })}
+            href={tourCopyPath(lng, plan.id, { visit: true, navigation: navigationQuery })}
             variant="subtle"
             leftSection={<Pencil size={16} aria-hidden />}
             className="self-start"

@@ -42,8 +42,16 @@ export const VISIT_COPY_PARAM = 'visit'
 /**
  * The editor for a new tour copied from `tourId` (the original never
  * changes): "Customize tour" on the tour page, or, with `visit`, the start
- * page's "Edit".
+ * page's "Edit" and the planner's "Customize the stops". `navigation` (a
+ * query string without `?`: step-free route, reading profile) rides along
+ * to the copy's start page, so customizing keeps the visitor's choices.
  */
-export function tourCopyPath(lng: string, tourId: string, { visit = false } = {}) {
-  return `/${lng}/tour/new?from=${tourId}${visit ? `&${VISIT_COPY_PARAM}=1` : ''}` as Route
+export function tourCopyPath(
+  lng: string,
+  tourId: string,
+  { visit = false, navigation = '' }: { visit?: boolean; navigation?: string } = {},
+) {
+  return `/${lng}/tour/new?from=${tourId}${visit ? `&${VISIT_COPY_PARAM}=1` : ''}${
+    navigation ? `&${navigation}` : ''
+  }` as Route
 }

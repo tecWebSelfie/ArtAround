@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { tourCopyPath } from '@/lib/tour-routes'
 import { anonymousCopyStops, copiedDirections, copyableStops } from '@/lib/tour-copy'
 
 /**
@@ -76,5 +77,15 @@ describe('anonymousCopyStops', () => {
     expect(anonymousCopyStops(['gone'], candidates)).toBeNull()
     expect(anonymousCopyStops(['a', 'a'], candidates)).toBeNull()
     expect(anonymousCopyStops([], candidates)).toBeNull()
+  })
+})
+
+/** Customizing a planned visit keeps the visitor's navigation choices. */
+describe('tourCopyPath', () => {
+  it('carries the navigation choices to the editor, after its own params', () => {
+    expect(tourCopyPath('en', 't1')).toBe('/en/tour/new?from=t1')
+    expect(tourCopyPath('en', 't1', { visit: true, navigation: 'mobility=wheelchair&age=8' })).toBe(
+      '/en/tour/new?from=t1&visit=1&mobility=wheelchair&age=8',
+    )
   })
 })

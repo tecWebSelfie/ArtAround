@@ -10,7 +10,12 @@ import { summarizeTour } from '@/lib/tour-summary'
 import { formatUnit } from '@/lib/duration'
 import { KIND_FALLBACK } from '@/components/mantine/kind-fallback'
 import { LinkButton } from '@/components/editing/LinkButton'
-import { tourCopyPath, tourMuseumId, tourNavigationPath } from '@/lib/tour-navigation'
+import {
+  tourCopyPath,
+  tourMuseumId,
+  tourNavigationPath,
+  withNavigationPosition,
+} from '@/lib/tour-navigation'
 import Link from 'next/link'
 import classes from './NavigationStartPage.module.css'
 
@@ -23,13 +28,28 @@ import classes from './NavigationStartPage.module.css'
  * the title and a matching "Lead the group" tile beside it. "Edit" on the
  * cover's rim opens the visitor's own copy of the tour, never the original.
  */
-export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: string }) {
+export default async function NavigationPage({
+  tour,
+  lng,
+  navigation = '',
+}: {
+  tour: Tour
+  lng: string
+  /**
+   * Validated navigation choices (step-free route, reading profile; a query
+   * without `?`) that Start, Lead the group and Edit carry on.
+   */
+  navigation?: string
+}) {
   const { t } = await getT('tour-navigation')
   const { t: tc } = await getT('tours-carousel')
   const { t: tg } = await getT('group')
   const { t: te } = await getT('editing')
   const summary = summarizeTour(tour)
-  const startHref = tourNavigationPath(lng, tourMuseumId(tour), tour.id, 0)
+  const startHref = withNavigationPosition(
+    tourNavigationPath(lng, tourMuseumId(tour), tour.id, 0),
+    navigation,
+  )
   const tourThumbnail = typeof tour.thumbnail === 'object' ? tour.thumbnail : null
   const cover = tourThumbnail?.url ? (
     <Image
@@ -67,7 +87,7 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
               accessible name says it's a copy and contains the visible
               label (WCAG 2.5.3). */}
           <LinkButton
-            href={tourCopyPath(lng, tour.id, { visit: true })}
+            href={tourCopyPath(lng, tour.id, { visit: true, navigation })}
             size="compact-sm"
             variant="default"
             radius="xl"
@@ -110,6 +130,7 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
               group…"), just not until it's open. */}
           <StartGroupButton
             tourId={tour.id}
+            navigationQuery={navigation}
             label={tg('Lead the group')}
             classNames={{
               inner: classes.groupInner,
