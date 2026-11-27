@@ -131,8 +131,15 @@ describe('a .xml upload with an XHTML-namespace root', () => {
       XHTML_SCRIPT_PAYLOAD(marker),
       extraFields as Record<string, unknown> | undefined,
     )
+    // Fixed behavior (N36): the collection's allow-list rejects a .xml upload
+    // outright. If a collection ever accepts it again, the file it serves must
+    // still never execute (checked below).
+    if (upload.status >= 400 && upload.status < 500) return
     expect(upload.status).toBe(201)
     uploaded.push({ collection, id: upload.json.doc.id })
+
+    const served = await fetch(`${BASE}/api/${collection}/file/${filename}`)
+    expect(served.headers.get('x-content-type-options')).toBe('nosniff')
 
     const title = await titleAfterVisiting(
       victim.token,
