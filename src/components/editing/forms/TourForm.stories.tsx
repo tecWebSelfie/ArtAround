@@ -155,6 +155,8 @@ export const UndoRemove: Story = {
     await userEvent.click(canvas.getByRole('button', { name: 'Remove A knight in motion' }))
     // The toast fades in.
     await waitFor(() => expect(screen.getByText('Removed: A knight in motion')).toBeVisible())
+    // Named by the app's provider (`AppMantineProvider`), like every toast's.
+    await expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
     await expect(canvas.getAllByRole('button', { name: /^Remove / })[0]).toHaveAccessibleName(
       'Remove A knight in motion',

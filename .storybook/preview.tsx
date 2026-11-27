@@ -2,9 +2,10 @@ import type { Preview } from '@storybook/nextjs-vite'
 
 import '../src/app/[lng]/(frontend)/globals.css'
 
-import { ColorSchemeScript, MantineProvider } from '@mantine/core'
+import { ColorSchemeScript } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals'
-import { cssVariablesResolver, theme } from '../src/theme'
+import { theme } from '../src/theme'
+import { AppMantineProvider } from '../src/components/mantine/AppMantineProvider'
 import { mswLoader } from 'msw-storybook-addon/csf3'
 import { setStoryCanvas } from './story-canvas'
 import { i18n, missingKeys, STORY_LANGUAGES } from '../src/mocks/i18n'
@@ -80,13 +81,12 @@ const preview: Preview = {
         <>
           <ColorSchemeScript />
 
-          <MantineProvider
-            theme={theme}
-            cssVariablesResolver={cssVariablesResolver}
-            forceColorScheme={scheme}
-          >
+          {/* The app's own provider: its CSS variables resolver and the
+              defaults it adds (close-button labels, fixed-height text areas),
+              so stories render and test what visitors get. */}
+          <AppMantineProvider theme={theme} forceColorScheme={scheme}>
             <ModalsProvider>{renderStory()}</ModalsProvider>
-          </MantineProvider>
+          </AppMantineProvider>
         </>
       )
     },
