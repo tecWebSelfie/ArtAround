@@ -1,9 +1,6 @@
 @layer theme, base, mantine, mantine-qr-code, mantine-border-animate, mantine-depth-select, spotlight, dropzone, components, utilities;
 
 @import 'tailwindcss';
-/* Research notes quote Tailwind syntax (`animate-[var(...)]`): scanned as
-   sources they generate invalid CSS and break every page's stylesheet. */
-@source not '../../../../research_notes';
 @import '@mantine/core/styles.layer.css';
 @import '@gfazioli/mantine-qr-code/styles.layer.css';
 @import '@gfazioli/mantine-border-animate/styles.layer.css';
@@ -30,6 +27,11 @@
 @source "../../../../node_modules/@pascal-app/editor/src";
 @source "../../../../node_modules/@pascal-app/viewer/src";
 @source "../../../../node_modules/@pascal-app/nodes/src";
+/* Research notes quote Tailwind syntax (`animate-[var(...)]`): scanned as
+   sources they generate invalid CSS and break every page's stylesheet. Here,
+   after every `@import`: an import that follows another rule is dropped
+   (Storybook lost all of Mantine's styles). */
+@source not '../../../../research_notes';
 
 /* `light-dark()` in Tailwind classes (`text-[light-dark(…)]`,
    `[--input-bd:light-dark(…)]`): Lightning CSS, which builds this file,
