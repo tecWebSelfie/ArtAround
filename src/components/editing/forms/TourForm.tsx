@@ -772,7 +772,6 @@ function StopsTimeline({
       id: toast,
       // Long enough to reach the button; hovering keeps it open.
       autoClose: 8000,
-      closeButtonProps: { 'aria-label': t('Close') },
       message: (
         <Group justify="space-between" wrap="nowrap" gap="xs">
           <Text size="sm">

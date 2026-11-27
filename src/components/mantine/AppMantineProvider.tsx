@@ -5,6 +5,7 @@ import {
   Drawer,
   MantineProvider,
   Modal,
+  Notification,
   Textarea,
   type MantineProviderProps,
   type MantineThemeOverride,
@@ -19,10 +20,10 @@ import { useTranslation } from 'react-i18next'
  * the theme itself is plain data and still comes from the server
  * (`museumTheme`, so museum mode paints its colors on the first render).
  *
- * It also names every modal's and drawer's close button ("Close", in the
+ * It also names every modal's, drawer's and notification's close button ("Close", in the
  * visitor's language): Mantine's is an icon-only button, which screen readers
- * announced as an unnamed button wherever a dialog forgot to pass a label.
- * A dialog's own `closeButtonProps` still wins.
+ * announced as an unnamed button wherever a dialog or toast forgot to pass a
+ * label. Their own `closeButtonProps` still win.
  *
  * Text areas keep a fixed height and scroll inside: one that grows while the
  * visitor types pushes the rest of the form (and its save button) down. No
@@ -44,6 +45,8 @@ export function AppMantineProvider({
         ...theme?.components,
         Modal: Modal.extend({ defaultProps: { closeButtonProps } }),
         Drawer: Drawer.extend({ defaultProps: { closeButtonProps } }),
+        // Toasts from `notifications.show` render this component too.
+        Notification: Notification.extend({ defaultProps: { closeButtonProps } }),
         Textarea: Textarea.extend({ defaultProps: { rows: 4 } }),
       },
     }
