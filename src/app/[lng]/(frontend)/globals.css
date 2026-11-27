@@ -1,6 +1,9 @@
 @layer theme, base, mantine, mantine-qr-code, mantine-border-animate, mantine-depth-select, spotlight, dropzone, components, utilities;
 
 @import 'tailwindcss';
+/* Research notes quote Tailwind syntax (`animate-[var(...)]`): scanned as
+   sources they generate invalid CSS and break every page's stylesheet. */
+@source not '../../../../research_notes';
 @import '@mantine/core/styles.layer.css';
 @import '@gfazioli/mantine-qr-code/styles.layer.css';
 @import '@gfazioli/mantine-border-animate/styles.layer.css';
