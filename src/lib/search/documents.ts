@@ -323,7 +323,15 @@ export async function buildSearchDocument({
         payload.find({
           collection: 'tours',
           where: { author: { equals: id } },
-          select: { museum: true },
+          // Every field `isUnlistedInSearch` reads, so the person's museums
+          // come only from work that itself gets a search row.
+          select: {
+            museum: true,
+            visibility: true,
+            generation: true,
+            visitCopyOf: true,
+            visitableStops: true,
+          },
           depth: 0,
           pagination: false,
           overrideAccess: true,
@@ -332,19 +340,24 @@ export async function buildSearchDocument({
         payload.find({
           collection: 'contents',
           where: { author: { equals: id } },
-          select: {},
+          select: { visibility: true },
           depth: 0,
           pagination: false,
           overrideAccess: true,
           req,
         }),
       ])
-      const tourMuseums = tours.docs
+      // Private contents/tours and personal tours have no search row of their
+      // own, so they must not reveal their museum through the person's row
+      // (museum-mode people search is public).
+      const listedTours = tours.docs.filter((tour) => !isUnlistedInSearch(tour))
+      const listedContents = contents.docs.filter((content) => !isUnlistedInSearch(content))
+      const tourMuseums = listedTours
         .map((tour) => idOf(tour.museum))
         .filter((museumId): museumId is string => Boolean(museumId))
       const contentMuseums = await museumsForContent({
         payload,
-        contentIds: contents.docs.map((content) => String(content.id)),
+        contentIds: listedContents.map((content) => String(content.id)),
         req,
       })
       const museumIds = [...new Set([...tourMuseums, ...contentMuseums.map((entry) => entry.id)])]

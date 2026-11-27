@@ -179,6 +179,26 @@ export async function resyncToursIncluding({
 }
 
 /**
+ * A person's search row carries the museums of their listed tours and contents
+ * (`buildSearchDocument`, case 'users'), so it goes stale when the author
+ * creates, hides or deletes one. Re-syncs it after a content/tour change or
+ * delete (fail-soft like every sync: `resyncSearchDocuments` logs, never throws).
+ */
+async function resyncAuthorRow(
+  payload: Payload,
+  collection: SearchCollection,
+  doc: { author?: unknown },
+  req: PayloadRequest,
+) {
+  if (collection !== 'contents' && collection !== 'tours') return
+  const author = doc.author
+  const authorId =
+    typeof author === 'object' && author !== null ? (author as { id?: unknown }).id : author
+  if (authorId == null || authorId === '') return
+  await resyncSearchDocuments({ payload, collection: 'users', ids: [String(authorId)], req })
+}
+
+/**
  * The `afterChange` / `afterDelete` pair every indexed collection installs:
  * one upsert or delete per save, nothing for the collection itself to
  * remember. The save never fails because of search (see `upsert`).
@@ -192,6 +212,7 @@ export function searchSyncAfterChange(collection: SearchCollection): CollectionA
       source: doc as unknown as Record<string, unknown>,
       req,
     })
+    await resyncAuthorRow(req.payload, collection, doc, req)
     return doc
   }
 }
@@ -199,6 +220,7 @@ export function searchSyncAfterChange(collection: SearchCollection): CollectionA
 export function searchSyncAfterDelete(collection: SearchCollection): CollectionAfterDeleteHook {
   return async ({ doc, req }) => {
     await removeSearchDocument(req.payload, collection, String(doc.id))
+    await resyncAuthorRow(req.payload, collection, doc, req)
     return doc
   }
 }
