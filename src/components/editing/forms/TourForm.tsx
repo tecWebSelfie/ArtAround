@@ -404,6 +404,11 @@ export function TourForm({
                       )}` as Route
                     }
                     inherit
+                    // The primary on the light-blue alert is 3.7:1; the
+                    // alert's own text color, underlined, stays a link.
+                    c="inherit"
+                    fw={600}
+                    underline="always"
                   >
                     {t('Sign in')}
                   </Anchor>
