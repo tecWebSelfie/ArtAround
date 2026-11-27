@@ -42,3 +42,19 @@ export function copiedDirections(source: Pick<Tour, 'directions'>, kept: string[
     Object.entries(directionsByStop(source)).filter(([id]) => keptIds.has(id)),
   )
 }
+
+/**
+ * The stops an anonymous visitor's copy may keep (`/api/tour-copy`): the
+ * order they sent, if every one is a candidate of the museum read as that
+ * visitor (`getTourEditorData`: public contents of the works its map
+ * exhibits) and none repeats; null refuses the whole request, so a crafted
+ * body can't slip in a stop the editor never offered.
+ */
+export function anonymousCopyStops(
+  requested: string[],
+  candidates: { id: string; unavailable?: boolean }[],
+): string[] | null {
+  const allowed = new Set(candidates.filter((c) => !c.unavailable).map((c) => c.id))
+  if (!requested.length || new Set(requested).size !== requested.length) return null
+  return requested.every((id) => allowed.has(id)) ? requested : null
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { copiedDirections, copyableStops } from '@/lib/tour-copy'
+import { anonymousCopyStops, copiedDirections, copyableStops } from '@/lib/tour-copy'
 
 /**
  * What a copy of someone's tour (`/tour/new?from=`) starts with: only the
@@ -60,5 +60,21 @@ describe('copiedDirections', () => {
       ],
     }
     expect(copiedDirections(source as never, ['b'])).toEqual({ b: 'Right' })
+  })
+})
+
+/** An anonymous copy keeps exactly the requested stops, all offered, none repeated. */
+describe('anonymousCopyStops', () => {
+  const candidates = [{ id: 'a' }, { id: 'b' }, { id: 'gone', unavailable: true }]
+
+  it('keeps the requested order when every stop was offered', () => {
+    expect(anonymousCopyStops(['b', 'a'], candidates)).toEqual(['b', 'a'])
+  })
+
+  it('refuses unknown, unavailable, repeated or no stops', () => {
+    expect(anonymousCopyStops(['a', 'x'], candidates)).toBeNull()
+    expect(anonymousCopyStops(['gone'], candidates)).toBeNull()
+    expect(anonymousCopyStops(['a', 'a'], candidates)).toBeNull()
+    expect(anonymousCopyStops([], candidates)).toBeNull()
   })
 })

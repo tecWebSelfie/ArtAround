@@ -354,11 +354,13 @@ function PurchaseModal({
             {t('Sign in to buy')}
           </Button>
         )}
+        {/* Anyone can replace them: an anonymous visitor customizes an
+            unowned copy (`/tour/new`, `/api/tour-copy`), no sign-in needed. */}
         <Button
           fullWidth
           variant="default"
           component={Link}
-          href={isSignedIn ? editHref : loginHref}
+          href={editHref}
           leftSection={<Replace size={16} />}
         >
           {t('Replace the paid contents')}

@@ -4,9 +4,21 @@ import type { PlannedTour } from '@/lib/tour-plan'
 import { BackToNavigator } from '@/components/navigation/BackToNavigator'
 import { ReadingProfile } from '@/components/group/ReadingProfile'
 import { StartGroupButton } from '@/components/group/StartGroupButton'
+import { tourCopyPath } from '@/lib/tour-routes'
 import { ACCESSIBILITY_COLOR, TOUR_GRADIENT } from '@/theme'
 import { Badge, Button, Container, Group, Stack, Text, Timeline, Title } from '@mantine/core'
-import { Accessibility, Baby, Clock, Footprints, MapPin, MapPinCheck, Play } from 'lucide-react'
+import {
+  Accessibility,
+  Baby,
+  Clock,
+  Footprints,
+  MapPin,
+  MapPinCheck,
+  Pencil,
+  Play,
+} from 'lucide-react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
 import type { ComponentProps, Ref } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PLAN_PAGE_CLASS } from './plan-visit-state'
@@ -14,7 +26,9 @@ import { PLAN_PAGE_CLASS } from './plan-visit-state'
 /**
  * The planned visit, before it starts: its stops and time, the answers the
  * start will honour (step-free route, a child's reading level), and the ways
- * on: change the answers, start alone, or start as a group.
+ * on: change the answers, customize the stops, start alone, or start as a
+ * group. Customizing opens the visitor's own copy of the planned tour in the
+ * tour editor (`tourCopyPath`, a visit copy), signed in or not.
  */
 export function PlanPreview({
   plan,
@@ -40,6 +54,7 @@ export function PlanPreview({
   navigationQuery: string
 }) {
   const { t } = useTranslation('plan-visit')
+  const { lng } = useParams<{ lng: string }>()
   return (
     <div className={PLAN_PAGE_CLASS}>
       <Container size="xs" py="xl">
@@ -110,6 +125,17 @@ export function PlanPreview({
               </Timeline.Item>
             ))}
           </Timeline>
+          {/* Next to the stops it changes: drop, swap or reorder some of them
+              (a stop they don't like, too hard, …) without new answers. */}
+          <Button
+            component={Link}
+            href={tourCopyPath(lng, plan.id, { visit: true })}
+            variant="subtle"
+            leftSection={<Pencil size={16} aria-hidden />}
+            className="self-start"
+          >
+            {t('Customize the stops')}
+          </Button>
           <ReadingProfile ages={ages} value={reader} onChange={onReaderChange} />
           <Group grow>
             <Button variant="default" size="md" onClick={onChange}>

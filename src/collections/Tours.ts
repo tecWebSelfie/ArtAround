@@ -267,11 +267,19 @@ const checkStartEntrance: CollectionBeforeChangeHook<TourType> = async ({
  * `guardTourContents`, so a copy of a tour whose own-author private stops
  * the visitor can read still saves (other authors' private stops are refused
  * whatever the visibility; copies leave them out before saving).
+ *
+ * The one exception is an anonymous visitor's copy (`/api/tour-copy`): it has
+ * no author, and a private tour with no author is readable by nobody, so it
+ * keeps the visibility the route gave it (public, yet unlisted like every
+ * personal tour, `LISTED_TOURS`). Only that route makes one: REST create
+ * needs a user, and `assignAuthor` (earlier in the chain) always gives a
+ * signed-in caller's visit copy its author.
  */
 const keepVisitCopyPrivate: CollectionBeforeChangeHook<TourType> = ({ data, originalDoc }) => {
   // The saved value wins over the stored one, a cleared (null) one included.
   const copyOf = 'visitCopyOf' in data ? data.visitCopyOf : originalDoc?.visitCopyOf
-  if (copyOf) data.visibility = 'private'
+  const author = data.author ?? originalDoc?.author
+  if (copyOf && author) data.visibility = 'private'
   return data
 }
 

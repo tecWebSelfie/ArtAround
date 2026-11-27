@@ -13,7 +13,7 @@ import { copiedDirections } from '@/lib/tour-copy'
 import { existingVisitCopy, getNewTourEditorData } from '../tour-editing'
 
 /**
- * Create a tour (any signed-in user). Entry points:
+ * Create a tour (any signed-in user), or customize one (anyone). Entry points:
  * - `?museum=<id>` from a museum page ("Add tour");
  * - `?from=<tourId>` to customize someone else's tour: a new tour owned by
  *   the visitor, prefilled with the original's stops so locked (paid) ones
@@ -21,6 +21,12 @@ import { existingVisitCopy, getNewTourEditorData } from '../tour-editing'
  * - `?from=<tourId>&visit=1` from the tour's start page ("Edit" on the
  *   cover): the visitor's own copy (`tours.visitCopyOf`), or their existing
  *   one reopened (`existingVisitCopy`).
+ *
+ * A visitor who is not signed in may customize a tour they can read (both
+ * `?from=` entries): they get the editor in its anonymous mode, which only
+ * changes the stops and the start entrance and saves an unowned visit copy
+ * through `/api/tour-copy`. A blank new tour, or an original they can't read
+ * (a private tour), still asks them to sign in.
  */
 export default async function NewTourPage({ params, searchParams }: PageProps<'/[lng]/tour/new'>) {
   const { lng } = await params
@@ -32,15 +38,18 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   const returnTo = from
     ? tourCopyPath(lng, from, { visit: forVisit })
     : `/${lng}/tour/new?museum=${museumParam ?? ''}`
-  await requireUser(lng, returnTo)
-
-  const { payload } = await getSession()
+  const { payload, user } = await getSession()
+  if (!from) await requireUser(lng, returnTo)
   const source = from
     ? await payload
         .findByID({ collection: 'tours', id: from, depth: 0, ...(await asViewer()) })
         .catch(() => null)
     : null
-  const visitSource = forVisit ? source : null
+  // Anonymous: only a copy of a tour they can read; signing in may reveal it.
+  const anonymous = !user
+  if (anonymous && !source) await requireUser(lng, returnTo)
+  // An anonymous customization is always a visit copy: they can't own a tour.
+  const visitSource = forVisit || anonymous ? source : null
   if (visitSource) {
     const copyId = await existingVisitCopy(visitSource)
     if (copyId) redirect(tourEditPath(lng, copyId))
@@ -84,6 +93,7 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         // Only once the original was read: an unreadable `from` leaves a
         // blank form, which is a new tour, not a copy of anything.
         visitCopyOf={visitSource?.id ?? null}
+        anonymous={anonymous}
         initial={
           source
             ? {

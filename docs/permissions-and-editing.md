@@ -291,7 +291,8 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      `tourCopyPath(…, { visit: true })`: the visitor's own copy for this
      visit, never the original. The copy records its provenance in
      `tours.visitCopyOf` (set on create, never reassigned); the
-     `keepVisitCopyPrivate` hook keeps it private, `LISTED_TOURS` (through
+     `keepVisitCopyPrivate` hook keeps it private (an anonymous copy, below,
+     excepted), `LISTED_TOURS` (through
      `findListedTours`) keeps it
      out of every list like a planned visit, and the editor opens its start
      page once saved. "Edit" again — on the original or on the copy — reopens
@@ -319,6 +320,22 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      editor with `?draft=1&add=<id>`; the unsaved draft waits in sessionStorage.
      URL helpers and `returnTo` validation (tour editors only, no open
      redirect) live in `src/lib/tour-picker.ts`.
+     **Without an account**, anyone can customize a tour they can read
+     ("Customize tour" on the tour page, "Replace the paid contents" in its
+     purchase modal, "Edit" on the start page, "Customize the stops" in the
+     "Plan my visit" preview): `/tour/new?from=` opens `TourForm` in its
+     `anonymous` mode, always a visit copy. Only the stops, their order and
+     the start entrance change (no title, texts, directions, cover, quiz or
+     "Write a new content"), and `/api/tour-copy` saves it: rate limited,
+     refused to signed-in callers (their copy stays owned and private,
+     through REST), the original read as the visitor (a private one is not
+     found and the page asks to sign in), every stop checked against the
+     candidates the editor offered (`anonymousCopyStops`), the title and
+     texts copied from the original. The copy has no author, so
+     `keepVisitCopyPrivate` leaves it public: a private authorless tour would
+     be readable by nobody. Like a planned visit it is unlisted and
+     unsearchable, reachable by its link, and nobody can edit it: "Edit" on
+     it makes a new copy. A blank `/tour/new` still needs a session.
    - `/[lng]/museum/new` — creates a museum (creator becomes director).
    - `/[lng]/museum/[id]/members` — staff list with typed CRUD on memberships.
    - Museum page actions: "Add objects to the map" (map editor, curator+),

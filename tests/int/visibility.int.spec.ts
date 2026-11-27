@@ -334,10 +334,17 @@ describe('visit copies', () => {
   it('stay private whatever the form sends, on create and on later saves', async () => {
     const req = fakeRequest({})
     expect(
-      await run(keepVisitCopyPrivate, { visibility: 'public', visitCopyOf: 'tour-1' }, req),
+      await run(
+        keepVisitCopyPrivate,
+        { visibility: 'public', visitCopyOf: 'tour-1', author: 'u1' },
+        req,
+      ),
     ).toMatchObject({ visibility: 'private' })
     expect(
-      await run(keepVisitCopyPrivate, { visibility: 'public' }, req, { visitCopyOf: 'tour-1' }),
+      await run(keepVisitCopyPrivate, { visibility: 'public' }, req, {
+        visitCopyOf: 'tour-1',
+        author: 'u1',
+      }),
     ).toMatchObject({ visibility: 'private' })
     // Any other tour keeps the visibility it was given, and so does a copy
     // whose provenance is cleared in the same save.
@@ -348,6 +355,14 @@ describe('visit copies', () => {
       await run(keepVisitCopyPrivate, { visibility: 'public', visitCopyOf: null }, req, {
         visitCopyOf: 'tour-1',
       }),
+    ).toMatchObject({ visibility: 'public' })
+  })
+
+  it('stay public when anonymous: with no author, a private copy would be readable by nobody', async () => {
+    const req = fakeRequest({})
+    // `/api/tour-copy` creates them; they stay unlisted (`isPersonalTour`).
+    expect(
+      await run(keepVisitCopyPrivate, { visibility: 'public', visitCopyOf: 'tour-1' }, req),
     ).toMatchObject({ visibility: 'public' })
   })
 

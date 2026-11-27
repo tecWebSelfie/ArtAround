@@ -10,6 +10,7 @@ import { isSortable, useSortable } from '@dnd-kit/react/sortable'
 import {
   ActionIcon,
   Alert,
+  Anchor,
   Badge,
   Button,
   Group,
@@ -126,8 +127,11 @@ function SortableStop({
   last: boolean
   onMove: (delta: number) => void
   onRemove: () => void
-  /** How to reach this stop: a logistic direction, not part of the content. */
-  directions: string
+  /**
+   * How to reach this stop: a logistic direction, not part of the content.
+   * Null hides the field (anonymous customization keeps the original's notes).
+   */
+  directions: string | null
   onDirectionsChange: (value: string) => void
 }) {
   const { t } = useTranslation('editing')
@@ -190,20 +194,22 @@ function SortableStop({
           </ActionIcon>
         </Group>
       </Group>
-      <Textarea
-        mt="xs"
-        size="xs"
-        rows={2}
-        maxLength={500}
-        label={
-          first
-            ? t('How to get here from the entrance')
-            : t('How to get here from the previous stop')
-        }
-        placeholder={t('For example, continue left of the stairs towards room 12')}
-        value={directions}
-        onChange={(event) => onDirectionsChange(event.currentTarget.value)}
-      />
+      {directions !== null && (
+        <Textarea
+          mt="xs"
+          size="xs"
+          rows={2}
+          maxLength={500}
+          label={
+            first
+              ? t('How to get here from the entrance')
+              : t('How to get here from the previous stop')
+          }
+          placeholder={t('For example, continue left of the stairs towards room 12')}
+          value={directions}
+          onChange={(event) => onDirectionsChange(event.currentTarget.value)}
+        />
+      )}
     </TimelineItem>
   )
 }
@@ -219,6 +225,11 @@ function SortableStop({
  * "Write a new content", which leave for the contents search in picker mode
  * (`src/lib/tour-picker.ts`) and come back with `?draft=1&add=<id>`. The
  * unsaved draft lives in sessionStorage meanwhile, so nothing typed is lost.
+ *
+ * `anonymous`: a visitor who is not signed in customizing a tour (always a
+ * visit copy). Only the stops, their order and the start entrance can
+ * change; the title, texts, cover and quiz stay the original's, and the
+ * copy is saved by `/api/tour-copy`, which checks the same rules again.
  */
 export function TourForm({
   tourId,
@@ -230,6 +241,7 @@ export function TourForm({
   minStops = minStopsFor({ visitCopyOf }),
   cancelHref,
   keptQuestions = [],
+  anonymous = false,
 }: {
   /** Existing tour being edited; absent for a new tour (incl. customized copies). */
   tourId?: string
@@ -268,6 +280,8 @@ export function TourForm({
    * their contents is still a stop.
    */
   keptQuestions?: KeptQuestion[]
+  /** Not signed in: stops-only customization, saved by `/api/tour-copy`. */
+  anonymous?: boolean
 }) {
   const visitCopy = Boolean(visitCopyOf)
   const { t } = useTranslation('editing')
@@ -307,7 +321,8 @@ export function TourForm({
   // Not in the form values: a picked file can't go into the sessionStorage draft.
   const [cover, setCover] = useState<CoverChange>(null)
   const save = useSave(
-    async (values: TourValues) => {
+    async (values: TourValues): Promise<{ id: string }> => {
+      if (anonymous) return saveAnonymousCopy(visitCopyOf, values)
       const title = values.title.trim()
       const data = {
         title,
@@ -360,16 +375,43 @@ export function TourForm({
         </Text>
         {visitCopy && (
           <Alert color="blue">
-            {t('You are editing your own copy for this visit: the original tour stays as it is.')}
+            <Stack gap="xs" align="start">
+              <Text size="sm">
+                {t(
+                  'You are editing your own copy for this visit: the original tour stays as it is.',
+                )}
+              </Text>
+              {anonymous && (
+                <Text size="sm">
+                  {t(
+                    'Without an account you can change the stops and where the visit starts. Sign in to also change its texts and find your copy again later.',
+                  )}{' '}
+                  <Anchor
+                    component={Link}
+                    href={`/${lng}/login?next=${encodeURIComponent(editorUrl)}` as Route}
+                    inherit
+                  >
+                    {t('Sign in')}
+                  </Anchor>
+                </Text>
+              )}
+            </Stack>
           </Alert>
         )}
-        <TextInput label={t('Title')} required {...form.getInputProps('title')} />
-        <TextInput
-          label={t('Short description')}
-          maxLength={70}
-          {...form.getInputProps('description')}
-        />
-        <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
+        {/* Anonymous: the original's title and texts, shown but not editable. */}
+        {anonymous ? (
+          <Title order={3}>{form.values.title}</Title>
+        ) : (
+          <>
+            <TextInput label={t('Title')} required {...form.getInputProps('title')} />
+            <TextInput
+              label={t('Short description')}
+              maxLength={70}
+              {...form.getInputProps('description')}
+            />
+            <CoverImageInput current={thumbnail} change={cover} onChange={setCover} />
+          </>
+        )}
         {/* A visit copy is always private (the server enforces it): no choice to offer. */}
         {!visitCopy && (
           <VisibilityInput
@@ -379,12 +421,16 @@ export function TourForm({
           />
         )}
         {/* Logistic directions: not a stop, not part of one (src/lib/tour-logistics.ts). */}
-        <Textarea
-          label={t('Practical information')}
-          description={t('Entrance, tickets, cloakroom: what visitors read before the first stop.')}
-          maxLength={1000}
-          {...form.getInputProps('logistics')}
-        />
+        {!anonymous && (
+          <Textarea
+            label={t('Practical information')}
+            description={t(
+              'Entrance, tickets, cloakroom: what visitors read before the first stop.',
+            )}
+            maxLength={1000}
+            {...form.getInputProps('logistics')}
+          />
+        )}
         <TourStopsEditor
           form={form}
           candidates={candidates}
@@ -392,13 +438,16 @@ export function TourForm({
           museumId={museum.id}
           entrances={museum.entrances}
           returnTo={editorUrl}
+          anonymous={anonymous}
         />
 
-        <QuizEditor
-          value={form.values.quiz}
-          onChange={(quiz) => form.setFieldValue('quiz', quiz)}
-          error={form.errors.quiz}
-        />
+        {!anonymous && (
+          <QuizEditor
+            value={form.values.quiz}
+            onChange={(quiz) => form.setFieldValue('quiz', quiz)}
+            error={form.errors.quiz}
+          />
+        )}
 
         <Group justify="end">
           <Button
@@ -422,6 +471,26 @@ export function TourForm({
       </Stack>
     </form>
   )
+}
+
+/**
+ * An anonymous visitor's copy of `from`, saved by `/api/tour-copy`: only the
+ * stops and the start entrance travel, the server takes the rest from the
+ * original. A refusal throws with the server's reason, which `useSave` shows.
+ */
+async function saveAnonymousCopy(from: string | null, values: TourValues) {
+  const response = await fetch('/api/tour-copy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      from,
+      contents: values.contents,
+      startEntrance: values.startEntrance || null,
+    }),
+  })
+  const json = (await response.json().catch(() => ({}))) as { id?: string; error?: string }
+  if (!response.ok || !json.id) throw new Error(json.error ?? `HTTP ${response.status}`)
+  return { id: json.id }
 }
 
 /**
@@ -509,6 +578,7 @@ function TourStopsEditor({
   museumId,
   entrances,
   returnTo,
+  anonymous,
 }: {
   form: UseFormReturnType<TourValues>
   candidates: TourCandidate[]
@@ -518,6 +588,8 @@ function TourStopsEditor({
   entrances: EntranceChoice[]
   /** The editor's own URL, where the contents picker comes back. */
   returnTo: string
+  /** Not signed in: no directions to write, no new content to write. */
+  anonymous: boolean
 }) {
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
@@ -541,7 +613,7 @@ function TourStopsEditor({
       {/* How much of the route is still unexplained: stops without the
           author's directions show visitors only the map's route. A quiet
           count, not a warning: directions are optional. */}
-      {missingDirections > 0 && (
+      {missingDirections > 0 && !anonymous && (
         <Text size="sm" c="dimmed">
           {t('{{count}} stops have no directions yet: visitors only see the route on the map', {
             count: missingDirections,
@@ -569,7 +641,7 @@ function TourStopsEditor({
           </Stack>
         </Alert>
       )}
-      <StopsTimeline form={form} byId={byId} entrances={entrances} />
+      <StopsTimeline form={form} byId={byId} entrances={entrances} withDirections={!anonymous} />
       <Select
         label={t('Add a stop')}
         placeholder={t('Search the museum’s contents')}
@@ -596,16 +668,19 @@ function TourStopsEditor({
         >
           {t('Browse contents')}
         </Button>
-        <Button
-          component={Link}
-          href={newStopHref(lng, { museumId, returnTo }) as Route}
-          variant="light"
-          color="teal"
-          autoContrast
-          leftSection={<PenLine size={16} aria-hidden />}
-        >
-          {t('Write a new content')}
-        </Button>
+        {/* Writing a content needs an account. */}
+        {!anonymous && (
+          <Button
+            component={Link}
+            href={newStopHref(lng, { museumId, returnTo }) as Route}
+            variant="light"
+            color="teal"
+            autoContrast
+            leftSection={<PenLine size={16} aria-hidden />}
+          >
+            {t('Write a new content')}
+          </Button>
+        )}
       </Group>
     </Stack>
   )
@@ -620,10 +695,13 @@ function StopsTimeline({
   form,
   byId,
   entrances,
+  withDirections,
 }: {
   form: UseFormReturnType<TourValues>
   byId: Map<string, TourCandidate>
   entrances: EntranceChoice[]
+  /** Each stop's directions field (not in anonymous customization). */
+  withDirections: boolean
 }) {
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
@@ -670,7 +748,7 @@ function StopsTimeline({
               first={index === 0}
               last={index === selected.length - 1}
               onMove={(delta) => move(index, delta)}
-              directions={form.values.directions[id] ?? ''}
+              directions={withDirections ? (form.values.directions[id] ?? '') : null}
               onDirectionsChange={(value) =>
                 form.setFieldValue('directions', {
                   ...form.values.directions,
