@@ -35,6 +35,11 @@ import { useDictation, type Museum, PLAN_PAGE_CLASS } from './plan-visit-state'
  *   step-free route). First/returning visit and the group sit in a
  *   "More about your visit" section whose toggle summarizes their values, so
  *   nothing is hidden without being visible at a glance.
+ * - Wide screens (from-md) are two columns: the interests lead in the wide
+ *   left column, the visit's frame and the submit follow in a right rail.
+ *   Below md it is one column in the same order as before, and the fieldset
+ *   holds the submit because its inert window (planning) is exactly the
+ *   fieldset's disabled one.
  * - Nothing the visitor types is dropped silently: numbers are constrained by
  *   their inputs, and a missing child's age is an inline error on submit.
  * - Submitting asks `/api/plan-tour` for a tour (it may take a few seconds:
@@ -97,7 +102,9 @@ export function PlanVisitPage({
 
   return (
     <main className={PLAN_PAGE_CLASS}>
-      <Container size="xs" py="xl">
+      {/* Wide screens get the two-column form (below, the grid keeps one column
+          and this stays the phone layout), so the container widens from xs. */}
+      <Container size="xs" py="xl" className="from-md:max-w-[66rem]">
         <form
           onSubmit={(event) => {
             event.preventDefault()
@@ -108,7 +115,8 @@ export function PlanVisitPage({
             <BackToNavigator />
             <Stack gap="xs">
               <Title order={1}>{t('Plan my visit')}</Title>
-              <Text c="dimmed">
+              {/* The intro keeps a readable measure once the form widens. */}
+              <Text c="dimmed" className="from-md:max-w-[75ch]">
                 {lockedMuseum && chosenName
                   ? t('Tell us about your visit to {{museum}} and we will choose the stops.', {
                       museum: chosenName,
@@ -116,90 +124,106 @@ export function PlanVisitPage({
                   : t('Tell us about your visit and we will choose the stops.')}
               </Text>
             </Stack>
-            {/* Disabled while planning: the answers being planned can't change under it. */}
+            {/* Disabled while planning: the answers being planned can't change
+                under it. The submit lives inside because its inert window is
+                exactly the fieldset's: while planning both are inert, and the
+                loading state still names the button. */}
             <fieldset disabled={planning} className="m-0 min-w-0 border-0 p-0">
-              <Stack gap="lg">
+              {/* Desktop (from-md): the visitor's words lead in the left column,
+                  the visit's frame and the action follow in the right rail.
+                  Below md it is one column in the same order as before. */}
+              <div className="grid gap-(--mantine-spacing-lg) from-md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
                 <InterestsField
                   value={answers.interests}
                   onChange={(value) => update('interests', value)}
                   dictation={dictation}
                 />
-                {/* The constraints follow, set apart so they don't compete with the interests. */}
                 <Stack
-                  gap="md"
-                  className="border-t border-solid border-(--mantine-color-default-border) pt-(--mantine-spacing-md)"
+                  gap="lg"
+                  className="from-md:border-l from-md:border-solid from-md:border-(--mantine-color-default-border) from-md:pl-(--mantine-spacing-lg)"
                 >
-                  <VisitTimeField
-                    value={answers.minutes}
-                    onChange={(value) => update('minutes', value)}
-                  />
-                  {!lockedMuseum && (
-                    <Select
-                      size="md"
-                      label={t('Museum')}
-                      description={t('Pick one from the list, or name it in your interests.')}
-                      data={museums}
-                      value={answers.museumId}
-                      onChange={(value) => update('museumId', value)}
-                      searchable
-                      clearable
+                  {/* The constraints follow, set apart so they don't compete
+                      with the interests; the rail's edge replaces the border
+                      that separated them in one column. */}
+                  <Stack
+                    gap="md"
+                    className="border-t border-solid border-(--mantine-color-default-border) pt-(--mantine-spacing-md) from-md:border-t-0 from-md:pt-0"
+                  >
+                    <VisitTimeField
+                      value={answers.minutes}
+                      onChange={(value) => update('minutes', value)}
                     />
-                  )}
-                  <Checkbox
-                    size="md"
-                    label={t('Wheelchair-accessible route')}
-                    description={t('Directions avoid stairs and steps. The stops stay the same.')}
-                    checked={answers.wheelchair}
-                    onChange={(event) => update('wheelchair', event.currentTarget.checked)}
+                    {!lockedMuseum && (
+                      <Select
+                        size="md"
+                        label={t('Museum')}
+                        description={t('Pick one from the list, or name it in your interests.')}
+                        data={museums}
+                        value={answers.museumId}
+                        onChange={(value) => update('museumId', value)}
+                        searchable
+                        clearable
+                      />
+                    )}
+                    <Checkbox
+                      size="md"
+                      label={t('Wheelchair-accessible route')}
+                      description={t('Directions avoid stairs and steps. The stops stay the same.')}
+                      checked={answers.wheelchair}
+                      onChange={(event) => update('wheelchair', event.currentTarget.checked)}
+                    />
+                  </Stack>
+                  {/* The rest is optional: closed, the toggle still says what is set. */}
+                  <MoreAboutVisit
+                    answers={answers}
+                    update={update}
+                    setChildren={setChildren}
+                    setAge={setAge}
+                    ageError={ageError}
+                    open={moreOpen}
+                    onToggle={() => setMoreOpen((open) => !open)}
                   />
+                  {error && (
+                    <Alert
+                      color="red"
+                      variant="light"
+                      icon={<CircleAlert size={18} aria-hidden />}
+                      role="alert"
+                    >
+                      {error}
+                    </Alert>
+                  )}
+                  <PlanSubmit planning={planning} chosenName={chosenName} />
                 </Stack>
-                {/* The rest is optional: closed, the toggle still says what is set. */}
-                <MoreAboutVisit
-                  answers={answers}
-                  update={update}
-                  setChildren={setChildren}
-                  setAge={setAge}
-                  ageError={ageError}
-                  open={moreOpen}
-                  onToggle={() => setMoreOpen((open) => !open)}
-                />
-              </Stack>
+              </div>
             </fieldset>
-            {error && (
-              <Alert
-                color="red"
-                variant="light"
-                icon={<CircleAlert size={18} aria-hidden />}
-                role="alert"
-              >
-                {error}
-              </Alert>
-            )}
-            <Stack gap="xs">
-              {/* Readable primary action in both global and museum mode. */}
-              <Button
-                type="submit"
-                size="md"
-                fullWidth
-                loading={planning}
-                color="museum.8"
-                autoContrast
-              >
-                {t('Plan my visit')}
-              </Button>
-              {/* The wait can take a few seconds: say what is happening. */}
-              <Text size="sm" c="dimmed" ta="center" role="status">
-                {!planning
-                  ? t('Usually takes a few seconds.')
-                  : chosenName
-                    ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
-                    : t('Finding the museum and choosing the stops…')}
-              </Text>
-            </Stack>
           </Stack>
         </form>
       </Container>
     </main>
+  )
+}
+
+/**
+ * The planning action and its spoken status: readable in both global and
+ * museum mode, and saying what the wait is doing (the form is disabled
+ * meanwhile, so the line is the only thing that moves).
+ */
+function PlanSubmit({ planning, chosenName }: { planning: boolean; chosenName: string | null }) {
+  const { t } = useTranslation('plan-visit')
+  let status: string
+  if (!planning) status = t('Usually takes a few seconds.')
+  else if (chosenName) status = t('Choosing the stops at {{museum}}…', { museum: chosenName })
+  else status = t('Finding the museum and choosing the stops…')
+  return (
+    <Stack gap="xs">
+      <Button type="submit" size="md" fullWidth loading={planning} color="museum.8" autoContrast>
+        {t('Plan my visit')}
+      </Button>
+      <Text size="sm" c="dimmed" ta="center" role="status">
+        {status}
+      </Text>
+    </Stack>
   )
 }
 

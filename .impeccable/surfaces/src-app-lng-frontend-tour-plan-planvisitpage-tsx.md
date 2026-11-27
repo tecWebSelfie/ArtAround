@@ -96,3 +96,19 @@ No tokens, copy or states changed: the halo, chips, counter position and
 recording behavior are untouched, and long interim previews can no longer
 overflow the field. DESIGN.md's plan-visit paragraph still matches the
 shipped UI, and the two one-off row paddings are page-scoped, not tokens.
+
+## Desktop two-column adaptation (2026-11-27)
+
+The maintainer asked for a desktop version of the form. From the desktop
+breakpoint the page keeps its thesis (the interests lead) in two columns
+inside a 66rem container: the hero field and its chips on the left, and the
+visit's frame (time, museum unless locked, step-free route), the family
+disclosure, the error and the planning action in a hairline-divided right
+rail, with the intro capped at a readable measure. Below the breakpoint the
+DOM order and spacing are unchanged, verified at 390 and 768; at 992 (the
+narrowest two-column width) the disclosure's ages grid fits the rail, and no
+width scrolls horizontally. The submit moved inside the fieldset: its inert
+window (planning) is exactly the fieldset's disabled one. The four stories
+pass on the desktop layout (the runner's viewport is 1280); captures in
+`.impeccable/review/plan-dictation-padding/` (desktop-compare.html).
+DESIGN.md's plan-visit paragraph now describes both shapes.
