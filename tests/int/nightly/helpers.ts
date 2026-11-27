@@ -106,11 +106,29 @@ export class Sandbox {
     return { id: login.json.user.id, token: login.json.token, email }
   }
 
-  /** Any museum of the seeded database and one of its objects (to hang contents on). */
+  /**
+   * A museum of the seeded database and one of its objects that is PLACED on
+   * the museum's map (an `item` node of the `museum-objects` category). Tours
+   * and rooms only count stops whose object is placed (visitable stops), so
+   * an unplaced anchor gives tours with 0 visitable stops and `POST
+   * /api/rooms` answers 422 "empty". Queried, never hard-coded: ids differ
+   * per seeded database.
+   */
   async anchors() {
-    const museum = (await call('GET', '/api/museums?limit=1&depth=0')).json.docs[0].id as string
-    const object = (await call('GET', '/api/objects?limit=1&depth=0')).json.docs[0].id as string
-    return { museum, object }
+    const museums = (await call('GET', '/api/museums?limit=50&depth=0')).json.docs as {
+      id: string
+      map?: { nodes?: Record<string, { asset?: { category?: string; id?: string } }> }
+    }[]
+    for (const museum of museums) {
+      for (const node of Object.values(museum.map?.nodes ?? {})) {
+        const id = node?.asset?.category === 'museum-objects' ? node.asset.id : undefined
+        if (!id) continue
+        // The map may name an object that no longer exists: keep looking then.
+        const object = await call('GET', `/api/objects/${id}?depth=0`)
+        if (object.status === 200) return { museum: museum.id, object: id }
+      }
+    }
+    throw new Error('no museum with an object placed on its map: run `pnpm seed:e2e`')
   }
 
   /** A public content of `account` about `object`, optionally made private afterwards. */
