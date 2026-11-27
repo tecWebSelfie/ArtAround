@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { Route } from 'next'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
 import { http, HttpResponse } from 'msw'
-import { expect, fn, userEvent, waitFor } from 'storybook/test'
+import { notifications } from '@mantine/notifications'
+import { expect, fn, spyOn, userEvent, waitFor } from 'storybook/test'
 import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
 import { TourForm } from './TourForm'
 
@@ -31,9 +32,30 @@ const meta = {
       ],
     },
     candidates: [
-      { id: 'a', title: 'A knight in motion', objectName: 'Saint George', price: 0, locked: false },
-      { id: 'b', title: 'Heaven above', objectName: 'Madonna in Glory', price: 0, locked: false },
-      { id: 'c', title: 'Hidden mother', objectName: 'Portrait', price: 450, locked: true },
+      {
+        id: 'a',
+        title: 'A knight in motion',
+        objectName: 'Saint George',
+        price: 0,
+        locked: false,
+        minutes: 3,
+      },
+      {
+        id: 'b',
+        title: 'Heaven above',
+        objectName: 'Madonna in Glory',
+        price: 0,
+        locked: false,
+        minutes: 4,
+      },
+      {
+        id: 'c',
+        title: 'Hidden mother',
+        objectName: 'Portrait',
+        price: 450,
+        locked: true,
+        minutes: 2,
+      },
     ],
     initial: {
       title: 'Little explorers',
@@ -91,11 +113,14 @@ export const AnonymousCopy: Story = {
     await expect(canvas.queryByRole('textbox', { name: /Title/ })).toBeNull()
     await expect(canvas.queryByRole('link', { name: 'Write a new content' })).toBeNull()
     await expect(canvas.queryByRole('textbox', { name: /How to get here/ })).toBeNull()
+    // Reading plus 2 min of walking per stop, as the planner counts.
+    await expect(canvas.getByText('3 stops, about 15 min')).toBeVisible()
     await expect(canvas.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
       'href',
       `/en/login?next=${encodeURIComponent('/en/tour/new?from=tour-1&visit=1&draft=1')}`,
     )
     await userEvent.click(canvas.getByRole('button', { name: 'Remove Hidden mother' }))
+    await expect(canvas.getByText('2 stops, about 11 min')).toBeVisible()
     // The second stop moves first.
     await userEvent.click(canvas.getAllByRole('button', { name: 'Move up' })[1]!)
     await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
@@ -111,5 +136,46 @@ export const AnonymousCopy: Story = {
         '/en/museum/m/navigation/tour/copy-1?mobility=wheelchair',
       ),
     )
+  },
+}
+
+/** A removed stop comes back where it was with one tap. */
+export const UndoRemove: Story = {
+  args: { anonymous: true },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Remove A knight in motion' }))
+    await expect(canvas.getByRole('status')).toHaveTextContent('Removed: A knight in motion')
+    await userEvent.click(canvas.getByRole('button', { name: 'Undo' }))
+    await expect(canvas.getAllByRole('button', { name: /^Remove / })[0]).toHaveAccessibleName(
+      'Remove A knight in motion',
+    )
+    await expect(canvas.queryByRole('button', { name: 'Undo' })).toBeNull()
+  },
+}
+
+/** A refusal reads in the visitor's language, not as the route's code. */
+export const AnonymousCopyRateLimited: Story = {
+  args: { anonymous: true },
+  parameters: {
+    msw: {
+      handlers: [
+        http.post('*/api/tour-copy', () =>
+          HttpResponse.json({ error: 'Too many requests' }, { status: 429 }),
+        ),
+      ],
+    },
+  },
+  play: async ({ canvas }) => {
+    // Save failures are notifications (`useSave`).
+    const show = spyOn(notifications, 'show')
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
+    await waitFor(() =>
+      expect(show).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: 'Too many saves in a short time: wait a minute and try again',
+        }),
+      ),
+    )
+    await expect(getRouter().push).not.toHaveBeenCalled()
   },
 }

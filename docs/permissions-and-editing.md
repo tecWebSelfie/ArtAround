@@ -326,7 +326,8 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      "Plan my visit" preview): `/tour/new?from=` opens `TourForm` in its
      `anonymous` mode, always a visit copy. Only the stops, their order and
      the start entrance change (no title, texts, directions, cover, quiz or
-     "Write a new content"), and `/api/tour-copy` saves it: rate limited,
+     "Write a new content", neither in the editor nor in the contents
+     picker), and `/api/tour-copy` saves it: rate limited,
      refused to signed-in callers (their copy stays owned and private,
      through REST), the original read as the visitor (a private one is not
      found and the page asks to sign in), every stop checked against the
@@ -336,6 +337,9 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      be readable by nobody. Like a planned visit it is unlisted and
      unsearchable, reachable by its link, and nobody can edit it: "Edit" on
      it makes a new copy. A blank `/tour/new` still needs a session.
+     The editor sums the stops' reading time plus the planner's walk per
+     stop, so a planned visit's budget stays visible; a removed stop can be
+     undone; a copy of a planned tour goes back to its planner preview.
    - `/[lng]/museum/new` — creates a museum (creator becomes director).
    - `/[lng]/museum/[id]/members` — staff list with typed CRUD on memberships.
    - Museum page actions: "Add objects to the map" (map editor, curator+),

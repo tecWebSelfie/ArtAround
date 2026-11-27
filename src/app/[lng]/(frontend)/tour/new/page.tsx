@@ -85,8 +85,16 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
     coverImage(payload, 'toursThumbnails', source?.thumbnail),
   ])
   // Up a level: back where the editor was opened from, else the tour it
-  // copies or the museum it is for. Cancel leaves for the same place.
-  const upHref = (source ? `/${lng}/tour/${source.id}` : `/${lng}/museum/${museumId}`) as Route
+  // copies or the museum it is for. Cancel leaves for the same place. A
+  // planned tour has no page of its own to go back to: its preview in the
+  // planner (restored there from sessionStorage, else its tour page).
+  const upHref = (
+    source?.generation?.generated
+      ? `/${lng}/tour/plan?tour=${source.id}`
+      : source
+        ? `/${lng}/tour/${source.id}`
+        : `/${lng}/museum/${museumId}`
+  ) as Route
   return (
     <Container size="md" py="md">
       <BackButton href={upHref} />

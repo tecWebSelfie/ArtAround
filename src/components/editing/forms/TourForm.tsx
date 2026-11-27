@@ -34,12 +34,14 @@ import {
   PenLine,
   Search,
   Trash2,
+  Undo2,
 } from 'lucide-react'
 import type { Route } from 'next'
 import Link from 'next/link'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
+import { WALK_MINUTES_PER_STOP } from '@/lib/tour-plan'
 import { useTranslation } from 'react-i18next'
 import { StartEntranceItem, type EntranceChoice } from './StartEntranceItem'
 import { useSave } from '../saving'
@@ -60,6 +62,8 @@ export type TourCandidate = {
   objectName: string
   price: number
   locked: boolean
+  /** Reading time in whole minutes (`toMinutes`); absent for a stop no longer readable. */
+  minutes?: number
   /** One of the tour's stops that can no longer be visited (`getUnavailableStops`). */
   unavailable?: boolean
 }
@@ -328,7 +332,19 @@ export function TourForm({
   const [cover, setCover] = useState<CoverChange>(null)
   const save = useSave(
     async (values: TourValues): Promise<{ id: string }> => {
-      if (anonymous) return saveAnonymousCopy(visitCopyOf, values)
+      if (anonymous)
+        return saveAnonymousCopy(visitCopyOf, values, (status, reason) =>
+          // The route's reasons are codes for logs; the visitor reads these.
+          status === 429
+            ? t('Too many saves in a short time: wait a minute and try again')
+            : status === 409
+              ? t('You are signed in now: reload the page to save the copy to your account')
+              : status === 404
+                ? t('The original tour is no longer available')
+                : reason === 'Invalid stops'
+                  ? t('Some stops can no longer be in this tour: check them and try again')
+                  : t('The copy could not be saved: try again'),
+        )
       const title = values.title.trim()
       const data = {
         title,
@@ -495,9 +511,14 @@ export function TourForm({
 /**
  * An anonymous visitor's copy of `from`, saved by `/api/tour-copy`: only the
  * stops and the start entrance travel, the server takes the rest from the
- * original. A refusal throws with the server's reason, which `useSave` shows.
+ * original. A refusal throws the visitor's message for it, which `useSave` shows.
  */
-async function saveAnonymousCopy(from: string | null, values: TourValues) {
+async function saveAnonymousCopy(
+  from: string | null,
+  values: TourValues,
+  /** The visitor's message for a refusal (status 0: no response at all). */
+  failure: (status: number, reason?: string) => string,
+) {
   const response = await fetch('/api/tour-copy', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -506,9 +527,10 @@ async function saveAnonymousCopy(from: string | null, values: TourValues) {
       contents: values.contents,
       startEntrance: values.startEntrance || null,
     }),
-  })
+  }).catch(() => null)
+  if (!response) throw new Error(failure(0))
   const json = (await response.json().catch(() => ({}))) as { id?: string; error?: string }
-  if (!response.ok || !json.id) throw new Error(json.error ?? `HTTP ${response.status}`)
+  if (!response.ok || !json.id) throw new Error(failure(response.status, json.error))
   return { id: json.id }
 }
 
@@ -616,9 +638,21 @@ function TourStopsEditor({
   const lockedSelected = selected.filter((id) => byId.get(id)?.locked)
   const unavailableSelected = selected.filter((id) => byId.get(id)?.unavailable)
   const missingDirections = selected.filter((id) => !form.values.directions[id]?.trim()).length
+  // The planner's own count (`/api/plan-tour`): reading plus a short walk
+  // per stop, so a planned visit's budget can be checked while editing.
+  const minutes = selected.reduce(
+    (sum, id) => sum + (byId.get(id)?.minutes ?? 0) + WALK_MINUTES_PER_STOP,
+    0,
+  )
   return (
     <Stack gap="xs">
-      <Text fw={600}>{t('Stops, in visiting order')}</Text>
+      <Group justify="space-between" align="baseline" gap="xs">
+        <Text fw={600}>{t('Stops, in visiting order')}</Text>
+        {/* Live: announced as stops are added, removed or swapped. */}
+        <Text size="sm" c="dimmed" aria-live="polite">
+          {t('{{count}} stops, about {{minutes}} min', { count: selected.length, minutes })}
+        </Text>
+      </Group>
       {lockedSelected.length > 0 && (
         <Alert color="orange" icon={<Lock size={16} />}>
           {t(
@@ -725,6 +759,10 @@ function StopsTimeline({
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
   const selected = form.values.contents
+  // The last stop removed, until undone or another is removed: one tap
+  // brings it back where it was, so a slip on the small button costs nothing.
+  const [removed, setRemoved] = useState<{ id: string; index: number } | null>(null)
+  const removedContent = removed && !selected.includes(removed.id) ? byId.get(removed.id) : null
   const move = (index: number, delta: number) => {
     const next = [...selected]
     const [item] = next.splice(index, 1)
@@ -774,16 +812,41 @@ function StopsTimeline({
                   [id]: value,
                 })
               }
-              onRemove={() =>
+              onRemove={() => {
+                setRemoved({ id, index })
                 form.setFieldValue(
                   'contents',
                   selected.filter((other) => other !== id),
                 )
-              }
+              }}
             />
           )
         })}
       </Timeline>
+      <div role="status">
+        {removed && removedContent && (
+          <Group gap="xs" mt="xs">
+            <Text size="sm">
+              {t('Removed: {{title}}', {
+                title: removedContent.title || t('A content that no longer exists'),
+              })}
+            </Text>
+            <Button
+              size="compact-sm"
+              variant="default"
+              leftSection={<Undo2 size={14} aria-hidden />}
+              onClick={() => {
+                const next = [...selected]
+                next.splice(Math.min(removed.index, next.length), 0, removed.id)
+                form.setFieldValue('contents', next)
+                setRemoved(null)
+              }}
+            >
+              {t('Undo')}
+            </Button>
+          </Group>
+        )}
+      </div>
     </DragDropProvider>
   )
 }

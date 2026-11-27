@@ -7,6 +7,7 @@ import { relationshipIds } from '@/lib/relationship-ids'
 import { asId } from '@/access/museumRoles'
 import { mapPlacedEntrances } from '@/lib/pascal/museum-plugin/markers-in-map'
 import { isLocked } from '@/lib/price'
+import { toMinutes } from '@/lib/duration'
 import { copyableStops } from '@/lib/tour-copy'
 import { asViewer, getSession } from '@/lib/session'
 import type { Museum, Tour } from '@/payload-types'
@@ -75,7 +76,7 @@ export async function getTourEditorData(museumId: string, stopIds: string[] = []
         depth: 1,
         pagination: false,
         select: { name: true, contents: true },
-        populate: { contents: { title: true, price: true, body: true } },
+        populate: { contents: { title: true, price: true, body: true, durationSeconds: true } },
         ...viewer,
       })
     : { docs: [] }
@@ -90,6 +91,8 @@ export async function getTourEditorData(museumId: string, stopIds: string[] = []
               objectName: object.name,
               price: content.price ?? 0,
               locked: isLocked(content),
+              // Reading time, as the planner counts it: the editor sums the tour.
+              minutes: toMinutes(content.durationSeconds) || 1,
             },
           ]
         : [],

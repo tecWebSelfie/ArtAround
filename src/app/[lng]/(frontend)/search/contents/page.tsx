@@ -14,6 +14,7 @@ import type { Where } from 'payload'
 import { museumSearchMuseumId } from '@/lib/museum-mode'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { getTourEditorData } from '../../tour/tour-editing'
+import { getSession } from '@/lib/session'
 import { backToTourHref, newStopHref, parseTourPicker, tourPickerParams } from '@/lib/tour-picker'
 import { docsInHitOrder } from '@/lib/search/hydrate'
 import { searchItems } from '@/lib/search/query'
@@ -69,7 +70,13 @@ export default async function SearchContentsPage(props: {
   const { filters, scopes } = await scoping
 
   const picker = parseTourPicker(lng, searchParams)
-  const editor = picker ? await getTourEditorData(picker.museumId) : null
+  // Picking for an anonymous customization: no "Write a new content" (it needs an account).
+  const [editor, signedIn] = picker
+    ? await Promise.all([
+        getTourEditorData(picker.museumId),
+        getSession().then(({ user }) => Boolean(user)),
+      ])
+    : [null, false]
 
   const definitions: FilterDefinition[] = picker
     ? [
@@ -179,15 +186,17 @@ export default async function SearchContentsPage(props: {
                 {t('Back to the tour')}
               </LinkButton>
               {/* A stop that doesn't exist yet: write it, then it joins the tour. */}
-              <LinkButton
-                href={newStopHref(lng, picker) as Route}
-                variant="light"
-                color="teal"
-                autoContrast
-                leftSection={<PenLine size={16} aria-hidden />}
-              >
-                {t('Write a new content')}
-              </LinkButton>
+              {signedIn && (
+                <LinkButton
+                  href={newStopHref(lng, picker) as Route}
+                  variant="light"
+                  color="teal"
+                  autoContrast
+                  leftSection={<PenLine size={16} aria-hidden />}
+                >
+                  {t('Write a new content')}
+                </LinkButton>
+              )}
             </Group>
           </Stack>
         ) : (
