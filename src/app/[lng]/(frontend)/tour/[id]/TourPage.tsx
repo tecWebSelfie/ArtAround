@@ -41,7 +41,7 @@ type TourPageProps = {
   canEdit: boolean
   /** `tours.delete`: the author, or the director of the tour's museum. */
   canDelete?: boolean
-  /** The tour's museum, for its staff: enables the printable QR download (`QrCodeButton`). */
+  /** The tour's museum, for its staff: enables the printable QR download (`ShareButton`). */
   printMuseumId?: string | null
   /** Opened from outside the app on another museum's tour: offer that museum's app. */
   museumOffer?: { id: string; name: string } | null

@@ -19,7 +19,7 @@ const i18nProxy = createProxy(i18nConfig)
 const PRINTED_CODE_PATH = /^(?:\/[a-z]{2})?\/(?:tour|object|content)\/[a-f0-9]{24}\/?$/
 
 /**
- * Printed QR codes (downloaded by museum staff, `QrCodeButton`) end with
+ * Printed QR codes (downloaded by museum staff, `ShareButton`) end with
  * `?museum=<id>`: whoever scans one is standing in that museum, so the app
  * opens in museum mode (cookie `aa-museum`, as the museum switch sets it).
  * The parameter is dropped with a redirect, so the address bar and any link
