@@ -118,7 +118,7 @@ and cached build artifacts are not reliable handoff state.
   which also replaces the prefix of older `/it/…` codes). Contextual tour modals
   must remain reloadable and shareable. Do not add a separate QR identifier system.
 - Printed codes: museum staff (curator or director, `staffMuseumId` in
-  `src/lib/qr-museum.ts`) get downloads in `QrCodeButton` (SVG, PNG) and a
+  `src/lib/qr-museum.ts`) get downloads in `ShareButton` (SVG, PNG) and a
   printable PDF (`/api/qr-sheet`: one A5 page, or every object of a museum as
   A4 labels; react-pdf, Noto Sans for all 24 languages, error correction Q).
   Those codes end with `?museum=<id>`: `src/proxy.ts` sets the museum-mode

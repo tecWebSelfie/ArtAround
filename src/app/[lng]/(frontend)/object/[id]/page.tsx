@@ -17,7 +17,7 @@ import { asViewer, can, getSession } from '@/lib/session'
 import { normalizeLocale } from '@/lib/localized'
 import { LinkAnchor } from '@/components/mantine/LinkAnchor'
 import type { Content } from '@/payload-types'
-import { QrCodeButton } from '@/components/QrCodeButton'
+import { ShareButton } from '@/components/ShareButton'
 import { DetailCover } from '@/components/mantine/DetailCover'
 import {
   Box,
@@ -166,7 +166,7 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             hideTitleFrom="md"
             actions={
               printMuseumId && (
-                <QrCodeButton
+                <ShareButton
                   kind="object"
                   id={id}
                   title={object.name}

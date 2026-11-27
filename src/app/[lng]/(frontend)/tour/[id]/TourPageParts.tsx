@@ -9,7 +9,7 @@ import { formatRating } from '@/lib/rating'
 import { formatUnit } from '@/lib/duration'
 import { stopImage, type summarizeTour } from '@/lib/tour-summary'
 import { stopDirections } from '@/lib/tour-logistics'
-import { QrCodeButton } from '@/components/QrCodeButton'
+import { ShareButton } from '@/components/ShareButton'
 import type { Content, Difficulty, Tour } from '@/payload-types'
 import {
   Anchor,
@@ -76,7 +76,7 @@ export function TourHeading({
             {tour.title}
           </Title>
           <Group gap="xs" wrap="nowrap">
-            <QrCodeButton
+            <ShareButton
               kind="tour"
               id={tour.id}
               title={tour.title}

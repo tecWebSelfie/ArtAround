@@ -21,7 +21,7 @@ import { contentNavigationEntry } from '@/lib/navigation-entry'
 import { museumAffordances } from '@/lib/qr-museum'
 import { MuseumModeOffer } from '@/components/MuseumModeOffer'
 import { asViewer, can, getSession } from '@/lib/session'
-import { QrCodeButton } from '@/components/QrCodeButton'
+import { ShareButton } from '@/components/ShareButton'
 import type { Content } from '@/payload-types'
 import { AppShellMain, Container, Divider, Stack } from '@mantine/core'
 import { Compass } from 'lucide-react'
@@ -276,7 +276,7 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
               (printMuseumId || canDelete) && (
                 <>
                   {printMuseumId && (
-                    <QrCodeButton
+                    <ShareButton
                       kind="content"
                       id={id}
                       title={content.title}

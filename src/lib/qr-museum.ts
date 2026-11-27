@@ -91,7 +91,7 @@ export async function staffMuseumId(museumIds: readonly string[]): Promise<strin
 /**
  * What an item's page offers around its museum:
  * - `printMuseumId`: the staff's museum, which enables the printable codes in
- *   `QrCodeButton`;
+ *   `ShareButton`;
  * - `offer`: the museum to propose (`MuseumModeOffer`) when the app is not
  *   locked to it yet;
  * - `museumId`: the item's (first) museum, the parent its back button opens.
