@@ -95,8 +95,20 @@ export const OwnerWithLockedContents: Story = {
   },
 }
 
+// Not signed in: buying needs an account, replacing the paid stops doesn't
+// (an anonymous visit copy, `/api/tour-copy`).
 export const AnonymousWithLockedContents: Story = {
   args: { price: 450, lockedContentIds: [lockedId], isSignedIn: false },
+  play: async ({ canvasElement }) => {
+    const body = canvasElement.ownerDocument.body
+    await userEvent.click(await within(body).findByRole('button', { name: /Unlock for/ }))
+    await expect(
+      within(body).findByRole('link', { name: /Sign in to buy/ }),
+    ).resolves.toHaveAttribute('href', `/en/login?next=/en/tour/${mockTourWithContents.id}`)
+    await expect(
+      within(body).findByRole('link', { name: /Replace the paid contents/ }),
+    ).resolves.toHaveAttribute('href', `/en/tour/new?from=${mockTourWithContents.id}`)
+  },
 }
 
 // Everything the overview can show: cover, museum, estimates, access, quiz, rating.

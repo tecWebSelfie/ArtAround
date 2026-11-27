@@ -81,6 +81,19 @@ export const FamilyPreview: Story = {
   },
 }
 
+/**
+ * Anyone may customize the planned stops (a visit copy, signed in or not);
+ * the step-free route rides along to the copy's start page.
+ */
+export const CustomizeStops: Story = {
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByRole('link', { name: 'Customize the stops' })).toHaveAttribute(
+      'href',
+      '/en/tour/new?from=planned&visit=1&mobility=wheelchair',
+    )
+  },
+}
+
 export const Form: Story = {
   parameters: { nextjs: { navigation: { query: {} } } },
   beforeEach: () => sessionStorage.removeItem('aa-plan-visit'),

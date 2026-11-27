@@ -1,0 +1,114 @@
+import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
+import { http, HttpResponse } from 'msw'
+import { expect, fn, userEvent, waitFor } from 'storybook/test'
+import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
+import { TourForm } from './TourForm'
+
+const copied = fn()
+// `/api/tour-copy`: only the stops and the start entrance travel.
+const copyHandler = http.post('*/api/tour-copy', async ({ request }) => {
+  copied(await request.json())
+  return HttpResponse.json({ id: 'copy-1', museumId: 'm' })
+})
+
+/**
+ * The tour editor as a visit copy. Signed in, the copy is the visitor's own
+ * tour with every field; without an account (`anonymous`) only the stops and
+ * the start entrance change, and `/api/tour-copy` saves it.
+ */
+const meta = {
+  title: 'Editing/TourForm',
+  component: TourForm,
+  args: {
+    museum: {
+      id: 'm',
+      name: 'Pinacoteca',
+      entrances: [
+        { id: 'main', name: 'Main entrance' },
+        { id: 'garden', name: 'Garden entrance' },
+      ],
+    },
+    candidates: [
+      { id: 'a', title: 'A knight in motion', objectName: 'Saint George', price: 0, locked: false },
+      { id: 'b', title: 'Heaven above', objectName: 'Madonna in Glory', price: 0, locked: false },
+      { id: 'c', title: 'Hidden mother', objectName: 'Portrait', price: 450, locked: true },
+    ],
+    initial: {
+      title: 'Little explorers',
+      description: 'Seven stops for children',
+      contents: ['a', 'b', 'c'],
+    },
+    visitCopyOf: 'tour-1',
+    cancelHref: '/en/tour/tour-1',
+  },
+  decorators: [
+    (Story) => (
+      <ModelGenerationProviders>
+        <div className="max-w-2xl p-4">
+          <Story />
+        </div>
+      </ModelGenerationProviders>
+    ),
+  ],
+  parameters: {
+    msw: { handlers: [copyHandler] },
+    nextjs: {
+      navigation: {
+        segments: [['lng', 'en']],
+        pathname: '/en/tour/new',
+        query: { from: 'tour-1', visit: '1' },
+      },
+    },
+  },
+  beforeEach: () => {
+    copied.mockClear()
+    sessionStorage.clear()
+  },
+} satisfies Meta<typeof TourForm>
+export default meta
+type Story = StoryObj<typeof meta>
+
+/** Signed in: their own private copy, with its texts, cover and quiz. */
+export const SignedInCopy: Story = {
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole('textbox', { name: /Title/ })).toHaveValue('Little explorers')
+    await expect(canvas.getByRole('link', { name: 'Write a new content' })).toBeVisible()
+    await expect(canvas.queryByRole('link', { name: 'Sign in' })).toBeNull()
+  },
+}
+
+/**
+ * Not signed in: the original's title shown, not editable; the stops
+ * changed (the paid one swapped out) and saved through `/api/tour-copy`,
+ * then on to the copy's start page with the planner's step-free route.
+ */
+export const AnonymousCopy: Story = {
+  args: { anonymous: true, navigation: 'mobility=wheelchair' },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByRole('heading', { name: 'Little explorers' })).toBeVisible()
+    await expect(canvas.queryByRole('textbox', { name: /Title/ })).toBeNull()
+    await expect(canvas.queryByRole('link', { name: 'Write a new content' })).toBeNull()
+    await expect(canvas.queryByRole('textbox', { name: /How to get here/ })).toBeNull()
+    await expect(canvas.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
+      'href',
+      `/en/login?next=${encodeURIComponent('/en/tour/new?from=tour-1&visit=1')}`,
+    )
+    await userEvent.click(canvas.getByRole('button', { name: 'Remove Hidden mother' }))
+    // The second stop moves first.
+    await userEvent.click(canvas.getAllByRole('button', { name: 'Move up' })[1]!)
+    await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
+    await waitFor(() =>
+      expect(copied).toHaveBeenCalledWith({
+        from: 'tour-1',
+        contents: ['b', 'a'],
+        startEntrance: null,
+      }),
+    )
+    await waitFor(() =>
+      expect(getRouter().push).toHaveBeenCalledWith(
+        '/en/museum/m/navigation/tour/copy-1?mobility=wheelchair',
+      ),
+    )
+  },
+}
