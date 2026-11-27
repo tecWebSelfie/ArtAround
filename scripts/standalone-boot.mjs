@@ -104,12 +104,23 @@ async function stopStaleServers() {
       return false
     }
   }
-  for (const pid of stale) process.kill(pid, 'SIGTERM')
+  // A stale server can exit on its own between the /proc scan and the kill
+  // (ESRCH): that means "already stopped", never a reason to abort the boot,
+  // or the real server would not start. Any other failure (e.g. EPERM) is
+  // logged and skipped for the same reason.
+  const signal = (pid, sig) => {
+    try {
+      process.kill(pid, sig)
+    } catch (error) {
+      if (error?.code !== 'ESRCH') console.warn(`[boot] could not send ${sig} to pid ${pid}: ${error?.message}`)
+    }
+  }
+  for (const pid of stale) signal(pid, 'SIGTERM')
   // Next closes gracefully on SIGTERM; give it ten seconds, then SIGKILL.
   for (let waited = 0; waited < 10_000 && stale.some(isAlive); waited += 200) {
     await new Promise((resolve) => setTimeout(resolve, 200))
   }
-  for (const pid of stale.filter(isAlive)) process.kill(pid, 'SIGKILL')
+  for (const pid of stale.filter(isAlive)) signal(pid, 'SIGKILL')
 }
 
 /**
