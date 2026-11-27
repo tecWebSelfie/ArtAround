@@ -28,6 +28,13 @@
 @source "../../../../node_modules/@pascal-app/viewer/src";
 @source "../../../../node_modules/@pascal-app/nodes/src";
 
+/* Tailwind v4 scans every non-gitignored text file for class-like tokens.
+   The research notes quote utility syntax as examples — `animate-[var(...)]`
+   in css-native-and-criteria.md — and that literal generated
+   `animation: var(...)`, which fails Turbopack's dev CSS transform with a
+   500 on every page. Notes are never UI sources; exclude the folder. */
+@source not "../../../../research_notes";
+
 /* `light-dark()` in Tailwind classes (`text-[light-dark(…)]`,
    `[--input-bd:light-dark(…)]`): Lightning CSS, which builds this file,
    rewrites it into `var(--lightningcss-light, a) var(--lightningcss-dark, b)`
