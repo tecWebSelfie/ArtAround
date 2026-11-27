@@ -93,7 +93,7 @@ export const AnonymousCopy: Story = {
     await expect(canvas.queryByRole('textbox', { name: /How to get here/ })).toBeNull()
     await expect(canvas.getByRole('link', { name: 'Sign in' })).toHaveAttribute(
       'href',
-      `/en/login?next=${encodeURIComponent('/en/tour/new?from=tour-1&visit=1')}`,
+      `/en/login?next=${encodeURIComponent('/en/tour/new?from=tour-1&visit=1&draft=1')}`,
     )
     await userEvent.click(canvas.getByRole('button', { name: 'Remove Hidden mother' }))
     // The second stop moves first.

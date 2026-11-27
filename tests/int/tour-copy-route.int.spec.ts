@@ -34,6 +34,7 @@ const source = {
   logistics: 'Tickets at the desk',
   museum: 'museum-1',
   thumbnail: 'cover-1',
+  contents: ['a', 'b', 'c'],
   directions: [
     { content: 'a', text: 'Left of the stairs' },
     { content: 'b', text: 'Room 2' },
@@ -61,7 +62,7 @@ describe('anonymous tour copies', () => {
   it('save the chosen stops with the original’s texts, unowned and unlisted', async () => {
     const response = await post({
       from: 'tour-1',
-      contents: ['c', 'a'],
+      contents: ['a', 'c'],
       startEntrance: 'door-1',
       // Ignored: an anonymous request can't write its own text.
       title: 'Spam',
@@ -77,9 +78,10 @@ describe('anonymous tour copies', () => {
       description: 'Its description',
       logistics: 'Tickets at the desk',
       startEntrance: 'door-1',
-      // Only the kept stops' notes, in the copy's order.
+      // Only the kept stops' notes whose previous stop is unchanged: a still
+      // comes first; b's note leaves with b.
       directions: [{ content: 'a', text: 'Left of the stairs' }],
-      contents: ['c', 'a'],
+      contents: ['a', 'c'],
       museum: 'museum-1',
       thumbnail: 'cover-1',
       visitCopyOf: 'tour-1',

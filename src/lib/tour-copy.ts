@@ -58,3 +58,28 @@ export function anonymousCopyStops(
   if (!requested.length || new Set(requested).size !== requested.length) return null
   return requested.every((id) => allowed.has(id)) ? requested : null
 }
+
+/**
+ * The original's directions an anonymous copy may keep (`/api/tour-copy`):
+ * that editor can reorder stops but can't see or edit directions, and a
+ * note says how to reach its stop from the one before it (the entrance for
+ * the first). So a note survives only when its stop's predecessor is the
+ * same as in the original; the others are dropped and the map's route
+ * guides the visitor instead of a note that now points the wrong way.
+ */
+export function reorderedDirections(
+  originalStops: string[],
+  copyStops: string[],
+  directions: Record<string, string>,
+): Record<string, string> {
+  const before = (stops: string[], id: string) => stops[stops.indexOf(id) - 1] ?? null
+  return Object.fromEntries(
+    copyStops.flatMap((id) =>
+      directions[id] &&
+      originalStops.includes(id) &&
+      before(originalStops, id) === before(copyStops, id)
+        ? [[id, directions[id]]]
+        : [],
+    ),
+  )
+}

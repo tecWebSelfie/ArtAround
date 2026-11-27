@@ -1,7 +1,7 @@
 import { getTourEditorData } from '@/app/[lng]/(frontend)/tour/tour-editing'
 import { allowRequest } from '@/lib/rate-limit'
 import { asViewer, getSession } from '@/lib/session'
-import { anonymousCopyStops, copiedDirections } from '@/lib/tour-copy'
+import { anonymousCopyStops, copiedDirections, reorderedDirections } from '@/lib/tour-copy'
 import { NextResponse } from 'next/server'
 import { extractID } from 'payload/shared'
 import { z } from 'zod'
@@ -52,8 +52,13 @@ export async function POST(request: Request) {
   if (!stops) return NextResponse.json({ error: 'Invalid stops' }, { status: 400 })
 
   try {
-    // The original's notes for the kept stops, in the copy's visiting order.
-    const directions = copiedDirections(source, stops)
+    // The original's notes for the kept stops whose previous stop is
+    // unchanged (a reorder would make the others wrong), in visiting order.
+    const directions = reorderedDirections(
+      source.contents.map((content) => extractID(content)),
+      stops,
+      copiedDirections(source, stops),
+    )
     const tour = await payload.create({
       collection: 'tours',
       data: {

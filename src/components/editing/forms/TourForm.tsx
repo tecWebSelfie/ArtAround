@@ -396,7 +396,13 @@ export function TourForm({
                   )}{' '}
                   <Anchor
                     component={Link}
-                    href={`/${lng}/login?next=${encodeURIComponent(editorUrl)}` as Route}
+                    // `draft=1`: back from sign-in, the editor restores
+                    // the stops changed so far (`useTourDraft`).
+                    href={
+                      `/${lng}/login?next=${encodeURIComponent(
+                        `${editorUrl}${editorUrl.includes('?') ? '&' : '?'}${DRAFT_PARAM}=1`,
+                      )}` as Route
+                    }
                     inherit
                   >
                     {t('Sign in')}
