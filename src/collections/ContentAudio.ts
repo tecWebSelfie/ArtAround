@@ -1,5 +1,6 @@
 import { isSuperAdmin, superAdminOnly } from '@/access/museumRoles'
 import type { CollectionConfig } from 'payload'
+import { inertResponseHeaders } from '@/fields/inertUpload'
 
 /**
  * Read-aloud MP3 of a content's base text or saved version, one per locale
@@ -15,7 +16,7 @@ export const ContentAudio: CollectionConfig = {
     group: 'Contents',
     defaultColumns: ['content', 'locale', 'durationSeconds', 'updatedAt'],
   },
-  upload: { mimeTypes: ['audio/mpeg'] },
+  upload: { mimeTypes: ['audio/mpeg'], ...inertResponseHeaders },
   access: {
     read: ({ req }) => isSuperAdmin(req),
     create: superAdminOnly,

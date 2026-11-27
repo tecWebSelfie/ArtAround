@@ -22,6 +22,7 @@ import type { Access, Field, PayloadRequest, RelationshipFieldValidation } from 
 import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
 import { imageUpload } from '../fields/imageUpload'
+import { inertResponseHeaders } from '@/fields/inertUpload'
 
 /**
  * Objects live in the app catalog independently of any museum: a museum
@@ -362,6 +363,7 @@ export const ObjectsModels: CollectionConfig = {
   slug: 'objectsModels',
   upload: {
     mimeTypes: ['model/gltf-binary'],
+    ...inertResponseHeaders,
   },
   access: uploadAccess,
   fields: [

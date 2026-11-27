@@ -17,6 +17,7 @@ import {
 } from '@/fields/MuseumFunction'
 import { User as UserType } from '@/payload-types'
 import { searchSyncAfterChange, searchSyncAfterDelete } from '@/lib/search/sync'
+import { inertResponseHeaders, RASTER_IMAGE_MIME_TYPES } from '@/fields/inertUpload'
 import type {
   Access,
   CollectionAfterChangeHook,
@@ -392,7 +393,9 @@ export const UserMuseumMembership: CollectionConfig = {
 
 export const UsersPropics: CollectionConfig = {
   slug: 'usersPropics',
-  upload: true,
+  // Avatars are raster pictures only; the allow-list plus inert headers close
+  // the stored-XSS hole of arbitrary visitor files (N36).
+  upload: { mimeTypes: RASTER_IMAGE_MIME_TYPES, ...inertResponseHeaders },
   access: {
     read: anyone,
     create: ({ req }) => Boolean(req.user),

@@ -1,5 +1,7 @@
 import type { UploadConfig } from 'payload'
 
+import { inertResponseHeaders, RASTER_IMAGE_MIME_TYPES } from './inertUpload'
+
 /**
  * Upload settings shared by the picture collections that feed covers and
  * cards (tour, content, object and museum thumbnails). Sharp derives two
@@ -21,4 +23,7 @@ export const imageUpload = {
     { name: 'cover', width: 1280, withoutEnlargement: true },
   ],
   adminThumbnail: 'card',
+  // Allow-list: without it Payload only blocks a few extensions (N36).
+  mimeTypes: RASTER_IMAGE_MIME_TYPES,
+  ...inertResponseHeaders,
 } satisfies UploadConfig

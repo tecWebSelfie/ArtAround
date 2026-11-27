@@ -46,6 +46,7 @@ import { refreshVisitableStops } from '@/lib/visitable-stops'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
 import { imageUpload } from '../fields/imageUpload'
+import { inertResponseHeaders } from '@/fields/inertUpload'
 
 /**
  * Museums are run by one director and their curators (per-museum roles in
@@ -574,7 +575,12 @@ export const MuseumThumbnails: CollectionConfig = {
 
 export const MuseumMaps: CollectionConfig = {
   slug: 'museumMaps',
-  upload: true,
+  // Exactly what the map-creation toolbar's file input offers (floor plan
+  // as SVG or raster); Payload validates SVG content when mimeTypes is set (N36).
+  upload: {
+    mimeTypes: ['image/svg+xml', 'image/png', 'image/jpeg', 'image/webp'],
+    ...inertResponseHeaders,
+  },
   access: {
     read: anyone,
     create: authenticated,
