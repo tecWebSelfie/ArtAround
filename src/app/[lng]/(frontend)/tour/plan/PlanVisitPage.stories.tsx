@@ -122,3 +122,23 @@ export const MissingChildAge: Story = {
     await expect(canvas.getByRole('textbox', { name: 'Age of child 1' })).toHaveFocus()
   },
 }
+
+/**
+ * Regression: Mantine centers the bottom section on a fixed 1.75rem strip, so
+ * the taller pill row overflowed it and the pill touched the field's bottom
+ * border while the counter floated. The pill keeps at least the counter's
+ * breathing room (~11px at rest) from the field's bottom edge.
+ */
+export const DictationPillKeepsItsBreathingRoom: Story = {
+  parameters: { nextjs: { navigation: { query: {} } } },
+  beforeEach: () => sessionStorage.removeItem('aa-plan-visit'),
+  play: async ({ canvas }) => {
+    const dictate = await canvas.findByRole('button', { name: 'Dictate' })
+    const field = dictate.closest('.plan-visit-interest')
+    if (!field) {
+      throw new Error('the interests field did not render around the pill')
+    }
+    const pillGap = field.getBoundingClientRect().bottom - dictate.getBoundingClientRect().bottom
+    await expect(pillGap).toBeGreaterThanOrEqual(8)
+  },
+}

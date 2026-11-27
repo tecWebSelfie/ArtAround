@@ -81,3 +81,18 @@ age-specific audio route/job/file flow with only the provider mocked.
 ## Plan-my-visit hero refinement (2026-11-15)
 
 The maintainer selected the first live direction: the existing Interests textarea leads the form, with the same amber halo at rest, counter at the lower left, and compact "Dettatura" pill at the lower right. Example chips insert into the field; time, global-mode museum, and step-free controls follow, then the existing family disclosure and submit. Keep the visual order and copy fixed across close style alternatives. While recording, the pill stays near its idle width and shows stop, voice bars and elapsed time; it never grows to the field's full width. Preserve the existing plan/preview URL, sessionStorage, group-tour and family-reader behavior. This page-specific halo is the approved exception to the global assistant-orb color rule, not a new accent for other controls.
+
+## Dictation pill spacing refinement (2026-11-27)
+
+The bottom row (counter and dictation pill) is taller than Mantine's fixed
+1.75rem bottom strip, which centered it and pushed the pill onto the field's
+bottom border (~1.8px) while the smaller counter floated (~11.4px). The row is
+now content-sized and in flow below the input, so its own paddings (0.4rem
+above, 0.75rem below) are the pill's real distance from the edge: 12px, at
+least the counter's old breathing room. The regression story
+(DictationPillKeepsItsBreathingRoom) failed on the buggy code at 1.8px and
+passes at 12px; before/after captures in `.impeccable/review/plan-dictation-padding/`.
+No tokens, copy or states changed: the halo, chips, counter position and
+recording behavior are untouched, and long interim previews can no longer
+overflow the field. DESIGN.md's plan-visit paragraph still matches the
+shipped UI, and the two one-off row paddings are page-scoped, not tokens.

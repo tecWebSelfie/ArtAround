@@ -415,6 +415,9 @@
     caret-color: var(--plan-visit-ember);
     font-size: 1.125rem;
     line-height: 1.55;
+    /* The bottom row flows below the input (see the bottomSection rule), so
+       the input reserves no room for it. */
+    padding-bottom: var(--input-padding-y, 0rem);
   }
 
   .plan-visit-interest .mantine-Textarea-wrapper {
@@ -424,13 +427,19 @@
     background: var(--mantine-color-body);
   }
 
+  /* Mantine pins the bottom row into a fixed 1.75rem strip and centers taller
+     content on it, which pushed the dictation pill onto the field's bottom
+     border (the pill alone is 2.25rem). The row is content-sized and in flow
+     instead, so its own paddings are the pill's real distance from the edge. */
   .plan-visit-interest .mantine-Textarea-bottomSection {
+    position: static;
+    height: auto;
     border-top: 0;
   }
 
   .plan-visit-hero-bottom {
     width: 100%;
-    padding: 0 0.9rem 0.6rem;
+    padding: 0.4rem 0.9rem 0.75rem;
   }
 
   .plan-visit-interim {
