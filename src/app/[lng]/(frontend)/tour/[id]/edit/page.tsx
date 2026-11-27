@@ -21,7 +21,7 @@ export default async function EditTourPage({
   // A visit copy reopened from the planner keeps the visitor's navigation
   // choices on the way to its start page (`/tour/new` forwards them).
   const navigation = withNavigationPosition('', await searchParams).slice(1)
-  await requireUser(lng, tourEditPath(lng, id))
+  await requireUser(lng, `${tourEditPath(lng, id)}${navigation ? `?${navigation}` : ''}`)
   const { payload } = await getSession()
   // Read as the visitor: a deleted tour, or someone else's private one, is a
   // 404 rather than a copy of nothing.

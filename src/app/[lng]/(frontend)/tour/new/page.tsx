@@ -7,6 +7,7 @@ import { lockedMuseumId } from '@/lib/museum-mode'
 import { asViewer, getSession, requireUser } from '@/lib/session'
 import { tourCopyPath, tourEditPath, VISIT_COPY_PARAM } from '@/lib/tour-routes'
 import { withNavigationPosition } from '@/lib/tour-navigation'
+import { DRAFT_PARAM } from '@/lib/tour-picker'
 import { Alert, Container } from '@mantine/core'
 import { redirect } from 'next/navigation'
 import { extractID } from 'payload/shared'
@@ -52,9 +53,15 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
   // Anonymous: only a copy of a tour they can read; signing in may reveal it.
   const anonymous = !user
   if (anonymous && !source) await requireUser(lng, returnTo)
+  // Anonymous: always a visit copy, so its own URL says so. Its "Sign in"
+  // link and its draft key are that URL: back signed in, it is still the
+  // visitor's copy, not a new public tour prefilled with the original.
+  if (anonymous && !forVisit) redirect(tourCopyPath(lng, from!, { visit: true, navigation }))
   // An anonymous customization is always a visit copy: they can't own a tour.
   const visitSource = forVisit || anonymous ? source : null
-  if (visitSource) {
+  // `draft=1`: changes made before signing in, restored by this editor; the
+  // visitor's older copy would drop them, so they save a new one instead.
+  if (visitSource && query[DRAFT_PARAM] !== '1') {
     const copyId = await existingVisitCopy(visitSource)
     if (copyId)
       redirect(`${tourEditPath(lng, copyId)}${navigation ? `?${navigation}` : ''}` as Route)

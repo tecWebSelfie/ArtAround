@@ -762,12 +762,14 @@ function StopsTimeline({
   const selected = form.values.contents
   // A removal is announced in a toast with "Undo": one tap brings the stop
   // back where it was, so a slip on the small button costs nothing.
+  // One toast per removal: the same stop removed again gets its own.
+  const removals = useRef(0)
   const remove = (id: string, index: number) => {
     form.setFieldValue(
       'contents',
       selected.filter((other) => other !== id),
     )
-    const toast = `tour-stop-removed-${id}`
+    const toast = `tour-stop-removed-${id}-${++removals.current}`
     notifications.show({
       id: toast,
       // Long enough to reach the button; hovering keeps it open.

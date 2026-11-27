@@ -50,6 +50,25 @@ export async function POST(request: Request) {
   const { candidates } = await getTourEditorData(museumId)
   const stops = anonymousCopyStops(body.contents, candidates)
   if (!stops) return NextResponse.json({ error: 'Invalid stops' }, { status: 400 })
+  const startEntrance = body.startEntrance || null
+
+  // The same copy saved again (a second tap, another visitor with the same
+  // choices) is the one already written: no new document per request. The
+  // rate limit alone trusts a client-sent address (`allowRequest`).
+  const { docs: copies } = await payload.find({
+    collection: 'tours',
+    where: { and: [{ visitCopyOf: { equals: source.id } }, { author: { equals: null } }] },
+    depth: 0,
+    limit: 100,
+    pagination: false,
+    select: { contents: true, startEntrance: true },
+  })
+  const same = copies.find(
+    (copy) =>
+      (copy.startEntrance || null) === startEntrance &&
+      copy.contents.map((content) => extractID(content)).join() === stops.join(),
+  )
+  if (same) return NextResponse.json({ id: same.id, museumId })
 
   try {
     // The original's notes for the kept stops whose previous stop is
@@ -59,6 +78,8 @@ export async function POST(request: Request) {
       stops,
       copiedDirections(source, stops),
     )
+    // The first stop's note starts from the original's entrance: wrong from another.
+    if (startEntrance !== (source.startEntrance || null)) delete directions[stops[0]!]
     const tour = await payload.create({
       collection: 'tours',
       data: {
@@ -66,7 +87,7 @@ export async function POST(request: Request) {
         description: source.description ?? null,
         logistics: source.logistics ?? null,
         // Checked against the museum's placed entrances (`checkStartEntrance`).
-        startEntrance: body.startEntrance || null,
+        startEntrance,
         directions: stops.flatMap((content) =>
           directions[content] ? [{ content, text: directions[content] }] : [],
         ),

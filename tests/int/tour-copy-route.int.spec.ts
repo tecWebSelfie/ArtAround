@@ -12,12 +12,13 @@ const api = vi.hoisted(() => ({
   user: null as null | { id: string },
   findByID: vi.fn(),
   create: vi.fn(),
+  find: vi.fn(),
   editorData: vi.fn(),
 }))
 vi.mock('@/lib/session', () => ({
   asViewer: async () => ({ user: api.user, overrideAccess: false }),
   getSession: async () => ({
-    payload: { findByID: api.findByID, create: api.create },
+    payload: { findByID: api.findByID, create: api.create, find: api.find },
     user: api.user,
   }),
 }))
@@ -34,6 +35,7 @@ const source = {
   logistics: 'Tickets at the desk',
   museum: 'museum-1',
   thumbnail: 'cover-1',
+  startEntrance: 'door-1',
   contents: ['a', 'b', 'c'],
   directions: [
     { content: 'a', text: 'Left of the stairs' },
@@ -56,6 +58,7 @@ beforeEach(() => {
     candidates: [{ id: 'a' }, { id: 'b' }, { id: 'c' }],
   })
   api.create.mockResolvedValue({ id: 'copy-1' })
+  api.find.mockResolvedValue({ docs: [] })
 })
 
 describe('anonymous tour copies', () => {
@@ -88,6 +91,30 @@ describe('anonymous tour copies', () => {
       visibility: 'public',
     })
     expect(data).not.toHaveProperty('author')
+  })
+
+  it('drop the first stop’s note when the copy starts from another entrance', async () => {
+    // a's note says how to get there from door-1: wrong from door-2.
+    await post({ from: 'tour-1', contents: ['a', 'b'], startEntrance: 'door-2' })
+    expect(api.create.mock.calls[0]![0].data.directions).toEqual([{ content: 'b', text: 'Room 2' }])
+  })
+
+  it('reuse an identical anonymous copy instead of writing another', async () => {
+    api.find.mockResolvedValue({
+      docs: [
+        { id: 'other', contents: ['c', 'a'], startEntrance: 'door-1' },
+        { id: 'same', contents: ['a', 'c'], startEntrance: 'door-1' },
+      ],
+    })
+    const response = await post({ from: 'tour-1', contents: ['a', 'c'], startEntrance: 'door-1' })
+    await expect(response.json()).resolves.toEqual({ id: 'same', museumId: 'museum-1' })
+    expect(api.find).toHaveBeenCalledWith(
+      expect.objectContaining({
+        collection: 'tours',
+        where: { and: [{ visitCopyOf: { equals: 'tour-1' } }, { author: { equals: null } }] },
+      }),
+    )
+    expect(api.create).not.toHaveBeenCalled()
   })
 
   it('refuse a stop the editor did not offer, or a repeated one', async () => {
