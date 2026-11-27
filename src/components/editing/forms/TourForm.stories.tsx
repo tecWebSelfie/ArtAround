@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite'
+import type { Route } from 'next'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
 import { http, HttpResponse } from 'msw'
 import { expect, fn, userEvent, waitFor } from 'storybook/test'
@@ -40,7 +41,7 @@ const meta = {
       contents: ['a', 'b', 'c'],
     },
     visitCopyOf: 'tour-1',
-    cancelHref: '/en/tour/tour-1',
+    cancelHref: '/en/tour/tour-1' as Route,
   },
   decorators: [
     (Story) => (
