@@ -47,7 +47,7 @@ import {
 } from 'payload'
 import { AUDIO_QUEUE, audioTextHash, contentAudioText } from '@/lib/content-audio'
 import { estimateSeconds } from '@/lib/duration'
-import { imageUpload } from '../fields/imageUpload'
+import { imageUpload, keepResizedNamesFree } from '../fields/imageUpload'
 
 /**
  * Contents are user-generated: any logged-in user writes them, the author is
@@ -569,6 +569,8 @@ export const ContentImages: CollectionConfig = {
   slug: 'contentImages',
   // Card and cover widths derived on upload (src/fields/imageUpload.ts).
   upload: imageUpload,
+  // Main names never look like a resized copy's name (N39).
+  hooks: { beforeOperation: [keepResizedNamesFree] },
   access: {
     read: anyone,
     create: authenticated,

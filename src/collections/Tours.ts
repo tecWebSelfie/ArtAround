@@ -34,7 +34,7 @@ import {
 } from '@/lib/quiz-ownership'
 
 import { editorial } from '@/fields/editorial'
-import { imageUpload } from '../fields/imageUpload'
+import { imageUpload, keepResizedNamesFree } from '../fields/imageUpload'
 
 export const TOURS_COLLECTION_SLUG = 'tours'
 
@@ -557,6 +557,8 @@ export const ToursThumbnails: CollectionConfig = {
   slug: 'toursThumbnails',
   // Card and cover widths derived on upload (src/fields/imageUpload.ts).
   upload: imageUpload,
+  // Main names never look like a resized copy's name (N39).
+  hooks: { beforeOperation: [keepResizedNamesFree] },
   access: {
     read: anyone,
     create: authenticated,

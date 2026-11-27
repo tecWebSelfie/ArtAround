@@ -45,7 +45,7 @@ import { museumObjectId, museumPlacedObjects } from '@/lib/tour-navigation'
 import { refreshVisitableStops } from '@/lib/visitable-stops'
 import type { Museum } from '@/payload-types'
 import { phoneNumberField } from 'payload-phone-number-plugin'
-import { imageUpload } from '../fields/imageUpload'
+import { imageUpload, keepResizedNamesFree } from '../fields/imageUpload'
 import { inertResponseHeaders } from '@/fields/inertUpload'
 
 /**
@@ -557,6 +557,8 @@ export const MuseumThumbnails: CollectionConfig = {
   slug: 'museumThumbnails',
   // Card and cover widths derived on upload (src/fields/imageUpload.ts).
   upload: imageUpload,
+  // Main names never look like a resized copy's name (N39).
+  hooks: { beforeOperation: [keepResizedNamesFree] },
   access: {
     read: anyone,
     create: authenticated,

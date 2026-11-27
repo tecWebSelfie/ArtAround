@@ -21,7 +21,7 @@ import { Object } from '@/payload-types'
 import type { Access, Field, PayloadRequest, RelationshipFieldValidation } from 'payload'
 import { extractID, relationship } from 'payload/shared'
 import { CollectionAfterChangeHook, CollectionConfig } from 'payload'
-import { imageUpload } from '../fields/imageUpload'
+import { imageUpload, keepResizedNamesFree } from '../fields/imageUpload'
 import { inertResponseHeaders } from '@/fields/inertUpload'
 
 /**
@@ -349,6 +349,8 @@ export const ObjectsThumbnails: CollectionConfig = {
   slug: 'objectsThumbnails',
   // Card and cover widths derived on upload (src/fields/imageUpload.ts).
   upload: imageUpload,
+  // Main names never look like a resized copy's name (N39).
+  hooks: { beforeOperation: [keepResizedNamesFree] },
   access: uploadAccess,
   fields: [
     {
