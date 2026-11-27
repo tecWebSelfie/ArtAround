@@ -193,27 +193,7 @@ export function PlanVisitPage({
                       {error}
                     </Alert>
                   )}
-                  <Stack gap="xs">
-                    {/* Readable primary action in both global and museum mode. */}
-                    <Button
-                      type="submit"
-                      size="md"
-                      fullWidth
-                      loading={planning}
-                      color="museum.8"
-                      autoContrast
-                    >
-                      {t('Plan my visit')}
-                    </Button>
-                    {/* The wait can take a few seconds: say what is happening. */}
-                    <Text size="sm" c="dimmed" ta="center" role="status">
-                      {!planning
-                        ? t('Usually takes a few seconds.')
-                        : chosenName
-                          ? t('Choosing the stops at {{museum}}…', { museum: chosenName })
-                          : t('Finding the museum and choosing the stops…')}
-                    </Text>
-                  </Stack>
+                  <PlanSubmit planning={planning} chosenName={chosenName} />
                 </Stack>
               </div>
             </fieldset>
@@ -221,6 +201,29 @@ export function PlanVisitPage({
         </form>
       </Container>
     </main>
+  )
+}
+
+/**
+ * The planning action and its spoken status: readable in both global and
+ * museum mode, and saying what the wait is doing (the form is disabled
+ * meanwhile, so the line is the only thing that moves).
+ */
+function PlanSubmit({ planning, chosenName }: { planning: boolean; chosenName: string | null }) {
+  const { t } = useTranslation('plan-visit')
+  let status: string
+  if (!planning) status = t('Usually takes a few seconds.')
+  else if (chosenName) status = t('Choosing the stops at {{museum}}…', { museum: chosenName })
+  else status = t('Finding the museum and choosing the stops…')
+  return (
+    <Stack gap="xs">
+      <Button type="submit" size="md" fullWidth loading={planning} color="museum.8" autoContrast>
+        {t('Plan my visit')}
+      </Button>
+      <Text size="sm" c="dimmed" ta="center" role="status">
+        {status}
+      </Text>
+    </Stack>
   )
 }
 
