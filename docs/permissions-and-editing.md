@@ -338,8 +338,7 @@ Edit affordances are shown only when `can(...)` (Payload's own rules) allows.
      unsearchable, reachable by its link, and nobody can edit it: "Edit" on
      it makes a new copy. A blank `/tour/new` still needs a session.
      The editor sums the stops' reading time plus the planner's walk per
-     stop, so a planned visit's budget stays visible; a removed stop can be
-     undone; a copy of a planned tour goes back to its planner preview.
+     stop, so a planned visit's budget stays visible; a removed stop can be undone from its toast; a copy of a planned tour goes back to its planner preview.
    - `/[lng]/museum/new` — creates a museum (creator becomes director).
    - `/[lng]/museum/[id]/members` — staff list with typed CRUD on memberships.
    - Museum page actions: "Add objects to the map" (map editor, curator+),

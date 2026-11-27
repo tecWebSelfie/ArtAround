@@ -25,6 +25,7 @@ import {
   Title,
 } from '@mantine/core'
 import { useForm, type UseFormReturnType } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
 import {
   ArrowDown,
   ArrowUp,
@@ -759,10 +760,47 @@ function StopsTimeline({
   const { t } = useTranslation('editing')
   const { lng } = useParams<{ lng: string }>()
   const selected = form.values.contents
-  // The last stop removed, until undone or another is removed: one tap
-  // brings it back where it was, so a slip on the small button costs nothing.
-  const [removed, setRemoved] = useState<{ id: string; index: number } | null>(null)
-  const removedContent = removed && !selected.includes(removed.id) ? byId.get(removed.id) : null
+  // A removal is announced in a toast with "Undo": one tap brings the stop
+  // back where it was, so a slip on the small button costs nothing.
+  const remove = (id: string, index: number) => {
+    form.setFieldValue(
+      'contents',
+      selected.filter((other) => other !== id),
+    )
+    const toast = `tour-stop-removed-${id}`
+    notifications.show({
+      id: toast,
+      // Long enough to reach the button; hovering keeps it open.
+      autoClose: 8000,
+      closeButtonProps: { 'aria-label': t('Close') },
+      message: (
+        <Group justify="space-between" wrap="nowrap" gap="xs">
+          <Text size="sm">
+            {t('Removed: {{title}}', {
+              title: byId.get(id)?.title || t('A content that no longer exists'),
+            })}
+          </Text>
+          <Button
+            size="compact-sm"
+            variant="default"
+            leftSection={<Undo2 size={14} aria-hidden />}
+            onClick={() => {
+              // The stops as they are now: others may have changed meanwhile.
+              const current = form.getValues().contents
+              if (!current.includes(id)) {
+                const next = [...current]
+                next.splice(Math.min(index, next.length), 0, id)
+                form.setFieldValue('contents', next)
+              }
+              notifications.hide(toast)
+            }}
+          >
+            {t('Undo')}
+          </Button>
+        </Group>
+      ),
+    })
+  }
   const move = (index: number, delta: number) => {
     const next = [...selected]
     const [item] = next.splice(index, 1)
@@ -812,41 +850,11 @@ function StopsTimeline({
                   [id]: value,
                 })
               }
-              onRemove={() => {
-                setRemoved({ id, index })
-                form.setFieldValue(
-                  'contents',
-                  selected.filter((other) => other !== id),
-                )
-              }}
+              onRemove={() => remove(id, index)}
             />
           )
         })}
       </Timeline>
-      <div role="status">
-        {removed && removedContent && (
-          <Group gap="xs" mt="xs">
-            <Text size="sm">
-              {t('Removed: {{title}}', {
-                title: removedContent.title || t('A content that no longer exists'),
-              })}
-            </Text>
-            <Button
-              size="compact-sm"
-              variant="default"
-              leftSection={<Undo2 size={14} aria-hidden />}
-              onClick={() => {
-                const next = [...selected]
-                next.splice(Math.min(removed.index, next.length), 0, removed.id)
-                form.setFieldValue('contents', next)
-                setRemoved(null)
-              }}
-            >
-              {t('Undo')}
-            </Button>
-          </Group>
-        )}
-      </div>
     </DragDropProvider>
   )
 }

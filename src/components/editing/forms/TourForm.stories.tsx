@@ -2,8 +2,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite'
 import type { Route } from 'next'
 import { getRouter } from '@storybook/nextjs-vite/navigation.mock'
 import { http, HttpResponse } from 'msw'
-import { notifications } from '@mantine/notifications'
-import { expect, fn, spyOn, userEvent, waitFor } from 'storybook/test'
+import { Notifications, notifications } from '@mantine/notifications'
+import { expect, fn, screen, spyOn, userEvent, waitFor } from 'storybook/test'
 import { ModelGenerationProviders } from '@/../.storybook/model-generation-providers'
 import { TourForm } from './TourForm'
 
@@ -139,17 +139,27 @@ export const AnonymousCopy: Story = {
   },
 }
 
-/** A removed stop comes back where it was with one tap. */
+/** A removed stop comes back where it was with one tap on the toast. */
 export const UndoRemove: Story = {
   args: { anonymous: true },
+  decorators: [
+    (Story) => (
+      <>
+        <Story />
+        <Notifications />
+      </>
+    ),
+  ],
+  beforeEach: () => notifications.clean(),
   play: async ({ canvas }) => {
     await userEvent.click(canvas.getByRole('button', { name: 'Remove A knight in motion' }))
-    await expect(canvas.getByRole('status')).toHaveTextContent('Removed: A knight in motion')
-    await userEvent.click(canvas.getByRole('button', { name: 'Undo' }))
+    // The toast fades in.
+    await waitFor(() => expect(screen.getByText('Removed: A knight in motion')).toBeVisible())
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
     await expect(canvas.getAllByRole('button', { name: /^Remove / })[0]).toHaveAccessibleName(
       'Remove A knight in motion',
     )
-    await expect(canvas.queryByRole('button', { name: 'Undo' })).toBeNull()
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull())
   },
 }
 
