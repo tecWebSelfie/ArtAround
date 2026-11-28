@@ -46,6 +46,9 @@ import { z } from 'zod'
  */
 export const runtime = 'nodejs'
 
+/** Plans in flight by request key (and viewer), shared by identical concurrent requests. */
+const planning = new Map<string, Promise<Response>>()
+
 export async function POST(request: Request) {
   if (!allowRequest(request, 6)) {
     return NextResponse.json({ error: 'Too many requests' }, { status: 429 })
@@ -68,114 +71,134 @@ export async function POST(request: Request) {
       answers.museumId ||
       (await museumNamedIn(payload, answers.interests, locale))
     if (!museumId) return NextResponse.json({ error: 'museum' }, { status: 422 })
+    const museumKey: string = museumId // narrowed copy for the `plan` closure below
 
     // 2. Planned before with the same answers? Reuse it.
     const requestKey = createHash('sha256').update(planRequestKey(museumId, answers)).digest('hex')
-    // Independent reads: a plan made before for the same answers, and the museum.
-    const [previous, museum] = await Promise.all([
-      payload.find({
-        collection: 'tours',
-        where: {
-          and: [
-            { 'generation.requestKey': { equals: requestKey } },
-            { visibility: { not_equals: 'private' } },
-          ],
-        },
-        // Newest first: a stale plan is replaced by a new tour with the same key,
-        // and that replacement (not the stale original) is the one to reuse.
-        sort: '-createdAt',
-        limit: 1,
-        depth: 0,
-        ...viewer,
-      }),
-      payload.findByID({ collection: 'museums', id: museumId, depth: 0, locale }),
-    ])
-    const nodes = mapNodes(museum.map)
-    const { rooms, objects: placed } = museumRooms(nodes)
-    const pointOf = new Map(placed.map((entry) => [entry.objectId, entry.point]))
+    // Identical requests arriving together (double submit, retry while the first
+    // is still planning) share one run: otherwise each one finds no previous
+    // tour, calls the model and saves its own copy with the same requestKey.
+    // In-process only: the deploy is a single Node process. With several
+    // instances a unique index on `generation.requestKey` would be needed, which
+    // takes a migration. Keyed per viewer too, as the candidates (and so the
+    // answer) depend on what the viewer may read.
+    const { user: viewerUser } = await getSession()
+    const flightKey = `${requestKey}:${viewerUser?.id ?? ''}`
+    let flight = planning.get(flightKey)
+    if (!flight) {
+      flight = plan().finally(() => planning.delete(flightKey))
+      planning.set(flightKey, flight)
+    }
+    // A Response body can be read once: every caller gets its own clone.
+    return (await flight).clone()
 
-    // 3. The museum's contents this visitor can read for free, with where they are.
-    const objectIds = (museum.objects ?? []).map((entry) =>
-      typeof entry === 'string' ? entry : entry.id,
-    )
-    const { docs: objects } = await payload.find({
-      collection: 'objects',
-      where: { id: { in: objectIds } },
-      locale,
-      depth: 1,
-      pagination: false,
-      populate: {
-        contents: {
-          title: true,
-          difficulty: true,
-          audience: true,
-          durationSeconds: true,
-          price: true,
-          visibility: true,
-          body: true,
-        },
-      },
-      select: { name: true, contents: true },
-      ...viewer,
-    })
-    const candidates = freeCandidates(objects, (objectId) => {
-      const point = pointOf.get(objectId)
-      return point ? (roomAt(rooms, point)?.name ?? null) : null
-    })
-    if (!candidates.length) return NextResponse.json({ error: 'empty' }, { status: 422 })
-    const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
-    const preview = (tour: PreviewTour) => plannedTour(tour, byId, museumId)
-    const cached = previous.docs[0] && preview(previous.docs[0])
-    // Content can be removed, made private or lengthened after planning.
-    const reusable =
-      cached &&
-      cached.stops.length === previous.docs[0].contents.length &&
-      cached.stops.length > 0 &&
-      cached.totalMinutes <= answers.minutes
-    if (reusable) return NextResponse.json(cached)
-
-    // 4. The model picks, most important first.
-    const { output } = await generateText({
-      model: await textModel(),
-      output: Output.object({
-        schema: z.object({
-          title: z.string(),
-          description: z.string(),
-          contentIds: z.array(z.enum(candidates.map((candidate) => candidate.id))),
+    async function plan(): Promise<Response> {
+      // Independent reads: a plan made before for the same answers, and the museum.
+      const [previous, museum] = await Promise.all([
+        payload.find({
+          collection: 'tours',
+          where: {
+            and: [
+              { 'generation.requestKey': { equals: requestKey } },
+              { visibility: { not_equals: 'private' } },
+            ],
+          },
+          // Newest first: a stale plan is replaced by a new tour with the same key,
+          // and that replacement (not the stale original) is the one to reuse.
+          sort: '-createdAt',
+          limit: 1,
+          depth: 0,
+          ...viewer,
         }),
-      }),
-      ...planPrompt(answers, language, candidates),
-    })
+        payload.findByID({ collection: 'museums', id: museumKey, depth: 0, locale }),
+      ])
+      const nodes = mapNodes(museum.map)
+      const { rooms, objects: placed } = museumRooms(nodes)
+      const pointOf = new Map(placed.map((entry) => [entry.objectId, entry.point]))
 
-    // 5. Our rules: no repeats, within the time, then nearest-room order.
-    const picked = onePerWork(output.contentIds, byId)
-    // Recover from a model choosing only overlong entries without exceeding time.
-    const preferred = fitTimeBudget(picked, answers.minutes)
-    const fitted = preferred.length
-      ? preferred
-      : fitTimeBudget(candidates, answers.minutes).slice(0, 1)
-    if (!fitted.length) return NextResponse.json({ error: 'budget' }, { status: 422 })
-    const [entrance] = placedEntrances(collectMuseumMarkers(nodes).exitEntrances)
-    const order = orderStops(
-      fitted.map((stop) => ({ id: stop.id, point: pointOf.get(stop.objectId) ?? null })),
-      rooms,
-      entrance ? [entrance.position[0], entrance.position[2]] : null,
-    )
+      // 3. The museum's contents this visitor can read for free, with where they are.
+      const objectIds = (museum.objects ?? []).map((entry) =>
+        typeof entry === 'string' ? entry : entry.id,
+      )
+      const { docs: objects } = await payload.find({
+        collection: 'objects',
+        where: { id: { in: objectIds } },
+        locale,
+        depth: 1,
+        pagination: false,
+        populate: {
+          contents: {
+            title: true,
+            difficulty: true,
+            audience: true,
+            durationSeconds: true,
+            price: true,
+            visibility: true,
+            body: true,
+          },
+        },
+        select: { name: true, contents: true },
+        ...viewer,
+      })
+      const candidates = freeCandidates(objects, (objectId) => {
+        const point = pointOf.get(objectId)
+        return point ? (roomAt(rooms, point)?.name ?? null) : null
+      })
+      if (!candidates.length) return NextResponse.json({ error: 'empty' }, { status: 422 })
+      const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
+      const preview = (tour: PreviewTour) => plannedTour(tour, byId, museumKey)
+      const cached = previous.docs[0] && preview(previous.docs[0])
+      // Content can be removed, made private or lengthened after planning.
+      const reusable =
+        cached &&
+        cached.stops.length === previous.docs[0].contents.length &&
+        cached.stops.length > 0 &&
+        cached.totalMinutes <= answers.minutes
+      if (reusable) return NextResponse.json(cached)
 
-    // 6. Saved as an ordinary tour, marked as generated in its metadata only.
-    const { user } = await getSession()
-    const tour = await payload.create({
-      collection: 'tours',
-      data: {
-        title: output.title.slice(0, 60) || museum.name,
-        description: output.description.slice(0, 70),
-        contents: order,
-        museum: museumId,
-        ...(user ? { author: user.id } : {}),
-        generation: { generated: true, model: TEXT_MODEL, requestKey, request: answers },
-      },
-    })
-    return NextResponse.json(preview(tour))
+      // 4. The model picks, most important first.
+      const { output } = await generateText({
+        model: await textModel(),
+        output: Output.object({
+          schema: z.object({
+            title: z.string(),
+            description: z.string(),
+            contentIds: z.array(z.enum(candidates.map((candidate) => candidate.id))),
+          }),
+        }),
+        ...planPrompt(answers, language, candidates),
+      })
+
+      // 5. Our rules: no repeats, within the time, then nearest-room order.
+      const picked = onePerWork(output.contentIds, byId)
+      // Recover from a model choosing only overlong entries without exceeding time.
+      const preferred = fitTimeBudget(picked, answers.minutes)
+      const fitted = preferred.length
+        ? preferred
+        : fitTimeBudget(candidates, answers.minutes).slice(0, 1)
+      if (!fitted.length) return NextResponse.json({ error: 'budget' }, { status: 422 })
+      const [entrance] = placedEntrances(collectMuseumMarkers(nodes).exitEntrances)
+      const order = orderStops(
+        fitted.map((stop) => ({ id: stop.id, point: pointOf.get(stop.objectId) ?? null })),
+        rooms,
+        entrance ? [entrance.position[0], entrance.position[2]] : null,
+      )
+
+      // 6. Saved as an ordinary tour, marked as generated in its metadata only.
+      const user = viewerUser
+      const tour = await payload.create({
+        collection: 'tours',
+        data: {
+          title: output.title.slice(0, 60) || museum.name,
+          description: output.description.slice(0, 70),
+          contents: order,
+          museum: museumKey,
+          ...(user ? { author: user.id } : {}),
+          generation: { generated: true, model: TEXT_MODEL, requestKey, request: answers },
+        },
+      })
+      return NextResponse.json(preview(tour))
+    }
   } catch (error) {
     console.error('Tour planning failed', error)
     return NextResponse.json({ error: 'unavailable' }, { status: 502 })
