@@ -271,30 +271,27 @@ export default async function Content({ params }: PageProps<'/[lng]/content/[id]
             canEdit={canEdit}
             // Visitors on desktop: no label above the h1 (it read as an eyebrow).
             hideTitleFrom="md"
-            // Owner actions together at the section header: Delete beside Edit.
+            // Share for everyone (printMuseumId, staff only, unlocks the
+            // printable downloads), Delete beside it for the owner.
             actions={
-              (printMuseumId || canDelete) && (
-                <>
-                  {printMuseumId && (
-                    <ShareButton
-                      kind="content"
-                      id={id}
-                      title={content.title}
-                      printMuseumId={printMuseumId}
-                      size="xs"
-                    />
-                  )}
-                  {canDelete && (
-                    <DeleteDocumentButton
-                      collection="contents"
-                      id={id}
-                      name={content.title}
-                      redirectTo={`/${lng}/navigator` as Route}
-                      size="xs"
-                    />
-                  )}
-                </>
-              )
+              <>
+                <ShareButton
+                  kind="content"
+                  id={id}
+                  title={content.title}
+                  printMuseumId={printMuseumId}
+                  size="xs"
+                />
+                {canDelete && (
+                  <DeleteDocumentButton
+                    collection="contents"
+                    id={id}
+                    name={content.title}
+                    redirectTo={`/${lng}/navigator` as Route}
+                    size="xs"
+                  />
+                )}
+              </>
             }
             // The editor fetches its source text itself, when opened.
             form={canEdit && <ContentEditForm id={id} />}

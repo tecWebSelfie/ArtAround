@@ -164,16 +164,16 @@ export default async function Object({ params }: PageProps<'/[lng]/object/[id]'>
             canEdit={canEdit}
             // Visitors on desktop: no label above the h1 (it read as an eyebrow).
             hideTitleFrom="md"
+            // Share link and QR are for everyone; printMuseumId (staff only)
+            // just unlocks the printable downloads.
             actions={
-              printMuseumId && (
-                <ShareButton
-                  kind="object"
-                  id={id}
-                  title={object.name}
-                  printMuseumId={printMuseumId}
-                  size="xs"
-                />
-              )
+              <ShareButton
+                kind="object"
+                id={id}
+                title={object.name}
+                printMuseumId={printMuseumId}
+                size="xs"
+              />
             }
             form={source && <ObjectMetadataForm object={{ ...source, id }} thumbnail={thumbnail} />}
           >
