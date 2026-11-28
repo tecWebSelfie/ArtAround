@@ -394,7 +394,10 @@ export function TourForm({
   return (
     <form onSubmit={form.onSubmit((values) => save.mutate(values))}>
       <Stack gap="md">
-        <Title order={2}>{heading}</Title>
+        {/* The page's own heading: the editor is the whole page. */}
+        <Title order={1} size="h2">
+          {heading}
+        </Title>
         <Text c="dimmed" size="sm">
           {t('Museum: {{name}}', { name: museum.name })}
         </Text>
@@ -436,7 +439,9 @@ export function TourForm({
         )}
         {/* Anonymous: the original's title and texts, shown but not editable. */}
         {anonymous ? (
-          <Title order={3}>{form.values.title}</Title>
+          <Title order={2} size="h3">
+            {form.values.title}
+          </Title>
         ) : (
           <>
             <TextInput label={t('Title')} required {...form.getInputProps('title')} />
@@ -500,8 +505,13 @@ export function TourForm({
             {t('Cancel')}
           </Button>
           <Button type="submit" loading={save.isPending}>
-            {/* A visit copy reads as editing (it came from "Edit"), even when it's created. */}
-            {tourId || visitCopy ? t('Save') : t('Create tour')}
+            {/* A visit copy reads as editing (it came from "Edit"), even when it's
+                created; an anonymous one says where saving takes the visitor. */}
+            {anonymous
+              ? t('Start with these stops')
+              : tourId || visitCopy
+                ? t('Save')
+                : t('Create tour')}
           </Button>
         </Group>
       </Stack>
@@ -656,12 +666,29 @@ function TourStopsEditor({
       </Group>
       {lockedSelected.length > 0 && (
         <Alert color="orange" icon={<Lock size={16} />}>
-          {t(
-            '{{count}} stops are paid contents you do not own. Replace them to keep the tour free.',
-            {
-              count: lockedSelected.length,
-            },
-          )}
+          {/* Replace: "Add a stop" below; remove: this button, in one tap. */}
+          <Stack gap="xs" align="start">
+            <Text size="sm">
+              {t(
+                '{{count}} stops are paid contents you do not own. Replace them to keep the tour free.',
+                {
+                  count: lockedSelected.length,
+                },
+              )}
+            </Text>
+            <Button
+              size="compact-sm"
+              variant="default"
+              onClick={() =>
+                form.setFieldValue(
+                  'contents',
+                  selected.filter((id) => !byId.get(id)?.locked),
+                )
+              }
+            >
+              {t('Remove them from the tour', { count: lockedSelected.length })}
+            </Button>
+          </Stack>
         </Alert>
       )}
       {/* How much of the route is still unexplained: stops without the

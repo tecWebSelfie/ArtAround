@@ -123,7 +123,7 @@ export const AnonymousCopy: Story = {
     await expect(canvas.getByText('2 stops, about 11 min')).toBeVisible()
     // The second stop moves first.
     await userEvent.click(canvas.getAllByRole('button', { name: 'Move up' })[1]!)
-    await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with these stops' }))
     await waitFor(() =>
       expect(copied).toHaveBeenCalledWith({
         from: 'tour-1',
@@ -158,9 +158,9 @@ export const UndoRemove: Story = {
     // Named by the app's provider (`AppMantineProvider`), like every toast's.
     await expect(screen.getByRole('button', { name: 'Close' })).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Undo' }))
-    await expect(canvas.getAllByRole('button', { name: /^Remove / })[0]).toHaveAccessibleName(
-      'Remove A knight in motion',
-    )
+    // The stops' own remove buttons, not the paid-stops alert's.
+    const stops = canvas.getAllByRole('button', { name: /^Remove (?!it |them )/ })
+    await expect(stops[0]).toHaveAccessibleName('Remove A knight in motion')
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull())
   },
 }
@@ -180,7 +180,7 @@ export const AnonymousCopyRateLimited: Story = {
   play: async ({ canvas }) => {
     // Save failures are notifications (`useSave`).
     const show = spyOn(notifications, 'show')
-    await userEvent.click(canvas.getByRole('button', { name: 'Save' }))
+    await userEvent.click(canvas.getByRole('button', { name: 'Start with these stops' }))
     await waitFor(() =>
       expect(show).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -189,5 +189,16 @@ export const AnonymousCopyRateLimited: Story = {
       ),
     )
     await expect(getRouter().push).not.toHaveBeenCalled()
+  },
+}
+
+/** The paid-stops notice acts on what it says: one tap takes them out. */
+export const RemovePaidStops: Story = {
+  args: { anonymous: true },
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Remove it from the tour' }))
+    await expect(canvas.queryByRole('button', { name: 'Remove Hidden mother' })).toBeNull()
+    await expect(canvas.queryByText(/paid contents you do not own/)).toBeNull()
+    await expect(canvas.getByText('2 stops, about 11 min')).toBeVisible()
   },
 }

@@ -130,7 +130,8 @@ export function PlanPreview({
           <Button
             component={Link}
             href={tourCopyPath(lng, plan.id, { visit: true, navigation: navigationQuery })}
-            variant="subtle"
+            // Default, not subtle: a visible outline in dark mode too.
+            variant="default"
             leftSection={<Pencil size={16} aria-hidden />}
             className="self-start"
           >

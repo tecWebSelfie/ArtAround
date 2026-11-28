@@ -97,9 +97,10 @@ export function MuseumModeOffer({ museum }: { museum: { id: string; name: string
         />
         {/* The question takes the row while it fits beside the button (a
             14rem basis); on a narrow phone or in a long language the button
-            wraps under it instead of squeezing it into a column. */}
+            wraps under it instead of squeezing it into a column. Balanced,
+            so a long museum name doesn't leave its last word alone. */}
         <Group gap={6} className="min-w-0 flex-1">
-          <Text size="sm" className="flex-[1_1_14rem]">
+          <Text size="sm" className="flex-[1_1_14rem] text-balance">
             {t('Are you at {{museum}}?', { museum: museum.name })}
           </Text>
           <Button size="compact-sm" variant="light" loading={pending} onClick={() => void accept()}>

@@ -103,7 +103,8 @@ export default async function NewTourPage({ params, searchParams }: PageProps<'/
         : `/${lng}/museum/${museumId}`
   ) as Route
   return (
-    <Container size="md" py="md">
+    // A form column, not the page width: stop rows stay readable on wide screens.
+    <Container size="sm" py="md">
       <BackButton href={upHref} />
       <TourForm
         museum={museum}

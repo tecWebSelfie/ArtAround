@@ -51,7 +51,8 @@ export default async function EditTourPage({
   // Cancel leaves for the same place.
   const upHref = `/${lng}/tour/${tour.id}` as Route
   return (
-    <Container size="md" py="md">
+    // A form column, not the page width: stop rows stay readable on wide screens.
+    <Container size="sm" py="md">
       <BackButton href={upHref} />
       <TourForm
         tourId={tour.id}
