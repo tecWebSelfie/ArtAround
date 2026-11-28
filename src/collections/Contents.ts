@@ -42,6 +42,7 @@ import {
   type CollectionConfig,
   type FieldAccess,
   type FieldHook,
+  Forbidden,
   type PayloadRequest,
   type Where,
 } from 'payload'
@@ -370,6 +371,27 @@ export const Contents: CollectionConfig = {
     delete: deleteContents,
   },
   hooks: {
+    // Payload's generic duplicate (REST ignores `disableDuplicate`) copies the
+    // stored doc, paid `body` included, and makes the caller the author of the
+    // copy, bypassing `canReadPaidBody` (N41). Refuse it unless the caller may
+    // read the body of the original; nothing in the app duplicates contents.
+    beforeOperation: [
+      async ({ args, operation, req }) => {
+        const id = (args as { duplicateFromID?: string }).duplicateFromID
+        if (operation !== 'create' || !id) return args
+        const doc = await req.payload.findByID({
+          collection: 'contents',
+          id,
+          depth: 0,
+          overrideAccess: true,
+          req,
+        })
+        if (!(await canReadPaidBody({ req, doc, id, data: doc, siblingData: doc }))) {
+          throw new Forbidden(req.t)
+        }
+        return args
+      },
+    ],
     beforeValidate: [richTextFromHtml(['body'])],
     beforeChange: [assignAuthor, guardPaidContent, guardRights, guardVisibility, storeDuration],
     afterChange: [
