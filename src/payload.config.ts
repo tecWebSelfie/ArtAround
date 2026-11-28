@@ -2,6 +2,7 @@ import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { ensureContentAudioVariantIndex } from './lib/content-audio-index'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
+import { hardenInternalCollections } from '@/access/internalCollections'
 import { buildConfig, LocalizationConfig } from 'payload'
 import sharp from 'sharp'
 import { fileURLToPath } from 'url'
@@ -83,7 +84,7 @@ const localizationConfig: LocalizationConfig = {
   fallback: true,
 }
 
-export default buildConfig({
+const config = buildConfig({
   onInit: ensureContentAudioVariantIndex,
   endpoints: mintEndpoints,
   localization: localizationConfig,
@@ -366,3 +367,7 @@ export default buildConfig({
   // No email adapter: the project gave up on email (no verification or password
   // reset flows). Payload only logs a warning that emails go to the console.
 })
+
+// Payload's internal collections only exist once the config is sanitized, so
+// their access is tightened here (see the helper).
+export default hardenInternalCollections(config)
