@@ -12,14 +12,15 @@ import {
   Title,
 } from '@mantine/core'
 import { useForm } from '@mantine/form'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useT } from 'next-i18next/client'
 import { useState } from 'react'
 
 import { useAuth } from './AuthProvider'
 import { useReturnTo } from './useReturnTo'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 type LoginFormValues = {
   identifier: string
@@ -35,7 +36,7 @@ export function LoginForm() {
   const { t } = useT(undefined, { keyPrefix: 'auth' })
   const { login } = useAuth()
   const { lng } = useParams<{ lng: string }>()
-  const router = useRouter()
+  const router = useProgressRouter()
   const { returnTo, nextQuery } = useReturnTo()
 
   const [loading, setLoading] = useState(false)
@@ -102,7 +103,7 @@ export function LoginForm() {
 
         <Group gap={4} justify="center">
           <Text size="sm">{t('noAccount')}</Text>
-          <Anchor component={Link} href={`/${lng}/signup${nextQuery}` as Route} size="sm">
+          <Anchor component={ProgressLink} href={`/${lng}/signup${nextQuery}` as Route} size="sm">
             {t('signUpLink')}
           </Anchor>
         </Group>

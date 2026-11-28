@@ -14,6 +14,7 @@ import { Notifications } from '@mantine/notifications'
 
 import { GroupProvider } from '@/components/group/GroupProvider'
 import { SiteHeader } from '@/components/navigation/SiteHeader'
+import { NavigationProgressBar } from '@/components/navigation/NavigationProgressBar'
 import { getSiteChrome } from '@/lib/site-chrome'
 import i18nConfig from '@/../i18n.config'
 import { getT } from '@/i18n.server'
@@ -48,6 +49,9 @@ export default async function Layout(props: { children: React.ReactNode }) {
             museum without a color) it is the default theme. */}
         <AppMantineProvider theme={museumTheme(chrome.currentMuseum?.palette)}>
           <Notifications />
+          {/* The one navigation indicator (top edge, every surface). Inside
+              the provider so it takes the museum's primary color. */}
+          <NavigationProgressBar />
           {/* Group tours: one LiveKit room kept across every page (GroupProvider). */}
           <GroupProvider>
             <ModalsProvider>

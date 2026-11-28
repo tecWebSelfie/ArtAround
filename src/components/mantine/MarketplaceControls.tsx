@@ -17,8 +17,8 @@ import {
 import { Search, SlidersHorizontal } from 'lucide-react'
 import { ClearSearchButton } from './ClearSearchButton'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /** Values accepted by the marketplace URL. Kept in one place so the server
  *  page and the client controls cannot drift apart. */
@@ -84,7 +84,7 @@ export function MarketplaceSearch({
   initialPrice: MarketplacePrice
   labels: MarketplaceLabels
 }) {
-  const router = useRouter()
+  const router = useProgressRouter()
   const { query, setQuery, kind, setKind, price, setPrice } = useSearchState({
     query: initialQuery,
     kind: initialKind,
@@ -298,7 +298,7 @@ export function MarketplacePagination({
   page: number
   totalPages: number
 }) {
-  const router = useRouter()
+  const router = useProgressRouter()
 
   if (totalPages <= 1) return null
 

@@ -3,10 +3,11 @@
 import { Button } from '@mantine/core'
 import { LogOut } from 'lucide-react'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useState } from 'react'
 
 import { useAuth } from './AuthProvider'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * Profile-page sign out. Goes through `AuthProvider` (not a server action) so
@@ -17,7 +18,7 @@ import { useAuth } from './AuthProvider'
 export function SignOutButton({ label }: { label: string }) {
   const { logout } = useAuth()
   const { lng } = useParams<{ lng: string }>()
-  const router = useRouter()
+  const router = useProgressRouter()
   const [pending, setPending] = useState(false)
 
   const handleClick = async () => {

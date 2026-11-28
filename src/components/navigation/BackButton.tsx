@@ -3,7 +3,7 @@
 import { Button } from '@mantine/core'
 import { ArrowLeft } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useRouter } from 'next/navigation'
 import type { MouseEvent } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -62,7 +62,7 @@ export function BackButton({
 
   const back = (
     <Button
-      component={Link}
+      component={ProgressLink}
       href={href}
       onClick={onClick}
       variant="subtle"

@@ -38,7 +38,7 @@ import {
   Star,
 } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -96,7 +96,7 @@ export function TourHeading({
           <Group gap="xs" c="dimmed" fz="sm">
             {museum && (
               <Anchor
-                component={Link}
+                component={ProgressLink}
                 href={`/${lng}/museum/${museum.id}` as Route}
                 size="sm"
                 c="light-dark(var(--mantine-color-museum-8), var(--mantine-color-museum-4))"
@@ -289,7 +289,7 @@ function StopRow({
   const image = stopImage(content)
   return (
     <UnstyledButton
-      component={Link}
+      component={ProgressLink}
       href={`/${lng}/content/${content.id}` as Route}
       aria-label={t('See more about {{title}}', { title: content.title })}
       className="-mx-2 -my-1 block rounded-md px-2 py-1 transition-colors hover:bg-(--mantine-color-default-hover)"

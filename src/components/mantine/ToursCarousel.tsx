@@ -10,7 +10,7 @@ import { ActionIcon, AspectRatio, Group, Image, Stack, Title } from '@mantine/co
 import { ArrowRight, ChevronLeft, ChevronRight, Clock, ImageOff, MapPin } from 'lucide-react'
 import { SeeAllLink } from './SeeAllLink'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -85,7 +85,7 @@ export const ToursCarousel = ({
           />
         </AspectRatio>
         {current && (
-          <Link
+          <ProgressLink
             href={`/${lng}/tour/${current.id}` as Route}
             className={classes.open}
             aria-label={t('Open the tour {{title}}', { title: current.title })}

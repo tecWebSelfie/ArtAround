@@ -10,9 +10,10 @@ import {
 import { Button, Group, Stack, Text, TextInput } from '@mantine/core'
 import { UsersRound } from 'lucide-react'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * "Join a group": the name the teacher chose for it ("Fenice rossa") or the
@@ -37,7 +38,7 @@ import { useTranslation } from 'react-i18next'
 export function JoinGroupForm() {
   const { t } = useTranslation('group')
   const { lng } = useParams<{ lng: string }>()
-  const router = useRouter()
+  const router = useProgressRouter()
   const [code, setCode] = useState('')
   const room = normalizeRoomCode(code)
   const complete = ROOM_CODE_PATTERN.test(room)

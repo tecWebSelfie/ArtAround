@@ -24,7 +24,7 @@ import { modals } from '@mantine/modals'
 import { RoomEvent } from 'livekit-client'
 import { Check } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -101,7 +101,7 @@ function GroupQuizBoard({ tour, questionCount }: { tour: QuizTourSummary; questi
             {t('{{score}} of {{total}}', score)}
           </Text>
           <Anchor
-            component={Link}
+            component={ProgressLink}
             href={tourQuizResultPath(lng, tour.id, score.token) as Route}
             size="sm"
           >

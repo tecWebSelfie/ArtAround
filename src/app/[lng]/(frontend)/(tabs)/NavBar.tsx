@@ -3,7 +3,7 @@
 import { NAV_ITEMS, useNavState, type NavAccount } from '@/components/navigation/nav-shared'
 import { Avatar, Button, Center, Group, Stack, Text } from '@mantine/core'
 import { Compass, LogIn } from 'lucide-react'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useT } from 'next-i18next/client'
 
 function ItemContent({ Icon, label }: { Icon: typeof Compass; label: string }) {
@@ -45,7 +45,7 @@ export const NavBar: React.FC<{ account: NavAccount | null }> = function ({ acco
         return (
           <Button
             key={item.href}
-            component={Link}
+            component={ProgressLink}
             href={localize(item.href)}
             color={item.color}
             variant={active ? 'light' : 'subtle'}
@@ -65,7 +65,7 @@ export const NavBar: React.FC<{ account: NavAccount | null }> = function ({ acco
         // No aria-label: the visible name is the accessible name (WCAG 2.5.3);
         // the avatar's initials are hidden from it.
         <Button
-          component={Link}
+          component={ProgressLink}
           href={profileHref}
           // Never "active": profiles live outside the tabs, so this bar is
           // never shown on the account's own page.
@@ -85,7 +85,7 @@ export const NavBar: React.FC<{ account: NavAccount | null }> = function ({ acco
           </Center>
         </Button>
       ) : (
-        <Button component={Link} href={signInHref} variant="subtle" h="auto" py="sm" px={4}>
+        <Button component={ProgressLink} href={signInHref} variant="subtle" h="auto" py="sm" px={4}>
           <ItemContent Icon={LogIn} label={t('SignIn')} />
         </Button>
       )}

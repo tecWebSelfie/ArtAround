@@ -10,7 +10,7 @@ import { useDebouncedValue } from '@mantine/hooks'
 import { useModals } from '@mantine/modals'
 import { Search } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { activateCatalogItem, ItemsPanel } from '@pascal-app/editor'
 import { useQuery } from '@tanstack/react-query'
@@ -79,7 +79,7 @@ export function ObjectCatalogPanel() {
             <Button
               size="xs"
               variant="light"
-              component={Link}
+              component={ProgressLink}
               href={museumPickerHref(lng, museumId) as Route}
               leftSection={<Search size={14} aria-hidden />}
             >

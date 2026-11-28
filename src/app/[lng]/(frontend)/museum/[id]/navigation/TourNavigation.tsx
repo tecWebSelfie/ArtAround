@@ -51,7 +51,7 @@ import {
   type NavigationCatalogObject,
 } from '@/lib/tour-navigation'
 import type { NavigationTourSummary } from './TourNavigationShell'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
@@ -459,7 +459,7 @@ function QuizAction({ tour, step }: { tour: Tour; step: number }) {
       className={NAVIGATION_ACTION_CLASS}
       color="museum.8"
       autoContrast
-      component={Link}
+      component={ProgressLink}
       href={tourQuizPath(lng, tour.id, step, search.toString())}
     >
       {t('Take the quiz')}

@@ -14,7 +14,7 @@ import { cn } from 'cn'
 import { PLACEHOLDER_IMAGE } from '@/lib/placeholder-image'
 import { Box, Card, CardSection, Grid, GridCol, Image, Stack, Text } from '@mantine/core'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { Key, ReactNode } from 'react'
 
 export function SearchResultsGrid<T>({
@@ -97,9 +97,12 @@ export function SearchResultCard({
       </CardSection>
       <Stack gap={4} mt="xs">
         {href ? (
-          <Link href={href} className="text-inherit no-underline after:absolute after:inset-0">
+          <ProgressLink
+            href={href}
+            className="text-inherit no-underline after:absolute after:inset-0"
+          >
             {titleText}
-          </Link>
+          </ProgressLink>
         ) : (
           titleText
         )}

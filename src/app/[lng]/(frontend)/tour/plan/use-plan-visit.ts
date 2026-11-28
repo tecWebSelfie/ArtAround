@@ -4,7 +4,7 @@ import { type PlannedTour, type PlanRequest } from '@/lib/tour-plan'
 import { tourNavigationPath } from '@/lib/tour-navigation'
 import { readerFor, setReadingProfile } from '@/lib/reading-profile'
 import type { Route } from 'next'
-import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
@@ -15,6 +15,7 @@ import {
   type Answers,
   type Museum,
 } from './plan-visit-state'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * The plan page's state and actions: the stored answers and their setters,
@@ -24,7 +25,7 @@ import {
 export function usePlanVisit(museums: Museum[], lockedMuseum: string | null) {
   const { t } = useTranslation('plan-visit')
   const { lng } = useParams<{ lng: string }>()
-  const router = useRouter()
+  const router = useProgressRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const tourParam = searchParams.get('tour')

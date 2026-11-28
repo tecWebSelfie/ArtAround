@@ -9,7 +9,7 @@ import { tourHasQuiz as hasQuiz } from '@/lib/tour-navigation'
 import { GroupBadge } from '@/components/group/GroupBadge'
 import { X } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { useMemo, type Ref } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -90,7 +90,7 @@ export function NavigationHeader({
             <Group gap={6} wrap="nowrap" className="justify-self-end">
               <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
               <ActionIcon
-                component={Link}
+                component={ProgressLink}
                 href={`/${lng}/tour/${tour.id}` as Route}
                 variant="subtle"
                 color="gray"

@@ -4,7 +4,7 @@ import { LanguageSwitcher } from '@/components/mantine/LanguageSwitcher'
 import { MuseumSwitch, type MuseumOption } from '@/components/mantine/MuseumSwitch'
 import { Anchor, Avatar, Box, Button, Group, Text } from '@mantine/core'
 import { LogIn } from 'lucide-react'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useT } from 'next-i18next/client'
 import { NAV_ITEMS, useNavState, type NavAccount } from './nav-shared'
 import { APP_NAME } from '@/lib/app-name'
@@ -58,7 +58,7 @@ export function SiteHeader({
           {/* The same wordmark as the phone tabs' top row: one spelling
               (APP_NAME) and the brand gradient at every width. */}
           <Anchor
-            component={Link}
+            component={ProgressLink}
             href={localize('/navigator')}
             underline="never"
             variant="gradient"
@@ -76,7 +76,7 @@ export function SiteHeader({
               return (
                 <Button
                   key={item.href}
-                  component={Link}
+                  component={ProgressLink}
                   href={localize(item.href)}
                   color={item.color}
                   variant={active ? 'light' : 'subtle'}
@@ -100,7 +100,7 @@ export function SiteHeader({
             // there (`SignOutButton`). The visible name is the accessible name
             // (WCAG 2.5.3); the avatar's initials are hidden from it.
             <Button
-              component={Link}
+              component={ProgressLink}
               href={profileHref}
               variant="subtle"
               leftSection={
@@ -113,7 +113,7 @@ export function SiteHeader({
             </Button>
           ) : (
             <Button
-              component={Link}
+              component={ProgressLink}
               href={signInHref}
               variant="default"
               leftSection={<LogIn size={16} aria-hidden />}

@@ -3,11 +3,12 @@
 import { Badge, Combobox, Group, Text, UnstyledButton, useCombobox } from '@mantine/core'
 import IsoCodes from 'iso-639-1'
 import { Languages, Search } from 'lucide-react'
-import { useParams, usePathname, useRouter } from 'next/navigation'
+import { useParams, usePathname } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import type { Route } from 'next'
 import { useState } from 'react'
 import { ClearSearchButton } from './ClearSearchButton'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /** A language by its own name ("Deutsch", "Ελληνικά"), so anyone finds theirs. */
 function languageName(code: string) {
@@ -32,7 +33,7 @@ export function LanguageSwitcher({ supportedLngs }: { supportedLngs: string[] })
   const { t } = useTranslation()
   const language = useParams<{ lng?: string }>().lng ?? 'en'
   const pathname = usePathname()
-  const router = useRouter()
+  const router = useProgressRouter()
   const [search, setSearch] = useState('')
   const combobox = useCombobox({
     onDropdownClose: () => {

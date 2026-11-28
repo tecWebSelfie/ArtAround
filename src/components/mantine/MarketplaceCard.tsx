@@ -4,7 +4,7 @@ import { Badge, Box, Card, CardSection, Group, Image, Stack, Text, Title } from 
 import { ArrowUpRight, AtSign, Clock, Landmark, UserRound } from 'lucide-react'
 import { KIND_FALLBACK } from './kind-fallback'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { formatDuration } from '@/lib/duration'
 
 type MarketplaceBaseItem = {
@@ -256,7 +256,7 @@ export function MarketplaceCard({
   // lifts (`shadow-md`, the app's hover lift) both on hover and while focused;
   // the group lets the inner Card answer the outer link's state.
   return (
-    <Link
+    <ProgressLink
       href={href}
       aria-label={accessibleName}
       className="mantine-focus-auto group rounded-(--mantine-radius-lg)"
@@ -346,6 +346,6 @@ export function MarketplaceCard({
           </Group>
         </CardSection>
       </Card>
-    </Link>
+    </ProgressLink>
   )
 }

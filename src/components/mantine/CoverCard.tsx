@@ -5,7 +5,7 @@ import { CarouselSlide } from '@mantine/carousel'
 import { AspectRatio, Stack, Title } from '@mantine/core'
 import { cn } from 'cn'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { ReactNode } from 'react'
 
 /**
@@ -36,7 +36,7 @@ export function CoverCard({
 }) {
   return (
     <CarouselSlide>
-      <Link
+      <ProgressLink
         href={href}
         className="block rounded-xl outline-offset-2 focus-visible:outline-2 focus-visible:outline-[light-dark(var(--mantine-primary-color-filled),var(--mantine-primary-color-4))]"
       >
@@ -66,7 +66,7 @@ export function CoverCard({
             </Stack>
           </div>
         </AspectRatio>
-      </Link>
+      </ProgressLink>
     </CarouselSlide>
   )
 }

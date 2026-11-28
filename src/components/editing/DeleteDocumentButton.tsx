@@ -6,9 +6,9 @@ import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { Trash2 } from 'lucide-react'
 import type { Route } from 'next'
-import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { errorMessage } from './saving'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * Confirmed delete for contents and tours. Shown only when the server says
@@ -30,7 +30,7 @@ export function DeleteDocumentButton({
   size?: ButtonProps['size']
 }) {
   const { t } = useTranslation('editing')
-  const router = useRouter()
+  const router = useProgressRouter()
 
   // Errors are shown here, so the modal's callback can drop the promise.
   const remove = async () => {

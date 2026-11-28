@@ -7,10 +7,11 @@ import { LocateFixed } from 'lucide-react'
 import { useState } from 'react'
 import { useForm } from '@mantine/form'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { useTranslation } from 'react-i18next'
 import { SOURCE_LOCALE, useSave } from '../saving'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 type MuseumValues = {
   name: string
@@ -28,7 +29,7 @@ type MuseumValues = {
  */
 export function MuseumCreateForm({ cancelHref }: { cancelHref: Route }) {
   const { t } = useTranslation('editing')
-  const router = useRouter()
+  const router = useProgressRouter()
   const { lng } = useParams<{ lng: string }>()
   const form = useForm<MuseumValues>({
     initialValues: {

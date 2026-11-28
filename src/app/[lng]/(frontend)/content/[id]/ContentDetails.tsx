@@ -44,7 +44,7 @@ import {
   Star,
 } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { ReactNode } from 'react'
 
 /**
@@ -58,7 +58,7 @@ import type { ReactNode } from 'react'
  * access rules hold) in the visitor's language, and passes the reduced docs
  * here; each section hides itself when its data is missing. Async Server
  * Component (`getT`), so links are plain `next/link` elements rather than
- * Mantine `component={Link}` props, which can't cross the client boundary.
+ * Mantine `component={ProgressLink}` props, which can't cross the client boundary.
  */
 
 export type ContentDetailsObject = Pick<
@@ -352,7 +352,7 @@ function LinkRow({
   children?: ReactNode
 }) {
   return (
-    <Link
+    <ProgressLink
       href={href}
       className="-mx-2 block rounded-md px-2 py-1 text-inherit no-underline transition-colors hover:bg-(--mantine-color-default-hover)"
     >
@@ -383,7 +383,7 @@ function LinkRow({
         </Stack>
         <ChevronRight size={18} className="shrink-0 text-(--mantine-color-dimmed)" aria-hidden />
       </Group>
-    </Link>
+    </ProgressLink>
   )
 }
 
@@ -410,7 +410,7 @@ async function ObjectCard({
     <Card withBorder radius="md" padding="sm">
       <Stack gap="sm">
         <Group align="center" gap="md" wrap="nowrap">
-          <Link
+          <ProgressLink
             href={objectHref}
             className="shrink-0 rounded-md outline-offset-2 focus-visible:outline-2"
             tabIndex={-1}
@@ -424,13 +424,13 @@ async function ObjectCard({
               radius="md"
               fit="cover"
             />
-          </Link>
+          </ProgressLink>
           <Stack gap={6} miw={0} className="flex-1">
-            <Link href={objectHref} className="text-inherit no-underline hover:underline">
+            <ProgressLink href={objectHref} className="text-inherit no-underline hover:underline">
               <Title order={3} size="h4" lineClamp={2}>
                 {object.name}
               </Title>
-            </Link>
+            </ProgressLink>
             {(object.artist || object.dating) && (
               <Text size="sm" c="dimmed">
                 {[object.artist, object.dating].filter(Boolean).join(' · ')}
@@ -445,23 +445,23 @@ async function ObjectCard({
         )}
         <Group gap="xs">
           {museum && (
-            <Link
+            <ProgressLink
               href={`/${lng}/museum/${museum.id}` as Route}
               // Primary .8 on light, .4 on dark (.8 was 1.8:1 there).
               className="inline-flex w-fit items-center gap-1 text-sm text-[light-dark(var(--mantine-primary-color-8),var(--mantine-primary-color-4))] hover:underline"
             >
               <Landmark size={14} aria-hidden />
               {museum.name}
-            </Link>
+            </ProgressLink>
           )}
           {/* `ms-auto` keeps the CTA at the right edge, with or without a museum. */}
-          <Link
+          <ProgressLink
             href={objectHref}
             className="ms-auto inline-flex w-fit items-center gap-1 text-sm font-semibold text-(--mantine-color-anchor) hover:underline"
           >
             {t('View the object')}
             <ChevronRight size={14} aria-hidden />
-          </Link>
+          </ProgressLink>
         </Group>
       </Stack>
     </Card>
@@ -478,7 +478,7 @@ function AuthorLink({
 }) {
   const authorAvatar = isPopulated(author.avatar) ? author.avatar : null
   return (
-    <Link
+    <ProgressLink
       href={`/${lng}/user/${author.id}` as Route}
       className="-mx-2 block rounded-md px-2 py-1 text-inherit no-underline transition-colors hover:bg-(--mantine-color-default-hover)"
     >
@@ -501,7 +501,7 @@ function AuthorLink({
           )}
         </Stack>
       </Group>
-    </Link>
+    </ProgressLink>
   )
 }
 

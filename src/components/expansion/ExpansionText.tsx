@@ -21,6 +21,7 @@ import { Anchor, Group, Image, Skeleton, Stack, Text, UnstyledButton } from '@ma
 import { useLocalStorage } from '@mantine/hooks'
 import type { Route } from 'next'
 import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -152,6 +153,9 @@ export function ExpansionText({
   // free navigation), keeping the position; elsewhere its canonical page.
   // Contextual URLs, not canonical ones: from below `/museum/[id]` the museum
   // details page's `@object` interceptor could catch a canonical object link.
+  // Inside the map's contextual modals a link only swaps the modal (the map
+  // stays), so it must not light the page bar; elsewhere it opens a page.
+  const LinkKind = here ? Link : ProgressLink
   const hrefFor = (kind: 'object' | 'content', linkId: string) => {
     if (!here) return `/${lng}/${kind}/${linkId}` as Route
     const base =
@@ -168,7 +172,7 @@ export function ExpansionText({
       // Real links (not buttons + router.push), so Cmd/Ctrl+click and
       // middle-click open the entity in a new tab.
       return (
-        <Anchor key={key} component={Link} href={hrefFor(part.kind, part.id)} inherit>
+        <Anchor key={key} component={LinkKind} href={hrefFor(part.kind, part.id)} inherit>
           {part.text}
         </Anchor>
       )
@@ -208,7 +212,7 @@ export function ExpansionText({
           {linked.map((link) => (
             <UnstyledButton
               key={link.id}
-              component={Link}
+              component={LinkKind}
               href={hrefFor(link.kind, link.id)}
               className={classes.linked}
             >

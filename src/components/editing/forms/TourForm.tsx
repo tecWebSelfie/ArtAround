@@ -35,7 +35,7 @@ import {
   Trash2,
 } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import { minStopsFor } from '@/lib/tour-stops'
@@ -51,6 +51,7 @@ import {
   type KeptQuestion,
   type QuizDraft,
 } from './QuizEditor'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /** Content a tour may include (see `getTourEditorData`). */
 export type TourCandidate = {
@@ -273,7 +274,7 @@ export function TourForm({
   const { t } = useTranslation('editing')
   let heading = t('Edit your copy')
   if (!visitCopy) heading = tourId ? t('Edit tour') : t('New tour')
-  const router = useRouter()
+  const router = useProgressRouter()
   const { lng } = useParams<{ lng: string }>()
   const editorUrl = useEditorUrl()
   const byId = new Map(candidates.map((candidate) => [candidate.id, candidate]))
@@ -589,7 +590,7 @@ function TourStopsEditor({
       />
       <Group gap="xs">
         <Button
-          component={Link}
+          component={ProgressLink}
           href={tourPickerHref(lng, { museumId, returnTo, have: selected }) as Route}
           variant="light"
           leftSection={<Search size={16} aria-hidden />}
@@ -597,7 +598,7 @@ function TourStopsEditor({
           {t('Browse contents')}
         </Button>
         <Button
-          component={Link}
+          component={ProgressLink}
           href={newStopHref(lng, { museumId, returnTo }) as Route}
           variant="light"
           color="teal"

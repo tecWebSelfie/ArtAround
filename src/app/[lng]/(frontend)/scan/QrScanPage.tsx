@@ -4,10 +4,11 @@ import i18nConfig from '@/../i18n.config'
 import { QrScanner } from '@/components/Scanner'
 import { CloseButton, Stack } from '@mantine/core'
 import type { Route } from 'next'
-import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useParams, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 import { inLanguage } from '@/lib/app-url'
 import { parseNavigationPathname, withNavigationPosition } from '@/lib/tour-navigation'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * The QR scanner, always on its own page (`/[lng]/scan`): the camera never
@@ -22,7 +23,7 @@ import { parseNavigationPathname, withNavigationPosition } from '@/lib/tour-navi
  * ordinary page and closing returns to the navigator.
  */
 export function QrScanPage() {
-  const router = useRouter()
+  const router = useProgressRouter()
   const { t } = useTranslation('tour-navigation')
   const { lng: currentLng } = useParams<{ lng: string }>()
   const navigation = returnNavigation(useSearchParams().get('from'))

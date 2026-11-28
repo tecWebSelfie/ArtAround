@@ -12,7 +12,7 @@ import { scopedSearchHref } from '@/lib/search-url'
 import { getT } from '@/i18n.server'
 import { filterPopulated, isPopulated } from '@/lib/isPopulated'
 import type { Museum, Tour, User } from '@/payload-types'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { Route } from 'next'
 import type { ReactNode } from 'react'
 import { ProfileMuseumFilter } from './ProfileMuseumFilter'
@@ -413,9 +413,13 @@ async function NeedsFixingTours({ tours }: { tours: Tour[] }) {
         {t('These tours have no stop visitors can reach, so only you see them.')}
       </Text>
       {tours.map((tour) => (
-        // A plain Link around the Card: `component={Link}` can't cross
+        // A plain Link around the Card: `component={ProgressLink}` can't cross
         // from this Server Component to Mantine's client Card.
-        <Link key={tour.id} href={`/${lng}/tour/${tour.id}/edit` as Route} className="block">
+        <ProgressLink
+          key={tour.id}
+          href={`/${lng}/tour/${tour.id}/edit` as Route}
+          className="block"
+        >
           <Card withBorder padding="sm">
             <Group justify="space-between" wrap="nowrap" gap="sm">
               <Text fw={600} lineClamp={2} miw={0}>
@@ -426,7 +430,7 @@ async function NeedsFixingTours({ tours }: { tours: Tour[] }) {
               </Badge>
             </Group>
           </Card>
-        </Link>
+        </ProgressLink>
       ))}
     </Stack>
   )

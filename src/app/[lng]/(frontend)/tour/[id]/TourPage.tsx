@@ -25,7 +25,7 @@ import {
 } from '@mantine/core'
 import { LogIn, Pencil, Play, Replace, ShoppingBag } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -250,7 +250,7 @@ function TourActions({
       ) : (
         <Button
           {...FOOTER_BUTTON}
-          component={Link}
+          component={ProgressLink}
           href={editHref}
           color="orange"
           variant="light"
@@ -264,7 +264,7 @@ function TourActions({
       {price > 0 && !canEdit ? null : startHref ? (
         <Button
           {...FOOTER_BUTTON}
-          component={Link}
+          component={ProgressLink}
           href={startHref}
           // The tour gradient: starting a tour is the app's main way in
           // (DESIGN.md → Colors, tour identity); moving freely stays blue.
@@ -350,14 +350,19 @@ function PurchaseModal({
             )}
           </>
         ) : (
-          <Button fullWidth component={Link} href={loginHref} leftSection={<LogIn size={16} />}>
+          <Button
+            fullWidth
+            component={ProgressLink}
+            href={loginHref}
+            leftSection={<LogIn size={16} />}
+          >
             {t('Sign in to buy')}
           </Button>
         )}
         <Button
           fullWidth
           variant="default"
-          component={Link}
+          component={ProgressLink}
           href={isSignedIn ? editHref : loginHref}
           leftSection={<Replace size={16} />}
         >

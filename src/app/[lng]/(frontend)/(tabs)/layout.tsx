@@ -6,7 +6,7 @@ import { APP_NAME } from '@/lib/app-name'
 import { BRAND_GRADIENT } from '@/theme'
 import { AppShellFooter, Group, Stack, Text } from '@mantine/core'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { NavBar } from './NavBar'
 
 /**
@@ -50,7 +50,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
         className="min-h-(--tabs-top-row) px-(--mantine-spacing-md) from-sm:px-(--mantine-spacing-xl)"
         pt="sm"
       >
-        <Link
+        <ProgressLink
           href={`/${lng}/navigator` as Route}
           className="mantine-focus-auto shrink-0 rounded-sm"
         >
@@ -65,7 +65,7 @@ export default async function TabsLayout({ children, params }: LayoutProps<'/[ln
           >
             {APP_NAME}
           </Text>
-        </Link>
+        </ProgressLink>
         <Group gap="sm" wrap="nowrap" miw={0}>
           <LanguageSwitcher supportedLngs={i18nConfig.supportedLngs} />
           <MuseumSwitch current={currentMuseum} museums={museums} />

@@ -20,7 +20,7 @@ import {
 import { notifications } from '@mantine/notifications'
 import { ArrowRight, BookOpen, Check, RotateCcw, Share2, X } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { LfrsRating } from 'payload-lfrs/client'
 import { useState } from 'react'
@@ -169,7 +169,7 @@ export function QuizResult({
               <Button
                 variant="default"
                 leftSection={<RotateCcw size={18} />}
-                component={Link}
+                component={ProgressLink}
                 href={tourQuizPath(lng, tour.id, stepsCompleted, '')}
               >
                 {t('Retake the quiz')}
@@ -183,7 +183,7 @@ export function QuizResult({
         <Button
           fullWidth
           size="md"
-          component={Link}
+          component={ProgressLink}
           href={`/${lng}/navigator` as Route}
           rightSection={<ArrowRight size={18} />}
         >

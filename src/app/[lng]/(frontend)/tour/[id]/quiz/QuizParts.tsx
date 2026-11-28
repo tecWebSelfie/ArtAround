@@ -24,7 +24,7 @@ import {
 } from '@mantine/core'
 import { ArrowLeft, ArrowRight, BookOpen, Check, ListChecks, TriangleAlert, X } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useTranslation } from 'react-i18next'
 import { type QuizFeedback } from './quiz-session'
 
@@ -207,7 +207,7 @@ export function QuizIntro({
               <Button
                 size="md"
                 variant="subtle"
-                component={Link}
+                component={ProgressLink}
                 href={mapHref}
                 leftSection={<ArrowLeft size={18} />}
               >
@@ -259,7 +259,7 @@ export function QuizHeader({
       <Group gap="xs" wrap="nowrap">
         {backHref && (
           <ActionIcon
-            component={Link}
+            component={ProgressLink}
             href={backHref}
             variant="subtle"
             color="gray"

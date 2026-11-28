@@ -31,7 +31,7 @@ import {
 import { useMounted } from '@mantine/hooks'
 import { ConnectionState } from 'livekit-client'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { JoinGroupForm } from '@/components/group/JoinGroupForm'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
@@ -290,7 +290,7 @@ function GroupEnded() {
       <Box w="100%" maw="24rem" ta="start">
         <JoinGroupForm />
       </Box>
-      <Button component={Link} href={`/${lng}/navigator` as Route} variant="subtle">
+      <Button component={ProgressLink} href={`/${lng}/navigator` as Route} variant="subtle">
         {t('Back to the navigator')}
       </Button>
     </Stack>

@@ -11,7 +11,7 @@ import { formatUnit } from '@/lib/duration'
 import { KIND_FALLBACK } from '@/components/mantine/kind-fallback'
 import { LinkButton } from '@/components/editing/LinkButton'
 import { tourCopyPath, tourMuseumId, tourNavigationPath } from '@/lib/tour-navigation'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import classes from './NavigationStartPage.module.css'
 
 /**
@@ -84,7 +84,7 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
           {/* `Link`, not a plain anchor: this stays a client-side transition
               into the museum's persistent map shell (TourNavigationShell),
               not a full reload that would tear it down and refetch it. */}
-          <Link href={startHref} className={classes.start}>
+          <ProgressLink href={startHref} className={classes.start}>
             <span className={classes.startIcon} aria-hidden>
               <Play size={16} fill="currentColor" />
             </span>
@@ -103,7 +103,7 @@ export default async function NavigationPage({ tour, lng }: { tour: Tour; lng: s
                 )}
               </span>
             </span>
-          </Link>
+          </ProgressLink>
           {/* "Lead the group": next to the compact Start Tour panel, naming
               the action alone ("Start with a group") didn't say the visitor
               becomes its host; the modal already says so ("You lead the

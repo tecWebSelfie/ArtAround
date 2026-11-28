@@ -41,7 +41,7 @@ import {
   Users,
 } from 'lucide-react'
 import type { Metadata, Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { MuseumSearch } from './MuseumSearch'
 
 /**
@@ -205,7 +205,7 @@ function MuseumRow({
           profile avatar's status does, bordered so it holds on a photo.
           It repeats the name's link: out of the tab order and hidden from
           screen readers, one stop per museum. */}
-      <Link href={base as Route} tabIndex={-1} aria-hidden className="self-start">
+      <ProgressLink href={base as Route} tabIndex={-1} aria-hidden className="self-start">
         <Indicator
           position="bottom-end"
           offset={6}
@@ -227,7 +227,7 @@ function MuseumRow({
             fz="lg"
           />
         </Indicator>
-      </Link>
+      </ProgressLink>
       <Stack gap={2} miw={0}>
         {/* The name opens the museum: a trailing chevron says so on a
             phone, where there is no hover. */}

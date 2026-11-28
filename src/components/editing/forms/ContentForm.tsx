@@ -4,7 +4,7 @@ import { payloadSdk } from '@/payload-sdk'
 import { Button, Group, Input, SegmentedControl, Stack, Title } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import type { Route } from 'next'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import type { RequiredDataFromCollectionSlug } from 'payload'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -18,6 +18,7 @@ import {
   NEW_CONTENT_RIGHTS,
   type ContentFormValues,
 } from './ContentFields'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * New content editor (`/content/new`). Existing contents are edited inline on
@@ -56,7 +57,7 @@ export function ContentForm({
   cancelHref: Route
 }) {
   const { t } = useTranslation('editing')
-  const router = useRouter()
+  const router = useProgressRouter()
   const { lng } = useParams<{ lng: string }>()
   // What the content is about. Outside the form values, which `ContentFields`
   // shares with the edit form; checked on submit instead.

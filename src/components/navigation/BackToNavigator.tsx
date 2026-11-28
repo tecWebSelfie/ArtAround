@@ -3,7 +3,7 @@
 import { Button } from '@mantine/core'
 import { ArrowLeft } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import { useParams } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
 
@@ -19,7 +19,7 @@ export function BackToNavigator() {
   const { lng } = useParams<{ lng: string }>()
   return (
     <Button
-      component={Link}
+      component={ProgressLink}
       href={`/${lng}/navigator` as Route}
       hiddenFrom="md"
       variant="subtle"

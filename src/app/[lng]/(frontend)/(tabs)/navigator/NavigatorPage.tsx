@@ -5,13 +5,14 @@ import { Box, Divider, Stack, Text, Title } from '@mantine/core'
 import { ChevronRight, Route as RouteIcon, ScanLine } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import type { Route } from 'next'
-import Link from 'next/link'
-import { useParams, useRouter } from 'next/navigation'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
+import { useParams } from 'next/navigation'
 import { Trans, useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { APP_NAME } from '@/lib/app-name'
 import { BRAND_GRADIENT } from '@/theme'
 import { NavigatorSearch } from './NavigatorSearch'
+import { useProgressRouter } from '@/lib/use-progress-router'
 
 /**
  * Shape shared by both start blocks: icon and chevron on one line, then the
@@ -50,7 +51,7 @@ function StartBlock({
   tone: keyof typeof START_BLOCK_TONE
 }) {
   return (
-    <Link href={href} className={`${START_BLOCK_CLASS} ${START_BLOCK_TONE[tone]}`}>
+    <ProgressLink href={href} className={`${START_BLOCK_CLASS} ${START_BLOCK_TONE[tone]}`}>
       <span className="flex items-center justify-between">
         <Icon size={32} aria-hidden />
         <ChevronRight size={20} aria-hidden />
@@ -61,7 +62,7 @@ function StartBlock({
       <Text inherit fz="sm" lh={1.35}>
         {description}
       </Text>
-    </Link>
+    </ProgressLink>
   )
 }
 
@@ -92,7 +93,7 @@ export default function NavigatorHomePage({
 }) {
   const { t } = useTranslation('plan-visit')
   const params = useParams<{ lng: string }>()
-  const router = useRouter()
+  const router = useProgressRouter()
   const lng = lngProp ?? params.lng
   return (
     <Stack

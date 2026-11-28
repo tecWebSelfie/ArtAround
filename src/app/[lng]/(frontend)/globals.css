@@ -9,6 +9,8 @@
 @import '@mantine/lightbox/styles.layer.css';
 @import '@gfazioli/mantine-depth-select/styles.layer.css';
 @import '@mantine/notifications/styles.layer.css';
+/* Global navigation bar (src/components/navigation/NavigationProgressBar.tsx). */
+@import '@mantine/nprogress/styles.layer.css';
 @import '@mantine/dates/styles.layer.css';
 @import 'mantine-composite-filters/styles.layer.css';
 @import '@mantine/spotlight/styles.layer.css';
@@ -27,6 +29,10 @@
 @source "../../../../node_modules/@pascal-app/editor/src";
 @source "../../../../node_modules/@pascal-app/viewer/src";
 @source "../../../../node_modules/@pascal-app/nodes/src";
+/* Research notes and reports quote class names in prose (`animate-[var(...)]`):
+   scanned, they generate invalid CSS and break every page. */
+@source not "../../../../research_notes";
+@source not "../../../../reports";
 
 /* `light-dark()` in Tailwind classes (`text-[light-dark(…)]`,
    `[--input-bd:light-dark(…)]`): Lightning CSS, which builds this file,
@@ -277,6 +283,19 @@
 
 /* Skip link (frontend layout): off screen until it takes keyboard focus, then
    pinned top-left above the sticky header and fixed footers. */
+/* Navigation bar under reduced motion: Mantine's NavigationProgress ignores
+   the theme's respectReducedMotion, so drop its creeping width and the
+   leading glow here. The bar still appears and fades out (opacity only),
+   so the wait stays visible without movement. */
+@media (prefers-reduced-motion: reduce) {
+  .navigation-progress .mantine-Progress-section {
+    transition: none;
+  }
+  .navigation-progress .mantine-Progress-section::before {
+    display: none;
+  }
+}
+
 .skip-link {
   position: fixed;
   top: var(--mantine-spacing-xs);

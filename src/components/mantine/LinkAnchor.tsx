@@ -2,12 +2,12 @@
 
 import { Anchor, Badge, type AnchorProps, type BadgeProps } from '@mantine/core'
 import type { Route } from 'next'
-import Link from 'next/link'
+import { ProgressLink } from '@/components/navigation/ProgressLink'
 import type { ReactNode } from 'react'
 
 /**
  * Mantine Anchor and Badge rendered as Next Links, for server components.
- * A server component can't pass `component={Link}` (a function) across the
+ * A server component can't pass `component={ProgressLink}` (a function) across the
  * client boundary: the page fails to render. Same idea as `LinkButton`.
  */
 export function LinkAnchor({
@@ -16,7 +16,7 @@ export function LinkAnchor({
   ...props
 }: Omit<AnchorProps, 'component'> & { href: Route; children: ReactNode }) {
   return (
-    <Anchor component={Link} href={href} {...props}>
+    <Anchor component={ProgressLink} href={href} {...props}>
       {children}
     </Anchor>
   )
@@ -28,7 +28,7 @@ export function LinkBadge({
   ...props
 }: Omit<BadgeProps, 'component'> & { href: Route; children: ReactNode }) {
   return (
-    <Badge component={Link} href={href} {...props}>
+    <Badge component={ProgressLink} href={href} {...props}>
       {children}
     </Badge>
   )
